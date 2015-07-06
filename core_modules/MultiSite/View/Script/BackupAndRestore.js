@@ -131,9 +131,9 @@ var MultisiteBackupAndRestore = {
                     MultisiteBackupAndRestore.validateInputOnRestore('#restoreWebsite .selectUserType', '#userSelection', 'validateUserSelection');
                     MultisiteBackupAndRestore.validateInputOnRestore('#restore_websiteName .restoreWebsiteName', '#restore_websiteName', 'validateWebsiteName');
 
-                    if ($J('#restoreWebsiteForm').attr('validUserSelection') == 'false'
-                            || $J('#restoreWebsiteForm').attr('websiteNameValid') == 'false'
-                            ) {
+                    if (   $J('#restoreWebsiteForm').attr('validUserSelection') == false
+                        || $J('#restoreWebsiteForm').attr('websiteNameValid') == false
+                     ) {
                         $J('.websiteRestoreButton').attr('disabled', true);
                         $J('#restoreWebsite #restoreform_error').show();
                         return false;
@@ -232,8 +232,9 @@ var MultisiteBackupAndRestore = {
                         ? response.message.message
                         : '';
                 MultisiteBackupAndRestore.parseErrorMessageOnRestore($restoreForm, 'websiteNameValid', errElement, '.restoreWebsiteName', errorMessage, !errorMessage);
-
-                if (!errorMessage) {
+                if (   $J('#restoreWebsiteForm').attr('validUserSelection') == true
+                    && $J('#restoreWebsiteForm').attr('websiteNameValid')  == true
+                ) {
                     $J('.websiteRestoreButton').attr('disabled', false).trigger('click');
                 }
             }
