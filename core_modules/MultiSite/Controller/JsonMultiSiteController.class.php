@@ -3849,7 +3849,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      */
     protected function createWebsiteArchive($websiteBackupPath) 
     {
-        $websiteZipArchive       = new \PclZip($websiteBackupPath . '_'.date('Y-m-d H:i:s').'.zip');
+        $websiteZipArchive       = new \PclZip($websiteBackupPath . '_'.date('Y-m-d H-i-s').'.zip');
         $websiteArchiveFileCount = $websiteZipArchive->add($websiteBackupPath, PCLZIP_OPT_REMOVE_PATH, $websiteBackupPath);
 
         if ($websiteArchiveFileCount == 0) {
@@ -4001,9 +4001,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                      : '';
 
                         list($websiteName, $creationDate) = explode('_', basename($filename, '.zip'));
+                        $timeStamp = strtotime(str_replace('-', ':', $creationDate));
                         $backupFilesInfo[] = array(
-                            'websiteName'  => $websiteName, 
-                            'creationDate' => $creationDate,
+                            'websiteName'  => $timeStamp ? $websiteName : basename($filename, '.zip'), 
+                            'creationDate' => $timeStamp ? date('Y-m-d H:i:s', $timeStamp) : '',
                             'userEmailId'  => $userEmail,
                             'serviceServer'=> isset($params['post']['serviceServer'])
                                               ? contrexx_input2raw($params['post']['serviceServer'])

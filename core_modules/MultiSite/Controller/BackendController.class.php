@@ -1278,8 +1278,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $objHTTPDownload = new \HTTP_Download();
             $objHTTPDownload->setFile($resp->data->filePath);
             $objHTTPDownload->setContentDisposition(HTTP_DOWNLOAD_ATTACHMENT, $backupFileName);
-            $objHTTPDownload->setContentType();
-            $objHTTPDownload->send('application/force-download');
+            $objHTTPDownload->setContentType('application/zip');
+            $objHTTPDownload->send();
             exit();
         } catch (\Exception $e) {
             \DBG::log(__METHOD__.' Failed! : '. $e->getMessage());
@@ -1302,7 +1302,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * 
      * @return array
      */
-    public function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response) {
+    public static function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response)
+    {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
@@ -1693,8 +1694,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return false;
         }
         
-        $websiteBackupFileName = isset($rowData['dateAndTime']) 
-                                 ? $rowData['websiteName'].'_'.$rowData['dateAndTime'].'.zip'
+        $timeStamp    = strtotime($rowData['dateAndTime']);
+        $websiteBackupFileName = isset($rowData['dateAndTime']) &&  $timeStamp 
+                                 ? $rowData['websiteName'].'_'.date('Y-m-d H-i-s', $timeStamp)
                                  : $rowData['websiteName'];
         $title      = ($deleteBackupedWebsite) 
                       ? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE'] 
@@ -1708,7 +1710,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $serviceServerId = !empty($rowData['serviceId'])
                            ? 'data-serviceId ="'.$rowData['serviceId'].'"'
                            : '';
-        return '<a href="javascript:void(0);" class="'.$class.'" '.$serviceServerId.' data-backupFile = "'.$websiteBackupFileName.'"  '.$userExists.'  title = "'.$title.'"></a>';
+        return '<a href="javascript:void(0);" class="'.$class.'" '.$serviceServerId.' data-backupFile = "'.$websiteBackupFileName.'.zip"  '.$userExists.'  title = "'.$title.'"></a>';
     }
    
     /**
@@ -1727,13 +1729,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return false;
         }
         
-        $websiteBackupFileName = isset($rowData['dateAndTime']) 
-                                 ? $rowData['websiteName'].'_'.$rowData['dateAndTime'].'.zip'
+        $timeStamp    = strtotime($rowData['dateAndTime']);
+        $websiteBackupFileName = isset($rowData['dateAndTime']) &&  $timeStamp
+                                 ? $rowData['websiteName'].'_'.date('Y-m-d H-i-s', $timeStamp)
                                  : $rowData['websiteName'];
         $title = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_TITLE'];
         $downloadUrl = \Cx\Core\Core\Controller\Cx::instanciate()->getRequest()->getUrl();
         $downloadUrl->setParams(array(
-            'downloadFile' => $websiteBackupFileName,
+            'downloadFile' => $websiteBackupFileName.'.zip',
             'serviceId'    => $rowData['serviceId']
             )
         );

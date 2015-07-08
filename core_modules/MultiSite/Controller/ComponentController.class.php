@@ -1735,7 +1735,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * 
      * @throws MultiSiteException
      */
-    public function moveUploadedFileToServiceOnRestore($filePath, \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer $websiteServiceServer) {
+    public function moveUploadedFileToServiceOnRestore($filePath, \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer $websiteServiceServer) 
+    {
+        global $_ARRAYLANG;
+        
         if (   empty($filePath) 
             || empty($websiteServiceServer)
         ) {
