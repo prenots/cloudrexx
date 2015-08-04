@@ -457,3 +457,10 @@ function sendNotificationForPayoutRequest($this) {
        error: function() { }
     });
 }
+
+function copyWebsite($this) {
+    showRemoteModal({
+      modalId   : 'CopyWebsite',
+      remoteUrl : $this.data('remote')
+    });
+}
