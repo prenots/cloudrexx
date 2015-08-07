@@ -1,19 +1,25 @@
  function cx_multisite_signup(defaultOptions) {
-    var options = defaultOptions;
-    var ongoingRequest = false;
-    var ongoingSetup = false;
-    var submitRequested = false;
-    var submitButtonRequested = false;
-    var signUpForm;
-    var objModal;
-    var objMail;
-    var objAddress;
-    var objTerms;
-    var objPayButton;
-    var isPaymentUrlRequested = false;
+    var options = defaultOptions,
+        ongoingRequest = false,
+        submitRequested = false,
+        submitButtonRequested = false,
+        signUpForm = jQuery('#multisite_signup_form'),
+        objModal = jQuery('#multisite_signup_form').parents('.modal'),
+        objMail,
+        objAddress,
+        objTerms,
+        objPayButton,
+        isPaymentUrlRequested = false;
 
+    var validatorDefaults = {
+        objForm: signUpForm,
+        objModal: objModal,
+        systemErrorTxt: options.messageErrorTxt
+    };
+    var validator = new multisiteFormValidator(validatorDefaults);
+    
     function initSignUpForm() {
-        jQuery('#multisite_signup_form')
+        signUpForm
                 .bootstrapValidator()
                 .on('success.field.bv', function() {
                   if (submitButtonRequested) {
@@ -22,14 +28,12 @@
                       // jQuery('.multisite_pay').modal('show');
                     } else {
                       submitForm();
-                    }                    
+                    }
                   }
                 })
                 .on('error.field.bv', function() {
                   submitButtonRequested = false;
                 });
-        signUpForm = jQuery('#multisite_signup_form');
-        objModal = signUpForm.parents('.modal');
         objModal.on('show.bs.modal', init);
         objModal.find('.multisite_cancel').on('click', cancelSetup);
 
@@ -46,15 +50,13 @@
 
         objModal.find('.multisite_submit').on('click', submitForm);
         objModal.find('.multisite_pay').on('click', setPaymentUrl);
-        
+
         objPayButton = objModal.find('.multisite_pay_button');
         init();
-        
     }
 
     function cancelSetup() {
         ongoingRequest = false;
-        ongoingSetup = false;
         submitRequested = false;
     }
 
@@ -63,15 +65,11 @@
             return;
         }
 
-        if (typeof(cx_multisite_options) != 'undefined') {
-            options = cx_multisite_options;
-        }
-
-        setFormHeader(options.headerInitTxt);
-        hideProgress();
+        validator.setFormHeader(options.headerInitTxt);
+        validator.hideProgress();
         showForm();
 
-        clearFormStatus();
+        validator.clearFormStatus();
 
         if (typeof(options.email) == 'string' && !objMail.val()) {
             objMail.val(options.email);
@@ -88,8 +86,8 @@
         //objTerms.data('valid', false);
         objTerms.change();
 
-        setFormButtonState('close', false);
-        setFormButtonState('cancel', true, true);
+        validator.setFormButtonState('close', false);
+        validator.setFormButtonState('cancel', true, true);
         if (options.IsPayment) {
             objPayButton.payrexxModal({
                 hideObjects: ["#contact-details", ".contact"],
@@ -116,80 +114,61 @@
                     }
                 }
             });
-            setFormButtonState('submit', false);
-            setFormButtonState('pay', true, true);
+            validator.setFormButtonState('submit', false);
+            validator.setFormButtonState('pay', true, true);
         } else {
-            setFormButtonState('pay', false);
-            setFormButtonState('submit', true, true);
+            validator.setFormButtonState('pay', false);
+            validator.setFormButtonState('submit', true, true);
         }
 
 
         if (objTerms.length) {
-            jQuery("#multisite_signup_form").data('bootstrapValidator').updateStatus('agb', 'NOT_VALIDATED');
+            signUpForm.data('bootstrapValidator').updateStatus('agb', 'NOT_VALIDATED');
         }
         if (objMail.length) {
-            jQuery("#multisite_signup_form").data('bootstrapValidator').updateStatus('multisite_email_address', 'NOT_VALIDATED');
+            signUpForm.data('bootstrapValidator').updateStatus('multisite_email_address', 'NOT_VALIDATED');
         }
         if (objAddress.val() == ''){
-            jQuery("#multisite_signup_form").data('bootstrapValidator').updateStatus('multisite_address', 'NOT_VALIDATED');
-        }
-        else {
+            signUpForm.data('bootstrapValidator').updateStatus('multisite_address', 'NOT_VALIDATED');
+        } else {
             jQuery(objAddress).trigger('change');
         }
     }
 
     function verifyEmail() {
-        verifyInput(this, {multisite_email_address : jQuery(this).val()});
+        validator.verifyInput(this, {multisite_email_address : jQuery(this).val()});
     }
 
     function verifyAddress() {
-        verifyInput(this, {multisite_address : jQuery(this).val().toLowerCase()});
+        validator.verifyInput(this, {multisite_address : jQuery(this).val().toLowerCase()});
     }
 
     function verifyTerms() {
-        verifyInput(this);
-    }
-
-    function verifyInput(domElement, data) {
-        jQuery(domElement).data('server-msg', '');
-        jQuery("#multisite_signup_form").data('bootstrapValidator').validateField('multisite_address');
-        jQuery(domElement).data('valid', false);
-        jQuery(domElement).prop('disabled', true);
-        if (jQuery(domElement).data('verifyUrl')) {
-            jQuery.ajax({
-                dataType: "json",
-                url: jQuery(domElement).data('verifyUrl'),
-                data: data,
-                type: "POST",
-                success: function(response){parseResponse(response, domElement);}
-            });
-        } else {
-            parseResponse({status:'success',data:{status:'success'}}, domElement);
-        }
+        validator.verifyInput(this);
     }
 
     function formValidation() {
-        jQuery("#multisite_signup_form").data('bootstrapValidator').validate();
-        if (!isFormValid() || !jQuery("#multisite_signup_form").data('bootstrapValidator').isValid()) {
+        signUpForm.data('bootstrapValidator').validate();
+        if (!isFormValid() || !signUpForm.data('bootstrapValidator').isValid()) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     function isPaymentUrlValid() {
         var urlPattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
         var url = objPayButton.data('href');
-        
+
         jQuery('.alert-danger').remove();
         if (!urlPattern.test(url)) {
             jQuery('<div class="alert alert-danger" role="alert">Invalid Payrexx Form Url</div>').insertAfter(jQuery('#product_id'));
             return false;
         }
-        
+
         return true;
     }
-    
+
     function setPaymentUrl() {
         if (isPaymentUrlRequested) {
           return;
@@ -212,16 +191,16 @@
                 beforeSend: function (xhr, settings) {
                     objModal.find('.multisite_pay').button('loading');
                     objModal.find('.multisite_pay').prop('disabled', true);
-					jQuery('.multisite_pay').removeClass('btn-primary');
+		    jQuery('.multisite_pay').removeClass('btn-primary');
                 },
-                success: function(response){
+                success: function(response) {
                     isPaymentUrlRequested = false;
                     if (response.status == 'error') {
                         return;
                     }
-                    
+
                     if (response.status == 'success' && response.data.link) {
-                        objPayButton.data('href', response.data.link);                        
+                        objPayButton.data('href', response.data.link);
                         objPayButton.trigger('click');
                     }
                 },
@@ -247,7 +226,7 @@
                 return;
             }
 
-            setFormButtonState('submit', false);
+            validator.setFormButtonState('submit', false);
 
             if (submitRequested) {
                 return;
@@ -280,25 +259,19 @@
         return true;
 
     }
-    function setFormHeader(headerTxt) {
-        objModal.find('.modal-header .modal-title').html(headerTxt);
-    }
 
-    function setFormButtonState(btnName, show, active) {
-        var btn = objModal.find('.multisite_' + btnName);
-        show ? btn.show() : btn.hide();
-        btn.prop('disabled', !active);
-    }
-    
     function callSignUp() {
         try {
             ongoingRequest = true;
-            setFormButtonState('close', true, true);
-            setFormButtonState('cancel', false, false);
-            setFormHeader(options.headerSetupTxt);
-
-            hideForm();
-            showProgress();
+            validator.setFormButtonState('close', true, true);
+            validator.setFormButtonState('cancel', false, false);
+            validator.setFormHeader(options.headerSetupTxt);
+            validator.hideForm();
+            
+            var message = options.messageBuildTxt;
+            message = message.replace('%1$s', '<a href="mailto:' + objMail.val() + '">' + objMail.val() + '</a>');
+            message = message.replace('%2$s', '<a href="https://' + objAddress.val() + '.' + options.multisiteDomain + '" target="_blank">https://' + objAddress.val() + '.' + options.multisiteDomain + '</a>');
+            validator.showProgress(message);
 
             jQuery.ajax({
                 dataType: "json",
@@ -310,105 +283,67 @@
                     renewalOption: options.renewalOption
                 },
                 type: "POST",
-                success: function(response){parseResponse(response, null);},
+                success: function(response){
+                    var message, errorObject,errorMessage,errorType;
+                    validator.hideProgress();
+                    
+                    if (!response.status) {
+                        validator.showSystemError();
+                        return;
+                    }
+                    // handle signup
+                    switch (response.status) {
+                        case 'success':
+                            // this is a workaround for 
+                            if (!response.message && !response.data) {
+                                validator.showSystemError();
+                                return;
+                            }
+                            if (options.callBackOnSuccess && typeof  options.callBackOnSuccess === 'function') {
+                                options.callBackOnSuccess(response.data);
+                            }
+                            // fetch message
+                            message = response.data.message;
+
+                            // redirect to website, in case auto-login is active
+                            if (message == 'auto-login') {
+                                validator.setFormButtonState('close', false);
+                                validator.setFormButtonState('cancel', false);
+                                validator.setFormButtonState('submit', false);
+                                validator.setFormHeader(options.headerSuccessTxt);
+                                validator.setFormStatus('success', options.messageRedirectTxt);
+                                window.location.href = response.data.loginUrl;
+                                return;
+                            } else if(response.data.reload){
+                                location.reload();
+                            }
+
+                            setMessage(message, 'success');
+                            break;
+
+                        case 'error':
+                        default:
+                            errorObject = null;
+                            errorType = 'danger';
+                            errorMessage = response.message;
+                            if (typeof(response.message) == 'object') {
+                                errorObject = typeof(response.message.object) != null ? response.message.object : null;
+                                errorMessage = typeof(response.message.message) != null ? response.message.message : null;
+                                errorType = typeof(response.message.type) != null ? response.message.type : null;
+                            }
+                            setMessage(errorMessage, errorType, errorObject);
+                            break;
+                    }
+                },
                 error: function() {
-                    showSystemError();
+                    validator.showSystemError();
                 }
             });
         } catch (e) {
             console.log(e);
         }
     }
-
-    /**
-     * @param {{data:{loginUrl}}} response The url to which the user gets redirected if auto-login is active.
-     * @param {jQuery} objCaller
-     */
-    function parseResponse(response, objCaller) {
-        var type, message, errorObject,errorMessage,errorType;
-        hideProgress();
-
-        if (!response.status) {
-            showSystemError();
-            return;
-        }
-
-        // handle form validation
-        if (objCaller) {
-            jQuery(objCaller).prop('disabled', false);
-
-            // fetch verification state of form element
-            if (response.status == 'success') {
-                jQuery(objCaller).data('server-msg', '');
-                jQuery(objCaller).data('valid', true);
-
-                jQuery("#multisite_signup_form").data('bootstrapValidator').revalidateField(jQuery(objCaller).attr('name'));
-                return true;
-            } else {
-                type = 'danger';
-                message = response.message;
-                if (typeof(response.message) == 'object') {
-                    message = typeof(response.message.message) != null ? response.message.message : null;
-                    type = typeof(response.message.type) != null ? response.message.type : null;
-                }
-                jQuery(objCaller).data('server-msg', message);
-            }
-
-            jQuery("#multisite_signup_form").data('bootstrapValidator').revalidateField(jQuery(objCaller).attr('name'));
-
-
-            verifyForm();
-
-            return;
-        }
-
-        // handle signup
-        switch (response.status) {
-            case 'success':
-                // this is a workaround for 
-                if (!response.message && !response.data) {
-                    showSystemError();
-                    return;
-                }
-                
-                if (options.callBackOnSuccess && typeof  options.callBackOnSuccess === 'function') {
-                    options.callBackOnSuccess(response.data);
-                }
-
-                // fetch message
-                message = response.data.message;
-
-                // redirect to website, in case auto-login is active
-                if (message == 'auto-login') {
-                    setFormButtonState('close', false);
-                    setFormButtonState('cancel', false);
-                    setFormButtonState('submit', false);
-                    setFormHeader(options.headerSuccessTxt);
-                    setFormStatus('success', options.messageRedirectTxt);
-                    window.location.href = response.data.loginUrl;
-                    return;
-                }else if(response.data.reload){
-                    location.reload();
-                }
-
-                setMessage(message, 'success');
-                break;
-
-            case 'error':
-            default:
-                errorObject = null;
-                errorType = 'danger';
-                errorMessage = response.message;
-                if (typeof(response.message) == 'object') {
-                    errorObject = typeof(response.message.object) != null ? response.message.object : null;
-                    errorMessage = typeof(response.message.message) != null ? response.message.message : null;
-                    errorType = typeof(response.message.type) != null ? response.message.type : null;
-                }
-                setMessage(errorMessage, errorType, errorObject);
-                break;
-        }
-    }
-
+    
     function setMessage(message, type, errorObject) {
         var objElement;
         if (!type) type = 'info';
@@ -421,10 +356,10 @@
             case 'address':
                 if (!objElement) objElement = objAddress;
 
-                setFormHeader(options.headerInitTxt);
-                setFormButtonState('close', false);
-                setFormButtonState('cancel', true, true);
-                hideProgress();
+                validator.setFormHeader(options.headerInitTxt);
+                validator.setFormButtonState('close', false);
+                validator.setFormButtonState('cancel', true, true);
+                validator.hideProgress();
                 showForm();
                 jQuery('<div class="alert alert-' + type + '" role="alert">' + message + '</div>').insertAfter(objElement);
                 objElement.data('valid', false);
@@ -434,64 +369,149 @@
                 break;
 
             case 'form':
-                setFormHeader(options.headerErrorTxt);
-                setFormButtonState('close', false);
-                setFormButtonState('cancel', true, true);
-                hideForm();
-                hideProgress();
-                setFormStatus(type, message);
+                validator.setFormHeader(options.headerErrorTxt);
+                validator.setFormButtonState('close', false);
+                validator.setFormButtonState('cancel', true, true);
+                validator.hideForm();
+                validator.hideProgress();
+                validator.setFormStatus(type, message);
                 cancelSetup();
                 break;
 
             default:
-                setFormHeader(options.headerSuccessTxt);
-                setFormButtonState('close', true, true);
-                setFormButtonState('cancel', false);
-                hideForm();
-                hideProgress();
-                setFormStatus(type, message);
+                validator.setFormHeader(options.headerSuccessTxt);
+                validator.setFormButtonState('close', true, true);
+                validator.setFormButtonState('cancel', false);
+                validator.hideForm();
+                validator.hideProgress();
+                validator.setFormStatus(type, message);
                 cancelSetup();
                 break;
         }
     }
-
-    function showSystemError() {
-        setMessage(options.messageErrorTxt, 'danger');
-    }
-
+    
     function showForm() {
         objModal.find('.multisite-form').show();
         jQuery('#multiSiteSignUp').find('.modal-body').css({'min-height': jQuery('#multiSiteSignUp').find('.multisite-form').height()});
     }
 
-    function hideForm() {
-        objModal.find('.multisite-form').hide();
-    }
-
-    function showProgress() {
-        var message = options.messageBuildTxt;
-        message = message.replace('%1$s', '<a href="mailto:' + objMail.val() + '">' + objMail.val() + '</a>');
-        message = message.replace('%2$s', '<a href="https://' + objAddress.val() + '.' + options.multisiteDomain + '" target="_blank">https://' + objAddress.val() + '.' + options.multisiteDomain + '</a>');
-        objModal.find('.multisite-progress div').html(message);
-        objModal.find('.multisite-progress').show();
-    }
-
-    function hideProgress() {
-        objModal.find('.multisite-progress').hide();
-    }
-
-    function clearFormStatus() {
-        objModal.find('.multisite-status').hide();
-        objModal.find('.multisite-status').children().remove();
-    }
-
-    function setFormStatus(type, message) {
-        clearFormStatus();
-        objModal.find('.multisite-status').append('<div class="alert alert-' + type + '" role="alert">' + message + '</div>');
-        objModal.find('.multisite-status').show();
-    }
-
     initSignUpForm();
 }
 
-jQuery(document).ready(cx_multisite_signup(cx_multisite_options));
+var multisiteFormValidator = function(options) {
+    var defaults = {
+        objForm: jQuery("#multisite_signup_form"),
+        objModal: jQuery('#multisite_signup_form').parents('.modal'),
+        systemErrorTxt: ''
+    };
+    var settings    = jQuery.extend( {}, defaults, options );
+    var statusDiv   = settings.objModal.find('.multisite-status');
+    var progressDiv = settings.objModal.find('.multisite-progress');
+    return {
+        setStatusDiv: function(obj) {
+            statusDiv = obj;
+        },
+        setProgressDiv: function(obj) {
+            progressDiv = obj;
+        },
+        verifyInput: function(domElement, data) {
+            that = this;
+            jQuery(domElement).data('server-msg', '');
+            settings.objForm.data('bootstrapValidator').validateField('multisite_address');
+            jQuery(domElement).data('valid', false);
+            jQuery(domElement).prop('disabled', true);
+            if (jQuery(domElement).data('verifyUrl')) {
+                jQuery.ajax({
+                    dataType: "json",
+                    url: jQuery(domElement).data('verifyUrl'),
+                    data: data,
+                    type: "POST",
+                    success: function(response){that.parseResponse(response, domElement);}
+                });
+            } else {
+                that.parseResponse({status:'success',data:{status:'success'}}, domElement);
+            }
+        },
+        setFormHeader: function(headerTxt) {
+            settings.objModal.find('.modal-header .modal-title').html(headerTxt);
+        },
+        setFormButtonState: function(btnName, show, active) {
+            var btn = settings.objModal.find('.multisite_' + btnName);
+            show ? btn.show() : btn.hide();
+            btn.prop('disabled', !active);
+        },
+        /**
+        * @param {{data:{loginUrl}}} response The url to which the user gets redirected if auto-login is active.
+        * @param {jQuery} objCaller
+        */
+        parseResponse: function(response, objCaller) {
+            var type, message;
+            this.hideProgress();
+
+            if (!response.status) {
+                this.showSystemError();
+                return;
+            }
+
+            // handle form validation
+            if (objCaller) {
+                jQuery(objCaller).prop('disabled', false);
+
+                // fetch verification state of form element
+                if (response.status == 'success') {
+                    jQuery(objCaller).data('server-msg', '');
+                    jQuery(objCaller).data('valid', true);
+
+                    settings.objForm.data('bootstrapValidator').revalidateField(jQuery(objCaller).attr('name'));
+                    return true;
+                } else {
+                    type = 'danger';
+                    message = response.message;
+                    if (typeof(response.message) == 'object') {
+                        message = typeof(response.message.message) != null ? response.message.message : null;
+                        type = typeof(response.message.type) != null ? response.message.type : null;
+                    }
+                    jQuery(objCaller).data('server-msg', message);
+                }
+
+                settings.objForm.data('bootstrapValidator').revalidateField(jQuery(objCaller).attr('name'));
+
+                return;
+            }
+        },
+        setMessage: function(message, type) {
+            this.setFormButtonState('close', true, true);
+            this.setFormButtonState('cancel', false);
+            this.hideForm();
+            this.hideProgress();
+            this.setFormStatus(type, message);
+        },
+        showSystemError: function() {
+            this.setMessage(settings.systemErrorTxt, 'danger');
+        },
+        hideForm: function() {
+            settings.objModal.find('.multisite-form').hide();
+        },
+        showProgress: function(message) {
+            progressDiv.html(message);
+            progressDiv.show();
+        },
+        hideProgress: function() {            
+            progressDiv.hide();
+        },
+        clearFormStatus: function() {
+            statusDiv.hide();
+            statusDiv.children().remove();
+        },
+        setFormStatus : function(type, message) {
+            this.clearFormStatus();
+            statusDiv.append('<div class="alert alert-' + type + '" role="alert">' + message + '</div>');
+            statusDiv.show();
+        }
+    };
+};
+jQuery(document).ready(function() {
+    if (typeof(cx_multisite_options) != 'undefined') {
+        cx_multisite_signup(cx_multisite_options);
+    }
+});

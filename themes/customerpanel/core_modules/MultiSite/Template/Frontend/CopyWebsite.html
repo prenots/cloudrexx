@@ -43,7 +43,7 @@
         <div></div>
     </div>
 </div>
-<script>    
+<script type="text/javascript">
     var validateAdress = function (value, validator, $field) {
         var message = '';
         if (!value.match(/^[a-z0-9]+$/)) {
@@ -68,249 +68,183 @@
             show      : function() {
                 jQuery('#CopyWebsite').modal().hide();
             }
-          }); 
+          });
        });
     });
     jQuery.getScript("{MULTISITE_PATH}/lib/javascript/jquery/bootstrapvalidator/js/bootstrapValidator.min.js", function() {
-        function cxMultiSiteCopyWebsite() {
-            var submitButtonRequested = false,
-                ongoingRequest,
-                submitRequested,
-                formId = 'multisite_copy_form',
-                objModal,
-                objAddress;
-            jQuery('#'+ formId)
-                .bootstrapValidator()
-                .on('success.field.bv', function() {
-                  if (submitButtonRequested) {
-                    submitButtonRequested = false;
-                    submitForm();
-                  }
-                })
-                .on('error.field.bv', function() {
-                  submitButtonRequested = false;
-                });
-            objModal   = jQuery('#'+ formId).parents('.modal');
-            
-            objAddress = objModal.find('#multisite_address');
-            objAddress.bind('change', verifyAddress);
-            objAddress.data('verifyUrl', '{MULTISITE_ADDRESS_URL}');
-            
-            objAddress = objModal.find('#multisite_address');
-            objAddress.bind('change', verifyAddress);
-            
-            jQuery('#'+ formId).submit(submitForm);
-            objModal.find('.multisite_submit').on('click', submitForm);
-            
-            function submitForm() {
-                try {
-                    if (!formValidation()) {
-                        submitButtonRequested = true;
-                        return;
+        jQuery.getScript('{MULTISITE_PATH}/core_modules/MultiSite/View/Script/SignUp.js', function() {
+            function cxMultiSiteCopyWebsite() {
+                var submitButtonRequested = false,
+                    ongoingRequest = false,
+                    submitRequested = false,
+                    formId = 'multisite_copy_form',
+                    objAddress,
+                    copyForm = jQuery('#'+ formId),
+                    objModal   = jQuery('#'+ formId).parents('.modal');
+                var validatorDefaults = {
+                    objForm: copyForm,
+                    objModal: objModal,
+                    systemErrorTxt: '{TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG}'
+                };
+                var validator = new multisiteFormValidator(validatorDefaults);
+                var copyWebsite =function() {
+                    try {                        
+                        ongoingRequest = true;
+                        validator.setFormButtonState('close', true, true);
+                        validator.setFormButtonState('cancel', false, false);
+
+                        validator.hideForm();
+                        validator.showProgress('{TXT_MULTISITE_WEBSITE_COPY_PROGRESS}');
+                        jQuery.ajax({
+                            dataType: "json",
+                            url: '{MULTISITE_COPY_WEBSITE_URL}',
+                            data: {
+                                multisite_address : objAddress.val(),
+                                websiteId: jQuery('#websiteId').val(),
+                                subscriptionId : jQuery('#multisite_subscription').val()
+                            },
+                            type: "POST",
+                            success: function(response){
+                                var message, errorObject,errorMessage,errorType;
+
+                                if (!response.status) {
+                                    validator.showSystemError();
+                                    return;
+                                }
+                                // handle signup
+                                switch (response.status) {
+                                    case 'success':
+                                        // this is a workaround for 
+                                        if (!response.message && !response.data) {
+                                            validator.showSystemError();
+                                            return;
+                                        }
+                                        // fetch message
+                                        message = response.data.message;
+                                        setMessage(message, 'success');
+                                        setTimeout(function(){ location.reload(); }, 1000);
+                                        break;
+
+                                    case 'error':
+                                    default:
+                                        errorObject = null;
+                                        errorType = 'danger';
+                                        errorMessage = response.message;
+                                        if (typeof (response.message) == 'object') {
+                                            errorObject = typeof (response.message.object) != null ? response.message.object : null;
+                                            errorMessage = typeof (response.message.message) != null ? response.message.message : null;
+                                            errorType = typeof (response.message.type) != null ? response.message.type : null;
+                                        }
+                                        setMessage(errorMessage, errorType, errorObject);
+                                        break;
+                                }
+                            },
+                            error: function() {
+                                validator.showSystemError();
+                            }
+                        });
+                    } catch (e) {
+                        console.log(e);
                     }
-                    setFormButtonState('submit', true);
-                    if (submitRequested) {
-                        return;
-                    }
-                    submitRequested = true;
-                    copyWebsite();
-                } catch (e) {
-
-                }
-
-                // always return false. We don't want to form to get actually submitted
-                // as everything is done using AJAX
-                return false;
-            }
-            function copyWebsite() {
-                try {
-                    ongoingRequest = true;
-                    setFormButtonState('close', true, true);
-                    setFormButtonState('cancel', false, false);
-                    
-                    hideForm();
-                    showProgress();
-                    jQuery.ajax({
-                        dataType: "json",
-                        url: '{MULTISITE_COPY_WEBSITE_URL}',
-                        data: {
-                            multisite_address : objAddress.val(),
-                            websiteId: jQuery('#websiteId').val(),
-                            subscriptionId : jQuery('#multisite_subscription').val()
-                        },
-                        type: "POST",
-                        success: function(response){parseResponse(response, null);},
-                        error: function() {
-                            showSystemError();
-                        }
-                    });
-                } catch (e) {
-                    console.log(e);
-                }
-            }
-            function showSystemError() {
-                setMessage('{TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG}', 'danger');
-            }
-            function setMessage(message, type, errorObject) {
-                var objElement;
-                if (!type) type = 'info';
-                objElement = null;
-
-                switch (errorObject) {
-                    case 'address':
-                        if (!objElement) objElement = objAddress;                        
-                        setFormButtonState('close', false);
-                        setFormButtonState('cancel', true, true);
-                        hideProgress();
-                        showForm();
-                        jQuery('<div class="alert alert-' + type + '" role="alert">' + message + '</div>').insertAfter(objElement);
-                        objElement.data('valid', false);
-                        cancelCopy();
-
-                        jQuery('#'+ formId).data('bootstrapValidator').updateStatus('multisite_address', 'NOT_VALIDATED');
-                        break;
-                    default:                        
-                        setFormButtonState('close', true, true);
-                        setFormButtonState('cancel', false);
-                        hideForm();
-                        hideProgress();
-                        setFormStatus(type, message);
-                        cancelCopy();
-                        break;
-                }
-            }
-            function cancelCopy() {
-                ongoingRequest = false;
-                submitRequested = false;
-            }
-            function hideForm() {
-                objModal.find('.multisite-form').hide();
-            }
-            function showProgress() {
-                objModal.find('.multisite-progress div').html('{TXT_MULTISITE_WEBSITE_COPY_PROGRESS}');
-                objModal.find('.multisite-progress').show();
-            }
-            function formValidation() {
-                jQuery('#' + formId).data('bootstrapValidator').validate();
-                if (!isFormValid() || !jQuery('#' + formId).data('bootstrapValidator').isValid()) {
-                    return false;
-                }
-                return true;
-            }
-            function setFormButtonState(btnName, show, active) {
-                var btn = objModal.find('.multisite_' + btnName);
-                show ? btn.show() : btn.hide();
-                btn.prop('disabled', !active);
-            }
-            function verifyAddress() {
-                verifyInput(this, {multisite_address : jQuery(this).val().toLowerCase()});
-            }
-            function verifyInput(domElement, data) {
-                jQuery(domElement).data('server-msg', '');
-                jQuery('#' + formId).data('bootstrapValidator').validateField('multisite_address');
-                jQuery(domElement).data('valid', false);
-                jQuery(domElement).prop('disabled', true);
-                if (jQuery(domElement).data('verifyUrl')) {
-                    jQuery.ajax({
-                        dataType: "json",
-                        url: jQuery(domElement).data('verifyUrl'),
-                        data: data,
-                        type: "POST",
-                        success: function(response){parseResponse(response, domElement);}
-                    });
-                } else {
-                    parseResponse({status:'success',data:{status:'success'}}, domElement);
-                }
-            }
-            function isFormValid() {
-                if (objAddress.length && !objAddress.data('valid')) {
-                    return false;
                 }
                 
-                return true;
-            }
-            function parseResponse(response, objCaller) {
-                var type, message, errorObject,errorMessage,errorType;
-
-                if (!response.status) {
-                    showSystemError();
-                    return;
-                }
-
-                // handle form validation
-                if (objCaller) {
-                    jQuery(objCaller).prop('disabled', false);
-
-                    // fetch verification state of form element
-                    if (response.status == 'success') {
-                        jQuery(objCaller).data('server-msg', '');
-                        jQuery(objCaller).data('valid', true);
-
-                        jQuery('#' + formId).data('bootstrapValidator').revalidateField(jQuery(objCaller).attr('name'));
-                        return true;
-                    } else {
-                        type = 'danger';
-                        message = response.message;
-                        if (typeof(response.message) == 'object') {
-                            message = typeof(response.message.message) != null ? response.message.message : null;
-                            type = typeof(response.message.type) != null ? response.message.type : null;
-                        }
-                        jQuery(objCaller).data('server-msg', message);
-                    }
-
-                    jQuery('#' + formId).data('bootstrapValidator').revalidateField(jQuery(objCaller).attr('name'));
-
-
-                    verifyForm();
-
-                    return;
-                }
-
-                // handle signup
-                switch (response.status) {
-                    case 'success':
-                        // this is a workaround for 
-                        if (!response.message && !response.data) {
-                            showSystemError();
+                var submitForm = function() {
+                    try {                        
+                        if (!formValidation()) {
+                            submitButtonRequested = true;
+                            return;
+                        }                        
+                        validator.setFormButtonState('submit', true);
+                        if (submitRequested) {
                             return;
                         }
-                        // fetch message
-                        message = response.data.message;                        
-                        setMessage(message, 'success');
-                        setTimeout(function(){ location.reload(); }, 1000);
-                        break;
+                        submitRequested = true;                        
+                        copyWebsite();
+                    } catch (e) {
 
-                    case 'error':
-                        default:
-                            errorObject = null;
-                            errorType = 'danger';
-                            errorMessage = response.message;
-                            if (typeof (response.message) == 'object') {
-                                errorObject = typeof (response.message.object) != null ? response.message.object : null;
-                                errorMessage = typeof (response.message.message) != null ? response.message.message : null;
-                                errorType = typeof (response.message.type) != null ? response.message.type : null;
-                            }
-                            setMessage(errorMessage, errorType, errorObject);
-                            break;
+                    }
+
+                    // always return false. We don't want to form to get actually submitted
+                    // as everything is done using AJAX
+                    return false;
                 }
-            }
-            function hideProgress() {
-                objModal.find('.multisite-progress').hide();
-            }
-            function verifyForm() {
-                isFormValid();
-            }
-            function clearFormStatus() {
-                objModal.find('.multisite-status').hide();
-                objModal.find('.multisite-status').children().remove();
-            }
 
-            function setFormStatus(type, message) {
-                clearFormStatus();
-                objModal.find('.multisite-status').append('<div class="alert alert-' + type + '" role="alert">' + message + '</div>');
-                objModal.find('.multisite-status').show();
+                function setMessage(message, type, errorObject) {
+                    var objElement;
+                    if (!type) type = 'info';
+                    objElement = null;
+
+                    switch (errorObject) {
+                        case 'address':
+                            if (!objElement) objElement = objAddress;
+                            validator.setFormButtonState('close', false);
+                            validator.setFormButtonState('cancel', true, true);
+                            validator.hideProgress();
+                            showForm();
+                            jQuery('<div class="alert alert-' + type + '" role="alert">' + message + '</div>').insertAfter(objElement);
+                            objElement.data('valid', false);
+                            cancelCopy();
+
+                            jQuery('#'+ formId).data('bootstrapValidator').updateStatus('multisite_address', 'NOT_VALIDATED');
+                            break;
+                        default:
+                            validator.setFormButtonState('close', true, true);
+                            validator.setFormButtonState('cancel', false);
+                            validator.hideForm();
+                            validator.hideProgress();
+                            validator.setFormStatus(type, message);
+                            cancelCopy();
+                            break;
+                    }
+                }
+                function cancelCopy() {
+                    ongoingRequest = false;
+                    submitRequested = false;
+                }
+                function formValidation() {
+                    jQuery('#' + formId).data('bootstrapValidator').validate();
+                    if (!isFormValid() || !jQuery('#' + formId).data('bootstrapValidator').isValid()) {
+                        return false;
+                    }
+                    return true;
+                }
+                function verifyAddress() {
+                    validator.verifyInput(this, {multisite_address : jQuery(this).val().toLowerCase()});
+                }
+                function isFormValid() {
+                    if (objAddress.length && !objAddress.data('valid')) {
+                        return false;
+                    }
+                    return true;
+                }
+                function showForm() {
+                    objModal.find('.multisite-form').show();
+                    jQuery('#CopyWebsite').find('.modal-body').css({'min-height': jQuery('#CopyWebsite').find('.multisite-form').height()});
+                }
+                
+                jQuery('#'+ formId)
+                    .bootstrapValidator()
+                    .on('success.field.bv', function() {
+                      if (submitButtonRequested) {
+                        submitButtonRequested = false;
+                        submitForm();
+                      }
+                    })
+                    .on('error.field.bv', function() {
+                      submitButtonRequested = false;
+                    });
+
+                objAddress = objModal.find('#multisite_address');
+                objAddress.bind('change', verifyAddress);
+                objAddress.data('verifyUrl', '{MULTISITE_ADDRESS_URL}');
+
+                objAddress = objModal.find('#multisite_address');
+                objAddress.bind('change', verifyAddress);
+
+                jQuery('#'+ formId).submit(submitForm);
+                objModal.find('.multisite_submit').on('click', submitForm);
             }
-        }
-        cxMultiSiteCopyWebsite();
+            cxMultiSiteCopyWebsite();
+        });
     });
 </script>
