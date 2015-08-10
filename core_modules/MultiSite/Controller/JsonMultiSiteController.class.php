@@ -4392,15 +4392,16 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     \DBG::log('JsonMultiSiteController: Website Info Restore..');
                     $this->websiteInfoRestore($websiteName, $websiteBackupFilePath, $subscriptionId);
 
-                    $websiteUrl = $this->getWebsiteLinkByName($websiteName);
-                    if (!$websiteUrl) {
-                        throw new MultiSiteJsonException('Failed to get the website frontend view link.');
+                    $website = $this->getWebsiteByName($websiteName);
+                    if (!$website) {
+                        throw new MultiSiteJsonException('Failed to get the website.');
                     }
 
                     return array(
                         'status'    => 'success', 
                         'message'   => sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_SUCCESS'], $websiteName),
-                        'websiteUrl'=> $websiteUrl
+                        'websiteUrl'=> ComponentController::getApiProtocol() . $website->getBaseDn()->getName(),
+                        'websiteId' => $website->getId(),
                     ); 
                     break;
                 default:
@@ -4436,12 +4437,12 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     }
     
     /**
-     * Get website frontend view link by website name
+     * Get website by website name
      * 
      * @param string $websiteName
-     * @return mixed boolean | string
+     * @return mixed boolean | object
      */
-    protected function getWebsiteLinkByName($websiteName)
+    protected function getWebsiteByName($websiteName)
     {
         if (empty($websiteName)) {
             return false;
@@ -4452,7 +4453,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         if (!$website) {
             return false;
         }
-        return ComponentController::getApiProtocol() . $website->getBaseDn()->getName();
+        return $website;
     }
     
     /**
@@ -6979,7 +6980,11 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             );
             $restoreResp = self::executeCommandOnManager('websiteRestore', $restoreArguments);
             if ($restoreResp->status == 'success' && $restoreResp->data->status == 'success') {
-                return array('status' => 'success', 'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS']);
+                return array(
+                    'status'    => 'success', 
+                    'message'   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'],
+                    'websiteId' => $restoreResp->data->websiteId,
+                );
             }
         } catch (\Exception $e) {
             \DBG::log($e->getMessage());

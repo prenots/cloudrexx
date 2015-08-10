@@ -446,7 +446,6 @@ var multisiteFormValidator = function(options) {
         */
         parseResponse: function(response, objCaller) {
             var type, message;
-            this.hideProgress();
 
             if (!response.status) {
                 this.showSystemError();
@@ -487,6 +486,7 @@ var multisiteFormValidator = function(options) {
             this.setFormStatus(type, message);
         },
         showSystemError: function() {
+            this.hideProgress();
             this.setMessage(settings.systemErrorTxt, 'danger');
         },
         hideForm: function() {

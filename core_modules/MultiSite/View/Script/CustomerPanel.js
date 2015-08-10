@@ -27,11 +27,8 @@ function showMessage(msgTxt, type, hideAfterDelay, reload, duration) {
     hideAfterDelay = typeof hideAfterDelay !== 'undefined' ? hideAfterDelay : true;
     duration       = typeof duration !== 'undefined' ? duration : 2000;
 
-    // hide all message modals
-    jQuery.each(customerPanel.messageTypes, function( index, value ) {
-      jQuery('#'+ value + '_msg_container').modal('hide');
-    });
-
+    hideAllMessages();
+    
     $objModal = jQuery('#'+ type + '_msg_container');
     $content  = $objModal.find('.msg_text');
 
@@ -47,6 +44,13 @@ function showMessage(msgTxt, type, hideAfterDelay, reload, duration) {
         }, duration
     );
 
+}
+
+function hideAllMessages() {
+    // hide all message modals
+    jQuery.each(customerPanel.messageTypes, function( index, value ) {
+      jQuery('#'+ value + '_msg_container').modal('hide');
+    });
 }
 
 function getQueryParams(qs) {
@@ -259,6 +263,7 @@ function showRemoteModal(options) {
     remoteUrl : '',
     show: function(e) {},
     shown: function() {},
+    loaded: function() {},
     hide: function() {},
     hidden: function() {}
   };
@@ -286,6 +291,10 @@ function showRemoteModal(options) {
     ).on("shown.bs.modal",
       function() {
         opts.shown();
+      }
+    ).on("loaded.bs.modal",
+      function() {
+        opts.loaded();
       }
     ).on("hide.bs.modal",
       function() {
@@ -455,12 +464,5 @@ function sendNotificationForPayoutRequest($this) {
            $this.prop('disabled', false);
        },
        error: function() { }
-    });
-}
-
-function copyWebsite($this) {
-    showRemoteModal({
-      modalId   : 'CopyWebsite',
-      remoteUrl : $this.data('remote')
     });
 }

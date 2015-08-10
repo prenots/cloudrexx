@@ -615,9 +615,17 @@ span.abo-info p {
                 success: function (response) {
                     if (response.status == 'success') {
                         $resp = response.data;
-                        if ($resp.status == 'success') {
-                            showMessage($resp.message, 'success');
-                            window.location.href = '{NODE_MULTISITE_SUBSCRIPTIONDETAIL}?id=' + $resp.id;                            
+                        if ($resp.status == 'success') {                            
+                            if (jQuery('#subscriptionCallbackModal').val() != '') {
+                                hideAllMessages();
+                                showRemoteModal({
+                                    modalId   : jQuery('#subscriptionCallbackModal').val(),
+                                    remoteUrl : jQuery('#subscriptionCallbackModalRemoteUrl').val()
+                                });
+                            } else {
+                                showMessage($resp.message, 'success');
+                                window.location.href = '{NODE_MULTISITE_SUBSCRIPTIONDETAIL}?id=' + $resp.id;
+                            }
                         } else {
                             showMessage($resp.message, 'error');
                         }
@@ -781,3 +789,5 @@ span.abo-info p {
 <div class="cancelBtn">
     <input type="button" data-dismiss="modal" value="{TXT_CORE_MODULE_MULTISITE_CANCEL}"/>
 </div>
+<input type="hidden" id="subscriptionCallbackModal" />
+<input type="hidden" id="subscriptionCallbackModalRemoteUrl" />
