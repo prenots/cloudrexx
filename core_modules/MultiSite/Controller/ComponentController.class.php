@@ -838,6 +838,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $resp = JsonMultiSiteController::executeCommandOnManager('getAvailableSubscriptionsByUserId', $params);
         if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
             foreach ($resp->data->subscriptionsList as $subscription) {
+                $subscriptionId = $subscriptionName = '';
                 list($subscriptionId, $subscriptionName) = explode(':', $subscription);
                 $objTemplate->setVariable(array(
                     'MULTISITE_SUBSCRIPTION_ID'   => contrexx_raw2xhtml($subscriptionId),

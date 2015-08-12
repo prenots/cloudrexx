@@ -5088,8 +5088,8 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                     if ($websiteCollection->getQuota() <= count($websites)) {
                                         continue;
                                     }
-
                                     if (empty($description)) {
+                                        $websiteNames = array();
                                         foreach ($websites as $website) {
                                             $websiteNames[] = $website->getName();
                                         }
