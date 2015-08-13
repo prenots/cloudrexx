@@ -6922,69 +6922,73 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG']);
         }
         try {
+            switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
+                case ComponentController::MODE_MANAGER:
+                    $objUser = \FWUser::getFWUserObject()->objUser;
+                    $em      = $this->cx->getDb()->getEntityManager();
 
-            $objUser = \FWUser::getFWUserObject()->objUser;
-            $em      = $this->cx->getDb()->getEntityManager();
+                    $websiteId      = isset($params['post']['websiteId']) ? contrexx_input2int($params['post']['websiteId']) : 0;
+                    $websiteAddress = isset($params['post']['multisite_address']) ? contrexx_input2raw($params['post']['multisite_address']) : '';
+                    $subscriptionId = isset($params['post']['subscriptionId']) ? contrexx_input2int($params['post']['subscriptionId']) : 0;
+                    if (empty($websiteId)) {
+                        throw new MultiSiteJsonException('Website id cannot be empty');
+                    }
 
-            $websiteId      = isset($params['post']['websiteId']) ? contrexx_input2int($params['post']['websiteId']) : 0;
-            $websiteAddress = isset($params['post']['multisite_address']) ? contrexx_input2raw($params['post']['multisite_address']) : '';
-            $subscriptionId = isset($params['post']['subscriptionId']) ? contrexx_input2int($params['post']['subscriptionId']) : 0;
-            if (empty($websiteId)) {
-                throw new MultiSiteJsonException('Website id cannot be empty');
-            }
+                    // verify source website
+                    $websiteServiceRepo = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+                    $website            = $websiteServiceRepo->findOneById($websiteId);
+                    if (!$website) {
+                        throw new MultiSiteJsonException('JsonMultiSiteController::copywebsite() failed: Invalid website idsupplied:'. $websiteId);
+                    }
+                    if ($website->getOwner()->getId() != $objUser->getId()) {
+                        throw new MultiSiteJsonException('Logged in user is not the website owner');
+                    }
+                    // verify target website address
+                    $this->address($params);
+                    // verify target subscription
+                    $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
+                    $subscription     = $subscriptionRepo->findOneBy(array('id' => $subscriptionId));
 
-            // verify source website
-            $websiteServiceRepo = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
-            $website            = $websiteServiceRepo->findOneById($websiteId);
-            if (!$website) {
-                throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG']);
-            }
-            if ($website->getOwner()->getId() != $objUser->getId()) {
-                throw new MultiSiteJsonException('Logged in user is not the website owner');
-            }
-            // verify target website address
-            $this->address($params);
-            // verify target subscription
-            $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
-            $subscription     = $subscriptionRepo->findOneBy(array('id' => $subscriptionId));
+                    if (!$subscription) {
+                        throw new MultiSiteJsonException('Selected subscription does not exist');
+                    }
+                    //Verify if the signed-in user is the authorized owner of the subscription ordered
+                    if ($objUser->getCrmUserId() != $subscription->getOrder()->getContactId()) {
+                        throw new MultiSiteJsonException('Subscription is not valid for the customer');
+                    }
+                    // check website quota
+                    $websiteCollection = $subscription->getProductEntity();
+                    if (   !($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection)
+                        || $websiteCollection->getQuota() <= count($websiteCollection->getWebsites())
+                    ) {
+                        throw new MultiSiteJsonException('Invalid Subscription');
+                    }
+                    // backup website
+                    $backupArguments = array(
+                        'serviceServerId' => $website->getWebsiteServiceServerId(),
+                        'websiteId'       => $websiteId,
+                    );
+                    $websiteBackupResp = self::executeCommandOnManager('websiteBackup', $backupArguments);
+                    if ($websiteBackupResp->status == 'error' || $websiteBackupResp->data->status == 'error') {
+                        throw new MultiSiteJsonException('Website backup creation failed : '. $website->getName());
+                    }
+                    $restoreArguments = array(
+                        'websiteName'           => $websiteAddress,
+                        'websiteBackupFileName' => current($websiteBackupResp->data->backups),
+                        'serviceServerId'       => $website->getWebsiteServiceServerId(),
+                        'selectedUserId'        => $objUser->getId(),
+                        'subscriptionId'        => $subscriptionId
+                    );
+                    $restoreResp = self::executeCommandOnManager('websiteRestore', $restoreArguments);
+                    if ($restoreResp->status == 'success' && $restoreResp->data->status == 'success') {
+                        return array(
+                            'status'    => 'success', 
+                            'message'   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'],
+                            'websiteId' => $restoreResp->data->websiteId,
+                        );
+                    }
 
-            if (!$subscription) {
-                throw new MultiSiteJsonException('Selected subscription does not exist');
-            }
-            //Verify if the signed-in user is the authorized owner of the subscription ordered
-            if ($objUser->getCrmUserId() != $subscription->getOrder()->getContactId()) {
-                throw new MultiSiteJsonException('Subscription is not valid for the customer');
-            }
-            // check website quota
-            $websiteCollection = $subscription->getProductEntity();
-            if (   !($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection)
-                || $websiteCollection->getQuota() <= count($websiteCollection->getWebsites())
-            ) {
-                throw new MultiSiteJsonException('Invalid Subscription');
-            }
-            // backup website
-            $backupArguments = array(
-                'serviceServerId' => $website->getWebsiteServiceServerId(),
-                'websiteId'       => $websiteId,
-            );
-            $websiteBackupResp = self::executeCommandOnManager('websiteBackup', $backupArguments);
-            if ($websiteBackupResp->status == 'error' || $websiteBackupResp->data->status == 'error') {
-                throw new MultiSiteJsonException('Website backup creation failed : '. $website->getName());
-            }
-            $restoreArguments = array(
-                'websiteName'           => $websiteAddress,
-                'websiteBackupFileName' => current($websiteBackupResp->data->backups),
-                'serviceServerId'       => $website->getWebsiteServiceServerId(),
-                'selectedUserId'        => $objUser->getId(),
-                'subscriptionId'        => $subscriptionId
-            );
-            $restoreResp = self::executeCommandOnManager('websiteRestore', $restoreArguments);
-            if ($restoreResp->status == 'success' && $restoreResp->data->status == 'success') {
-                return array(
-                    'status'    => 'success', 
-                    'message'   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'],
-                    'websiteId' => $restoreResp->data->websiteId,
-                );
+                    break;
             }
         } catch (\Exception $e) {
             \DBG::log($e->getMessage());
