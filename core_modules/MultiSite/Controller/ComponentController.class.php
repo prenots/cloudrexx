@@ -373,73 +373,80 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $website_status = isset($arguments['website_status']) ? contrexx_input2raw($arguments['website_status']) : '';
         $excludeProduct = isset($arguments['exclude_product']) ? array_map('contrexx_input2raw', $arguments['exclude_product']) : '';
         $includeProduct = isset($arguments['include_product']) ? array_map('contrexx_input2raw', $arguments['include_product']) : '';
-        //Get the orders based on CRM contact id and get params
-        $orderRepo = \Env::get('em')->getRepository('Cx\Modules\Order\Model\Entity\Order');
-        $orders    = $orderRepo->getOrdersByCriteria($crmContactId, $status, $excludeProduct, $includeProduct);
+        $searchTerm     = isset($arguments['search']) ? contrexx_input2raw($arguments['search']) : '';
+        
+        $em = $this->cx->getDb()->getEntityManager();
+        //Get the subscriptions based on CRM contact id and get params
+        $criteria = array(
+                        'contactId'       => $crmContactId, 
+                        'status'          => $status, 
+                        'excludeProduct'  => $excludeProduct, 
+                        'includeProduct'  => $includeProduct
+                    );
+        if (!empty($searchTerm)) {
+            $criteria['term']              = $searchTerm;
+            $criteria['filterDescription'] = $searchTerm;
+        }
+        $websiteRepo      = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+        $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
+        $subscriptions    = $subscriptionRepo->findSubscriptionsBySearchTerm($criteria);
         
         //parse the Site Details
-        if (!empty($orders)) {            
-            foreach ($orders as $order) {
-                foreach ($order->getSubscriptions() as $subscription) {
-                    if ($subscription->getState() == \Cx\Modules\Order\Model\Entity\Subscription::STATE_TERMINATED) {
-                        continue;
-                    }
-                    
-                    $product = $subscription->getProduct();
-                    if (!$product) {
-                        continue;
-                    }
-                    
-                    $description       = $subscription->getDescription();
-                    $websiteCollection = $subscription->getProductEntity();
-                    $websiteNames      = array();
-                    if (empty($description)) {
-                        if (   $websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection
-                            && $websiteCollection->getWebsites()
-                        ) {
-                            foreach ($websiteCollection->getWebsites() as $website) {
-                                $websiteNames[] = $website->getName();
-                            }
-                            $description = !empty($websiteNames) ? implode(', ', $websiteNames) : '';
-                        } elseif ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website) {
-                            $description = $websiteCollection->getName();
-                        }
-                    }
-                    
-                    $objTemplate->setGlobalVariable(array(
-                        'MULTISITE_SUBSCRIPTION_ID'          => contrexx_raw2xhtml($subscription->getId()),
-                        'MULTISITE_SUBSCRIPTION_DESCRIPTION' => contrexx_raw2xhtml($description),
-                        'MULTISITE_WEBSITE_PLAN'             => contrexx_raw2xhtml($product->getName()),
-                        'MULTISITE_WEBSITE_INVOICE_DATE'     => $subscription->getRenewalDate() ? $subscription->getRenewalDate()->format('d.m.Y') : '',
-                        'MULTISITE_WEBSITE_EXPIRE_DATE'      => $subscription->getExpirationDate() ? $subscription->getExpirationDate()->format('d.m.Y') : '',    
-                    ));
-
-                    if ($status == 'valid' && $objTemplate->blockExists('showUpgradeButton')) {
-                        $product->isUpgradable() ? $objTemplate->touchBlock('showUpgradeButton') : $objTemplate->hideBlock('showUpgradeButton');
-                    }
-
-                    if ($status != 'expired') {
-                        if ($websiteCollection) {
-                            if ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection) {
-                                foreach ($websiteCollection->getWebsites() as $website) {
-                                    if (!($website instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website)) {
-                                        continue;
-                                    }
-                                    self::parseWebsiteDetails($objTemplate, $website, $website_status);
-                                    $objTemplate->parse('showWebsites');
-                                }
-                                self::showOrHideBlock($objTemplate, 'showAddWebsiteButton', ($websiteCollection->getQuota() > count($websiteCollection->getWebsites())));
-                            } elseif ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website) {
-                                self::parseWebsiteDetails($objTemplate, $websiteCollection, $website_status);
-                                $objTemplate->parse('showWebsites');
-                            }
-                        }
-                    } else {
-                        $objTemplate->touchBlock('showWebsites');
-                    }
-
-                    $objTemplate->parse('showSiteDetails');
+        if (!empty($subscriptions)) {
+            foreach ($subscriptions as $subscription) {
+                if ($subscription->getState() == \Cx\Modules\Order\Model\Entity\Subscription::STATE_TERMINATED) {
+                    continue;
                 }
+
+                $product = $subscription->getProduct();
+                if (!$product) {
+                    continue;
+                }
+
+                $websiteNames      = array();
+                $description       = $subscription->getDescription();
+                $websiteCollection = $subscription->getProductEntity();
+                if (empty($description)) {
+                    if (   $websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection
+                        && $websiteCollection->getWebsites()
+                    ) {
+                        foreach ($websiteCollection->getWebsites() as $website) {
+                            $websiteNames[] = $website->getName();
+                        }
+                        $description = !empty($websiteNames) ? implode(', ', $websiteNames) : '';
+                    } elseif ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website) {
+                        $description = $websiteCollection->getName();
+                    }
+                }
+
+                $objTemplate->setGlobalVariable(array(
+                    'MULTISITE_SUBSCRIPTION_ID'          => contrexx_raw2xhtml($subscription->getId()),
+                    'MULTISITE_SUBSCRIPTION_DESCRIPTION' => contrexx_raw2xhtml($description),
+                    'MULTISITE_WEBSITE_PLAN'             => contrexx_raw2xhtml($product->getName()),
+                    'MULTISITE_WEBSITE_INVOICE_DATE'     => $subscription->getRenewalDate() ? $subscription->getRenewalDate()->format('d.m.Y') : '',
+                    'MULTISITE_WEBSITE_EXPIRE_DATE'      => $subscription->getExpirationDate() ? $subscription->getExpirationDate()->format('d.m.Y') : '',    
+                ));
+
+                if ($status == 'valid' && $objTemplate->blockExists('showUpgradeButton')) {
+                    $product->isUpgradable() ? $objTemplate->touchBlock('showUpgradeButton') : $objTemplate->hideBlock('showUpgradeButton');
+                }
+
+                if ($status != 'expired') {
+                    $websites = $websiteRepo->getWebsitesByTermAndSubscription($searchTerm, $subscription->getId());
+                    if ($websites) {
+                        foreach ($websites as $website) {
+                            self::parseWebsiteDetails($objTemplate, $website, $website_status);
+                            $objTemplate->parse('showWebsites');
+                        }
+                    }
+                    if ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection) {
+                        self::showOrHideBlock($objTemplate, 'showAddWebsiteButton', ($websiteCollection->getQuota() > count($websiteCollection->getWebsites())));
+                    }
+                } else {
+                    $objTemplate->touchBlock('showWebsites');
+                }
+
+                $objTemplate->parse('showSiteDetails');
             }
         } else {
             $objTemplate->hideBlock('showSiteTable');

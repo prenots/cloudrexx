@@ -169,7 +169,7 @@ class WebsiteRepository extends \Doctrine\ORM\EntityRepository {
     /**
      * Find websites by the search term
      * 
-     * @param string $term
+     * @param string  $term
      * 
      * @return array
      */
@@ -180,11 +180,82 @@ class WebsiteRepository extends \Doctrine\ORM\EntityRepository {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb ->select('website')
             ->from('\Cx\Core_Modules\MultiSite\Model\Entity\Website', 'website')
-            ->where('website.name LIKE ?1')
-            ->setParameter(1, '%' . contrexx_raw2db($term) . '%');
+            ->leftJoin('website.domains', 'domain')
+            ->where('website.name LIKE ?1')->setParameter(1, '%' . contrexx_raw2db($term) . '%')
+            ->orWhere('domain.name LIKE ?2')->setParameter(2, '%' . contrexx_raw2db($term) . '%');
         
         $websites = $qb->getQuery()->getResult();
-        
         return !empty($websites) ? $websites : array();
+    }
+    
+    /**
+     * get the websites by search term and subscription id
+     * 
+     * @param string  $term
+     * @param integer $subscriptionId
+     * 
+     * @return array
+     */
+    public function getWebsitesByTermAndSubscription($term, $subscriptionId) {
+        
+        $where = array();
+        if (!empty($term)) {
+            $where[] = '(`Website`.`name` LIKE "%' . contrexx_raw2db($term) . '%" '
+                        . 'OR `Domain`.`name` LIKE "%' . contrexx_raw2db($term) . '%" '
+                        . 'OR `Subscription`.`description` LIKE "%' . contrexx_raw2db($term) . '%")';
+        }
+        if (!empty($subscriptionId)) {
+            $where[] = '`Subscription`.`id` = ' . $subscriptionId;
+        }
+        $condition = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
+
+        //get the free and cost product ids
+        $componentRepo  = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager()->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+        $component      = $componentRepo->findOneBy(array('name' => 'MultiSite'));
+        $objCron        = $component->getController('Cron');
+        $freeProductIds = $objCron->getProductIdsByEntityClass('Website');
+        $costProductIds = $objCron->getProductIdsByEntityClass('WebsiteCollection');
+
+        //create a RSM to get the websites based on the search term and subscription
+        $rsm = new \Doctrine\ORM\Query\ResultSetMapping();
+        $rsm->addEntityResult('Cx\Core_Modules\MultiSite\Model\Entity\Website', 'Website');
+        $rsm->addFieldResult('Website', 'WebsiteId', 'id');
+        $rsm->addFieldResult('Website', 'name', 'name');
+        $rsm->addFieldResult('Website', 'status', 'status');
+        $rsm->addFieldResult('Website', 'domains', 'domains');
+        
+        $rsm->addJoinedEntityResult('Cx\Core\User\Model\Entity\User', 'User', 'Website', 'owner');
+        $rsm->addFieldResult('User', 'UserId', 'id');
+        
+        $query = 'SELECT `Website`.`id` as WebsiteId, `Website`.`name`, `Website`.`status`, 
+                                 `User`.`id` as UserId
+                                FROM 
+                                    `' . DBPREFIX . 'core_module_multisite_website` As Website
+                                LEFT JOIN 
+                                    `' . DBPREFIX . 'access_users` As User
+                                ON
+                                    `User`.`id` = `Website`.`ownerId`
+                                LEFT JOIN 
+                                    `' . DBPREFIX . 'module_order_subscription` As Subscription
+                                ON 
+                                    IF(`Website`.`websiteCollectionId` IS NULL, 
+                                        `Subscription`.`product_id` IN (' . implode(',', $freeProductIds) . ') 
+                                            AND `Subscription`.`product_entity_id` = `Website`.`id`, 
+                                        `Subscription`.`product_id` IN (' . implode(',', $costProductIds) . ') 
+                                            AND `Subscription`.`product_entity_id` = `Website`.`websiteCollectionId`
+                                    ) 
+                                LEFT JOIN 
+                                    `' . DBPREFIX . 'core_module_multisite_website_domain` As WebsiteDomain
+                                ON 
+                                    `WebsiteDomain`.`website_id` = `Website`.`id`
+                                LEFT JOIN 
+                                    `' . DBPREFIX . 'core_module_multisite_domain` As Domain
+                                ON 
+                                    `Domain`.`id` = `WebsiteDomain`.`domain_id` ' . $condition;
+        
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $queryObj  = $em->createNativeQuery($query, $rsm);
+        
+        return $queryObj->getResult();
     }
 }
