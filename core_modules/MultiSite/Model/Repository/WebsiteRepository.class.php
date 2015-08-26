@@ -209,12 +209,12 @@ class WebsiteRepository extends \Doctrine\ORM\EntityRepository {
         }
         $condition = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
 
-        //get the free and cost product ids
-        $componentRepo  = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager()->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+        //Get the ids of both free and paid product.
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $componentRepo  = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
         $component      = $componentRepo->findOneBy(array('name' => 'MultiSite'));
-        $objCron        = $component->getController('Cron');
-        $freeProductIds = $objCron->getProductIdsByEntityClass('Website');
-        $costProductIds = $objCron->getProductIdsByEntityClass('WebsiteCollection');
+        $freeProductIds = $component->getProductIdsByEntityClass('Website');
+        $costProductIds = $component->getProductIdsByEntityClass('WebsiteCollection');
 
         //create a RSM to get the websites based on the search term and subscription
         $rsm = new \Doctrine\ORM\Query\ResultSetMapping();
@@ -253,7 +253,6 @@ class WebsiteRepository extends \Doctrine\ORM\EntityRepository {
                                 ON 
                                     `Domain`.`id` = `WebsiteDomain`.`domain_id` ' . $condition;
         
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $queryObj  = $em->createNativeQuery($query, $rsm);
         
         return $queryObj->getResult();

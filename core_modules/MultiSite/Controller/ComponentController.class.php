@@ -376,7 +376,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $searchTerm     = isset($arguments['search']) ? contrexx_input2raw($arguments['search']) : '';
         
         $em = $this->cx->getDb()->getEntityManager();
-        //Get the subscriptions based on CRM contact id and get params
+        //Get the subscriptions based on CRM contact id and other parameters
         $criteria = array(
                         'contactId'       => $crmContactId, 
                         'status'          => $status, 
@@ -3750,5 +3750,26 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         
         return $serviceServer;
+    }
+
+    /**
+     * Get the product ids by entity class
+     * 
+     * @param string $entity namespace of Website or WebsiteCollections
+     * 
+     * @return array
+     */
+    public function getProductIdsByEntityClass($entity) {
+        $em          = $this->cx->getDb()->getEntityManager();
+        $entityClass = 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\'.$entity;
+        $products    = $em->getRepository('\Cx\Modules\Pim\Model\Entity\Product')->findBy(array('entityClass' => $entityClass));
+        $productIds  = array();
+        
+        if ($products) {
+            foreach ($products as $product) {
+                $productIds[] = $product->getId();
+            }
+        }
+        return $productIds;
     }
 }

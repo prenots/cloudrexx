@@ -62,7 +62,10 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
         
         $qb = $this->getEntityManager()->createQueryBuilder();
         
-        if (isset($filter['term'])) {
+        if (    !empty($filter['term'])
+            ||  !empty($filter['filterProduct'])
+            ||  !empty($filter['filterState'])
+        ) {
             $qb
                 ->select('p')
                 ->from('\Cx\Modules\Pim\Model\Entity\Product', 'p')

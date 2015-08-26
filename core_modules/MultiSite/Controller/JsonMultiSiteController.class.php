@@ -5075,41 +5075,47 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         throw new MultiSiteJsonException($_ARRAYLANG['TXT_MULTISITE_NOT_VALID_USER']);
                     }
 
-                    $orderRepo = \Env::get('em')->getRepository('Cx\Modules\Order\Model\Entity\Order');
-
-                    $orders    = $orderRepo->getOrdersByCriteria($crmContactId, 'valid', array('1, 3'));
+                    $em = $this->cx->getDb()->getEntityManager();
+                    $componentRepo  = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+                    $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
+                    $component      = $componentRepo->findOneBy(array('name' => 'MultiSite'));
+                    $freeProductIds = $component->getProductIdsByEntityClass('Website');
+                    $filter = array(
+                        'contactId'      => $crmContactId,
+                        'status'         => 'valid',
+                        'excludeProduct' => $freeProductIds
+                    );
+                    $subscriptions    = $subscriptionRepo->findSubscriptionsBySearchTerm($filter);
                     $subscriptionList = array();
-                    if (!empty($orders)) {
-                        foreach ($orders as $order) {
-                            foreach ($order->getSubscriptions() as $subscription) {
-                                if ($subscription->getState() == \Cx\Modules\Order\Model\Entity\Subscription::STATE_TERMINATED) {
+                    if (!empty($subscriptions)) {
+                        foreach ($subscriptions as $subscription) {
+                            if ($subscription->getState() == \Cx\Modules\Order\Model\Entity\Subscription::STATE_TERMINATED) {
+                                continue;
+                            }
+
+                            $product = $subscription->getProduct();
+                            if (!$product) {
+                                continue;
+                            }
+
+                            $websiteCollection = $subscription->getProductEntity();
+                            if ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection) {
+                                $description       = $subscription->getDescription();
+                                $websites          = $websiteCollection->getWebsites();
+                                if ($websiteCollection->getQuota() <= count($websites)) {
                                     continue;
                                 }
 
-                                $product = $subscription->getProduct();
-                                if (!$product) {
-                                    continue;
-                                }
-
-                                $websiteCollection = $subscription->getProductEntity();
-                                if ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection) {
-                                    $description       = $subscription->getDescription();
-                                    $websites          = $websiteCollection->getWebsites();
-                                    if ($websiteCollection->getQuota() <= count($websites)) {
-                                        continue;
+                                if (empty($description)) {
+                                    foreach ($websites as $website) {
+                                        $websiteNames[] = $website->getName();
                                     }
-
-                                    if (empty($description)) {
-                                        foreach ($websites as $website) {
-                                            $websiteNames[] = $website->getName();
-                                        }
-                                        $description = !empty($websiteNames) ? implode(', ', $websiteNames) : '';
-                                    }
-                                    $subscriptionDesc = !empty($description)
-                                                        ? $description 
-                                                        : $_ARRAYLANG['TXT_MULTISITE_WEBSITE_SUBSCRIPTION'] . ' - #'.$subscription->getId();
-                                    $subscriptionList[] = $subscription->getId(). ":".$subscriptionDesc;
+                                    $description = !empty($websiteNames) ? implode(', ', $websiteNames) : '';
                                 }
+                                $subscriptionDesc = !empty($description)
+                                                    ? $description 
+                                                    : $_ARRAYLANG['TXT_MULTISITE_WEBSITE_SUBSCRIPTION'] . ' - #'.$subscription->getId();
+                                $subscriptionList[] = $subscription->getId(). ":".$subscriptionDesc;
                             }
                         }
                     }

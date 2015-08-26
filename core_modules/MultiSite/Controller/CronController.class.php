@@ -319,10 +319,12 @@ class CronController extends \Cx\Core\Core\Model\Entity\Controller {
     public function getMailDetailsByCriteria($cronMailCriterias)
     {
         try {
-            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $em = $this->cx->getDb()->getEntityManager();
             if (isset($cronMailCriterias['Website']) || isset($cronMailCriterias['Subscription'])) {
-                $freeProductIds = $this->getProductIdsByEntityClass('Website');
-                $costProductIds = $this->getProductIdsByEntityClass('WebsiteCollection');
+                $componentRepo  = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+                $component      = $componentRepo->findOneBy(array('name' => 'MultiSite'));
+                $freeProductIds = $component->getProductIdsByEntityClass('Website');
+                $costProductIds = $component->getProductIdsByEntityClass('WebsiteCollection');
                 //NativeQuery for Website and Subscription Criteria
                 $rsm   = self::getResultSetMapping(
                             array(
@@ -474,26 +476,5 @@ class CronController extends \Cx\Core\Core\Model\Entity\Controller {
      */
     public static function parseTimeForFilter(\DateTime $date, $timeStamp = false) {
         return $timeStamp ? $date->getTimestamp() : $date->format('Y-m-d H:i:s');
-    }
-    
-    /**
-     * Get the product ids by entity class
-     * 
-     * @param string $entity namespace of Website or WebsiteCollections
-     * 
-     * @return array
-     */
-    public function getProductIdsByEntityClass($entity) {
-        $em          = $this->cx->getDb()->getEntityManager();
-        $entityClass = 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\'.$entity; 
-        $products    = $em->getRepository('\Cx\Modules\Pim\Model\Entity\Product')->findBy(array('entityClass' => $entityClass));
-        $productIds  = array();
-        
-        if ($products) {
-            foreach ($products as $product) {
-                $productIds[] = $product->getId();
-            }
-        }
-        return $productIds;
     }
 }
