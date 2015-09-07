@@ -309,14 +309,6 @@ CREATE TABLE `contrexx_core_module_linkmanager_link` (
   `brokenLinkText` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-CREATE TABLE `contrexx_core_rewrite_rule` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `regular_expression` varchar(255) NOT NULL,
-  `continue_on_match` tinyint(1) NOT NULL,
-  `rewrite_status_code` int(11) NOT NULL,
-  `order_no` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_affiliate_credit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) DEFAULT NULL,
@@ -325,7 +317,7 @@ CREATE TABLE `contrexx_core_module_multisite_affiliate_credit` (
   `payout_id` int(11) DEFAULT NULL,
   `credited` tinyint(1) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `subscription_id` (`subscription_id`),
   KEY `currency_id` (`currency_id`),
   KEY `payout_id` (`payout_id`),
@@ -341,7 +333,7 @@ CREATE TABLE `contrexx_core_module_multisite_affiliate_payout` (
   `referee_id` int(5) unsigned NOT NULL,
   `date` datetime NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `currency_id` (`currency_id`),
   KEY `referee_id` (`referee_id`),
   CONSTRAINT `contrexx_core_module_multisite_affiliate_payout_ibfk_currency_id` FOREIGN KEY (`currency_id`) REFERENCES `contrexx_module_crm_currency` (`id`),
@@ -351,14 +343,14 @@ CREATE TABLE `contrexx_core_module_multisite_cron_mail` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `active` tinyint(1) NOT NULL,
   `mail_template_key` varchar(255) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_cron_mail_criteria` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cron_mail_id` int(11) DEFAULT NULL,
   `attribute` varchar(50) NOT NULL,
   `criteria` varchar(100) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `cron_mail_id` (`cron_mail_id`),
   CONSTRAINT `contrexx_core_module_multisite_cron_mail_criteria_ibfk_mailid` FOREIGN KEY (`cron_mail_id`) REFERENCES `contrexx_core_module_multisite_cron_mail` (`id`)
 ) ENGINE=InnoDB;
@@ -370,7 +362,7 @@ CREATE TABLE `contrexx_core_module_multisite_cron_mail_log` (
   `success` tinyint(1) NOT NULL DEFAULT '0',
   `sent_date` datetime DEFAULT NULL,
   `token` varchar(32) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `cron_mail_id` (`cron_mail_id`),
   CONSTRAINT `contrexx_core_module_multisite_cron_mail_log_mailid` FOREIGN KEY (`cron_mail_id`) REFERENCES `contrexx_core_module_multisite_cron_mail` (`id`)
 ) ENGINE=InnoDB;
@@ -382,7 +374,7 @@ CREATE TABLE `contrexx_core_module_multisite_domain` (
   `type` varchar(12) NOT NULL,
   `pleskId` int(11) DEFAULT NULL,
   `coreNetDomainId` int(11) DEFAULT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `componentId` (`componentId`)
 ) ENGINE=InnoDB;
@@ -396,7 +388,7 @@ CREATE TABLE `contrexx_core_module_multisite_mail_service_server` (
   `config` longtext,
   `ipAddress` varchar(45) NOT NULL,
   `apiVersion` varchar(45) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_website` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -415,7 +407,7 @@ CREATE TABLE `contrexx_core_module_multisite_website` (
   `mailServiceServerId` int(11) DEFAULT NULL,
   `mailAccountId` int(11) DEFAULT NULL,
   `websiteCollectionId` int(11) DEFAULT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `name_index` (`name`),
   KEY `websiteCollectionId` (`websiteCollectionId`),
   KEY `ownerId` (`ownerId`),
@@ -428,14 +420,14 @@ CREATE TABLE `contrexx_core_module_multisite_website_collection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `quota` int(11) NOT NULL,
   `website_template_id` int(11) DEFAULT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `IDX_5940B8EE4E5FF631` (`website_template_id`),
   CONSTRAINT `contrexx_core_module_multisite_website_collection_ibfk_1` FOREIGN KEY (`website_template_id`) REFERENCES `contrexx_core_module_multisite_website_template` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_website_domain` (
   `website_id` int(11) unsigned NOT NULL,
   `domain_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY  (`website_id`,`domain_id`),
+  PRIMARY KEY (`website_id`,`domain_id`),
   UNIQUE KEY `domain_id` (`domain_id`),
   CONSTRAINT `contrexx_core_module_multisite_website_domain_ibfk_1` FOREIGN KEY (`website_id`) REFERENCES `contrexx_core_module_multisite_website` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `contrexx_core_module_multisite_website_domain_ibfk_2` FOREIGN KEY (`domain_id`) REFERENCES `contrexx_core_module_multisite_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
@@ -449,7 +441,7 @@ CREATE TABLE `contrexx_core_module_multisite_website_service_server` (
   `httpAuthMethod` varchar(6) DEFAULT NULL,
   `httpAuthUsername` varchar(255) NOT NULL,
   `httpAuthPassword` varchar(255) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_website_template` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -458,9 +450,17 @@ CREATE TABLE `contrexx_core_module_multisite_website_template` (
   `code_base` varchar(255) NOT NULL,
   `licensed_components` longtext NOT NULL,
   `license_message` longtext NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `IDX_921321879A068FE9` (`website_service_server_id`),
   CONSTRAINT `contrexx_core_module_multisite_website_template_ibfk_1` FOREIGN KEY (`website_service_server_id`) REFERENCES `contrexx_core_module_multisite_website_service_server` (`id`)
+) ENGINE=InnoDB ;
+CREATE TABLE `contrexx_core_rewrite_rule` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `regular_expression` varchar(255) NOT NULL,
+  `continue_on_match` tinyint(1) NOT NULL,
+  `rewrite_status_code` int(11) NOT NULL,
+  `order_no` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_setting` (
   `section` varchar(32) NOT NULL DEFAULT '',
@@ -544,7 +544,7 @@ CREATE TABLE `contrexx_log` (
   `http_x_forwarded_for` varchar(250) NOT NULL DEFAULT '',
   `referer` varchar(250) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_log_entry` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `action` varchar(8) NOT NULL,
@@ -959,7 +959,7 @@ CREATE TABLE `contrexx_module_contact_form_data` (
   `browser` varchar(255) NOT NULL DEFAULT '',
   `ipaddress` varchar(15) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+) ENGINE=MyISAM;
 CREATE TABLE `contrexx_module_contact_form_field` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `id_form` int(10) unsigned NOT NULL DEFAULT '0',
@@ -999,7 +999,7 @@ CREATE TABLE `contrexx_module_contact_form_submit_data` (
   `formlabel` text NOT NULL,
   `formvalue` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+) ENGINE=MyISAM;
 CREATE TABLE `contrexx_module_contact_recipient` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_form` int(11) NOT NULL DEFAULT '0',
@@ -2995,7 +2995,7 @@ CREATE TABLE `contrexx_module_pim_price` (
   KEY `product_id` (`product_id`),
   CONSTRAINT `contrexx_module_pim_price_ibfk_1` FOREIGN KEY (`currency_id`) REFERENCES `contrexx_module_crm_currency` (`id`),
   CONSTRAINT `contrexx_module_pim_price_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `contrexx_module_pim_product` (`id`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_pim_product` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -3014,7 +3014,7 @@ CREATE TABLE `contrexx_module_pim_product` (
   `cancellation_unit` varchar(5) NOT NULL,
   `cancellation_quantifier` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_pim_product_upgrade` (
   `product_id` int(11) NOT NULL,
   `upgrade_product_id` int(11) NOT NULL,
@@ -3568,14 +3568,14 @@ CREATE TABLE `contrexx_stats_browser` (
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`name`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_colourdepth` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `depth` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`depth`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL DEFAULT '',
@@ -3602,14 +3602,14 @@ CREATE TABLE `contrexx_stats_javascript` (
   `support` enum('0','1') DEFAULT '0',
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_operatingsystem` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) binary NOT NULL DEFAULT '',
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`name`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_referer` (
   `id` int(8) unsigned NOT NULL AUTO_INCREMENT,
   `uri` varchar(255) binary NOT NULL DEFAULT '',
@@ -3629,7 +3629,7 @@ CREATE TABLE `contrexx_stats_requests` (
   `pageTitle` varchar(250) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`page`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_requests_summary` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(10) NOT NULL DEFAULT '',
@@ -3637,14 +3637,14 @@ CREATE TABLE `contrexx_stats_requests_summary` (
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`type`,`timestamp`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_screenresolution` (
   `id` int(5) unsigned NOT NULL AUTO_INCREMENT,
   `resolution` varchar(11) NOT NULL DEFAULT '',
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`resolution`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_search` (
   `id` int(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) binary NOT NULL DEFAULT '',
@@ -3686,7 +3686,7 @@ CREATE TABLE `contrexx_stats_visitors` (
   `proxy_useragent` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`sid`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_stats_visitors_summary` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(10) NOT NULL DEFAULT '',
@@ -3694,7 +3694,7 @@ CREATE TABLE `contrexx_stats_visitors_summary` (
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`type`,`timestamp`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_syslog` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `timestamp` datetime NOT NULL,
