@@ -5,10 +5,10 @@
  * @copyright   CONTREXX CMS - COMVATION AG
  * @author      Comvation Development Team <info@comvation.com>
  * @package     contrexx
- * @subpackage  core_error
+ * @subpackage  core_module_error
  */
 
-namespace Cx\Core\Error\Controller;
+namespace Cx\Core_Modules\Error\Controller;
 
 /**
  * Main controller for Error
@@ -16,7 +16,7 @@ namespace Cx\Core\Error\Controller;
  * @copyright   CONTREXX CMS - COMVATION AG
  * @author      Comvation Development Team <info@comvation.com>
  * @package     contrexx
- * @subpackage  core_error
+ * @subpackage  core_module_error
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
    

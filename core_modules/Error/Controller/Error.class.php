@@ -6,12 +6,12 @@
  * @copyright	CONTREXX CMS - COMVATION AG
  * @author		Comvation Development Team <info@comvation.com>
  * @package	    contrexx
- * @subpackage  core_error
+ * @subpackage  core_module_error
  * @version		1.0.0
  * @todo        Edit PHP DocBlocks!
  */
 
-namespace Cx\Core\Error\Controller;
+namespace Cx\Core_Modules\Error\Controller;
 
 /**
  * Handles all errors.
@@ -20,7 +20,7 @@ namespace Cx\Core\Error\Controller;
  * @author		Comvation Development Team <info@comvation.com>
  * @access		public
  * @package	    contrexx
- * @subpackage  core_error
+ * @subpackage  core_module_error
  * @version		1.0.0
  * @todo        Declare and document class variable 'pageContent'
  */

@@ -6,11 +6,11 @@
  * @copyright	CONTREXX CMS - COMVATION AG
  * @author		Comvation Development Team <info@comvation.com>
  * @package	    contrexx
- * @subpackage  core_error
+ * @subpackage  core_module_error
  * @version		1.0.0
  */
 
-namespace Cx\Core\Error\Model\Entity;
+namespace Cx\Core_Modules\Error\Model\Entity;
 
 /**
  * Display a exception as a human readable error message
@@ -18,7 +18,7 @@ namespace Cx\Core\Error\Model\Entity;
  * @copyright	CONTREXX CMS - COMVATION AG
  * @author		Comvation Development Team <info@comvation.com>
  * @package	    contrexx
- * @subpackage  core_error
+ * @subpackage  core_module_error
  * @version		1.0.0
  */
 class ShinyException extends \Exception
