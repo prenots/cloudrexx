@@ -244,68 +244,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if(empty($websiteServiceServers)){
                 $websiteServiceServers = new \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer();
             }
-            $view = new \Cx\Core\Html\Controller\ViewGenerator($websiteServiceServers,
-                array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_SERVICE_SERVERS'],
-                    'functions' => array(
-                        'edit' => true,
-                        'add' => true,
-                        'delete' => true,
-                        'sorting' => true,
-                        'paging' => true,       // cannot be turned off yet
-                        'filtering' => false,   // this does not exist yet
-                        'actions' => function($rowData) {
-                                        if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                            $actions  = '<a href="javascript:void(0);" class = "websiteUpdate" data-id = '.$rowData['id'].' title = "update" ></a>';
-                                            $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::websiteBackup($rowData, true);
-                                            $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::executeSql($rowData, true);
-                                        }
-                                        return $actions;
-                                    }
-                    ),
-                    'fields' => array(
-                        'id' => array(
-                            'showOverview' => false,
-                        ),
-                        'hostname' => array(
-                            'header' => 'Hostname',
-                            'table' => array(
-                                 'parse' => function($value) {
-                                    $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('hostname' => $value));
-                                    $response   = JsonMultiSiteController::executeCommandOnServiceServer('ping', array(), $websiteServiceServer);
-                                    if ($response && $response->status == 'success' && $response->data->status == 'success'){
-                                        $statusIcon       = '<img src="'. '../core/Core/View/Media/icons/status_green.gif"'. ' alt='."status_green".'/>';
-                                        $hostNameStatus   = $statusIcon."&nbsp;".$value."&nbsp;".'<span class="'. 'icon-info tooltip-trigger"'. '></span><span class="'. 'tooltip-message"'. '> Bidirectional communication successfully established </span>';
-                                        return $hostNameStatus;
-                                    } else {
-                                       $statusIcon      = '<img src="'. '../core/Core/View/Media/icons/status_red.gif"'. ' alt='."status_red".'/>';
-                                       $hostNameStatus  = $statusIcon."&nbsp;".$value."&nbsp;".'<span class="'. 'icon-info tooltip-trigger"'. '></span><span class="'. 'tooltip-message"'. '>'.$response->data->message.'</span>';
-                                       return $hostNameStatus;
-                                    }
-                                 },
-                             ),
-                        ),
-                        'label' => array(
-                            'header' => 'Name',
-                        ),
-                        'secretKey' => array(
-                            'showOverview' => false,
-                        ),
-                        'installationId' => array(
-                            'showOverview' => false,
-                        ),
-                        'httpAuthMethod' => array(
-                            'showOverview' => false,
-                        ),
-                        'httpAuthUsername' => array(
-                            'showOverview' => false,
-                        ),
-                        'httpAuthPassword' => array(
-                            'showOverview' => false,
-                        ),
-                    )
-                )
-            );
+            $view = new \Cx\Core\Html\Controller\ViewGenerator(
+		        $websiteServiceServers,
+		        $this->getAllViewGeneratorOptions()
+	        );
                                  
             $cxjs = \ContrexxJavascript::getInstance();
             $cxjs->setVariable(array(
@@ -353,34 +295,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
             
             $codebaseRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($codebaseRepositoryDataArray);
-            $codeBase = new \Cx\Core\Html\Controller\ViewGenerator($codebaseRepositoryDataSet,
-                array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_CODEBASES'],
-                    'fields' => array(
-                        'Version_number' => array(
-                            'header' => 'Version number'
-                         ),
-                        'default' => array(
-                            'header'  => 'Default',
-                            'table' => array(
-                                'parse' => function($value) {
-                                    $checked = ($value == \Cx\Core\Setting\Controller\Setting::getValue('defaultCodeBase','MultiSite')) ? 'checked="checked"' : '';
-                                    $content = '<input type = "radio" class="defaultCodeBase" name = "defaultCodeBase" '.$checked.' value ="'.$value.'"/>';
-                                    return $content;
-                                },
-                        ),
-                        ),
-                        'Code_Name' => array(
-                            'header' => 'Code Name',
-                        ),
-                        'Release_Date' => array(
-                            'header' => 'Release Date',
-                        ),
-                        'Path' => array(
-                            'header' => 'Path'
-                        )
-                    )
-                )
+            $codebaseRepositoryDataSet->setDataType('Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer');
+            $codebaseRepositoryDataSet->setIdentifier('codebasesSetting');
+            $codeBase = new \Cx\Core\Html\Controller\ViewGenerator(
+                $codebaseRepositoryDataSet,
+                $this->getAllViewGeneratorOptions($codebaseRepositoryDataSet->getIdentifier())
             );
             $template->setVariable('TABLE', $codeBase->render());
             
@@ -390,37 +309,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if (empty($websiteTemplates)) {
                 $websiteTemplates = new \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteTemplate();
             }
-            $hasAccess = in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID));
-            $headerMessage = in_array($mode, array(ComponentController::MODE_SERVICE))? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SETTINGS_WEBSITE_TEMPLATE_HEADER_MSG']: '';
-            $websiteTemplatesView = new \Cx\Core\Html\Controller\ViewGenerator($websiteTemplates, 
-                array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_TEMPLATES'].$headerMessage,
-                    'functions' => array(
-                        'edit' => $hasAccess,
-                        'add' => $hasAccess,
-                        'delete' => $hasAccess,
-                        'sorting' => true,
-                        'paging' => true,       
-                        'filtering' => false,   
-                    ),
-                    'fields' => array(
-                        'id' => array(
-                            'showOverview' => false,
-                        ),
-                        'codeBase' => array(
-                            'header' => 'codeBase',
-                        ),
-                        'licensedComponents' => array(
-                            'header' => 'licensedComponents',
-                        ),
-                        'licenseMessage' => array(
-                            'header' => 'licenseMessage',
-                        ),
-                        'websiteServiceServer' => array(
-                            'showOverview' => $hasAccess,
-                        ),
-                    )
-                )
+            $websiteTemplatesView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteTemplates,
+                $this->getAllViewGeneratorOptions()
             );
             $template->setVariable('TABLE', $websiteTemplatesView->render());
         } else if (!empty($cmd[1]) && $cmd[1]=='mail_service_servers') {
@@ -429,54 +320,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if (empty($mailServiceServers)) {
                 $mailServiceServers = new \Cx\Core_Modules\MultiSite\Model\Entity\MailServiceServer();
             }
-            $mailServiceServersView = new \Cx\Core\Html\Controller\ViewGenerator($mailServiceServers, 
-                array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_MAIL_SERVICE_SERVERS'],
-                    'functions' => array(
-                        'edit' => true,
-                        'add' => true,
-                        'delete' => true,
-                        'sorting' => true,
-                        'paging' => true,       
-                        'filtering' => false,
-                        'actions' => (in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) ?
-                                        function($rowData) {
-                                            return \Cx\Core_Modules\MultiSite\Controller\BackendController::getMailServicePlans($rowData);
-                                        } : false,
-                    ),
-                    'fields' => array(
-                        'id' => array(
-                            'showOverview' => false,
-                        ),
-                        'websites' => array(
-                            'showOverview' => false,
-                        ),
-                        'authPassword' => array(
-                            'showOverview' => false,
-                        ),
-                        'authUsername' => array(
-                            'showOverview' => false,
-                        ),
-                        'config' => array(
-                            'showOverview' => false,
-                        ),
-                        'label' => array(
-                            'header' => 'Label',
-                        ),
-                        'type' => array(
-                            'header' => 'Type',
-                        ),
-                        'hostname' => array(
-                            'header' => 'HostName',
-                        ),
-                        'ipAddress' => array(
-                            'header' => 'Ip Address',
-                        ),
-                        'apiVersion' => array(
-                            'header' => 'Api Version',
-                        )
-                    )
-                )
+            $mailServiceServersView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $mailServiceServers,
+                $this->getAllViewGeneratorOptions()
             );
             $template->setVariable('TABLE', $mailServiceServersView->render());
         } else {
@@ -487,103 +333,28 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     }
 
     public function parseSectionNotifications(\Cx\Core\Html\Sigma $template, array $cmd) {
-        global $_ARRAYLANG;
+
+        $cronMailClass = '\Cx\Core_Modules\MultiSite\Model\Entity\CronMail';
         if (!empty($cmd[1]) && $cmd[1] == 'emails') {
-            $cronMails = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\CronMail')->findAll();
+            $cronMails = \Env::get('em')->getRepository($cronMailClass)->findAll();
             if (empty($cronMails)) {
                 $cronMails = new \Cx\Core_Modules\MultiSite\Model\Entity\CronMail();
             }
-
-            $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator($cronMails,
-                    array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_EMAILS'],
-                        'functions' => array(
-                            'edit' => true,
-                            'add' => true,
-                            'delete' => true,
-                            'sorting' => true,
-                            'paging' => true,
-                            'filtering' => false,
-                        )
-                    )
-            );
+            $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator(
+		        $cronMails,
+		        $this->getAllViewGeneratorOptions()
+	        );
             $template->setVariable('TABLE', $cronMailsView->render());
         } else {
-            $cronMailLog = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog')->findAll();
-            $cronMailLogView = new \Cx\Core\Html\Controller\ViewGenerator($cronMailLog,
-                    array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATION_LOGS'],
-                        'functions' => array(
-                            'edit' => false,
-                            'add' => false,
-                            'delete' => false,
-                            'sorting' => true,
-                            'paging' => true,
-                            'filtering' => false,
-                            'order' => array(
-                                'sentDate' => SORT_DESC
-                            )
-                        ),
-                        'fields' => array(
-                            'id' => array('showOverview' => false),
-                            'contactId' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CONTACT'],
-                                'table' => array(
-                                    'parse' => function($contactId) {
-                                        $contact = new \Cx\Modules\Crm\Model\Entity\CrmContact();
-                                        $contact->load($contactId);
-                                        return $contact->customerName . ' ' . $contact->family_name;
-                                    },
-                                ),
-                            ),
-                            'websiteId' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE'],
-                                'table'  => array(
-                                    'parse' => function($websiteId) {
-                                        global $_ARRAYLANG;
-                                        if (empty($websiteId)) {
-                                            return $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ALL'];
-                                        }
-                                        $websiteEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Website')
-                                                ->findOneById($websiteId);
-                                        if (!$websiteEntity) {
-                                            return;
-                                        }
-                                        return $websiteEntity->getEditLink();
-                                    }
-                                )
-                            ),
-                            'success' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITESTATE'],
-                                'table' => array(
-                                    'parse' => function($value) {
-                                        return self::getStatusImageTag($value);
-                                    }
-                                )
-                            ),
-                            'sentDate' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_SENT'],
-                            ),
-                            'token' => array('showOverview' => false),
-                            'cronMail' => array(
-                                'header' => $_ARRAYLANG['TXT_MULTISITE_WEBSITE_EMAIL'],
-                                'table' => array(
-                                    'parse' => function($value) {
-                                        global $_ARRAYLANG;
-                                        $cronMailEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\CronMail')
-                                                            ->findOneById($value);
-                                        if (!$cronMailEntity) {
-                                            return;
-                                        }
-                                        return '<a href="index.php?cmd=MultiSite&amp;act=notifications/emails&amp;editid='
-                                            . $cronMailEntity->getId() . '" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_EMAIL_EDIT'] . '">'
-                                            . $cronMailEntity->getMailTemplateKey() . '</a>';
-                                    }
-                                )
-                            )
-                        )
-                    )
-            );
+            $cronMailLogClass = 'Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog';
+            $cronMailLog = \Env::get('em')->getRepository($cronMailLogClass)->findAll();
+            if (empty($cronMailLog)) {
+                $cronMailLog = new \Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog();
+            }
+            $cronMailLogView = new \Cx\Core\Html\Controller\ViewGenerator(
+		        $cronMailLog,
+		        $this->getAllViewGeneratorOptions()
+       	    );
             $template->setVariable('TABLE', $cronMailLogView->render());
         }
     }
@@ -680,127 +451,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         } else {
             $websites = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Website')->findAll();
         }
-        $view = new \Cx\Core\Html\Controller\ViewGenerator($websites, array(
-            'header' => 'Websites',
-            'functions' => array(
-                'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                'delete' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                'sorting' => true,
-                'paging' => true,       // cannot be turned off yet
-                'filtering' => false,   // this does not exist yet
-                'actions' => function($rowData) {
-                                if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                    $actions = \Cx\Core_Modules\MultiSite\Controller\BackendController::executeSql($rowData, false);
-                                }
-                                if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                    $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::showLicense($rowData, false);
-                                }
-                                if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                    $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::remoteLogin($rowData, false);
-                                }
-                                if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                    $domainRepo = \Env::get('em')->getRepository('Cx\Core\Net\Model\Entity\Domain');
-                                    $domain     = $domainRepo->findOneBy(array('name' => \Cx\Core\Setting\Controller\Setting::getValue('customerPanelDomain','MultiSite')));
-                                    if ($domain) {
-                                        $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::remoteLogin($rowData, true);
-                                    }
-                                }
-                                if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                    $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::websiteBackup($rowData);
-                                }
-                                if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                    $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::multiSiteConfig($rowData, false);
-                                }
-                                return $actions;
-                            }
-            ),
-            'fields' => array(
-                'id' => array('header' => 'ID'),
-                'name' => array(
-                    'header' => 'TXT_MULTISITE_SITE_ADDRESS',
-                    'readonly' => true,
-                    'table' => array(
-                        'parse' => function($value) {
-                            $websiteUrl = '<a href="'.ComponentController::getApiProtocol() . $value . '.' . \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite').'" target="_blank">' . $value . '</a>';
-                            return $websiteUrl;
-                        },
-                    ),
-                ),
-                'status' => array('header' => 'Status',
-                    'table' => array(
-                        'parse' => function($value, $arrData) {
-                            // changing a Website's status must only be allowed from within the MANAGER (or HYBRID)
-                            if (!in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                return $value;
-                            }
-                            $stateOnline = \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE;
-                            $stateOffline = \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_OFFLINE;
-                            $stateDisable = \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_DISABLED;
-                            $stateOnlineSelected = ($value == $stateOnline) ? 'selected' : '';
-                            $stateOfflineSelected = ($value == $stateOffline) ? 'selected' : '';
-                            $stateDisableSelected = ($value == $stateDisable) ? 'selected' : '';
-                            if ($value == $stateOnline || $value == $stateOffline || $value == $stateDisable) {
-                                $dropDownDisplay = '<select class="changeWebsiteStatus" data-websiteDetails= "'.$arrData['id'].'-'.$arrData['name'].'">'
-                                        . '<option value = ' . $stateOnline . ' ' . $stateOnlineSelected . '>' . $stateOnline . '</option>'
-                                        . '<option value = ' . $stateOffline . ' ' . $stateOfflineSelected . '>' . $stateOffline . '</option>'
-                                        . '<option value = ' . $stateDisable . ' ' . $stateDisableSelected . '>' . $stateDisable . '</option>';
-                                return $dropDownDisplay;
-                            } else {
-                                return $value;
-                            }
-                        },
-                    )),
-                'language' => array('showOverview' => false),
-                'websiteServiceServerId' => array(
-                    'header' => 'Website Service Server',
-                    'table' => array(
-                        'parse' => function($value) {
-                            try {
-                                $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('id' => $value));
-                                if ($websiteServiceServer) {
-                                    return contrexx_raw2xhtml($websiteServiceServer->getLabel().' ('.$websiteServiceServer->getHostname()).')';
-                                }
-                            } catch (\Exception $e) {}
-                            return 'Managed by this system';
-                        },
-                    ),
-                ),
-                'ipAddress' => array('header' => 'IP Address'),
-                'owner' => array(
-                    'header' => 'Owner',
-                    'table' => array(
-                        'parse' => function($user) {
-                            return \FWUser::getParsedUserLink($user);
-                        },
-                    ),
-                ),
-                'themeId' => array(
-                    'showOverview' => false
-                    ),
-                'ftpUser' => array(
-                    'header' => 'FTP User'
-                    ),
-                'websiteServiceServer' => array(
-                    'showOverview' => false
-                    ),
-                'domains' => array(
-                    'header' => 'Domains',
-                    'table'  => array(
-                        'parse' => function ($value,$arrayData) {
-                            return $this->getWebsiteDomains($arrayData['id']);
-                        }
-                    )
-                ),
-                'secretKey' => array(
-                    'readonly'      => true,
-                    'showOverview'  => false,
-                ),
-                'installationId' => array(
-                    'readonly'      => true,
-                    'showOverview'  => false,
-                ),
-            ),
-        ));
+        $websites = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($websites);
+        // setDataType is used to make the ViewGenerator load the proper options if $orders is empty
+        $websites->setDataType('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+        $view = new \Cx\Core\Html\Controller\ViewGenerator(
+		    $websites,
+		    $this->getAllViewGeneratorOptions()
+	    );
         $template->setVariable(array('SEARCH' => $_ARRAYLANG['TXT_MULTISITE_SEARCH'],
                                      'FILTER' => $_ARRAYLANG['TXT_MULTISITE_FILTER'],
                                      'SEARCH_TERM' => $_ARRAYLANG['TXT_MULTISITE_ENTER_SEARCH_TERM'],
@@ -856,32 +513,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
         }
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($affiliateIds);
-        $view    = new \Cx\Core\Html\Controller\ViewGenerator($dataSet, array(
-                        'header' => 'Affiliate IDs',
-                        'functions' => array(
-                          'paging'  => true  
-                        ),
-                        'fields' => array(
-                            'affiliateId' => array('header' => 'TXT_CORE_MODULE_MULTISITE_AFFILIATEID'),
-                            'user'        => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_USER',
-                                'table' => array(
-                                    'parse' => function($userId, $arrData) {
-                                        return \FWUser::getParsedUserLink($userId);
-                                    }
-                                )
-                            ),
-                            'paypal'      => array('header' => 'TXT_CORE_MODULE_MULTISITE_PAYPAL_EMAIL'),
-                            'referrals'   => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_REFERRALS',
-                                'table' => array(
-                                    'parse' => function($affiliateId, $arrData) {
-                                        return \Cx\Core_Modules\MultiSite\Controller\BackendController::getReferralCountByAffiliateId($affiliateId);
-                                    }
-                                )
-                            ),
-                        )
-                   ));
+        $dataSet->setIdentifier('affiliateIds');
+        $view    = new \Cx\Core\Html\Controller\ViewGenerator(
+            $dataSet,
+            $this->getAllViewGeneratorOptions()
+        );
         $domainRepository = new \Cx\Core\Net\Model\Repository\DomainRepository();
         $mainDomain       = $domainRepository->getMainDomain()->getName();
         $affiliateUrl     = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . \Env::get('cx')->getBackendFolderName() . '/index.php?cmd=JsonData&amp;object=MultiSite&amp;act=trackAffiliateId');
@@ -978,29 +614,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function parseFtpAccountsToMaintenanceSection($websiteArray, \Cx\Core\Html\Sigma $template, $placeholder)
     {        
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($websiteArray);
-        $view    = new \Cx\Core\Html\Controller\ViewGenerator($dataSet, array(
-                        'header' => 'FTP',
-                        'functions' => array(
-                          'paging'  => true  
-                        ),
-                        'fields' => array(
-                            'name'    => array('header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITENAME'),
-                            'ftpUser' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPUSER'),
-                            'ftpPath' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPPATH'),
-                            'status'  => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITESTATE',
-                                'table' => array(
-                                    'parse' => function($value, $arrData) {
-                                        return self::getStatusImageTag($value);
-                                    }
-                                )
-                            ),
-                            'websiteServiceServer' => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVICE_SERVER',
-                                'showOverview' => \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER,
-                            )
-                        )
-                   ));
+        $dataSet->setIdentifier('websites');
+        $view    = new \Cx\Core\Html\Controller\ViewGenerator(
+            $dataSet,
+            $this->getAllViewGeneratorOptions($dataSet->getIdentifier())
+        );
         $template->setVariable($placeholder, $view->render());
     }
     
@@ -1031,74 +649,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         $domains = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findBy(array('componentType' => 'website'));
         self::$dnsRecords = self::getDnsRecords();
-        $view = new \Cx\Core\Html\Controller\ViewGenerator($domains, array(
-            'header' => 'Domains',
-            'functions' => array(
-                'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                'delete' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                'sorting' => true,
-                'paging' => true, 
-                'filtering' => false,
-            ),
-            'fields' => array(
-                'id' => array('showOverview' => false),
-                'name' => array(
-                    'header' => 'Domain',
-                    'readonly' => true,
-                ),
-                'componentId' => array(
-                    'readonly'      => true,
-                    'showOverview'  => false,
-                ),
-                'componentType' => array(
-                    'header'       => 'Type',
-                    'readonly'     => true,
-                    'table' => array(
-                        'parse' => function($value, $arrData) {
-                            return ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN 
-                                        || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN
-                                        || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? 'A' :
-                                    ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? 'CNAME' : false);
-                        },      
-                    ),
-                ),
-                'type' => array(
-                    'header'        => 'Value',
-                    'readonly'      => true,
-                    'table' => array(
-                        'parse' => function($value, $arrData) {
-                            try {
-                                $domainRepo = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findOneBy(array('id' => $arrData['id']));
-                                $website = $domainRepo->getWebsite();
-                                if ($website) {
-                                    return ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN) ? $website->getIpAddress() :
-                                            ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? $website->getFqdn()->getName() : 
-                                             ( ($value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN || $value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? $website->getMailServiceServer()->getIpAddress() : false));
-                                }
-                            } catch (\Exception $e) {}
-                            return false;
-                        },
-                    ),
-                ),
-                'coreNetDomainId' => array(
-                    'readonly'      => true,
-                    'showOverview'  => false,
-                ),
-                'pleskId' => array(
-                    'header' => 'DNS status',
-                    'showOverview'  => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                    'table' => array(
-                        'parse' => function($value) {                           
-                           $status  = isset(self::$dnsRecords[$value]) ? true : false;
-                           if ($status) {
-                               return '<img src="'. '../core/Core/View/Media/icons/led_green.gif"'. ' alt='."status_green".'/>';
-                           }
-                           return '<img src="'. '../core/Core/View/Media/icons/led_red.gif"'. ' alt='."status_red".'/>';
-                        },
-                    ),
-                ),
-            ),
-        ));
+        $view = new \Cx\Core\Html\Controller\ViewGenerator(
+            $domains,
+            $this->getAllViewGeneratorOptions()
+        );
         $template->setVariable('TABLE', $view->render()); 
     }
     
@@ -1137,37 +691,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $allBackupsArray = self::getAllBackupFilesInfoAsArray($term);
             $allBackupFilesInfo = !empty($allBackupsArray) ? $allBackupsArray : null;
             $websiteBackupRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($allBackupFilesInfo);
-            $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator($websiteBackupRepositoryDataSet,
-                array(
-                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_MAINTENANCE_BACKUPSANDRESTORE'],
-                    'functions' => array(
-                        'delete'   => false,
-                        'sorting'  => true,
-                        'paging'   => true,      
-                        'filtering'=> false,
-                        'actions'  => array($this, 'parseActionsForBackupAndRestore')
-                    ),
-                    'fields' => array(
-                        'websiteName' => array(
-                            'header'  => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITENAME']
-                         ),
-                        'dateAndTime' => array(
-                            'header'  => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DATE_AND_TIME'],
-                        ),
-                        'serviceServer' => array(
-                            'header'       => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVICE_SERVER'],
-                            'showOverview' => (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite') == ComponentController::MODE_MANAGER)
-                        ),
-                        'serviceId'   => array(
-                            'readonly'     => true,
-                            'showOverview' => false
-                        ),
-                        'userId'      => array(
-                            'readonly'     => true,
-                            'showOverview' => false
-                        )
-                    )
-                )
+            $websiteBackupRepositoryDataSet->setIdentifier('backupAndRestore');
+            $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteBackupRepositoryDataSet,
+                $this->getAllViewGeneratorOptions($websiteBackupRepositoryDataSet->getIdentifier())
             );
             $template->setVariable('TABLE', $backupAndRestore->render());
         }
@@ -1879,5 +1406,623 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $src .= $status ? 'led_green.gif' : 'led_red.gif';
         $alt = $status ? 'success' : 'error';
         return sprintf($htmlImgTag, contrexx_raw2xhtml($src), $alt);
+    }
+
+    /**
+     * Returns all entities of this components, which can have an autogeneratet view
+     *
+     * @access protected
+     * @return array
+     */
+    protected function getEntityClassesWithView() {
+        return array_merge($this->getEntityClasses(), array('Cx\Core_Modules\Listing\Model\Entity\DataSet'));
+    }
+
+    /**
+     * This function returns the ViewGeneration options for a given entityClass
+     *
+     * @access public
+     * @global $_ARRAYLANG
+     * @param $entityClassName contains the FQCN from entity
+     * @param $dataSetIdentifier
+     * @return array with options
+     */
+    protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '') {
+        global $_ARRAYLANG;
+        //$json = JsonMultiSiteController();
+        $jsonAdapterName = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::getName();
+        $classNameParts = explode('\\', $entityClassName);
+        $classIdentifier = end($classNameParts);
+
+        $langVarName = 'TXT_' . strtoupper($this->getType() . '_' . $this->getName() . '_ACT_' . $classIdentifier);
+        $header = '';
+        if (isset($_ARRAYLANG[$langVarName])) {
+            $header = $_ARRAYLANG[$langVarName];
+        }
+
+        $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
+        $hasAccess = in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID));
+        $headerMessage = in_array($mode, array(ComponentController::MODE_SERVICE))? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SETTINGS_WEBSITE_TEMPLATE_HEADER_MSG']: '';
+
+
+        switch ($entityClassName) {
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer': {
+                if ($dataSetIdentifier == 'codebasesSetting') {
+                    $header = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_CODEBASES'];
+                } else {
+                    $header = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_SERVICE_SERVERS'];
+                }
+                return array(
+                    'header' => $header,
+                    'functions' => array(
+                        'edit' => true,
+                        'add' => true,
+                        'delete' => true,
+                        'sorting' => true,
+                        'paging' => true,       // cannot be turned off yet
+                        'filtering' => false,   // this does not exist yet
+                        'actions' => function($rowData) {
+                            if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                $actions  = '<a href="javascript:void(0);" class = "websiteUpdate" data-id = '.$rowData['id'].' title = "update" ></a>';
+                                $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::websiteBackup($rowData, true);
+                                $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::executeSql($rowData, true);
+                            }
+                            return $actions;
+                        }
+                    ),
+                    'fields' => array(
+                        'id' => array(
+                            'showOverview' => false,
+                        ),
+                        'hostname' => array(
+                            'header' => 'Hostname',
+                            'table' => array(
+                                'parse' => function($value) {
+                                    $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('hostname' => $value));
+                                    $response   = JsonMultiSiteController::executeCommandOnServiceServer('ping', array(), $websiteServiceServer);
+                                    if ($response && $response->status == 'success' && $response->data->status == 'success'){
+                                        $statusIcon       = '<img src="'. '../core/Core/View/Media/icons/status_green.gif"'. ' alt='."status_green".'/>';
+                                        $hostNameStatus   = $statusIcon."&nbsp;".$value."&nbsp;".'<span class="'. 'icon-info tooltip-trigger"'. '></span><span class="'. 'tooltip-message"'. '> Bidirectional communication successfully established </span>';
+                                        return $hostNameStatus;
+                                    } else {
+                                        $statusIcon      = '<img src="'. '../core/Core/View/Media/icons/status_red.gif"'. ' alt='."status_red".'/>';
+                                        $hostNameStatus  = $statusIcon."&nbsp;".$value."&nbsp;".'<span class="'. 'icon-info tooltip-trigger"'. '></span><span class="'. 'tooltip-message"'. '>'.$response->data->message.'</span>';
+                                        return $hostNameStatus;
+                                    }
+                                },
+                            ),
+                        ),
+                        'label' => array(
+                            'header' => 'Name',
+                        ),
+                        'secretKey' => array(
+                            'showOverview' => false,
+                        ),
+                        'installationId' => array(
+                            'showOverview' => false,
+                        ),
+                        'httpAuthMethod' => array(
+                            'showOverview' => false,
+                        ),
+                        'httpAuthUsername' => array(
+                            'showOverview' => false,
+                        ),
+                        'httpAuthPassword' => array(
+                            'showOverview' => false,
+                        ),
+                        'Version_number' => array(
+                            'header' => 'Version number'
+                        ),
+                        'default' => array(
+                            'header'  => 'Default',
+                            'table' => array(
+                                'parse' => function($value) {
+                                    $checked = ($value == \Cx\Core\Setting\Controller\Setting::getValue('defaultCodeBase','MultiSite')) ? 'checked="checked"' : '';
+                                    $content = '<input type = "radio" class="defaultCodeBase" name = "defaultCodeBase" '.$checked.' value ="'.$value.'"/>';
+                                    return $content;
+                                },
+                            ),
+                        ),
+                        'Code_Name' => array(
+                            'header' => 'Code Name',
+                        ),
+                        'Release_Date' => array(
+                            'header' => 'Release Date',
+                        ),
+                        'Path' => array(
+                            'header' => 'Path'
+                        ),
+                    ),
+                );
+                break;
+            }
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\CronMailCriteria':
+                return array(
+                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_EMAILS'],
+                    'functions' => array(
+                        'edit' => true,
+                        'add' => true,
+                        'delete' => true,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false
+                    )
+                );
+                break;
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\CronMail':
+                return array(
+                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_EMAILS'],
+                    'functions' => array(
+                        'edit' => true,
+                        'add' => true,
+                        'delete' => true,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false,
+                    ),
+                );
+                break;
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog':
+                return array(
+                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATION_LOGS'],
+                    'functions' => array(
+                        'edit' => false,
+                        'add' => false,
+                        'delete' => false,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false,
+                        'order' => array(
+                            'sentDate' => SORT_DESC
+                        )
+                    ),
+                    'fields' => array(
+                        'id' => array('showOverview' => false),
+                        'contactId' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CONTACT'],
+                            'table' => array(
+                                'parse' => function($contactId) {
+                                    $contact = new \Cx\Modules\Crm\Model\Entity\CrmContact();
+                                    $contact->load($contactId);
+                                    return $contact->customerName . ' ' . $contact->family_name;
+                                },
+                            ),
+                        ),
+                        'websiteId' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE'],
+                            'table'  => array(
+                                'parse' => function($websiteId) {
+                                    global $_ARRAYLANG;
+                                    if (empty($websiteId)) {
+                                        return $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ALL'];
+                                    }
+                                    $websiteEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Website')
+                                        ->findOneById($websiteId);
+                                    if (!$websiteEntity) {
+                                        return;
+                                    }
+                                    return $websiteEntity->getEditLink();
+                                }
+                            )
+                        ),
+                        'success' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITESTATE'],
+                            'table' => array(
+                                'parse' => function($value) {
+                                    return self::getStatusImageTag($value);
+                                }
+                            )
+                        ),
+                        'sentDate' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_SENT'],
+                        ),
+                        'token' => array('showOverview' => false),
+                        'cronMail' => array(
+                            'header' => $_ARRAYLANG['TXT_MULTISITE_WEBSITE_EMAIL'],
+                            'table' => array(
+                                'parse' => function($value) {
+                                    global $_ARRAYLANG;
+                                    $cronMailEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\CronMail')
+                                        ->findOneById($value);
+                                    if (!$cronMailEntity) {
+                                        return;
+                                    }
+                                    return '<a href="index.php?cmd=MultiSite&amp;act=notifications/emails&amp;editid='
+                                    . $cronMailEntity->getId() . '" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_EMAIL_EDIT'] . '">'
+                                    . $cronMailEntity->getMailTemplateKey() . '</a>';
+                                }
+                            )
+                        )
+                    )
+                );
+                break;
+            case 'Cx\Core_Modules\Listing\Model\Entity\DataSet': {
+                switch ($dataSetIdentifier){
+                    case 'affiliateIds';
+                        $dataSetArray = array(
+                            'header' => 'Affiliate IDs',
+                            'functions' => array(
+                                'paging'  => true
+                            ),
+                            'fields' => array(
+                                'affiliateId' => array('header' => 'TXT_CORE_MODULE_MULTISITE_AFFILIATEID'),
+                                'user'        => array(
+                                    'header' => 'TXT_CORE_MODULE_MULTISITE_USER',
+                                    'table' => array(
+                                        'parse' => function($userId, $arrData) {
+                                            return \FWUser::getParsedUserLink($userId);
+                                        }
+                                    )
+                                ),
+                                'paypal'      => array('header' => 'TXT_CORE_MODULE_MULTISITE_PAYPAL_EMAIL'),
+                                'referrals'   => array(
+                                    'header' => 'TXT_CORE_MODULE_MULTISITE_REFERRALS',
+                                    'table' => array(
+                                        'parse' => function($affiliateId, $arrData) {
+                                            return \Cx\Core_Modules\MultiSite\Controller\BackendController::getReferralCountByAffiliateId($affiliateId);
+                                        }
+                                    )
+                                ),
+                            )
+                        );
+                        break;
+                    case 'backupAndRestore':
+                        $dataSetArray = array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_MAINTENANCE_BACKUPSANDRESTORE'],
+                            'functions' => array(
+                                'delete'   => false,
+                                'sorting'  => true,
+                                'paging'   => true,
+                                'filtering'=> false,
+                                'actions'  => array($this, 'parseActionsForBackupAndRestore')
+                            ),
+                            'fields' => array(
+                                'websiteName' => array(
+                                    'header'  => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITENAME']
+                                ),
+                                'dateAndTime' => array(
+                                    'header'  => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DATE_AND_TIME'],
+                                ),
+                                'serviceServer' => array(
+                                    'header'       => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVICE_SERVER'],
+                                    'showOverview' => (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite') == ComponentController::MODE_MANAGER)
+                                ),
+                                'serviceId'   => array(
+                                    'readonly'     => true,
+                                    'showOverview' => false
+                                ),
+                                'userId'      => array(
+                                    'readonly'     => true,
+                                    'showOverview' => false
+                                )
+                            )
+                        );
+                        break;
+                    case 'websites':
+                        $dataSetArray = array(
+                            'header' => 'FTP',
+                            'functions' => array(
+                                'paging'  => true
+                            ),
+                            'fields' => array(
+                                'name'    => array('header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITENAME'),
+                                'ftpUser' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPUSER'),
+                                'ftpPath' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPPATH'),
+                                'status'  => array(
+                                    'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITESTATE',
+                                    'table' => array(
+                                        'parse' => function($value, $arrData) {
+                                            return self::getStatusImageTag($value);
+                                        }
+                                    )
+                                ),
+                                'websiteServiceServer' => array(
+                                    'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVICE_SERVER',
+                                    'showOverview' => \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER,
+                                )
+                            )
+                        );
+                        break;
+                    default:
+                        $dataSetArray = array(
+                            'header' => $header,
+                            'functions' => array(
+                                'add'       => true,
+                                'edit'      => true,
+                                'delete'    => true,
+                                'sorting'   => true,
+                                'paging'    => true,
+                                'filtering' => false,
+                            ),
+                        );
+                }
+                 return array($dataSetIdentifier => $dataSetArray);
+                break;
+            }
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\WebsiteTemplate':
+                return array(
+                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_TEMPLATES'].$headerMessage,
+                    'functions' => array(
+                        'edit' => $hasAccess,
+                        'add' => $hasAccess,
+                        'delete' => $hasAccess,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false,
+                    ),
+                    'fields' => array(
+                        'id' => array(
+                            'showOverview' => false,
+                        ),
+                        'codeBase' => array(
+                            'header' => 'codeBase',
+                        ),
+                        'licensedComponents' => array(
+                            'header' => 'licensedComponents',
+                        ),
+                        'licenseMessage' => array(
+                            'header' => 'licenseMessage',
+                        ),
+                        'websiteServiceServer' => array(
+                            'showOverview' => $hasAccess,
+                        ),
+                    )
+                );
+                break;
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\MailServiceServer':
+                return array(
+                    'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_MAIL_SERVICE_SERVERS'],
+                    'functions' => array(
+                        'edit' => true,
+                        'add' => true,
+                        'delete' => true,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false,
+                        'actions' => (in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) ?
+                            function($rowData) {
+                                return \Cx\Core_Modules\MultiSite\Controller\BackendController::getMailServicePlans($rowData);
+                            } : false,
+                    ),
+                    'fields' => array(
+                        'id' => array(
+                            'showOverview' => false,
+                        ),
+                        'websites' => array(
+                            'showOverview' => false,
+                        ),
+                        'authPassword' => array(
+                            'showOverview' => false,
+                        ),
+                        'authUsername' => array(
+                            'showOverview' => false,
+                        ),
+                        'config' => array(
+                            'showOverview' => false,
+                        ),
+                        'label' => array(
+                            'header' => 'Label',
+                        ),
+                        'type' => array(
+                            'header' => 'Type',
+                        ),
+                        'hostname' => array(
+                            'header' => 'HostName',
+                        ),
+                        'ipAddress' => array(
+                            'header' => 'Ip Address',
+                        ),
+                        'apiVersion' => array(
+                            'header' => 'Api Version',
+                        )
+                    )
+                );
+                break;
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\Website':
+                  return array(
+                      'header' => 'Websites',
+                      'functions' => array(
+                          'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                          'delete' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                          'sorting' => true,
+                          'paging' => true,       // cannot be turned off yet
+                          'filtering' => false,   // this does not exist yet
+                          'actions' => function($rowData) {
+                              if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                  $actions = \Cx\Core_Modules\MultiSite\Controller\BackendController::executeSql($rowData, false);
+                              }
+                              if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                  $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::showLicense($rowData, false);
+                              }
+                              if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                  $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::remoteLogin($rowData, false);
+                              }
+                              if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                  $domainRepo = \Env::get('em')->getRepository('Cx\Core\Net\Model\Entity\Domain');
+                                  $domain     = $domainRepo->findOneBy(array('name' => \Cx\Core\Setting\Controller\Setting::getValue('customerPanelDomain','MultiSite')));
+                                  if ($domain) {
+                                      $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::remoteLogin($rowData, true);
+                                  }
+                              }
+                              if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                  $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::websiteBackup($rowData);
+                              }
+                              if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                  $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::multiSiteConfig($rowData, false);
+                              }
+                              return $actions;
+                          }
+                      ),
+                      'fields' => array(
+                          'id' => array('header' => 'ID'),
+                          'name' => array(
+                              'header' => 'TXT_MULTISITE_SITE_ADDRESS',
+                              'readonly' => true,
+                              'table' => array(
+                                  'parse' => function($value) {
+                                      $websiteUrl = '<a href="'.ComponentController::getApiProtocol() . $value . '.' . \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite').'" target="_blank">' . $value . '</a>';
+                                      return $websiteUrl;
+                                  },
+                              ),
+                          ),
+                          'status' => array('header' => 'Status',
+                              'table' => array(
+                                  'parse' => function($value, $arrData) {
+                                      // changing a Website's status must only be allowed from within the MANAGER (or HYBRID)
+                                      if (!in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
+                                          return $value;
+                                      }
+                                      $stateOnline = \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE;
+                                      $stateOffline = \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_OFFLINE;
+                                      $stateDisable = \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_DISABLED;
+                                      $stateOnlineSelected = ($value == $stateOnline) ? 'selected' : '';
+                                      $stateOfflineSelected = ($value == $stateOffline) ? 'selected' : '';
+                                      $stateDisableSelected = ($value == $stateDisable) ? 'selected' : '';
+                                      if ($value == $stateOnline || $value == $stateOffline || $value == $stateDisable) {
+                                          $dropDownDisplay = '<select class="changeWebsiteStatus" data-websiteDetails= "'.$arrData['id'].'-'.$arrData['name'].'">'
+                                              . '<option value = ' . $stateOnline . ' ' . $stateOnlineSelected . '>' . $stateOnline . '</option>'
+                                              . '<option value = ' . $stateOffline . ' ' . $stateOfflineSelected . '>' . $stateOffline . '</option>'
+                                              . '<option value = ' . $stateDisable . ' ' . $stateDisableSelected . '>' . $stateDisable . '</option>';
+                                          return $dropDownDisplay;
+                                      } else {
+                                          return $value;
+                                      }
+                                  },
+                              )),
+                          'language' => array('showOverview' => false),
+                          'websiteServiceServerId' => array(
+                              'header' => 'Website Service Server',
+                              'table' => array(
+                                  'parse' => function($value) {
+                                      try {
+                                          $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('id' => $value));
+                                          if ($websiteServiceServer) {
+                                              return contrexx_raw2xhtml($websiteServiceServer->getLabel().' ('.$websiteServiceServer->getHostname()).')';
+                                          }
+                                      } catch (\Exception $e) {}
+                                      return 'Managed by this system';
+                                  },
+                              ),
+                          ),
+                          'ipAddress' => array('header' => 'IP Address'),
+                          'owner' => array(
+                              'header' => 'Owner',
+                              'table' => array(
+                                  'parse' => function($user) {
+                                      return \FWUser::getParsedUserLink($user);
+                                  },
+                              ),
+                          ),
+                          'themeId' => array(
+                              'showOverview' => false
+                          ),
+                          'ftpUser' => array(
+                              'header' => 'FTP User'
+                          ),
+                          'websiteServiceServer' => array(
+                              'showOverview' => false
+                          ),
+                          'domains' => array(
+                              'header' => 'Domains',
+                              'table'  => array(
+                                  'parse' => function ($value,$arrayData) {
+                                      return $this->getWebsiteDomains($arrayData['id']);
+                                  }
+                              )
+                          ),
+                          'secretKey' => array(
+                              'readonly'      => true,
+                              'showOverview'  => false,
+                          ),
+                          'installationId' => array(
+                              'readonly'      => true,
+                              'showOverview'  => false,
+                          ),
+                      ),
+                  );
+                  break;
+            case 'Cx\Core_Modules\MultiSite\Model\Entity\Domain':
+                  return array(
+                      'header' => 'Domains',
+                      'functions' => array(
+                          'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                          'delete' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                          'sorting' => true,
+                          'paging' => true,
+                          'filtering' => false,
+                      ),
+                      'fields' => array(
+                          'id' => array('showOverview' => false),
+                          'name' => array(
+                              'header' => 'Domain',
+                              'readonly' => true,
+                          ),
+                          'componentId' => array(
+                              'readonly'      => true,
+                              'showOverview'  => false,
+                          ),
+                          'componentType' => array(
+                              'header'       => 'Type',
+                              'readonly'     => true,
+                              'table' => array(
+                                  'parse' => function($value, $arrData) {
+                                      return ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN
+                                          || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN
+                                          || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? 'A' :
+                                          ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? 'CNAME' : false);
+                                  },
+                              ),
+                          ),
+                          'type' => array(
+                              'header'        => 'Value',
+                              'readonly'      => true,
+                              'table' => array(
+                                  'parse' => function($value, $arrData) {
+                                      try {
+                                          $domainRepo = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findOneBy(array('id' => $arrData['id']));
+                                          $website = $domainRepo->getWebsite();
+                                          if ($website) {
+                                              return ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN) ? $website->getIpAddress() :
+                                                  ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? $website->getFqdn()->getName() :
+                                                      ( ($value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN || $value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? $website->getMailServiceServer()->getIpAddress() : false));
+                                          }
+                                      } catch (\Exception $e) {}
+                                      return false;
+                                  },
+                              ),
+                          ),
+                          'coreNetDomainId' => array(
+                              'readonly'      => true,
+                              'showOverview'  => false,
+                          ),
+                          'pleskId' => array(
+                              'header' => 'DNS status',
+                              'showOverview'  => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                              'table' => array(
+                                  'parse' => function($value) {
+                                      $status  = isset(self::$dnsRecords[$value]) ? true : false;
+                                      if ($status) {
+                                          return '<img src="'. '../core/Core/View/Media/icons/led_green.gif"'. ' alt='."status_green".'/>';
+                                      }
+                                      return '<img src="'. '../core/Core/View/Media/icons/led_red.gif"'. ' alt='."status_red".'/>';
+                                  },
+                              ),
+                          ),
+                      ),
+                  );
+                  break;
+            default:
+                return array(
+                    'header' => $header,
+                    'functions' => array(
+                        'add'       => true,
+                        'edit'      => true,
+                        'delete'    => true,
+                        'sorting'   => true,
+                        'paging'    => true,
+                        'filtering' => false,
+                    ),
+                );
+        }
     }
 }

@@ -18,6 +18,8 @@ Cx\Core_Modules\MultiSite\Model\Entity\CronMail:
     cronMailCriterias:
       targetEntity: Cx\Core_Modules\MultiSite\Model\Entity\CronMailCriteria
       mappedBy: cronMail
+      cascade: [persist]
     cronMailLogs:
       targetEntity: Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog
       mappedBy: cronMail
+      cascade: [persist]
