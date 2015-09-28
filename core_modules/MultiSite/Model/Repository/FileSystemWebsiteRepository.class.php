@@ -4,6 +4,12 @@ namespace Cx\Core_Modules\MultiSite\Model\Repository;
 class FileSystemWebsiteRepository {
     protected $websites = array();
     
+    public function findFirst($basepath) {
+        $this->findAll($basepath);
+        
+        return reset($this->websites);
+    }
+    
     public function findAll($basepath) {
         
         if (isset($this->websites[$basepath])) {

@@ -2789,6 +2789,65 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     
     public function preInit(\Cx\Core\Core\Controller\Cx $cx) {
         global $_CONFIG;
+        
+        /**
+         * This gives us the list of classes that are not loaded from codebase
+         */
+        if (
+            isset($_GET['MultiSitePreDeclared']) &&
+            (
+                $_GET['MultiSitePreDeclared'] == 'showClasses' ||
+                $_GET['MultiSitePreDeclared'] == 'showInterfaces' ||
+                $_GET['MultiSitePreDeclared'] == 'showFiles'
+            )
+        ) {
+            global $builtinClasses, $builtinInterfaces;
+            
+            // simulate loading of website in order to get correct result
+            $multiSiteRepo = new \Cx\Core_Modules\MultiSite\Model\Repository\FileSystemWebsiteRepository();
+            $firstWebsiteName = key($multiSiteRepo->findFirst(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/'));
+            
+            // get declared classes and interfaces without built in ones
+            $declaredClasses = array_diff(get_declared_classes(), $builtinClasses);
+            $declaredInterfaces = array_diff(get_declared_interfaces(), $builtinInterfaces);
+            
+            // sort output
+            asort($declaredClasses);
+            asort($declaredInterfaces);
+            
+            // fix array indexes
+            $declaredClasses = array_values($declaredClasses);
+            $declaredInterfaces = array_values($declaredInterfaces);
+            
+            // output if showClasses or showInterfaces
+            if ($_GET['MultiSitePreDeclared'] == 'showClasses') {
+                echo implode("\n", $declaredClasses);
+                die();
+            }
+            if ($_GET['MultiSitePreDeclared'] == 'showInterfaces') {
+                echo implode("\n", $declaredInterfaces);
+                die();
+            }
+            
+            // create list of files
+            $declaredFiles = array();
+            foreach (array_merge($declaredClasses, $declaredInterfaces) as $class) {
+                $reflection = new \ReflectionClass($class);
+                $declaredFiles[] = substr(
+                    $reflection->getFileName(),
+                    strlen($this->cx->getCodeBaseDocumentRootPath()) + 1
+                );
+            }
+            
+            // drop duplicates, sort and fix indexes
+            $declaredFiles = array_unique($declaredFiles);
+            asort($declaredFiles);
+            $declaredFiles = array_values($declaredFiles);
+            
+            // output
+            echo implode("\n", $declaredFiles);
+            die();
+        }
 
         // Abort in case the request has been made to a unsupported cx-mode
         if (!in_array($cx->getMode(), array($cx::MODE_FRONTEND, $cx::MODE_BACKEND, $cx::MODE_COMMAND, $cx::MODE_MINIMAL))) {

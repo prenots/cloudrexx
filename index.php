@@ -6,6 +6,14 @@
  * @author Michael Ritter <michael.ritter@comvation.com>
  */
 
+/**
+ * @global $builtinClasses List of classes defined by PHP
+ * @global $builtinInterfaces List of interfaces defined by PHP
+ */
+global $builtinClasses, $builtinInterfaces;
+$builtinClasses = get_declared_classes();
+$builtinInterfaces = get_declared_interfaces();
+
 require_once dirname(__FILE__).'/core/Core/init.php';
 
 /**
