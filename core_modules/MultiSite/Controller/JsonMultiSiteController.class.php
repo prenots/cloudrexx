@@ -4250,6 +4250,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             $resp->data->websiteInfo->codeBase =   !\FWValidator::isEmpty($website->getCodeBase())
                                                  ? $website->getCodeBase() 
                                                  : $config['coreCmsVersion'];
+            $resp->data->websiteInfo->backupDateTime = date(ASCMS_DATE_FORMAT_DATETIME);
             $file    = new \Cx\Lib\FileSystem\File($websiteBackupPath.'/info/meta.yml');
             $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($resp->data->websiteInfo);
             $file->touch();
