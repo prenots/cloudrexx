@@ -98,7 +98,7 @@
 })(jQuery);
 
 function websiteRestoreCallbackJs(callback) {
-    if ($J.trim(callback) !== '') {
+    if ($J.trim(callback[0]) !== '') {
         var params = {uploadedFilePath: callback[0]};
         $J.ajax({
             url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=checkUserStatusOnRestore",
