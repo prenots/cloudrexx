@@ -74,8 +74,8 @@ class ViewGenerator {
     /**
      *
      * @param mixed $object Array, instance of DataSet, instance of EntityBase, object
-     * @param $options is functions array 
-     * @throws ViewGeneratorException 
+     * @param array $options component options
+     * @throws ViewGeneratorException if there is any error in try catch statement
      */
     public function __construct($object, $options = array()) {
         $this->componentOptions = $options;
@@ -130,7 +130,7 @@ class ViewGenerator {
             // post edit
             $editId = $this->getEntryId();
             if (
-                !empty($editId) && (
+                $editId != 0 && (
                     (
                         !empty($this->options['functions']['edit']) &&
                         $this->options['functions']['edit'] != false
@@ -168,9 +168,9 @@ class ViewGenerator {
     /**
      * This function is used to find the namespace of a passed object
      *
-     * @param $object object of which the namespace is needed
-     * @return String with Namespace
      * @access protected
+     * @param object $object object of which the namespace is needed
+     * @return string namespace of the passed object
      */
     protected function findEntityClass($object)
     {
@@ -202,13 +202,13 @@ class ViewGenerator {
 
     /**
      * This function saves the data of an entity to its class.
-     * This only prepares the database store, but does not stores it in database
+     * This only prepares the database store, but does not store it in database
      * To store them in database use persist and flush from doctrine
      *
-     * @param $entity object of the class we want to save
-     * @param $entityClassMetadata Doctrine\ORM\Mapping\ClassMetadata
-     * @param $entityData array with data to save to class
      * @access protected
+     * @param object $entity object of the class we want to save
+     * @param Doctrine\ORM\Mapping\ClassMetadata $entityClassMetadata MetaData for the entity
+     * @param array $entityData array with data to save to class
      */
     protected function savePropertiesToClass($entity, $entityClassMetadata, $entityData = array())
     {
@@ -227,15 +227,34 @@ class ViewGenerator {
             if (
                 isset($this->options['fields']) &&
                 isset($this->options['fields'][$name]) &&
-                isset($this->options['fields'][$name]['storecallback']) &&
-                is_callable($this->options['fields'][$name]['storecallback'])
+                isset($this->options['fields'][$name]['storecallback'])
             ) {
                 $storecallback = $this->options['fields'][$name]['storecallback'];
                 $postedValue = null;
                 if (isset($entityData['field'])) {
                     $postedValue = contrexx_input2raw($entityData[$name]);
                 }
-                $entityData[$name] = $storecallback($postedValue);
+                /* We use json to do the storecallback. The 'else if' is for backwards compatibility so you can declare
+                 * the function directly without using json. This is not recommended and not working over session */
+                if (
+                    is_array($storecallback) &&
+                    isset($storecallback['adapter']) &&
+                    isset($storecallback['method'])
+                ) {
+                    $json = new \Cx\Core\Json\JsonData();
+                    $jsonResult = $json->data(
+                        $storecallback['adapter'],
+                        $storecallback['method'],
+                        array(
+                            'postedValue' => $postedValue,
+                        )
+                    );
+                    if ($jsonResult['status'] == 'success') {
+                        $entityData[$name] = $jsonResult["data"];
+                    }
+                } else if (is_callable($storecallback)) {
+                    $entityData[$name] = $storecallback($postedValue);
+                }
             }
             if (isset($entityData[$name]) && $name != $primaryKeyName) {
                 $fieldDefinition = $entityClassMetadata->getFieldMapping($name);
@@ -264,11 +283,11 @@ class ViewGenerator {
      * <id_to_edit> can be a number, string or set of both, separated by comma
      *
      * @access protected
-     * @return int|null
+     * @return int 0 if no entry was found
      */
     protected function getEntryId() {
         if (!isset($_GET['editid']) && !isset($_POST['editid'])) {
-            return null;
+            return 0;
         }
         if (isset($_GET['editid'])) {
             $edits = explode('},{', substr($_GET['editid'], 1, -1));
@@ -303,9 +322,9 @@ class ViewGenerator {
     /**
      * This function finds out what we want to render and then renders the form
      *
-     * @param $isSingle
+     * @param boolean $isSingle if we only render one entry
      * @access public
-     * @return string
+     * @return string rendered view
      * */
     public function render(&$isSingle = false) {
         global $_ARRAYLANG;
@@ -321,7 +340,7 @@ class ViewGenerator {
 
         // this case is used to get the right entry if we edit a existing one
         if ($this->object instanceof \Cx\Core_Modules\Listing\Model\Entity\DataSet
-            && !empty($entityId)) {
+            && $entityId != 0) {
             if ($this->object->entryExists($entityId)) {
                 $renderObject = $this->object->getEntry($entityId);
             }
@@ -361,8 +380,8 @@ class ViewGenerator {
      * This function will render the form for a given entry by id. If id is null, an empty form will be loaded
      *
      * @access protected
-     * @param $entityId
-     * @return string
+     * @param int $entityId id of the entity
+     * @return string rendered view
      * */
     protected function renderFormForEntry($entityId) {
         global $_CORELANG;
@@ -383,7 +402,7 @@ class ViewGenerator {
         }
         $entityObject = \Env::get('em')->getClassMetadata($entityClassWithNS);
         $primaryKeyNames = $entityObject->getIdentifierFieldNames(); // get the name of primary key in database table
-        if (!$entityId && !empty($this->options['functions']['add'])) { // load add entry form
+        if ($entityId == 0 && !empty($this->options['functions']['add'])) { // load add entry form
             $this->setProperCancelUrl('add');
             $actionUrl = clone \Env::get('cx')->getRequest()->getUrl();
             $actionUrl->setParam('add', 1);
@@ -419,7 +438,7 @@ class ViewGenerator {
                     $renderArray[$field]= new $associationMapping['targetEntity']();
                 }
             }
-        } elseif ($entityId && $this->object->entryExists($entityId)) { // load edit entry form
+        } elseif ($entityId != 0 && $this->object->entryExists($entityId)) { // load edit entry form
             $this->setProperCancelUrl('editid');
             $actionUrl = clone \Env::get('cx')->getRequest()->getUrl();
             $actionUrl->setParam('editid', null);
@@ -476,16 +495,39 @@ class ViewGenerator {
         // This should be moved to FormGenerator as soon as FormGenerator
         // gets the real entity instead of $renderArray
         $additionalContent = '';
-        if (isset($this->options['preRenderDetail'])) {
-            $callback = $this->options['preRenderDetail'];
-            $additionalContent = $callback($this, $this->formGenerator, $entityId);
+        $preRender = $this->options['preRenderDetail'];
+        /* We use json to do preRender the detail. The 'else if' is for backwards compatibility so you can declare
+         * the function directly without using json. This is not recommended and not working over session */
+        if (
+            isset($preRender) &&
+            is_array($preRender) &&
+            isset($preRender['adapter']) &&
+            isset($preRender['method'])
+        ) {
+            $json = new \Cx\Core\Json\JsonData();
+            $jsonResult = $json->data(
+                $preRender['adapter'],
+                $preRender['method'],
+                array(
+                    'viewGenerator' => $this,
+                    'formGenerator' => $this->formGenerator,
+                    'entityId'  => $entityId,
+                )
+            );
+            if ($jsonResult['status'] == 'success') {
+                $additionalContent .= $jsonResult["data"];
+            }
+        } else if (is_callable($preRender)) {
+            $additionalContent = $preRender($this, $this->formGenerator, $entityId);
+
         }
         return $this->formGenerator . $additionalContent;
     }
 
     /**
+     * This function will return the object of the ViewGenerator
      * @access public
-     * @return object
+     * @return object the object of ViewGenerator
      */
     public function getObject() {
         return $this->object;
@@ -494,9 +536,9 @@ class ViewGenerator {
     /**
      * This function saves an entity to the database
      *
-     * @param $entityWithNS class name including namespace
+     * @param string $entityWithNS class name including namespace
      * @access protected
-     * @global $_ARRAYLANG
+     * @global array $_ARRAYLANG array containing the language variables
      */
     protected function saveEntry($entityWithNS) {
         global $_ARRAYLANG;
@@ -520,7 +562,7 @@ class ViewGenerator {
         $associationMappings = $entityClassMetadata->getAssociationMappings();
 
         // if we have a entityId, we came from edit mode and so we try to load the existing entry
-        if($entityId) {
+        if($entityId != 0) {
             $entity = \Env::get('em')->getRepository($entityWithNS)->find($entityId);
             $entityArray = array(); // This array is used for the existing values
             if ($this->object->entryExists($entityId)) {
@@ -591,15 +633,24 @@ class ViewGenerator {
 
                     // save the "n" associated class data to its class
                     $this->savePropertiesToClass($associatedEntity, $associatedEntityClassMetadata, $entityData);
+
+                    // Linking 1: link the associated entity to the main entity for doctrine
                     $entity->{'add' . preg_replace('/_([a-z])/', '\1', ucfirst(substr($name, 0, -1)))}($associatedEntity);
+
+                    // Linking 2: link the main entity to its associated entity. This should normally be done by
+                    // 'Linking 1' but because not all components have implemented this, we do it here by ourselves
+                    $method = 'set' . ucfirst($value["mappedBy"]);
+                    if (method_exists($associatedEntity, $method)) {
+                        $associatedEntity->{$method}($entity);
+                    }
                     
-                    // buffer entity, so we can persit it later
+                    // buffer entity, so we can persist it later
                     $associatedEntityToPersist[] = $associatedEntity;
                 }
             }
         }
 
-        if($entityId) { // edit case
+        if($entityId != 0) { // edit case
             // update the main entry in doctrine so we can store it over doctrine to database later
             $this->savePropertiesToClass($entity, $entityClassMetadata);
             $param = 'editid';
@@ -659,9 +710,11 @@ class ViewGenerator {
     }
     
     /**
-     * @param $entityWithNS class name including namespace
+     * This function is used to delete an entry
+     *
+     * @param string $entityWithNS class name including namespace
      * @access protected
-     * @global $_ARRAYLANG
+     * @global array $_ARRAYLANG array containing the language variables
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
      * @throws \Exception
@@ -683,6 +736,10 @@ class ViewGenerator {
         $pageRepo = \Env::get('em')->getRepository($entityWithNS);
         $associationMappings = $entityObj->getAssociationMappings();
         foreach ($associationMappings as $mapping => $value) {
+            // we only need to delete the n associated values, the single associated will be handled by doctrine itself
+            if (!$entityObj->isCollectionValuedAssociation($mapping)) {
+                continue;
+            }
             $mainEntity = $pageRepo->find($id);
             $associatedEntities = $mainEntity->{'get'.preg_replace('/_([a-z])/', '\1', ucfirst($mapping))}();
             foreach ($associatedEntities as $associatedEntity) {
@@ -710,8 +767,10 @@ class ViewGenerator {
     }
 
     /**
+     * Creates a string out of the ViewGenerator object
+     *
      * @access public
-     * @return string
+     * @return string the object ViewGenerator as string
      */
     public function __toString() {
         try {
@@ -725,18 +784,20 @@ class ViewGenerator {
      * This function checks if a post request contains any data besides csrf
      *
      * @access protected
-     * @global $_ARRAYLANG
-     * @return bool
+     * @global array $_ARRAYLANG array containing the language variables
+     * @return bool true if $_POST is empty
      */
     protected function checkBlankPostRequest() {
         global $_ARRAYLANG;
 
-        $post=$_POST;
+        $post = $_POST;
         unset($post['csrf']);
-        $blankPost=true;
+        $blankPost = true;
         if (!empty($post)) {
-            foreach($post as $value) {
-                if ($value) $blankPost=false;
+            foreach ($post as $value) {
+                if ($value) {
+                    $blankPost = false;
+                }
             }
         }
         if ($blankPost) {
@@ -750,8 +811,8 @@ class ViewGenerator {
      * This function checks if a form is valid
      *
      * @access protected
-     * @global $_ARRAYLANG
-     * @return boolean
+     * @global array $_ARRAYLANG array containing the language variables
+     * @return boolean true if form is valid
      */
     protected function validateForm() {
         global $_ARRAYLANG;
@@ -773,8 +834,10 @@ class ViewGenerator {
     }
 
     /**
-     * @param $parameterName
+     * Sets the cancel url for the given param
+     *
      * @access protected
+     * @param string $parameterName name of the param
      * */
     protected function setProperCancelUrl($parameterName){
         if (!isset($this->options['cancelUrl']) || !is_a($this->options['cancelUrl'], 'Cx\Core\Routing\Url')) {
