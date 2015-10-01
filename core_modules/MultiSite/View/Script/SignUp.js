@@ -273,6 +273,8 @@
             message = message.replace('%2$s', '<a href="https://' + objAddress.val() + '.' + options.multisiteDomain + '" target="_blank">https://' + objAddress.val() + '.' + options.multisiteDomain + '</a>');
             validator.showProgress(message);
 
+            trackConversions();
+
             jQuery.ajax({
                 dataType: "json",
                 url: options.signUpUrl,
@@ -394,6 +396,69 @@
         objModal.find('.multisite-form').show();
         jQuery('#multiSiteSignUp').find('.modal-body').css({'min-height': jQuery('#multiSiteSignUp').find('.multisite-form').height()});
     }
+    
+    function trackConversions() {
+        // check if conversion tracking shall be done
+        if (!options.conversionTrack) {
+            return;
+        }
+        
+        price = options.productPrice;
+        currency = options.orderCurrency;
+        trackGoogleConversion(price, currency);
+        trackFacebookConversion(price, currency);
+    }
+
+    function trackGoogleConversion(price, currency) {
+        // check if google conversion tracking shall be done
+        if (!options.trackGoogleConversion) {
+            return;
+        }
+
+        jQuery.getScript('//www.googleadservices.com/pagead/conversion_async.js', function() {
+            goog_snippet_vars = function() {
+                var w = window;
+                w.google_conversion_id = options.googleConversionId;
+                w.google_conversion_label = "ujWnCMeCvF4Q3eSdxgM";
+                w.google_remarketing_only = false;
+                w.google_conversion_value  = price;
+                w.google_conversion_currency = currency;
+            }
+            // DO NOT CHANGE THE CODE BELOW.
+            goog_report_conversion = function(url) {
+                goog_snippet_vars();
+                window.google_conversion_format = "3";
+                window.google_is_call = true;
+                var opt = new Object();
+                opt.onload_callback = function() {
+                    if (typeof(url) != 'undefined') {
+                        window.location = url;
+                    }
+                }
+                var conv_handler = window['google_trackConversion'];
+                if (typeof(conv_handler) == 'function') {
+                    conv_handler(opt);
+                }
+            }
+            goog_report_conversion();
+        });
+    }
+
+    function trackFacebookConversion(price, currency) {
+        // check if facebook conversion tracking shall be done
+        if (!options.trackFacebookConversion) {
+            return;
+        }
+
+        var _fbq = window._fbq || (window._fbq = []);
+        jQuery.getScript('//connect.facebook.net/en_US/fbds.js', function() {
+            _fbq.loaded = true;
+        });
+
+        window._fbq = window._fbq || [];
+        window._fbq.push(['track', options.facebookConversionId, {'value':price,'currency':currency}]);
+    }
+
 
     initSignUpForm();
 }
