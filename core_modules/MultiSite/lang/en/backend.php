@@ -532,6 +532,9 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG'] = 'Failed to cop
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'] = 'Website successfully copied.';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS'] = 'Website copy under progress. Please wait!';
 $_ARRAYLANG['TXT_MULTISITE_NEW_SUBSCRIPTION'] = 'New subscription';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'The \'copy\' process, copies the selected website data, users and component settings to new website.
+Please enter the new \'Website name\' and choose the \'Subscription\' to continue.
+If you want to buy a new subscription for the website use \'New subscription\' button.';
 
 //set owner user
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHANGE_OWNER_USER_ERROR'] = 'Error while switching the owner user';

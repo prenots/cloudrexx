@@ -5,6 +5,9 @@
             <input type="hidden" name="websiteId" id="websiteId" value="{MULTISITE_WEBSITE_ID}" />
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             <h2>{MULTISITE_COPY_WEBSITE}</h2>
+            <div class="alert alert-success" role="alert">
+                {TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION}
+            </div>
             <fieldset>
                 <div class="row">
 
@@ -15,18 +18,17 @@
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <select data-bv-notempty="true" data-bv-notempty-message=""  id="multisite_subscription" name="subscription" class="form-control">
-                            <option value="">{TXT_MULTISITE_WEBSITE_SUBSCRIPTION}</option>
-                            <!-- BEGIN openSubscriptions -->
-                            <option value="{MULTISITE_SUBSCRIPTION_ID}">{MULTISITE_SUBSCRIPTION_NAME}</option>
-                            <!-- END openSubscriptions -->
-                        </select>
-                    </div>
                     <div class="form-inline">
-                        <div class="form-group">
-                            Or
-                            <button type="button" class="add addSubscription" data-remote="/api/MultiSite/SubscriptionSelection" data-target="SubscriptionSelection">{TXT_MULTISITE_NEW_SUBSCRIPTION}</button>
+                        <div class="form-group col-md-8 no-padding-left">
+                            <select class="col-md-12 no-padding" data-bv-notempty="true" data-bv-notempty-message=""  id="multisite_subscription" name="subscription" class="form-control">
+                                <option value="">{TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION}</option>
+                                <!-- BEGIN openSubscriptions -->
+                                <option value="{MULTISITE_SUBSCRIPTION_ID}">{MULTISITE_SUBSCRIPTION_NAME}</option>
+                                <!-- END openSubscriptions -->
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4 no-padding">
+                            <button type="button" class="add col-md-12 addSubscription" data-remote="/api/MultiSite/SubscriptionSelection" data-target="SubscriptionSelection">{TXT_MULTISITE_NEW_SUBSCRIPTION}</button>
                         </div>
                     </div>
                 </div>
