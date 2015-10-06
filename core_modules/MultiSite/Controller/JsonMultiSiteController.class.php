@@ -4370,6 +4370,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         $subscriptionId        = isset($params['post']['subscriptionId'])
                                  ? contrexx_input2int(($params['post']['subscriptionId']))
                                  : 0;
+        $productId             = isset($params['post']['productId'])
+                                 ? contrexx_input2int(($params['post']['productId']))
+                                 : 0;
         if (   empty($websiteName)
             || empty($websiteBackupFileName)
         ) {
@@ -4398,13 +4401,13 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
 
                     \DBG::log('JsonMultiSiteController: Create a new website on restore..');
-                    $this->createNewWebsiteOnRestore($websiteName, $websiteBackupFilePath, $serviceServerId, $selectedUserId, $subscriptionId);
+                    $this->createNewWebsiteOnRestore($websiteName, $websiteBackupFilePath, $serviceServerId, $selectedUserId, $subscriptionId, $productId);
 
                     \DBG::log('JsonMultiSiteController: Restore website Database and Repository..');
                     $this->websiteDataRestore($websiteName, $websiteBackupFilePath);
 
                     \DBG::log('JsonMultiSiteController: Website Info Restore..');
-                    $this->websiteInfoRestore($websiteName, $websiteBackupFilePath, $subscriptionId);
+                    $this->websiteInfoRestore($websiteName, $websiteBackupFilePath, $subscriptionId, $productId);
 
                     $website = $this->getWebsiteByName($websiteName);
                     if (!$website) {
@@ -4478,9 +4481,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      * @param integer $serviceServerId       service server id
      * @param integer $selectedUserId        userId
      * @param integer $subscriptionId        subscriptionId
+     * @param integer $productId             Product Id
      * @throws MultiSiteJsonException
      */
-    protected function createNewWebsiteOnRestore($websiteName, $websiteBackupFilePath, $serviceServerId, $selectedUserId, $subscriptionId)
+    protected function createNewWebsiteOnRestore($websiteName, $websiteBackupFilePath, $serviceServerId, $selectedUserId, $subscriptionId, $productId)
     {
         global $_ARRAYLANG;
         
@@ -4500,7 +4504,11 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $params['multisite_email_address'] = $websiteInfoArray['website']['websiteEmail'];
             }
 
-            if ($websiteInfoArray['subscription']) {
+            if (!empty($productId)) {
+                $params['product_id'] = $productId;
+            }
+
+            if ($websiteInfoArray['subscription'] && empty($productId)) {
                 $params['product_id']    = $websiteInfoArray['subscription']['subscriptionProductId'];
                 $params['renewalOption'] = $websiteInfoArray['subscription']['subscriptionRenewalUnit'];
             }
@@ -4647,9 +4655,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      * @param string  $websiteName           website name
      * @param string  $websiteBackupFilePath website backup path
      * @param integer $subscriptionId        subscriptionId
+     * @param integer $productId             Product Id
      * @throws MultiSiteJsonException
      */
-    protected function websiteInfoRestore($websiteName, $websiteBackupFilePath, $subscriptionId)
+    protected function websiteInfoRestore($websiteName, $websiteBackupFilePath, $subscriptionId, $productId)
     {
         global $_ARRAYLANG;
         
@@ -4690,7 +4699,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             }
             
             //Skip to restore subscription for user defined subscription
-            if (empty($subscriptionId)) {
+            if (empty($subscriptionId) && empty($productId)) {
                 \DBG::log('JsonMultiSiteController: Restore website subscription details..');
                 $this->updateWebsiteSubscriptionDetails($websiteBackupFilePath, $website->getId());
             }
@@ -6927,10 +6936,14 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         if ($componentController && !$componentController->isCrmUser()) {
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG']);
         }
+        $websiteId = !empty($params['post']['websiteId']) 
+                     ? contrexx_input2int($params['post']['websiteId']) 
+                     : (!empty($params['get']['websiteId']) 
+                        ? contrexx_input2int($params['get']['websiteId']) 
+                        : 0);
         if (    empty($params['post'])
-            ||  empty($params['post']['websiteId'])
+            ||  empty($websiteId)
             ||  empty($params['post']['multisite_address'])
-            ||  empty($params['post']['subscriptionId'])
         ) {
             \DBG::msg('JsonMultiSiteController::copywebsite() failed: Insufficient arguments supplied: ' . var_export($params, true));
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG']);
@@ -6940,10 +6953,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 case ComponentController::MODE_MANAGER:
                     $objUser = \FWUser::getFWUserObject()->objUser;
                     $em      = $this->cx->getDb()->getEntityManager();
-
-                    $websiteId      = isset($params['post']['websiteId']) ? contrexx_input2int($params['post']['websiteId']) : 0;
+                    
                     $websiteAddress = isset($params['post']['multisite_address']) ? contrexx_input2raw($params['post']['multisite_address']) : '';
                     $subscriptionId = isset($params['post']['subscriptionId']) ? contrexx_input2int($params['post']['subscriptionId']) : 0;
+                    $productId      = isset($params['get']['productId']) ? contrexx_input2int($params['get']['productId']) : 0;
                     if (empty($websiteId)) {
                         throw new MultiSiteJsonException('Website id cannot be empty');
                     }
@@ -6959,24 +6972,39 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     // verify target website address
                     $this->address($params);
-                    // verify target subscription
-                    $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
-                    $subscription     = $subscriptionRepo->findOneBy(array('id' => $subscriptionId));
+                    // verify the subscription and product
+                    if (empty($subscriptionId) && empty($productId)) {
+                        throw new MultiSiteJsonException('Subscription id and product id are empty.');
+                    }
+                    if (!empty($subscriptionId)) {
+                        // verify target subscription
+                        $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
+                        $subscription     = $subscriptionRepo->findOneBy(array('id' => $subscriptionId));
 
-                    if (!$subscription) {
-                        throw new MultiSiteJsonException('Selected subscription does not exist');
+                        if (!$subscription) {
+                            throw new MultiSiteJsonException('Selected subscription does not exist');
+                        }
+                        //Verify if the signed-in user is the authorized owner of the subscription ordered
+                        if ($objUser->getCrmUserId() != $subscription->getOrder()->getContactId()) {
+                            throw new MultiSiteJsonException('Subscription is not valid for the customer');
+                        }
+                        // check website quota
+                        $websiteCollection = $subscription->getProductEntity();
+                        if (   !($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection)
+                            || $websiteCollection->getQuota() <= count($websiteCollection->getWebsites())
+                        ) {
+                            throw new MultiSiteJsonException('Invalid Subscription');
+                        }
                     }
-                    //Verify if the signed-in user is the authorized owner of the subscription ordered
-                    if ($objUser->getCrmUserId() != $subscription->getOrder()->getContactId()) {
-                        throw new MultiSiteJsonException('Subscription is not valid for the customer');
+
+                    if (!empty($productId)) {
+                        $productRepository = $em->getRepository('Cx\Modules\Pim\Model\Entity\Product');
+                        $product           = $productRepository->findOneBy(array('id' => $productId));
+                        if (!$product) {
+                            throw new MultiSiteJsonException('Selected product does not exist');
+                        }
                     }
-                    // check website quota
-                    $websiteCollection = $subscription->getProductEntity();
-                    if (   !($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection)
-                        || $websiteCollection->getQuota() <= count($websiteCollection->getWebsites())
-                    ) {
-                        throw new MultiSiteJsonException('Invalid Subscription');
-                    }
+
                     // backup website
                     $backupArguments = array(
                         'serviceServerId' => $website->getWebsiteServiceServerId(),
@@ -6990,9 +7018,14 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         'websiteName'           => $websiteAddress,
                         'websiteBackupFileName' => current($websiteBackupResp->data->backups),
                         'serviceServerId'       => $website->getWebsiteServiceServerId(),
-                        'selectedUserId'        => $objUser->getId(),
-                        'subscriptionId'        => $subscriptionId
+                        'selectedUserId'        => $objUser->getId(),                        
                     );
+                    if (!empty($subscriptionId)) {
+                        $restoreArguments['subscriptionId'] = $subscriptionId;
+                    }
+                    if (!empty($productId)) {
+                        $restoreArguments['productId'] = $productId;
+                    }
                     $restoreResp = self::executeCommandOnManager('websiteRestore', $restoreArguments);
                     if ($restoreResp->status == 'success' && $restoreResp->data->status == 'success') {
                         return array(

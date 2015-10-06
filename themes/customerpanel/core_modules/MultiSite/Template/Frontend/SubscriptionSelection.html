@@ -554,10 +554,11 @@ span.abo-info p {
                 buySubscription(jQuery(this));
                 return;
             }
-
+            var copyWebsite   = jQuery('#subscriptionCopyWebsite').val(),
+                copyParameter = copyWebsite !== '' ? '&copyWebsite=' + copyWebsite : '';
             showRemoteModal({
                 modalId: 'SubscriptionAddWebsite',
-                remoteUrl: '/api/MultiSite/SubscriptionAddWebsite?productId=' + jQuery(this).data('productid'),
+                remoteUrl: '/api/MultiSite/SubscriptionAddWebsite?productId=' + jQuery(this).data('productid') + copyParameter,
                 hidden: function () {
                     var signUpForm = jQuery('#multisite_signup_form');
                     var signUpModal = signUpForm.parents('.modal');
@@ -791,3 +792,4 @@ span.abo-info p {
 </div>
 <input type="hidden" id="subscriptionCallbackModal" />
 <input type="hidden" id="subscriptionCallbackModalRemoteUrl" />
+<input type="hidden" id="subscriptionCopyWebsite" />

@@ -790,15 +790,45 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'productId'  => $productId,
                 'page_reload'  => (isset($_GET['multisite_page_reload']) && $_GET['multisite_page_reload'] == 'reload_page' ? 'reload_page' : ''),
             );
+            $websiteSubmitUrl = '/api/MultiSite/SubscriptionAddWebsite?' . self::buildHttpQueryString($queryArguments);
+
             $objTemplate->setVariable(array(
                 'MULTISITE_DOMAIN'             => \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'),
                 'MULTISITE_RELOAD_PAGE'        => (isset($_GET['multisite_page_reload']) && $_GET['multisite_page_reload'] == 'reload_page' ? 'reload_page' : ''),
                 'MULTISITE_ADDRESS_URL'        => $addressUrl->toString(),
-                'MULTISITE_ADD_WEBSITE_URL'    => '/api/MultiSite/SubscriptionAddWebsite?' . self::buildHttpQueryString($queryArguments),
-                'TXT_MULTISITE_CREATE_WEBSITE' => $_ARRAYLANG['TXT_MULTISITE_SUBMIT_BUTTON'],
-                'TXT_MULTISITE_SITE_ADDRESS_INFO'  => sprintf($_ARRAYLANG['TXT_MULTISITE_SITE_ADDRESS_SCHEME'], $websiteNameMinLength, $websiteNameMaxLength)
+                'TXT_MULTISITE_SITE_ADDRESS_INFO'  => sprintf($_ARRAYLANG['TXT_MULTISITE_SITE_ADDRESS_SCHEME'], $websiteNameMinLength, $websiteNameMaxLength),
             ));
-            
+
+            $isCopyWebsite = !empty($_GET['copyWebsite']);
+            if ($isCopyWebsite) {
+                $copyWebsiteId = contrexx_input2int($_GET['copyWebsite']);
+                $websiteRepo   = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+                $copyWebsite   = $websiteRepo->findOneById($copyWebsiteId);
+                if ($copyWebsite) {
+                    $queryArguments = array(
+                        'cmd'       => 'JsonData',
+                        'object'    => 'MultiSite',
+                        'act'       => 'copyWebsite',
+                        'productId' => $productId,
+                        'websiteId' => $copyWebsiteId,
+                    );
+                    $copyUrl = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getBackendFolderName() . '/index.php?' . self::buildHttpQueryString($queryArguments));
+                } else {
+                    $isCopyWebsite = false;
+                }
+            }
+
+            $objTemplate->setVariable(array(
+                'MULTISITE_ADD_WEBSITE_URL'       => $isCopyWebsite ? $copyUrl->toString() : $websiteSubmitUrl,
+                'MULTISITE_CREATE_WEBSITE_BUTTON' => $isCopyWebsite ? $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] : $_ARRAYLANG['TXT_MULTISITE_SUBMIT_BUTTON'],
+                'MULTISITE_ADD_WEBSITE_TITLE'     => $isCopyWebsite
+                                                     ? sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'], contrexx_raw2xhtml($copyWebsite->getName()))
+                                                     : $_ARRAYLANG['TXT_MULTISITE_ADD_NEW_WEBSITE'],
+                'MULTISITE_BUILD_WEBSITE_MSG'     => $isCopyWebsite
+                                                     ? $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS']
+                                                     : $_ARRAYLANG['TXT_MULTISITE_BUILD_WEBSITE_MSG'],
+            ));
+
             if (!empty($productId)) {
                 $productRepository = \Env::get('em')->getRepository('Cx\Modules\Pim\Model\Entity\Product');
                 $product = $productRepository->findOneBy(array('id' => $productId));

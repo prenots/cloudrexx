@@ -367,6 +367,6 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG'] = 'Kopieren der 
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'] = 'Webseite wurde erfolgreich kopiert.';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS'] = 'Webseite wird kopiert. Bitte haben Sie kurz Geduld!';
 $_ARRAYLANG['TXT_MULTISITE_NEW_SUBSCRIPTION'] = 'Neues Abo l&ouml;sen';
-$_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'The \'copy\' process, copies the selected website data, users and component settings to new website.
-Please enter the new \'Website name\' and choose the \'Subscription\' to continue.
-If you want to buy a new subscription for the website use \'Neues Abo l&ouml;sen\' button.';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'Mit diesem Dialog können Sie eine Webseite mit allen Daten, Benutzern und Einstellungen kopieren.
+Bitte geben Sie den gewünschten Namen der Kopie an und wählen Sie ein Abonement.
+Um ein neues Abo zu erwerben, benutzen Sie die Schaltfläche "Neues Abo"';

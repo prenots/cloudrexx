@@ -71,6 +71,7 @@
               loaded     : function() {
                   jQuery('#SubscriptionSelection #subscriptionCallbackModal').val('CopyWebsite');
                   jQuery('#SubscriptionSelection #subscriptionCallbackModalRemoteUrl').val('/api/MultiSite/CopyWebsite?id={MULTISITE_WEBSITE_ID}');
+                  jQuery('#SubscriptionSelection #subscriptionCopyWebsite').val('{MULTISITE_WEBSITE_ID}');
               }
             });
        });
@@ -98,7 +99,7 @@
                         validator.setFormButtonState('cancel', false, false);
 
                         validator.hideForm();
-                        validator.showProgress('{TXT_MULTISITE_WEBSITE_COPY_PROGRESS}');
+                        validator.showProgress('{TXT_MULTISITE_WEBSITE_COPY_PROGRESS} <img src="{MULTISITE_PATH}/lib/javascript/jquery/jstree/themes/default/throbber.gif" />');
                         jQuery.ajax({
                             dataType: "json",
                             url: '{MULTISITE_COPY_WEBSITE_URL}',

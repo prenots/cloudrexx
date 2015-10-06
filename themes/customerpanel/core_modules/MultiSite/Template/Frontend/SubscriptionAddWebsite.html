@@ -14,7 +14,7 @@ jQuery(document).ready(function(){
         headerSuccessTxt: '',
         headerErrorTxt: '',
         messageErrorTxt: '{TXT_MULTISITE_BUILD_ERROR_MSG}',
-        messageBuildTxt: '{TXT_MULTISITE_BUILD_WEBSITE_MSG} <img src="{MULTISITE_PATH}/lib/javascript/jquery/jstree/themes/default/throbber.gif" />',
+        messageBuildTxt: '{MULTISITE_BUILD_WEBSITE_MSG} <img src="{MULTISITE_PATH}/lib/javascript/jquery/jstree/themes/default/throbber.gif" />',
         messageRedirectTxt: '',
         IsPayment: '{TXT_MULTISITE_PAYMENT_MODE}',
         callBackOnSuccess: function(response) {
@@ -87,7 +87,7 @@ var validateAdress = function (value, validator, $field) {
             <input type="hidden" id="multisite_page_reload" value="{MULTISITE_RELOAD_PAGE}">
 
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <h2>{TXT_MULTISITE_ADD_NEW_WEBSITE}</h2>
+            <h2>{MULTISITE_ADD_WEBSITE_TITLE}</h2>
             <fieldset>
                 <div class="row">
 
@@ -101,7 +101,7 @@ var validateAdress = function (value, validator, $field) {
                 </div>
 
                 <div class="row">
-                    <button type="button" class="add multisite_submit">{TXT_MULTISITE_CREATE_WEBSITE}</button>
+                    <button type="button" class="add multisite_submit">{MULTISITE_CREATE_WEBSITE_BUTTON}</button>
                     <!-- BEGIN multisite_pay_button -->
                     <button type="button" class="add multisite_pay">{TXT_MULTISITE_CREATE_WEBSITE}</button>
                     <a data-href="" href="javascript:void();" class="multisite_pay_button hidden">{TXT_MULTISITE_ORDER_NOW}</a>
