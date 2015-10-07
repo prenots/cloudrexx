@@ -576,7 +576,8 @@ var multisiteFormValidator = function(options) {
     };
 };
 jQuery(document).ready(function() {
-    if (typeof(cx_multisite_options) != 'undefined') {
+    // trigger signup only on  signup form exists
+    if (typeof(cx_multisite_options) != 'undefined' && jQuery('#multisite_signup_form').length) {
         cx_multisite_signup(cx_multisite_options);
     }
 });

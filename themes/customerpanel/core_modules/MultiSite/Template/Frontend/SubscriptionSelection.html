@@ -556,14 +556,13 @@ span.abo-info p {
             }
             var copyWebsite   = jQuery('#subscriptionCopyWebsite').val(),
                 copyParameter = copyWebsite !== '' ? '&copyWebsite=' + copyWebsite : '';
+                
+            // unbind all events of the add website modal
+            var subscriptionAddWebsiteModal = jQuery('#SubscriptionAddWebsite');
+            subscriptionAddWebsiteModal.unbind();
             showRemoteModal({
                 modalId: 'SubscriptionAddWebsite',
-                remoteUrl: '/api/MultiSite/SubscriptionAddWebsite?productId=' + jQuery(this).data('productid') + copyParameter,
-                hidden: function () {
-                    var signUpForm = jQuery('#multisite_signup_form');
-                    var signUpModal = signUpForm.parents('.modal');
-                    signUpModal.unbind();
-                }
+                remoteUrl: '/api/MultiSite/SubscriptionAddWebsite?productId=' + jQuery(this).data('productid') + copyParameter
             });
             jQuery("#SubscriptionSelection").modal('hide');
         });
