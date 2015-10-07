@@ -1181,12 +1181,29 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ));
         $uploader->setCallback('websiteRestoreCallbackJs');
         $uploader->setOptions(array(
-            'id'                => 'page_target_browse',
-            'type'              => 'button',
-            'data-upload-limit' => 1,
-            'allowed-extensions'=> array('zip')
-            )
-        );
+            'id'                 => 'multisite_backup_upload_btn',
+            'data-upload-limit'  => 1,
+            'data-pl-instance'   => 'uploader',
+            'allowed-extensions' => array('zip'),
+            'style'              => 'display:none'
+        ));
+
+        $showServiceSelection = (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite') == ComponentController::MODE_MANAGER);
+        if ($showServiceSelection) {
+            $apiProtocol           = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getApiProtocol();
+            $websiteServiceServers = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer')->findAll();
+            foreach ($websiteServiceServers as $websiteServiceServer) {
+                $template->setVariable(array(
+                    'CORE_MODULE_MULTISITE_SERVICE_SERVER_ID'  => contrexx_raw2xhtml($websiteServiceServer->getId()),
+                    'CORE_MODULE_MULTISITE_SERVICE_SERVER_URL' => contrexx_raw2xhtml($apiProtocol . $websiteServiceServer->getHostname()),
+                    'CORE_MODULE_MULTISITE_SERVICE_SERVER'     => contrexx_raw2xhtml($websiteServiceServer->getHostname()),
+                ));
+                $template->parse('multisite_backup_and_restore_website_service_servers');
+            }
+            $template->touchBlock('multisite_backup_and_restore_choose_service_servers_container');
+        } else {
+            $template->hideBlock('multisite_backup_and_restore_choose_service_servers_container');
+        }
         
         $cxjs = \ContrexxJavascript::getInstance();
         $cxjs->setVariable(array(
@@ -1202,6 +1219,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             'websiteEnterWebsiteName'      => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ENTER_WEBSITE_NAME'],
             'websiteRestoreCancelButton'   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_CANCEL'],
             'websiteRestoreButton'         => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_BUTTON'],
+            'websiteRestoreOkButton'       => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_OK'],
+            'showServiceSelectionModal'    => $showServiceSelection
         ), 'multisite/lang');
         
         $template->setVariable(array(

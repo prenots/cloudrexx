@@ -21,7 +21,28 @@
   </form>
   <br />
   <input type="button" value="{SHOWALL_BACKUPS_BUTTON}" id="showAll_backups" onclick="$J('#websitebackupAndRestore').submit();"/>&nbsp;
+  <input type="button" value="{TXT_CORE_MODULE_MULTISITE_UPLOAD_BUTTON}" id="upload_backup" />&nbsp;
   {UPLOADER_CODE}
+
+  <!--dialog box for choose to service server to upload file -->
+  <!-- BEGIN multisite_backup_and_restore_choose_service_servers_container -->
+  <div id="chooseServiceServer" title="{TXT_CORE_MODULE_MULTISITE_CHOOSE_SERVICE_SERVER}" style="display: none;">
+      <table class="adminlist" cellspacing="0" cellpadding="3" width="100%">
+          <tr>
+            <td width="40%">
+              <label><strong>{TXT_CORE_MODULE_MULTISITE_SERVICE_SERVER}</strong></label>
+            </td>
+            <td width="60%">
+                <select class="backup_service_server">
+                <!-- BEGIN multisite_backup_and_restore_website_service_servers -->
+                <option data-id="{CORE_MODULE_MULTISITE_SERVICE_SERVER_ID}" value="{CORE_MODULE_MULTISITE_SERVICE_SERVER_URL}">{CORE_MODULE_MULTISITE_SERVICE_SERVER}</option>
+                <!-- END multisite_backup_and_restore_website_service_servers -->
+                </select>
+            </td>
+          </tr>
+      </table>
+  </div>
+  <!-- END multisite_backup_and_restore_choose_service_servers_container -->
 
   <!--dialog box for restore website-->
   <div id="restoreWebsite" title="{TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE}" style="display: none;">

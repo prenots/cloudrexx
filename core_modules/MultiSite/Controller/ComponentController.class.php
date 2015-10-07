@@ -2854,9 +2854,22 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return;
         }
 
+        $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
+        if ($mode == self::MODE_SERVICE) {
+            // manager is allowed to send request to service server
+            $managerUrl = $this->getApiProtocol() . \Cx\Core\Setting\Controller\Setting::getValue('managerHostname','MultiSite');
+            $headers = array(
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Allow-Origin'      => $managerUrl,
+                'Access-Control-Allow-Methods'     => 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Headers'     => 'X-Requested-With, Content-Type'
+            );
+            \Cx\Core_Modules\Uploader\Controller\UploaderController::corsHeaders($headers);
+        }
+
         // Abort in case this Contrexx installation has not been set up as a Website Service.
         // If the MultiSite module has not been configured, then 'mode' will be set to null.
-        switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
+        switch ($mode) {
             case self::MODE_MANAGER:
                 $this->verifyRequest($cx);
                 break;

@@ -131,6 +131,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'websiteRestore'        => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
             'addNewWebsiteInSubscription' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'checkUserStatusOnRestore' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
+            'getUserInfoFromBackup'   => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'getAvailableSubscriptionsByUserId' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
             'websiteLogin'          => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
             'getAdminUsers'         => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
@@ -172,6 +173,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'getDomainSslCertificate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'linkSsl'                 => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'setWebsiteOwner' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
+            'getUploaderId' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false),
         );  
     }
 
@@ -5026,10 +5028,65 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
             }
             
+            switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
+                case ComponentController::MODE_MANAGER:
+                    $serviceServerId = isset($params['post']['backupedServiceServer'])
+                                       ? contrexx_input2int($params['post']['backupedServiceServer'])
+                                       : 0;
+                    $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('id' => $serviceServerId));
+                    if (!$websiteServiceServer) {
+                        throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
+                    }
+
+                    $data = array(
+                        'uploadedFilePath' => $uploadedFilePath
+                    );
+                    $response = self::executeCommandOnServiceServer('getUserInfoFromBackup', $data, $websiteServiceServer);
+                    \DBG::dump($response);
+                    if ($response && $response->status == 'success' && $response->data->status == 'success') {
+                        $userEmailId = $response->data->userEmail;
+                        $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $userEmailId));
+                        return array('status' => 'success' , 'userId' => $objUser ? $objUser->getId() : 0);
+                    }
+
+                    return array('status' => 'error');
+                    break;
+            }
+        } catch (\Exception $e) {
+            \DBG::log(__METHOD__. ' Failed: '.$e->getMessage());
+            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_FAILED']);
+        }
+    }
+
+    /**
+     * Get user Email from website backup file
+     *
+     * @param array $params Post parameters
+     *
+     * @return array
+     * @throws MultiSiteJsonException
+     */
+    public function getUserInfoFromBackup($params)
+    {
+        global $_ARRAYLANG;
+
+        if (empty($params) || empty($params['post'])) {
+            \DBG::log(__METHOD__.'Failed! : '.$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
+            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_FAILED']);
+        }
+
+        try {
+            $uploadedFilePath      = isset($params['post']['uploadedFilePath'])
+                                     ? contrexx_input2raw($params['post']['uploadedFilePath'])
+                                     : '';
+            if (empty($uploadedFilePath)) {
+                throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
+            }
+
             \Cx\Lib\FileSystem\FileSystem::path_absolute_to_os_root($uploadedFilePath);
             
             switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
-                case ComponentController::MODE_MANAGER:
+                case ComponentController::MODE_SERVICE:
                 case ComponentController::MODE_HYBRID:
                     if (!\Cx\Lib\FileSystem\FileSystem::exists($uploadedFilePath)) {
                         throw new MultiSiteJsonException('The website backup zip file doesnot exists!.');
@@ -5047,8 +5104,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         throw new MultiSiteJsonException('User Email not found in the backup file.');
                     }
 
-                    $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $userEmailId));
-                    return array('status' => 'success' , 'userId' => $objUser ? $objUser->getId() : 0);
+                    return array('status' => 'success' , 'userEmail' => $userEmailId);
                     break;
                 default:
                     break;
@@ -7191,5 +7247,19 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
         \Cx\Core\Setting\Controller\Setting::set('websiteUserId', $userId);
         \Cx\Core\Setting\Controller\Setting::update('websiteUserId');
+    }
+
+    /**
+     * Create new uploader to upload files
+     *
+     * @param array $params Post array parameters
+     *
+     * @return array
+     */
+    public function getUploaderId($params)
+    {
+        $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader();
+
+        return array('status' => 'success', 'id' => $uploader->getId());
     }
 }
