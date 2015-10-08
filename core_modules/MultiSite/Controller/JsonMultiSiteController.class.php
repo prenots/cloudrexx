@@ -4366,6 +4366,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         $websiteBackupFileName = isset($params['post']['websiteBackupFileName']) 
                                  ? contrexx_input2raw($params['post']['websiteBackupFileName'])
                                  : '';
+        $uploadedBackupFilePath = isset($params['post']['uploadedBackupFilePath']) 
+                                 ? contrexx_input2raw($params['post']['uploadedBackupFilePath'])
+                                 : '';
         $serviceServerId       = isset($params['post']['serviceServerId']) 
                                  ? contrexx_input2int($params['post']['serviceServerId'])
                                  : 0;
@@ -4375,8 +4378,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         $subscriptionId        = isset($params['post']['subscriptionId'])
                                  ? contrexx_input2int(($params['post']['subscriptionId']))
                                  : 0;
+        
         if (   empty($websiteName)
-            || empty($websiteBackupFileName)
+            || (empty($websiteBackupFileName) && empty($uploadedBackupFilePath))
         ) {
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
         }
@@ -4390,11 +4394,17 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     
                     $response = self::executeCommandOnServiceServer('websiteRestore', $params['post'], $websiteServiceServer);
-                    return $response->data ? $response->data : $response;
+                    return $response && $response->status == 'success' ? $response->data : $response;
                     break;
                 case ComponentController::MODE_HYBRID:
                 case ComponentController::MODE_SERVICE:
-                    $websiteBackupFilePath = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite').'/'.$websiteBackupFileName;
+                    if ($websiteBackupFileName) {
+                        $websiteBackupFilePath = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite').'/'.$websiteBackupFileName;
+                    } elseif (!empty ($uploadedBackupFilePath)) {
+                        //change the backup location path to absolute location path
+                        \Cx\Lib\FileSystem\FileSystem::path_absolute_to_os_root($uploadedBackupFilePath);
+                        $websiteBackupFilePath = $uploadedBackupFilePath;
+                    }
 
                     if (   !\Cx\Lib\FileSystem\FileSystem::exists($websiteBackupFilePath) 
                         || \Cx\Lib\FileSystem\FileSystem::exists(\Cx\Core\Setting\Controller\Setting::getValue('websitePath', 'MultiSite') . '/' . $websiteName)
@@ -5042,7 +5052,6 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         'uploadedFilePath' => $uploadedFilePath
                     );
                     $response = self::executeCommandOnServiceServer('getUserInfoFromBackup', $data, $websiteServiceServer);
-                    \DBG::dump($response);
                     if ($response && $response->status == 'success' && $response->data->status == 'success') {
                         $userEmailId = $response->data->userEmail;
                         $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $userEmailId));
