@@ -1,10 +1,35 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Directory
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Janik Tschanz <janik.tschanz@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_directory
  * @todo        Edit PHP DocBlocks!
  */
@@ -20,9 +45,9 @@ namespace Cx\Modules\Directory\Controller;
  * Directory
  *
  * Class to manage CMS RSS news feeds
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Janik Tschanz <janik.tschanz@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_directory
  */
 class DirectoryManager extends DirectoryLibrary
@@ -74,12 +99,13 @@ class DirectoryManager extends DirectoryLibrary
 
         $this->langId=$objInit->userFrontendLangId;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $this->path = ASCMS_DIR_PATH . '/';
         $this->webPath = ASCMS_DIR_WEB_PATH . '/';
         $this->imagePath = ASCMS_DIR_PATH . '/View/Media';
         $this->imageWebPath = ASCMS_DIR_WEB_PATH . '/View/Media';
-        $this->mediaPath = ASCMS_MODULE_MEDIA_PATH . '/';
-        $this->mediaWebPath = ASCMS_MODULE_MEDIA_WEB_PATH . '/';
+        $this->mediaPath = $cx->getWebsiteMediaDirectoryPath() . '/';
+        $this->mediaWebPath = $cx->getWebsiteMediaDirectoryWebPath() . '/';
         $this->rssPath = \Env::get('cx')->getWebsiteFeedPath() . '/';
         $this->rssWebPath = ASCMS_FEED_WEB_PATH . '/';
 
