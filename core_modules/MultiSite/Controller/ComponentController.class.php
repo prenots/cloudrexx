@@ -249,6 +249,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             'MULTISITE_EMAIL_URL'           => $emailUrl->toString(),
             'MULTISITE_ADDRESS_URL'         => $addressUrl->toString(),
             'MULTISITE_PAYMENT_URL'         => $paymentUrl->toString(),
+            'MULTISITE_CONVERSION_TRACK'            => !\FWValidator::isEmpty(\Cx\Core\Setting\Controller\Setting::getValue('conversionTracking', 'MultiSite')),
+            'MULTISITE_TRACK_GOOGLE_CONVERSION'     => !\FWValidator::isEmpty(\Cx\Core\Setting\Controller\Setting::getValue('trackGoogleConversion','MultiSite')),
+            'MULTISITE_GOOGLE_CONVERSION_ID'        => \Cx\Core\Setting\Controller\Setting::getValue('googleConversionId','MultiSite'),
+            'MULTISITE_TRACK_FACEBOOK_CONVERSION'   => !\FWValidator::isEmpty(\Cx\Core\Setting\Controller\Setting::getValue('trackFacebookConversion','MultiSite')),
+            'MULTISITE_FACEBOOK_CONVERSION_ID'      => \Cx\Core\Setting\Controller\Setting::getValue('facebookConversionId','MultiSite'),
             'TXT_MULTISITE_ACCEPT_TERMS'    => sprintf($_ARRAYLANG['TXT_MULTISITE_ACCEPT_TERMS'], $termsUrl),
             'TXT_MULTISITE_BUILD_WEBSITE_TITLE' => $_ARRAYLANG['TXT_MULTISITE_BUILD_WEBSITE_TITLE'],
             'TXT_MULTISITE_BUILD_WEBSITE_MSG' => $buildWebsiteMsg,
@@ -2093,6 +2098,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             'PRODUCT_NOTE_EXPIRATION' => $product->getNoteExpiration(),
             'PRODUCT_NOTE_PRICE'      => $product->getNotePrice(),
             'PRODUCT_NAME'            => $product->getName(),
+            'PRODUCT_PRICE'           => $productPrice,
+            'PRODUCT_ORDER_CURRENCY'  => $currency->getName(),
             'PRODUCT_ID'              => $product->getId(),
             'RENEWAL_UNIT'            => isset($_GET['renewalOption']) ? contrexx_raw2xhtml($_GET['renewalOption']) : 'monthly',
         ));
@@ -2514,6 +2521,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                    \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:Activated, 0:Deactivated', 'manager')) {
                    throw new MultiSiteException("Failed to add Setting entry for Affiliate System");
             }
+            if (   \Cx\Core\Setting\Controller\Setting::getValue('conversionTracking', 'MultiSite') === NULL 
+                && !\Cx\Core\Setting\Controller\Setting::add('conversionTracking', '0', 7,
+                   \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:Activated, 0:Deactivated', 'manager')) {
+                   throw new MultiSiteException("Failed to add Setting entry for Conversion Tracking");
+            }
             
             if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(self::MODE_MANAGER, self::MODE_HYBRID))) {
                 if (!\FWValidator::isEmpty(\Env::get('db'))) {
@@ -2522,6 +2534,30 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         'MultiSite External Payment Customer ID',
                         5);
                 }
+                
+                //conversion group
+                \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'conversion','FileSystem');
+                if (\Cx\Core\Setting\Controller\Setting::getValue('trackGoogleConversion','MultiSite') === NULL
+                    && !\Cx\Core\Setting\Controller\Setting::add('trackGoogleConversion', '0', 1,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:Activated, 0:Deactivated', 'conversion')){
+                        throw new MultiSiteException("Failed to add Setting entry for Track Google Conversion");
+                }
+                if (\Cx\Core\Setting\Controller\Setting::getValue('googleConversionId','MultiSite') === NULL
+                    && !\Cx\Core\Setting\Controller\Setting::add('googleConversionId', '', 2,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'conversion')){
+                        throw new MultiSiteException("Failed to add Setting entry for Google Conversion Id");
+                }
+                if (\Cx\Core\Setting\Controller\Setting::getValue('trackFacebookConversion','MultiSite') === NULL
+                    && !\Cx\Core\Setting\Controller\Setting::add('trackFacebookConversion', '0', 3,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:Activated, 0:Deactivated', 'conversion')){
+                        throw new MultiSiteException("Failed to add Setting entry for Track Facebook Conversion");
+                }
+                if (\Cx\Core\Setting\Controller\Setting::getValue('facebookConversionId','MultiSite') === NULL
+                    && !\Cx\Core\Setting\Controller\Setting::add('facebookConversionId', '', 4,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'conversion')){
+                        throw new MultiSiteException("Failed to add Setting entry for Facebook Conversion Id");
+                }
+
                 //affiliate group
                 \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'affiliate','FileSystem');
                 if (   \Cx\Core\Setting\Controller\Setting::getValue('affiliateIdQueryStringKey','MultiSite') === NULL
@@ -2913,7 +2949,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                            && isset($_REQUEST['object']) && $_REQUEST['object'] == 'MultiSite'
                            && isset($_REQUEST['act'])
                                 ? '(API-call: '.$_REQUEST['act'].')'
-                                : '';
+                                : $_SERVER['REQUEST_URI'];
             \DBG::msg("MultiSite: Loading customer Website {$website->getName()}...".$requestInfo);
             // set SERVER_NAME to BaseDN of Website
             $_SERVER['SERVER_NAME'] = $website->getName() . '.' . \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite');
@@ -3339,6 +3375,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return;
         }
 
+        // Don't show account verification notice when in templateeditor
+        if (isset($_GET['templateEditor'])) {
+            return;
+        }
+
         JsonMultiSiteController::loadLanguageData();
         $objTemplate = $this->cx->getTemplate();
         $warning = new \Cx\Core\Html\Sigma($this->cx->getCodeBaseCoreModulePath() . '/MultiSite/View/Template/Backend');
@@ -3372,6 +3413,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         global $_ARRAYLANG;
         
         if (!($this->cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND)) {
+            return;
+        }
+        
+        // Don't show powered by footer when viewing template in templateeditor
+        if (isset($_GET['templateEditor'])) {
             return;
         }
         
@@ -3482,6 +3528,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                                                                                         \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_customer_type','Crm')
                                                                                     .'][0]',
                     'MULTISITE_CUSTOMER_TYPE_ATTRIBUT_ID'                         => \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_customer_type','Crm'),
+                    'MULTISITE_INDUSTRY_TYPE_ATTRIBUT_ID'                         => \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_industry_type','Crm'),
                 ));
                 $objTemplate->_blocks['__global__'] = preg_replace('/<\/body>/', $objContactTpl->get() . '\\0', $objTemplate->_blocks['__global__']);
                 break;
