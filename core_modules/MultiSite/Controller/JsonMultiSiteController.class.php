@@ -3990,9 +3990,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     foreach ($websiteServiceServers as $websiteServiceServer) {
                         $paramsData = array(
-                            'searchTerm'      => $searchTerm,
-                            'serviceServer'   => $websiteServiceServer->gethostname(),
-                            'serviceServerId' => $websiteServiceServer->getId(),
+                            'searchTerm'      => $searchTerm
                         );
                         $resp = self::executeCommandOnServiceServer('getAllBackupFilesInfo', $paramsData, $websiteServiceServer);
                         if (!$resp || $resp->status == 'error' || $resp->data->status == 'error') {
@@ -4001,6 +3999,8 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         
                         if (!empty($resp->data->backupFilesInfo)) {
                             foreach ($resp->data->backupFilesInfo as $fileInfo) {
+                                $fileInfo->serviceServer   = $websiteServiceServer->gethostname();
+                                $fileInfo->serviceServerId = $websiteServiceServer->getId();
                                 $backupFilesInfo[] = $fileInfo;
                             }
                         }
@@ -4011,37 +4011,39 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $backupLocation = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite');
                     //change the backup location path to absolute location path
                     \Cx\Lib\FileSystem\FileSystem::path_absolute_to_os_root($backupLocation);
-
-                    if (!\Cx\Lib\FileSystem\FileSystem::exists($backupLocation)) {
+                    $backupLocationWebPath = str_replace($this->cx->getWebsitePath(), '', $backupLocation);
+                    if (
+                           !\Cx\Lib\FileSystem\FileSystem::exists($backupLocation) 
+                        && \Cx\Lib\FileSystem\FileSystem::make_folder($backupLocation)
+                    ) {
                         throw new MultiSiteJsonException('The backup location doesnot exists!.');
                     }
 
                     $websiteName = $creationDate  = null;
                     foreach (glob($backupLocation.'/*.zip') as $filename) {
                         $websiteInfoArray = $this->getWebsiteInfoFromZip($filename, 'info/meta.yml');
-                        $userEmail = isset($websiteInfoArray['website']) && isset($websiteInfoArray['website']['websiteEmail'])
-                                     ? $websiteInfoArray['website']['websiteEmail']
-                                     : '';
+                        $userEmail        = isset($websiteInfoArray['website']) && isset($websiteInfoArray['website']['websiteEmail'])
+                                            ? $websiteInfoArray['website']['websiteEmail']
+                                            : '';
 
                         list($websiteName, $creationDate) = explode('_', basename($filename, '.zip'));
                         $timeStamp = strtotime(str_replace('-', ':', $creationDate));
                         $backupFilesInfo[] = array(
-                            'websiteName'  => $timeStamp ? $websiteName : basename($filename, '.zip'), 
-                            'creationDate' => $timeStamp ? date('Y-m-d H:i:s', $timeStamp) : '',
+                            'websiteName'  => $timeStamp ? $websiteName : basename($filename, '.zip'),
+                            'fileName'     => basename($filename),
+                            'creationDate' => $websiteInfoArray['backupDateTime'],
                             'userEmailId'  => $userEmail,
-                            'serviceServer'=> isset($params['post']['serviceServer'])
-                                              ? contrexx_input2raw($params['post']['serviceServer'])
-                                              : '',
-                            'serviceServerId'=> isset($params['post']['serviceServerId'])
-                                              ? contrexx_input2int($params['post']['serviceServerId'])
-                                              : 0
-                            );
+                            'path'         => $backupLocationWebPath,
+                        );
                     }
-        
+
                     if (!empty($searchTerm)) {
-                        $backupFilesInfo = array_filter($backupFilesInfo, function($el) use ($searchTerm) {
-                                        return ( strpos($el['websiteName'], $searchTerm) !== false);
-                        });
+                        $backupFilesInfo = array_filter(
+                            $backupFilesInfo, 
+                            function($el) use ($searchTerm) {
+                                return ( strpos($el['websiteName'], $searchTerm) !== false);
+                            }
+                        );
                     }
                     break;
                 default:
