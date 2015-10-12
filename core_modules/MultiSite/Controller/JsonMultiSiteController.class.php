@@ -123,7 +123,6 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'triggerWebsiteRestore' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
             'getWebsiteInfo'        => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
             'deleteWebsiteBackup'   => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
-            'downloadWebsiteBackup' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
             'getAllBackupFilesInfo' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
             'sendFileToRemoteServer'=> new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
             'updateWebsiteConfig'   => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
@@ -4121,102 +4120,6 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             \DBG::log(__METHOD__.' failed! : '.$e->getMessage());
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE_FAILED']);
         }
-    }
-    
-    /**
-     * Download website backup file
-     * 
-     * @param array $params website backup file name
-     * 
-     * @return array
-     * @throws MultiSiteJsonException
-     */
-    public function downloadWebsiteBackup($params)
-    {
-        global $_ARRAYLANG;
-
-        if (   empty($params) 
-            || empty($params['post']) 
-            || empty($params['post']['websiteBackupFileName'])
-        ) {
-            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
-        }
-        
-        $backupFileName = isset($params['post']['websiteBackupFileName']) 
-                          ? contrexx_input2raw($params['post']['websiteBackupFileName']) 
-                          : '';
-        $serviceServerId = isset($params['post']['serviceServerId']) 
-                           ? contrexx_input2int($params['post']['serviceServerId']) 
-                           : 0;
-            
-        try {
-            switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
-                case ComponentController::MODE_MANAGER:
-                    if (isset($params['post']['moveFileToManager'])) {
-                        $tempDir = $this->cx->getWebsiteTempPath() . BackendController::MULTISITE_BACKUP_TEMP_DIR;
-                    
-                        //cleanup tmp/backups direcory
-                        \Cx\Lib\FileSystem\FileSystem::delete_folder($tempDir, true);
-
-                        $files  = $this->getMovedFilesInRemoteServer($tempDir);
-                        if (!empty($files)) {
-                            return array (
-                                'status'      => 'success', 
-                                'filePath'    => current($files)
-                            );
-                        }
-
-                        throw new MultiSiteJsonException('Failed to get the Files from the serviceServer');
-                    }
-                    
-                    $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('id' => $serviceServerId));
-                    if (!$websiteServiceServer) {
-                        throw new MultiSiteBackendException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
-                    }
-                    $resp = self::executeCommandOnServiceServer(
-                        'downloadWebsiteBackup', 
-                        array(
-                            'websiteBackupFileName' => $backupFileName,
-                            'serviceServerId'       => $serviceServerId
-                        ),
-                        $websiteServiceServer
-                    );
-                    return isset($resp->data) ? $resp->data : $resp;
-                    break;
-                case ComponentController::MODE_HYBRID:
-                case ComponentController::MODE_SERVICE:
-                    $backupFileLocation = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite');
-                    if (   !\Cx\Lib\FileSystem\FileSystem::exists($backupFileLocation) 
-                        || !\Cx\Lib\FileSystem\FileSystem::exists($backupFileLocation.'/'.$backupFileName)
-                    ) {
-                        throw new MultiSiteJsonException('The requested file '.$backupFileName.' doesnot exists.');
-                    }
-                    
-                    if (empty($serviceServerId)) {
-                        return array (
-                            'status'      => 'success', 
-                            'filePath'    => $backupFileLocation.'/'.$backupFileName
-                        );
-                    }
-                    
-                    $resp  = self::executeCommandOnManager(
-                        'downloadWebsiteBackup', 
-                        array(
-                            'websiteBackupFileName' => $backupFileName,
-                            'moveFileToManager'     => 1
-                        ), 
-                        array($backupFileLocation.'/'.$backupFileName)
-                    );
-                    
-                    return isset($resp->data) ? $resp->data : $resp;
-                    break;
-                default:
-                    break;
-            }
-        } catch (\Exception $e) {
-            \DBG::log(__METHOD__.' failed! : '.$e->getMessage());
-            throw new MultiSiteJsonException(sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_FAILED'], $backupFileName));
-        }  
     }
     
     /**

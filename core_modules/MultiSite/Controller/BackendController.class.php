@@ -1120,16 +1120,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             'canCancel' => true,
             'canClear'  => true));
         
-        $downloadFile    = isset($_GET['downloadFile'])
-                           ? contrexx_input2raw($_GET['downloadFile'])
-                           : '';
-        $serviceServerId = isset($_GET['serviceId'])
-                           ? contrexx_input2int($_GET['serviceId'])
-                           : 0;
-        if (!empty($downloadFile)) {
-            $this->downloadBackup($downloadFile, $serviceServerId);
-        }
-        
         if (isset($_GET['show_all'])) {
             $term = (isset($_GET['term']) && !empty($_GET['term'])) 
                     ? contrexx_input2raw($_GET['term']) 
@@ -1267,54 +1257,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $actions.= $this->downloadBackupWebsite($rowData);
         $actions.= $this->restoreOrDeleteBackupedWebsite($rowData, true);
         return $actions;
-    }
-    
-    /**
-     * Download website backup file
-     * 
-     * @param string  $backupFileName  backupFilename
-     * @param integer $serviceServerId serviceServerId
-     * 
-     * @throws MultiSiteBackendException
-     */
-    protected function downloadBackup($backupFileName, $serviceServerId = 0) 
-    {
-        global $_ARRAYLANG;
-        
-        try {
-            if (empty($backupFileName) ) {
-                throw new MultiSiteBackendException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
-            }
-            
-            $resp = JsonMultiSiteController::executeCommandOnManager(
-                'downloadWebsiteBackup', 
-                        array(
-                            'websiteBackupFileName' => $backupFileName,
-                            'serviceServerId'       => $serviceServerId
-                        )
-            );
-        
-            if (   !$resp 
-                || !$resp->data 
-                || !$resp->data->filePath 
-            ) {
-                throw new MultiSiteBackendException($resp && $resp->data ? $resp->data->message : $resp->message);
-            }
-            
-            //Download website backup file
-            $objHTTPDownload = new \HTTP_Download();
-            $objHTTPDownload->setFile($resp->data->filePath);
-            $objHTTPDownload->setContentDisposition(HTTP_DOWNLOAD_ATTACHMENT, $backupFileName);
-            $objHTTPDownload->setContentType('application/zip');
-            $objHTTPDownload->send();
-            exit();
-        } catch (\Exception $e) {
-            \DBG::log(__METHOD__.' Failed! : '. $e->getMessage());
-            \Message::add(
-                sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_FAILED'], $backupFileName),
-                \Message::CLASS_ERROR
-            );
-        } 
     }
     
     /**
