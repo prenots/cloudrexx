@@ -2353,6 +2353,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXTAREA, null, 'setup')){
                     throw new MultiSiteException("Failed to add Setting entry for Domain Black list");
             }
+            if (   \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLimit','MultiSite') === NULL
+                && !\Cx\Core\Setting\Controller\Setting::add('websiteBackupLimit', 0, 23, \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'setup')
+            ) {
+                throw new MultiSiteException("Failed to add Setting Repository for website Backup Limit");
+            }
 
             // websiteSetup group
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'websiteSetup','FileSystem');
