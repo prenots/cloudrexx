@@ -131,6 +131,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'websiteRestore'        => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), false, null, null, array($this, 'auth')),
             'addNewWebsiteInSubscription' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'checkUserStatusOnRestore' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
+            'getUserInfoFromBackup'   => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'getAvailableSubscriptionsByUserId' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
             'websiteLogin'          => new \Cx\Core_Modules\Access\Model\Entity\Permission(array($multiSiteProtocol), array('post'), true),
             'getAdminUsers'         => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
@@ -174,6 +175,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'setWebsiteOwner' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'getServerWebsiteList' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'checkServerWebsiteAccessedByClient' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
+            'getWebsiteSize' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
         );  
     }
 
@@ -3946,6 +3948,21 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     if (!$websiteServiceServer) {
                         throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
                     }
+
+                    $websiteBackupLimit = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLimit','MultiSite');
+                    if ($websiteBackupLimit) {
+                        $resp = self::executeCommandOnServiceServer('getWebsiteSize', $params['post'], $websiteServiceServer);
+                        if (   !$resp
+                            || $resp->status != 'success'
+                            || $resp->data->status != 'success'
+                            || $resp->data->size > $websiteBackupLimit
+                        ) {
+                            return array(
+                                'status'  => 'error',
+                                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR']
+                            );
+                        }
+                    }
                     
                     $resp = self::executeCommandOnServiceServer('websiteBackup', $params['post'], $websiteServiceServer);
                     if (!$resp || $resp->status == 'error' || $resp->data->status == 'error') {
@@ -7587,6 +7604,56 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             throw new MultiSiteJsonException(
                 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHECK_SERVER_ACCESSED_BY_CLIENT_ERROR']
             );
+        }
+    }
+
+    /**
+     * Get the website size (website directory size)
+     * 
+     * @param array $params post parameters
+     * 
+     * @return array website size
+     * 
+     * @throws MultiSiteJsonException
+     */
+    public function getWebsiteSize($params)
+    {
+        global $_ARRAYLANG;
+
+        if (empty($params['post']) || empty($params['post']['websiteId'])) {
+            \DBG::msg(__METHOD__ . ' failed: Insufficient arguments supplied: ' . var_export($params, true));
+            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ERROR_GETTING_WEBSITE_SIZE']);
+        }
+
+        try {
+            switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
+                case ComponentController::MODE_SERVICE:
+                case ComponentController::MODE_HYBRID:
+                    $websiteId   = contrexx_input2int($params['post']['websiteId']);
+                    $websiteRepo = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+                    $website     = $websiteRepo->findOneBy(array('id' => $websiteId));
+                    if (!$website) {
+                        throw new MultiSiteJsonException('Website not exists => website id : '. $websiteId);
+                    }
+
+                    $websiteBasepath = \Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite') . '/' . $website->getName();
+                    if (!\Cx\Lib\FileSystem\FileSystem::exists($websiteBasepath)) {
+                        throw new MultiSiteJsonException('Website folder not exists => website name : '. $website->getName());
+                    }
+
+                    $output = $error = null;
+                    $duCommand = 'cd ' . $websiteBasepath .' && du -c | grep total | cut -f1';
+                    exec($duCommand, $output, $error);
+                    if ($error) {
+                        throw new MultiSiteJsonException('Could not execute system command : '. $duCommand);
+                    }
+
+                    return array('status' => 'success', 'size' => $output);
+                    break;
+            }
+        } catch (Exception $ex) {
+            \DBG::log($ex->getMessage());
+            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ERROR_GETTING_WEBSITE_SIZE']);
         }
     }
 }
