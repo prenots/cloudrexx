@@ -1120,21 +1120,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             'canCancel' => true,
             'canClear'  => true));
         
-        $downloadFile    = isset($_GET['downloadFile'])
-                           ? contrexx_input2raw($_GET['downloadFile'])
-                           : '';
-        $serviceServerId = isset($_GET['serviceId'])
-                           ? contrexx_input2int($_GET['serviceId'])
-                           : 0;
-        if (!empty($downloadFile)) {
-            $this->downloadBackup($downloadFile, $serviceServerId);
-        }
-        
         if (isset($_GET['show_all'])) {
             $term = (isset($_GET['term']) && !empty($_GET['term'])) 
                     ? contrexx_input2raw($_GET['term']) 
                     : '';
-            $allBackupsArray = self::getAllBackupFilesInfoAsArray($term);
+            $allBackupsArray = $this->getAllBackupFilesInfoAsArray($term);
             $allBackupFilesInfo = !empty($allBackupsArray) ? $allBackupsArray : null;
             $websiteBackupRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($allBackupFilesInfo);
             $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator($websiteBackupRepositoryDataSet,
@@ -1165,6 +1155,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'userId'      => array(
                             'readonly'     => true,
                             'showOverview' => false
+                        ),
+                        'path' => array(
+                            'readonly'     => true,
+                            'showOverview' => false
+                        ),
+                        'fileName' => array(
+                            'readonly'     => true,
+                            'showOverview' => false
                         )
                     )
                 )
@@ -1181,12 +1179,29 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ));
         $uploader->setCallback('websiteRestoreCallbackJs');
         $uploader->setOptions(array(
-            'id'                => 'page_target_browse',
-            'type'              => 'button',
-            'data-upload-limit' => 1,
-            'allowed-extensions'=> array('zip')
-            )
-        );
+            'id'                 => 'multisite_backup_upload_btn',
+            'data-upload-limit'  => 1,
+            'data-pl-instance'   => 'uploader',
+            'allowed-extensions' => array('zip'),
+            'style'              => 'display:none'
+        ));
+
+        $showServiceSelection = (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite') == ComponentController::MODE_MANAGER);
+        if ($showServiceSelection) {
+            $apiProtocol           = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getApiProtocol();
+            $websiteServiceServers = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer')->findAll();
+            foreach ($websiteServiceServers as $websiteServiceServer) {
+                $template->setVariable(array(
+                    'CORE_MODULE_MULTISITE_SERVICE_SERVER_ID'  => contrexx_raw2xhtml($websiteServiceServer->getId()),
+                    'CORE_MODULE_MULTISITE_SERVICE_SERVER_URL' => contrexx_raw2xhtml($apiProtocol . $websiteServiceServer->getHostname()),
+                    'CORE_MODULE_MULTISITE_SERVICE_SERVER'     => contrexx_raw2xhtml($websiteServiceServer->getHostname()),
+                ));
+                $template->parse('multisite_backup_and_restore_website_service_servers');
+            }
+            $template->touchBlock('multisite_backup_and_restore_choose_service_servers_container');
+        } else {
+            $template->hideBlock('multisite_backup_and_restore_choose_service_servers_container');
+        }
         
         $cxjs = \ContrexxJavascript::getInstance();
         $cxjs->setVariable(array(
@@ -1202,6 +1217,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             'websiteEnterWebsiteName'      => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ENTER_WEBSITE_NAME'],
             'websiteRestoreCancelButton'   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_CANCEL'],
             'websiteRestoreButton'         => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_BUTTON'],
+            'websiteRestoreOkButton'       => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_OK'],
+            'showServiceSelectionModal'    => $showServiceSelection
         ), 'multisite/lang');
         
         $template->setVariable(array(
@@ -1243,54 +1260,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     }
     
     /**
-     * Download website backup file
-     * 
-     * @param string  $backupFileName  backupFilename
-     * @param integer $serviceServerId serviceServerId
-     * 
-     * @throws MultiSiteBackendException
-     */
-    protected function downloadBackup($backupFileName, $serviceServerId = 0) 
-    {
-        global $_ARRAYLANG;
-        
-        try {
-            if (empty($backupFileName) ) {
-                throw new MultiSiteBackendException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
-            }
-            
-            $resp = JsonMultiSiteController::executeCommandOnManager(
-                'downloadWebsiteBackup', 
-                        array(
-                            'websiteBackupFileName' => $backupFileName,
-                            'serviceServerId'       => $serviceServerId
-                        )
-            );
-        
-            if (   !$resp 
-                || !$resp->data 
-                || !$resp->data->filePath 
-            ) {
-                throw new MultiSiteBackendException($resp && $resp->data ? $resp->data->message : $resp->message);
-            }
-            
-            //Download website backup file
-            $objHTTPDownload = new \HTTP_Download();
-            $objHTTPDownload->setFile($resp->data->filePath);
-            $objHTTPDownload->setContentDisposition(HTTP_DOWNLOAD_ATTACHMENT, $backupFileName);
-            $objHTTPDownload->setContentType();
-            $objHTTPDownload->send('application/force-download');
-            exit();
-        } catch (\Exception $e) {
-            \DBG::log(__METHOD__.' Failed! : '. $e->getMessage());
-            \Message::add(
-                sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_FAILED'], $backupFileName),
-                \Message::CLASS_ERROR
-            );
-        } 
-    }
-    
-    /**
      * Upload Finished callback
      * 
      * @param string  $tempPath    temporary uploaded path
@@ -1302,7 +1271,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * 
      * @return array
      */
-    public function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response) {
+    public static function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response)
+    {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
@@ -1334,7 +1304,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * 
      * @return mixed boolean|array
      */
-    public static function getAllBackupFilesInfoAsArray($searchTerm = null)
+    public function getAllBackupFilesInfoAsArray($searchTerm = null)
     {
         try {
             $allBackupFilesInfo = array();
@@ -1351,11 +1321,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $data->userEmailId));
                     }
                     $allBackupFilesInfo[] = array(
-                        'websiteName'   => $data->websiteName, 
+                        'websiteName'   => $data->websiteName,
+                        'fileName'      => $data->fileName,
                         'dateAndTime'   => $data->creationDate, 
                         'serviceServer' => $data->serviceServer,
                         'serviceId'     => $data->serviceServerId,
-                        'userId'        => ($objUser) ? $objUser->getId() : 0
+                        'userId'        => ($objUser) ? $objUser->getId() : 0,
+                        'path'          => $data->path
                     );
                 }
             }
@@ -1707,9 +1679,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return false;
         }
         
-        $websiteBackupFileName = isset($rowData['dateAndTime']) 
-                                 ? $rowData['websiteName'].'_'.$rowData['dateAndTime'].'.zip'
-                                 : $rowData['websiteName'];
         $title      = ($deleteBackupedWebsite) 
                       ? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE'] 
                       : $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE'];
@@ -1722,7 +1691,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $serviceServerId = !empty($rowData['serviceId'])
                            ? 'data-serviceId ="'.$rowData['serviceId'].'"'
                            : '';
-        return '<a href="javascript:void(0);" class="'.$class.'" '.$serviceServerId.' data-backupFile = "'.$websiteBackupFileName.'"  '.$userExists.'  title = "'.$title.'"></a>';
+        return '<a href="javascript:void(0);" class="'.$class.'" '.$serviceServerId.' data-backupFile = "'. $rowData['fileName'] .'"  '.$userExists.'  title = "'.$title.'"></a>';
     }
    
     /**
@@ -1740,19 +1709,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ) {
             return false;
         }
+        $downloadUrl = ComponentController::getApiProtocol() . $rowData['serviceServer'] . $rowData['path'] . '/' . $rowData['fileName'];
         
-        $websiteBackupFileName = isset($rowData['dateAndTime']) 
-                                 ? $rowData['websiteName'].'_'.$rowData['dateAndTime'].'.zip'
-                                 : $rowData['websiteName'];
-        $title = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_TITLE'];
-        $downloadUrl = \Cx\Core\Core\Controller\Cx::instanciate()->getRequest()->getUrl();
-        $downloadUrl->setParams(array(
-            'downloadFile' => $websiteBackupFileName,
-            'serviceId'    => $rowData['serviceId']
-            )
-        );
-        
-        return '<a href="'.$downloadUrl.'" class="downloadWebsiteBackup" title = "'.$title.'"></a>';
+        return '<a 
+                    href="'. contrexx_raw2xhtml($downloadUrl) .'" 
+                    class="downloadWebsiteBackup" 
+                    title = "'. $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_TITLE'] .'">
+                </a>';
     }
     
     /**

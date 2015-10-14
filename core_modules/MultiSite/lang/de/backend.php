@@ -370,3 +370,8 @@ $_ARRAYLANG['TXT_MULTISITE_NEW_SUBSCRIPTION'] = 'Neues Abo l&ouml;sen';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'Mit diesem Dialog können Sie eine Webseite mit allen Daten, Benutzern und Einstellungen kopieren.
 Bitte geben Sie den gewünschten Namen der Kopie an und wählen Sie ein Abonement.
 Um ein neues Abo zu erwerben, benutzen Sie die Schaltfläche "Neues Abo"';
+
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT']    = 'Grössenbeschränkung für Backups';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT_TOOLTIP'] = 'Maximale Grösse der Webseite für die Erstellung von Backups in Kb\'s.<br /> 0 - Keine Beschränkung';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR'] = 'Die Webseite ist zu Gross, ein Backup wird nicht empfohlen.';
+

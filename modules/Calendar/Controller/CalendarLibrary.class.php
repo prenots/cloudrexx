@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ * 
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+ 
 /**
  * Calendar
  * 
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_calendar
- * @author     Comvation <info@comvation.com>
- * @copyright  CONTREXX CMS - COMVATION AG
+ * @author     Cloudrexx <info@cloudrexx.com>
+ * @copyright  CLOUDREXX CMS - CLOUDREXX AG
  * @version    1.00
  */
 namespace Cx\Modules\Calendar\Controller;
@@ -15,10 +41,10 @@ namespace Cx\Modules\Calendar\Controller;
  *
  * LibClass to manage cms calendar
  * 
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_calendar
- * @author     Comvation <info@comvation.com>
- * @copyright  CONTREXX CMS - COMVATION AG
+ * @author     Cloudrexx <info@cloudrexx.com>
+ * @copyright  CLOUDREXX CMS - CLOUDREXX AG
  * @version    1.00
  */  
 class CalendarLibrary
@@ -640,64 +666,6 @@ EOF;
         }
     }
     
-    /**
-     * generates an unique id for each form and user.
-     * 
-     * @see Calendar::$submissionId
-     * 
-     * @return $id  integer
-     */
-    protected function handleUniqueId($key) {
-        global $sessionObj;
-        if (!isset($sessionObj)) $sessionObj = \cmsSession::getInstance();
-        
-        $id = 0;
-        if (isset($_REQUEST[$key])) { //an id is specified - we're handling a page reload
-            $id = intval($_REQUEST[$key]);
-        } else { //generate a new id
-            if (!isset($_SESSION['calendar_last_id'])) {
-                $_SESSION['calendar_last_id'] = 1;
-            } else {
-                $_SESSION['calendar_last_id'] += 1;
-            }
-                
-            $id = $_SESSION['calendar_last_id'];
-        }
-        
-        $this->_objTpl->setVariable("{$this->moduleLangVar}_".  strtoupper($key), $id);   
-        
-        return $id;
-    }
-    
-    /**
-     * Gets the temporary upload location for files.
-     * 
-     * @param string  $fieldName    Uploader field name and id
-     * @param integer $submissionId     
-     * 
-     * @throws Exeception
-     * 
-     * @return array('path','webpath', 'dirname')
-     */
-    public static function getTemporaryUploadPath($fieldName, $submissionId) {        
-        global $sessionObj;
-
-        if (!isset($sessionObj)) $sessionObj = \cmsSession::getInstance();
-        
-        $tempPath = $_SESSION->getTempPath();
-        $tempWebPath = $_SESSION->getWebTempPath();
-        if($tempPath === false || $tempWebPath === false)
-            throw new \Exception('could not get temporary session folder');
-
-        $dirname = "event_files_{$fieldName}_{$submissionId}";
-        $result = array(
-            $tempPath,
-            $tempWebPath,
-            $dirname
-        );
-        return $result;
-    }
-        
     /**
      * Returns all series dates based on the given post data
      *       

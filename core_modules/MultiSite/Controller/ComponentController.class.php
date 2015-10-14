@@ -1793,43 +1793,39 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
                     }
 
-                    if (empty($uploadedBackupFilePath)) {
-                        /*If the backuped service server is differ from destination service server, copy a file from
-                          backuped  service server to destination service server*/
-                        if (   !empty($backupedServiceServerId) 
-                            && $backupedServiceServerId != $restoreServiceServerId
-                        ) {
-                            $backupedServiceServer = self::getServiceServerByCriteria(array('id' => $backupedServiceServerId));
-                            if (!$backupedServiceServer) {
-                                throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
-                            }
-
-                            $backupServiceServerParams = array(
-                                'backupFileName'  => $backupedWebsiteFileName,
-                                'serviceServerId' => $restoreInServiceServer->getId()
-                            );
-
-                            //Copy a file from  $backupedServiceServer to $restoreInServiceServer
-                            $response = JsonMultiSiteController::executeCommandOnServiceServer('sendFileToRemoteServer', $backupServiceServerParams, $backupedServiceServer);
-                            if (!$response || $response->status == 'error' || $response->data->status == 'error') {
-                                throw new MultiSiteException('Failed to copy/move a file to '.$restoreInServiceServer->getHostName());
-                            }
+                    /*If the backuped service server is differ from destination service server, copy a file from
+                    backuped  service server to destination service server*/
+                    if (   !empty($backupedServiceServerId)
+                           && $backupedServiceServerId != $restoreServiceServerId
+                           && empty($uploadedBackupFilePath)
+                    ) {
+                        $backupedServiceServer = self::getServiceServerByCriteria(array('id' => $backupedServiceServerId));
+                        if (!$backupedServiceServer) {
+                            throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
                         }
-                    } else {
-                        $this->moveUploadedFileToServiceOnRestore($uploadedBackupFilePath, $restoreInServiceServer);
+
+                        $backupServiceServerParams = array(
+                            'backupFileName'  => $backupedWebsiteFileName,
+                            'serviceServerId' => $restoreInServiceServer->getId()
+                        );
+
+                        //Copy a file from  $backupedServiceServer to $restoreInServiceServer
+                        $response = JsonMultiSiteController::executeCommandOnServiceServer('sendFileToRemoteServer', $backupServiceServerParams, $backupedServiceServer);
+                        if (!$response || $response->status == 'error' || $response->data->status == 'error') {
+                            throw new MultiSiteException('Failed to copy/move a file to '.$restoreInServiceServer->getHostName());
+                        }
                     }
                 default:
                     break;
             }
             
             $params = array(
-                'websiteName'           => $restoreWebsiteName,
-                'websiteBackupFileName' => !empty($uploadedBackupFilePath)
-                                           ? basename($uploadedBackupFilePath)
-                                           : $backupedWebsiteFileName,
-                'serviceServerId'       => $restoreServiceServerId,
-                'selectedUserId'        => $selectedUserId,
-                'subscriptionId'        => $subscriptionId
+                'websiteName'            => $restoreWebsiteName,
+                'websiteBackupFileName'  => !empty($backupedWebsiteFileName) ? $backupedWebsiteFileName : '',
+                'uploadedBackupFilePath' => !empty($uploadedBackupFilePath) ? $uploadedBackupFilePath : '',
+                'serviceServerId'        => $restoreServiceServerId,
+                'selectedUserId'         => $selectedUserId,
+                'subscriptionId'         => $subscriptionId
             );
             $resp = JsonMultiSiteController::executeCommandOnManager('websiteRestore', $params);
             return $responseType == 'json' ? $resp : ($resp->status == 'success' ? $resp->data->messsage : $resp->message);
@@ -1848,7 +1844,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * 
      * @throws MultiSiteException
      */
-    public function moveUploadedFileToServiceOnRestore($filePath, \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer $websiteServiceServer) {
+    public function moveUploadedFileToServiceOnRestore($filePath, \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer $websiteServiceServer) 
+    {
+        global $_ARRAYLANG;
+        
         if (   empty($filePath) 
             || empty($websiteServiceServer)
         ) {
@@ -2459,6 +2458,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXTAREA, null, 'setup')){
                     throw new MultiSiteException("Failed to add Setting entry for Domain Black list");
             }
+            if (   \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLimit','MultiSite') === NULL
+                && !\Cx\Core\Setting\Controller\Setting::add('websiteBackupLimit', 0, 23, \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'setup')
+            ) {
+                throw new MultiSiteException("Failed to add Setting Repository for website Backup Limit");
+            }
 
             // websiteSetup group
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'websiteSetup','FileSystem');
@@ -2920,15 +2924,87 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     
     public function preInit(\Cx\Core\Core\Controller\Cx $cx) {
         global $_CONFIG;
+        
+        /**
+         * This gives us the list of classes that are not loaded from codebase
+         */
+        if (
+            isset($_GET['MultiSitePreDeclared']) &&
+            (
+                $_GET['MultiSitePreDeclared'] == 'showClasses' ||
+                $_GET['MultiSitePreDeclared'] == 'showInterfaces' ||
+                $_GET['MultiSitePreDeclared'] == 'showFiles'
+            )
+        ) {
+            global $builtinClasses, $builtinInterfaces;
+            
+            // simulate loading of website in order to get correct result
+            $multiSiteRepo = new \Cx\Core_Modules\MultiSite\Model\Repository\FileSystemWebsiteRepository();
+            $firstWebsiteName = key($multiSiteRepo->findFirst(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/'));
+            
+            // get declared classes and interfaces without built in ones
+            $declaredClasses = array_diff(get_declared_classes(), $builtinClasses);
+            $declaredInterfaces = array_diff(get_declared_interfaces(), $builtinInterfaces);
+            
+            // sort output
+            asort($declaredClasses);
+            asort($declaredInterfaces);
+            
+            // fix array indexes
+            $declaredClasses = array_values($declaredClasses);
+            $declaredInterfaces = array_values($declaredInterfaces);
+            
+            // output if showClasses or showInterfaces
+            if ($_GET['MultiSitePreDeclared'] == 'showClasses') {
+                echo implode("\n", $declaredClasses);
+                die();
+            }
+            if ($_GET['MultiSitePreDeclared'] == 'showInterfaces') {
+                echo implode("\n", $declaredInterfaces);
+                die();
+            }
+            
+            // create list of files
+            $declaredFiles = array();
+            foreach (array_merge($declaredClasses, $declaredInterfaces) as $class) {
+                $reflection = new \ReflectionClass($class);
+                $declaredFiles[] = substr(
+                    $reflection->getFileName(),
+                    strlen($this->cx->getCodeBaseDocumentRootPath()) + 1
+                );
+            }
+            
+            // drop duplicates, sort and fix indexes
+            $declaredFiles = array_unique($declaredFiles);
+            asort($declaredFiles);
+            $declaredFiles = array_values($declaredFiles);
+            
+            // output
+            echo implode("\n", $declaredFiles);
+            die();
+        }
 
         // Abort in case the request has been made to a unsupported cx-mode
         if (!in_array($cx->getMode(), array($cx::MODE_FRONTEND, $cx::MODE_BACKEND, $cx::MODE_COMMAND, $cx::MODE_MINIMAL))) {
             return;
         }
 
+        $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
+        if ($mode == self::MODE_SERVICE) {
+            // manager is allowed to send request to service server
+            $managerUrl = $this->getApiProtocol() . \Cx\Core\Setting\Controller\Setting::getValue('managerHostname','MultiSite');
+            $headers = array(
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Allow-Origin'      => $managerUrl,
+                'Access-Control-Allow-Methods'     => 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Headers'     => 'X-Requested-With, Content-Type'
+            );
+            \Cx\Core_Modules\Uploader\Controller\UploaderController::corsHeaders($headers);
+        }
+
         // Abort in case this Contrexx installation has not been set up as a Website Service.
         // If the MultiSite module has not been configured, then 'mode' will be set to null.
-        switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
+        switch ($mode) {
             case self::MODE_MANAGER:
                 $this->verifyRequest($cx);
                 break;

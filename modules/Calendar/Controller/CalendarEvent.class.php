@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ * 
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+ 
 /**
  * Calendar Class Event
  * 
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_calendar
- * @author     Comvation <info@comvation.com>
- * @copyright  CONTREXX CMS - COMVATION AG
+ * @author     Cloudrexx <info@cloudrexx.com>
+ * @copyright  CLOUDREXX CMS - CLOUDREXX AG
  * @version    1.00
  */
 
@@ -13,10 +39,10 @@ namespace Cx\Modules\Calendar\Controller;
 /**
  * Calendar Class Event
  * 
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_calendar
- * @author     Comvation <info@comvation.com>
- * @copyright  CONTREXX CMS - COMVATION AG
+ * @author     Cloudrexx <info@cloudrexx.com>
+ * @copyright  CLOUDREXX CMS - CLOUDREXX AG
  * @version    1.00
  */    
 class CalendarEvent extends \Cx\Modules\Calendar\Controller\CalendarLibrary
@@ -1035,11 +1061,11 @@ class CalendarEvent extends \Cx\Modules\Calendar\Controller\CalendarLibrary
         }
         
         if($objInit->mode == 'frontend') {
-            $unique_id = intval($_REQUEST[self::MAP_FIELD_KEY]);
-
-            if (!empty($unique_id)) {
-                $picture = $this->_handleUpload('mapUpload', $unique_id);
-
+            $mapUploaderId = isset($_REQUEST[self::MAP_FIELD_KEY])
+                             ? contrexx_input2raw($_REQUEST[self::MAP_FIELD_KEY])
+                             : '';
+            if (!empty($mapUploaderId)) {
+                $picture = $this->_handleUpload($mapUploaderId);
                 if (!empty($picture)) {
                     $placeMap = $picture;
                 }
@@ -1067,11 +1093,15 @@ class CalendarEvent extends \Cx\Modules\Calendar\Controller\CalendarLibrary
 
         //frontend picture upload & thumbnail creation
         if($objInit->mode == 'frontend') {
-            $unique_id = intval($_REQUEST[self::PICTURE_FIELD_KEY]);
-            $attachmentUniqueId = intval($_REQUEST[self::ATTACHMENT_FIELD_KEY]);
+            $pictureUploaderId    = isset($_REQUEST[self::PICTURE_FIELD_KEY]) 
+                                    ? contrexx_input2raw($_REQUEST[self::PICTURE_FIELD_KEY])
+                                    : '';
+            $attachmentUploaderId = isset($_REQUEST[self::ATTACHMENT_FIELD_KEY])
+                                    ? contrexx_input2raw($_REQUEST[self::ATTACHMENT_FIELD_KEY])
+                                    : '';
             
-            if (!empty($unique_id)) {
-                $picture = $this->_handleUpload('pictureUpload', $unique_id);
+            if (!empty($pictureUploaderId)) {
+                $picture = $this->_handleUpload($pictureUploaderId);
 
                 if (!empty($picture)) {
                     //delete thumb
@@ -1088,8 +1118,8 @@ class CalendarEvent extends \Cx\Modules\Calendar\Controller\CalendarLibrary
                 }
             }
             
-            if (!empty($attachmentUniqueId)) {
-                $attachment = $this->_handleUpload('attachmentUpload', $attachmentUniqueId);
+            if (!empty($attachmentUploaderId)) {
+                $attachment = $this->_handleUpload($attachmentUploaderId);
                 if ($attachment) {
                     //delete file
                     if (file_exists("{$this->uploadImgPath}$attach")) {
@@ -1688,20 +1718,23 @@ class CalendarEvent extends \Cx\Modules\Calendar\Controller\CalendarLibrary
     /**
      * Handle the calendar image upload
      * 
-     * @param string $id unique form id
+     * @param string $id uploaderId
      * 
      * @return string image path
      */
-    function _handleUpload($fieldName, $id)
+    function _handleUpload($id)
     {
-        $tup              = self::getTemporaryUploadPath($fieldName, $id);
-        $tmpUploadDir     = \Env::get('cx')->getWebsitePath().$tup[1].'/'.$tup[2].'/'; //all the files uploaded are in here  
+        global $sessionObj;
+
+        if (!isset($sessionObj)) $sessionObj = \cmsSession::getInstance();
+        $tmpUploadDir     = $_SESSION->getTempPath().'/'.$id.'/'; //all the files uploaded are in here
         $depositionTarget = $this->uploadImgPath; //target folder
         $pic              = '';
 
         //move all files
-        if(!\Cx\Lib\FileSystem\FileSystem::exists($tmpUploadDir))
-            throw new \Exception("could not find temporary upload directory '$tmpUploadDir'");
+        if(!\Cx\Lib\FileSystem\FileSystem::exists($tmpUploadDir)) {
+            return $pic;
+        }
 
         $h = opendir($tmpUploadDir);
         if ($h) {
