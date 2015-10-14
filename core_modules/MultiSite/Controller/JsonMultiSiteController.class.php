@@ -4627,11 +4627,11 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             }
             
             if (!empty($websiteMetaArray['codeBase'])) {
-                $codeBaseArray['post'] = array(
-                    'websiteName' => $websiteName,
-                    'codeBase'    => $websiteMetaArray['codeBase'],
+                $codeBaseArray = array(
+                    'websiteIds' => $website->getId(),
+                    'codeBase'   => $websiteMetaArray['codeBase'],
                 );
-                $this->updateWebsiteCodeBase($codeBaseArray);
+                self::executeCommandOnManager('updateWebsiteCodeBase', $codeBaseArray);
             }
 
             //Skip to restore subscription for user defined subscription
