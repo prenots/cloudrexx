@@ -361,3 +361,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_PROCESS_ERROR_MSG'] = 'Der
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_ERROR_MSG'] = 'Das Update der Webseite ist fehlgeschlagen';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_STATUS_ERROR_MSG'] = 'Beim Senden des Update-Informationsmails ist ein Fehler aufgetreten';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UPDATE_CODEBASE_ERROR_MSG'] = 'Das Update der Code-Basis der Webseite ist fehlgeschlagen';
+
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT']    = 'Grössenbeschränkung für Backups';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT_TOOLTIP'] = 'Maximale Grösse der Webseite für die Erstellung von Backups in Kb\'s.<br /> 0 - Keine Beschränkung';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR'] = 'Die Webseite ist zu Gross, ein Backup wird nicht empfohlen.';
