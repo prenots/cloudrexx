@@ -554,15 +554,17 @@ span.abo-info p {
                 buySubscription(jQuery(this));
                 return;
             }
-            var copyWebsite   = jQuery('#subscriptionCopyWebsite').val(),
-                copyParameter = copyWebsite !== '' ? '&copyWebsite=' + copyWebsite : '';
-                
+            var remoteUrl = '/api/MultiSite/SubscriptionAddWebsite?productId=' + jQuery(this).data('productid');
+            if (jQuery('#subscriptionCallbackModal').val() != '') {
+                remoteUrl = jQuery('#subscriptionCallbackModalRemoteUrl').val() + '&productId=' + jQuery(this).data('productid');
+            }
+
             // unbind all events of the add website modal
             var subscriptionAddWebsiteModal = jQuery('#SubscriptionAddWebsite');
             subscriptionAddWebsiteModal.unbind();
             showRemoteModal({
                 modalId: 'SubscriptionAddWebsite',
-                remoteUrl: '/api/MultiSite/SubscriptionAddWebsite?productId=' + jQuery(this).data('productid') + copyParameter
+                remoteUrl: remoteUrl
             });
             jQuery("#SubscriptionSelection").modal('hide');
         });
@@ -620,7 +622,7 @@ span.abo-info p {
                                 hideAllMessages();
                                 showRemoteModal({
                                     modalId   : jQuery('#subscriptionCallbackModal').val(),
-                                    remoteUrl : jQuery('#subscriptionCallbackModalRemoteUrl').val()
+                                    remoteUrl : jQuery('#subscriptionCallbackModalRemoteUrl').val() + '&id=' + $resp.id
                                 });
                             } else {
                                 showMessage($resp.message, 'success');
@@ -791,4 +793,3 @@ span.abo-info p {
 </div>
 <input type="hidden" id="subscriptionCallbackModal" />
 <input type="hidden" id="subscriptionCallbackModalRemoteUrl" />
-<input type="hidden" id="subscriptionCopyWebsite" />

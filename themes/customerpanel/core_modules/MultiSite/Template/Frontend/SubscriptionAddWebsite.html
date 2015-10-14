@@ -47,7 +47,18 @@ jQuery(document).ready(function(){
     jQuery.getScript("{MULTISITE_PATH}/lib/javascript/jquery/bootstrapvalidator/js/bootstrapValidator.min.js", function() {
         jQuery.getScript('{MULTISITE_PATH}/core_modules/MultiSite/View/Script/SignUp.js');
     });
-
+    jQuery('.addSubscription').on('click', function(){
+        jQuery('#SubscriptionAddWebsite').modal('hide');
+        showRemoteModal({
+          modalId   : 'SubscriptionSelection',
+          remoteUrl : jQuery(this).data('remote'),
+          loaded     : function() {
+              var address = jQuery('#multisite_signup_form #multisite_address').val();
+              jQuery('#SubscriptionSelection #subscriptionCallbackModal').val('SubscriptionAddWebsite');
+              jQuery('#SubscriptionSelection #subscriptionCallbackModalRemoteUrl').val('/api/MultiSite/SubscriptionAddWebsite?copy=1&multisite_address='+ address  +'&websiteId={MULTISITE_COPY_WEBSITE_ID}');
+          }
+        });
+   });
 });
 
 var validateAdress = function (value, validator, $field) {
@@ -82,6 +93,9 @@ var validateAdress = function (value, validator, $field) {
     <div class="multisite-form">
         <form role="form" id="multisite_signup_form">
             <input type="hidden" id="product_id" name="product_id" value="{PRODUCT_ID}">
+            <!-- BEGIN multisite_copy_website_subscription_selected -->
+            <input type="hidden" id="multisite_subscription" value="{MULTISITE_SELECTED_SUBSCRIPTION}">
+            <!-- END multisite_copy_website_subscription_selected -->
             <input type="hidden" id="product_name" value="{PRODUCT_NAME}">
             <input type="hidden" id="multisite_domain" value="{MULTISITE_DOMAIN}">
             <input type="hidden" id="multisite_page_reload" value="{MULTISITE_RELOAD_PAGE}">
@@ -93,12 +107,35 @@ var validateAdress = function (value, validator, $field) {
 
                     <div class="form-group">
                         <div class="input-group multisite-address">
-                            <input  data-bv-notempty="true" data-bv-notempty-message=" " data-bv-callback="true" data-bv-callback-callback="validateAdress"  id="multisite_address" name="multisite_address" type="text" title="{TXT_MULTISITE_SITE_ADDRESS_INFO}" class="form-control" value="" required="">
+                            <input  data-bv-notempty="true" data-bv-notempty-message=" " data-bv-callback="true" data-bv-callback-callback="validateAdress"  id="multisite_address" name="multisite_address" type="text" title="{TXT_MULTISITE_SITE_ADDRESS_INFO}" class="form-control" value="{MULTISITE_WEBSITE_ADDRESS}" required="">
                             <div class="input-group-addon">.{MULTISITE_DOMAIN}</div>
                         </div>
                     </div>
 
                 </div>
+                
+                <!-- BEGIN multisite_copy_website_subscription_selection -->
+                <div class="form-inline">
+                    <div class="form-group col-md-8 no-padding-left">
+                        <select class="col-md-12 no-padding" data-bv-notempty="true" data-bv-notempty-message=""  id="multisite_subscription" name="subscription" class="form-control">
+                            <option value="">{TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION}</option>
+                            <!-- BEGIN openSubscriptions -->
+                            <option {MULTISITE_SUBSCRIPTION_SELECTED} value="{MULTISITE_SUBSCRIPTION_ID}">{MULTISITE_SUBSCRIPTION_NAME}</option>
+                            <!-- END openSubscriptions -->
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4 no-padding">
+                        <button type="button" class="add col-md-12 addSubscription" data-remote="/api/MultiSite/SubscriptionSelection" data-target="SubscriptionSelection">{TXT_MULTISITE_NEW_SUBSCRIPTION}</button>
+                    </div>
+                </div>
+                <div class="row">&nbsp;</div>
+                <!-- END multisite_copy_website_subscription_selection -->
+
+                <!-- BEGIN multisite_copy_website_product_selection -->
+                <div class="row">
+                    <label>{TXT_CORE_MODULE_MULTISITE_WEBSITE_PRODUCT} : <strong>{PRODUCT_NAME}</strong></label>
+                </div>
+                <!-- END multisite_copy_website_product_selection -->
 
                 <div class="row">
                     <button type="button" class="add multisite_submit">{MULTISITE_CREATE_WEBSITE_BUTTON}</button>

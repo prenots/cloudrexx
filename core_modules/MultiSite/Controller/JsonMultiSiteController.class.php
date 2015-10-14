@@ -6956,7 +6956,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     
                     $websiteAddress = isset($params['post']['multisite_address']) ? contrexx_input2raw($params['post']['multisite_address']) : '';
                     $subscriptionId = isset($params['post']['subscriptionId']) ? contrexx_input2int($params['post']['subscriptionId']) : 0;
-                    $productId      = isset($params['get']['productId']) ? contrexx_input2int($params['get']['productId']) : 0;
+                    $productId      = isset($params['post']['productId']) ? contrexx_input2int($params['post']['productId']) : 0;
                     if (empty($websiteId)) {
                         throw new MultiSiteJsonException('Website id cannot be empty');
                     }

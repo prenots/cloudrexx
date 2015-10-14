@@ -275,15 +275,21 @@
 
             trackConversions();
 
+            var postData = {
+                multisite_email_address : objMail.val(),
+                multisite_address : objAddress.val(),
+                product_id : jQuery("#product_id").val(),
+                renewalOption: options.renewalOption
+            };
+
+            var subscriptionField = objModal.find('#multisite_subscription');
+            if (subscriptionField.length) {
+                postData['subscription_id'] = subscriptionField.val();
+            }
             jQuery.ajax({
                 dataType: "json",
                 url: options.signUpUrl,
-                data: {
-                    multisite_email_address : objMail.val(),
-                    multisite_address : objAddress.val(),
-                    product_id : jQuery("#product_id").val(),
-                    renewalOption: options.renewalOption
-                },
+                data: postData,
                 type: "POST",
                 success: function(response){
                     var message, errorObject,errorMessage,errorType;

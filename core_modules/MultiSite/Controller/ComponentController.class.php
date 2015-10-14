@@ -161,10 +161,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         echo $this->executeCommandSubscriptionAddWebsite($objTemplate, $arguments);                        
                         break;
 
-                    case 'CopyWebsite':
-                        echo $this->executeCommandCopyWebsite($objTemplate, $arguments);
-                        break;
-
                     case 'Website':
                         echo $this->executeCommandWebsite($objTemplate, $arguments);
                         break;
@@ -749,24 +745,55 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         global $_ARRAYLANG;
         
         $objTemplate->setGlobalVariable($_ARRAYLANG);
-        
-        $subscriptionId = isset($arguments['id']) ? contrexx_input2raw($arguments['id']) : 0;
-        $productId      = isset($arguments['productId']) ? contrexx_input2raw($arguments['productId']) : 0;
+
+        // Website form submission will be done from post
+        $subscriptionId =   !empty($_POST['subscription_id'])
+                          ? contrexx_input2int($_POST['subscription_id'])
+                          : (isset($arguments['id']) ? contrexx_input2int($arguments['id']) : 0);
+        $productId      =   !empty($_POST['product_id'])
+                          ? contrexx_input2int($_POST['product_id'])
+                          : (isset($arguments['productId']) ? contrexx_input2int($arguments['productId']) : 0);
+        $websiteName    =   !empty($_POST['multisite_address'])
+                          ? contrexx_input2raw($_POST['multisite_address'])
+                          : (isset($arguments['multisite_address']) ? contrexx_input2raw($arguments['multisite_address']) : '');
+        $websiteId      = isset($arguments['websiteId']) ? contrexx_input2int($arguments['websiteId']) : 0;
+        $isCopyWebsite  = !empty($arguments['copy']);
 
         if (!self::isUserLoggedIn()) {
             return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];
         }
 
         $crmContactId = \FWUser::getFWUserObject()->objUser->getCrmUserId();
-        if (\FWValidator::isEmpty($subscriptionId) && \FWValidator::isEmpty($productId)) {
+        if (   !$isCopyWebsite
+            && \FWValidator::isEmpty($subscriptionId)
+            && \FWValidator::isEmpty($productId)
+        ) {
             return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_SUBSCRIPTIONID_EMPTY'];
         }
 
-        if (isset($arguments['addWebsite'])) {
-            $websiteName = isset($_POST['multisite_address']) ? contrexx_input2raw($_POST['multisite_address']) : '';
+        if ($isCopyWebsite && empty($websiteId)) {
+            return '';
+        }
 
+        if (isset($arguments['saveWebsite'])) {
             $resp = array();
-            if (!\FWValidator::isEmpty($subscriptionId)) {
+            if ($isCopyWebsite) {
+                $copyParams = array(
+                    'websiteId'         => $websiteId,
+                    'multisite_address' => $websiteName,
+                    'subscriptionId'    => $subscriptionId,
+                    'productId'         => $productId,
+                );
+                $resp = JsonMultiSiteController::executeCommandOnManager('copyWebsite', $copyParams);
+                if ($resp && $resp->status == 'success') {
+                    $resp = array(
+                        'status'  => $resp->data->status,
+                        'message' => $resp->data->message,
+                    );
+                } else {
+                    $resp = array('status' => 'error');
+                }
+            } elseif (!\FWValidator::isEmpty($subscriptionId)) {
                 $resp = $this->createNewWebsiteInSubscription($subscriptionId, $websiteName);
             } elseif (!\FWValidator::isEmpty($productId)) {
                 $resp = $this->createNewWebsiteByProduct($productId, $websiteName);
@@ -785,41 +812,46 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $websiteNameMaxLength = \Cx\Core\Setting\Controller\Setting::getValue('websiteNameMaxLength','MultiSite');
             
             $queryArguments = array(
-                'addWebsite' => 1,
-                'id'         => $subscriptionId,
-                'productId'  => $productId,
+                'saveWebsite' => 1,
                 'page_reload'  => (isset($_GET['multisite_page_reload']) && $_GET['multisite_page_reload'] == 'reload_page' ? 'reload_page' : ''),
             );
-            $websiteSubmitUrl = '/api/MultiSite/SubscriptionAddWebsite?' . self::buildHttpQueryString($queryArguments);
 
-            $objTemplate->setVariable(array(
-                'MULTISITE_DOMAIN'             => \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'),
-                'MULTISITE_RELOAD_PAGE'        => (isset($_GET['multisite_page_reload']) && $_GET['multisite_page_reload'] == 'reload_page' ? 'reload_page' : ''),
-                'MULTISITE_ADDRESS_URL'        => $addressUrl->toString(),
-                'TXT_MULTISITE_SITE_ADDRESS_INFO'  => sprintf($_ARRAYLANG['TXT_MULTISITE_SITE_ADDRESS_SCHEME'], $websiteNameMinLength, $websiteNameMaxLength),
-            ));
-
-            $isCopyWebsite = !empty($_GET['copyWebsite']);
             if ($isCopyWebsite) {
-                $copyWebsiteId = contrexx_input2int($_GET['copyWebsite']);
-                $websiteRepo   = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
-                $copyWebsite   = $websiteRepo->findOneById($copyWebsiteId);
-                if ($copyWebsite) {
-                    $queryArguments = array(
-                        'cmd'       => 'JsonData',
-                        'object'    => 'MultiSite',
-                        'act'       => 'copyWebsite',
-                        'productId' => $productId,
-                        'websiteId' => $copyWebsiteId,
-                    );
-                    $copyUrl = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getBackendFolderName() . '/index.php?' . self::buildHttpQueryString($queryArguments));
-                } else {
-                    $isCopyWebsite = false;
+                $websiteRepo = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+                $copyWebsite = $websiteRepo->findOneById($websiteId);
+                $queryArguments['copy']      = 1;
+                $queryArguments['websiteId'] = $websiteId;
+            }
+            if ($isCopyWebsite && empty($productId)) {
+                $userId = \Fwuser::getFWUserObject()->objUser->getId();
+                $params = array(
+                    'userId' => $userId
+                );
+                $resp = JsonMultiSiteController::executeCommandOnManager('getAvailableSubscriptionsByUserId', $params);
+                if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
+                    foreach ($resp->data->subscriptionsList as $subscription) {
+                        $subscriptionListId = $subscriptionListName = '';
+                        list($subscriptionListId, $subscriptionListName) = explode(':', $subscription);
+                        $objTemplate->setVariable(array(
+                            'MULTISITE_SUBSCRIPTION_ID'       => contrexx_raw2xhtml($subscriptionListId),
+                            'MULTISITE_SUBSCRIPTION_NAME'     => contrexx_raw2xhtml($subscriptionListName),
+                            'MULTISITE_SUBSCRIPTION_SELECTED' => $subscriptionId == $subscriptionListId ? 'selected="selected"' : '',
+                        ));
+                        $objTemplate->parse('openSubscriptions');
+                    }
                 }
+                $this->showOrHideBlock($objTemplate, 'multisite_copy_website_subscription_selection', true);
+                $this->showOrHideBlock($objTemplate, 'multisite_copy_website_product_selection', false);
+                $this->showOrHideBlock($objTemplate, 'multisite_copy_website_subscription_selected', false);
+            } else {
+                $this->showOrHideBlock($objTemplate, 'multisite_copy_website_subscription_selection', false);
+                $this->showOrHideBlock($objTemplate, 'multisite_copy_website_product_selection', !empty($productId));
+                $this->showOrHideBlock($objTemplate, 'multisite_copy_website_subscription_selected', true);
             }
 
+            $websiteSubmitUrl = '/api/MultiSite/SubscriptionAddWebsite?' . self::buildHttpQueryString($queryArguments);
             $objTemplate->setVariable(array(
-                'MULTISITE_ADD_WEBSITE_URL'       => $isCopyWebsite ? $copyUrl->toString() : $websiteSubmitUrl,
+                'MULTISITE_ADD_WEBSITE_URL'       => $websiteSubmitUrl,
                 'MULTISITE_CREATE_WEBSITE_BUTTON' => $isCopyWebsite ? $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] : $_ARRAYLANG['TXT_MULTISITE_SUBMIT_BUTTON'],
                 'MULTISITE_ADD_WEBSITE_TITLE'     => $isCopyWebsite
                                                      ? sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'], contrexx_raw2xhtml($copyWebsite->getName()))
@@ -827,6 +859,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'MULTISITE_BUILD_WEBSITE_MSG'     => $isCopyWebsite
                                                      ? $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS']
                                                      : $_ARRAYLANG['TXT_MULTISITE_BUILD_WEBSITE_MSG'],
+                'MULTISITE_COPY_WEBSITE_ID'       => $isCopyWebsite ? $websiteId : 0,
+                'MULTISITE_IS_WEBSITE_COPY'       => $isCopyWebsite ? 1 : 0,
+                'MULTISITE_WEBSITE_ADDRESS'       => contrexx_raw2xhtml($websiteName),
+                'MULTISITE_SELECTED_SUBSCRIPTION' => $subscriptionId,
+
+                'MULTISITE_DOMAIN'                 => \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'),
+                'MULTISITE_RELOAD_PAGE'            => (isset($_GET['multisite_page_reload']) && $_GET['multisite_page_reload'] == 'reload_page' ? 'reload_page' : ''),
+                'MULTISITE_ADDRESS_URL'            => $addressUrl->toString(),
+                'TXT_MULTISITE_SITE_ADDRESS_INFO'  => sprintf($_ARRAYLANG['TXT_MULTISITE_SITE_ADDRESS_SCHEME'], $websiteNameMinLength, $websiteNameMaxLength),
             ));
 
             if (!empty($productId)) {
@@ -842,72 +883,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
     
-    /**
-     * Api Copy website command
-     * 
-     * @param object $objTemplate Template object \Cx\Core\Html\Sigma
-     * @param array  $arguments   Array parameters
-     * 
-     * @return string Content for copy website
-     * @throws MultiSiteException
-     */
-    public function executeCommandCopyWebsite($objTemplate, $arguments)
-    {
-        global $_ARRAYLANG;
-
-        if (!$this->isCrmUser()) {
-            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_MULTISITE_USER'];
-        }
-
-        $objTemplate->setGlobalVariable($_ARRAYLANG);
-
-        $websiteId = isset($arguments['id']) ? contrexx_input2int($arguments['id']) : 0;
-        if (empty($websiteId)) {
-            return '';
-        }
-
-        $userId = \Fwuser::getFWUserObject()->objUser->getId();
-        $params = array(
-            'userId' => $userId
-        );
-        $resp = JsonMultiSiteController::executeCommandOnManager('getAvailableSubscriptionsByUserId', $params);
-        if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
-            foreach ($resp->data->subscriptionsList as $subscription) {
-                $subscriptionId = $subscriptionName = '';
-                list($subscriptionId, $subscriptionName) = explode(':', $subscription);
-                $objTemplate->setVariable(array(
-                    'MULTISITE_SUBSCRIPTION_ID'   => contrexx_raw2xhtml($subscriptionId),
-                    'MULTISITE_SUBSCRIPTION_NAME' => contrexx_raw2xhtml($subscriptionName),
-                ));
-                $objTemplate->parse('openSubscriptions');
-            }
-        }
-
-        $websiteRepo = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
-        $website     = $websiteRepo->findOneById($websiteId);
-        if (!$website) {
-            throw new MultiSiteException($_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_EXISTS']);
-        }
-        $websiteNameMinLength = \Cx\Core\Setting\Controller\Setting::getValue('websiteNameMinLength','MultiSite');
-        $websiteNameMaxLength = \Cx\Core\Setting\Controller\Setting::getValue('websiteNameMaxLength','MultiSite');
-
-        $domainRepository = new \Cx\Core\Net\Model\Repository\DomainRepository();
-        $mainDomain = $domainRepository->getMainDomain()->getName();
-        $addressUrl = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getBackendFolderName() . '/index.php?cmd=JsonData&object=MultiSite&act=address');
-        $copyUrl    = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getBackendFolderName() . '/index.php?cmd=JsonData&object=MultiSite&act=copyWebsite');
-
-        $objTemplate->setVariable(array(
-            'MULTISITE_PATH'                  => ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getWebsiteOffsetPath(),
-            'MULTISITE_DOMAIN'                => \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'),
-            'MULTISITE_ADDRESS_URL'           => $addressUrl->toString(),
-            'MULTISITE_COPY_WEBSITE_URL'      => $copyUrl->toString(),
-            'MULTISITE_WEBSITE_ID'            => $websiteId,
-            'TXT_MULTISITE_SITE_ADDRESS_INFO' => sprintf($_ARRAYLANG['TXT_MULTISITE_SITE_ADDRESS_SCHEME'], $websiteNameMinLength, $websiteNameMaxLength),
-            'MULTISITE_COPY_WEBSITE'          => sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'], contrexx_raw2xhtml($website->getName())),
-        ));
-        return $objTemplate->get();
-    }
-
     /**
      * Api Website command 
      * 

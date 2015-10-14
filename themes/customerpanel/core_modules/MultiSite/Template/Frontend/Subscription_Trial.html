@@ -26,7 +26,7 @@
                     <td>{MULTISITE_WEBSITE_EXPIRE_DATE}</td>
                     <td class="actions">
                         <!-- BEGIN actionButtonsActive -->
-                        <button class="remoteModal" data-remote="/api/MultiSite/CopyWebsite?id={MULTISITE_WEBSITE_ID}" data-target="CopyWebsite">{TXT_MULTISITE_WEBSITE_COPY}</button>
+                        <button class="remoteModal" data-remote="/api/MultiSite/SubscriptionAddWebsite?copy=1&websiteId={MULTISITE_WEBSITE_ID}" data-target="SubscriptionAddWebsite">{TXT_MULTISITE_WEBSITE_COPY}</button>
                         <button onclick="window.location.href = '{NODE_MULTISITE_WEBSITE}?id={MULTISITE_WEBSITE_ID}';">{TXT_MULTISITE_WEBSITE_BUTTON_DETAIL}</button>
 
                         <!-- BEGIN showAdminButton -->
