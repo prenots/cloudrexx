@@ -789,7 +789,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             );
             $this->showOrHideBlock($objTemplate, 'multisite_subscription_add_website_block', $isWebsiteBackupAllowed);
             if (!$isWebsiteBackupAllowed) {
-                return $objTemplate->get();;
+                return $objTemplate->get();
             }
         }
 
