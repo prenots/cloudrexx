@@ -775,6 +775,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return '';
         }
 
+        if ($isCopyWebsite) {
+            $websiteRepo = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+            $copyWebsite = $websiteRepo->findOneById($websiteId);
+            if (!$copyWebsite) {
+                return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_EXISTS'];
+            }
+            $isWebsiteBackupAllowed = $this->verifyWebsiteBackupLimit($websiteId, $copyWebsite->getWebsiteServiceServer());
+            $this->showOrHideBlock(
+                $objTemplate,
+                'multisite_copy_website_website_limit_error',
+                !$isWebsiteBackupAllowed
+            );
+            $this->showOrHideBlock($objTemplate, 'multisite_subscription_add_website_block', $isWebsiteBackupAllowed);
+            if (!$isWebsiteBackupAllowed) {
+                return $objTemplate->get();;
+            }
+        }
+
         if (isset($arguments['saveWebsite'])) {
             $resp = array();
             if ($isCopyWebsite) {
@@ -817,8 +835,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             );
 
             if ($isCopyWebsite) {
-                $websiteRepo = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
-                $copyWebsite = $websiteRepo->findOneById($websiteId);
                 $queryArguments['copy']      = 1;
                 $queryArguments['websiteId'] = $websiteId;
             }
@@ -3964,5 +3980,42 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         
         return $serviceServer;
+    }
+
+    /**
+     * Verify the website is available to take backup
+     * 
+     * @param integer                                                      $websiteId     Website id
+     * @param \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer $serviceServer Website service server
+     * 
+     * @return boolean True when website is available to take backup, false otherwise
+     * 
+     * @throws MultiSiteException
+     */
+    public function verifyWebsiteBackupLimit($websiteId, \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer $serviceServer)
+    {
+        if (!in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(self::MODE_MANAGER, self::MODE_HYBRID))) {
+            throw  new MultiSiteException(__METHOD__ .' : Support only on mode manager and hybrid');
+        }
+
+        if (empty($websiteId)) {
+            throw  new MultiSiteException(__METHOD__ .' : Website Id empty');
+        }
+
+        $websiteBackupLimit = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLimit','MultiSite');
+        if (empty($websiteBackupLimit)) {
+            return true;
+        }
+
+        $resp = JsonMultiSiteController::executeCommandOnServiceServer('getWebsiteSize', array('websiteId' => $websiteId), $serviceServer);
+        if (   !$resp
+            || $resp->status != 'success'
+            || $resp->data->status != 'success'
+            || $resp->data->size > $websiteBackupLimit
+        ) {
+            return false;
+        }
+
+        return true;
     }
 }

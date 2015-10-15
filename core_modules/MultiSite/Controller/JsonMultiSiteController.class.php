@@ -3775,20 +3775,12 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     if (!$websiteServiceServer) {
                         throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
                     }
-
-                    $websiteBackupLimit = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLimit','MultiSite');
-                    if ($websiteBackupLimit) {
-                        $resp = self::executeCommandOnServiceServer('getWebsiteSize', $params['post'], $websiteServiceServer);
-                        if (   !$resp
-                            || $resp->status != 'success'
-                            || $resp->data->status != 'success'
-                            || $resp->data->size > $websiteBackupLimit
-                        ) {
-                            return array(
-                                'status'  => 'error',
-                                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR']
-                            );
-                        }
+                    $isWebsiteBackupAllowed = $this->getSystemComponentController()->verifyWebsiteBackupLimit($params['post']['websiteId'], $websiteServiceServer);
+                    if (!$isWebsiteBackupAllowed) {
+                        return array(
+                            'status'  => 'error',
+                            'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR']
+                        );
                     }
                     
                     $resp = self::executeCommandOnServiceServer('websiteBackup', $params['post'], $websiteServiceServer);
