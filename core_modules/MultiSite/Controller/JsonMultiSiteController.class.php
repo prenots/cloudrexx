@@ -7362,8 +7362,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     if ($error) {
                         throw new MultiSiteJsonException('Could not execute system command : '. $duCommand);
                     }
-
-                    return array('status' => 'success', 'size' => $output);
+                    return array('status' => 'success', 'size' => isset($output[0]) ? $output[0] : 0);
                     break;
             }
         } catch (Exception $ex) {
