@@ -2863,7 +2863,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'Access-Control-Allow-Credentials' => 'true',
                 'Access-Control-Allow-Origin'      => $managerUrl,
                 'Access-Control-Allow-Methods'     => 'GET, POST, PUT, OPTIONS',
-                'Access-Control-Allow-Headers'     => 'X-Requested-With, Content-Type'
+                'Access-Control-Allow-Headers'     => 'X-Requested-With, Content-Type, Check-CSRF'
             );
             \Cx\Core_Modules\Uploader\Controller\UploaderController::corsHeaders($headers);
         }

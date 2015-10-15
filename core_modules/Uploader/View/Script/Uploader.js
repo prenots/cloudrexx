@@ -100,6 +100,7 @@
 
             var options = {
                 runtimes: 'html5,flash,silverlight,html4',
+                required_features: "send_browser_cookies",
                 multi_selection: (iAttrs.uploadLimit !== 1),
                 drop_element: 'drop-target-' + iAttrs.id,
                 browse_button: 'drop-target-btn-' + iAttrs.id,
