@@ -23,6 +23,9 @@
                                     xhrFields: {
                                         withCredentials: true
                                     },
+                                    headers: {
+                                        'Check-CSRF': 'false'
+                                    },
                                     dataType: 'json',
                                     type: 'POST',
                                     success: function (response) {
