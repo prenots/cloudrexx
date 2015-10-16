@@ -3894,7 +3894,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             throw new MultiSiteJsonException(__METHOD__.' : Failed to create Zip Archiev ' . $websiteZipArchive->errorInfo(true));
         }
 
-        $explodeFileCount = $websiteZipArchive->delete(PCLZIP_OPT_BY_PREG, '/.ftpaccess$/');
+        $explodeFileCount = $websiteZipArchive->delete(PCLZIP_OPT_BY_PREG, '/\/tmp\/session_*|.ftpaccess$/');
         if ($explodeFileCount == 0) {
             throw new MultiSiteJsonException(__METHOD__.' : Failed to explode .ftpaccess in the  Archiev' . $websiteZipArchive->errorInfo(true));
         }

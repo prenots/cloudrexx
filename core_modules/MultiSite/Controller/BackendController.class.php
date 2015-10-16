@@ -1324,8 +1324,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'websiteName'   => $data->websiteName,
                         'fileName'      => $data->fileName,
                         'dateAndTime'   => $data->creationDate, 
-                        'serviceServer' => $data->serviceServer,
-                        'serviceId'     => $data->serviceServerId,
+                        'serviceServer' => isset($data->serviceServer) ? $data->serviceServer : '',
+                        'serviceId'     => isset($data->serviceServerId) ? $data->serviceServerId : '',
                         'userId'        => ($objUser) ? $objUser->getId() : 0,
                         'path'          => $data->path
                     );
@@ -1695,7 +1695,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ) {
             return false;
         }
-        $downloadUrl = ComponentController::getApiProtocol() . $rowData['serviceServer'] . $rowData['path'] . '/' . $rowData['fileName'];
+        // Backup file will be in service server when mode manager
+        $serverUrl   =   \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER
+                       ? ComponentController::getApiProtocol() . $rowData['serviceServer']
+                       : '';
+        $downloadUrl = $serverUrl . $rowData['path'] . '/' . $rowData['fileName'];
         
         return '<a 
                     href="'. contrexx_raw2xhtml($downloadUrl) .'" 
