@@ -4267,9 +4267,11 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
         
+        $backupLocation = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite');
         if (   empty($params)
             || empty($params['post'])
-            || !\Cx\Lib\FileSystem\FileSystem::exists(\Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite'))
+            || (   !\Cx\Lib\FileSystem\FileSystem::exists($backupLocation)
+                && !\Cx\Lib\FileSystem\FileSystem::make_folder($backupLocation))
         ) {
             \DBG::log(__METHOD__.' Failed! : '.$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_FAILED']);
