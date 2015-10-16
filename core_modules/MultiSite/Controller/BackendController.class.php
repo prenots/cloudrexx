@@ -1356,8 +1356,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     $allBackupFilesInfo[] = array(
                         'websiteName'   => $data->websiteName, 
                         'dateAndTime'   => $data->creationDate, 
-                        'serviceServer' => $data->serviceServer,
-                        'serviceId'     => $data->serviceServerId,
+                        'serviceServer' => isset($data->serviceServer) ? $data->serviceServer : '',
+                        'serviceId'     => isset($data->serviceServerId) ? $data->serviceServerId : '',
                         'userId'        => ($objUser) ? $objUser->getId() : 0
                     );
                 }
@@ -1808,6 +1808,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ) {
             return false;
         }
+        // Backup file will be in service server when mode manager
+        $serverUrl   =   \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER
+                       ? ComponentController::getApiProtocol() . $rowData['serviceServer']
+                       : '';
+        $downloadUrl = $serverUrl . $rowData['path'] . '/' . $rowData['fileName'];
         
         $timeStamp    = strtotime($rowData['dateAndTime']);
         $websiteBackupFileName = isset($rowData['dateAndTime']) &&  $timeStamp
