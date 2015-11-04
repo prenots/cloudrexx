@@ -102,14 +102,14 @@
                 hidden: function(transaction) {
                     switch (transaction.status) {
                         case 'confirmed':
-                            setFormButtonState('pay', false);
+                            validator.setFormButtonState('pay', false);
                             callSignUp();
                             break;
                         case 'waiting':
                         case 'cancelled':
                         default:
-                            setFormButtonState('pay', false);
-                            setFormButtonState('submit', true, true);
+                            validator.setFormButtonState('pay', false);
+                            validator.setFormButtonState('submit', true, true);
                             break;
                     }
                 }
@@ -291,6 +291,11 @@
                 url: options.signUpUrl,
                 data: postData,
                 type: "POST",
+                // allow to include cookies in request
+                crossDomain: true,
+                xhrFields: {
+                    withCredentials: true
+                },
                 success: function(response){
                     var message, errorObject,errorMessage,errorType;
                     validator.hideProgress();

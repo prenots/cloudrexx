@@ -98,7 +98,8 @@ $_ARRAYLANG['TXT_MULTISITE_ADD_NEW_WEBSITE'] = 'Neue Website hinzuf&uuml;gen';
 
 // Subscription trial
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE'] = 'Webseite';
-$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION'] = 'Abo w&auml;hlen';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION'] = 'Abo wählen';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CREATE_TRIAL'] = 'Als Trial erstellen';
 $_ARRAYLANG['TXT_MULTISITE_UNKOWN_WEBSITE'] = 'Die angeforderte Website ist unbekannt.';
 $_ARRAYLANG['TXT_MULTISITE_SUBSCRIPTION_ACTIVE'] = 'Aktiv';
 $_ARRAYLANG['TXT_MULTISITE_SUBSCRIPTION_TRAIL']  = 'Trial';
@@ -362,7 +363,11 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_ERROR_MSG'] = 'Das Update 
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_STATUS_ERROR_MSG'] = 'Beim Senden des Update-Informationsmails ist ein Fehler aufgetreten';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UPDATE_CODEBASE_ERROR_MSG'] = 'Das Update der Code-Basis der Webseite ist fehlgeschlagen';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] = 'Kopieren';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Webseite kopieren - %s';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Website Kopie erstellen von %s';
+$_ARRAYLANG['TXT_MULTISITE_COPY_INFO'] = 'Hiermit erstellen Sie eine Kopie der Website %s';
+$_ARRAYLANG['TXT_MULTISITE_COPY_NAME'] = 'Name der Website-Kopie:';
+$_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION'] = 'Wählen Sie ein Abo für die neue Website:';
+$_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION_NAME'] = 'Zum Abo #%s (%s) hinzufügen';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG'] = 'Kopieren der Webseite fehlgeschlagen';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'] = 'Webseite wurde erfolgreich kopiert.';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS'] = 'Webseite wird kopiert. Bitte haben Sie kurz Geduld!';
@@ -374,4 +379,5 @@ Um ein neues Abo zu erwerben, benutzen Sie die Schaltfläche "Neues Abo"';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT']    = 'Grössenbeschränkung für Backups';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT_TOOLTIP'] = 'Maximale Grösse der Webseite für die Erstellung von Backups in Kb\'s.<br /> 0 - Keine Beschränkung';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR'] = 'Die Webseite ist zu Gross, ein Backup wird nicht empfohlen.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_LIMIT_ERROR'] = 'Von dieser Webseite kann keine Kopie erstellt werden, bitte melden Sie sich beim <a href="http://support.cloudrexx.com" target="_blank">Support</a>';
 

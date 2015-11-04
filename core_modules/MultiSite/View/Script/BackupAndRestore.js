@@ -1,5 +1,8 @@
 (function ($) {
     cx.ready(function () {
+        cx.bind("loadingStart", cx.lock, "websiteBackup");
+        cx.bind("loadingEnd", cx.unlock, "websiteBackup");
+
         if ($('#serviceServerList').length > 0) {
             $.trim(cx.variables.get('serviceServers', 'multisite/lang')) == ''
             ? $J('#serviceServerOption').remove()
@@ -96,8 +99,6 @@
                 return false;
             }
 
-            cx.bind("loadingStart", cx.lock, "websiteBackup");
-            cx.bind("loadingEnd", cx.unlock, "websiteBackup");
             $.ajax({
                 url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=triggerWebsiteBackup",
                 data: params,
@@ -131,8 +132,6 @@
                 return false;
             }
 
-            cx.bind("loadingStart", cx.lock, "deleteWebsiteBackup");
-            cx.bind("loadingEnd", cx.unlock, "deleteWebsiteBackup");
             $.ajax({
                 url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=triggerWebsiteBackup",
                 data: {serviceServerId: $(this).attr('data-serviceId'), websiteBackupFileName: $(this).attr('data-backupFile')},
@@ -168,9 +167,15 @@ function websiteRestoreCallbackJs(callback) {
             data: params,
             dataType: 'json',
             type: 'POST',
+            beforeSend: function () {
+                cx.trigger("loadingStart", "websiteBackup", {});
+                cx.tools.StatusMessage.showMessage("<div id=\"loading\" class = \"websiteBackup\">" + cx.jQuery('#loading').html() + "</div>");
+            },
             success: function (response) {
                 var resp = (response.data) ? response.data : response;
                 if (resp.status === 'success') {
+                    cx.tools.StatusMessage.removeAllDialogs(true);
+                    cx.trigger("loadingEnd", "websiteBackup", {});
                     MultisiteBackupAndRestore.websiteRestore(params, true, resp.userId ? resp.userId : 0);
                 }
             }
@@ -227,9 +232,6 @@ var MultisiteBackupAndRestore = {
                         subscriptionId: subscriptionId
                     };
 
-                    cx.bind("loadingStart", cx.lock, "websiteRestore");
-                    cx.bind("loadingEnd", cx.unlock, "websiteRestore");
-                    cx.trigger("loadingStart", "websiteRestore", {});
                     $J.ajax({
                         url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=triggerWebsiteRestore",
                         data: params,
@@ -237,6 +239,7 @@ var MultisiteBackupAndRestore = {
                         dataType: "json",
                         beforeSend: function () {
                             $J('#restoreWebsite').dialog("close");
+                            cx.trigger("loadingStart", "websiteRestore", {});
                             cx.tools.StatusMessage.showMessage("<div id=\"loading\" class = \"websiteBackup\">" + cx.jQuery('#loading').html() + "</div>");
                             $J('#loading > span').html(cx.variables.get('websiteRestoreInProgress', 'multisite/lang'));
                         },

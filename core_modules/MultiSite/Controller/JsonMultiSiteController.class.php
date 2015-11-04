@@ -4345,6 +4345,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     if (!$website) {
                         throw new MultiSiteJsonException('Failed to get the website.');
                     }
+                    $website->setOwner($website->getOwner());
 
                     return array(
                         'status'    => 'success', 
@@ -7004,6 +7005,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $backupArguments = array(
                         'serviceServerId' => $website->getWebsiteServiceServerId(),
                         'websiteId'       => $websiteId,
+                        'isCopy'          => true,
                     );
                     $websiteBackupResp = self::executeCommandOnManager('websiteBackup', $backupArguments);
                     if ($websiteBackupResp->status == 'error' || $websiteBackupResp->data->status == 'error') {

@@ -751,7 +751,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                           ? contrexx_input2int($_POST['subscription_id'])
                           : (isset($arguments['id']) ? contrexx_input2int($arguments['id']) : 0);
         $productId      =   !empty($_POST['product_id'])
-                          ? contrexx_input2int($_POST['product_id'])
+                          ? 1//contrexx_input2int($_POST['product_id'])
                           : (isset($arguments['productId']) ? contrexx_input2int($arguments['productId']) : 0);
         $websiteName    =   !empty($_POST['multisite_address'])
                           ? contrexx_input2raw($_POST['multisite_address'])
@@ -839,7 +839,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $queryArguments['websiteId'] = $websiteId;
             }
             if ($isCopyWebsite && empty($productId)) {
-                $userId = \Fwuser::getFWUserObject()->objUser->getId();
+                $userId = \FWUser::getFWUserObject()->objUser->getId();
                 $params = array(
                     'userId' => $userId
                 );
@@ -850,7 +850,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         list($subscriptionListId, $subscriptionListName) = explode(':', $subscription);
                         $objTemplate->setVariable(array(
                             'MULTISITE_SUBSCRIPTION_ID'       => contrexx_raw2xhtml($subscriptionListId),
-                            'MULTISITE_SUBSCRIPTION_NAME'     => contrexx_raw2xhtml($subscriptionListName),
+                            'MULTISITE_SUBSCRIPTION_NAME'     => sprintf(
+                                $_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION_NAME'],
+                                contrexx_raw2xhtml($subscriptionListId),
+                                contrexx_raw2xhtml($subscriptionListName)
+                            ),
                             'MULTISITE_SUBSCRIPTION_SELECTED' => $subscriptionId == $subscriptionListId ? 'selected="selected"' : '',
                         ));
                         $objTemplate->parse('openSubscriptions');
@@ -871,6 +875,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'MULTISITE_CREATE_WEBSITE_BUTTON' => $isCopyWebsite ? $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] : $_ARRAYLANG['TXT_MULTISITE_SUBMIT_BUTTON'],
                 'MULTISITE_ADD_WEBSITE_TITLE'     => $isCopyWebsite
                                                      ? sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'], contrexx_raw2xhtml($copyWebsite->getName()))
+                                                     : $_ARRAYLANG['TXT_MULTISITE_ADD_NEW_WEBSITE'],
+                'MULTISITE_COPY_INFO'             => $isCopyWebsite
+                                                     ? sprintf($_ARRAYLANG['TXT_MULTISITE_COPY_INFO'], contrexx_raw2xhtml($copyWebsite->getBaseDn()->getName()))
                                                      : $_ARRAYLANG['TXT_MULTISITE_ADD_NEW_WEBSITE'],
                 'MULTISITE_BUILD_WEBSITE_MSG'     => $isCopyWebsite
                                                      ? $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS']

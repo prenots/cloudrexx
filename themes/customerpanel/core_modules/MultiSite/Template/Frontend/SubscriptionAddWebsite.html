@@ -1,6 +1,6 @@
 <!-- BEGIN multisite_copy_website_website_limit_error -->
 <div class="grid-elm grid-align-1-1 grid-offset msg-error">
-    <div class="msg_text">{TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR}</div>
+    <div class="msg_text">{TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_LIMIT_ERROR}</div>
 </div>
 <!-- END multisite_copy_website_website_limit_error -->
 
@@ -54,6 +54,22 @@ jQuery(document).ready(function(){
     jQuery.getScript("{MULTISITE_PATH}/lib/javascript/jquery/bootstrapvalidator/js/bootstrapValidator.min.js", function() {
         jQuery.getScript('{MULTISITE_PATH}/core_modules/MultiSite/View/Script/SignUp.js');
     });
+    if (jQuery("#multisite_subscription_select").length == 1) {
+        if (jQuery("#multisite_subscription_select option").length == 1) {
+            jQuery("#multisite_subscription_select").closest(".row").hide();
+        }
+        jQuery("#multisite_subscription_select").change(function() {
+            if (jQuery(this).val() == "TRIAL") {
+                jQuery("#product_id").val("1");
+                jQuery("#multisite_subscription").val("");
+            } else {
+                jQuery("#product_id").val("");
+                jQuery("#multisite_subscription").val(jQuery(this).val());
+            }
+        });
+    } else {
+        jQuery(".copy_website").hide();
+    }
     jQuery('.addSubscription').on('click', function(){
         jQuery('#SubscriptionAddWebsite').modal('hide');
         showRemoteModal({
@@ -99,10 +115,8 @@ var validateAdress = function (value, validator, $field) {
     <div class="multisite-status"></div>
     <div class="multisite-form">
         <form role="form" id="multisite_signup_form">
-            <input type="hidden" id="product_id" name="product_id" value="{PRODUCT_ID}">
-            <!-- BEGIN multisite_copy_website_subscription_selected -->
+            <input type="hidden" id="product_id" name="product_id" value="1">
             <input type="hidden" id="multisite_subscription" value="{MULTISITE_SELECTED_SUBSCRIPTION}">
-            <!-- END multisite_copy_website_subscription_selected -->
             <input type="hidden" id="product_name" value="{PRODUCT_NAME}">
             <input type="hidden" id="multisite_domain" value="{MULTISITE_DOMAIN}">
             <input type="hidden" id="multisite_page_reload" value="{MULTISITE_RELOAD_PAGE}">
@@ -110,9 +124,13 @@ var validateAdress = function (value, validator, $field) {
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             <h2>{MULTISITE_ADD_WEBSITE_TITLE}</h2>
             <fieldset>
+                <div class="row copy_website">
+                    <p>{MULTISITE_COPY_INFO}</p>
+                </div>
                 <div class="row">
 
                     <div class="form-group">
+                        <label for="multisite_address" class="copy_website">{TXT_MULTISITE_COPY_NAME}</label>
                         <div class="input-group multisite-address">
                             <input  data-bv-notempty="true" data-bv-notempty-message=" " data-bv-callback="true" data-bv-callback-callback="validateAdress"  id="multisite_address" name="multisite_address" type="text" title="{TXT_MULTISITE_SITE_ADDRESS_INFO}" class="form-control" value="{MULTISITE_WEBSITE_ADDRESS}" required="">
                             <div class="input-group-addon">.{MULTISITE_DOMAIN}</div>
@@ -122,30 +140,27 @@ var validateAdress = function (value, validator, $field) {
                 </div>
                 
                 <!-- BEGIN multisite_copy_website_subscription_selection -->
-                <div class="form-inline">
-                    <div class="form-group col-md-8 no-padding-left">
-                        <select class="col-md-12 no-padding" data-bv-notempty="true" data-bv-notempty-message=""  id="multisite_subscription" name="subscription" class="form-control">
-                            <option value="">{TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION}</option>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="multisite_subscription_select">{TXT_MULTISITE_COPY_SUBSCRIPTION}</label>
+                        <select class="col-md-12 no-padding" data-bv-notempty="true" data-bv-notempty-message=""  id="multisite_subscription_select" name="subscription" class="form-control">
+                            <option value="TRIAL">{TXT_MULTISITE_WEBSITE_CREATE_TRIAL}</option>
                             <!-- BEGIN openSubscriptions -->
                             <option {MULTISITE_SUBSCRIPTION_SELECTED} value="{MULTISITE_SUBSCRIPTION_ID}">{MULTISITE_SUBSCRIPTION_NAME}</option>
                             <!-- END openSubscriptions -->
                         </select>
                     </div>
-                    <div class="form-group col-md-4 no-padding">
-                        <button type="button" class="add col-md-12 addSubscription" data-remote="/api/MultiSite/SubscriptionSelection" data-target="SubscriptionSelection">{TXT_MULTISITE_NEW_SUBSCRIPTION}</button>
-                    </div>
                 </div>
-                <div class="row">&nbsp;</div>
                 <!-- END multisite_copy_website_subscription_selection -->
 
                 <!-- BEGIN multisite_copy_website_product_selection -->
-                <div class="row">
+                <div class="row copy_website">
                     <label>{TXT_CORE_MODULE_MULTISITE_WEBSITE_PRODUCT} : <strong>{PRODUCT_NAME}</strong></label>
                 </div>
                 <!-- END multisite_copy_website_product_selection -->
 
                 <div class="row">
-                    <button type="button" class="add multisite_submit">{MULTISITE_CREATE_WEBSITE_BUTTON}</button>
+                    <button type="button" class="save multisite_submit">{MULTISITE_CREATE_WEBSITE_BUTTON}</button>
                     <!-- BEGIN multisite_pay_button -->
                     <button type="button" class="add multisite_pay">{TXT_MULTISITE_CREATE_WEBSITE}</button>
                     <a data-href="" href="javascript:void();" class="multisite_pay_button hidden">{TXT_MULTISITE_ORDER_NOW}</a>
