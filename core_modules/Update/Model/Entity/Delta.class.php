@@ -55,6 +55,11 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
      * @var integer $codeBaseId
      */
     private $codeBaseId;
+    
+    /**
+     * @var string $component
+     */
+    private $component;
 
     /**
      * @var boolean $rollback
@@ -82,6 +87,24 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
      */
     public function setId($id) {
         $this->id = $id;
+    }
+
+    /**
+     * Set component
+     * 
+     * @param string $component
+     */
+    public function setComponent($component) {
+        $this->component = $component;
+    }
+
+    /**
+     * Get component
+     * 
+     * @return string $component
+     */
+    public function getComponent() {
+        return $this->component;
     }
 
     /**
@@ -141,11 +164,13 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
     /**
      * addCodeBase
      * 
+     * @param string  $component
      * @param integer $codeBaseId
      * @param boolean $rollback
      * @param integer $offset
      */
-    public function addCodeBase($codeBaseId, $rollback, $offset) {
+    public function addCodeBase($component, $codeBaseId, $rollback, $offset) {
+        $this->setComponent($component);
         $this->setCodeBaseId($codeBaseId);
         $this->setRollback($rollback);
         $this->setOffset($offset);
@@ -156,7 +181,7 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
      */
     public function applyNext() {
         $process = $this->rollback ? '--down' : '--up';
-        $result = $this->runMigrationCommand($this->codeBaseId, $process);
+        $result = $this->runMigrationCommand($this->component, $this->codeBaseId, $process);
 
         return $result == 0 ? true : false;
     }
@@ -164,12 +189,13 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
     /**
      * Run the Migration command to migrate the DB
      * 
+     * @param string  $component
      * @param integer $version
      * @param string  $process
      * 
      * @return integer
      */
-    protected function runMigrationCommand($version, $process) {
+    protected function runMigrationCommand($component, $version, $process) {
 
         $argv = array(
             __FILE__,
@@ -181,7 +207,7 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
 
         $_SERVER['argv'] = $argv;
 
-        $cli = $this->getComponentController()->getController('Update')->getDoctrineMigrationCli();
+        $cli = $this->getComponentController()->getController('Update')->getDoctrineMigrationCli($component);
         return $cli->run();
     }
 

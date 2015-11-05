@@ -84,6 +84,21 @@ class DbCommand extends Command {
                 // empty /tmp/workbench
                 $this->cleanup();
                 
+                //Check the component have a meta.yml if not exists, add as new
+                $em = $this->cx->getDb()->getEntityManager();
+                $componentRepo = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+                $components    = isset($arguments[3])
+                                    ? $componentRepo->findBy(array('name' => $arguments[3]))
+                                    : $componentRepo->findAll();
+                if ($components) {
+                    foreach ($components as $component) {
+                        if (!file_exists($component->getDirectory() . '/meta.yml')) {
+                            $reflectionComponent = new \Cx\Core\Core\Model\Entity\ReflectionComponent($component->getSystemComponent());
+                            $reflectionComponent->writeMetaDataToFile($component->getDirectory() . '/meta.yml');
+                        }
+                    }
+                }
+
                 // prepare component filter
                 $componentFilter = '';
                 if (isset($arguments[2])) {
@@ -163,15 +178,15 @@ class DbCommand extends Command {
                 
                 // doctrine orm:schema-tool:create --dump-sql
                 // print queries and ask if those should be executed (CAUTION!)
-                $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->cx->getDb()->getEntityManager());
-                $metadatas = $this->cx->getDb()->getEntityManager()->getMetadataFactory()->getAllMetadata();
+                $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
+                $metadatas = $em->getMetadataFactory()->getAllMetadata();
                 $queries = $schemaTool->getUpdateSchemaSql($metadatas);
                 foreach ($queries as $query) {
                     echo $query . "\r\n";
                 }
                 echo 'The above queries were generated for updating the database. Should I execute them on the database? ';
                 if ($this->interface->yesNo('WARNING: Please check the SQL statements carefully and create a database backup before saying yes!')) {
-                    $connection = $this->cx->getDb()->getEntityManager()->getConnection();
+                    $connection = $em->getConnection();
                     $i = 0;
                     foreach ($queries as $query) {
                         $query = trim($query);

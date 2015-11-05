@@ -54,12 +54,18 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      * @var string $pendingCodeBaseChangesYml
      */
     protected $pendingCodeBaseChangesYml = 'PendingCodeBaseChanges.yml';
+
+    /**
+     * Migration folder path
+     * @var string $migrationFolderPath
+     */
+    protected $migrationFolderPath = '/Data/Migrations';
     
     /**
      * Command Line Interface
-     * @var \Symfony\Component\Console\Application | null
+     * @var \Symfony\Component\Console\Application | array()
      */
-    protected $cli = null;
+    protected $cli = array();
     
     /**
      * Calculate database delta
@@ -68,49 +74,108 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      * If the original version number is smaller than new version number,
      * Add each version between those two versions to the delta as non-rollback updates otherwise delta as rollback updates
      * 
-     * @param integer $oldVersion
-     * @param string  $codeBasePath
+     * @param array $params array of values for delta calculation
+     * (components, codeBasePath, oldCodeBaseId, latestCodeBaseId)
      */
-    public function calculateDbDelta($oldVersion, $codeBasePath) {
-        \Cx\Core\Setting\Controller\Setting::init('Config', '', 'Yaml');
+    public function calculateDbDelta($params)
+    {
+        //get the component list for update
+        $qb = $this->cx->getDb()->getEntityManager()->createQueryBuilder();
+        $qb ->select('c')
+            ->from('Cx\Core\Core\Model\Entity\SystemComponent', 'c');
+        !empty($params['components']) ? 
+            $qb->where($qb->expr()->in('c.name', $params['components'])) : '';
+        $componentList = $qb->getQuery()->getResult();
+        if (\FWValidator::isEmpty($componentList)) {
+            throw new \Exception('UpdateController::calculateDbDelta(): Invalid component list.');
+        }
+
+        $params['oldCodeBaseId']    = str_replace('.', '', $params['oldCodeBaseId']);
+        $params['latestCodeBaseId'] = str_replace('.', '', $params['latestCodeBaseId']);
+        foreach ($componentList as $component) {
+            $this->calculateComponentDbDelta($params, $component);
+        }
+    }
+
+    /**
+     * Calculate component's database delta
+     * 
+     * @param array                                      $params    array of values for delta calculation
+     * @param \Cx\Core\Core\Model\Entity\SystemComponent $component component entity
+     * 
+     * @return boolean
+     */
+    protected function calculateComponentDbDelta($params, \Cx\Core\Core\Model\Entity\SystemComponent $component)
+    {
+        static $objYaml = null;
         
-        $latestVersion = str_replace('.', '', \Cx\Core\Setting\Controller\Setting::getValue('coreCmsVersion', 'Config'));
-        $olderVersion = str_replace('.', '', $oldVersion);
-
-        $versionClassPath = $codeBasePath . '/core_modules/Update/Data/Migrations';
+        $componentName = $component->getName();
+        $basePath      = \Cx\Core\Core\Model\Entity\SystemComponent::getPathForType($component->getType());
+        $componentPath = $this->cx->getCodeBasePath() .  $basePath .'/' . $componentName;
+        
+        //Get the current codebase value from the component meta.yml
+        if (file_exists($componentPath . '/meta.yml')) {
+            if (!isset($objYaml)) {
+                $objYaml = new \Symfony\Component\Yaml\Yaml();
+            }
+            $file    = new \Cx\Lib\FileSystem\File($componentPath . '/meta.yml');
+            $content = $objYaml->load($file->getData());
+            if (    isset($content['DlcInfo']) 
+                &&  isset($content['DlcInfo']['version'])
+                &&  !empty($content['DlcInfo']['version'])
+            ) {
+                $params['oldCodeBaseId'] = str_replace('.', '', $content['DlcInfo']['version']);
+            }
+        }
+        
+        //Check the migration folder exists in the corresponding component 
+        //If not, proceed with next component
+        //If exists, get version number from the version filename
+        $versionClassPath = $params['codeBasePath'] .  $basePath .'/' . $componentName . $this->migrationFolderPath;
+        if (!file_exists($versionClassPath)) {
+            return false;
+        }
+        
         $versionFiles = array_diff(scandir($versionClassPath), array('..', '.'));
-
-
-        $versions = array();
+        $versions     = array();
         foreach ($versionFiles as $versionFile) {
             $versions[] = substr(str_replace('.php', '', $versionFile), 7);
         }
 
+        //If version files not exists in migration folder, 
+        //proceed with next component
+        if (empty($versions)) {
+            return false;
+        }
+
+        //compare version number to calculate Delta
         $i = 1;
-        $isHigherVersion = $olderVersion < $latestVersion;
+        $isHigherVersion = $params['oldCodeBaseId'] < $params['latestCodeBaseId'];
         if (!$isHigherVersion) {
             rsort($versions);
         }
         foreach ($versions as $version) {
             if (    (   $isHigherVersion 
-                    &&  (   $version > $olderVersion 
-                        &&  $version <= $latestVersion
+                    &&  (   $version > $params['oldCodeBaseId'] 
+                        &&  $version <= $params['latestCodeBaseId']
                         )
                     )
                 ||
                     (   !$isHigherVersion 
-                    &&  (   $version <= $olderVersion 
-                        &&  $version > $latestVersion
+                    &&  (   $version <= $params['oldCodeBaseId'] 
+                        &&  $version > $params['latestCodeBaseId']
                         )
                     )
             ) {
                 $delta = new \Cx\Core_Modules\Update\Model\Entity\Delta();
                 $rollBack = !$isHigherVersion ? true : false;
-                $delta->addCodeBase($version, $rollBack, $i);
+                $delta->addCodeBase($componentName, $version, $rollBack, $i);
                 $this->registerDbUpdateHooks($delta);
                 $i++;
             }
         }
+        
+        return true;
     }
 
     /**
@@ -140,52 +205,56 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      * 
      * @return null
      */
-    public function applyDelta() {
-
-        //Check if any of the update process is interrupt state, then rollback to old state
-        $deltaRepository = new \Cx\Core_Modules\Update\Model\Repository\DeltaRepository();
-        $deltas = $deltaRepository->findAll();
-        if (empty($deltas)) {
-            return;
-        }
-        asort($deltas);
+    public function applyDelta() 
+    {
         //set the website as Offline mode
         \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
         \Cx\Core\Setting\Controller\Setting::set('websiteState', \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_OFFLINE);
         \Cx\Core\Setting\Controller\Setting::update('websiteState');
 
-        $status     = true;
-        $yamlFile   = null;
-        foreach ($deltas as $delta) {
-            $status = $delta->applyNext();
-            $delta->setRollback($delta->getRollback() ? false : true);
-            $deltaRepository->flush();
-            if (!$status) {
-                //Rollback to old state
-                $this->rollBackDelta();
-                //Rollback the codebase changes(settings.php, configuration.php and website codebase in manager and service)
-                $yamlFile = $this->cx->getWebsiteTempPath() . '/Update/'. $this->pendingCodeBaseChangesYml;
-                if (file_exists($yamlFile)) {
-                    $pendingCodeBaseChanges = $this->getUpdateWebsiteDetailsFromYml($yamlFile);
-                    $oldCodeBase            = $pendingCodeBaseChanges['PendingCodeBaseChanges']['oldCodeBaseId'];
-                    $latestCodeBase         = $pendingCodeBaseChanges['PendingCodeBaseChanges']['latestCodeBaseId'];
-                    //Register YamlSettingEventListener
-                    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener();
-                    //Update codeBase in website
-                    $this->updateCodeBase($latestCodeBase, null, $oldCodeBase);
-                    //Update website codebase in manager and service
-                    \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
-                    $websiteName = \Cx\Core\Setting\Controller\Setting::getValue('websiteName', 'MultiSite');
-                    $params = array('websiteName' => $websiteName, 'codeBase' => $oldCodeBase);
-                    \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('updateWebsiteCodeBase', $params);
+        //Read the current and new CodeBase versions and component list from the yml file
+        $yamlFile = $this->cx->getWebsiteTempPath() . '/Update/'. $this->pendingCodeBaseChangesYml;
+        if (\Cx\Lib\FileSystem\FileSystem::exists($yamlFile)) {
+            $pendingCodeBaseChanges = $this->getUpdateWebsiteDetailsFromYml($yamlFile);
+            $latestCodeBase         = $pendingCodeBaseChanges['PendingCodeBaseChanges']['latestCodeBaseId'];
+            $components             = $pendingCodeBaseChanges['PendingCodeBaseChanges']['components'];
+        }
+        $isWebsiteUpdate = empty($components) ? true : false;
+        $components      = empty($components) ? $this->getAllComponentList() : $components;
+        
+        //Run the DB migration process
+        $return = $this->dbMigrationProcess($components);
+        
+        //Run the Rollback process if the update process is interrupted
+        if (!$return['status'] && !empty($pendingCodeBaseChanges)) {
+            $params = array(
+                'components'      => $return['updatedComponents'],
+                'oldCodeBase'     => $pendingCodeBaseChanges['PendingCodeBaseChanges']['oldCodeBaseId'],
+                'latestCodeBase'  => $latestCodeBase,
+                'isWebsiteUpdate' => $isWebsiteUpdate,
+                
+            );
+            $this->rollBackProcess($params);
+        }
+        
+        //If all the components are updated successfully 
+        //then update all the component version in the corresponding meta.yml
+        if ($return['status']) {
+            $em = $this->cx->getDb()->getEntityManager();
+            $componentRepo = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+            foreach ($components as $componentName) {
+                $component = $componentRepo->findOneBy(array('name' => $componentName));
+                if (!$component) {
+                    continue;
                 }
-                break;
+                $reflectionComponent = new \Cx\Core\Core\Model\Entity\ReflectionComponent($component->getSystemComponent());
+                $reflectionComponent->updateMetaData($component->getDirectory() . '/meta.yml', array('version' => $latestCodeBase));
             }
         }
-
+        
         //Remove the folder '/tmp/Update', After the completion of rollback or Non-rollback process
         $tmpUpdateFolderPath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteTempPath() . '/Update';
-        if (file_exists($tmpUpdateFolderPath)) {
+        if (\Cx\Lib\FileSystem\FileSystem::exists($tmpUpdateFolderPath)) {
             \Cx\Lib\FileSystem\FileSystem::delete_folder($tmpUpdateFolderPath, true);
         }
         
@@ -195,18 +264,94 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
     }
 
     /**
-     * Rollback the delta to make the website as old state
+     * Run the DB migration process
+     * 
+     * @param array $components list of components for migration process
+     * 
+     * @return array migration process status return as array
      */
-    protected function rollBackDelta() {
-        $deltaRepository = new \Cx\Core_Modules\Update\Model\Repository\DeltaRepository();
-        $rollBackDeltas = $deltaRepository->findBy(array('rollback' => true));
-        rsort($rollBackDeltas);
-        foreach ($rollBackDeltas as $rollBackDelta) {
-            if (!$rollBackDelta->applyNext()) {
-                $websiteName = \Cx\Core\Setting\Controller\Setting::getValue('websiteName', 'MultiSite');
-                $params = array('websiteName' => $websiteName, 'emailTemplateKey' => 'notification_update_error_email');
-                \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('sendUpdateNotification', $params);
-                break;
+    protected function dbMigrationProcess($components) 
+    {
+        $updatedComponentList = array();
+        foreach ($components as $component) {
+            $deltaRepository = new \Cx\Core_Modules\Update\Model\Repository\DeltaRepository();
+            $deltas = $deltaRepository->findBy(array('component' => $component));
+            if (empty($deltas)) {
+                continue;
+            }
+
+            asort($deltas);
+            $updatedComponentList[] = $component;
+            foreach ($deltas as $delta) {
+                $status = $delta->applyNext();
+                $delta->setRollback($delta->getRollback() ? false : true);
+                $deltaRepository->flush();
+                //Check if any of the update process is interrupt state, then stop the migration process
+                if (!$status) {
+                    return array('status' => false, 'updatedComponents' => $updatedComponentList);
+                }
+            }
+        }
+        return array('status' => true);
+    }
+
+    /**
+     * Run the rollback process to rollback the delta and update website codeBase
+     * 
+     * @param array $params
+     */
+    protected function rollBackProcess($params)
+    {
+        //DB rollback process
+        $this->rollBackDelta($params['components']);
+        
+        //If it is website update process, then rollback the codebase changes
+        //(settings.php, configuration.php and website codebase in manager and service)
+        if (    $params['isWebsiteUpdate'] 
+            &&  !empty($params['oldCodeBase']) 
+            &&  !empty($params['latestCodeBase'])
+        ) {
+            //Register YamlSettingEventListener
+            \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener();
+
+            //Update codeBase in website
+            $this->updateCodeBase($params['latestCodeBase'], null, $params['oldCodeBase']);
+
+            //Update website codebase in manager and service
+            \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
+            $websiteName = \Cx\Core\Setting\Controller\Setting::getValue('websiteName', 'MultiSite');
+            $params = array('websiteName' => $websiteName, 'codeBase' => $params['oldCodeBase']);
+            \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('updateWebsiteCodeBase', $params);
+        }
+    }
+
+    /**
+     * Rollback the delta based on the component to reverse the website to old state
+     * 
+     * @param array $components
+     */
+    protected function rollBackDelta($components) 
+    {
+        if (empty($components)) {
+            return;
+        }
+        
+        //Run the DB rollback process
+        foreach ($components as $component) {
+            $deltaRepository = new \Cx\Core_Modules\Update\Model\Repository\DeltaRepository();
+            $rollBackDeltas = $deltaRepository->findBy(array('component' => $component, 'rollback' => true));
+            if (!$rollBackDeltas) {
+                continue;
+            }
+            
+            rsort($rollBackDeltas);
+            foreach ($rollBackDeltas as $rollBackDelta) {
+                if (!$rollBackDelta->applyNext()) {
+                    $websiteName = \Cx\Core\Setting\Controller\Setting::getValue('websiteName', 'MultiSite');
+                    $params = array('websiteName' => $websiteName, 'emailTemplateKey' => 'notification_update_error_email');
+                    \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('sendUpdateNotification', $params);
+                    break 2;
+                }
             }
         }
     }
@@ -243,37 +388,47 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
     /**
      * Get Doctrine Migration Command Line Interface
      * 
+     * @param string $component migration component name
+     * 
      * @return \Symfony\Component\Console\Application
      */
-    public function getDoctrineMigrationCli()
+    public function getDoctrineMigrationCli($component)
     {
-        if ($this->cli) {
-            return $this->cli;
+        if (empty($component)) {
+            throw new \Exception('UpdateController::getDoctrineMigrationCli(): Invalid component migration.');
         }
         
-        $em = \Env::get('em');
+        if (isset($this->cli[$component])) {
+            return $this->cli[$component];
+        }
+        
+        $em = $this->cx->getDb()->getEntityManager();
         $conn = $em->getConnection();
 
-        $this->cli = new \Symfony\Component\Console\Application('Doctrine Migration Command Line Interface', \Doctrine\Common\Version::VERSION);
-        $this->cli->setCatchExceptions(true);
-        $helperSet = $this->cli->getHelperSet();
+        $this->cli[$component] = new \Symfony\Component\Console\Application('Doctrine Migration Command Line Interface', \Doctrine\Common\Version::VERSION);
+        $this->cli[$component]->setCatchExceptions(true);
+        $helperSet = $this->cli[$component]->getHelperSet();
         $helpers = array(
             'db' => new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($conn),
-            'em' => new \Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper($this->cx->getDb()->getEntityManager()),
+            'em' => new \Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper($em),
         );
         foreach ($helpers as $name => $helper) {
             $helperSet->set($helper, $name);
         }
 
+        $componentRepo   = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+        $objComponent    = $componentRepo->findOneBy(array('name' => $component));
+        $entityNameSpace = $objComponent->getNamespace() . '\\Data\\Migrations';
         //custom configuration
-        $configuration = new \Doctrine\DBAL\Migrations\Configuration\Configuration($conn);
+        $configuration = new \Cx\Core_Modules\Update\Model\Entity\MigrationsConfiguration($conn);
         $configuration->setName('Doctrine Migration');
-        $configuration->setMigrationsNamespace('Cx\Core_Modules\Update\Data\Migrations');
+        $configuration->setMigrationComponent($component);
+        $configuration->setMigrationsNamespace($entityNameSpace);
         $configuration->setMigrationsTableName(DBPREFIX . 'migration_versions');
-        $configuration->setMigrationsDirectory($this->cx->getCodeBaseCoreModulePath() . '/Update/Data/Migrations');
-        $configuration->registerMigrationsFromDirectory($this->cx->getCodeBaseCoreModulePath() . '/Update/Data/Migrations');
+        $configuration->setMigrationsDirectory($objComponent->getDirectory() . $this->migrationFolderPath);
+        $configuration->registerMigrationsFromDirectory($objComponent->getDirectory() . $this->migrationFolderPath);
 
-        $this->cli->addCommands(array(
+        $this->cli[$component]->addCommands(array(
             // Migrations Commands
             $this->getDoctrineMigrationCommand('\Cx\Core_Modules\Update\Model\Entity\MigrationsDiffDoctrineCommand', $configuration),
             $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\ExecuteCommand', $configuration),
@@ -282,9 +437,9 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
             $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\StatusCommand', $configuration),
             $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\VersionCommand', $configuration),
         ));
-        $this->cli->setAutoExit(false);
+        $this->cli[$component]->setAutoExit(false);
         
-        return $this->cli;
+        return $this->cli[$component];
     }
     
     
@@ -383,5 +538,29 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      */
     public function getPendingCodeBaseChangesFile() {
         return $this->pendingCodeBaseChangesYml;
+    }
+    
+    /**
+     * Get all the component list
+     * 
+     * @return array $componentList component list return as array
+     */
+    public function getAllComponentList()
+    {
+        $em = $this->cx->getDb()->getEntityManager();
+        $componentRepo = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+        $components    = $componentRepo->findAll();
+        if ($components) {
+            $componentList = array();
+            foreach ($components as $component) {
+                //This condition for avoiding the components Media1, Media2, Media3 and Media4
+                if (!file_exists($component->getDirectory())) {
+                    continue;
+                }
+                $componentList[] = $component->getName();
+            }
+        }
+        sort($componentList);
+        return $componentList;
     }
 }

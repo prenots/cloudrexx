@@ -1006,7 +1006,7 @@ class ReflectionComponent {
      * 
      * @param \Cx\Lib\FileSystem\File $file Path to meta file
      */
-    private function writeMetaDataToFile($file)
+    public function writeMetaDataToFile($file)
     {
         $publisher = '';
         $query = '
@@ -1024,13 +1024,14 @@ class ReflectionComponent {
             $publisher = $result->fields['distributor'];
         }
         
+        \Cx\Core\Setting\Controller\Setting::init('Config', '', 'Yaml');
         $content = array(
             'DlcInfo' => array(
                  'name' => $this->componentName,
                  'type' => $this->componentType,
                  'publisher' => $publisher,
                  'dependencies' => null,
-                 'versions' => null,                 
+                 'version' => \Cx\Core\Setting\Controller\Setting::getValue('coreCmsVersion', 'Config'),
                  'rating' => 0,
                  'downloads' => 0,
                  'price' => 0.0,
@@ -1048,6 +1049,51 @@ class ReflectionComponent {
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::msg($e->getMessage());
         }
+    }
+    
+    /**
+     * Update the file with meta information of the component 
+     * 
+     * @param string $filePath path to meta file
+     * @param array  $values   array of values to update 
+     * 
+     * @return boolean
+     */
+    public function updateMetaData($filePath, $values) 
+    {
+        if (empty($values)) {
+            return false;
+        }
+
+        //If the meta yml file not exists, add it as new
+        if (!file_exists($filePath)) {
+            $this->writeMetaDataToFile($filePath);
+        }
+        
+        //Load the content from the file path
+        $objYaml = new \Symfony\Component\Yaml\Yaml();
+        $file    = new \Cx\Lib\FileSystem\File($filePath);
+        $content = $objYaml->load($file->getData());
+        
+        //Update the meta data
+        foreach ($content['DlcInfo'] as $optionName => $optionValue) {
+            if (isset($values[$optionName])) {
+                $content['DlcInfo'][$optionName] = $values[$optionName];
+            }
+        }
+        
+        //Store the updated metadata in the file
+        try {
+            $file->touch();
+            $file->write(
+                    \Symfony\Component\Yaml\Yaml::dump($content, 3)
+            );
+            return true;
+        } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
+            \DBG::msg($e->getMessage());
+        }
+        
+        return false;
     }
     
     /**
