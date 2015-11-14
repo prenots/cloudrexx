@@ -214,13 +214,14 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
 
         //Read the current and new CodeBase versions and component list from the yml file
         $yamlFile = $this->cx->getWebsiteTempPath() . '/Update/'. $this->pendingCodeBaseChangesYml;
+        $isWebsiteUpdate = false;
         if (\Cx\Lib\FileSystem\FileSystem::exists($yamlFile)) {
             $pendingCodeBaseChanges = $this->getUpdateWebsiteDetailsFromYml($yamlFile);
             $latestCodeBase         = $pendingCodeBaseChanges['PendingCodeBaseChanges']['latestCodeBaseId'];
             $components             = $pendingCodeBaseChanges['PendingCodeBaseChanges']['components'];
+            $isWebsiteUpdate        = $pendingCodeBaseChanges['PendingCodeBaseChanges']['isWebsiteUpdate'];
         }
-        $isWebsiteUpdate = empty($components) ? true : false;
-        $components      = empty($components) ? $this->getAllComponentList() : $components;
+        $components = empty($components) ? $this->getAllComponentList() : $components;
         
         //Run the DB migration process
         $return = $this->dbMigrationProcess($components);
@@ -259,6 +260,7 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
         }
         
         //set the website back to Online mode
+        \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
         \Cx\Core\Setting\Controller\Setting::set('websiteState', \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE);
         \Cx\Core\Setting\Controller\Setting::update('websiteState');
     }
