@@ -68,6 +68,43 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
     protected $cli = array();
     
     /**
+     * Trigger the update process
+     * 
+     * @param array $params array of values for update process
+     * (components, codeBasePath, oldCodeBaseId, latestCodeBaseId)
+     * $params format:
+     * array(
+     *     'components'       => 'array of components for update',
+     *     'oldCodeBaseId'    => 'old codebase version',
+     *     'latestCodeBaseId' => 'new codebase version',
+     *     'codeBasePath'     => 'codeBase path'
+     * )
+     * 
+     * @throws \Exception
+     */
+    public function triggerUpdate($params)
+    {
+        if (    empty($params['oldCodeBaseId']) 
+            ||  empty($params['latestCodeBaseId'])
+        ) {
+            throw new \Exception('UpdateController::triggerUpdate(): Failed to trigger the update process.');
+        }
+
+        //create a yml file and store the current & latest codeBase and components list
+        $folderPath = $this->cx->getWebsiteTempPath() . '/Update';
+        $filePath   = $folderPath .'/'. $this->pendingCodeBaseChangesYml;
+        $content    = array(
+                        'components'       => $params['components'],
+                        'oldCodeBaseId'    => $params['oldCodeBaseId'], 
+                        'latestCodeBaseId' => $params['latestCodeBaseId'],
+                        'isWebsiteUpdate'  => empty($params['components']));
+        $this->storeUpdateWebsiteDetailsToYml($folderPath, $filePath, $content);
+
+        //create Pending Db Update list in yml using the Delta object
+        $this->calculateDbDelta($params);
+    }
+
+    /**
      * Calculate database delta
      *
      * It will calculate which codeBase database update scripts need to be executed.
@@ -90,6 +127,9 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
             throw new \Exception('UpdateController::calculateDbDelta(): Invalid component list.');
         }
 
+        if (empty($params['codeBasePath'])) {
+            $params['codeBasePath'] = $this->cx->getCodeBasePath();
+        }
         $params['oldCodeBaseId']    = str_replace('.', '', $params['oldCodeBaseId']);
         $params['latestCodeBaseId'] = str_replace('.', '', $params['latestCodeBaseId']);
         foreach ($componentList as $component) {
