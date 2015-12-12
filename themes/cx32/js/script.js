@@ -1,5 +1,10 @@
 (function ($) {
     $(document).ready(function () {
+         $("#select_category").change(function () {
+            $('.project-light-white ~ section ').hide();
+            var selectedValue = '#' + $(this).val();
+            $(selectedValue).show();
+         });
          $('.navbar-toggle').click(function () {
             $('body').toggleClass('bg-scroll');
         });

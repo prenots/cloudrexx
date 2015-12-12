@@ -7680,3 +7680,68 @@ a#contact-btn{
         overflow: hidden;
         position: fixed;
     }
+    .home-feature i {
+        border-radius: 50%;
+        color: #fff;
+        font-size: 47px;
+        height: 100px;
+        padding: 25px;
+        width: 100px;
+    }
+    .home-feature i.clock {
+        background-color: #0068B1;
+    }
+    .home-feature i.newspaper {
+        background-color: #95C700;
+    }
+    .home-feature i.lock {
+        background-color: #FDD615;
+    }
+    .home-feature i.th {
+        background-color: #E52412;
+    }
+    .home-feature i.thumbs-up {
+        background-color: #21B4C4;
+    }
+    .home-feature i.money {
+        background-color: #252525;
+    }
+    #home-scroll-down i {
+        background-color: #000;
+        border: medium none white;
+        border-radius: 50%;
+        bottom: 15px;
+        color: #fff;
+        font-size: 27px;
+        height: 35px;
+        padding: 5px;
+        position: relative;
+        width: 35px;
+    }
+    .category-template-list {
+        display: none;
+    }
+    @media (max-width : 767px) {
+        #innovation-price, #software-logo{
+            display : none;
+        }
+        .category-template-list {
+            display: block;
+            text-align: center;
+        }
+        #project-overview ul#sector-lists {
+            display: none;
+        }
+        .project-light-white ~ section {
+            display: none;
+        }
+        select#select_category {
+            padding: 10px 15px;
+            box-sizing: border-box;
+            border-radius: 3px;
+            border: 1px solid #BBBBBB;
+            font-size: 18px;
+            height: 45px;
+            width: 226px;
+        }
+    }
