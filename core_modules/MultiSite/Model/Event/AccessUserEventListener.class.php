@@ -125,7 +125,7 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                             throw new \Exception('Diese Funktion ist noch nicht freigeschalten. Aus Sicherheitsgründen bitten wir Sie, Ihre Anmeldung &uuml;ber den im Willkommens-E-Mail hinterlegten Link zu best&auml;tigen. Anschliessend wird Ihnen diese Funktion zur Verf&uuml;gung stehen. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
                         }
 
-                        if ($objUser->getId() != \FWUser::getFWUserObject()->objUser->getId()) {
+                        if (\FWUser::getFWUserObject()->objUser->isLoggedIn() && ($objUser->getId() != \FWUser::getFWUserObject()->objUser->getId())) {
                             throw new \Exception('Das Benutzerkonto des Websitebetreibers kann nicht ge&auml;ndert werden. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
                         }
                         
@@ -243,8 +243,14 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                         return;
                     }
                     
-                    foreach ($websites As $website) {
-                        $websiteServiceServerId = $website->getWebsiteServiceServerId();
+                    $affectedWebsiteServiceServerIds = array();
+                    foreach ($websites as $website) {
+                        if (in_array($website->getWebsiteServiceServerId(), $affectedWebsiteServiceServerIds)) {
+                            continue;
+                        }
+                        $affectedWebsiteServiceServerIds[] = $website->getWebsiteServiceServerId();
+                    }
+                    foreach ($affectedWebsiteServiceServerIds as $websiteServiceServerId) {
                         $websiteServiceServer   = $webServerRepo->findOneBy(array('id' => $websiteServiceServerId));
                     
                         if ($websiteServiceServer) {
@@ -258,7 +264,7 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                     //find User's Website
                     $webRepo   = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
                     $websites  = $webRepo->findWebsitesByCriteria(array('user.id' => $objUser->getId()));
-                    foreach ($websites As $website) {
+                    foreach ($websites as $website) {
                         \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $website);
                     }
                     break;
@@ -331,7 +337,7 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
         
         return true;
     }
-    
+
     /**
      * Check the Admin Users Quota
      * 
@@ -348,7 +354,7 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
         }
         return true;
     }
-
+    
     public function onEvent($eventName, array $eventArgs) {        
         $this->$eventName(current($eventArgs));
     }
