@@ -60,7 +60,8 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
             return array();
         }
         
-        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb            = $this->getEntityManager()->createQueryBuilder();
+        $subscriptions = array();
         
         if (    !empty($filter['term'])
             ||  !empty($filter['filterProduct'])
@@ -73,7 +74,6 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
 
             $products = $qb->getQuery()->getResult();
 
-            $subscriptions = array();
             foreach ($products as $product) {
                 $ids  = array();
                 $repo = $this->getEntityManager()->getRepository($product->getEntityClass());
@@ -144,7 +144,7 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
      * 
      * @return array
      */
-    function getSubscriptionsByCriteria($criteria, $order = '') {
+    function getSubscriptionsByCriteria($criteria, $order = array()) {
         if (empty($criteria) && empty($order)) {
             return array();
         }

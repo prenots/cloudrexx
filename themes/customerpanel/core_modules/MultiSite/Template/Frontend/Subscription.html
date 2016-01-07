@@ -2,8 +2,10 @@
     <button type="button" class="add remoteModal" data-remote="/api/MultiSite/SubscriptionSelection" data-target="SubscriptionSelection">{TXT_MULTISITE_NEW_SUBSCRIPTION}</button>
 </div>
 <div class="grid-elm grid-align-1-1 grid-offset">
-  <input type="text" name="search" id="search" style="width: 33%;" placeholder="{TXT_CORE_MODULES_MULTISITE_SEARCH_WEBSITE_OR_DOMAIN}" />
-  <button type="button" data-loading-text="<img src='/lib/javascript/jquery/jstree/themes/default/throbber.gif' /> {TXT_CORE_MODULE_MULTISITE_LOADING_TEXT}" data-dismiss="modal" onclick="loadSubscriptionByFilter(); return false;">{TXT_CORE_MODULES_MULTISITE_SEARCH_BUTTON}</button>
+    <form id="websiteSearch" method="get">
+        <input type="text" name="search" id="search" style="width: 33%;" placeholder="{TXT_CORE_MODULES_MULTISITE_SEARCH_WEBSITE_OR_DOMAIN}" />
+        <button type="submit" data-loading-text="<img src='/lib/javascript/jquery/jstree/themes/default/throbber.gif' /> {TXT_CORE_MODULE_MULTISITE_LOADING_TEXT}" data-dismiss="modal">{TXT_CORE_MODULES_MULTISITE_SEARCH_BUTTON}</button>
+    </form>
 </div>
 <div id="multisite_active_site">
     <div  class="grid-elm grid-align-1-1 grid-offset"></div>
@@ -29,15 +31,24 @@
 cx.ready(function() {
     cx.variables.set('loadingText', '{TXT_CORE_MODULE_MULTISITE_LOADING_TEXT}', 'multisite/lang');
     loadSubscriptionByFilter();
+    jQuery('form#websiteSearch').submit(loadSubscriptionByFilter);
 });
 
 function loadSubscriptionByFilter() {
-  var searchTerm = jQuery('#search').val();
-  jQuery.getScript(cx.variables.get('path', 'contrexx') + "core_modules/MultiSite/View/Script/CustomerPanel.js", function() {
+    jQuery.getScript(cx.variables.get('path', 'contrexx') + "core_modules/MultiSite/View/Script/CustomerPanel.js", function() {
+        var searchTerm = jQuery('#search').val();
+        if (!searchTerm) {
+            var getParams = getQueryParams(document.location.search);
+            if (typeof(getParams['search']) !== 'undefined') {
+                searchTerm = getParams['search'];
+                jQuery('#search').val(searchTerm);
+            }
+        }
         loadContent('#multisite_active_site', '/api/MultiSite/Subscription/Active?status=valid&exclude_product[]=1&search='+searchTerm);
         loadContent('#multisite_trial_site', '/api/MultiSite/Subscription/Trial?status=valid&include_product[]=1&search='+searchTerm);
         loadContent('#multisite_expired_site', '/api/MultiSite/Subscription/Expired?status=expired&search='+searchTerm);
     });
+    return false;
 }
 /* ]]> */
 </script>
