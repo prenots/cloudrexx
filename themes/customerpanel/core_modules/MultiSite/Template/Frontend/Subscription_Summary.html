@@ -1,18 +1,25 @@
 <!-- BEGIN showSiteTable -->
-<form id="websiteSearch" action="{NODE_MULTISITE_SUBSCRIPTION}" method="get">
-<table>
-    <tbody>
-        <tr>
-            <td>
-                <input type="text" name="search" placeholder="{TXT_CORE_MODULES_MULTISITE_SEARCH_WEBSITE_OR_DOMAIN}" />
-            </td>
-            <td>
+<style type="text/css">
+    /* <![CDATA[ */
+    div.search-form {
+        margin-bottom: 10px;
+    }
+    div.search-form button {
+        margin-top: 0;
+        margin-left: 5px;
+    }
+    /* ]]> */
+</style>
+<div class="grid-elm grid-align-1-1 search-form">
+    <form id="websiteSearch" action="{NODE_MULTISITE_SUBSCRIPTION}" method="get">
+        <div class="input-group">
+            <input type="text" name="search" placeholder="{TXT_CORE_MODULES_MULTISITE_SEARCH_WEBSITE_OR_DOMAIN}">
+            <span class="input-group-btn">
                 <button type="submit">{TXT_CORE_MODULES_MULTISITE_SEARCH_BUTTON}</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-</form>
+            </span>
+        </div>
+    </form>
+</div>
 
 <table>
     <tbody>

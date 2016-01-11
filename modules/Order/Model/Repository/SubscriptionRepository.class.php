@@ -128,6 +128,11 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
                 $options['lte'][] = array('s.expirationDate', $qb->expr()->literal($now->format("Y-m-d H:i:s")));
             }
             
+            //If the filter term is set and there is no result-entry found then result as empty array
+            if (!empty($filter['term']) && empty($subscriptions)) {
+                return array();
+            }
+
             if (!empty($subscriptions)) {
                 $options['in'][] = array('s.id', $subscriptions);
             }
