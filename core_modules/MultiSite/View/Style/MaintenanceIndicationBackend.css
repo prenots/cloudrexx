@@ -1,0 +1,12 @@
+#MultiSiteMaintenanceIndication {
+    z-index: 1000001;
+    width: 100%;
+    text-align:center;
+    marquee-style: scroll;
+    position: fixed;
+    font-size: 12px;
+    border: 1px solid transparent;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}

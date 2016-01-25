@@ -3343,9 +3343,32 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
     {
+        self::showMaintenanceIndicationBar();
         self::loadAccountActivationBar();
         self::loadPoweredByFooter();
         self::loadContactInformationForm($page);
+    }
+
+    public function showMaintenanceIndicationBar()
+    {
+        // only show in backend
+        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
+            return;
+        }
+
+        // Don't show account verification notice when in templateeditor
+        if (isset($_GET['templateEditor'])) {
+            return;
+        }
+
+        \JS::registerJS('core_modules/MultiSite/View/Script/MaintenanceIndication.js');
+        \JS::registerCSS('core_modules/MultiSite/View/Style/MaintenanceIndicationBackend.css');
+
+        $maintenanceIndicationBar = new \Cx\Core\Html\Sigma($this->cx->getCodeBaseCoreModulePath() . '/MultiSite/View/Template/Backend');
+        $maintenanceIndicationBar->loadTemplateFile('MaintenanceIndication.html');
+
+        $objTemplate = $this->cx->getTemplate();
+        $objTemplate->_blocks['__global__'] = preg_replace('/<div id="container"[^>]*>/', '\\0' . $maintenanceIndicationBar->get(), $objTemplate->_blocks['__global__']);
     }
     
     /**
