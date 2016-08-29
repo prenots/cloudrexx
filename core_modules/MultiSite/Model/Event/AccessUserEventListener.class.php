@@ -292,7 +292,6 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
         //get user's other details
         $params = array(
             'multisite_user_profile_attribute'          => $arrUserDetails,
-            'multisite_user_account_username'           => $objUser->getUsername(),
             'multisite_user_account_email'              => $objUser->getEmail(),
             'multisite_user_account_frontend_language'  => $objUser->getFrontendLanguage(),
             'multisite_user_account_backend_language'   => $objUser->getBackendLanguage(),
@@ -303,6 +302,12 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
             'multisite_user_account_restore_key_time'   => $objUser->getRestoreKeyTime(),
             'multisite_user_md5_password'               => $objUser->getHashedPassword(),
         );
+
+        $arrSettings = \User_Setting::getSettings();
+        if ($arrSettings['use_usernames']['status']) {
+            $params['multisite_user_account_username'] = $objUser->getUsername();
+        }
+
         if ($objUser->getId()) {
             $params['userId'] = $objUser->getId();
         }
