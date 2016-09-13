@@ -702,7 +702,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return string auxilary user login name
      * @throws ApiRequestException on error
      */
-    public function getAuxilaryUserLoginName($ownerGuid)
+    public function getAuxilaryUserLoginName($ownerGuid, $role)
     {
         \DBG::msg("MultiSite (PleskController): get auxilary user login name: $ownerGuid");
         if (\FWValidator::isEmpty($this->webspaceId) || \FWValidator::isEmpty($ownerGuid)) {
@@ -730,6 +730,9 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $genInfo = $xmldoc->createElement('gen-info');
         $dataSet->appendChild($genInfo);
 
+        $roles = $xmldoc->createElement('roles');
+        $dataSet->appendChild($roles);
+
         $response = $this->executeCurl($xmldoc);
         $resultNode = $response->user->{'get'}->result;
 
@@ -745,6 +748,12 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $responseArr = json_decode($responseJson, true);
         foreach ($responseArr['result'] as $value) {
             $getInfo = $value['data']['gen-info'];
+            if (!isset($value['data']['roles']['name'])) {
+                continue;
+            }
+            if ($value['data']['roles']['name'] != $role) {
+                continue;
+            }
             if (isset($getInfo['subscription-domain-id']) && $getInfo['subscription-domain-id'] == $this->webspaceId) {
                 return $getInfo['login'];
             }
@@ -1679,7 +1688,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return string $pleskLoginUrl
      * @throws ApiRequestException
      */
-    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress)
+    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role = 'Mail Admin')
     {
         \DBG::msg("MultiSite (PleskController): get Panel auto login url.");
         
@@ -1690,7 +1699,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $this->webspaceId = $subscriptionId;
         
         $subscriptionOwnerGuid = $this->getSubscriptionOwnerGuid();
-        $loginName = !empty($subscriptionOwnerGuid) ? $this->getAuxilaryUserLoginName($subscriptionOwnerGuid) : '';
+        $loginName = !empty($subscriptionOwnerGuid) ? $this->getAuxilaryUserLoginName($subscriptionOwnerGuid, $role) : '';
         
         if (empty($loginName)) {
             return false;

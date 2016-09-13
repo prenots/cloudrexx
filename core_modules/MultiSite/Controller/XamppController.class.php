@@ -361,8 +361,8 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string  $ipAddress      ip address
      * @param string  $sourceAddress  source address
      */
-    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress) {
-        \DBG::msg("MultiSite (XamppController): get new auto-login url for panel $subscriptionId / $ipAddress / $sourceAddress");
+    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role) {
+        \DBG::msg("MultiSite (XamppController): get new auto-login url for panel $subscriptionId / $ipAddress / $sourceAddress / $role");
         return true;       
     }
     
