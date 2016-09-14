@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cloudrexx
  *
@@ -23,6 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
+
 return true;
 global $sessionObj, $_CONFIG, $_CORELANG, $objUser, $objDatabase;
 
