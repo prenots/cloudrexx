@@ -448,7 +448,8 @@ class ShopManager extends ShopLibrary
                         ? contrexx_input2raw($_POST['importCsvUploaderId'])
                         : '';
         if (!empty($fileName) && !empty($uploaderId)) {
-            $objSession = \cmsSession::getInstance();
+            $cx  = \Cx\Core\Core\Controller\Cx::instanciate();
+            $objSession = $cx->getComponent('Session')->getSession();
             $tmpFile    = $objSession->getTempPath() . '/' . $uploaderId . '/' . $fileName;
             $fileExists = \Cx\Lib\FileSystem\FileSystem::exists($tmpFile);
         }
@@ -2086,27 +2087,6 @@ if ($test === NULL) {
         }
         return $result;
     }
-
-
-    function delFile($file)
-    {
-        @unlink($file);
-        clearstatcache();
-        if (@file_exists($file)) {
-            $filesys = eregi_replace('/', '\\', $file);
-            @system('del '.$filesys);
-            clearstatcache();
-            // don't work in safemode
-            if (@file_exists($file)) {
-                @chmod ($file, 0775);
-                @unlink($file);
-            }
-        }
-        clearstatcache();
-        if (@file_exists($file)) return false;
-        return true;
-    }
-
 
     /**
      * Manage products
