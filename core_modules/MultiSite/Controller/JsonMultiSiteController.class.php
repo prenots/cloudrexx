@@ -4670,6 +4670,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             $response = JsonMultiSiteController::executeCommandOnManager('addNewWebsiteInSubscription', $params);
             
             if ($response->status == 'error' || $response->data->status == 'error') {
+                if (isset($response->log)) {
+                    \DBG::appendLogs(array_map(function($logEntry) {return '(Manager) '.$logEntry;}, $response->log));
+                }
                 throw new MultiSiteJsonException('Failed to create a website: '.$websiteName);
             }
         } catch (\Exception $e) {
@@ -7275,8 +7278,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         }
                         if (!$objUser->isBackendGroupUser()) {
                             $groupRepo = $em->getRepository('Cx\Core\User\Model\Entity\Group');
-                            $group     = $groupRepo->findOneBy(array('groupId' => 1));
-                            $objUser->addGroup($group);
+                            $group     = $groupRepo->findOneBy(array('type' => 'backend', 'isActive' => true));
+                            if ($group) {
+                                $objUser->addGroup($group);
+                            }
                         }
                         $em->flush();
                     } else {
