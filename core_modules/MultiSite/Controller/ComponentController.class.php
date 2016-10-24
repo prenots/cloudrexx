@@ -2170,11 +2170,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return boolean
      */
     public static function isUserLoggedIn() {
-        global $sessionObj;
-        
-        if (empty($sessionObj)) {
-            $sessionObj = \cmsSession::getInstance();
-        }
+        \Cx\Core\Session\Model\Entity\Session::getInstance();
         
         $objUser = \FWUser::getFWUserObject()->objUser;
         
