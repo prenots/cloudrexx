@@ -49,6 +49,8 @@ namespace Cx\Modules\Data\Controller;
  */
 class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
 {
+    public $_objTpl;
+    public $page;
     public $entryArray = false;
     public $categories = false;
     public $langId;
@@ -84,32 +86,88 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
      * @param string $data The pages on which the replacement should be done
      * @return string
      */
-    function replace($data)
+    function replace($data, $page = null)
     {
         if ($this->active) {
-            if (is_array($data)) {
+            return $data;
+        }
+        if (
+            $page != null &&
+            ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
+        ) {
+            $data = $this->replaceEsiContent($data);
+        } else if (is_array($data)) {
                 foreach ($data as $key => $value) {
-                    $data[$key] = $this->replace($value);
+                $data[$key] = $this->replaceEsiContent($value);
                 }
             } else {
-                $matches = array();
-                if (preg_match_all('/\{DATA_[A-Z_0-9]+\}/', $data, $matches) > 0) {
-                    foreach ($matches[0] as $match) {
-                        $data = str_replace($match, $this->getData($match), $data);
-                    }
-                }
-            }
+            $data = $this->replaceEsiContent($data);
         }
+
         return $data;
     }
 
-
     /**
-     * Get the replacement content for the placeholder
-     * @param string $placeholder
+     * Replace esi content in given content
+     *
+     * @param string $content   template content
+     *
      * @return string
      */
-    function getData($placeholder)
+    protected function replaceEsiContent($content)
+    {
+        global $_LANGID;
+
+        $matches = array();
+        if (preg_match_all('/\{DATA_[A-Z_0-9]+\}/', $content, $matches) == 0) {
+            return $content;
+        }
+
+        $params = array();
+        $params['lang'] = $_LANGID;
+        $cache = \Cx\Core\Core\Controller\Cx::instanciate()
+             ->getComponent('Cache');
+        foreach ($matches[0] as $match) {
+            $params['placeholder'] = $match;
+            $esiContent = $cache->getEsiContent(
+                'Data',
+                'getDataContent',
+                $params
+            );
+            $content = str_replace($match, $esiContent, $content);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Get current theme instance
+     *
+     * @return \Cx\Core\View\Model\Entity\Theme
+     */
+    protected function getCurrentTheme()
+    {
+        global $objInit;
+
+        static $theme = null;
+
+        if (!isset($theme)) {
+            $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+            $theme     = $themeRepo->findById($objInit->getCurrentThemeId());
+        }
+
+        return $theme;
+        }
+
+
+    /**
+     *
+     * @global type $objDatabase
+     * @param type $placeholder
+     * @param type $lang
+     * @return string
+     */
+    function getData($placeholder, $lang = null)
     {
         global $objDatabase;
 
@@ -131,11 +189,11 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
                 $this->_arrLanguages = $this->createLanguageArray();
                 $this->arrCategories = $this->createCategoryArray();
                 if ($this->arrCategories[$id]['action'] == "subcategories") {
-                    return $this->getSubcategories($id);
+                    return $this->getSubcategories($id, $lang);
                 }
-                return $this->getCategory($id);
+                return $this->getCategory($id, 0, $lang);
             } else {
-                return $this->getDetail($id);
+                return $this->getDetail($id, $lang);
             }
         }
         return '';
@@ -145,15 +203,16 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
     /**
      * Get the subcategories of a category
      * @param int $id
+     * @param int $lang
      * @return string
      */
-    function getSubcategories($id)
+    function getSubcategories($id, $lang = null)
     {
         $categories = "";
         foreach ($this->arrCategories as $catid => $cat) {
             if ($cat['parent_id'] == $id) {
                 if ($cat['active']) {
-                    $categories .= $this->getCategory($catid, $id);
+                    $categories .= $this->getCategory($catid, $id, $lang);
                 }
             }
         }
@@ -165,12 +224,16 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
     /**
      * Get a category and its entries
      * @param int $id
+     * @param int $lang
      * @return string
      */
-    function getCategory($id, $parcat=0)
+    function getCategory($id, $parcat=0,  $lang = null)
     {
         global $_LANGID;
 
+        if (!$lang) {
+            $lang = $_LANGID;
+        }
 
         if ($this->entryArray == 0) {
             $this->entryArray = $this->createEntryArray();
@@ -182,12 +245,11 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
             $this->_objTpl->setTemplate($this->adjustTemplatePlaceholders($this->arrCategories[$parcat]['template']));
         }
 
-        $lang = $_LANGID;
         $width = $this->arrCategories[$id]['box_width'];
         $height = $this->arrCategories[$id]['box_height'];
 
         if ($parcat) {
-            $this->_objTpl->setVariable("CATTITLE", $this->arrCategories[$id][$_LANGID]['name']);
+            $this->_objTpl->setVariable("CATTITLE", $this->arrCategories[$id][$lang]['name']);
         }
         if ($this->arrCategories[$id]['action'] == "content") {
             $cmd = $this->arrCategories[$id]['cmd'];
@@ -197,7 +259,7 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
         }
 
         foreach ($this->entryArray as $entryId => $entry) {
-            if (!$entry['active'] || !$entry['translation'][$_LANGID]['is_active'])
+            if (!$entry['active'] || !$entry['translation'][$lang]['is_active'])
                 continue;
 
             // check date
@@ -211,29 +273,29 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
                     continue;
             }
 
-            if ($this->categoryMatches($id, $entry['categories'][$_LANGID])) {
+            if ($this->categoryMatches($id, $entry['categories'][$lang])) {
 
-                $translation = $entry['translation'][$_LANGID];
+                $translation = $entry['translation'][$lang];
                 $image = $this->getThumbnailImage($entryId, $translation['image'], $translation['thumbnail'], $translation['thumbnail_type']);
 
                 if ($entry['mode'] == "normal") {
                     $href = $url."&amp;id=".$entryId;
                 } else {
-                    $href = $entry['translation'][$_LANGID]['forward_url'];
+                    $href = $entry['translation'][$lang]['forward_url'];
                 }
 
-                if (!empty($entry['translation'][$_LANGID]['forward_target'])) {
-                    $target = "target=\"".$entry['translation'][$_LANGID]['forward_target']."\"";
+                if (!empty($entry['translation'][$lang]['forward_target'])) {
+                    $target = "target=\"".$entry['translation'][$lang]['forward_target']."\"";
                 } else {
                     $target = "";
                 }
 
-                if ($entry['translation'][$_LANGID]['attachment']) {
+                if ($entry['translation'][$lang]['attachment']) {
                     $this->_objTpl->setVariable(array(
-                        'ENTRY_ATTACHMENT_URL'  => $entry['translation'][$_LANGID]['attachment'],
-                        'TXT_DOWNLOAD'          => (empty($entry['translation'][$_LANGID]['attachment_desc'])
+                        'ENTRY_ATTACHMENT_URL'  => $entry['translation'][$lang]['attachment'],
+                        'TXT_DOWNLOAD'          => (empty($entry['translation'][$lang]['attachment_desc'])
                             ? $this->langVars['TXT_DATA_DOWNLOAD_ATTACHMENT']
-                            : $entry['translation'][$_LANGID]['attachment_desc']
+                            : $entry['translation'][$lang]['attachment_desc']
                         ),
                     ));
                     if ($this->_objTpl->blockExists('attachment')) {
@@ -241,8 +303,8 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
                     }
                 }
 
-                $title = $entry['translation'][$_LANGID]['subject'];
-                $content = $this->getIntroductionText($entry['translation'][$_LANGID]['content']);
+                $title = $entry['translation'][$lang]['subject'];
+                $content = $this->getIntroductionText($entry['translation'][$lang]['content']);
                 $this->_objTpl->setVariable(array(
                     "TITLE"         => $title,
                     "IMAGE"         => $image,
@@ -271,9 +333,10 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
     /**
      * Get a single entry view
      * @param int $id
+     * @param int $lang
      * @return string
      */
-    function getDetail($id)
+    function getDetail($id, $lang = null)
     {
         global $_LANGID;
 

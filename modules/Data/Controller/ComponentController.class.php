@@ -36,6 +36,8 @@
 
 namespace Cx\Modules\Data\Controller;
 
+class JsonVotingException extends \Exception {}
+
 /**
  * Main controller for Data
  *
@@ -44,7 +46,8 @@ namespace Cx\Modules\Data\Controller;
  * @package    cloudrexx
  * @subpackage module_data
  */
-class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController implements \Cx\Core\Json\JsonAdapter {
+
     /**
      * getControllerClasses
      *
@@ -55,6 +58,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
      /**
+     * {@inheritdoc}
+     */
+    public function getControllersAccessableByJson() {
+        return array('ComponentController');
+    }
+
+    /**
      * Load the component Data.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -91,11 +101,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
         global $_CONFIG, $cl, $lang, $objInit, $dataBlocks, $lang, $dataBlocks, $themesPages, $page_template;
         // Initialize counter and track search engine robot
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'component','Yaml');
+        \Cx\Core\Setting\Controller\Setting::init('Config', 'component', 'Yaml');
 
-        if (\Cx\Core\Setting\Controller\Setting::getValue('dataUseModule') && $cl->loadFile(ASCMS_MODULE_PATH.'/Data/Controller/DataBlocks.class.php')) {
-            $lang = $objInit->loadLanguageData('Data');
-            $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks($lang);
+        if (\Cx\Core\Setting\Controller\Setting::getValue('dataUseModule') && $cl->loadFile(ASCMS_MODULE_PATH . '/Data/Controller/DataBlocks.class.php')) {
+            $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
             \Env::get('cx')->getPage()->setContent($dataBlocks->replace(\Env::get('cx')->getPage()->getContent()));
             $themesPages = $dataBlocks->replace($themesPages);
             $page_template = $dataBlocks->replace($page_template);
@@ -103,4 +112,61 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     }
 
+    /**
+     * Returns an array of method names accessable from a JSON request
+     * @return array List of method names
+     */
+    public function getAccessableMethods()
+    {
+        return array('getDataContent');
+    }
+
+    /**
+     * Returns default permission as object
+     * @return Object
+     */
+    public function getDefaultPermissions()
+    {
+        return new \Cx\Core_Modules\Access\Model\Entity\Permission(
+            null, null, false
+        );
+    }
+
+    /**
+     * Returns all messages as string
+     * @return String HTML encoded error messages
+     */
+    public function getMessagesAsString()
+    {
+        return '';
+    }
+
+    /**
+     * Wrapper to __call()
+     * @return string ComponentName
+     */
+    public function getName()
+    {
+        return parent::getName();
+    }
+
+    /**
+     * Get Data content
+     *
+     * @param array $params
+     */
+    public function getDataContent($params)
+    {
+        $lang = isset($params['get']['lang'])
+            ? contrexx_input2int($params['get']['lang']) : 0;
+        $placeholder = isset($params['get']['placeholder'])
+            ? contrexx_input2raw($params['get']['placeholder']) : 0;
+
+        if (empty($placeholder)) {
+            return array('content' => '');
+        }
+
+        $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
+        return array('content' => $dataBlocks->getData($placeholder, $lang));
+    }
 }
