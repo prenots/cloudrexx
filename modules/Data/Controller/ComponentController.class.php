@@ -36,7 +36,7 @@
 
 namespace Cx\Modules\Data\Controller;
 
-class JsonVotingException extends \Exception {}
+class JsonDataException extends \Exception {}
 
 /**
  * Main controller for Data
@@ -105,7 +105,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         if (\Cx\Core\Setting\Controller\Setting::getValue('dataUseModule') && $cl->loadFile(ASCMS_MODULE_PATH . '/Data/Controller/DataBlocks.class.php')) {
             $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
-            \Env::get('cx')->getPage()->setContent($dataBlocks->replace(\Env::get('cx')->getPage()->getContent()));
+            $page = $this->cx->getPage();
+            $page->setContent($dataBlocks->replace($page->getContent(), $page));
             $themesPages = $dataBlocks->replace($themesPages);
             $page_template = $dataBlocks->replace($page_template);
         }
@@ -157,16 +158,85 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function getDataContent($params)
     {
-        $lang = isset($params['get']['lang'])
-            ? contrexx_input2int($params['get']['lang']) : 0;
+        $pageId = isset($params['get']['page'])
+            ? contrexx_input2int($params['get']['page']) : 0;
         $placeholder = isset($params['get']['placeholder'])
             ? contrexx_input2raw($params['get']['placeholder']) : 0;
+        $lang = isset($params['get']['lang'])
+            ? contrexx_input2int($params['get']['lang']) : 0;
 
         if (empty($placeholder)) {
+            return array('content' => '');
+        }
+
+        if (!empty($pageId)) {
+            $pageRepo = $this->cx
+                ->getDb()
+                ->getEntityManager()
+                ->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
+            $result = $pageRepo->findOneById($pageId);
+            if (!$result) {
+                return array('content' => '');
+            }
+            $content = $result->getContent();
+        } else {
+            $theme = $this->getThemeFromInput($params);
+            $file  =  !empty($params['get']['file'])
+                    ? contrexx_input2raw($params['get']['file']) : '';
+            if (empty($file)) {
+                throw new JsonDataException(
+                    __METHOD__ .': the input file cannot be empty'
+                );
+            }
+            $content = $theme->getContentFromFile($file);
+        }
+
+        if (!preg_match('/' . preg_quote($placeholder) . '/', $content)) {
             return array('content' => '');
         }
 
         $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
         return array('content' => $dataBlocks->getData($placeholder, $lang));
     }
+
+    /**
+     * Get theme from the user input
+     *
+     * @param array $params User input array
+     * @return \Cx\Core\View\Model\Entity\Theme Theme instance
+     * @throws JsonNewsException When theme id empty or theme does not exits in the system
+     */
+    protected function getThemeFromInput($params)
+    {
+        $themeId  = !empty($params['get']['template'])
+            ? contrexx_input2int($params['get']['template']) : 0;
+        if (empty($themeId)) {
+            throw new JsonDataException(
+                'The theme id is empty in the request'
+            );
+        }
+        $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        $theme           = $themeRepository->findById($themeId);
+        if (!$theme) {
+            throw new JsonDataException(
+                'The theme id '. $themeId .' does not exists.'
+            );
+        }
+        return $theme;
+    }
+
+    /**
+      * Register your event listeners here
+      *
+      * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+      * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+      * Keep in mind, that you can also register your events later.
+      * Do not do anything else here than initializing your event listeners and
+      * list statements like
+      * $this->cx->getEvents()->addEventListener($eventName, $listener);
+      */
+     public function registerEventListeners() {
+         $eventListener = new \Cx\Modules\Data\Model\Event\DataEventListener($this->cx);
+         $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
+     }
 }

@@ -88,20 +88,27 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
      */
     function replace($data, $page = null)
     {
-        if ($this->active) {
+        global $plainSection;
+
+        if (!$this->active) {
             return $data;
         }
         if (
             $page != null &&
             ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
         ) {
-            $data = $this->replaceEsiContent($data);
+            $data = $this->replaceEsiContent($data, '', $page);
         } else if (is_array($data)) {
-                foreach ($data as $key => $value) {
-                $data[$key] = $this->replaceEsiContent($value);
-                }
-            } else {
-            $data = $this->replaceEsiContent($data);
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->replaceEsiContent($value, $key . '.html');
+            }
+        } else {
+            $tplName = '';
+            if ($plainSection == 'Home') {
+                $tplName = !\Env::get('init')->hasCustomContent()
+                    ? 'home.html' : 'content.html';
+            }
+            $data = $this->replaceEsiContent($data, $tplName);
         }
 
         return $data;
@@ -114,7 +121,7 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
      *
      * @return string
      */
-    protected function replaceEsiContent($content)
+    protected function replaceEsiContent($content, $tplName = '', $page = null)
     {
         global $_LANGID;
 
@@ -123,7 +130,19 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
             return $content;
         }
 
-        $params = array();
+        if (
+            $page != null &&
+            ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
+        ) {
+            $params = array('page' => $page->getId());
+        } else if (!empty ($tplName)) {
+            $theme = $this->getCurrentTheme();
+            if (!$theme) {
+                return $content;
+            }
+            $params = array('template' => $theme->getId(), 'file' => $tplName);
+        }
+
         $params['lang'] = $_LANGID;
         $cache = \Cx\Core\Core\Controller\Cx::instanciate()
              ->getComponent('Cache');
@@ -157,7 +176,7 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
         }
 
         return $theme;
-        }
+    }
 
 
     /**
@@ -340,19 +359,21 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
     {
         global $_LANGID;
 
+        if (!$lang) {
+            $lang = $_LANGID;
+        }
         if ($this->entryArray === false) {
             $this->entryArray = $this->createEntryArray();
         }
 
         $entry = $this->entryArray[$id];
-        $title = $entry['translation'][$_LANGID]['subject'];
-        $content = $this->getIntroductionText($entry['translation'][$_LANGID]['content']);
+        $title = $entry['translation'][$lang]['subject'];
+        $content = $this->getIntroductionText($entry['translation'][$lang]['content']);
 
         $this->_objTpl->setTemplate($this->adjustTemplatePlaceholders($this->_arrSettings['data_template_entry']));
 
-        $translation = $entry['translation'][$_LANGID];
+        $translation = $entry['translation'][$lang];
         $image = $this->getThumbnailImage($id, $translation['image'], $translation['thumbnail'], $translation['thumbnail_type']);
-        $lang = $_LANGID;
         $width = $this->_arrSettings['data_shadowbox_width'];
         $height = $this->_arrSettings['data_shadowbox_height'];
 
@@ -364,7 +385,7 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
                 $url = \Cx\Core\Routing\Url::fromModuleAndCmd('Data', '', '', array('height' => $height, 'width' => $width, 'id' => $id, 'lang' => $lang ));
             }
         } else {
-            $url = $entry['translation'][$_LANGID]['forward_url'].'&amp;id='.$id;
+            $url = $entry['translation'][$lang]['forward_url'].'&amp;id='.$id;
         }
 
         $templateVars = array(
