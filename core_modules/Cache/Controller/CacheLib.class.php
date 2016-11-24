@@ -509,7 +509,10 @@ class CacheLib
         $arguments = array('get' => contrexx_input2raw($params));
         
         $json = new \Cx\Core\Json\JsonData();
-        $response = $json->data($adapter, $method, $arguments);
+        $response = $json
+                    ->data($adapter, $method, $arguments)
+                    ->getAbstractContent();
+
         if (
             !isset($response['status']) ||
             $response['status'] != 'success' ||

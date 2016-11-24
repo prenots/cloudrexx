@@ -105,16 +105,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 
                 $json = new \Cx\Core\Json\JsonData();
                 $data = $json->data($dataAdapter, $dataMethod, $dataArguments);
-                if ($data['status'] != 'success') {
-                    if (empty($data['message'])) {
+                if ($data->getAbstractContent()['status'] != 'success') {
+                    if (empty($data->getAbstractContent()['message'])) {
                         throw new \Exception('Fetching data failed without message');
                     }
-                    throw new \Exception($data['message']);
+                    throw new \Exception($data->getAbstractContent()['message']);
                 }
-                
+
                 switch ($outputModule) {
                     case 'Plain':
-                        echo $data['data']['content'];
+                        echo $data->getAbstractContent()['data']['content'];
                         break;
                     case 'Json':
                         echo $json->json($data, true);
