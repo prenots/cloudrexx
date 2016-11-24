@@ -76,10 +76,17 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                 }
 
                 if (isset($_POST['send'])) {
+                    $mail = contrexx_input2raw($_POST['mail']);
+                    $name = contrexx_input2xhtml($_POST['name']);
+                    $message = contrexx_input2xhtml($_POST['message']);
                     $mailTemplate = array(
                         'key' => 'mail',
                         'section' => $this->getName(),
-                        'substitution' => array(),
+                        'to' => $mail,
+                        'substitution' => array(
+                            'NAME' => $name,
+                            'MESSAGE' => $message,
+                        ),
                     );
                     \Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate);
                 } else {
@@ -131,14 +138,25 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                 }
 
                 if (isset($_POST['send'])) {
+                    $senderName = contrexx_input2raw($_POST['senderName']);
+                    $senderMail = contrexx_input2raw($_POST['senderMail']);
+                    $receiverName = contrexx_input2xhtml($_POST['receiverName']);
+                    $receiverMail = contrexx_input2raw($_POST['receiverMail']);
+                    $message = contrexx_input2xhtml($_POST['message']);
                     $mailTemplate = array(
                         'key' => 'recommendation',
                         'section' => $this->getName(),
-                        'substitution' => array(),
+                        'sender' => $senderName,
+                        'from' => $senderMail,
+                        'receiverMail' => $receiverMail,
+                        'substitution' => array(
+                            'NAME' => $receiverName,
+                            'MESSAGE' => $message,
+                        ),
                     );
                     \Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate);
                 } else {
-                    $template->parse(strtolower($this->getName()) . '_recommendation');
+                    $template->touchBlock(strtolower($this->getName()) . '_recommendation');
                 }
                 break;
             case 'inquiry':
@@ -159,21 +177,51 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     }
                 }
 
+                $em = $this->cx->getDb()->getEntityManager();
+                $formFieldRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\FormField');
+                $formFields = $formFieldRepo->findAll();
+
+                $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($formFields);
+
                 if (isset($_POST['send'])) {
+                    $formFieldNames = array();
+                    foreach ($dataSet as $formField) {
+                        switch ($formField['type']) {
+                            case 'text':
+                            case 'textarea':
+                            case 'mail':
+                            case 'select':
+                            case 'radio':
+                                $formFieldNames = $formFieldNames + array(
+                                        $formFieldNames, 'field_' . $formField['id'] => $formField['name']
+                                    );
+                                break;
+                            case 'checkbox':
+                                $values = $formField['values'];
+                                $values = explode(',', str_replace(' ', '', $values));
+                                foreach ($values as $key => $value) {
+                                    $formFieldNames = $formFieldNames + array(
+                                            'field_' . $formField['id'] . '_option_' . $key => $formField['name']
+                                        );
+                                }
+                        }
+                    }
+                    $substitution = array();
+                    foreach ($formFieldNames as $key => $formFieldName) {
+                        if (in_array($key, array_keys($_POST))) {
+                            $substitution = $substitution + array(
+                                    strtoupper($formFieldName) => contrexx_input2xhtml($_POST[$key]),
+                                );
+                        }
+                    }
                     $mailTemplate = array(
                         'key' => 'inquiry',
                         'section' => $this->getName(),
-                        'substitution' => array(),
+                        'substitution' => $substitution,
                     );
                     \Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate);
                 } else {
-                    $em = $this->cx->getDb()->getEntityManager();
-                    $formFieldRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\FormField');
-                    $formFields = $formFieldRepo->findAll();
-
                     $template->parse(strtolower($this->getName()) . '_inquiry');
-
-                    $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($formFields);
                     $dataSet->sortColumns(array('order' => 'ASC'));
                     foreach ($dataSet as $formField) {
                         $template->parse(strtolower($this->getName()) . '_form_field');
@@ -193,11 +241,11 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                                 $template->parse(strtolower($this->getName()) . '_form_field_' . $formField['type']);
                                 break;
                             case 'select':
+                            case 'radio':
                                 $values = $formField['values'];
                                 $values = explode(',', str_replace(' ', '', $values));
-                                foreach ($values as $key => $value) {
+                                foreach ($values as $value) {
                                     $template->setVariable(array(
-                                        'INDEX' => $key,
                                         'VALUE' => contrexx_raw2xhtml($value),
                                         'ID' => $formField['id'],
                                         'REQUIRED' => $required ? 'required' : '',
@@ -207,7 +255,6 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                                 }
                                 $template->parse(strtolower($this->getName()) . '_form_field_' . $formField['type']);
                                 break;
-                            case 'radio':
                             case 'checkbox':
                                 $values = $formField['values'];
                                 $values = explode(',', str_replace(' ', '', $values));
