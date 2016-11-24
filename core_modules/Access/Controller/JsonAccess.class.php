@@ -266,6 +266,7 @@ class JsonAccess implements \Cx\Core\Json\JsonAdapter
                     $tplBlock
                 );
             }
+            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Session')->getSession();
             $objFWUser  = \FWUser::getFWUserObject();
             $isLoggedIn = $objFWUser->objUser->login();
             $responseContent = '';

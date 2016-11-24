@@ -268,8 +268,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $params['block'] = $accessLoggedInOutBlockIdx;
                 $params['type']  = 'logged_in';
                 if ($page !== null) {
-                    $params['page']  = $page->getId();
+                    $params['page'] = $page->getId();
                 }
+                $params['session'] = '$(HTTP_COOKIE{\'PHPSESSID\'})';
                 $content = $cache->getEsiContent(
                     'Access',
                     'showAccessLoggedInOrOut',
@@ -283,9 +284,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $params['block'] = $accessLoggedInOutBlockIdx;
                 $params['type']  = 'logged_out';
                 if ($page !== null) {
-                    $params['page']    = $page->getId();
-                    $params['session'] = '$(HTTP_COOKIE{\'PHPSESSID\'})';
+                    $params['page'] = $page->getId();
                 }
+                $params['session'] = '$(HTTP_COOKIE{\'PHPSESSID\'})';
                 $content = $cache->getEsiContent(
                     'Access',
                     'showAccessLoggedInOrOut',

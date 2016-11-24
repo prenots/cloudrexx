@@ -1,4 +1,7 @@
 -
+  name: Session
+  type: core
+-
   name: Cache
   type: core_module
 # Net depends on Cache (DataSet)
