@@ -57,28 +57,38 @@ class DataEventListener extends DefaultEventListener {
         if (empty($eventArgs) || $eventArgs != 'Data') {
             return;
         }
-        global $objInit;
 
-        $cache = $this->cx->getComponent('Cache');
+        $cache   = $this->cx->getComponent('Cache');
+        $em      = $this->cx->getDb()->getEntityManager();
+        $typeApp = \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION;
         //clear ssi cache for data content present in content page
         foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
-            $pageRepo = $this->cx
-                ->getDb()
-                ->getEntityManager()
-                ->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-            $contentPages = $pageRepo->findBy(array(
-                'lang' => $lang['id'],
-                'type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_CONTENT
-            ));
+            $qb = $em->createQueryBuilder();
+            $qb->select('p')
+               ->from('Cx\Core\ContentManager\Model\Entity\Page', 'p')
+               ->where('p.lang = ' . $lang['id'])
+               ->andWhere($qb->expr()->in(
+                    'p.type',
+                    array(
+                        \Cx\Core\ContentManager\Model\Entity\Page::TYPE_CONTENT,
+                        $typeApp
+                    )
+                ));
+            $contentPages = $qb->getQuery()->getResult();
             if (!$contentPages) {
                 continue;
             }
             foreach($contentPages as $page) {
+                if ($page->getType() == $typeApp) {
+                    $content = $this->cx->getContentTemplateOfPage($page);
+                } else {
+                    $content = $page->getContent();
+                }
                 $matches = null;
                 if (
                     preg_match_all(
                         '/\{DATA_[A-Z_0-9]+\}/',
-                        $page->getContent(),
+                        $content,
                         $matches
                     ) == 0
                 ) {

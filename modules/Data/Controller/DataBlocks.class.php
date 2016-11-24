@@ -88,7 +88,7 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
      */
     function replace($data, $page = null)
     {
-        global $plainSection;
+       global $plainSection;
 
         if (!$this->active) {
             return $data;
@@ -97,7 +97,14 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
             $page != null &&
             ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
         ) {
-            $data = $this->replaceEsiContent($data, '', $page);
+            if (
+                $page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION) {
+                $content = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getContentTemplateOfPage($page);
+                $data = $this->replaceEsiContent($content, '', $page);
+            } else {
+                $data = $this->replaceEsiContent($data, '', $page);
+            }
         } else if (is_array($data)) {
             foreach ($data as $key => $value) {
                 $data[$key] = $this->replaceEsiContent($value, $key . '.html');

@@ -1333,6 +1333,10 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             $intMessageId = $objDatabase->insert_id();
             $this->insertEntryData($intMessageId);
 
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Data'));
+
             $this->writeMessageRSS();
             $this->writeCategoryRSS();
 
@@ -1692,6 +1696,9 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                                     LIMIT    1
                                 ');
 
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Data'));
 
             //Remove existing data for all languages
             $objDatabase->Execute('    DELETE

@@ -178,7 +178,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             if (!$result) {
                 return array('content' => '');
             }
-            $content = $result->getContent();
+            if ($result->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION) {
+                $content = $this->cx->getContentTemplateOfPage($result);
+            } else {
+                $content = $result->getContent();
+            }
         } else {
             $theme = $this->getThemeFromInput($params);
             $file  =  !empty($params['get']['file'])
