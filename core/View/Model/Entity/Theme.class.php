@@ -488,22 +488,21 @@ class Theme extends \Cx\Model\Base\EntityBase
     {
         $result = array();
         $templateFiles = array();
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if (
-            file_exists($cx->getCodeBaseThemesPath() . '/' . $this->foldername)
+            file_exists($this->cx->getCodeBaseThemesPath() . '/' . $this->foldername)
         ) {
             $templateFiles = scandir(
-                $cx->getCodeBaseThemesPath() . '/'  . $this->foldername
+                $this->cx->getCodeBaseThemesPath() . '/'  . $this->foldername
             );
         }
         if (
-            file_exists($cx->getWebsiteThemesPath() . '/' . $this->foldername)
+            file_exists($this->cx->getWebsiteThemesPath() . '/' . $this->foldername)
         ) {
             $templateFiles = array_unique(
                 array_merge(
                     $templateFiles,
                     scandir(
-                        $cx->getWebsiteThemesPath() . '/' . $this->foldername
+                        $this->cx->getWebsiteThemesPath() . '/' . $this->foldername
                     )
                 )
             );
