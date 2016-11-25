@@ -67,7 +67,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
     public function getAccessableMethods()
     {
         return array(
-            'getCatalog' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, null, false),
+            'getCatalog',
             'addFavorite',
             'removeFavorite',
             'editFavoriteMessage',
@@ -89,7 +89,11 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
      */
     public function getDefaultPermissions()
     {
-        return null;
+        return new \Cx\Core_Modules\Access\Model\Entity\Permission(
+            null,
+            null,
+            false
+        );
     }
 
     /**
