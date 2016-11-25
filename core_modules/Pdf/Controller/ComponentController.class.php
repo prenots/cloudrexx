@@ -60,7 +60,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Get all the list of PDF templates
      *
-     * @return type
+     * @return array
      */
     public function getPdfTemplates()
     {
@@ -89,11 +89,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param array   $substitution  array of substitution values
      * @param string  $mailTplKey    MailTemplate key
      *
-     * @return mixed boolean|string
+     * @return mixed array|null
      */
     public function generatePDF($pdfTemplateId, $substitution, $mailTplKey)
     {
-        if (empty($pdfTemplateId) || empty($mailTplKey)) {
+        if (empty($mailTplKey)) {
             return;
         }
 
@@ -114,20 +114,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             true
         );
 
-        $this
-            ->cx
-            ->getClassLoader()
-            ->getFilePath($this->cx->getCodeBaseCorePath() . '/pdf.class.php');
-        $session          = $this->cx->getComponent('Session')->getSession();
-        $dateTime         = new \DateTime();
-        $title            = $mailTplKey . '.pdf';
-        $fileName         = $mailTplKey . '_' .
-            $dateTime->format('d_m_Y_h_s_i') . '.pdf';
-        $pdf              = new \PDF();
-        $pdf->title       = $title;
-        $pdf->content     = $tplContent;
-        $pdf->filePath    = $session->getTempPath() . '/' . $fileName;
-        $pdf->destination = 'F';
+        $session    = $this->getComponent('Session')->getSession();
+        $datetime   = $this->getComponent('DateTime')->createDateTimeForUser('now')->format('d_m_Y_h_s_i');
+        $title      = $mailTplKey . '.pdf';
+        $fileName   = $mailTplKey . '_' . $datetime . '.pdf';
+        $pdf        = new \Cx\Core_Modules\Pdf\Model\Entity\PdfDocument();
+        $pdf->SetTitle($title);
+        $pdf->setContent($tplContent);
+        $pdf->setDestination('F');
+        $pdf->setFilePath($session->getTempPath() . '/' . $fileName);
         $pdf->Create();
 
         return array(
