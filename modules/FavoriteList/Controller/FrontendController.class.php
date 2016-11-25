@@ -88,7 +88,18 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                             'MESSAGE' => $message,
                         ),
                     );
-                    \Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate);
+
+                    if (\Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate)) {
+                        $template->setVariable(array(
+                            strtoupper($this->getName()) . '_MAIL_MESSAGE_SEND_SUCCESS' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_SUCCESS'],
+                        ));
+                        $template->parse(strtolower($this->getName()) . '_mail_send_success');
+                    } else {
+                        $template->setVariable(array(
+                            strtoupper($this->getName()) . '_MAIL_MESSAGE_SEND_ERROR' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_ERROR'],
+                        ));
+                        $template->parse(strtolower($this->getName()) . '_mail_send_error');
+                    }
                 } else {
                     $template->touchBlock(strtolower($this->getName()) . '_mail');
                 }
@@ -154,7 +165,18 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                             'MESSAGE' => $message,
                         ),
                     );
-                    \Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate);
+
+                    if (\Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate)) {
+                        $template->setVariable(array(
+                            strtoupper($this->getName()) . '_RECOMMENDATION_MESSAGE_SEND_SUCCESS' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_SUCCESS'],
+                        ));
+                        $template->parse(strtolower($this->getName()) . '_recommendation_send_success');
+                    } else {
+                        $template->setVariable(array(
+                            strtoupper($this->getName()) . '_RECOMMENDATION_MESSAGE_SEND_ERROR' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_ERROR'],
+                        ));
+                        $template->parse(strtolower($this->getName()) . '_recommendation_send_error');
+                    }
                 } else {
                     $template->touchBlock(strtolower($this->getName()) . '_recommendation');
                 }
@@ -219,7 +241,18 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         'section' => $this->getName(),
                         'substitution' => $substitution,
                     );
-                    \Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate);
+
+                    if (\Cx\Core\MailTemplate\Controller\MailTemplate::send($mailTemplate)) {
+                        $template->setVariable(array(
+                            strtoupper($this->getName()) . '_INQUIRY_MESSAGE_SEND_SUCCESS' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_SUCCESS'],
+                        ));
+                        $template->parse(strtolower($this->getName()) . '_inquiry_send_success');
+                    } else {
+                        $template->setVariable(array(
+                            strtoupper($this->getName()) . '_INQUIRY_MESSAGE_SEND_ERROR' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_ERROR'],
+                        ));
+                        $template->parse(strtolower($this->getName()) . '_inquiry_send_error');
+                    }
                 } else {
                     $template->parse(strtolower($this->getName()) . '_inquiry');
                     $dataSet->sortColumns(array('order' => 'ASC'));

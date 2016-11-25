@@ -78,6 +78,8 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_MAIL'] = 'E-Mail';
 // Messages
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_CATALOG'] = 'Keine Merkliste gefunden.';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_ENTRIES'] = 'Keine Einträge gefunden.';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_SEND_SUCCESS'] = 'Die E-Mail wurde erfolgrech versendet.';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_SEND_ERROR'] = 'Leider konnte die E-Mail nicht gesendet werden. Bitte versuchen Sie es später nochmals.';
 
 // Forms
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_NAME'] = 'Name';
