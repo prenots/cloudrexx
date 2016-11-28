@@ -79,10 +79,14 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     $mail = contrexx_input2raw($_POST['mail']);
                     $name = contrexx_input2xhtml($_POST['name']);
                     $message = contrexx_input2xhtml($_POST['message']);
+                    $pdf = $this->getPdfCatalog($catalog, $favorites);
                     $mailTemplate = array(
                         'key' => 'mail',
                         'section' => $this->getName(),
                         'to' => $mail,
+                        'attachments' => array(
+                            $pdf['filePath'] => $pdf['fileName'],
+                        ),
                         'substitution' => array(
                             'NAME' => $name,
                             'MESSAGE' => $message,
@@ -154,12 +158,16 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     $receiverName = contrexx_input2xhtml($_POST['receiverName']);
                     $receiverMail = contrexx_input2raw($_POST['receiverMail']);
                     $message = contrexx_input2xhtml($_POST['message']);
+                    $pdf = $this->getPdfCatalog($catalog, $favorites);
                     $mailTemplate = array(
                         'key' => 'recommendation',
                         'section' => $this->getName(),
                         'sender' => $senderName,
                         'from' => $senderMail,
                         'receiverMail' => $receiverMail,
+                        'attachments' => array(
+                            $pdf['fileName'] => $pdf['filePath'],
+                        ),
                         'substitution' => array(
                             'NAME' => $receiverName,
                             'MESSAGE' => $message,
@@ -236,9 +244,14 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                                 );
                         }
                     }
+
+                    $pdf = $this->getPdfCatalog($catalog, $favorites);
                     $mailTemplate = array(
                         'key' => 'inquiry',
                         'section' => $this->getName(),
+                        'attachments' => array(
+                            $pdf['fileName'] => $pdf['filePath'],
+                        ),
                         'substitution' => $substitution,
                     );
 
