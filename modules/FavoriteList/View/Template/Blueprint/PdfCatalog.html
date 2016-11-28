@@ -3,29 +3,70 @@
     <title>FavoriteList PDF Catalog</title>
     <!-- for more infos visit: https://mpdf.github.io/ -->
 </head>
+<link rel="stylesheet" type="text/css" href="/themes/skeleton_3_0/css/normalize.min.css">
+<style>
+    body {
+        font-family: Sans-Serif;
+    }
+
+    table {
+        width: 100%;
+        border: 0px;
+    }
+
+    table th,
+    table td {
+        border: 1px solid #000000;
+        text-align: left;
+        width: 12.5%;
+        padding: 1%;
+        vertical-align: top;
+    }
+
+    .logo,
+    .footer {
+        display: inline-block;
+        width: 50%;
+        float: left;
+    }
+
+    .logo img {
+        width: auto;
+        max-width: 100%;
+    }
+
+    .address,
+    .paging {
+        display: inline-block;
+        width: 50%;
+        float: left;
+        text-align: right;
+    }
+</style>
 
 <body>
 
 <htmlpageheader name="header">
-    <table>
-        <tr>
-            <td><img src="[FAVORITELIST_PDF_LOGO]" alt="logo"/></td>
-            <td style="text-align: right;">[FAVORITELIST_PDF_ADDRESS]</td>
-        </tr>
-    </table>
+    <div class="logo">
+        <img alt="logo" src="[FAVORITELIST_PDF_LOGO]"/>
+    </div>
+    <div class="address">
+        <p>[FAVORITELIST_PDF_ADDRESS]</p>
+    </div>
 </htmlpageheader>
 
 [[FAVORITELIST_PDF_CATALOG]
+<h1>[FAVORITELIST_PDF_CATALOG_TITLE]</h1>
 <table>
     <tr>
         <th>[FAVORITELIST_PDF_HEADER_TITLE]</th>
         <th>[FAVORITELIST_PDF_HEADER_LINK]</th>
         <th>[FAVORITELIST_PDF_HEADER_DESCRIPTION]</th>
         <th>[FAVORITELIST_PDF_HEADER_MESSAGE]</th>
-        <th>[FAVORITELIST_PDF_HEADER_PRICE]</th>
-        <th>[FAVORITELIST_PDF_HEADER_IMAGE1]</th>
-        <th>[FAVORITELIST_PDF_HEADER_IMAGE2]</th>
-        <th>[FAVORITELIST_PDF_HEADER_IMAGE3]</th>
+        <th style="text-align: right;">[FAVORITELIST_PDF_HEADER_PRICE]</th>
+        <th style="text-align: center;">[FAVORITELIST_PDF_HEADER_IMAGE1]</th>
+        <th style="text-align: center;">[FAVORITELIST_PDF_HEADER_IMAGE2]</th>
+        <th style="text-align: center;">[FAVORITELIST_PDF_HEADER_IMAGE3]</th>
     </tr>
     [[FAVORITELIST_PDF_CATALOG_ROW]
     <tr>
@@ -33,24 +74,25 @@
         <td>[FAVORITELIST_PDF_LINK]</td>
         <td>[FAVORITELIST_PDF_DESCRIPTION]</td>
         <td>[FAVORITELIST_PDF_MESSAGE]</td>
-        <td>[FAVORITELIST_PDF_PRICE]</td>
-        <th><img src="[FAVORITELIST_PDF_IMAGE1]" alt="image1"></th>
-        <th><img src="[FAVORITELIST_PDF_IMAGE2]" alt="image2"></th>
-        <th><img src="[FAVORITELIST_PDF_IMAGE3]" alt="image3"></th>
+        <td style="text-align: right;">[FAVORITELIST_PDF_PRICE]</td>
+        <th style="text-align: center;"><img src="[FAVORITELIST_PDF_IMAGE1]" alt="image1"></th>
+        <th style="text-align: center;"><img src="[FAVORITELIST_PDF_IMAGE2]" alt="image2"></th>
+        <th style="text-align: center;"><img src="[FAVORITELIST_PDF_IMAGE3]" alt="image3"></th>
     </tr>
     [FAVORITELIST_PDF_CATALOG_ROW]]
 </table>
 [FAVORITELIST_PDF_CATALOG]]
 
 <htmlpagefooter name="footer">
-    <table>
-        <tr>
-            <td>[FAVORITELIST_PDF_FOOTER]</td>
-        </tr>
-    </table>
+    <div class="footer">
+        <p>[FAVORITELIST_PDF_FOOTER]</p>
+    </div>
+    <div class="paging">
+        <p>{PAGENO}</p>
+    </div>
 </htmlpagefooter>
 
-<sethtmlpageheader name="haeder" value="on"/>
+<sethtmlpageheader name="header" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="footer" value="on"/>
 
 </body>

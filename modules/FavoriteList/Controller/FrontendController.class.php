@@ -122,7 +122,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     }
                 }
 
-                $pdfFile = $this->getPdfCatalog($favorites);
+                $pdfFile = $this->getPdfCatalog($catalog, $favorites);
 
                 $dl = new \HTTP_Download();
                 $dl->setFile($this->cx->getWebsiteDocumentRootPath() . $pdfFile['filePath']);
@@ -543,7 +543,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
      * Generates a PDF from favorites
      *
      */
-    protected function getPdfCatalog($favorites)
+    protected function getPdfCatalog($catalog, $favorites)
     {
         \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'pdf', 'FileSystem');
         $pdfTemplateId = \Cx\Core\Setting\Controller\Setting::getValue('pdfTemplate');
@@ -560,7 +560,8 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         );
 
         $substitution = array(
-            strtoupper($this->getName()) . '_PDF_LOGO' => \Cx\Core\Setting\Controller\Setting::getValue('pdfLogo'),
+            strtoupper($this->getName()) . '_PDF_CATALOG_TITLE' => contrexx_raw2xhtml($catalog->getName()),
+            strtoupper($this->getName()) . '_PDF_LOGO' => contrexx_raw2xhtml(\Cx\Core\Setting\Controller\Setting::getValue('pdfLogo')),
             strtoupper($this->getName()) . '_PDF_ADDRESS' => \Cx\Core\Setting\Controller\Setting::getValue('pdfAddress'),
             strtoupper($this->getName()) . '_PDF_FOOTER' => \Cx\Core\Setting\Controller\Setting::getValue('pdfFooter'),
             strtoupper($this->getName()) . '_PDF_CATALOG' => array(
@@ -604,10 +605,19 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         foreach ($favorites as $key => $favorite) {
             $catalogRowAttributes = array();
             foreach ($attributes as $attribute) {
-                $catalogRowAttributes = $catalogRowAttributes + array(
-                        strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
-                            contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}())
-                    );
+                if ($attribute == 'price') {
+                    $catalogRowAttributes = $catalogRowAttributes + array(
+                            strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
+                                number_format(
+                                    contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}())
+                                    , 2, '.', '\''),
+                        );
+                } else {
+                    $catalogRowAttributes = $catalogRowAttributes + array(
+                            strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
+                                contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}()),
+                        );
+                }
             }
             array_push($catalogRow, $catalogRowAttributes);
         }
