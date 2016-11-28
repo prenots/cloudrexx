@@ -164,12 +164,13 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         'section' => $this->getName(),
                         'sender' => $senderName,
                         'from' => $senderMail,
-                        'receiverMail' => $receiverMail,
+                        'to' => $receiverMail,
                         'attachments' => array(
                             $pdf['fileName'] => $pdf['filePath'],
                         ),
                         'substitution' => array(
-                            'NAME' => $receiverName,
+                            'SENDER_NAME' => $senderName,
+                            'RECEIVER_NAME' => $receiverName,
                             'MESSAGE' => $message,
                         ),
                     );

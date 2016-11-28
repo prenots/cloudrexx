@@ -35,32 +35,43 @@ Template:
 Choose/activate your previously added template (`/cadmin/FavoriteList/Settings` > PDF template > Template).
 
 #### Mail
-You have to create the following mail templates in the "Mail Template" (`/cadmin/FavoriteList/Settings/Mailing`) section.
+You have to create the following mail templates in "Mail Template" (`/cadmin/FavoriteList/Settings/Mailing`) section.
+
+As an example, you can import the HTML layout from the predefined templates in the blueprint folder.
 
 ##### Mail
-| Option                      | Value |
-|-----------------------------|-------|
-| Key                         | mail  |
-| Attach dynamic PDF-document | check |
 
-The following option is overwritten on submit:
+HTML layout: `MailMail.html`
+
+| Option          | Value |
+|-----------------|-------|
+| Key             | mail  |
+| Use HTML format | check |
+
+The following option is overwritten/set on submit:
 - Recipient email address (to:)
 
 ##### Recommendation
-| Option                      | Value          |
-|-----------------------------|----------------|
-| Key                         | recommendation |
-| Attach dynamic PDF-document | check          |
 
-The following options are overwritten on submit:
+HTML layout: `MailRecommendation.html`
+
+| Option          | Value          |
+|-----------------|----------------|
+| Key             | recommendation |
+| Use HTML format | check          |
+
+The following options are overwritten/set on submit:
 - Sender name
 - Sender email address (from:)
 - Recipient email address (to:)
 
 ##### Inquiry
-| Option                      | Value   |
-|-----------------------------|---------|
-| Key                         | inquiry |
-| Attach dynamic PDF-document | check   |
+
+HTML layout: `MailInquiry.html`
+
+| Option          | Value   |
+|-----------------|---------|
+| Key             | inquiry |
+| Use HTML format | check   |
 
 These defined options are all mandatory, this means you can customize all other (not listed) options freely.
