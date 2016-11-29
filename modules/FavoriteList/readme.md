@@ -11,7 +11,7 @@
 The FavoriteList component includes simple collections ("wishlists") consisting of items, which can be shared trough E-Mail or printed-out.
 
 ## Installation
-To install this component, you have to import blueprints from the `View/Template/Blueprint` directory into Cloudrexx.
+To install this component, you have to import blueprints from the `modules/FavoriteList/View/Template/Blueprint` directory into Cloudrexx.
 
 ### PDF
 You have to import the following HTML PDF template to the "PDF Templates" (`/cadmin/Config/Pdf`) section.
