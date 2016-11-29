@@ -275,7 +275,7 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
      * @return \Cx\Lib\Net\Model\Entity\Response boolean|array
      */
     public function folderWidget($params) {
-        \cmsSession::getInstance();
+        $this->getComponent('Session')->getSession();
 
         $folderWidgetId = isset($params['get']['id']) ? contrexx_input2int($params['get']['id']) : 0;
         if (   empty($folderWidgetId)
@@ -317,7 +317,7 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
      */
     public function removeFileFromFolderWidget($params)
     {
-        \cmsSession::getInstance();
+        $this->getComponent('Session')->getSession();
 
         $folderWidgetId = isset($params['get']['widget']) ? contrexx_input2int($params['get']['widget']) : 0;
         if (   empty($folderWidgetId)

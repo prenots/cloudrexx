@@ -108,6 +108,23 @@ class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListe
                     $value = \Cx\Core\Config\Controller\Config::checkAccessibility($protocol) ? $value : 'off';
                     $objSetting->setValue($value);
                     break;
+                
+                case 'cacheReverseProxy':
+                case 'cacheProxyCacheConfig':
+                    if ($value != $_CONFIG[$objSetting->getName()]) {
+                        // drop reverse proxy cache
+                        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearReverseProxyCache('*');
+                    }
+                    break;
+                
+                case 'cacheSsiOutput':
+                case 'cacheSsiType':
+                case 'cacheSsiProcessorConfig':
+                    if ($value != $_CONFIG[$objSetting->getName()]) {
+                        // drop esi/ssi cache
+                        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCache();
+                    }
+                    break;
             }
         } catch (YamlSettingEventListenerException $e) {
             \DBG::msg($e->getMessage());

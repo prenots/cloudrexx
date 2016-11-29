@@ -810,6 +810,7 @@ class JsonPage implements JsonAdapter {
             'metakeys' => array('type' => 'String'),
             'metadesc' => array('type' => 'String'),
             'metarobots' => array('type' => 'boolean'),
+            'metaimage' => array('type' => 'String'),
             'content' => array('type' => 'String'),
             'sourceMode' => array('type' => 'boolean'),
             'protection_frontend' => array('type' => 'boolean', 'map_to' => 'frontendProtection'),
@@ -1074,6 +1075,7 @@ class JsonPage implements JsonAdapter {
             'metadesc' => $page->getMetadesc(),
             'metakeys' => $page->getMetakeys(),
             'metarobots' => $page->getMetarobots(),
+            'metaimage' => $page->getMetaimage(),
             // Access Permissions
             'frontend_protection' => $page->isFrontendProtected(),
             'backend_protection' => $page->isBackendProtected(),
@@ -1144,6 +1146,7 @@ class JsonPage implements JsonAdapter {
             'metadesc' => $page->getMetadesc(),
             'metakeys' => $page->getMetakeys(),
             'metarobots' => $page->getMetarobots(),
+            'metaimage' => $page->getMetaimage(),
             // Access Permissions
             'frontend_protection' => $page->isFrontendProtected(),
             'backend_protection' => $page->isBackendProtected(),
