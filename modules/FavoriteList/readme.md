@@ -8,29 +8,28 @@
 -->
 
 # FavoriteList
-The FavoriteList component includes a simple collection (also called "wishlist") of items, which can be shared trough E-Mail or printed-out.
+The FavoriteList component includes simple collections ("wishlists") consisting of items, which can be shared trough E-Mail or printed-out.
 
 ## Installation
 To install this component, you have to import blueprints from the `View/Template/Blueprint` directory into Cloudrexx.
 
-### Blueprint
-> Software blueprints focus on one application aspect, for clarity of presentation and to ensure that all of the relevant logic is localized.
-> [Wikipedia](https://en.wikipedia.org/wiki/Software_blueprint)
-
-#### PDF
-You have to import the following HTML PDF template in the "PDF Templates" (`/cadmin/Config/Pdf`) section.
+### PDF
+You have to import the following HTML PDF template to the "PDF Templates" (`/cadmin/Config/Pdf`) section.
 
 Template:
 - PdfCatalog.html
 
 Choose/activate your previously added template (`/cadmin/FavoriteList/Settings` > PDF template > Template).
 
+### Mail
+Create the following mail templates in "Mail Template" (`/cadmin/FavoriteList/Settings/Mailing`) section.
+
+As an example, import the HTML layout of the predefined templates from the blueprint folder.
+
+> Replacements (search/replace) and substitutions will be done, if any.
+> All replacements will be completely done on each field of the template (except the fields with the replacement parameters). [Cloudrexx Wiki](http://wiki.contrexx.com/en/index.php?title=Development_Core_MailTemplate)
+
 #### Mail
-You have to create the following mail templates in "Mail Template" (`/cadmin/FavoriteList/Settings/Mailing`) section.
-
-As an example, you can import the HTML layout from the predefined templates in the blueprint folder.
-
-##### Mail
 
 HTML layout: `MailMail.html`
 
@@ -39,10 +38,10 @@ HTML layout: `MailMail.html`
 | Key             | mail  |
 | Use HTML format | check |
 
-The following option is overwritten/set on submit:
+The following option is set on submit:
 - Recipient email address (to:)
 
-##### Recommendation
+#### Recommendation
 
 HTML layout: `MailRecommendation.html`
 
@@ -51,12 +50,12 @@ HTML layout: `MailRecommendation.html`
 | Key             | recommendation |
 | Use HTML format | check          |
 
-The following options are overwritten/set on submit:
+The following options are set on submit:
 - Sender name
 - Sender email address (from:)
 - Recipient email address (to:)
 
-##### Inquiry
+#### Inquiry
 
 HTML layout: `MailInquiry.html`
 
@@ -68,7 +67,7 @@ HTML layout: `MailInquiry.html`
 These defined options are all mandatory, this means you can customize all other (not listed) options freely.
 
 ## Documentation
-There are 3 different methods to share your collection through E-Mail.
+There are 3 different methods to share a collection through E-Mail.
 
  1. Mail (E-Mail to the list owner)
  2. Inquiry (E-Mail with custom defined fields to the website admin)
@@ -76,7 +75,7 @@ There are 3 different methods to share your collection through E-Mail.
 
 In each mail, the list is attached as a PDF.
 
-As previous mentioned, of course you can print-out your list.
+As previous mentioned, a list can also be printed-out.
 
 An ERD can be found here: `modules/FavoriteList/Doc/ModuleFavoriteListErd.mwb`
 
@@ -86,10 +85,10 @@ An ERD can be found here: `modules/FavoriteList/Doc/ModuleFavoriteListErd.mwb`
 |------------------------------|
 | /cadmin/FavoriteList/Catalog |
 
-Lists are the collections (container) of Favorites, they're mainly auto-generated.
-If you want, you can add your own collection (click "Add" button).
+Lists are collections (container) of Favorites, they're mainly auto-generated.
+A collection can be added manually by clicking the "Add" button.
 
-They're auto-deleted if the session (user session who created the list) is going to be destroyed.
+They're also auto-deleted if the session (user session who created the list) is going to be destroyed.
 Thus we can ensure no unnecessary data overflow.
 
 #### Favorites
@@ -97,8 +96,8 @@ Thus we can ensure no unnecessary data overflow.
 |-------------------------------|
 | /cadmin/FavoriteList/Favorite |
 
-Favorites are the entries for your collection (catalog).
-Each entry has to be assigned to a catalog and a defined name.
+Favorites are entries of your collection (catalog).
+Each entry has to be assigned to a catalog and a name must be defined.
 
 #### Settings
 ##### General
@@ -106,8 +105,8 @@ Each entry has to be assigned to a catalog and a defined name.
 |-------------------------------|
 | /cadmin/FavoriteList/Settings |
 
-First, here ("Functions") you can choose which available functions you like to activate.
-They are listed in the frontend (Default and Block).
+In "Functions" you can choose which available functions you like to activate.
+They are listed in the frontend (in Default and Block).
 
 Under "PDF template" there are all available options for the PDF generation defined.
 Logo and Address is pasted in the header. The Footer obviously in the footer.
@@ -120,8 +119,8 @@ They are self explanatory.
 
 For Developer: [Development Core MailTemplate](http://wiki.contrexx.com/en/index.php?title=Development_Core_MailTemplate)
 
-This sections takes an important part of this component, there the Mail Templates are defined.
-The Key has to be the same as the site command of the Content Manager.
+This sections takes an important part of this component, there were the Mail Templates defined.
+The Key has to be the same as site command in the Content Manager.
 Each option can be set (recommended) individually.
 
 ##### Inquiry form fields
@@ -140,25 +139,25 @@ There are 6 types available. The values of types like "Selection menu", "Selecti
 
 All Favorites from your Catalog (current session) are listed.
 
-Basicly, all placeholders are self explanatory.
+Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Default.html`).
 
 #### Block
 It's an element which can be placed everywhere.
 But mainly used as a sidebar.
 
-Basicly, all placeholders are self explanatory.
+Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`themes/standard_4_0/favoritelist_block.html` & `themes/standard_4_0/favoritelist_block_list.html`).
-For each theme you have to created the necessary two templates.
 
-The `favoritelist_block_list.html` stores the placeholder for the AJAX-Requests, this means: the content is loaded dynamically on every change to your catalog.
+For each theme you have to created the necessary two templates.
+The `favoritelist_block_list.html` stores the placeholder for AJAX-Requests, this means: the content is loaded dynamically on every change to your catalog.
 
 #### JavaScript
-To modify your catalog, there are 3 different actions you can perform.
+To modify your catalog, there are two different actions you can perform.
 
 ##### Add Favorite
-To add a Favourite dynamically through ajax without a tedious page reload.
-Your custom data is set as data-attributes. The following attributes are available:
+To add a Favourite dynamically through AJAX without a tedious page reload.
+Add the data as data-attributes. The following attributes are available:
 
  - title (must be defined)
  - link
@@ -178,7 +177,7 @@ Of course, the method can be called everywhere.
 ```
 
 ##### Remove Favorite
-This removes an Favorite obviously.
+This obviously removes a Favorite.
 The parameter is just the `id ` of your Favorite.
 
 **Example:**
@@ -191,7 +190,7 @@ The parameter is just the `id ` of your Favorite.
 |---------|
 | print   |
 
-Basicly, all placeholders are self explanatory.
+Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Print.html`).
 
 The custom PDF Template is set here: `/cadmin/Config/Pdf`
@@ -201,7 +200,7 @@ The custom PDF Template is set here: `/cadmin/Config/Pdf`
 |---------|
 | mail    |
 
-Basicly, all placeholders are self explanatory.
+Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Mail.html`).
 
 #### Recommendation
@@ -209,7 +208,7 @@ All available options are listed in the predefined examples (`modules/FavoriteLi
 |----------------|
 | recommendation |
 
-Basicly, all placeholders are self explanatory.
+Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Recommendation.html`).
 
 #### Inquiry
@@ -217,5 +216,32 @@ All available options are listed in the predefined examples (`modules/FavoriteLi
 |---------|
 | inquiry |
 
-Basicly, all placeholders are self explanatory.
-All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Inquiry.html`).
+The available placeholders are just the `name` of each input field in uppercase and of course in square brackets.
+An existing example can be seen here: `modules/FavoriteList/View/Template/Frontend/Inquiry.html`
+
+**Example:**
+If the fields are defined like this...
+
+- Salutation
+- Name
+- E-Mail
+- Message
+
+...then the HTML layout of the Mail Template could look something like this:
+```
+Hello<br><br>
+Below you will find the request.<br><br>
+Salutation: [ANREDE]<br>
+Name: [NAME]<br>
+E-Mail: [E-MAIL]<br>
+Message:<br>
+[MESSAGE]<br><br>
+In the appendix you will find the favorite list as a PDF.<br><br>
+Thank you for using our service.<br><br>
+Regards<br>
+Your Comvation-Team
+```
+
+----------
+&copy; 2016 [Comvation AG](http://www.comvation.com/)
+created by [Manuel Schenk](mailto:manuel.schenk@comvation.com)
