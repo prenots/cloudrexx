@@ -183,9 +183,12 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
         $this->dynVars = array(
             'GEO' => array(
                 'country_code' => \Cx\Core\Routing\Url::fromApi('Data', array('Plain', 'GeoIp', 'getCountryCode'))->toString(),
+            ),
+            'HTTP_COOKIE' => array(
+                'PHPSESSID' => session_id()
             )
         );
-        
+
         // back-replace ESI variables that are url encoded
         foreach ($this->dynVars as $groupName=>$vars) {
             foreach ($vars as $varName=>$url) {
