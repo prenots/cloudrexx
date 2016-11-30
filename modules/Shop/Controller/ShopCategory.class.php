@@ -449,6 +449,9 @@ class ShopCategory
             WHERE `id`=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         return true;
     }
 
@@ -481,6 +484,9 @@ class ShopCategory
             return false;
         }
         $this->id = $objDatabase->Insert_ID();
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         return true;
     }
 
@@ -525,6 +531,9 @@ class ShopCategory
         }
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_categories");
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         return true;
     }
 

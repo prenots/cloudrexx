@@ -135,6 +135,8 @@ class JsonShop implements JsonAdapter {
                 define('FRONTEND_LANG_ID', $langId);
             }
 
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getComponent('Session')->getSession();
             return array(
                 'content' => Shop::parse_products_blocks($template, $catId)
             );
@@ -191,6 +193,8 @@ class JsonShop implements JsonAdapter {
             ? contrexx_input2raw($params['get']['file']) : '';
         $lang    = isset($params['get']['langId'])
             ? contrexx_input2raw($params['get']['langId']) : '';
+        $showCurrencyNav = isset($params['get']['showCurrencyNav'])
+            ? contrexx_input2raw($params['get']['showCurrencyNav']) : '';
         $theme   = $this->getThemeFromInput($params);
         $content = $theme->getContentFromFile($file . '.html');
         if (empty($content)) {
@@ -202,6 +206,7 @@ class JsonShop implements JsonAdapter {
             define('FRONTEND_LANG_ID', $lang);
         }
 
-        return array('content' => Shop::getNavbar($content));
+        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Session')->getSession();
+        return array('content' => Shop::getNavbar($content, true, $showCurrencyNav));
     }
 }

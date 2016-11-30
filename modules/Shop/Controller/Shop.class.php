@@ -388,21 +388,21 @@ die("Failed to get Customer for ID $customer_id");
      * The content is created once and stored statically.
      * Repeated calls will always return the same string, unless either
      * a non-empty template is given, or $use_cache is set to false.
-     * @global  array   $_ARRAYLANG
-     * @global  array   $themesPages
-     * @global  array   $_CONFIGURATION
-     * @staticvar array $content    Caches created content
-     * @param   type    $template   Replaces the default template
-     *                              ($themesPages['shopnavbar']) and sets
-     *                              $use_cache to false unless empty.
-     *                              Defaults to NULL
-     * @param   type    $use_cache  Does not use any cached content, but builds
-     *                              it new from scratch if false.
-     *                              Defaults to true.
-     * @return  string              The Shop Navbar content
-     * @static
+     *
+     * @staticvar array $content       Caches created content
+     * @param string $template         Replaces the default template
+     *                                 ($themesPages['shopnavbar']) and sets
+     *                                 $use_cache to false unless empty.
+     *                                 Defaults to NULL
+     * @param boolean $use_cache       Does not use any cached content, but builds
+     *                                 it new from scratch if false.
+     *                                 Defaults to true.
+     * @param boolean $showCurrencyNav Does not parse currency navbar If false
+     *                                 Default value is null
+     *
+     * @return type
      */
-    static function getNavbar($template=NULL, $use_cache=true)
+    static function getNavbar($template = null, $use_cache = true, $showCurrencyNav = null)
     {
         global $_ARRAYLANG;
         static $content = array();
@@ -410,6 +410,9 @@ die("Failed to get Customer for ID $customer_id");
 
         if (empty($template)) {
             return;
+        }
+        if ($showCurrencyNav != null) {
+            self::$show_currency_navbar = $showCurrencyNav;
         }
         if (!$use_cache) $content[$templateHash] = NULL;
         // Note: This is valid only as long as the content is the same every
@@ -615,8 +618,19 @@ die("Failed to get Customer for ID $customer_id");
      */
     static function setNavbar()
     {
-        global $objTemplate, $_LANGID;
+        global $objTemplate, $_LANGID, $command;
 
+        $params = array();
+        if (isset($_GET['currency'])) {
+            $params['currency'] = contrexx_input2raw($_GET['currency']);
+        }
+        if (isset($_GET['catId'])) {
+            $params['catId'] = contrexx_input2raw($_GET['catId']);
+        }
+        $showCurrencyNav = true;
+        if (in_array($command, array('account', 'payment', 'confirm', 'success'))) {
+            $showCurrencyNav = false;
+        }
         $cache = \Cx\Core\Core\Controller\Cx::instanciate()
             ->getComponent('Cache');
         $shopNavFiles = array('shopnavbar', 'shopnavbar2', 'shopnavbar3');
@@ -624,10 +638,13 @@ die("Failed to get Customer for ID $customer_id");
             $shopNavContent = $cache->getEsiContent(
                 'Shop',
                 'getNavbar',
-                array(
+                array_merge($params, array(
                     'langId'   => $_LANGID,
                     'template' => \Env::get('init')->getCurrentThemeId(),
-                    'file'     => $shopNavFile
+                    'file'     => $shopNavFile,
+                    'session'  => '$(HTTP_COOKIE{\'PHPSESSID\'})',
+                    'showCurrencyNav' => $showCurrencyNav
+                    )
                 )
             );
 
@@ -826,6 +843,9 @@ die("Failed to update the Cart!");
             unset($_SESSION['shop']);
             self::$objCustomer = null;
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
     }
 
 

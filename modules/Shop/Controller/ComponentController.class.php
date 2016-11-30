@@ -142,6 +142,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+        $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
     }
 
     /**
@@ -179,6 +180,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $params['catId']  = isset($match[1]) ? $match[1] : 0;
                 $params['langId'] = $_LANGID;
                 $params['block']  = $block;
+                $params['session'] = '$(HTTP_COOKIE{\'PHPSESSID\'})';
                 $content = $cache->getEsiContent(
                     'Shop',
                     'parseProductsBlock',

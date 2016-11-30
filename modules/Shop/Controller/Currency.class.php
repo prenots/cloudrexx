@@ -552,6 +552,9 @@ class Currency
         if (!$objResult) return false;
         unset(self::$arrCurrency[$currency_id]);
         $objDatabase->Execute("OPTIMIZE TABLE `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`");
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         return true;
     }
 
@@ -607,6 +610,9 @@ class Currency
             self::TEXT_NAME, contrexx_input2raw($_POST['currencyNameNew']))) {
             return false;
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         if ($default) {
             return self::setDefault($currency_id);
         }
@@ -629,6 +635,9 @@ class Currency
         self::init();
         $default_id = (isset($_POST['currencyDefault'])
             ? intval($_POST['currencyDefault']) : self::$defaultCurrencyId);
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         $changed = false;
         foreach ($_POST['currencyCode'] as $currency_id => $code) {
             $code = contrexx_input2raw($code);
@@ -689,6 +698,9 @@ class Currency
                SET `default`=1
              WHERE `id`=$currency_id");
         if (!$objResult) return false;
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
         return true;
     }
 

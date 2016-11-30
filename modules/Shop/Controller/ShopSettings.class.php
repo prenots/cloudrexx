@@ -211,6 +211,9 @@ class ShopSettings
                 intval($_POST['numof_products_per_page_frontend']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Shop'));
     }
 
 

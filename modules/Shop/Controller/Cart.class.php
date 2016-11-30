@@ -382,6 +382,11 @@ class Cart
             }
         }
         $_SESSION['shop']['cart']['items'] = $products;
+        if (!isset($_GET['remoteJs'])) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Shop'));
+        }
 //DBG::log("Cart::add_product(): New options: ".var_export($products[$cart_id]['options'], true));
 //DBG::log("Cart::add_product(): Leaving");
     }
@@ -422,6 +427,11 @@ class Cart
                 }
 //DBG::log("Cart::update_quantity(): Cart ID $cartId quantity: {$_SESSION['shop']['cart']['items'][$cartId]['quantity']}");
             }
+        }
+        if (!isset($_GET['remoteJs'])) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Shop'));
         }
     }
 
