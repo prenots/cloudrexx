@@ -478,4 +478,43 @@ class Theme extends \Cx\Model\Base\EntityBase
         }
         return true;
     }
+    
+    /**
+     * Get all the template files from the current theme
+     *
+     * @return array
+     */
+    public function getTemplateFileNames()
+    {
+        $result = array();
+        $templateFiles = array();
+        if (
+            file_exists($this->cx->getCodeBaseThemesPath() . '/' . $this->foldername)
+        ) {
+            $templateFiles = scandir(
+                $this->cx->getCodeBaseThemesPath() . '/'  . $this->foldername
+            );
+        }
+        if (
+            file_exists($this->cx->getWebsiteThemesPath() . '/' . $this->foldername)
+        ) {
+            $templateFiles = array_unique(
+                array_merge(
+                    $templateFiles,
+                    scandir(
+                        $this->cx->getWebsiteThemesPath() . '/' . $this->foldername
+                    )
+                )
+            );
+        }
+
+        foreach ($templateFiles as $f) {
+            if (!preg_match('/^([a-zA-Z0-9_]+).html$/', $f)) {
+                continue;
+            }
+            $result[] = $f;
+        }
+
+        return $result;
+    }
 }

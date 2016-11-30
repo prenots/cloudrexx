@@ -50,7 +50,23 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // does not exist a backend, nor a frontend controller of this component.
         return array();
     }
-      /**
+
+    /**
+     * Do something before system initialization
+     *
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
+     */
+    public function preInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        // TO-DO: Input and output handling is not possible in pre init cook
+        // So we need to find the right place
+        $sessionId = !empty($_GET['session']) ? $_GET['session'] : '';
+        if (!empty($sessionId)) {
+            session_id($sessionId);
+        }
+    }
+
+    /**
      * Do something before resolving is done
      *
      * @param \Cx\Core\Routing\Url                      $request    The URL object for this request
