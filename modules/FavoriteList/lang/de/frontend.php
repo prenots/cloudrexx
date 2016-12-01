@@ -30,7 +30,7 @@
  * This file is included by Cloudrexx and all entries are set as placeholder
  * values for frontent page template by SystemComponentFrontendController
  *
- * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
@@ -59,7 +59,8 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_DATE'] = 'Datum';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_TITLE'] = 'Titel';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_LINK'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_DESCRIPTION'] = 'Beschreibung';
-$_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_INFO'] = 'Info';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_MESSAGE'] = 'Nachricht';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_PRICE'] = 'Preis';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_IMAGE_1'] = 'Bild 1';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_IMAGE_2'] = 'Bild 2';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_IMAGE_3'] = 'Bild 3';
@@ -75,7 +76,8 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_CHECKBOX'] = 'Kontrollkästchen';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_MAIL'] = 'E-Mail';
 
 // Messages
-$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_LIST'] = 'Keine Merkliste gefunden.';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_CATALOG'] = 'Keine Merkliste gefunden.';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_ENTRIES'] = 'Keine Einträge gefunden.';
 
 // Forms
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_NAME'] = 'Name';
@@ -86,3 +88,10 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_RECEIVERNAME'] = 'Name (Empfänger)';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_RECEIVERMAIL'] = 'E-Mail Adresse (Empfänger)';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_MESSAGE'] = 'Nachricht';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_SUBMIT'] = 'Absenden';
+
+// Block
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_BLOCK_TOTAL_PRICE_LABEL'] = 'Preis Total';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_BLOCK_SAVE'] = 'Speichern';
+
+// Print
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_PRINT_ACTION'] = 'Klicken Sie hier um Ihre Liste auszudrucken';

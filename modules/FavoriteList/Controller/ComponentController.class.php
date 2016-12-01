@@ -57,7 +57,30 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function getControllerClasses()
     {
-        return array('Backend', 'Frontend');
+        return array('Backend', 'Frontend', 'Json');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('JsonController');
+    }
+
+    /**
+     * Do something before main template gets parsed
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE
+     * @param \Cx\Core\Html\Sigma $template The main template
+     */
+    public function preFinalize(\Cx\Core\Html\Sigma $template)
+    {
+        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
+            return;
+        }
+        $this->getController('Frontend')->getBlock($template);
     }
 
     public function registerEventListeners()

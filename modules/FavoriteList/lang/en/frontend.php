@@ -30,7 +30,7 @@
  * This file is included by Cloudrexx and all entries are set as placeholder
  * values for frontent page template by SystemComponentFrontendController
  *
- * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
@@ -39,7 +39,7 @@
 global $_ARRAYLANG;
 
 // General module info:
-$_ARRAYLANG['TXT_MODULE_FAVORITELIST'] = 'FavoriteList';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST'] = 'Favorite list';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_DESCRIPTION'] = 'Here you can define and send lists containing things/elements.';
 
 // Module ACTs:
@@ -59,7 +59,8 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_DATE'] = 'Date';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_TITLE'] = 'Title';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_LINK'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_DESCRIPTION'] = 'Description';
-$_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_INFO'] = 'Info';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_MESSAGE'] = 'Message';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_PRICE'] = 'Price';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_IMAGE_1'] = 'Image 1';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_IMAGE_2'] = 'Image 2';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_IMAGE_3'] = 'Image 3';
@@ -75,7 +76,8 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_CHECKBOX'] = 'Checkbox';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FIELD_MAIL'] = 'E-Mail';
 
 // Messages
-$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_LIST'] = 'No favorite list found.';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_CATALOG'] = 'No list found.';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_MESSAGE_NO_ENTRIES'] = 'No entries found.';
 
 // Forms
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_NAME'] = 'Name';
@@ -86,3 +88,10 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_RECEIVERNAME'] = 'Name (Receiver)';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_RECEIVERMAIL'] = 'E-Mail Address (Receiver)';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_MESSAGE'] = 'Message';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_SUBMIT'] = 'Send';
+
+// Block
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_BLOCK_TOTAL_PRICE_LABEL'] = 'Total price';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_BLOCK_SAVE'] = 'Save';
+
+// Print
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_PRINT_ACTION'] = 'Click here to print your list';
