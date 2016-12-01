@@ -30,7 +30,7 @@
  * This file is included by Cloudrexx and all entries are set as placeholder
  * values for backend ACT template by SystemComponentBackendController
  *
- * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
@@ -98,6 +98,7 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_NOTIFICATIONINQUIRY'] = 'Benachric
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_NOTIFICATIONINQUIRYMAIL'] = 'E-Mail Adresse';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_PDF'] = 'PDF Vorlage';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_PDF_DESCRIPTION'] = 'Eigenschaften für die PDF Vorlage';
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_PDFTEMPLATE'] = 'Template';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_PDFLOGO'] = 'Logo';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_PDFADDRESS'] = 'Adresse';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_SETTINGS_PDFFOOTER'] = 'Fusszeile';

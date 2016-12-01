@@ -30,7 +30,7 @@
  * This file is included by Cloudrexx and all entries are set as placeholder
  * values for frontent page template by SystemComponentFrontendController
  *
- * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
@@ -92,3 +92,6 @@ $_ARRAYLANG['TXT_MODULE_FAVORITELIST_FORM_SUBMIT'] = 'Absenden';
 // Block
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_BLOCK_TOTAL_PRICE_LABEL'] = 'Preis Total';
 $_ARRAYLANG['TXT_MODULE_FAVORITELIST_BLOCK_SAVE'] = 'Speichern';
+
+// Print
+$_ARRAYLANG['TXT_MODULE_FAVORITELIST_PRINT_ACTION'] = 'Klicken Sie hier um Ihre Liste auszudrucken';
