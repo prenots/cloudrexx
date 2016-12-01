@@ -26,9 +26,9 @@
  */
 
 /**
- * Backend controller to create the FavoriteList backend view.
+ * Specific FrontendController for this Component. Use this to easily create a frontend view
  *
- * @copyright   Cloudrexx AG
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
@@ -38,8 +38,9 @@
 namespace Cx\Modules\FavoriteList\Controller;
 
 /**
- * Backend controller to create the FavoriteList backend view.
- * @copyright   Cloudrexx AG
+ * Specific FrontendController for this Component. Use this to easily create a frontent view
+ *
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
