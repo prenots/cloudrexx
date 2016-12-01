@@ -294,38 +294,9 @@ class Config
      */
     protected function showPdf()
     {
-        global $_ARRAYLANG, $objTemplate, $objInit;
-
-        $pdf                  = Cx::instanciate()->getComponent('Pdf');
+        $pdf = Cx::instanciate()->getComponent('Pdf');
         $pdfBackendController = $pdf->getController('Backend');
-        $objTpl               = new \Cx\Core\Html\Sigma(
-            $pdf->getDirectory(true) . '/View/Template/Backend'
-        );
-
-        //merge language
-        $langData   = $objInit->loadLanguageData('Pdf');
-        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
-        $objTpl->setGlobalVariable($_ARRAYLANG);
-        $objTpl->loadTemplatefile('Default.html');
-
-        $tpl = isset($_GET['tpl']) ? contrexx_input2raw($_GET['tpl']) : '';
-        switch ($tpl) {
-            case '':
-            default:
-                $pdfBackendController->parsePage($objTpl, array('PdfTemplate'));
-                break;
-        }
-
-        \JS::registerCSS(
-            substr(
-                $pdf->getDirectory(false, true) . '/View/Style/Backend.css',
-                1
-            )
-        );
-        $objTemplate->setVariable(array(
-            'CONTENT_TITLE' => $_ARRAYLANG['TXT_CORE_MODULE_PDF'],
-            'ADMIN_CONTENT' => $objTpl->get(),
-        ));
+        $pdfBackendController->parsePage(Cx::instanciate()->getTemplate(), array('PdfTemplate'));
     }
 
     /**
@@ -566,6 +537,7 @@ class Config
             // otherwise, cloudrexx does not activate 'https' when the server doesn't have an ssl certificate installed
             $request->setConfig(array(
                 'ssl_verify_peer' => false,
+                'ssl_verify_host' => false,
             ));
 
             // send the request
@@ -1762,6 +1734,12 @@ class Config
                     && !\Cx\Core\Setting\Controller\Setting::add('cacheUserCacheMemcacheConfig', isset($existingConfig['cacheUserCacheMemcacheConfig']) ? $existingConfig['cacheUserCacheMemcacheConfig'] : '{"ip":"127.0.0.1","port":11211}', 1,
                     \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'cache')){
                         throw new \Cx\Lib\Update_DatabaseException("Failed to add Setting entry for cacheUserCacheMemcacheConfig");
+                }
+                // The following is temporary until the LanguageManager replacement (component 'Locale') is here:
+                if (!\Cx\Core\Setting\Controller\Setting::isDefined('useVirtualLanguageDirectories')
+                    && !\Cx\Core\Setting\Controller\Setting::add('useVirtualLanguageDirectories', isset($existingConfig['useVirtualLanguageDirectories']) ? $existingConfig['useVirtualLanguageDirectories'] : 'on', 1,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, 'on:TXT_ACTIVATED,off:TXT_DEACTIVATED', 'lang')){
+                        throw new \Cx\Lib\Update_DatabaseException("Failed to add Setting entry for useVirtualLanguageDirectories");
                 }
             }
         } catch (\Exception $e) {
