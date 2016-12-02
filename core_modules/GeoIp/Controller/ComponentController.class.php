@@ -146,38 +146,40 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * JsonAdapter method to return the country code for current request's IP
      * This is the replacer method for ESI variable $(GEO{'country_code'})
      * @param array $params Request params (none needed)
-     * @return string ISO Alpha-2 Country code
+     * @return \Cx\Lib\Net\Model\Entity\Response Response object contains ISO Alpha-2 Country code
      */
     public function getCountryCode($params) {
         //skip the process incase mode is not frontend or GeoIp is deactivated or client record not found
         if (   !$this->isGeoIpEnabled()
             || !$this->getClientRecord()
         ) {
-            return '';
+            return new \Cx\Lib\Net\Model\Entity\Response('');
         }
 
         $countryCode = $this->getClientRecord()->country->isoCode;
-        return array('content' => $countryCode);
+        return new \Cx\Lib\Net\Model\Entity\Response(array('content' => $countryCode));
     }
     
     /**
      * JsonAdapter method to return country name
      * @param array $params Request params
-     * @return string Country name
+     * @return \Cx\Lib\Net\Model\Entity\Response Response object contains Country name
      */
     public function getCountryName($params) {
         if (!isset($params['get']) || !isset($params['get']['country'])) {
-            return '';
+            return new \Cx\Lib\Net\Model\Entity\Response('');
         }
         if (!defined('FRONTEND_LANG_ID')) {
             define('FRONTEND_LANG_ID', $params['get']['lang']);
         }
         $countryCode = $params['get']['country'];
-        return array(
-            'content' => \Locale::getDisplayRegion(
-                '-' . $countryCode,
-                \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID)
-            ),
+        return new \Cx\Lib\Net\Model\Entity\Response(
+            array(
+                'content' => \Locale::getDisplayRegion(
+                    '-' . $countryCode,
+                    \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID)
+                )
+            )
         );
     }
 

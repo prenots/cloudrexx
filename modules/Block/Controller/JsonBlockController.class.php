@@ -143,8 +143,10 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $countries = array();
         $term = !empty($params['get']['term']) ? contrexx_input2raw($params['get']['term']) : '';
         if (empty($term)) {
-            return array(
-                'countries' => $countries
+            return new \Cx\Lib\Net\Model\Entity\Response(
+                array(
+                    'countries' => $countries
+                )
             );
         }
         if (!defined('FRONTEND_LANG_ID')) {

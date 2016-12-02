@@ -201,7 +201,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
     public function activatePreset($params)
     {
         if (!Preset::isValidPresetName( $params['post']['preset'])) {
-            return;
+            return new \Cx\Lib\Net\Model\Entity\Response(false);
         }
         $presetName            =  $params['post']['preset'];
         $themeID               = isset($params['post']['tid']) ?
@@ -288,7 +288,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
         \Env::get('init')->loadLanguageData('TemplateEditor');
 
         if (!Preset::isValidPresetName($params['post']['preset'])) {
-            return;
+            return new \Cx\Lib\Net\Model\Entity\Response(false);
         }
 
         $presetName = $params['post']['preset'];
