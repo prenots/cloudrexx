@@ -395,7 +395,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             return;
         }
         $theme = $this->getTheme();
-        $template->addBlockfile(strtoupper($this->getName()) . '_BLOCK', strtoupper($this->getName()) . '_BLOCK', 'themes/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html');
+        $template->addBlockfile(strtoupper($this->getName()) . '_BLOCK', strtoupper($this->getName()) . '_BLOCK', $this->cx->getWebsiteThemesPath() . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html');
 
         $template->setVariable(array(
             strtoupper($this->getName()) . '_BLOCK_TITLE' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName())],
@@ -494,9 +494,9 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         $catalogHeader = array();
         foreach ($attributes as $attribute) {
             $catalogHeader = $catalogHeader + array(
-                    strtoupper($this->getName()) . '_PDF_HEADER_' . strtoupper($attribute) =>
-                        $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_' . strtoupper($attribute)]
-                );
+                strtoupper($this->getName()) . '_PDF_HEADER_' . strtoupper($attribute) =>
+                    $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_' . strtoupper($attribute)]
+            );
         }
         return $catalogHeader;
     }
@@ -513,16 +513,17 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             foreach ($attributes as $attribute) {
                 if ($attribute == 'price') {
                     $catalogRowAttributes = $catalogRowAttributes + array(
-                            strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
-                                number_format(
-                                    contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}())
-                                    , 2, '.', '\''),
-                        );
+                        strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
+                            number_format(
+                                contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}())
+                                , 2, '.', '\''
+                            ),
+                    );
                 } else {
                     $catalogRowAttributes = $catalogRowAttributes + array(
-                            strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
-                                contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}()),
-                        );
+                        strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
+                            contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}()),
+                    );
                 }
             }
             array_push($catalogRow, $catalogRowAttributes);
