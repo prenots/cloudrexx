@@ -187,10 +187,10 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
             if ($theme) {
                 $activeLanguages = $theme->getLanguages();
             } else {
-                return array(
+                return new \Cx\Lib\Net\Model\Entity\Response(array(
                     'isTrue'  => true,
                     'Content' => 'Theme does not exist!'
-                );
+                ));
             }
 
             //Check whether the theme is selected for any of the active languages
@@ -239,21 +239,33 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
             $theme = $themeRepository->findById($delThemeId);
 
             if (!$theme) {
-                return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_STATUS_CANNOT_DELETE']);
+                return new \Cx\Lib\Net\Model\Entity\Response(
+                    array(
+                        'status' => 'error', 'message' => $_ARRAYLANG['TXT_STATUS_CANNOT_DELETE']
+                    )
+                );
             }
             $themeFolderPath = (\Env::get('cx')->getWebsiteThemesPath() . '/' . $theme->getFoldername());
 
             //Check whether the selected theme is selected for any of the active languages
             $activeLanguages = $theme->getLanguages();
             if(!empty($activeLanguages) && file_exists($themeFolderPath)) {
-                return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_STATUS_CANNOT_DELETE']);
+                return new \Cx\Lib\Net\Model\Entity\Response(
+                    array(
+                        'status' => 'error', 'message' => $_ARRAYLANG['TXT_STATUS_CANNOT_DELETE']
+                    )
+                );
             }
 
             // delete whole folder with subfolders in case it exists
             if (file_exists($themeFolderPath) && !\Cx\Lib\FileSystem\FileSystem::delete_folder($themeFolderPath, true)
             ) {
                 //error
-                return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_STATUS_CANNOT_DELETE']);
+                return new \Cx\Lib\Net\Model\Entity\Response(
+                    array(
+                        'status' => 'error', 'message' => $_ARRAYLANG['TXT_STATUS_CANNOT_DELETE']
+                    )
+                );
             }
 
             //setting 0 for the custom theme for any of the content pages of the active frontend languages

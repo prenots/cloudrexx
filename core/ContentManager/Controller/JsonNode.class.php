@@ -370,9 +370,11 @@ class JsonNode implements JsonAdapter {
 
         $node = $this->nodeRepo->find($arguments['post']['id']);
         if (!$node) {
-            return array(
-                'action'                => 'delete',
-                'deletedCurrentPage'    => false,
+            return new \Cx\Lib\Net\Model\Entity\Response(
+                array(
+                    'action'             => 'delete',
+                    'deletedCurrentPage' => false,
+                )
             );
         }
 
@@ -411,8 +413,8 @@ class JsonNode implements JsonAdapter {
         }
         return new \Cx\Lib\Net\Model\Entity\Response(
             array(
-                'action'                => 'delete',
-                'deletedCurrentPage'    => (isset($arguments['post']['currentNodeId']) && $arguments['post']['currentNodeId'] == $arguments['post']['id']),
+                'action'             => 'delete',
+                'deletedCurrentPage' => (isset($arguments['post']['currentNodeId']) && $arguments['post']['currentNodeId'] == $arguments['post']['id']),
             )
         );
     }
