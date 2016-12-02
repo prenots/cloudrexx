@@ -14,7 +14,7 @@ namespace Cx\Modules\FavoriteList\Controller;
 
 /**
  * Backend controller to create the FavoriteList backend view.
- * @copyright   Cloudrexx AG
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
