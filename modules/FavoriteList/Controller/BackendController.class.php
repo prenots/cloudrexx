@@ -1,34 +1,9 @@
 <?php
 
 /**
- * Cloudrexx
- *
- * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2016
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Cloudrexx" is a registered trademark of Cloudrexx AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
-
-/**
  * Backend controller to create the FavoriteList backend view.
  *
- * @copyright   Cloudrexx AG
+ * @copyright   Comvation AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @package     cloudrexx
  * @subpackage  module_favoritelist
@@ -47,12 +22,6 @@ namespace Cx\Modules\FavoriteList\Controller;
  */
 class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBackendController
 {
-
-    /**
-     * Sigma template instance
-     * @var Cx\Core\Html\Sigma $template
-     */
-    protected $template;
 
     /**
      * Returns a list of available commands (?act=XY)
@@ -82,7 +51,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function parsePage(\Cx\Core\Html\Sigma $template, array $cmd)
     {
         global $_ARRAYLANG;
-        global $_CONFIG;
 
         try {
             // function group
@@ -193,8 +161,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             \DBG::msg($e->getMessage());
         }
 
-        $this->template = $template;
-
         // Parse entity view generation pages
         $entityClassName = $this->getNamespace() . '\\Model\\Entity\\' . current($cmd);
         if (in_array($entityClassName, $this->getEntityClasses())) {
@@ -213,12 +179,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         if (!$template->blockExists('mailing')) {
                             return;
                         }
+                        \Cx\Core\Setting\Controller\Setting::init('Config', 'otherConfigurations');
                         $template->setVariable(
                             'MAILING',
                             \Cx\Core\MailTemplate\Controller\MailTemplate::adminView(
                                 $this->getName(),
                                 'nonempty',
-                                $_CONFIG['corePagingLimit'],
+                                \Cx\Core\Setting\Controller\Setting::getValue('corePagingLimit'),
                                 'settings/email'
                             )->get()
                         );
@@ -237,74 +204,37 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
                         \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'Yaml', 'function');
                         \Cx\Core\Setting\Controller\Setting::show(
-                            $this->template,
+                            $template,
                             'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
-                            $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_FUNCTION_DESCRIPTION'],
-                            $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_FUNCTION'],
-                            'TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_'
+                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_FUNCTION_DESCRIPTION'],
+                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_FUNCTION'],
+                            'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
                         \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'Yaml', 'notification');
                         \Cx\Core\Setting\Controller\Setting::show(
-                            $this->template,
+                            $template,
                             'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
-                            $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_NOTIFICATION_DESCRIPTION'],
-                            $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_NOTIFICATION'],
-                            'TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_'
+                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_NOTIFICATION_DESCRIPTION'],
+                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_NOTIFICATION'],
+                            'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
                         \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'Yaml', 'pdf');
                         \Cx\Core\Setting\Controller\Setting::show(
-                            $this->template,
+                            $template,
                             'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
-                            $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_PDF_DESCRIPTION'],
-                            $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_PDF'],
-                            'TXT_MODULE_' . strtoupper($this->getName()) . '_SETTINGS_'
+                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_PDF_DESCRIPTION'],
+                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_PDF'],
+                            'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
                 }
                 break;
-            case '':
             default:
                 if ($template->blockExists('overview')) {
                     $template->touchBlock('overview');
                 }
         }
-    }
-
-    /**
-     * Load a settings.php file and return its configuration ($_CONFIG) as array
-     *
-     * @param   string $file The path to the settings.php file to load the $_CONFIG from
-     * @return  array           Returns an array containing the loaded $_CONFIG from $file.
-     *                          If $file does not exists or on error, it returns an empty array
-     */
-    static function fetchConfigFromSettingsFile($file)
-    {
-        if (!file_exists($file)) {
-            return array();
-        }
-
-        $settingsContent = file_get_contents($file);
-        // Execute code to load the settings into variable $_CONFIG.
-        //
-        // We must use eval() here as we must not use include(_once) here.
-        // As we are not populating the loaded $_CONFIG array into the global space,
-        // any later running components (in particular Cx\Core\Core\Controller\Cx)
-        // would not be able to load the $_CONFIG array as the settings.php file
-        // has already been loaded.
-        //
-        // The closing PHP tag is required as $settingsContent starts with a opening PHP tag (<?php).
-        try {
-            eval('?>' . $settingsContent);
-        } catch (\Exception $e) {
-            return array();
-        }
-
-        if (!isset($_CONFIG)) {
-            return array();
-        }
-
-        return $_CONFIG;
     }
 
     /**
@@ -321,7 +251,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      *
      * @access protected
      * @global $_ARRAYLANG
-     * @global $_CONFIG
      * @param $entityClassName contains the FQCN from entity
      * @return array with options
      */
@@ -336,34 +265,44 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         if (isset($_ARRAYLANG[$langVarName])) {
             $header = $_ARRAYLANG[$langVarName];
         } else {
-            $header = $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_ACT_DEFAULT'];
+            $header = $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_DEFAULT'];
         }
 
         switch ($entityClassName) {
             case 'Cx\Modules\FavoriteList\Model\Entity\Catalog':
+                // set default order for entries
                 if (!isset($_GET['order'])) {
                     $_GET['order'] = 'id';
                 }
+                $favoriteUrl = \Cx\Core\Routing\Url::fromDocumentRoot();
+                $favoriteUrl->setMode(\Cx\Core\Core\Controller\Cx::MODE_BACKEND);
+                $favoriteUrl->setPath($this->cx->getBackendFolderName() . '/' . $this->getName() . '/Favorite');
                 return array(
-                    'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_ACT_CATALOG'],
+                    'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_CATALOG'],
                     'fields' => array(
                         'id' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_ID'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_ID'],
                         ),
                         'sessionId' => array(
                             'showOverview' => false,
                             'showDetail' => false,
                         ),
                         'name' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_NAME'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_NAME'],
                             'table' => array(
-                                'parse' => function ($value, $rowData) {
-                                    return '<a href="' . \Cx\Core\Html\Controller\ViewGenerator::getVgExtendedSearchUrl(0, array('catalog' => $rowData['id'])) . '">' . $value . '</a>';
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return '<a href="' . \Cx\Core\Html\Controller\ViewGenerator::getVgExtendedSearchUrl(
+                                        0,
+                                        array(
+                                            'catalog' => $rowData['id'],
+                                        ),
+                                        clone $favoriteUrl
+                                    )->toString() . '">' . $value . '</a>';
                                 },
                             ),
                         ),
                         'date' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_DATE'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DATE'],
                             'showDetail' => false,
                         ),
                         'favorites' => array(
@@ -382,45 +321,43 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
                 break;
             case 'Cx\Modules\FavoriteList\Model\Entity\Favorite':
+                // set default order for entries
                 if (!isset($_GET['order'])) {
                     $_GET['order'] = 'id';
                 }
                 return array(
-                    'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_ACT_FAVORITE'],
+                    'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_FAVORITE'],
                     'fields' => array(
                         'id' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_ID'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_ID'],
                         ),
                         'title' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_TITLE'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_TITLE'],
                         ),
                         'link' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_LINK'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_LINK'],
                         ),
                         'description' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_DESCRIPTION'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DESCRIPTION'],
                         ),
                         'message' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_MESSAGE'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_MESSAGE'],
                         ),
                         'price' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
                         ),
                         'image1' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_IMAGE_1'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_1'],
                         ),
                         'image2' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_IMAGE_2'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_2'],
                         ),
                         'image3' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_IMAGE_3'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_3'],
                         ),
                         'catalog' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_CATALOG'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_CATALOG'],
                         ),
-                    ),
-                    'filter_criteria' => array(
-                        'list_id' => $_GET['list_id'],
                     ),
                     'functions' => array(
                         'add' => true,
@@ -460,34 +397,34 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
             case 'Cx\Modules\FavoriteList\Model\Entity\FormField':
                 return array(
-                    'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_ACT_FORMFIELD'],
+                    'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_FORMFIELD'],
                     'fields' => array(
                         'id' => array(
                             'showOverview' => false,
                         ),
                         'name' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_NAME'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_NAME'],
                         ),
                         'type' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_TYP'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_TYP'],
                             'type' => 'select',
                             'validValues' => array(
-                                'inputtext' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_INPUTTEXT'],
-                                'textarea' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_TEXTAREA'],
-                                'select' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_SELECT'],
-                                'radio' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_RADIO'],
-                                'checkbox' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_CHECKBOX'],
-                                'mail' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_MAIL'],
+                                'inputtext' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_INPUTTEXT'],
+                                'textarea' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_TEXTAREA'],
+                                'select' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_SELECT'],
+                                'radio' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_RADIO'],
+                                'checkbox' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_CHECKBOX'],
+                                'mail' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_MAIL'],
                             ),
                         ),
                         'required' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_REQUIRED'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_REQUIRED'],
                         ),
                         'order' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_ORDER'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_ORDER'],
                         ),
                         'values' => array(
-                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_VALUES'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_VALUES'],
                         ),
                     ),
                     'functions' => array(
