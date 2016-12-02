@@ -166,7 +166,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         'from' => $senderMail,
                         'to' => $receiverMail,
                         'attachments' => array(
-                            $pdf['fileName'] => $pdf['filePath'],
+                            $pdf['filePath'] => $pdf['fileName'],
                         ),
                         'substitution' => array(
                             'SENDER_NAME' => $senderName,
@@ -251,7 +251,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         'key' => 'inquiry',
                         'section' => $this->getName(),
                         'attachments' => array(
-                            $pdf['fileName'] => $pdf['filePath'],
+                            $pdf['filePath'] => $pdf['fileName'],
                         ),
                         'substitution' => $substitution,
                     );
