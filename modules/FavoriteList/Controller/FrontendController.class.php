@@ -251,6 +251,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         $template->parse(strtolower($this->getName()) . '_catalog_actions_' . $cmd);
                     }
                 }
+                break;
         }
     }
 
@@ -366,6 +367,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         'filtering' => false,
                     ),
                 );
+                break;
         }
     }
 

@@ -228,12 +228,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_PDF'],
                             'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
+                        break;
                 }
                 break;
             default:
                 if ($template->blockExists('overview')) {
                     $template->touchBlock('overview');
                 }
+                break;
         }
     }
 
@@ -468,6 +470,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'filtering' => false,
                     ),
                 );
+                break;
         }
     }
 
