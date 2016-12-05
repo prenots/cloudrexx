@@ -211,13 +211,11 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
 
                 $em = $this->cx->getDb()->getEntityManager();
                 $formFieldRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\FormField');
-                $formFields = $formFieldRepo->findAll();
-
-                $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($formFields);
+                $formFields = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($formFieldRepo->findAll());
 
                 if (isset($_POST['send'])) {
                     $formFieldNames = array();
-                    foreach ($dataSet as $formField) {
+                    foreach ($formFields as $formField) {
                         switch ($formField['type']) {
                             case 'text':
                             case 'textarea':
@@ -225,16 +223,16 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                             case 'select':
                             case 'radio':
                                 $formFieldNames = $formFieldNames + array(
-                                        $formFieldNames, 'field_' . $formField['id'] => $formField['name']
-                                    );
+                                    $formFieldNames, 'field_' . $formField['id'] => $formField['name']
+                                );
                                 break;
                             case 'checkbox':
                                 $values = $formField['values'];
                                 $values = explode(',', str_replace(' ', '', $values));
                                 foreach ($values as $key => $value) {
                                     $formFieldNames = $formFieldNames + array(
-                                            'field_' . $formField['id'] . '_option_' . $key => $formField['name']
-                                        );
+                                        'field_' . $formField['id'] . '_option_' . $key => $formField['name']
+                                    );
                                 }
                         }
                     }
@@ -242,8 +240,8 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     foreach ($formFieldNames as $key => $formFieldName) {
                         if (in_array($key, array_keys($_POST))) {
                             $substitution = $substitution + array(
-                                    strtoupper($formFieldName) => contrexx_input2xhtml($_POST[$key]),
-                                );
+                                strtoupper($formFieldName) => contrexx_input2xhtml($_POST[$key]),
+                            );
                         }
                     }
 
@@ -270,8 +268,8 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     }
                 } else {
                     $template->parse(strtolower($this->getName()) . '_inquiry');
-                    $dataSet->sortColumns(array('order' => 'ASC'));
-                    foreach ($dataSet as $formField) {
+                    $formFields->sortColumns(array('order' => 'ASC'));
+                    foreach ($formFields as $formField) {
                         $template->parse(strtolower($this->getName()) . '_form_field');
                         $required = $formField['required'];
                         if ($required) {
