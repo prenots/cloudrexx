@@ -75,7 +75,32 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     }
                 }
 
+<<<<<<< HEAD
                 $pdfFile = $this->getPdfCatalog($catalog, $favorites);
+=======
+                $template->parse(strtolower($this->getName()) . '_print');
+                \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'pdf');
+//                $pdfTemplateId = \Cx\Core\Setting\Controller\Setting::getValue('pdfTemplate', 'pdf');
+                $pdfTemplateId = 1;
+
+                $catalogHtml = $this->getController('Json')->getCatalog();
+                $substitution = array(
+                    strtoupper($this->getName()) . '_PRINT_PDF_LOGO' => \Cx\Core\Setting\Controller\Setting::getValue('pdfLogo', 'pdf'),
+                    strtoupper($this->getName()) . '_PRINT_PDF_ADDRESS' => \Cx\Core\Setting\Controller\Setting::getValue('pdfAddress', 'pdf'),
+                    strtoupper($this->getName()) . '_PRINT_PDF_CATALOG' => $catalogHtml,
+                    strtoupper($this->getName()) . '_PRINT_PDF_FOOTER' => \Cx\Core\Setting\Controller\Setting::getValue('pdfFooter', 'pdf'),
+                );
+
+                $pdf = $this->getComponent('Pdf');
+                $pdfFile = $pdf->generatePDF($pdfTemplateId, $substitution, $this->getName() . '_Catalog');
+                $newPdfFilePath = 'images/' . $this->getName() . '/Catalog_' . $sessionId . '.pdf';
+                copy(substr($pdfFile['filePath'], 1), $newPdfFilePath);
+
+                $template->setVariable(array(
+                    strtoupper($this->getName()) . '_PRINT_PDF_PATH' => $newPdfFilePath,
+                    strtoupper($this->getName()) . '_PRINT_ACTION' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_PRINT_ACTION'],
+                ));
+>>>>>>> remotes/origin/CLX-1351-favoritelist-bar-general-implem
 
                 $dl = new \HTTP_Download();
                 $dl->setFile($this->cx->getWebsiteDocumentRootPath() . $pdfFile['filePath']);
@@ -291,13 +316,23 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
                         ),
                         'image1' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
+<<<<<<< HEAD
+                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
                         ),
                         'image2' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
+                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
                         ),
                         'image3' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
+                            'header' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
+=======
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_1'],
+                        ),
+                        'image2' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_2'],
+                        ),
+                        'image3' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_3'],
+>>>>>>> remotes/origin/CLX-1351-favoritelist-bar-general-implem
                         ),
                         'catalog' => array(
                             'showOverview' => false,
@@ -369,7 +404,15 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             return;
         }
         $theme = $this->getTheme();
+<<<<<<< HEAD
         $template->addBlockfile(strtoupper($this->getName()) . '_BLOCK', strtoupper($this->getName()) . '_BLOCK', $this->cx->getWebsiteThemesPath() . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html');
+=======
+        $template->addBlockfile(
+            strtoupper($this->getName()) . '_BLOCK',
+            strtoupper($this->getName()) . '_BLOCK',
+            'themes/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html'
+        );
+>>>>>>> remotes/origin/CLX-1351-favoritelist-bar-general-implem
 
         $template->setVariable(array(
             strtoupper($this->getName()) . '_BLOCK_TITLE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())],
