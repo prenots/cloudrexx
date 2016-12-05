@@ -80,8 +80,8 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         $_ARRAYLANG = \Env::get('init')->getComponentSpecificLanguageData($this->getName(), true, $langId);
 
         $themeId = contrexx_input2raw($data['get']['themeId']);
-        $theme = $this->getTheme($themeId);
-        $templateFile = $this->cx->getWebsiteThemesPath() . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block_list.html';
+        $theme = $this->getController('Frontend')->getTheme($themeId);
+        $templateFile = $this->cx->getWebsiteThemesPath() . '/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block_list.html';
         $template = new \Cx\Core\Html\Sigma(dirname($templateFile));
         $template->loadTemplateFile(strtolower($this->getName()) . '_block_list.html');
 
