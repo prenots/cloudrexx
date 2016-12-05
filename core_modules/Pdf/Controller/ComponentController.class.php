@@ -91,7 +91,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @return mixed array|null
      */
-    public function generatePDF($pdfTemplateId, $substitution, $mailTplKey, $convertToHtmlEntities = false)
+    public function generatePDF($pdfTemplateId, $substitution, $mailTplKey)
     {
         if (empty($mailTplKey)) {
             return;
@@ -111,7 +111,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         \Cx\Core\MailTemplate\Controller\MailTemplate::substitute(
             $tplContent,
             $substitution,
-            $convertToHtmlEntities
+            true
         );
 
         $session    = $this->getComponent('Session')->getSession();
