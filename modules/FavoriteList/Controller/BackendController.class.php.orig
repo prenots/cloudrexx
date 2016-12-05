@@ -160,6 +160,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
+<<<<<<< HEAD
+=======
                         \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'notification');
                         \Cx\Core\Setting\Controller\Setting::show(
                             $template,
@@ -169,6 +171,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
+>>>>>>> remotes/origin/CLX-1352-implement-controller-pdf-genera
                         \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'pdf');
                         \Cx\Core\Setting\Controller\Setting::show(
                             $template,
