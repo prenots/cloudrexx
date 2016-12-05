@@ -42,7 +42,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
     public function getAccessableMethods()
     {
         return array(
-            'getCatalog',
+            'getCatalog' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, null, false),
             'addFavorite',
             'removeFavorite',
             'editFavoriteMessage',
@@ -64,11 +64,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
      */
     public function getDefaultPermissions()
     {
-        return new \Cx\Core_Modules\Access\Model\Entity\Permission(
-            null,
-            null,
-            false
-        );
+        return null;
     }
 
     /**
@@ -84,8 +80,13 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         $_ARRAYLANG = \Env::get('init')->getComponentSpecificLanguageData($this->getName(), true, $langId);
 
         $themeId = contrexx_input2raw($data['get']['themeId']);
+<<<<<<< HEAD
         $theme = $this->getTheme($themeId);
         $templateFile = $this->cx->getWebsiteThemesPath() . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block_list.html';
+=======
+        $theme = $this->getController('Frontend')->getTheme($themeId);
+        $templateFile = '/themes/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block_list.html';
+>>>>>>> remotes/origin/CLX-1351-favoritelist-bar-general-implem
         $template = new \Cx\Core\Html\Sigma(dirname($templateFile));
         $template->loadTemplateFile(strtolower($this->getName()) . '_block_list.html');
 
@@ -152,17 +153,28 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         $_ARRAYLANG = \Env::get('init')->getComponentSpecificLanguageData($this->getName(), true, $langId);
 
         $title = contrexx_input2db($data['get']['title']);
+<<<<<<< HEAD
+        if (isset($title)) {
+            $link = contrexx_input2db($data['get']['link']);
+            $description = contrexx_input2db($data['get']['description']);
+            $message = contrexx_input2db($data['get']['message']);
+            $price = contrexx_input2db($data['get']['price']);
+            $image1 = contrexx_input2db($data['get']['image1']);
+            $image2 = contrexx_input2db($data['get']['image2']);
+            $image3 = contrexx_input2db($data['get']['image3']);
+=======
         if (empty($title)) {
             return;
         }
+>>>>>>> remotes/origin/CLX-1351-favoritelist-bar-general-implem
 
         $link = contrexx_input2db($data['get']['link']);
         $description = contrexx_input2db($data['get']['description']);
         $message = contrexx_input2db($data['get']['message']);
         $price = contrexx_input2db($data['get']['price']);
-        $image1 = contrexx_input2db($data['get']['image1']);
-        $image2 = contrexx_input2db($data['get']['image2']);
-        $image3 = contrexx_input2db($data['get']['image3']);
+        $image1 = contrexx_input2db($data['get']['image_1']);
+        $image2 = contrexx_input2db($data['get']['image_2']);
+        $image3 = contrexx_input2db($data['get']['image_3']);
 
         $em = $this->cx->getDb()->getEntityManager();
 
@@ -257,10 +269,5 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         if (isset($data['get']['lang'])) {
             return $this->getCatalog($data);
         }
-        $theme = $themeRepository->findById($id);
-        if (!$theme) {
-            throw new JsonListException('The theme id ' . $id . ' does not exists.');
-        }
-        return $theme;
     }
 }
