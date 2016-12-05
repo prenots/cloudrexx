@@ -143,7 +143,7 @@ Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Default.html`).
 
 #### Block
-It's an element which can be placed everywhere.
+It's an element which can be placed everywhere (placeholder: `[[FAVORITELIST_BLOCK]]`).
 But mainly used as a sidebar.
 
 Basically, all placeholders are self explanatory.
