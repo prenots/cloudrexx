@@ -376,7 +376,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         ));
 
         \JS::registerJS(substr($this->getDirectory(false, true) . '/View/Script/Frontend.js', 1));
-        \JS::registerCSS($this->getComponent('Html')->getDirectory() . '/View/Style/Backend.css');
+        \JS::registerCSS($this->getComponent('Html')->getDirectory(true, true) . '/View/Style/Backend.css');
 
         $template->parse(strtolower($this->getName()) . '_block_actions');
         \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
@@ -389,8 +389,10 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         foreach ($cmds as $cmd) {
             if (\Cx\Core\Setting\Controller\Setting::getValue('function' . ucfirst($cmd))) {
                 $template->setVariable(array(
-                    strtoupper($this->getName()) . '_BLOCK_ACT_' . strtoupper($cmd) . '_LINK' => \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName(), $cmd),
-                    strtoupper($this->getName()) . '_BLOCK_ACT_' . strtoupper($cmd) . '_NAME' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_' . strtoupper($cmd)],
+                    strtoupper($this->getName()) . '_BLOCK_ACT_' . strtoupper($cmd) . '_LINK' =>
+                        \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName(), $cmd),
+                    strtoupper($this->getName()) . '_BLOCK_ACT_' . strtoupper($cmd) . '_NAME' =>
+                        $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_' . strtoupper($cmd)],
                 ));
                 // overwrite init from fromModuleAndCmd
                 \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
