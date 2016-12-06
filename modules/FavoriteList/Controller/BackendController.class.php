@@ -160,15 +160,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
-                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'notification');
-                        \Cx\Core\Setting\Controller\Setting::show(
-                            $template,
-                            'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
-                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_NOTIFICATION_DESCRIPTION'],
-                            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_NOTIFICATION'],
-                            'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
-                        );
-
                         \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'pdf');
                         \Cx\Core\Setting\Controller\Setting::show(
                             $template,
