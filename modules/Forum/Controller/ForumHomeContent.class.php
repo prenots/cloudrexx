@@ -77,15 +77,25 @@ class ForumHomeContent extends ForumLibrary {
      *
      * @return string parsed latest entries
      */
-    function getContent()
+    function getContent($lang = null)
     {
         global $_CONFIG, $objDatabase, $_ARRAYLANG;
         $this->_objTpl->setTemplate($this->_pageContent,true,true);
-        $this->_showLatestEntries($this->_getLatestEntries());
+        $this->_showLatestEntries($this->_getLatestEntries($lang));
         return $this->_objTpl->get();
     }
 
+    public static function getObj($pageContent)
+    {
+        global $objInit, $_ARRAYLANG;
 
+        $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Forum'));
+        static $obj = null;
+        if (is_null($obj)) {
+            $obj = new ForumHomeContent($pageContent);
+        }
+        return $obj;
+    }
     /**
      * Returns html-source for an tagcloud.  Just a wrapper-method.
      *
@@ -118,11 +128,48 @@ class ForumHomeContent extends ForumLibrary {
      * @param    boolean        $boolActivated: Only if this parameter is true, the replacement will be done.
      * @return    string        If $boolActivated, the modified $strHaystack, otherwise the original $strHaystack without any changes.
      */
-    function fillVariableIfActivated($strNeedle, $strReplace, $strHaystack, $boolActivated)
+    function fillVariableIfActivated($strNeedle, $strReplace, $strHaystack, $boolActivated, $fileName = '', $page = null)
     {
         if ($boolActivated) {
-            return preg_replace('/\{'.$strNeedle.'\}/mi', $strReplace, $strHaystack);
+            if (
+                $page != null &&
+                ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
+            ) {
+                $params = array('page' => $page->getId());
+            } else if (!empty($fileName)) {
+                $theme = $this->getCurrentTheme();
+                if (!$theme) {
+                    return $content;
+            }
+                $params = array('theme' => $theme->getId(), 'file' => $fileName);
+            }
+            $cache = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getComponent('Cache');
+            $forumContent = $cache->getEsiContent(
+                'Forum',
+                'getForumContent',
+                $params
+            );
+            return preg_replace('/\{'.$strNeedle.'\}/mi', $forumContent, $strHaystack);
         }
         return $strHaystack;
+    }
+
+    /**
+     * Get current theme instance
+     *
+     * @return \Cx\Core\View\Model\Entity\Theme
+     */
+    protected function getCurrentTheme()
+    {
+        global $objInit;
+
+        static $theme = null;
+
+        if (!isset($theme)) {
+            $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+            $theme     = $themeRepo->findById($objInit->getCurrentThemeId());
+        }
+        return $theme;
     }
 }

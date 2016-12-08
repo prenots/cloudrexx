@@ -534,7 +534,9 @@ class ForumAdmin extends ForumLibrary {
                                                 description="'.$arrValues['desc'].'"
                                     ');
             }
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache');
             if ($boolInherit == 1 && $intParentId != 0) {
                 $arrRights = $this->createAccessArray($intParentId);
                 if (count($arrRights) > 0) {
@@ -554,7 +556,9 @@ class ForumAdmin extends ForumLibrary {
                                                 last_post_id=0
                                     ');
             }
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache');
             $this->_arrTranslations = $this->createTranslationArray();
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_ADD_SUCCESS'];
 //            $objCache = new \CacheManager();
@@ -718,6 +722,9 @@ class ForumAdmin extends ForumLibrary {
                                                 description="'.$arrValues['desc'].'"
                                     ');
             }
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache');
 
             $this->_arrTranslations = $this->createTranslationArray();
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_UPDATE_OK'];
@@ -782,6 +789,9 @@ class ForumAdmin extends ForumLibrary {
                                                         lang_id='.$intLangId.'
                                                 LIMIT    1
                                             ');
+                        \Cx\Core\Core\Controller\Cx::instanciate()
+                            ->getEvents()
+                            ->triggerEvent('clearEsiCache');
                     }
                 }
                 $this->deleteSubcatLanguages($objResult->fields['id'],$arrLanguages);
@@ -948,6 +958,9 @@ class ForumAdmin extends ForumLibrary {
                                         '.DBPREFIX.'module_forum_access.close="'.intval($arrRights['close']).'",
                                         '.DBPREFIX.'module_forum_access.sticky="'.intval($arrRights['sticky']).'"'
                             );
+        \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache');
     }
 
 

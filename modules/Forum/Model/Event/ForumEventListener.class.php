@@ -63,4 +63,69 @@ class ForumEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
         $search->appendResult($result);
     }
 
+    /**
+     * Clear all Ssi cache
+     */
+    public function clearEsiCache(array $eventArgs)
+    {
+        global $objCache;
+        if (empty($eventArgs) || $eventArgs != 'Forum') {
+            return;
+        }
+
+        $cache   = $this->cx->getComponent('Cache');
+        // clear ssi cache
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+            $objCache->clearSsiCachePage(
+                'Forum',
+                'getForumContent',
+                array(
+                    'theme' => \Env::get('init')->getCurrentThemeId(),
+                    'lang'  => $lang
+                )
+            );
+        }
+        //clear Forum-TagCloud
+        $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        foreach ($themeRepo->findAll() as $theme) {
+            $searchTemplateFiles = $theme->getTemplateFileNames();
+            if (!$searchTemplateFiles) {
+                continue;
+            }
+            $arrDetails = array();
+            foreach ($searchTemplateFiles as $file) {
+                $content = $theme->getContentFromFile($file);
+                if (!$content) {
+                    continue;
+                }
+                $matches = null;
+                if (
+                    preg_match_all(
+                        '/\{FORUM_TAG_CLOUD\}/mi',
+                        $content,
+                        $matches
+                    ) == 0
+                ) {
+                    continue;
+                }
+                $arrDetails[$file] = $matches[0];
+            }
+
+            if (!$arrDetails) {
+                continue;
+            }
+
+            foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+                $cache->clearSsiCachePage(
+                    'Forum',
+                    'getForumContent',
+                    array(
+                        'theme' => $theme->getId(),
+                        'file'  => $file,
+                        'lang'  => $lang
+                    )
+                );
+            }
+        }
+    }
 }

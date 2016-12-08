@@ -52,6 +52,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
      /**
+     * Returns a list of JsonAdapter class names
+     *
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('JsonForum');
+    }
+     /**
      * Load your component.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -83,11 +92,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $_CONFIG, $forumHomeContentInPageContent, $forumHomeContentInPageTemplate,
+        global $_CONFIG, $_LANGID, $forumHomeContentInPageContent, $forumHomeContentInPageTemplate,
                $forumHomeContentInThemesPage, $page_template, $themesPages,
-               $homeForumContent, $_ARRAYLANG, $objInit, $objForum, $objForumHome,
+               $_ARRAYLANG, $objInit, $objForum, $objForumHome,
                $forumHomeTagCloudInContent, $forumHomeTagCloudInTemplate, $forumHomeTagCloudInTheme,
-               $forumHomeTagCloudInSidebar, $strTagCloudSource;
+               $forumHomeTagCloudInSidebar, $strTagCloudSource, $section;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // get + replace forum latest entries content
@@ -104,26 +113,50 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     if (strpos($themesPages['index'], '{FORUM_FILE}') !== false) {
                         $forumHomeContentInThemesPage = true;
                     }
-                    $homeForumContent = '';
-                    if ($forumHomeContentInPageContent || $forumHomeContentInPageTemplate || $forumHomeContentInThemesPage) {
-                        $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Forum'));
-                        $objForum = new ForumHomeContent($themesPages['forum_content']);
-                        $homeForumContent = $objForum->getContent();
+                    $cache = \Cx\Core\Core\Controller\Cx::instanciate()
+                            ->getComponent('Cache');
+                    if ($forumHomeContentInPageContent
+                            || $forumHomeContentInPageTemplate
+                            || $forumHomeContentInThemesPage
+                    ) {
+                        $forumContent = $cache->getEsiContent(
+                            'Forum',
+                            'getForumContent',
+                            array(
+                                'theme'       => \Env::get('init')->getCurrentThemeId(),
+                                'lang'        => $_LANGID,
+                            )
+                        );
                     }
                     if ($forumHomeContentInPageContent) {
-                        \Env::get('cx')->getPage()->setContent(str_replace('{FORUM_FILE}', $homeForumContent, \Env::get('cx')->getPage()->getContent()));
+                        \Env::get('cx')->getPage()->setContent(
+                            str_replace(
+                                '{FORUM_FILE}',
+                                $forumContent,
+                                \Env::get('cx')->getPage()->getContent()
+                            )
+                        );
                     }
                     if ($forumHomeContentInPageTemplate) {
-                        $page_template = str_replace('{FORUM_FILE}', $homeForumContent, $page_template);
+                        $page_template = str_replace(
+                            '{FORUM_FILE}',
+                            $forumContent,
+                            $page_template
+                        );
                     }
                     if ($forumHomeContentInThemesPage) {
-                        $themesPages['index'] = str_replace('{FORUM_FILE}', $homeForumContent, $themesPages['index']);
+                        $themesPages['index'] = str_replace(
+                            '{FORUM_FILE}',
+                            $forumContent,
+                            $themesPages['index']
+                        );
                     }
                 }
 
                 // get + replace forum tagcloud
                 if (!empty($_CONFIG['forumTagContent'])) {
                     $objForumHome = new ForumHomeContent('');
+                    $page = $this->cx->getPage();
                     //Forum-TagCloud
                     $forumHomeTagCloudInContent = $objForumHome->searchKeywordInContent('FORUM_TAG_CLOUD', \Env::get('cx')->getPage()->getContent());
                     $forumHomeTagCloudInTemplate = $objForumHome->searchKeywordInContent('FORUM_TAG_CLOUD', $page_template);
@@ -135,10 +168,38 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                            || $forumHomeTagCloudInSidebar
                        ) {
                             $strTagCloudSource = $objForumHome->getHomeTagCloud();
-                            \Env::get('cx')->getPage()->setContent($objForumHome->fillVariableIfActivated('FORUM_TAG_CLOUD', $strTagCloudSource, \Env::get('cx')->getPage()->getContent(), $forumHomeTagCloudInContent));
-                            $page_template = $objForumHome->fillVariableIfActivated('FORUM_TAG_CLOUD', $strTagCloudSource, $page_template, $forumHomeTagCloudInTemplate);
-                            $themesPages['index'] = $objForumHome->fillVariableIfActivated('FORUM_TAG_CLOUD', $strTagCloudSource, $themesPages['index'], $forumHomeTagCloudInTheme);
-                            $themesPages['sidebar'] = $objForumHome->fillVariableIfActivated('FORUM_TAG_CLOUD', $strTagCloudSource, $themesPages['sidebar'], $forumHomeTagCloudInSidebar);
+                            $page->setContent(
+                                $objForumHome->fillVariableIfActivated(
+                                    'FORUM_TAG_CLOUD',
+                                    $strTagCloudSource,
+                                    \Env::get('cx')->getPage()->getContent(),
+                                    $forumHomeTagCloudInContent,
+                                    '',
+                                    $page
+                                )
+                            );
+                            $page_template = $objForumHome->fillVariableIfActivated(
+                                'FORUM_TAG_CLOUD',
+                                $strTagCloudSource,
+                                $page_template,
+                                $forumHomeTagCloudInTemplate,
+                                $section == 'Home'
+                                    ? 'home.html' : 'content.html'
+                            );
+                            $themesPages['index'] = $objForumHome->fillVariableIfActivated(
+                                'FORUM_TAG_CLOUD',
+                                $strTagCloudSource,
+                                $themesPages['index'],
+                                $forumHomeTagCloudInTheme,
+                                'index.html'
+                            );
+                            $themesPages['sidebar'] = $objForumHome->fillVariableIfActivated(
+                                'FORUM_TAG_CLOUD',
+                                $strTagCloudSource,
+                                $themesPages['sidebar'],
+                                $forumHomeTagCloudInSidebar,
+                                'sidebar.html'
+                            );
                     }
                 }
                 break;
@@ -146,12 +207,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Do something for search the content
+     * Register the Event listeners
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentParse(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        $this->cx->getEvents()->addEventListener('SearchFindContent', new \Cx\Modules\Forum\Model\Event\ForumEventListener());
+        $eventListener = new \Cx\Modules\Forum\Model\Event\ForumEventListener($this->cx);
+        $this->cx->getEvents()->addEventListener('SearchFindContent', $eventListener);
+        $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
    }
 
 }
