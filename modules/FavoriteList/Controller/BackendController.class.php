@@ -278,6 +278,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ),
                         'link' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_LINK'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return '<a target="_blank" href="' . $value . '">' . $value . '</a>';
+                                },
+                            ),
                         ),
                         'description' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DESCRIPTION'],
