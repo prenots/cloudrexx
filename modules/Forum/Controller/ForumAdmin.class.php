@@ -536,7 +536,7 @@ class ForumAdmin extends ForumLibrary {
             }
             \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getEvents()
-                ->triggerEvent('clearEsiCache');
+                ->triggerEvent('clearEsiCache', array('Forum'));
             if ($boolInherit == 1 && $intParentId != 0) {
                 $arrRights = $this->createAccessArray($intParentId);
                 if (count($arrRights) > 0) {
@@ -558,7 +558,7 @@ class ForumAdmin extends ForumLibrary {
             }
             \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getEvents()
-                ->triggerEvent('clearEsiCache');
+                ->triggerEvent('clearEsiCache', array('Forum'));
             $this->_arrTranslations = $this->createTranslationArray();
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_ADD_SUCCESS'];
 //            $objCache = new \CacheManager();
@@ -724,7 +724,7 @@ class ForumAdmin extends ForumLibrary {
             }
             \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getEvents()
-                ->triggerEvent('clearEsiCache');
+                ->triggerEvent('clearEsiCache', array('Forum'));
 
             $this->_arrTranslations = $this->createTranslationArray();
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_UPDATE_OK'];
@@ -791,7 +791,7 @@ class ForumAdmin extends ForumLibrary {
                                             ');
                         \Cx\Core\Core\Controller\Cx::instanciate()
                             ->getEvents()
-                            ->triggerEvent('clearEsiCache');
+                            ->triggerEvent('clearEsiCache', array('Forum'));
                     }
                 }
                 $this->deleteSubcatLanguages($objResult->fields['id'],$arrLanguages);
@@ -960,7 +960,7 @@ class ForumAdmin extends ForumLibrary {
                             );
         \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getEvents()
-                ->triggerEvent('clearEsiCache');
+                ->triggerEvent('clearEsiCache', array('Forum'));
     }
 
 

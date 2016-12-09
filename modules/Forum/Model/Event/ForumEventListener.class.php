@@ -75,15 +75,17 @@ class ForumEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
 
         $cache   = $this->cx->getComponent('Cache');
         // clear ssi cache
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
-            $objCache->clearSsiCachePage(
-                'Forum',
-                'getForumContent',
-                array(
-                    'theme' => \Env::get('init')->getCurrentThemeId(),
-                    'lang'  => $lang
-                )
-            );
+        foreach ($themeRepo->findAll() as $theme) {
+            foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+                $objCache->clearSsiCachePage(
+                    'Forum',
+                    'getForumContent',
+                    array(
+                        'theme' => $theme->getId(),
+                        'lang'  => $lang
+                    )
+                );
+            }
         }
         //clear Forum-TagCloud
         $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();

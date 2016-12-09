@@ -62,7 +62,7 @@ class JsonForum implements JsonAdapter {
      */
     public function getAccessableMethods()
     {
-        return array('getForumContent');
+        return array('getForumContent', 'getForumHomeTagCloud');
     }
 
     /**
@@ -95,16 +95,59 @@ class JsonForum implements JsonAdapter {
     }
 
     /**
+     * Get Forum tag content
+     *
+     * @param array $params
+     */
+    public function getForumHomeTagCloud($params)
+    {
+        $content = $this->getForumTemplateContent($params);
+        $objForum = new ForumHomeContent($content);
+        if (empty($content)){
+            return array('content' => '');
+        }
+        return array(
+            'content' => $objForum->getHomeTagCloud()
+        );
+    }
+
+    /**
      * Get Forum content
      *
      * @param array $params
      */
-    public function getForumContent($params) {
-        $pageId = isset($params['get']['page'])
-            ? contrexx_input2int($params['get']['page']) : 0;
+    public function getForumContent($params)
+    {
         $langId = isset($params['get']['lang'])
             ? contrexx_input2int($params['get']['lang']) : 0;
 
+        $content = $this->getForumTemplateContent($params);
+        $objForum = new ForumHomeContent($content);
+        if (empty($content)){
+            return array('content' => '');
+        }
+        return array(
+            'content' => $objForum->getContent($langId)
+        );
+    }
+
+    /**
+     * Get Forum template content
+     *
+     * @param array $params
+     */
+    public function getForumTemplateContent($params)
+    {
+        global $_ARRAYLANG, $objInit;
+
+        $pageId = isset($params['get']['page'])
+            ? contrexx_input2int($params['get']['page']) : 0;
+        $file   = !empty($params['get']['file'])
+            ? contrexx_input2raw($params['get']['file']) : '';
+        $_ARRAYLANG = array_merge(
+                $_ARRAYLANG,
+                $objInit->loadLanguageData('Forum')
+        );
         if (!empty($pageId)) {
             $pageRepo = $this->cx
                 ->getDb()
@@ -112,21 +155,14 @@ class JsonForum implements JsonAdapter {
                 ->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
             $result = $pageRepo->findOneById($pageId);
             if (!$result) {
-                return array('content' => '');
+                return '';
             }
-            $content = $result->getContent();
+            return $result->getContent();
         } else {
             $theme = $this->getThemeFromInput($params);
-            $file  =  !empty($params['get']['file'])
-                    ? contrexx_input2raw($params['get']['file']) : 'forum.html';
-            $content = $theme->getContentFromFile($file);
-            if ($file == 'forum.html'){
-                return array(
-                    'content' => ForumHomeContent::getObj($content)
-                        ->getContent($langId));
-            }
+            return $theme->getContentFromFile($file);
         }
-        return array('content' => ForumHomeContent::getObj($content)->getHomeTagCloud());
+        return '';
     }
 
     /**

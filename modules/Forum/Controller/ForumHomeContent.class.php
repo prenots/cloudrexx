@@ -85,17 +85,6 @@ class ForumHomeContent extends ForumLibrary {
         return $this->_objTpl->get();
     }
 
-    public static function getObj($pageContent)
-    {
-        global $objInit, $_ARRAYLANG;
-
-        $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Forum'));
-        static $obj = null;
-        if (is_null($obj)) {
-            $obj = new ForumHomeContent($pageContent);
-        }
-        return $obj;
-    }
     /**
      * Returns html-source for an tagcloud.  Just a wrapper-method.
      *
@@ -140,14 +129,14 @@ class ForumHomeContent extends ForumLibrary {
                 $theme = $this->getCurrentTheme();
                 if (!$theme) {
                     return $content;
-            }
+                }
                 $params = array('theme' => $theme->getId(), 'file' => $fileName);
             }
             $cache = \Cx\Core\Core\Controller\Cx::instanciate()
                     ->getComponent('Cache');
             $forumContent = $cache->getEsiContent(
                 'Forum',
-                'getForumContent',
+                'getForumHomeTagCloud',
                 $params
             );
             return preg_replace('/\{'.$strNeedle.'\}/mi', $forumContent, $strHaystack);

@@ -92,11 +92,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $_CONFIG, $_LANGID, $forumHomeContentInPageContent, $forumHomeContentInPageTemplate,
-               $forumHomeContentInThemesPage, $page_template, $themesPages,
-               $_ARRAYLANG, $objInit, $objForum, $objForumHome,
-               $forumHomeTagCloudInContent, $forumHomeTagCloudInTemplate, $forumHomeTagCloudInTheme,
-               $forumHomeTagCloudInSidebar, $strTagCloudSource, $section;
+        global $_CONFIG, $_LANGID, $page_template, $themesPages, $section;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // get + replace forum latest entries content
@@ -123,13 +119,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                             'Forum',
                             'getForumContent',
                             array(
-                                'theme'       => \Env::get('init')->getCurrentThemeId(),
-                                'lang'        => $_LANGID,
+                                'theme' => \Env::get('init')->getCurrentThemeId(),
+                                'lang'  => $_LANGID,
+                                'file'  => 'forum.html'  
                             )
                         );
                     }
                     if ($forumHomeContentInPageContent) {
-                        \Env::get('cx')->getPage()->setContent(
+                        $this->cx->getPage()->setContent(
                             str_replace(
                                 '{FORUM_FILE}',
                                 $forumContent,
@@ -202,7 +199,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                             );
                     }
                 }
-                break;
+            break;
         }
     }
 

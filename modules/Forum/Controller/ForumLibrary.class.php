@@ -1163,10 +1163,12 @@ class ForumLibrary
      *
      * @return array $arrLatestEntries
      */
-    function _getLatestEntries()
+    function _getLatestEntries($lang = null)
     {
         global $objDatabase, $_ARRAYLANG;
-
+        if (!$lang) {
+            $lang = $this->_intLangId;
+        }
         $index = 0;
         $query = (empty($this->_arrSettings['latest_post_per_thread'])
             ? "SELECT `id` , `category_id` , `thread_id` , `subject` , `user_id` , `time_created`
@@ -1196,7 +1198,7 @@ class ForumLibrary
                 $query = "  SELECT `categories`.`name` AS `cName`
                             FROM `".DBPREFIX."module_forum_categories_lang` AS `categories`
                             WHERE `category_id` = ".$objRS->fields['category_id']."
-                            AND `lang_id` = ".$this->_intLangId;
+                            AND `lang_id` = ".$lang;
                 if ($objRS->fields['user_id'] > 0 && ($objUser = $objFWUser->objUser->getUser($objRS->fields['user_id']))) {
                     $arrLatestEntries[$index]['username'] = htmlentities($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET);
                 } else {
