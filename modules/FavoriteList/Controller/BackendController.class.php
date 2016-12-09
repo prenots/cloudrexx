@@ -54,7 +54,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         try {
             // function group
-            \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'Yaml');
+            \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
             if (!\Cx\Core\Setting\Controller\Setting::isDefined('functionMail')
                 && !\Cx\Core\Setting\Controller\Setting::add('functionMail', 0, 1,
                     \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, '1', 'function')
@@ -81,7 +81,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
 
             // notification group
-            \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'notification', 'Yaml');
+            \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'notification', 'FileSystem');
             if (!\Cx\Core\Setting\Controller\Setting::isDefined('notificationMail')
                 && !\Cx\Core\Setting\Controller\Setting::add('notificationMail', 0, 1,
                     \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, '1', 'notification')
@@ -132,7 +132,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
 
             // pdf group
-            \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'pdf', 'Yaml');
+            \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'pdf', 'FileSystem');
             if (!\Cx\Core\Setting\Controller\Setting::isDefined('pdfTemplate')
                 && !\Cx\Core\Setting\Controller\Setting::add('pdfTemplate', null, 1,
                     \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, '{src:\\' . __CLASS__ . '::getPdfTemplates()}', 'pdf')
@@ -197,12 +197,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         break;
                     default:
                         //save the setting values
-                        \Cx\Core\Setting\Controller\Setting::init($this->getName(), null, 'Yaml', null, \Cx\Core\Setting\Controller\Setting::REPOPULATE);
+                        \Cx\Core\Setting\Controller\Setting::init($this->getName(), null, 'FileSystem', null, \Cx\Core\Setting\Controller\Setting::REPOPULATE);
                         if (!empty($_POST['bsubmit'])) {
                             \Cx\Core\Setting\Controller\Setting::storeFromPost();
                         }
 
-                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'Yaml', 'function');
+                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'function');
                         \Cx\Core\Setting\Controller\Setting::show(
                             $template,
                             'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
@@ -211,7 +211,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
-                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'Yaml', 'notification');
+                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'notification');
                         \Cx\Core\Setting\Controller\Setting::show(
                             $template,
                             'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
@@ -220,7 +220,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_SETTINGS_'
                         );
 
-                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'Yaml', 'pdf');
+                        \Cx\Core\Setting\Controller\Setting::setEngineType($this->getName(), 'FileSystem', 'pdf');
                         \Cx\Core\Setting\Controller\Setting::show(
                             $template,
                             'index.php?cmd=' . $this->getName() . '&act=' . current($cmd),
@@ -349,13 +349,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
                         ),
                         'image1' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_1'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
                         ),
                         'image2' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_2'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
                         ),
                         'image3' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_3'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
                         ),
                         'catalog' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_CATALOG'],
@@ -484,6 +484,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $arrOptions = $cx->getComponent('Pdf')->getPdfTemplates();
-        return implode(',', $arrOptions);
+        $display = array();
+        foreach ($arrOptions as $key => $arrOption) {
+            array_push($display, $key . ':' . $arrOption);
+        }
+        return implode(',', $display);
     }
 }

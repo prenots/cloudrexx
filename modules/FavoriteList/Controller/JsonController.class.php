@@ -81,7 +81,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
 
         $themeId = contrexx_input2raw($data['get']['themeId']);
         $theme = $this->getController('Frontend')->getTheme($themeId);
-        $templateFile = '/themes/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block_list.html';
+        $templateFile = $this->cx->getWebsiteThemesPath() . '/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block_list.html';
         $template = new \Cx\Core\Html\Sigma(dirname($templateFile));
         $template->loadTemplateFile(strtolower($this->getName()) . '_block_list.html');
 
@@ -156,9 +156,9 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         $description = contrexx_input2db($data['get']['description']);
         $message = contrexx_input2db($data['get']['message']);
         $price = contrexx_input2db($data['get']['price']);
-        $image1 = contrexx_input2db($data['get']['image_1']);
-        $image2 = contrexx_input2db($data['get']['image_2']);
-        $image3 = contrexx_input2db($data['get']['image_3']);
+        $image1 = contrexx_input2db($data['get']['image1']);
+        $image2 = contrexx_input2db($data['get']['image2']);
+        $image3 = contrexx_input2db($data['get']['image3']);
 
         $em = $this->cx->getDb()->getEntityManager();
 
@@ -253,5 +253,10 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         if (isset($data['get']['lang'])) {
             return $this->getCatalog($data);
         }
+        $theme = $themeRepository->findById($id);
+        if (!$theme) {
+            throw new JsonListException('The theme id ' . $id . ' does not exists.');
+        }
+        return $theme;
     }
 }

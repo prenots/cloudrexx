@@ -75,30 +75,13 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     }
                 }
 
-                $template->parse(strtolower($this->getName()) . '_print');
-                \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'pdf');
-//                $pdfTemplateId = \Cx\Core\Setting\Controller\Setting::getValue('pdfTemplate', 'pdf');
-                $pdfTemplateId = 1;
+                $pdfFile = $this->getPdfCatalog($catalog, $favorites);
 
-                $catalogHtml = $this->getController('Json')->getCatalog();
-                $substitution = array(
-                    strtoupper($this->getName()) . '_PRINT_PDF_LOGO' => \Cx\Core\Setting\Controller\Setting::getValue('pdfLogo', 'pdf'),
-                    strtoupper($this->getName()) . '_PRINT_PDF_ADDRESS' => \Cx\Core\Setting\Controller\Setting::getValue('pdfAddress', 'pdf'),
-                    strtoupper($this->getName()) . '_PRINT_PDF_CATALOG' => $catalogHtml,
-                    strtoupper($this->getName()) . '_PRINT_PDF_FOOTER' => \Cx\Core\Setting\Controller\Setting::getValue('pdfFooter', 'pdf'),
-                );
-
-                $pdf = $this->getComponent('Pdf');
-                $pdfFile = $pdf->generatePDF($pdfTemplateId, $substitution, $this->getName() . '_Catalog');
-                $newPdfFilePath = 'images/' . $this->getName() . '/Catalog_' . $sessionId . '.pdf';
-                copy(substr($pdfFile['filePath'], 1), $newPdfFilePath);
-
-                $template->setVariable(array(
-                    strtoupper($this->getName()) . '_PRINT_PDF_PATH' => $newPdfFilePath,
-                    strtoupper($this->getName()) . '_PRINT_ACTION' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_PRINT_ACTION'],
-                ));
-
-                \JS::registerJS(substr($this->getDirectory(false, true) . '/View/Script/Print.js', 1));
+                $dl = new \HTTP_Download();
+                $dl->setFile($this->cx->getWebsiteDocumentRootPath() . $pdfFile['filePath']);
+                $dl->setContentType('application/pdf');
+                $dl->setContentDisposition(null);
+                $dl->send();
                 break;
             case 'recommendation':
                 if (empty($catalog)) {
@@ -236,7 +219,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                 ));
 
                 $template->parse(strtolower($this->getName()) . '_catalog_actions');
-                \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function');
+                \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
                 $cmds = array(
                     'mail',
                     'print',
@@ -244,10 +227,12 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     'inquiry',
                 );
                 foreach ($cmds as $cmd) {
-                    if (\Cx\Core\Setting\Controller\Setting::getValue('function' . ucfirst($cmd), 'function')) {
+                    if (\Cx\Core\Setting\Controller\Setting::getValue('function' . ucfirst($cmd))) {
                         $template->setVariable(array(
                             strtoupper($this->getName()) . '_ACT_' . strtoupper($cmd) . '_LINK' => \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName(), $cmd),
                         ));
+                        // overwrite init from fromModuleAndCmd
+                        \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
                         $template->parse(strtolower($this->getName()) . '_catalog_actions_' . $cmd);
                     }
                 }
@@ -306,13 +291,13 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
                         ),
                         'image1' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_1'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
                         ),
                         'image2' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_2'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
                         ),
                         'image3' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE_3'],
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
                         ),
                         'catalog' => array(
                             'showOverview' => false,
@@ -384,11 +369,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             return;
         }
         $theme = $this->getTheme();
-        $template->addBlockfile(
-            strtoupper($this->getName()) . '_BLOCK',
-            strtoupper($this->getName()) . '_BLOCK',
-            'themes/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html'
-        );
+        $template->addBlockfile(strtoupper($this->getName()) . '_BLOCK', strtoupper($this->getName()) . '_BLOCK', $this->cx->getWebsiteThemesPath() . '/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html');
 
         $template->setVariable(array(
             strtoupper($this->getName()) . '_BLOCK_TITLE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())],
@@ -398,7 +379,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         \JS::registerCSS($this->getComponent('Html')->getDirectory(true, true) . '/View/Style/Backend.css');
 
         $template->parse(strtolower($this->getName()) . '_block_actions');
-        \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function');
+        \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
         $cmds = array(
             'mail',
             'print',
@@ -406,13 +387,15 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             'inquiry',
         );
         foreach ($cmds as $cmd) {
-            if (\Cx\Core\Setting\Controller\Setting::getValue('function' . ucfirst($cmd), 'function')) {
+            if (\Cx\Core\Setting\Controller\Setting::getValue('function' . ucfirst($cmd))) {
                 $template->setVariable(array(
                     strtoupper($this->getName()) . '_BLOCK_ACT_' . strtoupper($cmd) . '_LINK' =>
                         \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName(), $cmd),
                     strtoupper($this->getName()) . '_BLOCK_ACT_' . strtoupper($cmd) . '_NAME' =>
                         $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_' . strtoupper($cmd)],
                 ));
+                // overwrite init from fromModuleAndCmd
+                \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'function', 'FileSystem');
                 $template->parse(strtolower($this->getName()) . '_block_actions_' . $cmd);
             }
         }
@@ -436,5 +419,91 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             throw new JsonListException('The theme id ' . $id . ' does not exists.');
         }
         return $theme;
+    }
+
+    /**
+     * Generates a PDF from favorites
+     *
+     */
+    protected function getPdfCatalog($catalog, $favorites)
+    {
+        \Cx\Core\Setting\Controller\Setting::init($this->getName(), 'pdf', 'FileSystem');
+        $pdfTemplateId = \Cx\Core\Setting\Controller\Setting::getValue('pdfTemplate');
+
+        $attributes = array(
+            'title',
+            'link',
+            'description',
+            'message',
+            'price',
+            'image1',
+            'image2',
+            'image3',
+        );
+
+        $substitution = array(
+            strtoupper($this->getName()) . '_PDF_CATALOG_TITLE' => contrexx_raw2xhtml($catalog->getName()),
+            strtoupper($this->getName()) . '_PDF_LOGO' => contrexx_raw2xhtml(\Cx\Core\Setting\Controller\Setting::getValue('pdfLogo')),
+            strtoupper($this->getName()) . '_PDF_ADDRESS' => \Cx\Core\Setting\Controller\Setting::getValue('pdfAddress'),
+            strtoupper($this->getName()) . '_PDF_FOOTER' => \Cx\Core\Setting\Controller\Setting::getValue('pdfFooter'),
+            strtoupper($this->getName()) . '_PDF_CATALOG' => array(
+                0 => $this->getPdfCatalogHeader($attributes) + $this->getPdfCatalogRow($favorites, $attributes)
+            ),
+        );
+
+        $pdf = $this->getComponent('Pdf');
+        $pdfFile = $pdf->generatePDF($pdfTemplateId, $substitution, $this->getName() . '_Catalog');
+
+        return $pdfFile;
+    }
+
+    /**
+     * Generates PDF header from attributes
+     *
+     */
+    protected function getPdfCatalogHeader($attributes)
+    {
+        $lang = \Env::get('init')->getFrontendLangId();
+        $langId = \FWLanguage::getLanguageIdByCode($lang);
+        $_ARRAYLANG = \Env::get('init')->getComponentSpecificLanguageData($this->getName(), true, $langId);
+
+        $catalogHeader = array();
+        foreach ($attributes as $attribute) {
+            $catalogHeader = $catalogHeader + array(
+                strtoupper($this->getName()) . '_PDF_HEADER_' . strtoupper($attribute) =>
+                    $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_FIELD_' . strtoupper($attribute)]
+            );
+        }
+        return $catalogHeader;
+    }
+
+    /**
+     * Generates PDF row from favorites
+     *
+     */
+    protected function getPdfCatalogRow($favorites, $attributes)
+    {
+        $catalogRow = array();
+        foreach ($favorites as $key => $favorite) {
+            $catalogRowAttributes = array();
+            foreach ($attributes as $attribute) {
+                if ($attribute == 'price') {
+                    $catalogRowAttributes = $catalogRowAttributes + array(
+                        strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
+                            number_format(
+                                contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}())
+                                , 2, '.', '\''
+                            ),
+                    );
+                } else {
+                    $catalogRowAttributes = $catalogRowAttributes + array(
+                        strtoupper($this->getName()) . '_PDF_' . strtoupper($attribute) =>
+                            contrexx_raw2xhtml($favorite->{'get' . ucfirst($attribute)}()),
+                    );
+                }
+            }
+            array_push($catalogRow, $catalogRowAttributes);
+        }
+        return array(strtoupper($this->getName()) . '_PDF_CATALOG_ROW' => $catalogRow);
     }
 }
