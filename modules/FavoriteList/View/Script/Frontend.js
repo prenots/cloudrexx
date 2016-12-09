@@ -8,6 +8,7 @@ cx.ready(function () {
                     themeId: cx.variables.get('themeId'),
                     lang: cx.variables.get('language')
                 },
+                beforeSend: function () {},
                 success: function (data) {
                     cx.favoriteListUpdateBlock(data.data);
                 }
@@ -33,6 +34,7 @@ cx.ready(function () {
                     image2: cx.jQuery(element).data('image2'),
                     image3: cx.jQuery(element).data('image3')
                 },
+                beforeSend: function () {},
                 success: function (data) {
                     cx.favoriteListUpdateBlock(data.data);
                 }
@@ -50,6 +52,7 @@ cx.ready(function () {
                     themeId: cx.variables.get('themeId'),
                     lang: cx.variables.get('language')
                 },
+                beforeSend: function () {},
                 success: function (data) {
                     cx.favoriteListUpdateBlock(data.data);
                 }
@@ -68,6 +71,7 @@ cx.ready(function () {
                     themeId: cx.variables.get('themeId'),
                     lang: cx.variables.get('language')
                 },
+                beforeSend: function () {},
                 success: function (data) {
                     cx.favoriteListUpdateBlock(data.data);
                 }
