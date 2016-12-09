@@ -457,27 +457,79 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                         ),
                         'title' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_TITLE'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString($value);
+                                },
+                            ),
                         ),
                         'link' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_LINK'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString(
+                                        $value,
+                                        '<a target="_blank" href="' . $value . '">' . $value . '</a>'
+                                    );
+                                },
+                            ),
                         ),
                         'description' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DESCRIPTION'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString($value);
+                                },
+                            ),
                         ),
                         'message' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_MESSAGE'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString($value);
+                                },
+                            ),
                         ),
                         'price' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString($value);
+                                },
+                            ),
                         ),
                         'image1' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString(
+                                        $value,
+                                        '<img src="' . $value . '"/>'
+                                    );
+                                },
+                            ),
                         ),
                         'image2' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString(
+                                        $value,
+                                        '<img src="' . $value . '"/>'
+                                    );
+                                },
+                            ),
                         ),
                         'image3' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->getController('Backend')->returnString(
+                                        $value,
+                                        '<img src="' . $value . '"/>'
+                                    );
+                                },
+                            ),
                         ),
                         'catalog' => array(
                             'showOverview' => false,
