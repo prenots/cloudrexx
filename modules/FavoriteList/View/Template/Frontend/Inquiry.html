@@ -19,14 +19,14 @@
             <!-- BEGIN favoritelist_form_field_select -->
             <select id="field_{ID}" name="field_{ID}" {REQUIRED}>
                 <!-- BEGIN favoritelist_form_field_select_value -->
-                <option value="option_{INDEX}">{VALUE}
+                <option value="{VALUE}">{VALUE}
                 <!-- END favoritelist_form_field_select_value -->
             </select>
             <!-- END favoritelist_form_field_select -->
             <!-- BEGIN favoritelist_form_field_radio -->
             <div class="radio">
                 <label>
-                    <input type="radio" name="field_{ID}" value="option_{INDEX}" {REQUIRED}>{VALUE}
+                    <input type="radio" name="field_{ID}" value="{VALUE}" {REQUIRED}>{VALUE}
                 </label>
             </div>
             <!-- END favoritelist_form_field_radio -->
@@ -49,3 +49,9 @@
     </fieldset>
 </form>
 <!-- END favoritelist_inquiry -->
+<!-- BEGIN favoritelist_inquiry_send_success -->
+<p>{FAVORITELIST_INQUIRY_MESSAGE_SEND_SUCCESS}</p>
+<!-- END favoritelist_inquiry_send_success -->
+<!-- BEGIN favoritelist_inquiry_send_error -->
+<p>{FAVORITELIST_INQUIRY_MESSAGE_SEND_ERROR}</p>
+<!-- END favoritelist_inquiry_send_error -->
