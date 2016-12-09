@@ -108,8 +108,12 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
                     $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_ENTITY' => 'favoriteListBlockListEntity',
                         strtoupper($this->getName()) . '_BLOCK_LIST_NAME' => contrexx_raw2xhtml($favorite->getTitle()),
-                        strtoupper($this->getName()) . '_BLOCK_LIST_EDIT_LINK' => \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName()) . '/?editid=' . urlencode('{0,' . $favorite->getId() . '}'),
                         strtoupper($this->getName()) . '_BLOCK_LIST_DELETE_ACTION' => 'cx.favoriteListRemoveFavorite(' . $favorite->getId() . ');',
+                        strtoupper($this->getName()) . '_BLOCK_LIST_EDIT_LINK' => \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
+                            0,
+                            $favorite->getId(),
+                            \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName())
+                        ),
                     ));
                     $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE' => contrexx_raw2xhtml($favorite->getMessage()),
