@@ -74,11 +74,7 @@ class CalendarEventListener extends DefaultEventListener {
     }
 
     public function onFlush($eventArgs) {
-        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Calendar');
-        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Home');
-    }
-
-    public function onEvent($eventName, array $eventArgs) {        
-        $this->$eventName(current($eventArgs));
+        $this->cx->getComponent('Cache')->deleteComponentFiles('Calendar');
+        $this->cx->getComponent('Cache')->deleteComponentFiles('Home');
     }
 }
