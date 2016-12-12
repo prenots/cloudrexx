@@ -210,15 +210,16 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $header = $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_DEFAULT'];
         }
 
+        $favoriteUrl = \Cx\Core\Routing\Url::fromDocumentRoot();
+        $favoriteUrl->setMode(\Cx\Core\Core\Controller\Cx::MODE_BACKEND);
+        $favoriteUrl->setPath($this->cx->getBackendFolderName() . '/' . $this->getName() . '/Favorite');
+
         switch ($entityClassName) {
             case 'Cx\Modules\FavoriteList\Model\Entity\Catalog':
                 // set default order for entries
                 if (!isset($_GET['order'])) {
                     $_GET['order'] = 'id';
                 }
-                $favoriteUrl = \Cx\Core\Routing\Url::fromDocumentRoot();
-                $favoriteUrl->setMode(\Cx\Core\Core\Controller\Cx::MODE_BACKEND);
-                $favoriteUrl->setPath($this->cx->getBackendFolderName() . '/' . $this->getName() . '/Favorite');
                 return array(
                     'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_CATALOG'],
                     'fields' => array(
@@ -275,6 +276,20 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'table' => array(
                                 'parse' => function ($value) {
                                     return $this->returnString($value);
+                                },
+                            ),
+                        ),
+                        'catalog' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_CATALOG'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return '<a href="' . \Cx\Core\Html\Controller\ViewGenerator::getVgExtendedSearchUrl(
+                                        0,
+                                        array(
+                                            'catalog' => $rowData['id'],
+                                        ),
+                                        clone $favoriteUrl
+                                    )->toString() . '">' . $this->returnString($value) . '</a>';
                                 },
                             ),
                         ),
@@ -348,14 +363,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                         $value,
                                         '<img src="' . $value . '"/>'
                                     );
-                                },
-                            ),
-                        ),
-                        'catalog' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_CATALOG'],
-                            'table' => array(
-                                'parse' => function ($value) {
-                                    return $this->returnString($value);
                                 },
                             ),
                         ),
