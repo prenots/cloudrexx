@@ -286,7 +286,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                     return '<a href="' . \Cx\Core\Html\Controller\ViewGenerator::getVgExtendedSearchUrl(
                                         0,
                                         array(
-                                            'catalog' => $rowData['id'],
+                                            'catalog' => $rowData['catalog']->getId(),
                                         ),
                                         clone $favoriteUrl
                                     )->toString() . '">' . $this->returnString($value) . '</a>';
