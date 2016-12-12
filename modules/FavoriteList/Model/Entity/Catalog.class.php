@@ -28,6 +28,11 @@ class Catalog extends \Cx\Model\Base\EntityBase
     protected $date;
 
     /**
+     * @var string $meta
+     */
+    protected $meta;
+
+    /**
      * @var Cx\Modules\FavoriteList\Model\Entity\Favorite
      */
     protected $favorites;
@@ -95,6 +100,26 @@ class Catalog extends \Cx\Model\Base\EntityBase
     public function setDate($date)
     {
         $this->date = $date;
+    }
+
+    /**
+     * Get meta
+     *
+     * @return string $meta
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    /**
+     * Set meta
+     *
+     * @param string $meta
+     */
+    public function setMeta($meta)
+    {
+        $this->meta = $meta;
     }
 
     /**

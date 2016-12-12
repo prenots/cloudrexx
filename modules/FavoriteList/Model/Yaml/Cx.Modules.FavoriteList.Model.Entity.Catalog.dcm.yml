@@ -18,6 +18,9 @@ Cx\Modules\FavoriteList\Model\Entity\Catalog:
       length: 255
     date:
       type: datetime
+    meta:
+      type: text
+      nullable: true
   oneToMany:
     favorites:
       targetEntity: Favorite

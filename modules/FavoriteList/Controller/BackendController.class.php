@@ -243,10 +243,25 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                     )->toString() . '">' . $value . '</a>';
                                 },
                             ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
                         ),
                         'date' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DATE'],
                             'showDetail' => false,
+                        ),
+                        'meta' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META'],
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $meta = $this->formatMeta($this->returnString($value));
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($meta));
+                                return $field;
+                            },
+                            'showOverview' => false,
                         ),
                         'favorites' => array(
                             'showOverview' => false,
@@ -495,6 +510,38 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return $output;
         }
         return $value;
+    }
+
+    /**
+     * Formats the serialized array to output string
+     *
+     * @access  protected
+     * @return  string
+     * @global  $_ARRAYLANG
+     */
+    protected function formatMeta($value)
+    {
+        global $_ARRAYLANG;
+
+        $meta = unserialize($value);
+        $formatedValue['ipaddress'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_IP_ADDRESS']
+            . ': '
+            . $meta['ipaddress'];
+        $formatedValue['host'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_HOST']
+            . ': '
+            . $meta['host'];
+        $formatedValue['lang'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_LANGUAGE']
+            . ': '
+            . $meta['lang'];
+        $formatedValue['browser'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_BROWSER']
+            . ': '
+            . $meta['browser'];
+
+        return implode('<br />', $formatedValue);
     }
 
     /**

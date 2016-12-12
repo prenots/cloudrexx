@@ -170,10 +170,21 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         $catalog = $catalogRepo->findOneBy(array('sessionId' => $this->getComponent('Session')->getSession()->sessionid));
 
         if (!$catalog) {
-            $catalog = new \Cx\Modules\FavoriteList\Model\Entity\Catalog();
             $dateTimeNow = new \DateTime('now');
             $dateTimeNowFormat = $dateTimeNow->format('d.m.Y H:i:s');
+
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $meta['ipaddress'] = contrexx_input2raw($_SERVER['HTTP_X_FORWARDED_FOR']);
+            } else {
+                $meta['ipaddress'] = contrexx_input2raw($_SERVER['REMOTE_ADDR']);
+            }
+            $meta['host'] = contrexx_input2raw(gethostbyaddr($meta['ipaddress']));
+            $meta['lang'] = contrexx_input2raw($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $meta['browser'] = contrexx_input2raw($_SERVER['HTTP_USER_AGENT']);
+
+            $catalog = new \Cx\Modules\FavoriteList\Model\Entity\Catalog();
             $catalog->setName($_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())] . ' ' . $dateTimeNowFormat);
+            $catalog->setMeta(serialize($meta));
             $em->persist($catalog);
         }
 

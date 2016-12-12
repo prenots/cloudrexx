@@ -1763,6 +1763,7 @@ CREATE TABLE `contrexx_module_favoritelist_catalog` (
   `session_id` varchar(255) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `date` datetime NOT NULL,
+  `meta` longtext COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_favoritelist_favorite` (
