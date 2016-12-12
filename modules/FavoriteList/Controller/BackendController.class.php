@@ -257,7 +257,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META'],
                             'formfield' => function ($name, $type, $length, $value, $options) {
                                 $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                                $meta = $this->formatMeta($this->returnString($value));
+                                $meta = $this->formatMeta($value);
                                 $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($meta));
                                 return $field;
                             },
