@@ -307,7 +307,8 @@ class Newsletter extends NewsletterLib
         if (isset($_POST['recipient_save'])) {
             if (
                 isset($recipientAttributeStatus['captcha']) &&
-                $recipientAttributeStatus['captcha']['active']
+                $recipientAttributeStatus['captcha']['active'] &&
+                !\FWUser::getFWUserObject()->objUser->login()
             ) {
                 if (!\Cx\Core_Modules\Captcha\Controller\Captcha::getInstance()->check()) {
                     $captchaOk = false;
