@@ -122,7 +122,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
                     $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE' => contrexx_raw2xhtml($favorite->getMessage()),
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_NAME' => 'favoriteListBlockListEntityMessage',
-                        strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_ACTION' => 'cx.favoriteListEditFavoriteMessage(' . $favorite->getId() . ', this);',
+                        strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_ACTION' => 'cx.favoriteListEditFavoriteMessage(' . $favorite->getId() . ', this, true);',
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_SAVE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_SAVE'],
                     ));
                     $template->parse(strtolower($this->getName()) . '_block_list_row_message');

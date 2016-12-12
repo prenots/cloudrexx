@@ -60,7 +60,7 @@ cx.ready(function () {
         );
     };
 
-    cx.favoriteListEditFavoriteMessage = function (id, element) {
+    cx.favoriteListEditFavoriteMessage = function (id, element, updateBlock) {
         cx.ajax(
             'FavoriteList',
             'editFavoriteMessage',
@@ -73,7 +73,9 @@ cx.ready(function () {
                 },
                 beforeSend: function () {},
                 success: function (data) {
-                    cx.favoriteListUpdateBlock(data.data);
+                    if (updateBlock) {
+                        cx.favoriteListUpdateBlock(data.data);
+                    }
                 }
             }
         );
@@ -83,4 +85,21 @@ cx.ready(function () {
         cx.jQuery('#favoriteListBlock').empty();
         cx.jQuery(data).appendTo('#favoriteListBlock');
     };
+
+    cx.jQuery('#favoriteListBlockActions a').click(function (event) {
+        event.stopPropagation();
+        cx.jQuery('#favoriteListBlock .favoriteListBlockListEntity').each(function () {
+            var onclick = cx.jQuery(this).find('[onclick*="favoriteListEditFavoriteMessage"]').attr('onclick');
+            if (onclick.indexOf('true') >= 0) {
+                onclick = onclick.replace('true', 'false');
+                var editButton = cx.jQuery(this).find('[onclick*="favoriteListEditFavoriteMessage"]');
+                event.stopImmediatePropagation();
+                editButton.attr('onclick', onclick);
+                editButton.trigger('click');
+            }
+        });
+        if (!cx.jQuery(event.target).is(this)) {
+            cx.jQuery(this).trigger('click');
+        }
+    });
 });
