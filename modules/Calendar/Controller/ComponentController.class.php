@@ -135,5 +135,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $eventListener = new \Cx\Modules\Calendar\Model\Event\CalendarEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent', $eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\Category', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\CategoryName', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\Event', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\EventField', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\Mail', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\Registration', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\RegistrationForm', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\RegistrationFormField', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\RegistrationFormFieldName', $eventListener);
+        $this->cx->getEvents()->addModelListener(\Doctrine\ORM\Events::onFlush, 'Cx\\Modules\\Calendar\\Model\\Entity\\RegistrationFormFieldValue', $eventListener);
    }    
 }

@@ -72,4 +72,13 @@ class CalendarEventListener extends DefaultEventListener {
         ),array(16));
         $mediaBrowserConfiguration->addMediaType($mediaType);
     }
+
+    public function onFlush($eventArgs) {
+        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Calendar');
+        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Home');
+    }
+
+    public function onEvent($eventName, array $eventArgs) {        
+        $this->$eventName(current($eventArgs));
+    }
 }
