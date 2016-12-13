@@ -111,6 +111,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
                 foreach ($favorites as $favorite) {
                     $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_ENTITY' => 'favoriteListBlockListEntity',
+                        strtoupper($this->getName()) . '_BLOCK_LIST_ID' => $favorite->getId(),
                         strtoupper($this->getName()) . '_BLOCK_LIST_NAME' => contrexx_raw2xhtml($favorite->getTitle()),
                         strtoupper($this->getName()) . '_BLOCK_LIST_DELETE_ACTION' => 'cx.favoriteListRemoveFavorite(' . $favorite->getId() . ');',
                         strtoupper($this->getName()) . '_BLOCK_LIST_EDIT_LINK' => \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
@@ -118,18 +119,15 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
                             $favorite->getId(),
                             \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName())
                         ),
-                    ));
-                    $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE' => contrexx_raw2xhtml($favorite->getMessage()),
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_NAME' => 'favoriteListBlockListEntityMessage',
-                        strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_ACTION' => 'cx.favoriteListEditFavoriteMessage(' . $favorite->getId() . ', this, true);',
-                        strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_SAVE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_SAVE'],
                     ));
-                    $template->parse(strtolower($this->getName()) . '_block_list_row_message');
                     $template->parse(strtolower($this->getName()) . '_block_list_row');
                     $totalPrice += contrexx_raw2xhtml($favorite->getPrice());
                 }
                 $template->setVariable(array(
+                    strtoupper($this->getName()) . '_BLOCK_SAVE_LABEL' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_SAVE'],
+                    strtoupper($this->getName()) . '_BLOCK_SAVE_ACTION' => 'cx.favoriteListSave();',
                     strtoupper($this->getName()) . '_BLOCK_TOTAL_PRICE' => number_format($totalPrice, 2, '.', '\''),
                     strtoupper($this->getName()) . '_BLOCK_TOTAL_PRICE_LABEL' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_TOTAL_PRICE_LABEL'],
                 ));
@@ -249,17 +247,23 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
     public function editFavoriteMessage($data = array())
     {
         $id = contrexx_input2db($data['get']['id']);
-        if (empty($id)) {
+        $attribute = contrexx_input2db($data['get']['attribute']);
+        if (empty($id) || empty($attribute)) {
             return;
         }
 
-        $message = contrexx_input2db($data['get']['message']);
+        $value = contrexx_input2db($data['get']['value']);
 
         $em = $this->cx->getDb()->getEntityManager();
-        $favoriteRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\Favorite');
-        $favorite = $favoriteRepo->findOneBy(array('id' => $id));
+        $catalogRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\Catalog');
+        $catalog = $catalogRepo->findOneBy(array('sessionId' => $this->getComponent('Session')->getSession()->sessionid));
+        $favorite = $catalog->getFavorites()->filter(
+            function ($favorite) use ($id) {
+                return $favorite->getId() == $id;
+            }
+        )->first();
 
-        $favorite->setMessage($message);
+        $favorite->{'set' . ucfirst($attribute)}($value);
 
         $em->persist($favorite);
         $em->flush();
@@ -268,10 +272,5 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         if (isset($data['get']['lang'])) {
             return $this->getCatalog($data);
         }
-        $theme = $themeRepository->findById($id);
-        if (!$theme) {
-            throw new JsonListException('The theme id ' . $id . ' does not exists.');
-        }
-        return $theme;
     }
 }

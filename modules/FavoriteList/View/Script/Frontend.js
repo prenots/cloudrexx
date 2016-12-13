@@ -1,4 +1,9 @@
 cx.ready(function () {
+    cx.favoriteListUpdateBlock = function (data) {
+        cx.jQuery('#favoriteListBlock').empty();
+        cx.jQuery(data).appendTo('#favoriteListBlock');
+    };
+
     cx.favoriteListLoadBlock = function () {
         cx.ajax(
             'FavoriteList',
@@ -60,20 +65,22 @@ cx.ready(function () {
         );
     };
 
-    cx.favoriteListEditFavoriteMessage = function (id, element, updateBlock) {
-        cx.ajax(
+    cx.favoriteListEditFavorite = function (id, attribute, value, update) {
+        return cx.ajax(
             'FavoriteList',
             'editFavoriteMessage',
             {
                 data: {
                     id: id,
-                    message: cx.jQuery(element).closest('.favoriteListBlockListEntity').find('[name="favoriteListBlockListEntityMessage"]').val(),
+                    attribute: attribute,
+                    value: value,
                     themeId: cx.variables.get('themeId'),
                     lang: cx.variables.get('language')
                 },
                 beforeSend: function () {},
                 success: function (data) {
-                    if (updateBlock) {
+                    update = typeof update !== 'undefined' ? update : true;
+                    if (update) {
                         cx.favoriteListUpdateBlock(data.data);
                     }
                 }
@@ -81,25 +88,27 @@ cx.ready(function () {
         );
     };
 
-    cx.favoriteListUpdateBlock = function (data) {
-        cx.jQuery('#favoriteListBlock').empty();
-        cx.jQuery(data).appendTo('#favoriteListBlock');
+    cx.favoriteListSave = function () {
+        var promises = [];
+        cx.jQuery('#favoriteListBlock .favoriteListBlockListEntity').each(function () {
+            var id = cx.jQuery(this).data('id');
+            var value = cx.jQuery(this).find('[name="favoriteListBlockListEntityMessage"]').val();
+            promises.push(cx.favoriteListEditFavorite(id, 'message', value, false));
+        });
+        return promises;
     };
 
     cx.jQuery('#favoriteListBlockActions a').click(function (event) {
-        event.stopPropagation();
-        cx.jQuery('#favoriteListBlock .favoriteListBlockListEntity').each(function () {
-            var onclick = cx.jQuery(this).find('[onclick*="favoriteListEditFavoriteMessage"]').attr('onclick');
-            if (onclick.indexOf('true') >= 0) {
-                onclick = onclick.replace('true', 'false');
-                var editButton = cx.jQuery(this).find('[onclick*="favoriteListEditFavoriteMessage"]');
-                event.stopImmediatePropagation();
-                editButton.attr('onclick', onclick);
-                editButton.trigger('click');
-            }
+        event.preventDefault();
+        var $this = cx.jQuery(this);
+        var promises = cx.favoriteListSave();
+        promises.forEach(function (promise, index) {
+            promise.done(function () {
+                promises.splice(index, 1);
+                if (promises.length == 0) {
+                    window.location.href = $this.attr('href');
+                }
+            });
         });
-        if (!cx.jQuery(event.target).is(this)) {
-            cx.jQuery(this).trigger('click');
-        }
     });
 });
