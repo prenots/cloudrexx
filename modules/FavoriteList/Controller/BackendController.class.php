@@ -212,7 +212,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $favoriteUrl = \Cx\Core\Routing\Url::fromDocumentRoot();
         $favoriteUrl->setMode(\Cx\Core\Core\Controller\Cx::MODE_BACKEND);
-        $favoriteUrl->setPath($this->cx->getBackendFolderName() . '/' . $this->getName() . '/Favorite');
+        $favoriteUrl->setPath(substr($this->cx->getBackendFolderName(), 1) . '/' . $this->getName() . '/Favorite');
 
         switch ($entityClassName) {
             case 'Cx\Modules\FavoriteList\Model\Entity\Catalog':
