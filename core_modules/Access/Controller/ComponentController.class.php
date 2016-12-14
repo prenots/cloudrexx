@@ -132,7 +132,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                             || $objTemplate->blockExists('access_currently_online_members')
                         )
                     ) {
-                        $params  = $cache->getParamsByFindBlockExistsInTpl('access_currently_online_members');
+                        $params  = $cache->getParamsByFindBlockExistsInTpl('access_currently_online_member_list');
                         $content = $cache->getEsiContent(
                             'Access',
                             'showCurrentlyOnlineUsers',
