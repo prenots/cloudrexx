@@ -185,8 +185,8 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                 'country_code' => \Cx\Core\Routing\Url::fromApi('Data', array('Plain', 'GeoIp', 'getCountryCode'))->toString(),
             ),
             'HTTP_COOKIE' => array(
-                'PHPSESSID' => session_id(),
-            ),
+                'PHPSESSID' => session_id()
+            )
         );
         
         // back-replace ESI variables that are url encoded
@@ -230,8 +230,10 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
      * @param string $htmlCode HTML code to replace ESI directives in
      * @return string Parsed HTML code
      */
-    public function internalEsiParsing($htmlCode, $cxNotYetInitialized = false) {
-        
+    public function internalEsiParsing($htmlCode, $cxNotYetInitialized = false)
+    {
+        global $_CONFIG;
+
         if (!is_a($this->getSsiProxy(), '\\Cx\\Core_Modules\\Cache\\Model\\Entity\\ReverseProxyCloudrexx')) {
             return $htmlCode;
         }
@@ -250,6 +252,10 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             $htmlCode
         );
         
+        $apiUrlPattern = '#^' . ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] .
+            \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath() .
+            '(/[a-z]{2})?' . \Cx\Core\Core\Controller\Cx::FOLDER_NAME_COMMAND_MODE .
+            '#';
         // Replace include tags
         $settings = $this->getSettings();
         // apply ESI dynamic variables
@@ -259,7 +265,11 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                 if (strpos($htmlCode, $esiPlaceholder) === false) {
                     continue;
                 }
-                $varValue = $this->getApiResponseForUrl($url);
+                $varValue = $url;
+                //Get api response only if the value of dynamic varaible is a API request
+                if (preg_match($apiUrlPattern, $url)) {
+                    $varValue = $this->getApiResponseForUrl($url);
+                }
                 $htmlCode = str_replace($esiPlaceholder, $varValue, $htmlCode);
             }
         }
