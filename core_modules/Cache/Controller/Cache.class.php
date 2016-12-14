@@ -188,7 +188,7 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                 'PHPSESSID' => session_id()
             )
         );
-        
+
         // back-replace ESI variables that are url encoded
         foreach ($this->dynVars as $groupName=>$vars) {
             foreach ($vars as $varName=>$url) {
