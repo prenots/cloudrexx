@@ -263,6 +263,58 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             },
                             'showOverview' => false,
                         ),
+                        'counterMail' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_MAIL'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
+                        'counterPrint' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_PRINT'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
+                        'counterRecommendation' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_RECOMMENDATION'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
+                        'counterInquiry' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_INQUIRY'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
                         'favorites' => array(
                             'showOverview' => false,
                             'showDetail' => false,
