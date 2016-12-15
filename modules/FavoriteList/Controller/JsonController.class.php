@@ -272,6 +272,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
             'link',
             'description',
             'message',
+            'price',
             'image_1',
             'image_2',
             'image_3',
