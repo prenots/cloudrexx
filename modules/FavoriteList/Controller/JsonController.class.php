@@ -183,6 +183,10 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
             $catalog = new \Cx\Modules\FavoriteList\Model\Entity\Catalog();
             $catalog->setName($_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())] . ' ' . $dateTimeNowFormat);
             $catalog->setMeta(serialize($meta));
+            $catalog->setCounterMail(0);
+            $catalog->setCounterPrint(0);
+            $catalog->setCounterRecommendation(0);
+            $catalog->setCounterInquiry(0);
             $em->persist($catalog);
         }
 
@@ -263,14 +267,26 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
             }
         )->first();
 
-        $favorite->{'set' . ucfirst($attribute)}($value);
+        $allowedAttributes = array(
+            'title',
+            'link',
+            'description',
+            'message',
+            'image_1',
+            'image_2',
+            'image_3',
+        );
 
-        $em->persist($favorite);
-        $em->flush();
-        $em->clear();
+        if (in_array($attribute, $allowedAttributes)) {
+            $favorite->{'set' . ucfirst($attribute)}($value);
 
-        if (isset($data['get']['lang'])) {
-            return $this->getCatalog($data);
+            $em->persist($favorite);
+            $em->flush();
+            $em->clear();
+
+            if (isset($data['get']['lang'])) {
+                return $this->getCatalog($data);
+            }
         }
     }
 }

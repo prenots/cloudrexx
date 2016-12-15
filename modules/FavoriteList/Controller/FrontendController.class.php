@@ -101,6 +101,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     strtoupper($this->getName()) . '_MAIL_MESSAGE_SEND_SUCCESS' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_SUCCESS'],
                 ));
                 $template->parse(strtolower($this->getName()) . '_mail_send_success');
+                $this->logAction($catalog, 'mail');
             } else {
                 $template->setVariable(array(
                     strtoupper($this->getName()) . '_MAIL_MESSAGE_SEND_ERROR' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_ERROR'],
@@ -148,6 +149,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         $dl->setContentType('application/pdf');
         $dl->setContentDisposition(null);
         $dl->send();
+        $this->logAction($catalog, 'print');
     }
 
     /**
@@ -207,6 +209,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     strtoupper($this->getName()) . '_RECOMMENDATION_MESSAGE_SEND_SUCCESS' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_SUCCESS'],
                 ));
                 $template->parse(strtolower($this->getName()) . '_recommendation_send_success');
+                $this->logAction($catalog, 'recommendation');
             } else {
                 $template->setVariable(array(
                     strtoupper($this->getName()) . '_RECOMMENDATION_MESSAGE_SEND_ERROR' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_ERROR'],
@@ -298,6 +301,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
                     strtoupper($this->getName()) . '_INQUIRY_MESSAGE_SEND_SUCCESS' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_SUCCESS'],
                 ));
                 $template->parse(strtolower($this->getName()) . '_inquiry_send_success');
+                $this->logAction($catalog, 'inquiry');
             } else {
                 $template->setVariable(array(
                     strtoupper($this->getName()) . '_INQUIRY_MESSAGE_SEND_ERROR' => $_ARRAYLANG['TXT_MODULE_' . strtoupper($this->getName()) . '_MESSAGE_SEND_ERROR'],
@@ -737,5 +741,33 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             array_push($catalogRow, $catalogRowAttributes);
         }
         return array(strtoupper($this->getName()) . '_PDF_CATALOG_ROW' => $catalogRow);
+    }
+
+    /**
+     * Logs every successful action on a catalog
+     *
+     * @param    object $catalog visitors catalog
+     * @param    string $action selected action
+     * @access   protected
+     */
+    protected function logAction($catalog, $action)
+    {
+        switch ($action) {
+            case 'mail':
+                $catalog->addCounterMail(1);
+                break;
+            case 'print':
+                $catalog->addCounterPrint(1);
+                break;
+            case 'recommendation':
+                $catalog->addCounterRecommendation(1);
+                break;
+            case 'inquiry':
+                $catalog->addCounterInquiry(1);
+                break;
+        }
+        $em = $this->cx->getDb()->getEntityManager();
+        $em->persist($catalog);
+        $em->flush();
     }
 }

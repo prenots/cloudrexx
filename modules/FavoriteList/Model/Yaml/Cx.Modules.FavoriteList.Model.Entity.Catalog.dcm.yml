@@ -21,6 +21,18 @@ Cx\Modules\FavoriteList\Model\Entity\Catalog:
     meta:
       type: text
       nullable: true
+    counterMail:
+      column: counter_mail
+      type: integer
+    counterPrint:
+      column: counter_print
+      type: integer
+    counterRecommendation:
+      column: counter_recommendation
+      type: integer
+    counterInquiry:
+      column: counter_inquiry
+      type: integer
   oneToMany:
     favorites:
       targetEntity: Favorite
