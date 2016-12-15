@@ -75,7 +75,7 @@ class CalendarHeadlines extends CalendarLibrary
      * @param   integer $categoryId Limits the loaded events by the given category id
      * @return  null
      */
-    function loadEventManager($categoryId = null)
+    function loadEventManager($categoryId = null, $langId = null)
     {
         if($this->arrSettings['headlinesStatus'] == 1 && $this->_objTpl->blockExists('calendar_headlines_row')) {
             $startDate = new \DateTime();
@@ -91,7 +91,7 @@ class CalendarHeadlines extends CalendarLibrary
             $endPos = $this->arrSettings['headlinesNum'];
 
             $this->objEventManager = new \Cx\Modules\Calendar\Controller\CalendarEventManager($startDate, $endDate, $categoryId, null, true, false, true, $startPos, $endPos);
-            $this->objEventManager->getEventList();
+            $this->objEventManager->getEventList($langId);
         }
     }
 
@@ -101,7 +101,7 @@ class CalendarHeadlines extends CalendarLibrary
      * @param  integer $categoryId Limits the headline events by the given category id
      * @return string parsed template content
      */
-    function getHeadlines($categoryId = null)
+    function getHeadlines($categoryId = null, $langId = null)
     {
         global $_CONFIG;
 
@@ -111,7 +111,7 @@ class CalendarHeadlines extends CalendarLibrary
             if($this->_objTpl->blockExists('calendar_headlines_row')) {
                 self::loadEventManager($categoryId);
                 if (!empty($this->objEventManager->eventList)) {
-                    $this->objEventManager->showEventList($this->_objTpl);
+                    $this->objEventManager->showEventList($this->_objTpl, $langId);
                 }
             }
         } else {

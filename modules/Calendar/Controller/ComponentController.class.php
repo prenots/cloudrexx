@@ -51,6 +51,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array();
     }
 
+    /**
+    * Returns a list of JsonAdapter class names
+    *
+    * @return array List of ComponentController classes
+    */
+    public function getControllersAccessableByJson()
+    {
+        return array('JsonCalendar');
+    }
      /**
      * Load your component.
      *
@@ -91,8 +100,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $modulespath, $eventsPlaceholder, $_CONFIG, $themesPages, $page_template,
-                                $calHeadlinesObj, $calHeadlines, $_ARRAYLANG;
+        global $_LANGID, $_CONFIG, $themesPages, $page_template, $_ARRAYLANG;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // Get Calendar Events
@@ -114,17 +122,41 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                             || strpos($themesPages['sidebar'], $eventsPlaceholder) !== false
                             || strpos($page_template, $eventsPlaceholder) !== false
                         ) {
-                            $category = null;
-                            $matches = array();
-                            if (preg_match('/\{CALENDAR_CATEGORY_([0-9]+)\}/', $themesPages['calendar_headlines' . $visibleI], $matches)) {
-                                $category = $matches[1];
-                            }
-                            $calHeadlinesObj = new \Cx\Modules\Calendar\Controller\CalendarHeadlines($themesPages['calendar_headlines'.$visibleI]);
-                            $calHeadlines = $calHeadlinesObj->getHeadlines($category);
-                            \Env::get('cx')->getPage()->setContent(str_replace($eventsPlaceholder, $calHeadlines, \Env::get('cx')->getPage()->getContent()));
-                            $themesPages['index'] = str_replace($eventsPlaceholder, $calHeadlines, $themesPages['index']);
-                            $themesPages['sidebar'] = str_replace($eventsPlaceholder, $calHeadlines, $themesPages['sidebar']);
-                            $page_template = str_replace($eventsPlaceholder, $calHeadlines, $page_template);
+                            $cache = \Cx\Core\Core\Controller\Cx::instanciate()
+                                ->getComponent('Cache');
+                            $calHeadlines = $cache->getEsiContent(
+                                'Calendar',
+                                'getCalHeadlines',
+                                array(
+                                    'theme' => \Env::get('init')->getCurrentThemeId(),
+                                    'lang'  => $_LANGID,
+                                    'file'  => 'events'.$visibleI.'.html'
+                                )
+                            );
+                            
+                            
+                            \Env::get('cx')->getPage()->setContent(
+                                str_replace(
+                                   $eventsPlaceholder,
+                                   $calHeadlines,
+                                   \Env::get('cx')->getPage()->getContent()
+                                )
+                            );
+                            $themesPages['index'] = str_replace(
+                                $eventsPlaceholder,
+                                $calHeadlines,
+                                $themesPages['index']
+                            );
+                            $themesPages['sidebar'] = str_replace(
+                                $eventsPlaceholder,
+                                $calHeadlines,
+                                $themesPages['sidebar']
+                            );
+                            $page_template = str_replace(
+                                $eventsPlaceholder,
+                                $calHeadlines,
+                                $page_template
+                            );
                         }
                     }
                 }

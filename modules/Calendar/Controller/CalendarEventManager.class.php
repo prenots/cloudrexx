@@ -238,9 +238,12 @@ class CalendarEventManager extends CalendarLibrary
      *
      * @return null
      */
-    function getEventList() {
+    function getEventList($langId = null) {
         global $objDatabase, $_ARRAYLANG, $_LANGID, $objInit;
 
+        if(!$langId){
+            $langId = $_LANGID;
+        }
         $this->getSettings();
 
         // need for database TIMESTAMP
@@ -254,7 +257,7 @@ class CalendarEventManager extends CalendarLibrary
             $showIn_where = "";
         } else {
             if($this->arrSettings['showEventsOnlyInActiveLanguage'] == 1) {
-                $showIn_where = "AND FIND_IN_SET('".$_LANGID."',event.show_in)>0 ";
+                $showIn_where = "AND FIND_IN_SET('".$langId."',event.show_in)>0 ";
             } else {
                 $showIn_where = "";
             }
@@ -322,8 +325,7 @@ class CalendarEventManager extends CalendarLibrary
 
         if ($objResult !== false) {
             while (!$objResult->EOF) {
-                $objEvent = new \Cx\Modules\Calendar\Controller\CalendarEvent(intval($objResult->fields['id']));
-
+                $objEvent = new \Cx\Modules\Calendar\Controller\CalendarEvent(intval($objResult->fields['id']), $langId);
                 if($objInit->mode == 'frontend' || $this->showSeries) {
                     $checkFutureEvents = true;
                     if(self::_addToEventList($objEvent)) {
@@ -1115,9 +1117,12 @@ class CalendarEventManager extends CalendarLibrary
      *
      * @return null
      */
-    function showEventList($objTpl, $type='') {
+    function showEventList($objTpl, $type='', $langId = null) {
         global $objInit, $_ARRAYLANG, $_LANGID;
 
+        if(!$langId){
+            $langId = $_LANGID;
+        }
         $this->getFrontendLanguages();
 
         //if($objInit->mode == 'backend') {
@@ -1261,7 +1266,7 @@ class CalendarEventManager extends CalendarLibrary
 
                 if ($objEvent->showDetailView) {
                     $objTpl->setVariable(array(
-                        $this->moduleLangVar.'_EVENT_DETAIL_LINK'    => $objEvent->type==0 ? self::_getDetailLink($objEvent) : $objEvent->arrData['redirect'][$_LANGID],
+                        $this->moduleLangVar.'_EVENT_DETAIL_LINK'    => $objEvent->type==0 ? self::_getDetailLink($objEvent) : $objEvent->arrData['redirect'][$langId],
                         $this->moduleLangVar.'_EVENT_DETAIL_TARGET'  => $objEvent->type==0 ? '_self' : '_blank',
                     ));
                     if ($objTpl->blockExists('event_detail_view')) {

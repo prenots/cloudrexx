@@ -694,9 +694,9 @@ class CalendarEvent extends CalendarLibrary
      *
      * @param integer $id Event id
      */
-    function __construct($id=null){
+    function __construct($id=null, $langId=null){
         if($id != null) {
-            $this->get($id);
+            $this->get($id, null, $langId);
         }
 
         $this->uploadImgPath    = \Env::get('cx')->getWebsiteImagesPath().'/'.$this->moduleName.'/';
