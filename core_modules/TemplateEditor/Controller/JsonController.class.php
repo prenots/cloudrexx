@@ -99,7 +99,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
      *
      * @param array $params List of get and post parameters which were sent to
      *                      the json adapter.
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function saveOptions($params)
     {
@@ -130,7 +130,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
         $presetRepository->save($preset);
         $this->clearCache();
 
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
@@ -140,7 +140,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
      *                      the json adapter.
      *
      * @return \Cx\Lib\Net\Model\Entity\Response Modified Data
-     * @throws \LogicException
+     * @throws \LogicException                   If the OptionName is invalid or OptionData is empty
      */
     public function updateOption($params)
     {
@@ -196,7 +196,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
      *
      * @param array $params List of get and post parameters which were sent to
      *                      the json adapter.
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function activatePreset($params)
     {
@@ -221,7 +221,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
         );
         $themeOptions->setActivePreset($preset);
         $themeOptionRepository->save($themeOptions);
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
@@ -231,7 +231,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
      *                      the json adapter.
      *
      * @return \Cx\Lib\Net\Model\Entity\Response Preset name
-     * @throws \LogicException
+     * @throws \LogicException                   If the given name is invalid preset name
      */
     public function addPreset($params)
     {
@@ -278,8 +278,8 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
      *
      * @param array $params List of get and post parameters which were sent to
      *                      the json adapter.
-     * @return \Cx\Lib\Net\Model\Entity\Response
-     * @throws \LogicException
+     * @return \Cx\Lib\Net\Model\Entity\Response null
+     * @throws \LogicException                   If the preset name is default
      */
     public function removePreset($params)
     {
@@ -319,7 +319,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
             $themeOptionRepository->save($themeOptions);
         }
         $themeOptions->getPresetRepository()->remove($preset);
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
@@ -327,7 +327,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
      *
      * @param array $params List of get and post parameters which were sent to
      *                      the json adapter.
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function resetPreset($params) {
         $themeID               = isset($params['post']['tid']) ?
@@ -335,7 +335,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements Js
         $activePreset = $_SESSION['TemplateEditor'][$themeID]['activePreset'];
         $_SESSION['TemplateEditor'][$themeID] = array();
         $_SESSION['TemplateEditor'][$themeID]['activePreset'] = $activePreset;
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
     
     protected function clearCache() {

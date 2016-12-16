@@ -915,9 +915,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             }
         }
 
-        $jsonData =  new \Cx\Core\Json\JsonData();
-        $pageTitlesTree = $jsonData->data('node', 'getPageTitlesTree');
-        $pageTitlesTree = $pageTitlesTree['data'];
+        $jsonData       =  new \Cx\Core\Json\JsonData();
+        $jsonResponse   = $jsonData->data('node', 'getPageTitlesTree');
+        $pageTitlesTree = $jsonResponse->getAbstractContent()['data'];
 
         $objJs = \ContrexxJavascript::getInstance();
 
@@ -925,14 +925,14 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $blockDirectPageSelects   = $this->getPageSelections($pageTitlesTree, $blockDirectAssociatedPageIds);
         $blockCategoryPageSelects = $this->getPageSelections($pageTitlesTree, $blockCategoryAssociatedPageIds);
 
-        $objJs->setVariable('globalPagesUnselectedOptions', $jsonData->json($blockGlobalPageSelects[1]), 'block');
-        $objJs->setVariable('globalPagesSelectedOptions', $jsonData->json($blockGlobalPageSelects[0]), 'block');
-
-        $objJs->setVariable('directPagesUnselectedOptions', $jsonData->json($blockDirectPageSelects[1]), 'block');
-        $objJs->setVariable('directPagesSelectedOptions', $jsonData->json($blockDirectPageSelects[0]), 'block');
-
-        $objJs->setVariable('categoryPagesUnselectedOptions', $jsonData->json($blockCategoryPageSelects[1]), 'block');
-        $objJs->setVariable('categoryPagesSelectedOptions', $jsonData->json($blockCategoryPageSelects[0]), 'block');
+        $objJs->setVariable(array(
+            'globalPagesUnselectedOptions'   => $jsonData->json(new \Cx\Lib\Net\Model\Entity\Response($blockGlobalPageSelects[1])),
+            'globalPagesSelectedOptions'     => $jsonData->json(new \Cx\Lib\Net\Model\Entity\Response($blockGlobalPageSelects[0])),
+            'directPagesUnselectedOptions'   => $jsonData->json(new \Cx\Lib\Net\Model\Entity\Response($blockDirectPageSelects[1])),
+            'directPagesSelectedOptions'     => $jsonData->json(new \Cx\Lib\Net\Model\Entity\Response($blockDirectPageSelects[0])),
+            'categoryPagesUnselectedOptions' => $jsonData->json(new \Cx\Lib\Net\Model\Entity\Response($blockCategoryPageSelects[1])),
+            'categoryPagesSelectedOptions'   => $jsonData->json(new \Cx\Lib\Net\Model\Entity\Response($blockCategoryPageSelects[0]))
+        ), 'block');
 
         $objJs->setVariable('ckeditorconfigpath', substr(\Env::get('ClassLoader')->getFilePath(ASCMS_CORE_PATH.'/Wysiwyg/ckeditor.config.js.php'), strlen(ASCMS_DOCUMENT_ROOT)+1), 'block');
 

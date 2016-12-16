@@ -208,7 +208,7 @@ class FormGenerator {
                 isset($formFieldGenerator['adapter']) &&
                 isset($formFieldGenerator['method'])
             ) {
-                $json = new \Cx\Core\Json\JsonData();
+                $json       = new \Cx\Core\Json\JsonData();
                 $jsonResult = $json->data(
                     $formFieldGenerator['adapter'],
                     $formFieldGenerator['method'],
@@ -219,7 +219,7 @@ class FormGenerator {
                         'value' => $value,
                         'options' => $options,
                     )
-                );
+                )->getAbstractContent();
                 if ($jsonResult['status'] == 'success') {
                     $formField = $jsonResult["data"];
                 }

@@ -216,11 +216,14 @@ class ListingController {
         // handle ajax requests
         if (false /* ajax request for this listing */) {
             $jd = new \Cx\Core\Json\JsonData();
-            $jd->json(array(
-                'filtering' => $this->getAjaxFilteringData(),
-                'sorting' => $this->getAjaxSortingData(),
-                'paging' => $this->getAjaxPagingData(),
-            ), true);
+            $response = new \Cx\Lib\Net\Model\Entity\Response(
+                array(
+                    'filtering' => $this->getAjaxFilteringData(),
+                    'sorting'   => $this->getAjaxSortingData(),
+                    'paging'    => $this->getAjaxPagingData(),
+                )
+            );
+            $jd->json($response, true);
             // JsonData->json() does call die() itself
         }
 

@@ -160,7 +160,7 @@ class BackendTable extends HTML_Table {
                             isset($callback['adapter']) &&
                             isset($callback['method'])
                         ) {
-                            $json = new \Cx\Core\Json\JsonData();
+                            $json       = new \Cx\Core\Json\JsonData();
                             $jsonResult = $json->data(
                                 $callback['adapter'],
                                 $callback['method'],
@@ -168,7 +168,7 @@ class BackendTable extends HTML_Table {
                                     'data' => $data,
                                     'rows' => $rows,
                                 )
-                            );
+                            )->getAbstractContent();
                             if ($jsonResult['status'] == 'success') {
                                 $data = $jsonResult["data"];
                             }
@@ -388,7 +388,7 @@ class BackendTable extends HTML_Table {
                 isset($functions['actions']['adapter']) &&
                 isset($functions['actions']['method'])
             ){
-                $json = new \Cx\Core\Json\JsonData();
+                $json       = new \Cx\Core\Json\JsonData();
                 $jsonResult = $json->data(
                     $functions['actions']['adapter'],
                     $functions['actions']['method'],
@@ -396,7 +396,7 @@ class BackendTable extends HTML_Table {
                         'rowData' => $rowData,
                         'editId' => $editId,
                     )
-                );
+                )->getAbstractContent();
                 if ($jsonResult['status'] == 'success') {
                     $code .= $jsonResult["data"];
                 }

@@ -145,8 +145,9 @@ class JsonNode implements JsonAdapter {
 
     /**
      * Returns the Node tree rendered for JS
-     * @return \Cx\Lib\Net\Model\Entity\Response JSON data
-     * @throws ContentManagerException
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Node tree
+     * @throws ContentManagerException           If the loggedIn user have no permission to get node tree
      */
     public function getTree($parameters) {
         global $_CORELANG;
@@ -192,7 +193,7 @@ class JsonNode implements JsonAdapter {
             $recursive = true;
         }
         return new \Cx\Lib\Net\Model\Entity\Response(
-           $this->renderTree($nodeId, $recursive)
+            $this->renderTree($nodeId, $recursive)
         );
     }
 
@@ -205,10 +206,12 @@ class JsonNode implements JsonAdapter {
      * position = new position of id as ref's Nth child
      *
      * Data source is in /lib/javascript/jquery/jstree/contrexx.js
+     *
      * @param array $arguments Arguments passed from JsonData
-     * @return \Cx\Lib\Net\Model\Entity\Response
-     * @throws ContentManagerException
-     * @throws \Exception
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Node levels as response
+     * @throws ContentManagerException           If the loggedIn user have no permission to move a node
+     * @throws \Exception                        If the move operation get failed
      */
     public function move($arguments) {
         global $_CORELANG;
@@ -276,9 +279,11 @@ class JsonNode implements JsonAdapter {
     /**
      * Copy node
      *
-     * @param array $arguments
-     * @return \Cx\Lib\Net\Model\Entity\Response
-     * @throws ContentManagerException
+     * @param array $arguments supplied arguments from JsonData-request
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response null
+     * @throws ContentManagerException           If the loggedIn user have no permission to copy a node or
+     *                                           If the node is not exists
      */
     public function copy($arguments) {
         global $_CORELANG;
@@ -338,7 +343,7 @@ class JsonNode implements JsonAdapter {
         $this->em->flush();
         $this->clearCache();
 
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     protected function titleExists($parentNode, $lang, $title) {
@@ -352,9 +357,11 @@ class JsonNode implements JsonAdapter {
 
     /**
      * Deletes a node
+     *
      * @param array $arguments Arguments passed from JsonData
-     * @return \Cx\Lib\Net\Model\Entity\Response
-     * @throws ContentManagerException
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of deleted node
+     * @throws ContentManagerException           If the loggedIn user have no permission to delete a node
      */
     public function delete($arguments, $flush = true) {
         global $_CORELANG;
@@ -422,9 +429,9 @@ class JsonNode implements JsonAdapter {
     /**
      * Deletes multiple nodes.
      *
-     * @param  array  $param  Client parameters.
+     * @param array $param supplied arguments from JsonData-request
      *
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of deleted nodes
      */
     public function multipleDelete($params) {
         $post   = $params['post'];
@@ -446,6 +453,7 @@ class JsonNode implements JsonAdapter {
 
     /**
      * Renders a jsTree friendly representation of the Node tree (in json)
+     *
      * @return String JSON data
      */
     private function renderTree($rootNodeId = 0, $recursive = false) {

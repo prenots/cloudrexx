@@ -199,11 +199,11 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
     /**
      * Get the block content as html
      *
-     * @param array $params all given params from http request
-     * @throws NoPermissionException
-     * @throws NotEnoughArgumentsException
-     * @throws NoBlockFoundException
-     * @return \Cx\Lib\Net\Model\Entity\Response string the html content of the block
+     * @param type $params all given params from http request
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response String the html content of the block
+     * @throws NotEnoughArgumentsException       If the given arguments are not enough
+     * @throws NoBlockFoundException             If no block content found with id
      */
     public function getBlockContent($params) {
         global $_CORELANG, $objDatabase;
@@ -277,11 +277,13 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
     /**
      * Save the block content
      *
-     * @param array $params all given params from http request
-     * @throws NoPermissionException
-     * @throws NotEnoughArgumentsException
-     * @throws BlockCouldNotBeSavedException
-     * @return \Cx\Lib\Net\Model\Entity\Response boolean true if everything finished with success
+     * @param type $params all given params from http request
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Boolean true if everything finished with success
+     * @throws NoPermissionException             If the user is not loggedIn or
+     *                                           If the loggedIn user have no permission to edit block
+     * @throws NotEnoughArgumentsException       If the given parameters are not enough
+     * @throws BlockCouldNotBeSavedException     If any issue occurred while saving block
      */
     public function saveBlockContent($params) {
         global $_CORELANG, $objDatabase;

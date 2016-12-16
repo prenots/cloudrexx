@@ -89,7 +89,7 @@ class JsonUser implements JsonAdapter {
      * If the user does not exist then return the currently logged in user.
      *
      * @return \Cx\Lib\Net\Model\Entity\Response User id and title
-     * @throws \Exception
+     * @throws \Exception                        If the user is not loggedIn or mode is backend
      */
     public function getUserById() {
         global $objInit, $_CORELANG;
@@ -118,7 +118,7 @@ class JsonUser implements JsonAdapter {
      * Returns all users according to the given term.
      *
      * @return \Cx\Lib\Net\Model\Entity\Response List of users
-     * @throws \Exception
+     * @throws \Exception                        If the user is not loggedIn or mode is backend
      */
     public function getUsers() {
         global $objInit, $_CORELANG;
@@ -160,6 +160,7 @@ class JsonUser implements JsonAdapter {
      *
      * @param string $_POST['USERNAME']
      * @param string $_POST['PASSWORD']
+     *
      * @return \Cx\Lib\Net\Model\Entity\Response False on failure and array with userdata on success
      */
     public function loginUser() {
@@ -192,6 +193,7 @@ class JsonUser implements JsonAdapter {
      * Sends a Email with a new tomporary Password to the user with given email
      *
      * @param string $arguments['get']['email'] || $arguments['post']['email']
+     *
      * @return \Cx\Lib\Net\Model\Entity\Response boolean
      */
     public function lostPassword($arguments) {
@@ -212,6 +214,7 @@ class JsonUser implements JsonAdapter {
      * @param string $arguments['get']['userId'] || $arguments['post']['userId']
      * @param string $arguments['get']['password'] || $arguments['post']['password']
      * @param string $arguments['get']['repeatPassword'] || $arguments['post']['repeatPassword']
+     *
      * @return \Cx\Lib\Net\Model\Entity\Response boolean
      */
     public function setPassword($arguments) {

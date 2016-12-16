@@ -107,7 +107,8 @@ class ViewGeneratorJsonController extends \Cx\Core\Core\Model\Entity\Controller 
      *
      * @access public
      * @param array $params data from ajax request
-     * @return \Cx\Lib\Net\Model\Entity\Response rendered form
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Rendered form
      */
     public function getViewOverJson($params)
     {
@@ -145,8 +146,11 @@ class ViewGeneratorJsonController extends \Cx\Core\Core\Model\Entity\Controller 
      *
      * @param array $params supplied arguments from JsonData-request
      *
-     * @return \Cx\Lib\Net\Model\Entity\Response it contains status and record count
-     * @throws \Exception
+     * @return \Cx\Lib\Net\Model\Entity\Response It contains status and record count
+     * @throws \Exception                        If the arguments have invalid value or
+     *                                           If the entity class not found in the component or
+     *                                           If there is no entities found or
+     *                                           If any error occur while proceeding the sorting
      */
     public function updateOrder($params) {
         global $_ARRAYLANG, $objInit;

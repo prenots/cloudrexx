@@ -91,10 +91,10 @@ class JsonUploader extends SystemComponentController implements JsonAdapter
     /**
      * Upload handler.
      *
-     * @param $params
+     * @param $params all given params from http request
      *
-     * @return \Cx\Lib\Net\Model\Entity\Response
-     * @throws UploaderException
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of upload process
+     * @throws UploaderException                 If the file upload is get failed
      */
     public function upload($params)
     {

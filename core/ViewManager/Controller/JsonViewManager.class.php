@@ -91,8 +91,7 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
     /**
      * activate the selected theme as standard theme
      *
-     * @global type $objDatabase
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function activateTheme() {
         global $objDatabase;
@@ -120,13 +119,13 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
                $objDatabase->Execute("UPDATE ".DBPREFIX."languages SET `". $themeTypes[$themeType] ."` ='".intval($themeId)."' WHERE `frontend` = 1");
             }
         }
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
      * activate selected languages for the corresponding theme
      *
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response Array of language data
      */
     public function activateLanguages() {
 
@@ -167,8 +166,7 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
     /**
      * Check whether the theme is selected for any of the active languages/custom theme for active languages/other theme
      *
-     * @global \Cx\Core\ViewManager\Controller\type $_ARRAYLANG
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response Resulting data
      */
     public function checkThemeExistsByThemeId() {
         global $_ARRAYLANG;
@@ -226,8 +224,7 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
     /**
      * Delete selected theme and its theme folder
      *
-     * @global type $_ARRAYLANG
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of delete operation
      */
     function deleteThemeById() {
         global $_ARRAYLANG;
@@ -336,7 +333,8 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
      * delete the file or directory
      *
      * @param array $params supplied arguments from JsonData-request
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of delete operation
      */
     public function delete($params)
     {
@@ -419,7 +417,8 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
      * rename the file or directory
      *
      * @param array $params supplied arguments from JsonData-request
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of file rename
      */
     public function rename($params)
     {
@@ -550,7 +549,8 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
      * create new file or folder
      *
      * @param array $params supplied arguments from JsonData-request
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Status of file/folder creation
      */
     public function newWithin($params)
     {

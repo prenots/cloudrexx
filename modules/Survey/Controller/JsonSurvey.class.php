@@ -83,7 +83,9 @@ class JsonSurvey implements JsonAdapter {
     }
 
     /**
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * Modify the questions
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function modifyQuestions() {
 
@@ -99,11 +101,13 @@ class JsonSurvey implements JsonAdapter {
         $objQuestion->isCommentable   = isset($_POST['Iscomment']) ? (int) $_POST['Iscomment'] : 0;
 
         $objQuestion->save();
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * Get the list of survey questions
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response List of survey questions
      */
     public function getSurveyQuestions()
     {
@@ -114,7 +118,9 @@ class JsonSurvey implements JsonAdapter {
     }
 
     /**
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * Get the survey question by ID
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response survey question
      */
     public function getSurveyQuestion()
     {
@@ -140,7 +146,9 @@ class JsonSurvey implements JsonAdapter {
     }
 
     /**
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * Delete a question
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function deleteQuestion()
     {
@@ -149,11 +157,13 @@ class JsonSurvey implements JsonAdapter {
         $objQuestion->id = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0;
 
         $objQuestion->delete();
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * Save sorting
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function saveSorting()
     {
@@ -167,6 +177,6 @@ class JsonSurvey implements JsonAdapter {
                 $objQuestion->updatePosition();
             }
         }
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 }

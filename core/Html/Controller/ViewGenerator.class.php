@@ -275,14 +275,14 @@ class ViewGenerator {
                     isset($storecallback['adapter']) &&
                     isset($storecallback['method'])
                 ) {
-                    $json = new \Cx\Core\Json\JsonData();
+                    $json       = new \Cx\Core\Json\JsonData();
                     $jsonResult = $json->data(
                         $storecallback['adapter'],
                         $storecallback['method'],
                         array(
                             'postedValue' => $postedValue,
                         )
-                    );
+                    )->getAbstractContent();
                     if ($jsonResult['status'] == 'success') {
                         $entityData[$name] = $jsonResult["data"];
                     }
@@ -726,7 +726,7 @@ class ViewGenerator {
                 isset($preRender['adapter']) &&
                 isset($preRender['method'])
             ) {
-                $json = new \Cx\Core\Json\JsonData();
+                $json       = new \Cx\Core\Json\JsonData();
                 $jsonResult = $json->data(
                     $preRender['adapter'],
                     $preRender['method'],
@@ -735,7 +735,7 @@ class ViewGenerator {
                         'formGenerator' => $this->formGenerator,
                         'entityId'  => $entityId,
                     )
-                );
+                )->getAbstractContent();
                 if ($jsonResult['status'] == 'success') {
                     $additionalContent .= $jsonResult["data"];
                 }

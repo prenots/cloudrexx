@@ -590,8 +590,12 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
 
             // set dynamic access ids
             $arrSelectedPageIds = isset($_POST['access_page_id']) && is_array($_POST['access_page_id']) ? $_POST['access_page_id'] : array();
-            $objJsonData =  new \Cx\Core\Json\JsonData();
-            $jsonData = $objJsonData->data('node', 'getTree', array('get' => array('recursive' => 'true')));
+            $objJsonData = new \Cx\Core\Json\JsonData();
+            $jsonData    = $objJsonData->data(
+                'node',
+                'getTree',
+                array('get' => array('recursive' => 'true'))
+            )->getAbstractContent();
             $nodeStack = $jsonData['data']['tree'];
             while (count($nodeStack)) {
                 $node = array_pop($nodeStack);
@@ -696,8 +700,12 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
         ));
 
         \JS::registerCSS('core/ContentManager/View/Style/Main.css');
-        $objJsonData =  new \Cx\Core\Json\JsonData();
-        $jsonData = $objJsonData->data('node', 'getTree', array('get' => array('recursive' => 'true')));
+        $objJsonData = new \Cx\Core\Json\JsonData();
+        $jsonData    = $objJsonData->data(
+            'node',
+            'getTree',
+            array('get' => array('recursive' => 'true'))
+        )->getAbstractContent();
         $nodeTree = $jsonData['data']['tree'];
         $this->parseContentTree($nodeTree, $objGroup->getType(), $objGroup->getDynamicPermissionIds());
 

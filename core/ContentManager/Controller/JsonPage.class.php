@@ -189,11 +189,12 @@ class JsonPage implements JsonAdapter {
     /**
      * Handles request from the client
      * @todo Clean up usage of $param and $_GET
-     * @global Array $_CORELANG Core language data
+     *
      * @param Array $params Client parameters
-     * @return \Cx\Lib\Net\Model\Entity\Response
-     * @throws \Exception
-     * @throws \Cx\Core\ContentManager\Model\Entity\PageException
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response                  JSON data
+     * @throws \Exception                                         If the loggedIn user have no permission to update/create a page
+     * @throws \Cx\Core\ContentManager\Model\Entity\PageException If the loggedIn user have no permission to read a page info
      */
     public function set($params) {
         global $_CORELANG;
@@ -658,8 +659,9 @@ class JsonPage implements JsonAdapter {
     /**
      * Sets multiple pages.
      *
-     * @param  array  $params  Client parameters.
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @param array $params Client parameters.
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response JSON data
      */
     public function multipleSet($params) {
         register_shutdown_function(array($this, 'multipleSetShutdown'));
@@ -771,9 +773,11 @@ class JsonPage implements JsonAdapter {
 
     /**
      * Sets the page object in the session and returns the link to the page (frontend).
-     * @param   array  $params
-     * @return \Cx\Lib\Net\Model\Entity\Response [link]     The link to the page (frontend).
-     * @throws \Exception
+     *
+     * @param array $params Users input params
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response [link] The link to the page (frontend).
+     * @throws \Exception                        If the loggedIn user have no permission to preview the page
      */
     public function setPagePreview($params) {
         global $_CORELANG;
@@ -788,7 +792,7 @@ class JsonPage implements JsonAdapter {
         $page['lang'] = $params['post']['page']['lang'];
 
         $_SESSION['page'] = $page;
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
@@ -1022,6 +1026,7 @@ class JsonPage implements JsonAdapter {
     /**
      * Returns the access data array
      * @param type $page Unused
+     *
      * @return \Cx\Lib\Net\Model\Entity\Response Access data
      */
     public function getAccessData($page = null) {
@@ -1203,8 +1208,9 @@ class JsonPage implements JsonAdapter {
      * Returns the page path of the given target (node placeholder).
      * If the target page doesn't exist, the path of the error page will be returned.
      *
-     * @param   array   $arguments
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @param array $arguments supplied arguments from JsonData-request
+     *
+     * @return \Cx\Lib\Net\Model\Entity\Response Target data
      */
     public function getPathByTarget($arguments) {
         global $_CONFIG;
@@ -1233,7 +1239,8 @@ class JsonPage implements JsonAdapter {
     /**
      * Checks if the passed page or its redirect target page is broken.
      *
-     * @param   array   $arguments
+     * @param array $arguments supplied arguments from JsonData-request
+     *
      * @return \Cx\Lib\Net\Model\Entity\Response boolean
      */
     public function isBroken($arguments) {
@@ -1267,7 +1274,7 @@ class JsonPage implements JsonAdapter {
     /**
      * load the application template based on the application, cmd and theme name
      *
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response Result data
      */
     public function loadApplicationTemplate() {
 

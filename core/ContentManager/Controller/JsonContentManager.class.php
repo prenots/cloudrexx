@@ -81,7 +81,7 @@ class JsonContentManager implements JsonAdapter {
      * Saves the toggle statuses in the session.
      * @param Array $params Client parameters
      * @author Yannic Tschanz <yannic.tschanz@comvation.com>
-     * @return \Cx\Lib\Net\Model\Entity\Response
+     * @return \Cx\Lib\Net\Model\Entity\Response null
      */
     public function saveToggleStatuses($params) {
         $arrToggleStatuses = array();
@@ -94,7 +94,7 @@ class JsonContentManager implements JsonAdapter {
         }
         $_SESSION['contentManager']['toggleStatuses'] = $arrToggleStatuses;
 
-        return new \Cx\Lib\Net\Model\Entity\Response(true);
+        return new \Cx\Lib\Net\Model\Entity\Response(null);
     }
 
     /**
@@ -144,9 +144,12 @@ class JsonContentManager implements JsonAdapter {
      * @param atring    $action  Action string (copy, link)
      * @param array     $params  Request params
      *
-     * @return \Cx\Lib\Net\Model\Entity\Response 
+     * @return \Cx\Lib\Net\Model\Entity\Response               Response of performed language action
      *
-     * @throws \Cx\Core\ContentManager\ContentManagerException
+     * @throws \Cx\Core\ContentManager\ContentManagerException If the loggedIn user have no permission to perform lang action or
+     *                                                         If the parameter list is Illegal or
+     *                                                         If the Language has no fallback to copy/link from or
+     *                                                         If the target language have no language code
      */
     private function performLanguageAction($action, $params) {
         global $_CORELANG;

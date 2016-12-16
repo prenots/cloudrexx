@@ -381,8 +381,12 @@ class FileBrowser {
 
         switch ($this->_mediaType) {
             case 'webpages':
-                $jd = new \Cx\Core\Json\JsonData();
-                $data = $jd->data('node', 'getTree', array('get' => array('recursive' => 'true')));
+                $jd   = new \Cx\Core\Json\JsonData();
+                $data = $jd->data(
+                    'node',
+                    'getTree',
+                    array('get' => array('recursive' => 'true'))
+                )->getAbstractContent();
                 $pageStack = array();
                 $ref = 0;
                 $data['data']['tree'] = array_reverse($data['data']['tree']);
