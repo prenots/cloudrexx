@@ -28,6 +28,31 @@ class Catalog extends \Cx\Model\Base\EntityBase
     protected $date;
 
     /**
+     * @var string $meta
+     */
+    protected $meta;
+
+    /**
+     * @var integer $counterMail
+     */
+    protected $counterMail;
+
+    /**
+     * @var integer $counterPrint
+     */
+    protected $counterPrint;
+
+    /**
+     * @var integer $counterRecommendation
+     */
+    protected $counterRecommendation;
+
+    /**
+     * @var integer $counterInquiry
+     */
+    protected $counterInquiry;
+
+    /**
      * @var Cx\Modules\FavoriteList\Model\Entity\Favorite
      */
     protected $favorites;
@@ -95,6 +120,146 @@ class Catalog extends \Cx\Model\Base\EntityBase
     public function setDate($date)
     {
         $this->date = $date;
+    }
+
+    /**
+     * Get meta
+     *
+     * @return string $meta
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    /**
+     * Set meta
+     *
+     * @param string $meta
+     */
+    public function setMeta($meta)
+    {
+        $this->meta = $meta;
+    }
+
+    /**
+     * Get counterMail
+     *
+     * @return integer $counterMail
+     */
+    public function getCounterMail()
+    {
+        return $this->counterMail;
+    }
+
+    /**
+     * Set counterMail
+     *
+     * @param integer $counterMail
+     */
+    public function setCounterMail($counterMail)
+    {
+        $this->counterMail = $counterMail;
+    }
+
+    /**
+     * Adds offset to counterMail
+     *
+     * @param integer $offset
+     */
+    public function addCounterMail($offset)
+    {
+        $this->counterMail += $offset;
+    }
+
+    /**
+     * Get counterPrint
+     *
+     * @return integer $counterPrint
+     */
+    public function getCounterPrint()
+    {
+        return $this->counterPrint;
+    }
+
+    /**
+     * Set counterPrint
+     *
+     * @param integer $counterPrint
+     */
+    public function setCounterPrint($counterPrint)
+    {
+        $this->counterPrint = $counterPrint;
+    }
+
+    /**
+     * Adds offset to counterPrint
+     *
+     * @param integer $offset
+     */
+    public function addCounterPrint($offset)
+    {
+        $this->counterPrint += $offset;
+    }
+
+    /**
+     * Get counterRecommendation
+     *
+     * @return integer $counterRecommendation
+     */
+    public function getCounterRecommendation()
+    {
+        return $this->counterRecommendation;
+    }
+
+    /**
+     * Set counterRecommendation
+     *
+     * @param integer $counterRecommendation
+     */
+    public function setCounterRecommendation($counterRecommendation)
+    {
+        $this->counterRecommendation = $counterRecommendation;
+    }
+
+    /**
+     * Adds offset to counterRecommendation
+     *
+     * @param integer $offset
+     */
+    public function addCounterRecommendation($offset)
+    {
+        $this->counterRecommendation += $offset;
+    }
+
+    /**
+     * Get counterInquiry
+     *
+     * @return integer $counterInquiry
+     */
+    public function getCounterInquiry()
+    {
+        return $this->counterInquiry;
+    }
+
+    /**
+     * Set counterInquiry
+     *
+     * @param integer $counterInquiry
+     */
+    public function setCounterInquiry($counterInquiry)
+    {
+        $this->counterInquiry = $counterInquiry;
+    }
+
+    /**
+     * Adds offset to counterInquiry
+     *
+     * @param integer $offset
+     */
+    public function addCounterInquiry($offset)
+    {
+        $this->counterInquiry += $offset;
     }
 
     /**

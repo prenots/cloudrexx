@@ -111,6 +111,7 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
                 foreach ($favorites as $favorite) {
                     $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_ENTITY' => 'favoriteListBlockListEntity',
+                        strtoupper($this->getName()) . '_BLOCK_LIST_ID' => $favorite->getId(),
                         strtoupper($this->getName()) . '_BLOCK_LIST_NAME' => contrexx_raw2xhtml($favorite->getTitle()),
                         strtoupper($this->getName()) . '_BLOCK_LIST_DELETE_ACTION' => 'cx.favoriteListRemoveFavorite(' . $favorite->getId() . ');',
                         strtoupper($this->getName()) . '_BLOCK_LIST_EDIT_LINK' => \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
@@ -118,18 +119,15 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
                             $favorite->getId(),
                             \Cx\Core\Routing\Url::fromModuleAndCmd($this->getName())
                         ),
-                    ));
-                    $template->setVariable(array(
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE' => contrexx_raw2xhtml($favorite->getMessage()),
                         strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_NAME' => 'favoriteListBlockListEntityMessage',
-                        strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_ACTION' => 'cx.favoriteListEditFavoriteMessage(' . $favorite->getId() . ', this);',
-                        strtoupper($this->getName()) . '_BLOCK_LIST_MESSAGE_SAVE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_SAVE'],
                     ));
-                    $template->parse(strtolower($this->getName()) . '_block_list_row_message');
                     $template->parse(strtolower($this->getName()) . '_block_list_row');
                     $totalPrice += contrexx_raw2xhtml($favorite->getPrice());
                 }
                 $template->setVariable(array(
+                    strtoupper($this->getName()) . '_BLOCK_SAVE_LABEL' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_SAVE'],
+                    strtoupper($this->getName()) . '_BLOCK_SAVE_ACTION' => 'cx.favoriteListSave();',
                     strtoupper($this->getName()) . '_BLOCK_TOTAL_PRICE' => number_format($totalPrice, 2, '.', '\''),
                     strtoupper($this->getName()) . '_BLOCK_TOTAL_PRICE_LABEL' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_BLOCK_TOTAL_PRICE_LABEL'],
                 ));
@@ -156,13 +154,23 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
             return;
         }
 
-        $link = contrexx_input2db($data['get']['link']);
-        $description = contrexx_input2db($data['get']['description']);
-        $message = contrexx_input2db($data['get']['message']);
-        $price = contrexx_input2db($data['get']['price']);
-        $image1 = contrexx_input2db($data['get']['image1']);
-        $image2 = contrexx_input2db($data['get']['image2']);
-        $image3 = contrexx_input2db($data['get']['image3']);
+        $allowedAttributes = array(
+            'title',
+            'link',
+            'description',
+            'message',
+            'price',
+            'image1',
+            'image2',
+            'image3',
+        );
+
+        $attributes = array();
+        foreach ($data['get'] as $key => $value) {
+            if (in_array($key, $allowedAttributes)) {
+                $attributes[$key] = contrexx_input2db($data['get'][$key]);
+            }
+        }
 
         $em = $this->cx->getDb()->getEntityManager();
 
@@ -170,23 +178,34 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
         $catalog = $catalogRepo->findOneBy(array('sessionId' => $this->getComponent('Session')->getSession()->sessionid));
 
         if (!$catalog) {
-            $catalog = new \Cx\Modules\FavoriteList\Model\Entity\Catalog();
             $dateTimeNow = new \DateTime('now');
             $dateTimeNowFormat = $dateTimeNow->format('d.m.Y H:i:s');
+
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $meta['ipaddress'] = contrexx_input2raw($_SERVER['HTTP_X_FORWARDED_FOR']);
+            } else {
+                $meta['ipaddress'] = contrexx_input2raw($_SERVER['REMOTE_ADDR']);
+            }
+            $meta['host'] = contrexx_input2raw(gethostbyaddr($meta['ipaddress']));
+            $meta['lang'] = contrexx_input2raw($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $meta['browser'] = contrexx_input2raw($_SERVER['HTTP_USER_AGENT']);
+
+            $catalog = new \Cx\Modules\FavoriteList\Model\Entity\Catalog();
             $catalog->setName($_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())] . ' ' . $dateTimeNowFormat);
+            $catalog->setMeta(serialize($meta));
+            $catalog->setCounterMail(0);
+            $catalog->setCounterPrint(0);
+            $catalog->setCounterRecommendation(0);
+            $catalog->setCounterInquiry(0);
             $em->persist($catalog);
         }
 
         $favorite = new \Cx\Modules\FavoriteList\Model\Entity\Favorite();
         $favorite->setCatalog($catalog);
-        $favorite->setTitle($title);
-        $favorite->setLink($link);
-        $favorite->setDescription($description);
-        $favorite->setMessage($message);
-        $favorite->setPrice($price);
-        $favorite->setImage1($image1);
-        $favorite->setImage2($image2);
-        $favorite->setImage3($image3);
+
+        foreach ($attributes as $key => $value) {
+            $favorite->{'set' . ucfirst($key)}($value);
+        }
 
         $em->persist($favorite);
         $em->flush();
@@ -238,29 +257,43 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
     public function editFavoriteMessage($data = array())
     {
         $id = contrexx_input2db($data['get']['id']);
-        if (empty($id)) {
+        $attribute = contrexx_input2db($data['get']['attribute']);
+        if (empty($id) || empty($attribute)) {
             return;
         }
 
-        $message = contrexx_input2db($data['get']['message']);
+        $value = contrexx_input2db($data['get']['value']);
 
         $em = $this->cx->getDb()->getEntityManager();
-        $favoriteRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\Favorite');
-        $favorite = $favoriteRepo->findOneBy(array('id' => $id));
+        $catalogRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\Catalog');
+        $catalog = $catalogRepo->findOneBy(array('sessionId' => $this->getComponent('Session')->getSession()->sessionid));
+        $favorite = $catalog->getFavorites()->filter(
+            function ($favorite) use ($id) {
+                return $favorite->getId() == $id;
+            }
+        )->first();
 
-        $favorite->setMessage($message);
+        $allowedAttributes = array(
+            'title',
+            'link',
+            'description',
+            'message',
+            'price',
+            'image1',
+            'image2',
+            'image3',
+        );
 
-        $em->persist($favorite);
-        $em->flush();
-        $em->clear();
+        if (in_array($attribute, $allowedAttributes)) {
+            $favorite->{'set' . ucfirst($attribute)}($value);
 
-        if (isset($data['get']['lang'])) {
-            return $this->getCatalog($data);
+            $em->persist($favorite);
+            $em->flush();
+            $em->clear();
+
+            if (isset($data['get']['lang'])) {
+                return $this->getCatalog($data);
+            }
         }
-        $theme = $themeRepository->findById($id);
-        if (!$theme) {
-            throw new JsonListException('The theme id ' . $id . ' does not exists.');
-        }
-        return $theme;
     }
 }

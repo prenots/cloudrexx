@@ -210,15 +210,16 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $header = $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_DEFAULT'];
         }
 
+        $favoriteUrl = \Cx\Core\Routing\Url::fromDocumentRoot();
+        $favoriteUrl->setMode(\Cx\Core\Core\Controller\Cx::MODE_BACKEND);
+        $favoriteUrl->setPath(substr($this->cx->getBackendFolderName(), 1) . '/' . $this->getName() . '/Favorite');
+
         switch ($entityClassName) {
             case 'Cx\Modules\FavoriteList\Model\Entity\Catalog':
                 // set default order for entries
                 if (!isset($_GET['order'])) {
                     $_GET['order'] = 'id';
                 }
-                $favoriteUrl = \Cx\Core\Routing\Url::fromDocumentRoot();
-                $favoriteUrl->setMode(\Cx\Core\Core\Controller\Cx::MODE_BACKEND);
-                $favoriteUrl->setPath($this->cx->getBackendFolderName() . '/' . $this->getName() . '/Favorite');
                 return array(
                     'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_ACT_CATALOG'],
                     'fields' => array(
@@ -242,10 +243,77 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                     )->toString() . '">' . $value . '</a>';
                                 },
                             ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
                         ),
                         'date' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DATE'],
                             'showDetail' => false,
+                        ),
+                        'meta' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META'],
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $meta = $this->formatMeta($value);
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($meta));
+                                return $field;
+                            },
+                            'showOverview' => false,
+                        ),
+                        'counterMail' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_MAIL'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
+                        'counterPrint' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_PRINT'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
+                        'counterRecommendation' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_RECOMMENDATION'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
+                        ),
+                        'counterInquiry' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_COUNTER_INQUIRY'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return $value;
+                                },
+                            ),
+                            'formfield' => function ($name, $type, $length, $value, $options) {
+                                $field = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                                $field->addChild(new \Cx\Core\Html\Model\Entity\TextElement($value));
+                                return $field;
+                            },
                         ),
                         'favorites' => array(
                             'showOverview' => false,
@@ -272,33 +340,98 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'fields' => array(
                         'id' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_ID'],
-                        ),
-                        'title' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_TITLE'],
-                        ),
-                        'link' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_LINK'],
-                        ),
-                        'description' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DESCRIPTION'],
-                        ),
-                        'message' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_MESSAGE'],
-                        ),
-                        'price' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
-                        ),
-                        'image1' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
-                        ),
-                        'image2' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
-                        ),
-                        'image3' => array(
-                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString($value);
+                                },
+                            ),
                         ),
                         'catalog' => array(
                             'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_CATALOG'],
+                            'table' => array(
+                                'parse' => function ($value, $rowData) use ($favoriteUrl) {
+                                    return '<a href="' . \Cx\Core\Html\Controller\ViewGenerator::getVgExtendedSearchUrl(
+                                        0,
+                                        array(
+                                            'catalog' => $rowData['catalog']->getId(),
+                                        ),
+                                        clone $favoriteUrl
+                                    )->toString() . '">' . $this->returnString($value) . '</a>';
+                                },
+                            ),
+                        ),
+                        'title' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_TITLE'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString($value);
+                                },
+                            ),
+                        ),
+                        'link' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_LINK'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString($value, '<a target="_blank" href="' . $value . '">' . $value . '</a>');
+                                },
+                            ),
+                        ),
+                        'description' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_DESCRIPTION'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString($value);
+                                },
+                            ),
+                        ),
+                        'message' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_MESSAGE'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString($value);
+                                },
+                            ),
+                        ),
+                        'price' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_PRICE'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString($value);
+                                },
+                            ),
+                        ),
+                        'image1' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE1'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString(
+                                        $value,
+                                        '<img src="' . $value . '"/>'
+                                    );
+                                },
+                            ),
+                        ),
+                        'image2' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE2'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString(
+                                        $value,
+                                        '<img src="' . $value . '"/>'
+                                    );
+                                },
+                            ),
+                        ),
+                        'image3' => array(
+                            'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_IMAGE3'],
+                            'table' => array(
+                                'parse' => function ($value) {
+                                    return $this->returnString(
+                                        $value,
+                                        '<img src="' . $value . '"/>'
+                                    );
+                                },
+                            ),
                         ),
                     ),
                     'functions' => array(
@@ -412,6 +545,55 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
                 break;
         }
+    }
+
+    /**
+     * Returns empty string if value is null
+     *
+     * @access  public
+     * @return  string
+     */
+    public function returnString($value, $output = null)
+    {
+        if (is_null($value) || $value == '0' || $value == '') {
+            return '';
+        }
+        if (!is_null($output)) {
+            return $output;
+        }
+        return $value;
+    }
+
+    /**
+     * Formats the serialized array to output string
+     *
+     * @access  protected
+     * @return  string
+     * @global  $_ARRAYLANG
+     */
+    protected function formatMeta($value)
+    {
+        global $_ARRAYLANG;
+
+        $meta = unserialize($value);
+        $formatedValue['ipaddress'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_IP_ADDRESS']
+            . ': '
+            . $meta['ipaddress'];
+        $formatedValue['host'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_HOST']
+            . ': '
+            . $meta['host'];
+        $formatedValue['lang'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_LANGUAGE']
+            . ': '
+            . $meta['lang'];
+        $formatedValue['browser'] =
+            $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName()) . '_FIELD_META_BROWSER']
+            . ': '
+            . $meta['browser'];
+
+        return implode('<br />', $formatedValue);
     }
 
     /**
