@@ -154,13 +154,23 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
             return;
         }
 
-        $link = contrexx_input2db($data['get']['link']);
-        $description = contrexx_input2db($data['get']['description']);
-        $message = contrexx_input2db($data['get']['message']);
-        $price = contrexx_input2db($data['get']['price']);
-        $image1 = contrexx_input2db($data['get']['image1']);
-        $image2 = contrexx_input2db($data['get']['image2']);
-        $image3 = contrexx_input2db($data['get']['image3']);
+        $allowedAttributes = array(
+            'title',
+            'link',
+            'description',
+            'message',
+            'price',
+            'image1',
+            'image2',
+            'image3',
+        );
+
+        $attributes = array();
+        foreach ($data['get'] as $key => $value) {
+            if (in_array($key, $allowedAttributes)) {
+                $attributes[$key] = contrexx_input2db($data['get'][$key]);
+            }
+        }
 
         $em = $this->cx->getDb()->getEntityManager();
 
@@ -192,14 +202,10 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
 
         $favorite = new \Cx\Modules\FavoriteList\Model\Entity\Favorite();
         $favorite->setCatalog($catalog);
-        $favorite->setTitle($title);
-        $favorite->setLink($link);
-        $favorite->setDescription($description);
-        $favorite->setMessage($message);
-        $favorite->setPrice($price);
-        $favorite->setImage1($image1);
-        $favorite->setImage2($image2);
-        $favorite->setImage3($image3);
+
+        foreach ($attributes as $key => $value) {
+            $favorite->{'set' . ucfirst($key)}($value);
+        }
 
         $em->persist($favorite);
         $em->flush();
@@ -273,9 +279,9 @@ class JsonController extends \Cx\Core\Core\Model\Entity\Controller implements \C
             'description',
             'message',
             'price',
-            'image_1',
-            'image_2',
-            'image_3',
+            'image1',
+            'image2',
+            'image3',
         );
 
         if (in_array($attribute, $allowedAttributes)) {
