@@ -57,17 +57,24 @@ class MediaDirectoryPlaceholders extends MediaDirectoryLibrary
         parent::getSettings();
     }
 
-    function getNavigationPlacholder()
+    /**
+     * Get the navigation placeholders
+     *
+     * @param integer $langId language ID
+     *
+     * @return string content of navigation placeholder
+     */
+    public function getNavigationPlacholder($langId = null)
     {
         $this->strPlaceholder = null;
 
-        if($this->arrSettings['settingsShowLevels'] == 1) {
-            $objLevels = new MediaDirectoryLevel(null, null, 0, $this->moduleName);
+        if ($this->arrSettings['settingsShowLevels'] == 1) {
+            $objLevels = new MediaDirectoryLevel(null, null, 0, $this->moduleName, $langId);
             $intLevelId = isset($_GET['lid']) ? intval($_GET['lid']) : null;
 
-            $this->strPlaceholder = $objLevels->listLevels($this->_objTpl, 6, $intLevelId);
+            $this->strPlaceholder = $objLevels->listLevels($this->_objTpl, 6, $intLevelId, null, null, null, null, $langId);
         } else {
-            $objCategories = new MediaDirectoryCategory(null, null, 0, $this->moduleName);
+            $objCategories = new MediaDirectoryCategory(null, null, 0, $this->moduleName, $langId);
             $intCategoryId = isset($_GET['cid']) ? intval($_GET['cid']) : null;
 
             $this->strPlaceholder = $objCategories->listCategories($this->_objTpl, 6, $intCategoryId, null, null, null, 1);
@@ -76,14 +83,21 @@ class MediaDirectoryPlaceholders extends MediaDirectoryLibrary
         return '<ul id="'.$this->moduleNameLC.'NavigationPlacholder">'.$this->strPlaceholder.'</ul>';
     }
 
-    function getLatestPlacholder()
+    /**
+     * Get the latest placeholders
+     *
+     * @param integer $langId language ID
+     *
+     * @return string content of latest placeholder
+     */
+    public function getLatestPlacholder($langId = null)
     {
         $this->strPlaceholder = null;
 
         $intLimitEnd = intval($this->arrSettings['settingsLatestNumOverview']);
 
         $objEntries = new MediaDirectoryEntry($this->moduleName);
-        $objEntries->getEntries(null,null,null,null,true,null,1,null,$intLimitEnd);
+        $objEntries->getEntries(null, null, null, null, true, null, 1, null, $intLimitEnd, null, null, null, null, 0, 0, $langId);
 
         foreach($objEntries->arrEntries as $intEntryId => $arrEntry) {
             if($objEntries->checkPageCmd('detail'.intval($arrEntry['entryFormId']))) {
@@ -100,4 +114,3 @@ class MediaDirectoryPlaceholders extends MediaDirectoryLibrary
         return '<ul id="'.$this->moduleNameLC.'LatestPlacholder">'.$this->strPlaceholder.'</ul>';
     }
 }
-?>

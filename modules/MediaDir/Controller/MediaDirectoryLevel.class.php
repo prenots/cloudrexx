@@ -63,8 +63,13 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
     /**
      * Constructor
      */
-    function __construct($intLevelId=null, $intParentId=null, $bolGetChildren=1, $name)
-    {
+    function __construct(
+        $intLevelId = null,
+        $intParentId = null,
+        $bolGetChildren = 1,
+        $name,
+        $langId = null
+    ) {
         $this->intLevelId = intval($intLevelId);
         $this->intParentId = intval($intParentId);
         $this->bolGetChildren = intval($bolGetChildren);
@@ -73,15 +78,34 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         parent::getSettings();
         parent::getFrontendLanguages();
 
-        $this->arrLevels = self::getLevels($this->intLevelId, $this->intParentId);
+        $this->arrLevels = self::getLevels(
+            $this->intLevelId,
+            $this->intParentId,
+            $langId
+        );
     }
 
-    function getLevels($intLevelId=null, $intParentId=null)
-    {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID, $objInit;
+    /**
+     * Get the list of levels
+     *
+     * @param integer $intLevelId  level ID
+     * @param integer $intParentId parent level ID
+     * @param integer $langId      langauge ID
+     *
+     * @return array list of levels
+     */
+    public function getLevels(
+        $intLevelId = null,
+        $intParentId = null,
+        $langId = null
+    ) {
+        global $objDatabase, $_LANGID, $objInit;
 
         $arrLevels = array();
 
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
         if(!empty($intLevelId)) {
             $whereLevelId = "level.id='".$intLevelId."' AND";
             $whereParentId = '';
@@ -132,7 +156,7 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                 ($whereLevelId level_names.level_id=level.id)
                 $whereParentId
                 $whereActive
-                AND (level_names.lang_id='".$_LANGID."')
+                AND (level_names.lang_id='" . $langId . "')
             ORDER BY
                 ".$sortOrder."
         ");
@@ -161,7 +185,7 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                 AND
                     rel_inputfield.`field_id` = (".$this->getQueryToFindFirstInputFieldId().")
                 AND
-                    (rel_inputfield.`lang_id` = '".$_LANGID."')
+                    (rel_inputfield.`lang_id` = '" . $langId . "')
                 AND
                     ((`entry`.`duration_type`=2 AND `entry`.`duration_start` <= ".time()." AND `entry`.`duration_end` >= ".time().") OR (`entry`.`duration_type`=1))
 
@@ -232,9 +256,31 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         return $arrLevels;
     }
 
-    function listLevels($objTpl, $intView, $intLevelId=null, $arrParentIds=null, $intEntryId=null, $arrExistingBlocks=null, $strClass=null)
-    {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase;
+    /**
+     * List the levels
+     *
+     * @param \Cx\Core\Html\Sigma $objTpl            template object
+     * @param integer             $intView           view number
+     * @param integer             $intLevelId        level ID
+     * @param array               $arrParentIds      array of parent ids
+     * @param integer             $intEntryId        entry ID
+     * @param array               $arrExistingBlocks array of existing blocks
+     * @param string              $strClass          class name
+     * @param integer             $langId            langauge ID
+     *
+     * @return array|string
+     */
+    public function listLevels(
+        $objTpl,
+        $intView,
+        $intLevelId = null,
+        $arrParentIds = null,
+        $intEntryId = null,
+        $arrExistingBlocks = null,
+        $strClass = null,
+        $langId = null
+    ) {
+        global $objDatabase;
 
         if(!isset($arrParentIds)) {
             $arrLevels = $this->arrLevels;
@@ -501,15 +547,15 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                     $arrParentIds[] = $arrLevel['levelId'];
 
                     //get children
-                    if(!empty($arrLevel['levelChildren']) && $arrLevel['levelShowSublevels'] == 1){
+                    if (!empty($arrLevel['levelChildren']) && $arrLevel['levelShowSublevels'] == 1) {
                         if($bolExpandLevel) {
-                            self::listLevels($objTpl, 6, $intLevelId, $arrParentIds);
+                            self::listLevels($objTpl, 6, $intLevelId, $arrParentIds, null, null, null, $langId);
                         }
                     }
 
-                    if($arrLevel['levelShowCategories'] == 1){
-                        if($bolExpandLevel) {
-                            $objCategories = new MediaDirectoryCategory(null, null, 0, $this->moduleName);
+                    if ($arrLevel['levelShowCategories'] == 1) {
+                        if ($bolExpandLevel) {
+                            $objCategories = new MediaDirectoryCategory(null, null, 0, $this->moduleName, $langId);
                             $intCategoryId = isset($_GET['cid']) ? intval($_GET['cid']) : null;
                             if($_GET['lid'] == $arrLevel['levelId']) {
                                $this->strNavigationPlaceholder .= $objCategories->listCategories($this->_objTpl, 6, $intCategoryId, null, null, null, intval(count($arrParentIds)+1));
@@ -717,4 +763,3 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         return true;
     }
 }
-?>

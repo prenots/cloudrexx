@@ -81,9 +81,49 @@ class MediaDirectoryEntry extends MediaDirectoryInputfield
         parent::getFrontendLanguages();
     }
 
-    function getEntries($intEntryId=null, $intLevelId=null, $intCatId=null, $strSearchTerm=null, $bolLatest=null, $bolUnconfirmed=null, $bolActive=null, $intLimitStart=null, $intLimitEnd='n', $intUserId=null, $bolPopular=null, $intCmdFormId=null, $bolReadyToConfirm=null, $intLimit=0, $intOffset=0)
-    {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID, $objInit;
+    /**
+     * Get the media directory entries
+     *
+     * @param integer $intEntryId        entry ID
+     * @param integer $intLevelId        level ID
+     * @param integer $intCatId          category ID
+     * @param string  $strSearchTerm     search term
+     * @param boolean $bolLatest         show latest entries if set to true
+     * @param boolean $bolUnconfirmed    show unconfirmed entries if set to true
+     * @param boolean $bolActive         show active entries if set to true
+     * @param integer $intLimitStart     offset position
+     * @param integer $intLimitEnd       limit
+     * @param integer $intUserId         user ID
+     * @param boolean $bolPopular        show popular entries if set to true
+     * @param integer $intCmdFormId      form ID
+     * @param boolean $bolReadyToConfirm show entries which are ready to confirm if set to true
+     * @param integer $intLimit          limit
+     * @param integer $intOffset         offset
+     * @param integer $langId            language ID
+     */
+    function getEntries(
+        $intEntryId = null,
+        $intLevelId = null,
+        $intCatId = null,
+        $strSearchTerm = null,
+        $bolLatest = null,
+        $bolUnconfirmed = null,
+        $bolActive = null,
+        $intLimitStart = null,
+        $intLimitEnd = 'n',
+        $intUserId = null,
+        $bolPopular = null,
+        $intCmdFormId = null,
+        $bolReadyToConfirm = null,
+        $intLimit = 0,
+        $intOffset = 0,
+        $langId = null
+    ) {
+        global $_ARRAYLANG, $objDatabase, $_LANGID, $objInit;
+
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
         $this->intEntryId = intval($intEntryId);
         $this->intLevelId = intval($intLevelId);
         $this->intCatId = intval($intCatId);
@@ -187,7 +227,7 @@ class MediaDirectoryEntry extends MediaDirectoryInputfield
         }
 
         if(empty($this->strSearchTerm)) {
-            $strWhereFirstInputfield = "AND (rel_inputfield.`form_id` = entry.`form_id`) AND (rel_inputfield.`field_id` = (".$this->getQueryToFindFirstInputFieldId().")) AND (rel_inputfield.`lang_id` = '".$_LANGID."')";
+            $strWhereFirstInputfield = "AND (rel_inputfield.`form_id` = entry.`form_id`) AND (rel_inputfield.`field_id` = (".$this->getQueryToFindFirstInputFieldId().")) AND (rel_inputfield.`lang_id` = '".$langId."')";
         } else {
             $strWhereTerm = "AND ((rel_inputfield.`value` LIKE '%".$this->strSearchTerm."%') OR (entry.`id` = '".$this->strSearchTerm."')) ";
             $strWhereFirstInputfield = '';
@@ -200,7 +240,7 @@ class MediaDirectoryEntry extends MediaDirectoryInputfield
 
         if($objInit->mode == 'frontend') {
             if(intval($this->arrSettings['settingsShowEntriesInAllLang']) == 0) {
-                $strWhereLangId = "AND (entry.`lang_id` = ".$_LANGID.") ";
+                $strWhereLangId = "AND (entry.`lang_id` = ".$langId.") ";
             }
         }
 

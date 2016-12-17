@@ -60,30 +60,60 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
     public $arrCategories = array();
 
-
     /**
      * Constructor
      */
-    function __construct($intCategoryId=null, $intParentId=null, $bolGetChildren=1, $name)
-    {
+    function __construct(
+        $intCategoryId = null,
+        $intParentId = null,
+        $bolGetChildren = 1,
+        $name,
+        $langId = null
+    ) {
         $this->intCategoryId = intval($intCategoryId);
         $this->intParentId = intval($intParentId);
         $this->bolGetChildren = intval($bolGetChildren);
         parent::__construct('.', $name);
         parent::getSettings();
         parent::getFrontendLanguages();
-        $this->loadCategories();
+        $this->loadCategories($langId);
     }
 
-    public function loadCategories() {
-        $this->arrCategories = self::getCategories($this->intCategoryId, $this->intParentId);
-    }
-
-    function getCategories($intCategoryId=null, $intParentId=null)
+    /**
+     * Load categories
+     *
+     * @param integer $langId language ID
+     */
+    public function loadCategories($langId = null)
     {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID, $objInit;
+        $this->arrCategories = self::getCategories(
+            $this->intCategoryId,
+            $this->intParentId,
+            $langId
+        );
+    }
+
+    /**
+     * Get the list of categories
+     *
+     * @param integer $intCategoryId category ID
+     * @param integer $intParentId   parent category ID
+     * @param integer $langId        language ID
+     *
+     * @return array list of categories
+     */
+    public function getCategories(
+        $intCategoryId = null,
+        $intParentId = null,
+        $langId = null
+    ) {
+        global $objDatabase, $_LANGID, $objInit;
 
         $arrCategories = array();
+
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
 
         if(!empty($intCategoryId)) {
             $whereCategoryId = "cat.id='".$intCategoryId."' AND";
@@ -134,7 +164,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 ($whereCategoryId cat_names.category_id=cat.id)
                 $whereParentId
                 $whereActive
-                AND (cat_names.lang_id='".$_LANGID."')
+                AND (cat_names.lang_id='" . $langId . "')
             ORDER BY
                 ".$sortOrder."
         ");
@@ -184,8 +214,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 $arrCategory['catShowSubcategories'] = intval($objCategories->fields['show_subcategories']);
                 $arrCategory['catActive'] = intval($objCategories->fields['active']);
 
-                if($this->bolGetChildren){
-                    $arrCategory['catChildren'] = self::getCategories(null, $objCategories->fields['id']);
+                if ($this->bolGetChildren) {
+                    $arrCategory['catChildren'] = self::getCategories(null, $objCategories->fields['id'], $langId);
                 }
 
                 $arrCategories[$objCategories->fields['id']] = $arrCategory;
@@ -782,4 +812,3 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         return $childrenString;
     }
 }
-?>

@@ -97,47 +97,121 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
     }
+
     /**
      * Do something before content is loaded from DB
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
      */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $objMadiadirPlaceholders, $page_template, $themesPages;
+    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
+    {
+        global $page_template, $themesPages, $_LANGID;
+
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $objMadiadirPlaceholders = new MediaDirectoryPlaceholders($this->getName());
+
                 // Level/Category Navbar
-                if (preg_match('/{MEDIADIR_NAVBAR}/', \Env::get('cx')->getPage()->getContent())) {
-                    \Env::get('cx')->getPage()->setContent(str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), \Env::get('cx')->getPage()->getContent()));
+                $params       = array('lang' => $_LANGID);
+                $cache        = $this->cx->getComponent('Cache');
+                if (isset($_GET['lid']) && !empty($_GET['lid'])) {
+                    $params['lid'] = contrexx_input2raw($_GET['lid']);
                 }
-                if (preg_match('/{MEDIADIR_NAVBAR}/', $page_template)) {
-                    $page_template = str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), $page_template);
+                if (isset($_GET['cid']) && !empty($_GET['cid'])) {
+                    $params['cid'] = contrexx_input2raw($_GET['cid']);
                 }
-                if (preg_match('/{MEDIADIR_NAVBAR}/', $themesPages['index'])) {
-                    $themesPages['index'] = str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), $themesPages['index']);
-                }
-                if (preg_match('/{MEDIADIR_NAVBAR}/', $themesPages['sidebar'])) {
-                    $themesPages['sidebar'] = str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), $themesPages['sidebar']);
-                }
+                $placeholders = $cache->getEsiContent(
+                    'MediaDir',
+                    'getNavigationPlacholder',
+                    $params
+                );
+
+                $this->parseContentIntoTpl(
+                    null,
+                    $this->cx->getPage(),
+                    $placeholders,
+                    '{MEDIADIR_NAVBAR}'
+                );
+                $this->parseContentIntoTpl(
+                    $page_template,
+                    null,
+                    $placeholders,
+                    '{MEDIADIR_NAVBAR}'
+                );
+                $this->parseContentIntoTpl(
+                    $themesPages['index'],
+                    null,
+                    $placeholders,
+                    '{MEDIADIR_NAVBAR}'
+                );
+                $this->parseContentIntoTpl(
+                    $themesPages['sidebar'],
+                    null,
+                    $placeholders,
+                    '{MEDIADIR_NAVBAR}'
+                );
+
                 // Latest Entries
-                if (preg_match('/{MEDIADIR_LATEST}/', \Env::get('cx')->getPage()->getContent())) {
-                    \Env::get('cx')->getPage()->setContent(str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), \Env::get('cx')->getPage()->getContent()));
-                }
-                if (preg_match('/{MEDIADIR_LATEST}/', $page_template)) {
-                    $page_template = str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), $page_template);
-                }
-                if (preg_match('/{MEDIADIR_LATEST}/', $themesPages['index'])) {
-                    $themesPages['index'] = str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), $themesPages['index']);
-                }
-                if (preg_match('/{MEDIADIR_LATEST}/', $themesPages['sidebar'])) {
-                    $themesPages['sidebar'] = str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), $themesPages['sidebar']);
-                }
-
+                $latestPlaceholders = $cache->getEsiContent(
+                    'MediaDir',
+                    'getLatestPlacholder',
+                    array('lang' => $_LANGID)
+                );
+                $this->parseContentIntoTpl(
+                    null,
+                    $this->cx->getPage(),
+                    $latestPlaceholders,
+                    '{MEDIADIR_LATEST}'
+                );
+                $this->parseContentIntoTpl(
+                    $page_template,
+                    null,
+                    $latestPlaceholders,
+                    '{MEDIADIR_LATEST}'
+                );
+                $this->parseContentIntoTpl(
+                    $themesPages['index'],
+                    null,
+                    $latestPlaceholders,
+                    '{MEDIADIR_LATEST}'
+                );
+                $this->parseContentIntoTpl(
+                    $themesPages['sidebar'],
+                    null,
+                    $latestPlaceholders,
+                    '{MEDIADIR_LATEST}'
+                );
                 break;
-
             default:
                 break;
+        }
+    }
+
+    /**
+     * Parse the mediaDir content into template
+     *
+     * @param string                                    $template template content
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page     page object
+     * @param string                                    $content  parsing content
+     * @param string                                    $pattern  pattern
+     *
+     * @return null
+     */
+    public function parseContentIntoTpl(&$template, $page, $content, $pattern)
+    {
+        if ((empty($template) && empty($page)) || empty($pattern)) {
+            return;
+        }
+
+        if ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page) {
+            if (!preg_match('/' . $pattern . '/', $page->getContent())) {
+                return;
+            }
+            $page->setContent(str_replace($pattern, $content, $page->getContent()));
+        } else {
+            if (!preg_match('/' . $pattern . '/', $template)) {
+                return;
+            }
+            $template = str_replace($pattern, $content, $template);
         }
     }
 
