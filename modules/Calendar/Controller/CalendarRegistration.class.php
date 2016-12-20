@@ -373,7 +373,9 @@ class CalendarRegistration extends CalendarLibrary
                             `paid`             = ' . $paid . ' ';
 
             $objResult = $objDatabase->Execute($query);
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if($objResult !== false) {
                 $this->id = $objDatabase->Insert_ID();
             } else {
@@ -394,7 +396,9 @@ class CalendarRegistration extends CalendarLibrary
                        WHERE `id` = '.$regId;
 
             $objResult = $objDatabase->Execute($query);
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if($objResult === false) {
                 return false;
             }
@@ -406,7 +410,9 @@ class CalendarRegistration extends CalendarLibrary
                             WHERE `reg_id` = '.$this->id;
 
             $objDeleteResult = $objDatabase->Execute($deleteQuery);
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if ($objDeleteResult === false) {
                 return false;
             }
@@ -437,7 +443,9 @@ class CalendarRegistration extends CalendarLibrary
                            VALUES ('.$this->id.', '.$id.', "'.  contrexx_input2db($value).'")';
 
             $objResult = $objDatabase->Execute($query);
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if ($objResult === false) {
                 return false;
             }
@@ -470,14 +478,18 @@ class CalendarRegistration extends CalendarLibrary
                 DELETE FROM `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration`
                 WHERE `id` = '.intval($regId);
             $objResult = $objDatabase->Execute($query);
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if ($objResult !== false) {
                 $query = '
                     DELETE FROM `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration_form_field_value`
                     WHERE `reg_id` = '.intval($regId)
                 ;
                 $objResult = $objDatabase->Execute($query);
-
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
                 if ($objResult !== false) {
                     return true;
                 } else {
@@ -510,7 +522,9 @@ class CalendarRegistration extends CalendarLibrary
                 AND `lang_id` = '.$_LANGID
             ;
             $objResult = $objDatabase->Execute($query);
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if ($objResult !== false) {
                 return true;
             } else {
@@ -534,6 +548,9 @@ class CalendarRegistration extends CalendarLibrary
         if(intval($this->id) != 0) {
             $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_registration SET `export` = '".intval($now)."' WHERE `id` = '".intval($this->id)."'";
             $objResult = $objDatabase->Execute($query);
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
             if($objResult !== false) {
                 $this->firstExport = $now;
                 return true;
@@ -557,5 +574,8 @@ class CalendarRegistration extends CalendarLibrary
                     SET `paid` = ? WHERE `id` = ?
                 ';
         $objResult = $objDatabase->Execute($query, array($payStatus, $this->id));
+        \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Calendar'));
     }
 }

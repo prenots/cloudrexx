@@ -109,7 +109,7 @@ class CalendarHeadlines extends CalendarLibrary
 
         if($this->arrSettings['headlinesStatus'] == 1) {
             if($this->_objTpl->blockExists('calendar_headlines_row')) {
-                self::loadEventManager($categoryId);
+                self::loadEventManager($categoryId, $langId);
                 if (!empty($this->objEventManager->eventList)) {
                     $this->objEventManager->showEventList($this->_objTpl, $langId);
                 }

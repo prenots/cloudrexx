@@ -72,4 +72,39 @@ class CalendarEventListener extends DefaultEventListener {
         ),array(16));
         $mediaBrowserConfiguration->addMediaType($mediaType);
     }
+    
+    /**
+     * Clear all Ssi cache
+     */
+    public function clearEsiCache(array $eventArgs)
+    {
+        global $objCache;
+        
+        if (empty($eventArgs) || $eventArgs != 'Calendar') {
+            return;
+        }
+
+        $cache   = $this->cx->getComponent('Cache');
+        $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        // clear ssi cache
+        foreach ($themeRepo->findAll() as $theme) {
+            $searchTemplateFiles = $theme->getTemplateFileNames();
+            if (!$searchTemplateFiles) {
+                continue;
+            }
+            foreach ($searchTemplateFiles as $file) {
+                foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+                    $objCache->clearSsiCachePage(
+                        'Calendar',
+                        'getCalHeadlines',
+                        array(
+                            'theme' => $theme->getId(),
+                            'lang'  => $lang,
+                            'file'  => $file
+                        )
+                    );
+                }
+            }
+        }
+    }
 }
