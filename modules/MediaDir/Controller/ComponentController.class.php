@@ -52,10 +52,20 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array();
     }
 
-     /**
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * @return array list of JsonAdapter class names
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('JsonMediaDir');
+    }
+
+    /**
      * Load your component.
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
      */
     public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
         global $_CORELANG, $subMenuTitle, $objTemplate;
@@ -111,8 +121,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
 
                 // Level/Category Navbar
-                $params       = array('lang' => $_LANGID);
-                $cache        = $this->cx->getComponent('Cache');
+                $cache  = $this->cx->getComponent('Cache');
+                $params = array('lang' => $_LANGID);
                 if (isset($_GET['lid']) && !empty($_GET['lid'])) {
                     $params['lid'] = contrexx_input2raw($_GET['lid']);
                 }
@@ -124,26 +134,26 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     'getNavigationPlacholder',
                     $params
                 );
-
+                \DBG::dump($placeholders);
                 $this->parseContentIntoTpl(
                     null,
                     $this->cx->getPage(),
                     $placeholders,
                     '{MEDIADIR_NAVBAR}'
                 );
-                $this->parseContentIntoTpl(
+                $page_template = $this->parseContentIntoTpl(
                     $page_template,
                     null,
                     $placeholders,
                     '{MEDIADIR_NAVBAR}'
                 );
-                $this->parseContentIntoTpl(
+                $themesPages['index'] = $this->parseContentIntoTpl(
                     $themesPages['index'],
                     null,
                     $placeholders,
                     '{MEDIADIR_NAVBAR}'
                 );
-                $this->parseContentIntoTpl(
+                $themesPages['sidebar'] = $this->parseContentIntoTpl(
                     $themesPages['sidebar'],
                     null,
                     $placeholders,
@@ -162,19 +172,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     $latestPlaceholders,
                     '{MEDIADIR_LATEST}'
                 );
-                $this->parseContentIntoTpl(
+                $page_template = $this->parseContentIntoTpl(
                     $page_template,
                     null,
                     $latestPlaceholders,
                     '{MEDIADIR_LATEST}'
                 );
-                $this->parseContentIntoTpl(
+                $themesPages['index'] = $this->parseContentIntoTpl(
                     $themesPages['index'],
                     null,
                     $latestPlaceholders,
                     '{MEDIADIR_LATEST}'
                 );
-                $this->parseContentIntoTpl(
+                $themesPages['sidebar'] = $this->parseContentIntoTpl(
                     $themesPages['sidebar'],
                     null,
                     $latestPlaceholders,
@@ -194,9 +204,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param string                                    $content  parsing content
      * @param string                                    $pattern  pattern
      *
-     * @return null
+     * @return null|string
      */
-    public function parseContentIntoTpl(&$template, $page, $content, $pattern)
+    public function parseContentIntoTpl($template, $page, $content, $pattern)
     {
         if ((empty($template) && empty($page)) || empty($pattern)) {
             return;
@@ -209,49 +219,101 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $page->setContent(str_replace($pattern, $content, $page->getContent()));
         } else {
             if (!preg_match('/' . $pattern . '/', $template)) {
-                return;
+                return $template;
             }
-            $template = str_replace($pattern, $content, $template);
+            return str_replace($pattern, $content, $template);
         }
     }
 
     /**
      * Do something after content is loaded from DB
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
      */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $mediadirCheck, $objTemplate, $_CORELANG, $objInit;
+    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
+    {
+        global $objTemplate, $_CORELANG, $_LANGID;
+
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $mediadirCheck = array();
+                $cache = $this->cx->getComponent('Cache');
+                $objTemplate->setVariable(
+                    'TXT_MEDIADIR_LATEST',
+                    $_CORELANG['TXT_DIRECTORY_LATEST']
+                );
+                $mediaDirLatestBlocks = array();
                 for ($i = 1; $i <= 10; ++$i) {
-                    if ($objTemplate->blockExists('mediadirLatest_row_'.$i)){
-                        array_push($mediadirCheck, $i);
+                    if (!$objTemplate->blockExists('mediadirLatest_row_' . $i)) {
+                        continue;
                     }
+                    $mediaDirLatestBlocks[] = $i;
                 }
-                if ($mediadirCheck || $objTemplate->blockExists('mediadirLatest')) {
-                    $objInit->loadLanguageData('MediaDir');
 
-                    $objMediadir = new MediaDirectory('', $this->getName());
-                    $objTemplate->setVariable('TXT_MEDIADIR_LATEST', $_CORELANG['TXT_DIRECTORY_LATEST']);
+                if (empty($mediaDirLatestBlocks)) {
+                    goto parseLatestEntries;
                 }
-                if ($mediadirCheck) {
-                    $objMediadir->getHeadlines($mediadirCheck);
+                $mediaDirLatestBlocksCnt = count($mediaDirLatestBlocks);
+                foreach ($mediaDirLatestBlocks as $position => $blockId) {
+                    $blockName = 'mediadirLatest_row_' . $blockId;
+                    $params = $cache->getParamsByFindBlockExistsInTpl($blockName);
+                    $params['blockId']     = $blockId;
+                    $params['position']    = $position + 1;
+                    $params['lang']        = $_LANGID;
+                    $params['totalBlocks'] = $mediaDirLatestBlocksCnt;
+                    $content = $cache->getEsiContent(
+                        'MediaDir',
+                        'getHeadlines',
+                        $params
+                    );
+                    $objTemplate->replaceBlock($blockName, $content);
+                    $objTemplate->touchBlock($blockName);
                 }
-                if ($objTemplate->blockExists('mediadirLatest')){
-                    $objMediadirForms = new \Cx\Modules\MediaDir\Controller\MediaDirectoryForm(null, 'MediaDir');
-                    $foundOne = false;
-                    foreach ($objMediadirForms->getForms() as $key => $arrForm) {
-                        if ($objTemplate->blockExists('mediadirLatest_form_'.$arrForm['formCmd'])) {
-                            $objMediadir->getLatestEntries($key, 'mediadirLatest_form_'.$arrForm['formCmd']);
-                            $foundOne = true;
-                        }
+
+                parseLatestEntries:
+                if (!$objTemplate->blockExists('mediadirLatest')) {
+                    break;
+                }
+                $foundOne         = false;
+                $objMediadirForms =
+                    new \Cx\Modules\MediaDir\Controller\MediaDirectoryForm(
+                        null,
+                        'MediaDir'
+                    );
+                foreach ($objMediadirForms->getForms() as $key => $arrForm) {
+                    $blockName = 'mediadirLatest_form_' . $arrForm['formCmd'];
+                    if (!$objTemplate->blockExists($blockName)) {
+                        continue;
                     }
-                    //for the backward compatibility
-                    if(!$foundOne) {
-                        $objMediadir->getLatestEntries();
-                    }
+                    $foundOne = true;
+                    $params   = $cache->getParamsByFindBlockExistsInTpl(
+                        $blockName
+                    );
+                    $params['lang']    = $_LANGID;
+                    $params['formId']  = $key;
+                    $params['block']   = 'mediadirLatest';
+                    $content = $cache->getEsiContent(
+                        'MediaDir',
+                        'getLatestEntries',
+                        $params
+                    );
+                    $objTemplate->replaceBlock($blockName, $content);
+                    $objTemplate->touchBlock($blockName);
+                }
+                //for the backward compatibility
+                if (!$foundOne) {
+                    $blockName = 'mediadirLatest';
+                    $params = $cache->getParamsByFindBlockExistsInTpl(
+                        $blockName
+                    );
+                    $params['lang']  = $_LANGID;
+                    $params['block'] = $blockName;
+                    $content         = $cache->getEsiContent(
+                        'MediaDir',
+                        'getLatestEntries',
+                        $params
+                    );
+                    $objTemplate->replaceBlock($blockName, $content);
+                    $objTemplate->touchBlock($blockName);
                 }
                 break;
             default:

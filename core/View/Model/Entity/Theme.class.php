@@ -426,12 +426,24 @@ class Theme extends \Cx\Model\Base\EntityBase
     /**
      * Get the content block from template file
      *
-     * @param string $file  name of the file
-     * @param string $block name of the block
+     * @param string  $file         name of the file
+     * @param string  $block        name of the block
+     * @param boolean $includeBlock if true, return the block and its content
+     *                              For ex:
+     *                              Input:  <div id='example-test'>
+     *                                          <!-- BEGIN block-name -->
+     *                                           -- here code --
+     *                                          <!-- END block-name -->
+     *                                     </div>
+     *                              Output: <!-- BEGIN block-name -->
+     *                                       -- here code --
+     *                                      <!-- END block-name -->
+     *                              otherwise return the block content only
+     *                              Output: -- here code --
      *
      * @return mixed boolean|string
      */
-    public function getContentBlockFromTpl($file, $block)
+    public function getContentBlockFromTpl($file, $block, $includeBlock = false)
     {
         if (empty($file) || empty($block)) {
             return false;
@@ -441,15 +453,19 @@ class Theme extends \Cx\Model\Base\EntityBase
             $content = $this->getContentFromFile($file);
             $matches = null;
             if (
-                $content &&
-                preg_match(
+                !$content ||
+                !preg_match(
                     '/<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->/s',
                     $content,
                     $matches
                 )
             ) {
-                return $matches[2];
+                return false;
             }
+            if ($includeBlock) {
+                return $matches[0];
+            }
+            return $matches[2];
         } catch (\Exception $e) {
             \DBG::log($e->getMessage());
         }

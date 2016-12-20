@@ -37,6 +37,8 @@
 
 namespace Cx\Modules\MediaDir\Controller;
 
+class JsonMediaDirException extends \Exception {}
+
 /**
  * JsonAccess
  * Json controller for MediaDir component
@@ -74,7 +76,9 @@ class JsonMediaDir implements \Cx\Core\Json\JsonAdapter
     {
         return array(
             'getNavigationPlacholder',
-            'getLatestPlacholder'
+            'getLatestPlacholder',
+            'getHeadlines',
+            'getLatestEntries'
         );
     }
 
@@ -112,7 +116,7 @@ class JsonMediaDir implements \Cx\Core\Json\JsonAdapter
     public function getNavigationPlacholder($params)
     {
         $lang = isset($params['get']['lang']) ?
-            contrexx_input2raw($params['get']['lang']) : '';
+            contrexx_input2int($params['get']['lang']) : 0;
         if (empty($lang)) {
             return array('content' => '');
         }
@@ -126,14 +130,14 @@ class JsonMediaDir implements \Cx\Core\Json\JsonAdapter
     /**
      * Get the latest placeholders
      *
-     * @param type $params all given params from http request
+     * @param array $params all given params from http request
      *
      * @return array content of latest placeholders
      */
     public function getLatestPlacholder($params)
     {
         $lang = isset($params['get']['lang']) ?
-            contrexx_input2raw($params['get']['lang']) : '';
+            contrexx_input2int($params['get']['lang']) : 0;
         if (empty($lang)) {
             return array('content' => '');
         }
@@ -142,5 +146,132 @@ class JsonMediaDir implements \Cx\Core\Json\JsonAdapter
         return array(
             'content' => $mediaDirPlaceholders->getLatestPlacholder($lang)
         );
+    }
+
+    /**
+     * Get headlines
+     *
+     * @param array $params all given params from http request
+     *
+     * @return array headline entries
+     */
+    public function getHeadlines($params)
+    {
+        global $objInit;
+
+        $file        =  !empty($params['get']['file'])
+                ? contrexx_input2raw($params['get']['file']) : '';
+        $blockId     =  !empty($params['get']['blockId'])
+                ? contrexx_input2int($params['get']['blockId']) : 0;
+        $langId      =  !empty($params['get']['lang'])
+                ? contrexx_input2int($params['get']['lang']) : 0;
+        $position    =  !empty($params['get']['position'])
+                ? contrexx_input2int($params['get']['position']) : 0;
+        $totalBlocks =  !empty($params['get']['totalBlocks'])
+                ? contrexx_input2int($params['get']['totalBlocks']) : 0;
+        if (
+            empty($blockId) ||
+            empty($langId) ||
+            empty($position) ||
+            empty($totalBlocks)
+        ) {
+            return array('content' => '');
+        }
+
+        try {
+            $theme   = $this->getThemeFromInput($params);
+            $content = $theme->getContentBlockFromTpl(
+                $file,
+                'mediadirLatest_row_' . $blockId,
+                true
+            );
+
+            if (empty($content)) {
+                return array('content' => '');
+            }
+
+            $objInit->loadLanguageData($this->getName());
+            $template = new \Cx\Core\Html\Sigma();
+            $template->setTemplate($content);
+            $mediadir = new MediaDirectory('', $this->getName());
+            $mediadir->getHeadlines(
+                $template,
+                $blockId,
+                $position,
+                $totalBlocks,
+                $langId
+            );
+            return array('content' => $template->get());
+        } catch (\Exception $ex) {
+            \DBG::dump($ex->getMessage());
+            return array('content' => '');
+        }
+    }
+
+    /**
+     * Get the latest entries
+     *
+     * @param array $params all given params from http request
+     *
+     * @return array List of latest entries
+     */
+    public function getLatestEntries($params)
+    {
+        $file    =  !empty($params['get']['file'])
+                ? contrexx_input2raw($params['get']['file']) : '';
+        $block   =  !empty($params['get']['block'])
+                ? contrexx_input2raw($params['get']['block']) : '';
+        $langId  =  !empty($params['get']['lang'])
+                ? contrexx_input2int($params['get']['lang']) : 0;
+        $formId  =  !empty($params['get']['formId'])
+                ? contrexx_input2int($params['get']['formId']) : 0;
+        if (empty($langId)) {
+            return array('content' => '');
+        }
+
+        try {
+            $theme   = $this->getThemeFromInput($params);
+            $content = $theme->getContentBlockFromTpl($file, $block, true);
+            if (empty($content)) {
+                return array('content' => '');
+            }
+
+            $template = new \Cx\Core\Html\Sigma();
+            $template->setTemplate($content);
+            $mediadir = new MediaDirectory('', $this->getName());
+            $mediadir->getLatestEntries(
+                $template,
+                $formId,
+                $block,
+                $langId
+            );
+            return array('content' => $template->get());
+        } catch (\Exception $ex) {
+            \DBG::log($ex->getMessage());
+            return array('content' => '');
+        }
+    }
+
+    /**
+     * Get theme from the user input
+     *
+     * @param array $params User input array
+     *
+     * @return \Cx\Core\View\Model\Entity\Theme Theme instance
+     * @throws JsonMediaDirException When theme id empty or theme does not exits in the system
+     */
+    protected function getThemeFromInput($params)
+    {
+        $themeId  = !empty($params['get']['template'])
+            ? contrexx_input2int($params['get']['template']) : 0;
+        if (empty($themeId)) {
+            throw new JsonMediaDirException('The theme id is empty in the request');
+        }
+        $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        $theme           = $themeRepository->findById($themeId);
+        if (!$theme) {
+            throw new JsonMediaDirException('The theme id '. $themeId .' does not exists.');
+        }
+        return $theme;
     }
 }

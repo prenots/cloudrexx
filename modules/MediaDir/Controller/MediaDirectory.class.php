@@ -689,69 +689,144 @@ class MediaDirectory extends MediaDirectoryLibrary
 
     /**
      * Show the latest entries
+     *
+     * @param \Cx\Core\Html\Sigma $objTemplate template object
+     * @param integer             $formId      form ID
+     * @param string              $blockName   block name
+     * @param integer             $langId      language ID
      */
-    function getLatestEntries($formId = null, $blockName = null)
-    {
-        global $objTemplate;
-
+    function getLatestEntries(
+        \Cx\Core\Html\Sigma $objTemplate,
+        $formId = null,
+        $blockName = null,
+        $langId = null
+    ) {
         $objEntry = new MediaDirectoryEntry($this->moduleName);
-        $objEntry->getEntries(null, null, null, null, true, null, true, null, $this->arrSettings['settingsLatestNumHeadlines'], null, null, $formId);
-        if($blockName==null){
-            $objEntry->setStrBlockName($this->moduleNameLC.'Latest');
-        } else {
-            $objEntry->setStrBlockName($blockName);
-        }
-
-
+        $objEntry->getEntries(
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            true,
+            null,
+            $this->arrSettings['settingsLatestNumHeadlines'],
+            null,
+            null,
+            $formId,
+            null,
+            0,
+            0,
+            $langId
+        );
+        $block = empty($blockName)
+            ? $this->moduleNameLC . 'Latest' : $blockName;
+        $objEntry->setStrBlockName($block);
         $objEntry->listEntries($objTemplate, 2);
     }
 
-    function getHeadlines($arrExistingBlocks)
-    {
-        global $_ARRAYLANG, $_CORELANG, $objTemplate;
+    /**
+     * Get headlines
+     *
+     * @param integer $blockId     block ID
+     * @param integer $position    block position
+     * @param integer $totalBlocks total block count
+     * @param integer $langId      language ID
+     *
+     * @return null
+     */
+    public function getHeadlines(
+        \Cx\Core\Html\Sigma $objTemplate,
+        $blockId,
+        $position,
+        $totalBlocks,
+        $langId = null
+    ) {
+        if (empty($blockId) || empty($position) || empty($totalBlocks)) {
+            return;
+        }
+
+        if (!$langId) {
+            $langId = FRONTEND_LANG_ID;
+        }
+
+        global $_CORELANG;
 
         $objEntry = new MediaDirectoryEntry($this->moduleName);
-        $objEntry->getEntries(null, null, null, null, null, null, true, null, $this->arrSettings['settingsLatestNumHeadlines']);
+        $objEntry->getEntries(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            $this->arrSettings['settingsLatestNumHeadlines'],
+            null,
+            null,
+            null,
+            null,
+            0,
+            0,
+            $langId
+        );
 
-        $i=0;
-        $r=0;
-        $numBlocks = count($arrExistingBlocks);
+        if (empty($objEntry->arrEntries)) {
+            return;
+        }
 
-        if(!empty($objEntry->arrEntries)){
-            foreach ($objEntry->arrEntries as $key => $arrEntry) {
-
-                if($objEntry->checkPageCmd('detail'.intval($arrEntry['entryFormId']))) {
-                    $strDetailCmd = 'detail'.intval($arrEntry['entryFormId']);
-                } else {
-                    $strDetailCmd = 'detail';
-                }
-
-                $objTemplate->setVariable(array(
-                    $this->moduleLangVar.'_LATEST_ROW_CLASS' =>  $r%2==0 ? 'row1' : 'row2',
-                    $this->moduleLangVar.'_LATEST_ENTRY_ID' =>  $arrEntry['entryId'],
-                    $this->moduleLangVar.'_LATEST_ENTRY_VALIDATE_DATE' =>  date("H:i:s - d.m.Y",$arrEntry['entryValdateDate']),
-                    $this->moduleLangVar.'_LATEST_ENTRY_CREATE_DATE' =>  date("H:i:s - d.m.Y",$arrEntry['entryCreateDate']),
-                    $this->moduleLangVar.'_LATEST_ENTRY_HITS' =>  $arrEntry['entryHits'],
-                    $this->moduleLangVar.'_ENTRY_DETAIL_URL' =>  'index.php?section='.$this->moduleName.'&amp;cmd='.$strDetailCmd.'&amp;eid='.$arrEntry['entryId'],
-                    'TXT_'.$this->moduleLangVar.'_ENTRY_DETAIL' =>  $_CORELANG['TXT_MEDIADIR_DETAIL'],
-                ));
-
-                foreach ($arrEntry['entryFields'] as $key => $strFieldValue) {
-                    $intPos = $key+1;
-
-                    $objTemplate->setVariable(array(
-                        $this->moduleLangVar.'_LATEST_ENTRY_FIELD_'.$intPos.'_POS' => $strFieldValue
-                    ));
-                }
-
-                $blockId = $arrExistingBlocks[$i];
-                $objTemplate->parse($this->moduleNameLC.'Latest_row_'.$blockId);
-                if ($i < $numBlocks-1) {
-                    ++$i;
-                } else {
-                    $i = 0;
-                }
+        $i = 0;
+        $r = 1;
+        foreach ($objEntry->arrEntries as $key => $arrEntry) {
+            ++$i;
+            if ($i != $position) {
+                continue;
             }
+            $position     = $position + $totalBlocks;
+            $strDetailCmd = 'detail';
+            if (
+                $objEntry->checkPageCmd(
+                    'detail' . intval($arrEntry['entryFormId'])
+                )
+            ) {
+                $strDetailCmd = 'detail' . intval($arrEntry['entryFormId']);
+            }
+
+            $detailPageUrl = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                $this->moduleName,
+                $strDetailCmd,
+                $langId,
+                array('eid' => $arrEntry['entryId'])
+            )->toString();
+            $objTemplate->setVariable(array(
+                $this->moduleLangVar.'_LATEST_ROW_CLASS'           =>
+                    ($r % 2) == 0 ? 'row2' : 'row1',
+                $this->moduleLangVar.'_LATEST_ENTRY_ID'            =>
+                    $arrEntry['entryId'],
+                $this->moduleLangVar.'_LATEST_ENTRY_VALIDATE_DATE' =>
+                    date('H:i:s - d.m.Y', $arrEntry['entryValdateDate']),
+                $this->moduleLangVar.'_LATEST_ENTRY_CREATE_DATE'   =>
+                    date('H:i:s - d.m.Y', $arrEntry['entryCreateDate']),
+                $this->moduleLangVar.'_LATEST_ENTRY_HITS'          =>
+                    $arrEntry['entryHits'],
+                $this->moduleLangVar.'_ENTRY_DETAIL_URL'           =>
+                    $detailPageUrl,
+                'TXT_'.$this->moduleLangVar.'_ENTRY_DETAIL'        =>
+                    $_CORELANG['TXT_MEDIADIR_DETAIL'],
+            ));
+
+            foreach ($arrEntry['entryFields'] as $key => $strFieldValue) {
+                $intPos = $key + 1;
+                $objTemplate->setVariable(
+                    $this->moduleLangVar . '_LATEST_ENTRY_FIELD_' . $intPos . '_POS',
+                    $strFieldValue
+                );
+            }
+
+            $objTemplate->parse($this->moduleNameLC . 'Latest_row_' . $blockId);
+            $r++;
         }
     }
 
