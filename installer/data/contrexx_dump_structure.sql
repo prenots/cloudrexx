@@ -1766,7 +1766,7 @@ CREATE TABLE `contrexx_module_favoritelist_catalog` (
   `meta` longtext COLLATE utf8_unicode_ci DEFAULT NULL,
   `counter_mail` INT NOT NULL DEFAULT 0,
   `counter_print` INT NOT NULL DEFAULT 0,
-  `counter_recomendation` INT NOT NULL DEFAULT 0,
+  `counter_recommendation` INT NOT NULL DEFAULT 0,
   `counter_inquiry` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
