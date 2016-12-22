@@ -134,7 +134,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     'getNavigationPlacholder',
                     $params
                 );
-                \DBG::dump($placeholders);
+
                 $this->parseContentIntoTpl(
                     null,
                     $this->cx->getPage(),
@@ -335,5 +335,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $eventListener = new MediaDirEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+        $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
     }
 }

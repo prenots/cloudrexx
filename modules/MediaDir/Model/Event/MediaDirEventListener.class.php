@@ -78,5 +78,233 @@ class MediaDirEventListener extends DefaultEventListener
         $mediaBrowserConfiguration->addMediaType($mediaType);
     }
 
+    /**
+     * Clear all ESI cache
+     *
+     * @param array $eventArgs event arguments
+     *
+     * @return null
+     */
+    public function clearEsiCache($eventArgs)
+    {
+        if (empty($eventArgs) || $eventArgs != 'MediaDir') {
+            return;
+        }
 
+        $cache = $this->cx->getComponent('Cache');
+        $forms =
+            new \Cx\Modules\MediaDir\Controller\MediaDirectoryForm(
+                null,
+                'MediaDir'
+            );
+        $blockParams = array();
+        $formParams  = array();
+        $themeRepo   = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        foreach ($themeRepo->findAll() as $theme) {
+            //Fetch possible cache clearing params for
+            //showing latest entries by form block
+            foreach ($forms->getForms() as $formId => $formCmd) {
+                $block        = 'mediadirLatest_form_' . $formCmd;
+                $formParams[] = $this->getCacheParamsByBlock(
+                    $theme,
+                    $block,
+                    array('formId' => $formId, 'block' => 'mediadirLatest')
+                );
+            }
+            //Fetch possible cache clearing params for
+            //showing latest entries by block 'mediadirLatest'
+            $formParams[] = $this->getCacheParamsByBlock(
+                $theme,
+                'mediadirLatest',
+                array('block' => 'mediadirLatest')
+            );
+            //Fetch possible cache clearing params for
+            //showing latest entries by block
+            $combinations = $this->getPossibleOccuranceOfBlocks($theme);
+            if (empty($combinations)) {
+                continue;
+            }
+            foreach ($combinations as $combination) {
+                foreach ($combination as $position => $block) {
+                    $blockParams[] = array(
+                        'template'    => $theme->getId(),
+                        'file'        => $block['file'],
+                        'blockId'     => $block['blockId'],
+                        'position'    => $position + 1,
+                        'totalBlocks' => count($combination)
+                    );
+                }
+            }
+        }
+
+        //Clearing cache for mediadir level/category navigation bar,
+        //Latest entries by placeholder and by block
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+            //Clear level/category navbar cache
+            $cache->clearSsiCachePage(
+                'MediaDir',
+                'getNavigationPlacholder',
+                array('lang' => $lang['id'])
+            );
+            //clear cache for latest entries by placeholder
+            $cache->clearSsiCachePage(
+                'MediaDir',
+                'getLatestPlacholder',
+                array('lang' => $lang['id'])
+            );
+            //clear cache for latest entries by block
+            foreach ($blockParams as $param) {
+                $param['lang'] = $lang['id'];
+                $cache->clearSsiCachePage(
+                    'MediaDir',
+                    'getHeadlines',
+                    $param
+                );
+            }
+            //clear cache for latest entries by form
+            foreach ($formParams as $param) {
+                $param['lang'] = $lang['id'];
+                $cache->clearSsiCachePage(
+                    'MediaDir',
+                    'getLatestEntries',
+                    $param
+                );
+            }
+        }
+    }
+
+    /**
+     * Get the cache params by checking the block exist in the theme template
+     *
+     * @param \Cx\Core\View\Model\Entity\Theme $theme       theme object
+     * @param string                           $block       block name
+     * @param array                            $extraParams extra params
+     *
+     * @return array list of params
+     */
+    protected function getCacheParamsByBlock(
+        \Cx\Core\View\Model\Entity\Theme $theme,
+        $block,
+        $extraParams = array()
+    ) {
+        if (empty($block)) {
+            return;
+        }
+        global $objInit;
+
+        $templates = array_merge(
+            array('index.html', 'home.html', 'content.html'),
+            $objInit->getCustomContentTemplatesForTheme($theme)
+        );
+        foreach ($templates as $template) {
+            if (!$theme->isBlockExistsInfile($template, $block)) {
+                continue;
+            }
+            $params[] = array_merge(
+                array(
+                    'template' => $theme->getId(),
+                    'file'     => $template,
+                ),
+                $extraParams
+            );
+        }
+
+        return $params;
+    }
+
+    /**
+     * Get the possible occurance of latest blocks
+     *
+     * @param \Cx\Core\View\Model\Entity\Theme $theme theme object
+     *
+     * @return array list of possible occurance
+     */
+    protected function getPossibleOccuranceOfBlocks(
+        \Cx\Core\View\Model\Entity\Theme $theme
+    ) {
+        global $objInit;
+
+        $templateFiles    = $objInit->getCustomContentTemplatesForTheme($theme);
+        $homeContentFiles = array('home.html');
+        $contentFiles     = array('content.html');
+        if (!empty($templateFiles)) {
+            foreach ($templateFiles as $templateFile) {
+                if (preg_match('/^(content)_(.+).html$/', $templateFile)) {
+                    $contentFiles[] = $templateFile;
+                }
+                if (preg_match('/^(home)_(.+).html$/', $templateFile)) {
+                    $homeContentFiles[] = $templateFile;
+                }
+            }
+        }
+
+        $indexBlocks = array();
+        for ($i = 1; $i <= 10; ++$i) {
+            if (
+                $theme->isBlockExistsInfile(
+                    'index.html',
+                    'mediadirLatest_row_' . $i
+                )
+            ) {
+                $indexBlocks[] = $i;
+            }
+        }
+
+        $combinationsFromContent = $this->checkAndGetExistsBlockList(
+            $theme,
+            $contentFiles,
+            $indexBlocks
+        );
+        $combinationsFromHome    = $this->checkAndGetExistsBlockList(
+            $theme,
+            $homeContentFiles,
+            $indexBlocks
+        );
+
+        return array_merge($combinationsFromContent, $combinationsFromHome);
+    }
+
+    /**
+     * Check and get the existing blocks from the array of file
+     *
+     * @param \Cx\Core\View\Model\Entity\Theme $theme theme object
+     * @param array                            $files list of home/content files
+     *
+     * @return array possible occurance of block list
+     */
+    protected function checkAndGetExistsBlockList(
+        \Cx\Core\View\Model\Entity\Theme $theme,
+        $files = array(),
+        $indexBlocks = array()
+    ) {
+        if (empty($files)) {
+            return;
+        }
+
+        $list = array();
+        foreach ($files as $file) {
+            $latestBlocks = array();
+            for ($i = 1; $i <= 10; ++$i) {
+                if (in_array($i, $indexBlocks)) {
+                    $latestBlocks[] = array(
+                        'blockId' => $i,
+                        'file'    => 'index.html'
+                    );
+                    continue;
+                }
+                if (
+                    !$theme->isBlockExistsInfile(
+                        $file,
+                        'mediadirLatest_row_' . $i
+                    )
+                ) {
+                    continue;
+                }
+                $latestBlocks[] = array('blockId' => $i, 'file' => $file);
+            }
+            $list[] = $latestBlocks;
+        }
+
+        return $list;
+    }
 }
