@@ -712,9 +712,9 @@ class InitCMS
             $customTemplateForTheme = $theme;
         } else {
             if ($theme == 0) {
-                $themeId = $this->currentThemesId;
+                $theme = $this->currentThemesId;
             }
-            $customTemplateForTheme = $this->themeRepository->findOneBy(array('id' => $themeId));
+            $customTemplateForTheme = $this->themeRepository->findOneBy(array('id' => $theme));
         }
         if (!$customTemplateForTheme) {
             return array();
