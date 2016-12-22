@@ -354,6 +354,11 @@ class VotingManager
         return (trim($var)!="");
     }
 
+    /**
+     * Add new voting
+     * 
+     * @return boolean
+     */
     function votingAddSubmit()
     {
         global $objDatabase, $_ARRAYLANG;
@@ -414,10 +419,18 @@ class VotingManager
                    $objDatabase->Execute($query);
            }
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Voting'));
         $this->strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_STORED_SUCCESSFUL'];
         return true;
     }
 
+    /**
+     * Update the exiting voting
+     * 
+     * @return boolean
+     */
 
     function votingEditSubmit()
     {
@@ -476,9 +489,11 @@ class VotingManager
                 additional_comment  = '".($_POST['additional_comment' ]=='on'?1:0)."'
 
             WHERE id='".intval($_POST['votingid'])."'";
-        #print "<pre>$query</pre>";
         if ($objDatabase->Execute($query)) {
             $this->strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_STORED_SUCCESSFUL'];
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Voting'));
             return true;
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_SUBMIT_ERROR'];
@@ -486,7 +501,11 @@ class VotingManager
         }
     }
 
-
+    /**
+     * Delete the voting
+     * 
+     * @return null
+     */
     function votingDelete()
     {
         global $objDatabase;
@@ -510,10 +529,13 @@ class VotingManager
         $objDatabase->Execute("DELETE FROM `".DBPREFIX."voting_rel_email_system` WHERE system_id=".intval($_GET['votingid']));
         $this->_cleanUpEmails();
 
-          $query="DELETE FROM ".DBPREFIX."voting_system WHERE id=".intval($_GET['votingid'])." ";
+        $query="DELETE FROM ".DBPREFIX."voting_system WHERE id=".intval($_GET['votingid'])." ";
         $objDatabase->Execute($query);
-          $query="DELETE FROM ".DBPREFIX."voting_results WHERE voting_system_id=".intval($_GET['votingid'])." ";
+        $query="DELETE FROM ".DBPREFIX."voting_results WHERE voting_system_id=".intval($_GET['votingid'])." ";
         $objDatabase->Execute($query);
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Voting'));
     }
 
 
@@ -534,7 +556,11 @@ class VotingManager
         }
     }
 
-
+    /**
+     * Change the voting status (boolean)
+     * 
+     * @return null
+     */
     function changeStatus()
     {
         global $objDatabase;
@@ -543,15 +569,25 @@ class VotingManager
         $objDatabase->Execute($query);
         $query="UPDATE ".DBPREFIX."voting_system set status=1,date=date where id=".intval($_GET['votingid'])." ";
         $objDatabase->Execute($query);
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Voting'));
     }
 
-
+    /**
+     * Disable the voting status
+     * 
+     * @return null
+     */
     function DisableStatus()
     {
         global $objDatabase;
 
         $query="UPDATE ".DBPREFIX."voting_system set status=0, date=date";
         $objDatabase->Execute($query);
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Voting'));
     }
 
 

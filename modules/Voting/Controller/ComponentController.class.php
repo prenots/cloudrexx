@@ -160,7 +160,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     ) {
         $arrMatches = null;
         if (!preg_match(
-           '@<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->@m',
+           '/<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->/s',
             $content,
             $arrMatches
         )) {
@@ -187,7 +187,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $params
         );
         $replacedContent = preg_replace(
-            '@(<!--\s+BEGIN\s+('. $block .')\s+-->.*<!--\s+END\s+\2\s+-->)@m',
+            '/<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->/s',
             $esiContent,
             $content
         );
@@ -211,11 +211,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                              ->getDb()
                              ->getEntityManager()
                              ->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
-            $result = $pageRepo->findOneById($pageId);
-            if (!$result) {
+            $page = $pageRepo->findOneById($pageId);
+            if (!$page) {
                 return array('content' => '');
             }
-            $page    = $result[0];
             $matches = null;
             if (preg_match(
                 '/<!--\s+BEGIN\s+(voting_result)\s+-->(.*)<!--\s+END\s+\1\s+-->/s',
@@ -338,4 +337,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         return $theme;
     }
+    
+    /**
+      * Register your event listeners here
+      *
+      * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+      * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+      * Keep in mind, that you can also register your events later.
+      * Do not do anything else here than initializing your event listeners and
+      * list statements like
+      * $this->cx->getEvents()->addEventListener($eventName, $listener);
+      */
+     public function registerEventListeners() {
+         $eventListener = new \Cx\Modules\Voting\Model\Event\VotingEventListener($this->cx);
+         $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
+     }
 }
