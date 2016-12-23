@@ -1642,6 +1642,9 @@ EOF;
             }
         }
 
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
         parent::getSettings();
         parent::getCommunityGroups();
 

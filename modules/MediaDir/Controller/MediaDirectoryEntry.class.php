@@ -930,6 +930,9 @@ JSCODE;
                 $objEntries->MoveNext();
             }
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
     }
 
     function saveEntry($arrData, $intEntryId=null)
@@ -1073,6 +1076,9 @@ JSCODE;
             $objDeleteCategories = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE entry_id='".$intId."'");
             $objDeleteLevels = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_levels WHERE entry_id='".$intId."'");
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
 
 
         //////////////////////
@@ -1311,6 +1317,9 @@ JSCODE;
         } else {
             return false;
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
 
         return true;
     }
@@ -1332,7 +1341,10 @@ JSCODE;
                 `id`='".intval($intEntryId)."'
         ");
 
-        if($objConfirmEntry !== false) {
+        if ($objConfirmEntry !== false) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('MediaDir'));
             $objMail = new MediaDirectoryMail(3, $intEntryId, $this->moduleName);
             return true;
         } else {
@@ -1381,6 +1393,9 @@ JSCODE;
                                                 WHERE
                                                     id='".intval($intEntryId)."'
                                                ");
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('MediaDir'));
         }
     }
 
@@ -1534,6 +1549,9 @@ JSCODE;
                 return false;
             }
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
 
         return true;
     }
@@ -1544,6 +1562,9 @@ JSCODE;
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_entries SET duration_notification='".intval($bolStatus)."' WHERE id='".intval($intEntryId)."'");
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
     }
 
     /**

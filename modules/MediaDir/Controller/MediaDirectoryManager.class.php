@@ -901,7 +901,9 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
         }
 
         $objDatabase->Execute($query);
-
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
         die();
     }
 
@@ -1601,4 +1603,3 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
         $this->_objTpl->parse('settings_content');
     }
 }
-?>

@@ -627,7 +627,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    \Cx\Core\Core\Controller\Cx::instanciate()
+                        ->getEvents()
+                        ->triggerEvent('clearEsiCache', array('MediaDir'));
                     return true;
                 } else {
                     return false;
@@ -656,7 +659,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                     `id`='".$intId."'
             ");
 
-            if($objUpdateAttributes !== false) {
+            if ($objUpdateAttributes !== false) {
 
                 $objDeleteNames = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names WHERE category_id='".$intId."'");
 
@@ -680,7 +683,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                         ");
                     }
 
-                    if($objInsertNames !== false) {
+                    if ($objInsertNames !== false) {
+                        \Cx\Core\Core\Controller\Cx::instanciate()
+                            ->getEvents()
+                            ->triggerEvent('clearEsiCache', array('MediaDir'));
                         return true;
                     } else {
                         return false;
@@ -717,6 +723,9 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         $objDeleteCategoryRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE category_id='$intCategoryId'");
 
         if ($objDeleteCategoryRS !== false) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('MediaDir'));
             return true;
         } else {
             return false;
@@ -789,6 +798,9 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
             }
         }
 
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
         return true;
     }
 

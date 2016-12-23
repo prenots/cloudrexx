@@ -655,7 +655,10 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    \Cx\Core\Core\Controller\Cx::instanciate()
+                        ->getEvents()
+                        ->triggerEvent('clearEsiCache', array('MediaDir'));
                     return true;
                 } else {
                     return false;
@@ -710,7 +713,10 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    \Cx\Core\Core\Controller\Cx::instanciate()
+                        ->getEvents()
+                        ->triggerEvent('clearEsiCache', array('MediaDir'));
                     return true;
                 } else {
                     return false;
@@ -743,6 +749,9 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         $objDeleteLevelRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_levels WHERE level_id='$intLevelId'");
 
         if ($objDeleteLevelRS !== false) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('MediaDir'));
             return true;
         } else {
             return false;
@@ -759,6 +768,9 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                 return false;
             }
         }
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('MediaDir'));
 
         return true;
     }

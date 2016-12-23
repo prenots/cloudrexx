@@ -137,15 +137,48 @@ class MediaDirEventListener extends DefaultEventListener
             }
         }
 
+        //Fetch possible cache clearing params for
+        //showing level/category navbar
+        $mediaDirLvl = new \Cx\Modules\MediaDir\Controller\MediaDirectoryLevel(
+            null,
+            null,
+            1,
+            'MediaDir'
+        );
+        $levelIds    = $this->getLevelOrCategoryEntryIds($mediaDirLvl->arrLevels);
+        $mediaDirCat = new \Cx\Modules\MediaDir\Controller\MediaDirectoryCategory(
+            null,
+            null,
+            1,
+            'MediaDir'
+        );
+        $catIds    = $this->getLevelOrCategoryEntryIds(
+            $mediaDirCat->arrCategories,
+            'category'
+        );
+        $navParams = array();
+        foreach ($catIds as $catId) {
+            $navParams[] = array('cid' => $catId);
+            if (empty($mediaDirCat->arrSettings['settingsShowLevels'])) {
+                continue;
+            }
+            foreach ($levelIds as $levelId) {
+                $navParams[] = array('lid' => $levelId);
+                $navParams[] = array('lid' => $levelId, 'cid' => $catId);
+            }
+        }
         //Clearing cache for mediadir level/category navigation bar,
         //Latest entries by placeholder and by block
         foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
             //Clear level/category navbar cache
-            $cache->clearSsiCachePage(
-                'MediaDir',
-                'getNavigationPlacholder',
-                array('lang' => $lang['id'])
-            );
+            foreach ($navParams as $navParam) {
+                $navParam['lang'] = $lang['id'];
+                $cache->clearSsiCachePage(
+                    'MediaDir',
+                    'getNavigationPlacholder',
+                    $navParam
+                );
+            }
             //clear cache for latest entries by placeholder
             $cache->clearSsiCachePage(
                 'MediaDir',
@@ -153,24 +186,64 @@ class MediaDirEventListener extends DefaultEventListener
                 array('lang' => $lang['id'])
             );
             //clear cache for latest entries by block
-            foreach ($blockParams as $param) {
-                $param['lang'] = $lang['id'];
+            foreach ($blockParams as $blockParam) {
+                $blockParam['lang'] = $lang['id'];
                 $cache->clearSsiCachePage(
                     'MediaDir',
                     'getHeadlines',
-                    $param
+                    $blockParam
                 );
             }
             //clear cache for latest entries by form
-            foreach ($formParams as $param) {
-                $param['lang'] = $lang['id'];
+            foreach ($formParams as $formParam) {
+                if (empty($formParam)) {
+                    continue;
+                }
+                $formParam['lang'] = $lang['id'];
                 $cache->clearSsiCachePage(
                     'MediaDir',
                     'getLatestEntries',
-                    $param
+                    $formParam
                 );
             }
         }
+    }
+
+    /**
+     * Get level/category entryids
+     *
+     * @param array  $arrEntries array of entries
+     * @param string $type       if the string is level then
+     *                           getting level entry ids
+     *                           otherwise category entry ids
+     * @param array  $entryIds   entry ids
+     *
+     * @return array array of entry id
+     */
+    protected function getLevelOrCategoryEntryIds(
+        $arrEntries,
+        $type = 'level',
+        &$entryIds = array()
+    ) {
+        if (empty($arrEntries)) {
+            return;
+        }
+
+        $idKey    = ($type == 'level') ? 'levelId' : 'catId';
+        $childKey = ($type == 'level') ? 'levelChildren' : 'catChildren';
+        foreach ($arrEntries as $arrEntry) {
+            $entryIds[] = $arrEntry[$idKey];
+            if (empty($arrEntry[$childKey])) {
+                continue;
+            }
+            $this->getLevelOrCategoryEntryIds(
+                $arrEntry[$childKey],
+                $type,
+                $entryIds
+            );
+        }
+
+        return $entryIds;
     }
 
     /**
