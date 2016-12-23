@@ -607,6 +607,9 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         $theme = $this->getTheme();
         $template->addBlockfile(strtoupper($this->getName()) . '_BLOCK', strtoupper($this->getName()) . '_BLOCK', $this->cx->getWebsiteThemesPath() . '/' . $theme->getFoldername() . '/' . strtolower($this->getName()) . '_block.html');
 
+        if (!isset($_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())])) {
+            $_ARRAYLANG += \Env::get('init')->getComponentSpecificLanguageData($this->getName());
+        }
         $template->setVariable(array(
             strtoupper($this->getName()) . '_BLOCK_TITLE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())],
         ));
