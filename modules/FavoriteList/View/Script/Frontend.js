@@ -68,7 +68,7 @@ cx.ready(function () {
     cx.favoriteListEditFavorite = function (id, attribute, value, update) {
         return cx.ajax(
             'FavoriteList',
-            'editFavoriteMessage',
+            'editFavorite',
             {
                 data: {
                     id: id,
