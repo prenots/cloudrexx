@@ -81,13 +81,12 @@ class VotingEventListener extends DefaultEventListener {
             goto clearTemplateCache;
         }
         foreach ($contentPages as $page) {
-            if (preg_match($pattern, $page->getContent())) {
+            if (!preg_match($pattern, $page->getContent())) {
                 continue;
             }
             $cache->clearSsiCachePage(
-                    'Voting', 'showVotingResult', array(
-                    'page' => $page->getId(),
-                    )
+                'Voting', 'showVotingResult',
+                array('page' => $page->getId())
             );
         }
 
@@ -95,12 +94,10 @@ class VotingEventListener extends DefaultEventListener {
         //clear ssi cache for Voting content present in themes files
         $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
         foreach ($themeRepo->findAll() as $theme) {
-            $searchTemplateFiles = array(
-                'index.html',
-                'home.html',
-                'content.html',
-                'sidebar.html'
-            );
+            $searchTemplateFiles = $theme->getTemplateFileNames();
+            if (!$searchTemplateFiles) {
+                continue;
+            }
             foreach ($searchTemplateFiles as $file) {
                 if (!$theme->isBlockExistsInfile($file, 'voting_result')) {
                     continue;
