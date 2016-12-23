@@ -651,8 +651,12 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         $em = $this->cx->getDb()->getEntityManager();
         $catalogRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\Catalog');
         $catalog = $catalogRepo->findOneBy(array('sessionId' => $this->getComponent('Session')->getSession()->sessionid));
-        $favorites = $catalog->getFavorites();
-        $favoritesCounter = count($favorites);
+        if (empty($catalog)) {
+            $favoritesCounter = 0;
+        } else {
+            $favorites = $catalog->getFavorites();
+            $favoritesCounter = count($favorites);
+        }
 
         $template->setVariable(array(
             strtoupper($this->getName()) . '_COUNTER' => $favoritesCounter,
