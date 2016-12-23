@@ -143,7 +143,7 @@ Basically, all placeholders are self explanatory.
 All available options are listed in the predefined examples (`modules/FavoriteList/View/Template/Frontend/Default.html`).
 
 #### Block
-It's an element which can be placed everywhere (placeholder: `[[FAVORITELIST_BLOCK]]`).
+It's an element which can be placed in the theme (placeholder: `[[FAVORITELIST_BLOCK]]`).
 But mainly used as a sidebar.
 
 Basically, all placeholders are self explanatory.
@@ -151,6 +151,10 @@ All available options are listed in the predefined examples (`themes/standard_4_
 
 For each theme you have to created the necessary two templates.
 The `favoritelist_block_list.html` stores the placeholder for AJAX-Requests, this means: the content is loaded dynamically on every change to your catalog.
+
+#### Counter
+It's an element which can be placed in the theme (placeholder: `[[FAVORITELIST_COUNTER]]`).
+This placeholder contains the amount of current elements in your catalog.
 
 #### JavaScript
 To modify your catalog, there are two different actions you can perform.

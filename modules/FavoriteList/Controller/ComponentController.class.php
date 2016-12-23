@@ -56,6 +56,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return;
         }
         $this->getController('Frontend')->getBlock($template);
+        $this->getController('Frontend')->getCounter($template);
     }
 
     public function registerEventListeners()

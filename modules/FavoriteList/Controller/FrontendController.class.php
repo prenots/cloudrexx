@@ -638,6 +638,28 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
     }
 
     /**
+     * Sets the counter to display all current favorites in the given catalog
+     * @param \Cx\Core\Html\Sigma $template
+     * @access public
+     */
+    public function getCounter($template)
+    {
+        if (!$template->placeholderExists(strtoupper($this->getName()) . '_COUNTER')) {
+            return;
+        }
+
+        $em = $this->cx->getDb()->getEntityManager();
+        $catalogRepo = $em->getRepository($this->getNamespace() . '\Model\Entity\Catalog');
+        $catalog = $catalogRepo->findOneBy(array('sessionId' => $this->getComponent('Session')->getSession()->sessionid));
+        $favorites = $catalog->getFavorites();
+        $favoritesCounter = count($favorites);
+
+        $template->setVariable(array(
+            strtoupper($this->getName()) . '_COUNTER' => $favoritesCounter,
+        ));
+    }
+
+    /**
      * Get theme by theme id
      *
      * @param array $params User input array
