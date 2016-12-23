@@ -55,8 +55,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
             return;
         }
+        // global placeholder
         $this->getController('Frontend')->getBlock($template);
         $this->getController('Frontend')->getCounter($template);
+        // global JS
+        \JS::registerJS(substr($this->getDirectory(false, true) . '/View/Script/Frontend.js', 1));
     }
 
     public function registerEventListeners()

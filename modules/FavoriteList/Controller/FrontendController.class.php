@@ -611,7 +611,6 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
             strtoupper($this->getName()) . '_BLOCK_TITLE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())],
         ));
 
-        \JS::registerJS(substr($this->getDirectory(false, true) . '/View/Script/Frontend.js', 1));
         \JS::registerCSS($this->getComponent('Html')->getDirectory(true, true) . '/View/Style/Backend.css');
 
         $template->parse(strtolower($this->getName()) . '_block_actions');
