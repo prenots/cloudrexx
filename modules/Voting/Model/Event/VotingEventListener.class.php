@@ -52,11 +52,11 @@ class VotingEventListener extends DefaultEventListener {
     /**
      * Clear all Ssi cache
      *
-     * @param array $eventArgs Event args
+     * @param string $eventArg Event argument
      */
-    public function clearEsiCache(array $eventArgs)
+    public function clearEsiCache($eventArg)
     {
-        if (empty($eventArgs) || $eventArgs != 'Voting') {
+        if (empty($eventArg) || $eventArg != 'Voting') {
             return;
         }
         
