@@ -81,13 +81,13 @@ class MediaDirEventListener extends DefaultEventListener
     /**
      * Clear all ESI cache
      *
-     * @param array $eventArgs event arguments
+     * @param string $eventArg event argument
      *
      * @return null
      */
-    public function clearEsiCache($eventArgs)
+    public function clearEsiCache($eventArg)
     {
-        if (empty($eventArgs) || $eventArgs != 'MediaDir') {
+        if (empty($eventArg) || $eventArg != 'MediaDir') {
             return;
         }
 
@@ -213,7 +213,7 @@ class MediaDirEventListener extends DefaultEventListener
      * Get level/category entryids
      *
      * @param array  $arrEntries array of entries
-     * @param string $type       if the string is level then
+     * @param string $type       if the type is level then
      *                           getting level entry ids
      *                           otherwise category entry ids
      * @param array  $entryIds   entry ids
@@ -263,20 +263,26 @@ class MediaDirEventListener extends DefaultEventListener
         if (empty($block)) {
             return;
         }
-        global $objInit;
 
         $templates = array_merge(
             array('index.html', 'home.html', 'content.html'),
-            $objInit->getCustomContentTemplatesForTheme($theme)
+            \Env::get('init')->getCustomContentTemplatesForTheme($theme)
         );
         foreach ($templates as $template) {
             if (!$theme->isBlockExistsInfile($template, $block)) {
                 continue;
             }
+            if (!is_array($extraParams) || empty($extraParams)) {
+                $params[] = array(
+                    'template' => $theme->getId(),
+                    'file'     => $template
+                );
+                continue;
+            }
             $params[] = array_merge(
                 array(
                     'template' => $theme->getId(),
-                    'file'     => $template,
+                    'file'     => $template
                 ),
                 $extraParams
             );
@@ -295,9 +301,8 @@ class MediaDirEventListener extends DefaultEventListener
     protected function getPossibleOccuranceOfBlocks(
         \Cx\Core\View\Model\Entity\Theme $theme
     ) {
-        global $objInit;
-
-        $templateFiles    = $objInit->getCustomContentTemplatesForTheme($theme);
+        $templateFiles    = \Env::get('init')
+            ->getCustomContentTemplatesForTheme($theme);
         $homeContentFiles = array('home.html');
         $contentFiles     = array('content.html');
         if (!empty($templateFiles)) {
@@ -340,8 +345,9 @@ class MediaDirEventListener extends DefaultEventListener
     /**
      * Check and get the existing blocks from the array of file
      *
-     * @param \Cx\Core\View\Model\Entity\Theme $theme theme object
-     * @param array                            $files list of home/content files
+     * @param \Cx\Core\View\Model\Entity\Theme $theme       theme object
+     * @param array                            $files       list of home/content files
+     * @param array                            $indexBlocks list of blocks available in index file
      *
      * @return array possible occurance of block list
      */

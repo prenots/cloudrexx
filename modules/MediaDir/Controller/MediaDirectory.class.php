@@ -729,10 +729,11 @@ class MediaDirectory extends MediaDirectoryLibrary
     /**
      * Get headlines
      *
-     * @param integer $blockId     block ID
-     * @param integer $position    block position
-     * @param integer $totalBlocks total block count
-     * @param integer $langId      language ID
+     * @param \Cx\Core\Html\Sigma $objTemplate template object
+     * @param integer             $blockId     block ID
+     * @param integer             $position    block position
+     * @param integer             $totalBlocks total block count
+     * @param integer             $langId      language ID
      *
      * @return null
      */
