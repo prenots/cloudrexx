@@ -51,6 +51,18 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array();
     }
 
+    /**
+    * Returns a list of JsonAdapter class names
+    *
+    * @return array List of ComponentController classes
+    */
+
+    public function getControllersAccessableByJson()
+
+    {
+        return array('JsonMarket');
+    }
+    
      /**
      * Load your component.
      *
@@ -82,17 +94,100 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $marketCheck, $objTemplate, $objMarket, $_CORELANG;
+        global $objTemplate, $themesPages, $page_template, $section;;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // Market Show Latest
                 $marketCheck = $objTemplate->blockExists('marketLatest');
                 if ($marketCheck) {
-                    $objMarket = new Market('');
                     $objTemplate->setVariable('TXT_MARKET_LATEST', $_CORELANG['TXT_MARKET_LATEST']);
-                    $objMarket->getBlockLatest();
+                    $themesPages = $this->replace($themesPages);
+                    $page_template = $this->replace($page_template);
+                    $page->setContent($this->replace(
+                            $page->getContent(),
+                            $page
+                    ));
                 }
                 break;
         }
+    }
+    
+    function replace($data, $page = null)
+    {
+       global $plainSection;
+       if (
+            $page != null &&
+            ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
+        ) {
+            if (
+                $page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION) {
+                $content = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getContentTemplateOfPage($page);
+                $data = $this->replaceEsiContent($content, '', $page);
+            } else {
+                $data = $this->replaceEsiContent($data, '', $page);
+            }
+        } else if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->replaceEsiContent($value, $key . '.html');
+            }
+        } else {
+            $tplName = '';
+            if ($plainSection == 'Home') {
+                $tplName = !\Env::get('init')->hasCustomContent()
+                    ? 'home.html' : 'content.html';
+            }
+            $data = $this->replaceEsiContent($data, $tplName);
+        }
+
+        return $data;
+    }
+    
+    protected function replaceEsiContent(
+        $content,
+        $tplName  = '',
+        $page = null,
+        $block = 'marketLatest',
+        $apiMethod = 'getMarketLatest'
+    ) {
+        
+        global $_LANGID ;
+        $matches = array();
+        
+        if (!preg_match(
+           '/<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->/s',
+            $content,
+            $arrMatches
+        )) {
+            return $content;
+        }
+        if (
+            $page != null &&
+            ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
+        ) {
+            $params = array('page' => $page->getId());
+        } else if (!empty ($tplName)) {
+            $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
+            $theme = $themeRepository->findById(\Env::get('init')->getCurrentThemeId());
+            if (!$theme) {
+                return $content;
+            }
+            $params = array('theme' => $theme->getId(), 'file' => $tplName);
+        }
+        $params['lang'] = $_LANGID;
+        $cache = \Cx\Core\Core\Controller\Cx::instanciate()
+             ->getComponent('Cache');
+        $esiContent = $cache->getEsiContent(
+            'Market',
+            $apiMethod,
+            $params
+        );
+        $replacedContent = preg_replace(
+            '/<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->/s'   ,
+            $esiContent,
+            $content
+        );
+
+        return $replacedContent;
     }
 }

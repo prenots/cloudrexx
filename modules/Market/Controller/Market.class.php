@@ -1702,7 +1702,7 @@ class Market extends MarketLibrary
 
 
     /**
-    * Get Market Latest Entrees
+    * Get Market Latest Entries
     *
     * getContentLatest
     *
@@ -1710,10 +1710,8 @@ class Market extends MarketLibrary
     * @param    string $pageContent
     * @param     string
     */
-    function getBlockLatest()
+    function getBlockLatest(\Cx\Core\Html\Sigma $objTemplate)
     {
-        global $objDatabase, $objTemplate;
-
         //get latest
         $query = "SELECT id, title, enddate, catid
                     FROM ".DBPREFIX."module_market
@@ -1721,7 +1719,7 @@ class Market extends MarketLibrary
                 ORDER BY id DESC
                    LIMIT 5";
 
-        $objResult = $objDatabase->Execute($query);
+        $objResult = \Env::get('cx')->getDb()->getAdoDb()->Execute($query);
         if ($objResult !== false) {
             while (!$objResult->EOF) {
                 // set variables
