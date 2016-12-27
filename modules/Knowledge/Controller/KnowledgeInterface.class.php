@@ -52,129 +52,214 @@ class KnowledgeInterface extends KnowledgeLibrary
     }
 
     /**
-     * Replace the placeholders
+     * Replace the placeholders with content
      *
-     * @param unknown_type $content
+     * @param string                                    $content template content
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page    page object
      */
-    public function parse(&$content)
+    public function parse(&$content, $page = null)
     {
-        $content = preg_replace("/{KNOWLEDGE_TAG_CLOUD}/i", $this->getTagCloud(), $content);
-        $content = preg_replace("/{KNOWLEDGE_MOST_READ}/i", $this->getMostRead(), $content);
-        $content = preg_replace("/{KNOWLEDGE_BEST_RATED}/i", $this->getBestRated(), $content);
+        $cache = \Env::get('cx')->getComponent('Cache');
+        $this->parseContent(
+            $cache,
+            '{KNOWLEDGE_TAG_CLOUD}',
+            $content,
+            'getTagCloud'
+        );
+        $this->parseContent(
+            $cache,
+            '{KNOWLEDGE_MOST_READ}',
+            $content,
+            'getMostRead'
+        );
+        $this->parseContent(
+            $cache,
+            '{KNOWLEDGE_BEST_RATED}',
+            $content,
+            'getBestRated'
+        );
+
+        if ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page) {
+            $page->setContent($content);
+        }
+    }
+
+    /**
+     * Parse the content
+     *
+     * @param \Cx\Core_Modules\Cache\Controller\Cache $cache       cache object
+     * @param string                                  $placeholder pattern
+     * @param string                                  $content     template content
+     * @param string                                  $methodName  name of the method
+     *
+     * @return null
+     */
+    public function parseContent(
+        \Cx\Core_Modules\Cache\Controller\ComponentController $cache,
+        $placeholder,
+        &$content,
+        $methodName
+    ) {
+        if (empty($placeholder) || empty($methodName)) {
+            return;
+        }
+
+        $pattern = '/\{' . $placeholder . '\}/i';
+        if (!preg_match($pattern, $content)) {
+            return;
+        }
+        global $_LANGID;
+
+        $content = preg_replace(
+            $pattern,
+            $cache->getEsiContent(
+                'Knowledge',
+                'getArticlesOrTags',
+                array('lang' => $_LANGID, 'method' => $methodName)
+            ),
+            $content
+        );
     }
 
     /**
      * Return a tag cloud
      *
-     * @return string
+     * @param integer $langId lang ID
+     *
+     * @return string content of tag
      */
-    public function getTagCloud()
+    public function getTagCloud($langId = null)
     {
-        global $_LANGID, $objInit;
+        global $_LANGID;
+
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
 
         $tpl = new \Cx\Core\Html\Sigma();
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
-        $template = $this->settings->formatTemplate($this->settings->get("tag_cloud_sidebar_template"));
+        $template = $this->settings->formatTemplate(
+            $this->settings->get('tag_cloud_sidebar_template')
+        );
         $tpl->setTemplate($template);
 
-
-        $highestFontSize = 20;
-        $lowestFontSize = 10;
-
         try {
-            $tags_pop = $this->tags->getAllOrderByPopularity($_LANGID, true);
-            $tags = $this->tags->getAll($_LANGID, true);
+            $tags_pop = $this->tags->getAllOrderByPopularity($langId, true);
+            $tags     = $this->tags->getAll($langId, true);
         } catch (DatabaseError $e) {
             echo $e->plain();
         }
 
         $tagCloud = new TagCloud();
         $tagCloud->setTags($tags);
-        $tagCloud->setTagVals($tags_pop[0]['popularity'], $tags_pop[count($tags_pop)-1]['popularity']);
+        $tagCloud->setTagVals(
+            $tags_pop[0]['popularity'],
+            $tags_pop[count($tags_pop) - 1]['popularity']
+        );
         $tagCloud->setFont(20, 10);
-        $tagCloud->setUrlFormat("index.php?section=Knowledge".MODULE_INDEX."&amp;tid=%id");
-
-
-        $tpl->setVariable("CLOUD", $tagCloud->getCloud());
+        $tagCloud->setUrlFormat(
+            'index.php?section=Knowledge' . MODULE_INDEX . '&amp;tid=%id'
+        );
+        $tpl->setVariable('CLOUD', $tagCloud->getCloud());
 
         //$tpl->parse("cloud");
         return $tpl->get();
     }
 
     /**
-     * Return the most popular
+     * Return the best rated articles
      *
-     * @return unknown
+     * @param integer $langId lang ID
+     *
+     * @return null|string content of best related articles
      */
-    public function getBestRated()
+    public function getBestRated($langId = null)
     {
         global $_LANGID;
 
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
         try {
-            $articles = $this->articles->getBestRated($_LANGID, $this->settings->get('best_rated_sidebar_amount'));
+            $articles = $this->articles->getBestRated(
+                $langId,
+                $this->settings->get('best_rated_sidebar_amount')
+            );
         } catch (DatabaseError $e) {
             return;
         }
 
-        $template = $this->settings->formatTemplate($this->settings->get("best_rated_sidebar_template"));
+        $template = $this->settings->formatTemplate(
+            $this->settings->get('best_rated_sidebar_template')
+        );
 
         $objTemplate = new \Cx\Core\Html\Sigma(ASCMS_THEMES_PATH);
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($objTemplate);
         $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
-
         $objTemplate->setTemplate($template);
 
-        $max_length = $this->settings->get("best_rated_sidebar_length");
+        $max_length = $this->settings->get('best_rated_sidebar_length');
         foreach ($articles as $key => $article) {
-            $question = $article['content'][$_LANGID]['question'];
+            $question = $article['content'][$langId]['question'];
             if (strlen($question) >= $max_length) {
-                $question = substr($question, 0, $max_length-3)."...";
+                $question = substr($question, 0, $max_length-3) . '...';
             }
             $objTemplate->setVariable(array(
-                "URL"        => "index.php?section=Knowledge&amp;cmd=article&amp;id=".$key,
-                "ARTICLE"   => $question
+                'URL'     => 'index.php?section=Knowledge&amp;cmd=article&amp;id=' . $key,
+                'ARTICLE' => $question
             ));
-            $objTemplate->parse("article");
+            $objTemplate->parse('article');
         }
+
         return $objTemplate->get();
     }
 
     /**
-     * Get the best rated articles
+     * Get the most viewed articles
      *
+     * @param integer $langId lang ID
+     *
+     * @return null|string content of most viewed articles
      */
-    public function getMostRead()
+    public function getMostRead($langId = null)
     {
         global $_LANGID;
 
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
         try {
-           $articles = $this->articles->getMostRead($_LANGID, $this->settings->get('best_rated_sidebar_amount'));
+            $articles = $this->articles->getMostRead(
+                $langId,
+                $this->settings->get('best_rated_sidebar_amount')
+            );
         } catch (DatabaseError $e) {
             return;
         }
 
-        $template = $this->settings->formatTemplate($this->settings->get("most_read_sidebar_template"));
+        $template = $this->settings->formatTemplate(
+            $this->settings->get('most_read_sidebar_template')
+        );
 
         $objTemplate = new \Cx\Core\Html\Sigma(ASCMS_THEMES_PATH);
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($objTemplate);
         $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
-
         $objTemplate->setTemplate($template);
 
-
-        $max_length = $this->settings->get("most_read_sidebar_length");
+        $max_length = $this->settings->get('most_read_sidebar_length');
         foreach ($articles as $key => $article) {
-            $question = $article['content'][$_LANGID]['question'];
+            $question = $article['content'][$langId]['question'];
             if (strlen($question) >= $max_length) {
-                $question = substr($question, 0, $max_length-3)."...";
+                $question = substr($question, 0, $max_length-3) . '...';
             }
             $objTemplate->setVariable(array(
-                "URL"       => "index.php?section=Knowledge&amp;cmd=article&amp;id=".$key,
-                "ARTICLE"   => $question
+                'URL'     => 'index.php?section=Knowledge&amp;cmd=article&amp;id=' . $key,
+                'ARTICLE' => $question
             ));
             $objTemplate->parse("article");
         }
-        return$objTemplate->get();
+
+        return $objTemplate->get();
     }
 }
