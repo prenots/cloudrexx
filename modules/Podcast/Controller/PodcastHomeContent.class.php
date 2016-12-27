@@ -157,9 +157,12 @@ EOF;
      *
      * @return array latest entries
      */
-    function _getLastestMedia()
+    function _getLastestMedia($langId = null)
     {
-        $homeContentCategories = $this->_getHomecontentCategories($this->_langId);
+        if (!$langId) {
+            $langId = $this->_langId;
+        }
+        $homeContentCategories = $this->_getHomecontentCategories($langId);
         if (empty($homeContentCategories)){
             $homeContentCategories = array();
         }
@@ -167,5 +170,3 @@ EOF;
     }
 
 }
-
-?>

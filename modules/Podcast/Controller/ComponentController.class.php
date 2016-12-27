@@ -36,6 +36,8 @@
 
 namespace Cx\Modules\Podcast\Controller;
 
+class JsonPodcastException extends \Exception {}
+
 /**
  * Main controller for Podcast
  *
@@ -44,7 +46,7 @@ namespace Cx\Modules\Podcast\Controller;
  * @package     cloudrexx
  * @subpackage  module_podcast
  */
-class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController implements \Cx\Core\Json\JsonAdapter {
     /**
      * getControllerClasses
      *
@@ -52,6 +54,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function getControllerClasses() {
         return array();
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * @return array list of JsonAdapter class names
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('ComponentController');
     }
 
      /**
@@ -86,51 +98,164 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
     * Do something before content is loaded from DB
     *
-    * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+    * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
     */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $podcastFirstBlock, $podcastContent, $_CONFIG, $cl, $podcastHomeContentInPageContent, $podcastHomeContentInPageTemplate, $podcastHomeContentInThemesPage, $page_template, $themesPages, $_ARRAYLANG, $objInit, $objPodcast, $podcastBlockPos, $contentPos;
+    public function preContentLoad(
+        \Cx\Core\ContentManager\Model\Entity\Page $page
+    ) {
+        global $_CONFIG, $page_template, $themesPages;
+
         // get latest podcast entries
-        $podcastFirstBlock = false;
-        $podcastContent = null;
-        if (!empty($_CONFIG['podcastHomeContent'])) {
-            /** @ignore */
-            if ($cl->loadFile(ASCMS_MODULE_PATH.'/Podcast/Controller/PodcastHomeContent.class.php')) {
-                $podcastHomeContentInPageContent = false;
-                $podcastHomeContentInPageTemplate = false;
-                $podcastHomeContentInThemesPage = false;
-                if (strpos(\Env::get('cx')->getPage()->getContent(), '{PODCAST_FILE}') !== false) {
-                    $podcastHomeContentInPageContent = true;
-                }
-                if (strpos($page_template, '{PODCAST_FILE}') !== false) {
-                    $podcastHomeContentInPageTemplate = true;
-                }
-                if (strpos($themesPages['index'], '{PODCAST_FILE}') !== false) {
-                    $podcastHomeContentInThemesPage = true;
-                }
-                if ($podcastHomeContentInPageContent || $podcastHomeContentInPageTemplate || $podcastHomeContentInThemesPage) {
-                    $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Podcast'));
-                    $objPodcast = new PodcastHomeContent($themesPages['podcast_content']);
-                    $podcastContent = $objPodcast->getContent();
-                    if ($podcastHomeContentInPageContent) {
-                        \Env::get('cx')->getPage()->setContent(str_replace('{PODCAST_FILE}', $podcastContent, \Env::get('cx')->getPage()->getContent()));
-                    }
-                    if ($podcastHomeContentInPageTemplate) {
-                        $page_template = str_replace('{PODCAST_FILE}', $podcastContent, $page_template);
-                    }
-                    if ($podcastHomeContentInThemesPage) {
-                        $podcastFirstBlock = false;
-                        if (strpos($_SERVER['REQUEST_URI'], 'section=Podcast')) {
-                            $podcastBlockPos = strpos($themesPages['index'], '{PODCAST_FILE}');
-                            $contentPos = strpos($themesPages['index'], '{CONTENT_FILE}');
-                            $podcastFirstBlock = $podcastBlockPos < $contentPos ? true : false;
-                        }
-                        $themesPages['index'] = str_replace('{PODCAST_FILE}',
-                        $objPodcast->getContent($podcastFirstBlock), $themesPages['index']);
-                    }
-                }
+        if (empty($_CONFIG['podcastHomeContent'])) {
+            return;
+        }
+        $cache = $this->cx->getComponent('Cache');
+        $this->replaceEsiContent($cache, $page->getContent(), $page);
+        $this->replaceEsiContent($cache, $page_template);
+        $isFirstBlock = false;
+        if (!preg_match('/\{PODCAST_FILE\}/i', $themesPages['index'])) {
+            if (strpos($_SERVER['REQUEST_URI'], 'section=Podcast')) {
+                $podcastBlockPos = strpos($themesPages['index'], '{PODCAST_FILE}');
+                $contentPos      = strpos($themesPages['index'], '{CONTENT_FILE}');
+                $isFirstBlock    = $podcastBlockPos < $contentPos ? true : false;
             }
         }
+        $this->replaceEsiContent($cache, $themesPages['index'], null, $isFirstBlock);
+    }
+    /**
+     * Replace esi content in given content
+     *
+     * @param \Cx\Core_Modules\Cache\Controller\ComponentController $cache        object of cache component
+     * @param string                                                $content      page content
+     * @param \Cx\Core\ContentManager\Model\Entity\Page             $page         The resolved page
+     * @param boolean                                               $isFirstBlock podcast firstblock show/hide
+     *
+     * @return null
+     */
+    protected function replaceEsiContent(
+        \Cx\Core_Modules\Cache\Controller\ComponentController $cache,
+        &$content,
+        $page = null,
+        $isFirstBlock = false
+    ) {
+        global $_LANGID;
+        $pattern = '/\{PODCAST_FILE\}/i';
+        if (!preg_match($pattern, $content)) {
+            return;
+        }
+
+        $content = preg_replace(
+            $pattern,
+            $cache->getEsiContent(
+                'Podcast',
+                'getPodcastContent',
+                array(
+                    'file'         => 'podcast.html',
+                    'isFirstBlock' => $isFirstBlock,
+                    'lang'         => $_LANGID,
+                    'template'     => \Env::get('init')->getCurrentThemeId()
+                )
+            ),
+            $content
+        );
+
+        if ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page) {
+            $page->setContent($content);
+        }
+    }
+
+    /**
+     * Json data for getting podcast result
+     *
+     * @param array $params Request parameters
+     *
+     * @return array
+     */
+    public function getPodcastContent($params)
+    {
+        $file         = !empty($params['get']['file'])
+            ? contrexx_input2raw($params['get']['file']) : '';
+        $langId       = !empty($params['get']['lang'])
+            ? contrexx_input2int($params['get']['lang']) : 0;
+        $isFirstBlock = !empty($params['get']['isFirstBlock'])
+            ? contrexx_input2int($params['get']['isFirstBlock']) : 0;
+
+        if (empty($file) || empty($langId)) {
+            return array('content' => '');
+        }
+        try {
+            $theme   = $this->getThemeFromInput($params);
+            $podcast = new PodcastHomeContent(
+                            $theme->getContentFromFile($file)
+                        );
+            return array('content' => $podcast->getContent($isFirstBlock));
+        } catch (\Exception $ex) {
+            \DBG::log($ex->getMessage());
+            return array('content' => '');
+        }
+    }
+
+    /**
+     * Get theme from the user input
+     *
+     * @param array $params User input array
+     * @return \Cx\Core\View\Model\Entity\Theme Theme instance
+     * @throws JsonPodcastException When theme id empty or theme does not exits in the system
+     */
+    protected function getThemeFromInput($params)
+    {
+        $themeId  = !empty($params['get']['template'])
+            ? contrexx_input2int($params['get']['template']) : 0;
+        if (empty($themeId)) {
+            throw new JsonPodcastException('The theme id is empty in the request');
+        }
+        $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        $theme           = $themeRepository->findById($themeId);
+        if (!$theme) {
+            throw new JsonPodcastException('The theme id '. $themeId .' does not exists.');
+        }
+        return $theme;
+    }
+
+    /**
+     * Returns an array of method names accessable from a JSON request
+     *
+     * @return array List of method names
+     */
+    public function getAccessableMethods()
+    {
+        return array('getPodcastContent');
+    }
+
+    /**
+     * Returns default permission as object
+     *
+     * @return Object
+     */
+    public function getDefaultPermissions() {
+        return new \Cx\Core_Modules\Access\Model\Entity\Permission(
+            null,
+            null,
+            false
+        );
+    }
+
+    /**
+     * Returns all messages as string
+     *
+     * @return String HTML encoded error messages
+     */
+    public function getMessagesAsString() {
+        return '';
+    }
+
+    /**
+     * Wrapper to __call()
+     *
+     * @return string ComponentName
+     */
+    public function getName() {
+        return parent::getName();
     }
 
     /**
