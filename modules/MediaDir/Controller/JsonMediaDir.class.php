@@ -26,7 +26,7 @@
  */
 
 /**
- * JsonAccess
+ * JsonMediaDir
  * Json controller for MediaDir component
  *
  * @copyright   Cloudrexx AG
@@ -40,7 +40,7 @@ namespace Cx\Modules\MediaDir\Controller;
 class JsonMediaDirException extends \Exception {}
 
 /**
- * JsonAccess
+ * JsonMediaDir
  * Json controller for MediaDir component
  *
  * @copyright   Cloudrexx AG
@@ -48,7 +48,7 @@ class JsonMediaDirException extends \Exception {}
  * @package     cloudrexx
  * @subpackage  module_mediadir
  */
-class JsonMediaDir implements \Cx\Core\Json\JsonAdapter
+class JsonMediaDir extends \Cx\Core\Core\Model\Entity\Controller implements \Cx\Core\Json\JsonAdapter
 {
     /**
      * List of messages
@@ -64,7 +64,7 @@ class JsonMediaDir implements \Cx\Core\Json\JsonAdapter
      */
     public function getName()
     {
-        return 'MediaDir';
+        return parent::getName();
     }
 
     /**
