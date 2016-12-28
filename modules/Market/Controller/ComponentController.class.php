@@ -56,14 +56,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     *
     * @return array List of ComponentController classes
     */
-
     public function getControllersAccessableByJson()
 
     {
         return array('JsonMarket');
     }
-    
-     /**
+
+    /**
      * Load your component.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -111,8 +110,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
     }
-    
-    function replace($data, $page = null)
+
+    /**
+     * Do the replacements
+     * @param string $data The pages on which the replacement should be done
+     * @return string
+     */
+    public function replace($data, $page = null)
     {
        global $plainSection;
        if (
@@ -142,18 +146,27 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         return $data;
     }
-    
-    protected function replaceEsiContent(
+
+    /**
+     * Replace esi content in given content
+     *
+     * @param string                                    $content Content
+     * @param string                                    $tplName Theme file name
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page    Page instance
+     * @param string                                    $block   Template Block name
+     *
+     * @return string Replaced content
+     */
+    public function replaceEsiContent(
         $content,
         $tplName  = '',
         $page = null,
         $block = 'marketLatest',
         $apiMethod = 'getMarketLatest'
     ) {
-        
-        global $_LANGID ;
+
         $matches = array();
-        
+
         if (!preg_match(
            '/<!--\s+BEGIN\s+('. $block .')\s+-->(.*)<!--\s+END\s+\1\s+-->/s',
             $content,
@@ -165,16 +178,20 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $page != null &&
             ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)
         ) {
-            $params = array('page' => $page->getId());
+            $params = array(
+                'page' => $page->getId()
+            );
         } else if (!empty ($tplName)) {
             $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
             $theme = $themeRepository->findById(\Env::get('init')->getCurrentThemeId());
             if (!$theme) {
                 return $content;
             }
-            $params = array('theme' => $theme->getId(), 'file' => $tplName);
+            $params = array(
+                'theme' => $theme->getId(),
+                'file' => $tplName
+            );
         }
-        $params['lang'] = $_LANGID;
         $cache = \Cx\Core\Core\Controller\Cx::instanciate()
              ->getComponent('Cache');
         $esiContent = $cache->getEsiContent(
@@ -190,4 +207,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         return $replacedContent;
     }
+
+    /**
+     * Register your event listeners here
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * Keep in mind, that you can also register your events later.
+     * Do not do anything else here than initializing your event listeners and
+     * list statements like
+     * $this->cx->getEvents()->addEventListener($eventName, $listener);
+     */
+     public function registerEventListeners() {
+         $eventListener = new \Cx\Modules\Market\Model\Event\MarketEventListener($this->cx);
+         $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
+     }
 }

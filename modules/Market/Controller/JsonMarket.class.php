@@ -49,7 +49,7 @@ class JsonMarketException extends \Exception {};
  * @package     cloudrexx
  * @subpackage  module_market
  */
-class JsonMarket implements JsonAdapter {
+class JsonMarket extends \Cx\Core\Core\Model\Entity\SystemComponentController implements JsonAdapter {
     /**
      * List of messages
      * @var Array
@@ -80,8 +80,7 @@ class JsonMarket implements JsonAdapter {
      */
     public function getName()
     {
-        return 'Market';
-//        return parent::getName();
+        return parent::getName();
     }
 
     /**
@@ -96,9 +95,11 @@ class JsonMarket implements JsonAdapter {
     }
 
     /**
-     * 
+     * Json data for getting market entries
      *
-     * @param array $params
+     * @param array $params Request parameters
+     *
+     * @return array
      */
     public function getMarketLatest($params)
     {
@@ -137,9 +138,13 @@ class JsonMarket implements JsonAdapter {
     }
 
     /**
-     * 
+     * Get the template block to parse the access placeholders
      *
-     * @param array $params
+     * @param array     $params     Input params
+     * @param string    $block      Template block
+     *
+     * @return string
+     * @throws JsonVotingException
      */
     public function getMarketContentBlock(
         $params = array(),
@@ -155,7 +160,7 @@ class JsonMarket implements JsonAdapter {
                 );
             }
             $content = $theme->getContentFromFile($file);
-           
+
             $matches = null;
             if (   $content
                 && preg_match(
@@ -171,7 +176,7 @@ class JsonMarket implements JsonAdapter {
         }
         throw new JsonMarketException('The block '. $block .' not exists');
     }
-    
+
     /**
      * Get theme from the user input
      *
