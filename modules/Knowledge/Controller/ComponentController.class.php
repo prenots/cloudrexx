@@ -201,6 +201,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
 
         try {
+            if (!defined('MODULE_INDEX')) {
+                define('MODULE_INDEX', '');
+            }
             $knowledgeInterface = new KnowledgeInterface();
             if (!method_exists($knowledgeInterface, $method)) {
                 return array('content' => '');

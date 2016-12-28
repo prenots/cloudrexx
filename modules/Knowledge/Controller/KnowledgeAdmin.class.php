@@ -411,6 +411,10 @@ class KnowledgeAdmin extends KnowledgeLibrary
         try {
             $this->articles->deleteOneArticle($id);
             $this->tags->clearTags();
+            //clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Knowledge'));
         } catch (DatabaseError $e) {
             $this->sendAjaxError($e->formatted());
         }
@@ -778,6 +782,10 @@ class KnowledgeAdmin extends KnowledgeLibrary
             } else {
                 $this->articles->deactivate($id);
             }
+            //clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Knowledge'));
         } catch (DatabaseError $e) {
             $this->sendAjaxError($e->formatted());
         }
@@ -1172,6 +1180,10 @@ class KnowledgeAdmin extends KnowledgeLibrary
             foreach ($tags as $lang => $tag) {
                 $this->tags->updateFromString($id, $tag, $lang);
             }
+            //clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Knowledge'));
         } catch (DatabaseError $e) {
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];
             $this->errorMessage .= $e->formatted();
@@ -1215,6 +1227,10 @@ class KnowledgeAdmin extends KnowledgeLibrary
             foreach ($tags as $lang => $tag) {
                 $this->tags->updateFromString($id, $tag, $lang);
             }
+            //clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Knowledge'));
         } catch (DatabaseError $e) {
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];
             $this->errorMessage .= $e->formatted();
@@ -1239,6 +1255,10 @@ class KnowledgeAdmin extends KnowledgeLibrary
             foreach ($_POST['articlelist'] as $position => $id) {
                 $this->articles->setSort($id, $position);
             }
+            //clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Knowledge'));
         } catch (DatabaseError $e) {
             $this->sendAjaxError($e->formatted());
         }
@@ -1440,6 +1460,10 @@ class KnowledgeAdmin extends KnowledgeLibrary
             $this->settings->set("best_rated_amount", $_POST['best_rated_amount']);
 
             $this->updateGlobalSetting(!empty($_POST['useKnowledgePlaceholders']) ? 1 : 0);
+            //clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Knowledge'));
         } catch (DatabaseError $e) {
             global $_ARRAYLANG;
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];

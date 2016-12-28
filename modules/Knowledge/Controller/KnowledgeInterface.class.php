@@ -62,19 +62,19 @@ class KnowledgeInterface extends KnowledgeLibrary
         $cache = \Env::get('cx')->getComponent('Cache');
         $this->parseContent(
             $cache,
-            '{KNOWLEDGE_TAG_CLOUD}',
+            'KNOWLEDGE_TAG_CLOUD',
             $content,
             'getTagCloud'
         );
         $this->parseContent(
             $cache,
-            '{KNOWLEDGE_MOST_READ}',
+            'KNOWLEDGE_MOST_READ',
             $content,
             'getMostRead'
         );
         $this->parseContent(
             $cache,
-            '{KNOWLEDGE_BEST_RATED}',
+            'KNOWLEDGE_BEST_RATED',
             $content,
             'getBestRated'
         );
