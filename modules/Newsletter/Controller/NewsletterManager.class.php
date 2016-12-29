@@ -440,76 +440,155 @@ class NewsletterManager extends NewsletterLib
     }
 
 
+    /**
+     * Flush the list
+     *
+     * @return null
+     */
     function _flushList()
     {
         global $objDatabase, $_ARRAYLANG;
+
         $listID = (!empty($_GET['id'])) ? intval($_GET['id']) : false;
-        if ($listID) {
-            if ($objDatabase->Execute(
-                        "DELETE FROM ".DBPREFIX."module_newsletter_rel_user_cat WHERE category = $listID"
-                    ) !== false &&
-                $objDatabase->Execute(
-                        "DELETE FROM ".DBPREFIX."module_newsletter_access_user WHERE newsletterCategoryID=$listID"
-                    ) !== false) {
-                self::$strOkMessage = $_ARRAYLANG['TXT_NEWSLETTER_SUCCESSFULLY_FLUSHED'];
-            } else {
-                self::$strErrMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
-            }
-        } else {
+        if (empty($listID)) {
             self::$strErrMessage = $_ARRAYLANG['TXT_NEWSLETTER_NO_ID_SPECIFIED'];
+            return;
+        }
+        if (
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'module_newsletter_rel_user_cat`
+                    WHERE `category` = ' . $listID
+            ) !== false &&
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'module_newsletter_access_user`
+                    WHERE `newsletterCategoryID` = ' . $listID
+            ) !== false
+        ) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Newsletter'));
+            self::$strOkMessage  = $_ARRAYLANG['TXT_NEWSLETTER_SUCCESSFULLY_FLUSHED'];
+        } else {
+            self::$strErrMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
         }
     }
 
 
+    /**
+     * Delete list
+     *
+     * @return null
+     */
     function _deleteList()
     {
         global $objDatabase, $_ARRAYLANG;
-        $listId = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        if ($listId > 0) {
-            if (($arrList = $this->_getList($listId)) !== false) {
-                $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_newsletter_rel_cat_news WHERE category=".$listId);
-                $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_newsletter_rel_user_cat WHERE category=".$listId);
-                $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_newsletter_access_user WHERE newsletterCategoryID=$listId");
 
-                if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_newsletter_category WHERE id=".$listId) !== false) {
-                    self::$strOkMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_DELETED'], $arrList['name']);
-                } else {
-                    self::$strErrMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_COULD_NOT_DELETE_LIST'], $arrList['name']);
-                }
-            }
+        $listId = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        if (empty($listId)) {
+            return;
+        }
+
+        $arrList = $this->_getList($listId);
+        if (empty($arrList)) {
+            return;
+        }
+        $objDatabase->Execute(
+            'DELETE FROM `' . DBPREFIX . 'module_newsletter_rel_cat_news`
+                WHERE `category` = ' . $listId
+        );
+        $objDatabase->Execute(
+            'DELETE FROM `' . DBPREFIX . 'module_newsletter_rel_user_cat`
+                WHERE `category` = ' . $listId
+        );
+        $objDatabase->Execute(
+            'DELETE FROM `' . DBPREFIX . 'module_newsletter_access_user`
+                WHERE `newsletterCategoryID` = ' . $listId
+        );
+
+        if (
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'module_newsletter_category`
+                    WHERE `id` = ' . $listId
+            ) !== false
+        ) {
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Newsletter'));
+            self::$strOkMessage .= sprintf(
+                $_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_DELETED'],
+                $arrList['name']
+            );
+        } else {
+            self::$strErrMessage .= sprintf(
+                $_ARRAYLANG['TXT_NEWSLETTER_COULD_NOT_DELETE_LIST'],
+                $arrList['name']
+            );
         }
     }
 
 
+    /**
+     * Get list
+     *
+     * @param integer $listId list ID
+     *
+     * @return boolean
+     */
     function _getList($listId)
     {
         global $objDatabase;
 
-        $objList = $objDatabase->SelectLimit("SELECT `status`, `name`, `notification_email` FROM ".DBPREFIX."module_newsletter_category WHERE id=".$listId, 1);
+        $objList = $objDatabase->SelectLimit(
+            'SELECT `status`, `name`, `notification_email`
+                FROM `' . DBPREFIX . 'module_newsletter_category`
+                WHERE `id` = ' . $listId,
+            1
+        );
         if ($objList !== false && $objList->RecordCount() == 1) {
             return array(
-                'status' => $objList->fields['status'],
-                'name' => $objList->fields['name'],
+                'status'             => $objList->fields['status'],
+                'name'               => $objList->fields['name'],
                 'notification_email' => $objList->fields['notification_email'],
             );
         }
+
         return false;
     }
 
 
+    /**
+     * Change the list status
+     */
     function _changeListStatus()
     {
         global $objDatabase;
 
         $listId = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        if ($listId > 0) {
-            if (($arrList = $this->_getList($listId)) !== false) {
-                $objDatabase->Execute("UPDATE ".DBPREFIX."module_newsletter_category SET `status`=".($arrList['status'] == 1 ? "0" : "1")." WHERE id=".$listId);
-            }
+        if (empty($listId)) {
+            return;
         }
+
+        $arrList = $this->_getList($listId);
+        if (empty($arrList)) {
+            return;
+        }
+
+        $objDatabase->Execute(
+            'UPDATE `' . DBPREFIX . 'module_newsletter_category`
+                SET `status` = ' . ($arrList['status'] == 1 ? 0 : 1) . '
+                WHERE `id` = ' . $listId
+        );
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getEvents()
+            ->triggerEvent('clearEsiCache', array('Newsletter'));
     }
 
 
+    /**
+     * Modify list
+     *
+     * @return boolean
+     */
     function _editList()
     {
         global $_ARRAYLANG;
@@ -524,6 +603,9 @@ class NewsletterManager extends NewsletterLib
                 if ($this->_checkUniqueListName($listId, $listName) !== false) {
                     if ($listId == 0) {
                         if ($this->_addList($listName, $listStatus, $notificationMail) !== false) {
+                            \Cx\Core\Core\Controller\Cx::instanciate()
+                                ->getEvents()
+                                ->triggerEvent('clearEsiCache', array('Newsletter'));
                             self::$strOkMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_CREATED'], $listName);
                             return $this->_lists();
                         } else {
@@ -531,6 +613,9 @@ class NewsletterManager extends NewsletterLib
                         }
                     } else {
                         if ($this->_updateList($listId, $listName, $listStatus, $notificationMail) !== false) {
+                            \Cx\Core\Core\Controller\Cx::instanciate()
+                                ->getEvents()
+                                ->triggerEvent('clearEsiCache', array('Newsletter'));
                             self::$strOkMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_UPDATED'], $listName);
                             return $this->_lists();
                         } else {

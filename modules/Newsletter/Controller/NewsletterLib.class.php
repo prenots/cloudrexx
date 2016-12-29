@@ -478,39 +478,104 @@ class NewsletterLib
     }
 
 
-    function _getHTML($onlyId=false)
+    /**
+     * get html
+     *
+     * @param integer|boolean $onlyId list ID
+     * @param integer         $langId lang ID
+     *
+     * @return \Cx\Core\Html\Model\Entity\FormElement|string
+     */
+    function _getHTML($onlyId = false, $langId = null)
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $_ARRAYLANG, $_LANGID;
 
-        $html = '';
-        if ($onlyId) {
-            $objResult = true;
-        } else {
-            $objResult = $objDatabase->Execute("SELECT id, name FROM ".DBPREFIX."module_newsletter_category WHERE status='1' ORDER BY name");
+        if (!$langId) {
+            $langId = $_LANGID;
+        }
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getDb()
+            ->getAdoDb();
+        $objResult   = true;
+        if (!$onlyId) {
+            $objResult = $objDatabase->Execute(
+                'SELECT `id`, `name`
+                    FROM `' . DBPREFIX . 'module_newsletter_category`
+                    WHERE `status` = 1
+                    ORDER BY `name`'
+            );
         }
 
-        if ($objResult !== false) {
-            $html .= '<form name="newsletter" action="'.CONTREXX_DIRECTORY_INDEX.'?section=Newsletter&amp;act=subscribe" method="post">'."\n";
+        if ($objResult == false) {
+            return '';
+        }
 
-            if ($onlyId || $objResult->RecordCount() == 1) {
-                $html .= '<input type="hidden" name="list['.($onlyId ? $onlyId : $objResult->fields['id']).']" value="1" />'."\n";
-            } elseif ($objResult->RecordCount() == 0) {
-                $this->_objTpl->setVariable('TXT_NO_CATEGORIES', $_ARRAYLANG['TXT_NO_CATEGORIES']);
-            } else {
-                while (!$objResult->EOF) {
-                    $html .= '<input type="checkbox" name="list['.$objResult->fields['id'].']" id="list_'.$objResult->fields['id'].'" value="1" /> <label for="list_'.$objResult->fields['id'].'">'.htmlentities($objResult->fields['name'], ENT_QUOTES, CONTREXX_CHARSET)."</label><br />\n";
-                    $objResult->MoveNext();
-                }
+        $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+            'Newsletter',
+            'subscribe',
+            $langId
+        )->toString();
+        $form = new \Cx\Core\Html\Model\Entity\FormElement($url, 'post', '');
+        $form->setAttribute('name', 'newsletter');
 
-                $html .= "<br />";
+        if ($onlyId || $objResult->RecordCount() == 1) {
+            $hidden = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+            $listId = $onlyId ? $onlyId : contrexx_raw2xhtml($objResult->fields['id']);
+            $hidden->setAttributes(array(
+                'type'  => 'hidden',
+                'name'  => 'list[' . $listId . ']',
+                'value' => 1
+            ));
+            $form->addChild($hidden);
+        } elseif ($objResult->RecordCount() == 0) {
+            $this->_objTpl->setVariable('TXT_NO_CATEGORIES', $_ARRAYLANG['TXT_NO_CATEGORIES']);
+        } else {
+            while (!$objResult->EOF) {
+                $listId   = contrexx_raw2xhtml($objResult->fields['id']);
+                $checkbox = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+                $checkbox->setAttributes(array(
+                    'type'  => 'checkbox',
+                    'name'  => 'list[' . $listId . ']',
+                    'id'    => 'list_' . $listId,
+                    'value' => 1
+                ));
+                $form->addChild($checkbox);
+                $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+                $label->setAttribute('for', 'list_' . $listId);
+                $label->addChild(
+                    new \Cx\Core\Html\Model\Entity\TextElement(
+                        contrexx_raw2xhtml($objResult->fields['name'])
+                    )
+                );
+                $form->addChild($label);
+                $form->addChild(new \Cx\Core\Html\Model\Entity\HtmlElement('br'));
+                $objResult->MoveNext();
             }
 
-            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" /><br /><br />'."\n";
-            $html .= '<input type="submit" name="recipient_save" value="'.$_ARRAYLANG['TXT_NEWSLETTER_SUBSCRIBE'].'" />'."\n";
-            $html .= "</form>\n";
+            $form->addChild(new \Cx\Core\Html\Model\Entity\HtmlElement('br'));
         }
 
-        return $html;
+        $text = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+        $text->setAttributes(array(
+            'type'      => 'text',
+            'name'      => 'email',
+            'value'     => $_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'],
+            'maxlength' => 255,
+            'style'     => 'width: 165px;',
+            'onfocus'   => 'this.value=""'
+        ));
+        $form->addChild($text);
+        $form->addChild(new \Cx\Core\Html\Model\Entity\HtmlElement('br'));
+        $form->addChild(new \Cx\Core\Html\Model\Entity\HtmlElement('br'));
+        $submit = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+        $submit->setAttributes(array(
+            'type'  => 'submit',
+            'name'  => 'recipient_save',
+            'value' => $_ARRAYLANG['TXT_NEWSLETTER_SUBSCRIBE']
+        ));
+        $form->addChild($submit);
+
+        return $form;
     }
 
 

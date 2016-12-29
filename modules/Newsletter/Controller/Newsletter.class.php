@@ -936,12 +936,28 @@ class Newsletter extends NewsletterLib
         return false;
     }
 
-
-
-    function setBlock(&$code)
+    /**
+     * Set block
+     *
+     * @param string                                    $code template code
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page page object
+     */
+    function setBlock(&$code, $page = null)
     {
-        $html = $this->_getHTML();
+        global $_LANGID;
+
+        $cache = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getComponent('Newsletter');
+        $html = $cache->getEsiContent(
+            'Newsletter',
+            'getForm',
+            array('lang' => $_LANGID)
+        );
         $code = str_replace("{NEWSLETTER_BLOCK}", $html, $code);
+
+        if ($page instanceof \Cx\Core\ContentManager\Model\Entity\Page) {
+            $page->setContent($code);
+        }
     }
 
 
