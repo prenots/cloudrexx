@@ -380,7 +380,9 @@ class MarketManager extends MarketLibrary
                                   description='".$_POST['description']."',
                                 displayorder='0',
                                   status='".$_POST['status']."'");
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Market'));
             if ($objResult !== false) {
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_CATEGORY_ADD_SUCCESS'];
             } else {
@@ -452,6 +454,9 @@ class MarketManager extends MarketLibrary
 
         if (isset($_POST['submitCat'])) {
             $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_market_categories SET name = '".$_POST['name']."', status = '".$_POST['status']."', description = '".$_POST['description']."' WHERE id = '".$_POST['id']."'");
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Market'));
             if ($objResult !== false) {
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_CATEGORY_EDIT_SUCCESSFULL'];
                 $this->overview();
@@ -481,6 +486,9 @@ class MarketManager extends MarketLibrary
             foreach ($_POST['entrySortNr'] as $sortEntryId => $sortNr) {
                 $objDatabase->Execute('UPDATE `'.DBPREFIX.'module_market` SET `sort_id` = '.intval($sortNr).' WHERE `id` = '.intval($sortEntryId));
             }
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Market'));
         }
 
         if (!isset($_GET['catid'])) {
@@ -758,10 +766,15 @@ class MarketManager extends MarketLibrary
                 }else{
                     $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_market SET status='1' WHERE id = '".$id."'");
                 }
-
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Market'));
                 $this->sendMail($id);
             }else{
                 $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_market SET status='0' WHERE id = '".$id."'");
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Market'));
             }
         }
 
@@ -1025,7 +1038,9 @@ class MarketManager extends MarketLibrary
                                       " . $specFields . ",
                                       userdetails='".contrexx_addslashes($_POST['userdetails'])."'
                                       WHERE id='".intval($_POST['id'])."'");
-
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Market'));
                 if ($objResult !== false) {
                     $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_EDIT_SUCCESSFULL'];
                     $this->entries();

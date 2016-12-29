@@ -227,7 +227,9 @@ class MarketLibrary
                                   $specFields.",
                                   regkey='".$key."',
                                   status='".$status."'");
-
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Market'));
             if($objResult !== false){
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_ADD_SUCCESS'];
                 if($backend == 0 && $settings['confirmFrontend']){
@@ -566,6 +568,9 @@ class MarketLibrary
 
             if($status != "error"){
                 $objResultDel = $objDatabase->Execute('DELETE FROM '.DBPREFIX.'module_market WHERE id = '.$entryId.'');
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Market'));
                 if($objResultDel !== false){
                     $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_DELETE_SUCCESS'];
                 }else{
