@@ -103,22 +103,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function preContentLoad(
         \Cx\Core\ContentManager\Model\Entity\Page $page
     ) {
-        global $_CONFIG, $page_template, $themesPages;
+        global $_CONFIG, $page_template, $themesPages, $plainSection;
 
         // get latest podcast entries
         if (empty($_CONFIG['podcastHomeContent'])) {
             return;
         }
-        $cache = $this->cx->getComponent('Cache');
-        $this->replaceEsiContent($cache, $page->getContent(), $page);
+        $cache   = $this->cx->getComponent('Cache');
+        $content = $page->getContent();
+        $this->replaceEsiContent($cache, $content, $page);
         $this->replaceEsiContent($cache, $page_template);
-        $isFirstBlock = false;
-        if (!preg_match('/\{PODCAST_FILE\}/i', $themesPages['index'])) {
-            if (strpos($_SERVER['REQUEST_URI'], 'section=Podcast')) {
-                $podcastBlockPos = strpos($themesPages['index'], '{PODCAST_FILE}');
-                $contentPos      = strpos($themesPages['index'], '{CONTENT_FILE}');
-                $isFirstBlock    = $podcastBlockPos < $contentPos ? true : false;
-            }
+        $isFirstBlock = 0;
+        if (
+            $plainSection === 'Podcast' &&
+            preg_match('/\{PODCAST_FILE\}/i', $themesPages['index'])
+        ) {
+            $podcastBlockPos = strpos($themesPages['index'], '{PODCAST_FILE}');
+            $contentPos      = strpos($themesPages['index'], '{CONTENT_FILE}');
+            $isFirstBlock    = $podcastBlockPos < $contentPos ? 1 : 0;
         }
         $this->replaceEsiContent($cache, $themesPages['index'], null, $isFirstBlock);
     }
@@ -136,7 +138,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         \Cx\Core_Modules\Cache\Controller\ComponentController $cache,
         &$content,
         $page = null,
-        $isFirstBlock = false
+        $isFirstBlock = 0
     ) {
         global $_LANGID;
         $pattern = '/\{PODCAST_FILE\}/i';
@@ -272,5 +274,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $eventListener = new \Cx\Modules\Podcast\Model\Event\PodcastEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent', $eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+        $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
     }
 }

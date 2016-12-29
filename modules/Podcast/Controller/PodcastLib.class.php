@@ -412,13 +412,33 @@ class PodcastLib
             return false;
         }
     }
-
+    /**
+     * Delete media category
+     *
+     * @param integer $id category id
+     *
+     * @return boolean true/false
+     */
     function _deleteCategory($id)
     {
         global $objDatabase;
 
-        if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_category WHERE id=".$id) !== false) {
-            if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_category_lang WHERE category_id=".$id) !== false) {
+        if ($objDatabase->Execute(
+                'DELETE
+                    FROM `' . DBPREFIX . 'module_podcast_category`
+                    WHERE `id` = ' . $id
+                ) !== false
+        ) {
+            if ($objDatabase->Execute(
+                    'DELETE
+                        FROM `' . DBPREFIX . 'module_podcast_rel_category_lang`
+                        WHERE category_id = ' . $id
+                    ) !== false
+            ) {
+                //Trigger event for clear cache
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Podcast'));
                 return true;
             }
         }
@@ -443,30 +463,55 @@ class PodcastLib
         }
     }
 
+    /**
+     * Set Language id's into Category
+     *
+     * @param integer $categoryId category id
+     * @param array   $arrLangIds Language id's
+     *
+     * @return boolean true/false
+     */
     function _setCategoryLangIds($categoryId, $arrLangIds)
     {
         global $objDatabase;
 
         $arrCurrentLangIds = array();
 
-        $objLang = $objDatabase->Execute("SELECT lang_id FROM ".DBPREFIX."module_podcast_rel_category_lang WHERE category_id=".$categoryId);
+        $objLang = $objDatabase->Execute(
+            'SELECT `lang_id`
+                FROM `' . DBPREFIX . 'module_podcast_rel_category_lang`
+                WHERE `category_id` = ' . $categoryId
+        );
         if ($objLang !== false) {
             while (!$objLang->EOF) {
                 array_push($arrCurrentLangIds, $objLang->fields['lang_id']);
                 $objLang->MoveNext();
             }
 
-            $arrAddedLangIds = array_diff($arrLangIds, $arrCurrentLangIds);
+            $arrAddedLangIds   = array_diff($arrLangIds, $arrCurrentLangIds);
             $arrRemovedLangIds = array_diff($arrCurrentLangIds, $arrLangIds);
 
             foreach ($arrAddedLangIds as $langId) {
-                $objDatabase->Execute("INSERT INTO ".DBPREFIX."module_podcast_rel_category_lang (`category_id`, `lang_id`) VALUES (".$categoryId.", ".$langId.")");
+                $objDatabase->Execute(
+                        'INSERT
+                            INTO `' . DBPREFIX . 'module_podcast_rel_category_lang`
+                                   (`category_id`, `lang_id`)
+                            VALUES (' . $categoryId . ',' . $langId . ')'
+                );
             }
 
             foreach ($arrRemovedLangIds as $langId) {
-                $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_category_lang WHERE category_id=".$categoryId." AND lang_id=".$langId);
+                $objDatabase->Execute(
+                        'DELETE
+                            FROM `' . DBPREFIX . 'module_podcast_rel_category_lang`
+                            WHERE `category_id` = ' . $categoryId . '
+                            AND lang_id = ' . $langId
+                );
             }
-
+            //Trigger event for clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Podcast'));
             return true;
         } else {
             return false;
@@ -495,14 +540,20 @@ class PodcastLib
         }
     }
 
+    /**
+     * Delete the media
+     *
+     * @param integer $id media id
+     *
+     * @return boolean true/false
+     */
     function _deleteMedium($id)
     {
         global $objDatabase;
 
-
-        $query = "SELECT `thumbnail`
-                  FROM `".DBPREFIX."module_podcast_medium`
-                  WHERE `id` = ".$id;
+        $query = 'SELECT `thumbnail`
+                    FROM `' . DBPREFIX . 'module_podcast_medium`
+                    WHERE `id` = ' . $id;
         if(($objRS = $objDatabase->SelectLimit($query, 1)) !== false){
             $thumbNail = $objRS->fields['thumbnail'];
             if (strpos($thumbNail, '/') !== 0) {
@@ -511,21 +562,47 @@ class PodcastLib
             \Cx\Lib\FileSystem\FileSystem::delete_file(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $thumbNail);
         }
 
-        if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$id) !== false) {
-            if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_medium WHERE id=".$id) !== false) {
+        if ($objDatabase->Execute(
+                'DELETE
+                    FROM `' . DBPREFIX . 'module_podcast_rel_medium_category`
+                    WHERE `medium_id` = ' . $id
+                ) !== false
+        ) {
+            if ($objDatabase->Execute(
+                    'DELETE
+                        FROM `' . DBPREFIX . 'module_podcast_medium`
+                        WHERE `id` = ' . $id
+                    ) !== false
+            ) {
+                //Trigger event for clear cache
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getEvents()
+                    ->triggerEvent('clearEsiCache', array('Podcast'));
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Set categories into media entries
+     *
+     * @param integer $mediumId      Podcast media id
+     * @param array   $arrCategories Podcast media category id's
+     *
+     * @return boolean true/false
+     */
     function _setMediumCategories($mediumId, $arrCategories)
     {
         global $objDatabase;
 
         $arrCurrentCategories = array();
 
-        $objCategorie = $objDatabase->Execute("SELECT category_id FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$mediumId);
+        $objCategorie = $objDatabase->Execute(
+            'SELECT `category_id`
+                FROM `' . DBPREFIX . 'module_podcast_rel_medium_category`
+                WHERE `medium_id` = ' . $mediumId
+        );
         if ($objCategorie !== false) {
             while (!$objCategorie->EOF) {
                 array_push($arrCurrentCategories, $objCategorie->fields['category_id']);
@@ -536,19 +613,40 @@ class PodcastLib
             $arrRemovedCategories = array_diff($arrCurrentCategories, $arrCategories);
 
             foreach ($arrAddedCategories as $categoryId) {
-                $objDatabase->Execute("INSERT INTO ".DBPREFIX."module_podcast_rel_medium_category (`medium_id`, `category_id`) VALUES (".$mediumId.", ".$categoryId.")");
+                $objDatabase->Execute(
+                    'INSERT
+                        INTO `' . DBPREFIX.'module_podcast_rel_medium_category`
+                               (`medium_id`, `category_id`)
+                        VALUES (' .$mediumId . ',' . $categoryId . ')'
+                    );
             }
 
             foreach ($arrRemovedCategories as $categoryId) {
-                $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$mediumId." AND category_id=".$categoryId);
+                $objDatabase->Execute(
+                    'DELETE
+                        FROM `' . DBPREFIX.'module_podcast_rel_medium_category`
+                        WHERE `medium_id` = ' . $mediumId . '
+                        AND `category_id` = ' . $categoryId
+                    );
             }
 
+            //Trigger event for clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Podcast'));
             return true;
         } else {
             return false;
         }
     }
 
+    /**
+     * Set Home content categories
+     *
+     * @param array $arrCategories Podcast media category id's
+     *
+     * @return boolean true/false
+     */
     function _setHomecontentCategories($arrCategories)
     {
         global $objDatabase;
@@ -557,6 +655,10 @@ class PodcastLib
                     SET `setvalue` = '".implode(',', $arrCategories)."'
                     WHERE `setname` = 'latest_media_categories'";
         if ($objDatabase->Execute($query) !== false) {
+            //Trigger event for clear cache
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getEvents()
+                ->triggerEvent('clearEsiCache', array('Podcast'));
             return true;
         } else {
             return false;

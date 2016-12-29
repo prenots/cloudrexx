@@ -155,6 +155,8 @@ EOF;
     /**
      * get the latest media
      *
+     * @param integer $langId language id
+     *
      * @return array latest entries
      */
     function _getLastestMedia($langId = null)
@@ -163,10 +165,14 @@ EOF;
             $langId = $this->_langId;
         }
         $homeContentCategories = $this->_getHomecontentCategories($langId);
-        if (empty($homeContentCategories)){
+        if (empty($homeContentCategories)) {
             $homeContentCategories = array();
         }
-        return $this->_getMedia($homeContentCategories, true, $this->_arrSettings['latest_media_count']);
+        return $this->_getMedia(
+            $homeContentCategories,
+            true,
+            $this->_arrSettings['latest_media_count']
+        );
     }
 
 }

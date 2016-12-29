@@ -86,4 +86,42 @@ class PodcastEventListener extends DefaultEventListener {
         ),array(87));
         $mediaBrowserConfiguration->addMediaType($mediaType);
     }
+
+    /**
+     * Clear all Esi/Ssi cache
+     *
+     * @param string $eventArg Event argument
+     *
+     * @return null
+     */
+    public function clearEsiCache($eventArg)
+    {
+        if (empty($eventArg) || $eventArg != 'Podcast') {
+            return;
+        }
+        $cache     = $this->cx->getComponent('Cache');
+        $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+        //clear the cache contents
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+            foreach ($themeRepo->findAll() as $theme) {
+                $params = array(
+                            'file'         => 'podcast.html',
+                            'lang'         => $lang['id'],
+                            'template'     => $theme->getId(),
+                            'isFirstBlock' => 1
+                        );
+                $cache->clearSsiCachePage(
+                        'Podcast',
+                        'getPodcastContent',
+                        $params
+                );
+                $params['isFirstBlock'] = 0;
+                $cache->clearSsiCachePage(
+                        'Podcast',
+                        'getPodcastContent',
+                        $params
+                );
+            }
+        }
+    }
 }
