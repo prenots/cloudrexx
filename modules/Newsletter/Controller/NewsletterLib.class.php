@@ -512,11 +512,16 @@ class NewsletterLib
 
         $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
             'Newsletter',
-            'subscribe',
-            $langId
+            '',
+            $langId,
+            array('act' => 'subscribe')
         )->toString();
-        $form = new \Cx\Core\Html\Model\Entity\FormElement($url, 'post', '');
-        $form->setAttribute('name', 'newsletter');
+        $form = new \Cx\Core\Html\Model\Entity\HtmlElement('form');
+        $form->setAttributes(array(
+            'name'   => 'newsletter',
+            'method' => 'post',
+            'action' => $url
+        ));
 
         if ($onlyId || $objResult->RecordCount() == 1) {
             $hidden = new \Cx\Core\Html\Model\Entity\HtmlElement('input');

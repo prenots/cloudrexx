@@ -939,15 +939,17 @@ class Newsletter extends NewsletterLib
     /**
      * Set block
      *
-     * @param string                                    $code template code
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page page object
+     * @param \Cx\Core_Modules\Cache\Controller\ComponentController $cache object of cache component
+     * @param string                                                $code  template code
+     * @param \Cx\Core\ContentManager\Model\Entity\Page             $page  page object
      */
-    function setBlock(&$code, $page = null)
-    {
+    function setBlock(
+        \Cx\Core_Modules\Cache\Controller\ComponentController $cache,
+        &$code,
+        $page = null
+    ) {
         global $_LANGID;
 
-        $cache = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getComponent('Newsletter');
         $html = $cache->getEsiContent(
             'Newsletter',
             'getForm',

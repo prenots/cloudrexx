@@ -148,15 +148,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             \Env::get('init')->loadLanguageData('Newsletter')
         );
         $newsletter = new Newsletter('');
+        $cache      = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getComponent('Cache');
         $content    = $this->cx->getPage()->getContent();
         if (preg_match('/{NEWSLETTER_BLOCK}/', $content)) {
-            $newsletter->setBlock($content);
+            $newsletter->setBlock($cache, $content, $this->cx->getPage());
         }
         if (preg_match('/{NEWSLETTER_BLOCK}/', $page_template)) {
-            $newsletter->setBlock($page_template);
+            $newsletter->setBlock($cache, $page_template);
         }
         if (preg_match('/{NEWSLETTER_BLOCK}/', $themesPages['index'])) {
-            $newsletter->setBlock($themesPages['index']);
+            $newsletter->setBlock($cache, $themesPages['index']);
         }
     }
 
