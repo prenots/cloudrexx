@@ -71,13 +71,16 @@ class PodcastHomeContent extends PodcastLib
     /**
      * Fetch latest entries and parse forumtemplate
      *
+     * @param boolean $blockFirst The First block either true/false
+     * @param integer $langId     Language id
+     *
      * @return string parsed latest entries
      */
-    function getContent($blockFirst = false)
+    function getContent($blockFirst = false, $langId = null)
     {
         $this->_objTpl->setTemplate($this->_pageContent, true, true);
         if (empty($this->_latestMedia)){
-            $this->_latestMedia = &$this->_getLastestMedia();
+            $this->_latestMedia = $this->_getLastestMedia($langId);
         }
         $this->_showLatestMedia($this->_latestMedia, $blockFirst);
         return $this->_objTpl->get();

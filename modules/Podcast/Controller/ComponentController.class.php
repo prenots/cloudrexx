@@ -96,10 +96,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-    * Do something before content is loaded from DB
-    *
-    * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
-    */
+     * Do something before content is loaded from DB
+     *
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
+     *
+     * @return null
+     */
     public function preContentLoad(
         \Cx\Core\ContentManager\Model\Entity\Page $page
     ) {
@@ -130,7 +132,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core_Modules\Cache\Controller\ComponentController $cache        object of cache component
      * @param string                                                $content      page content
      * @param \Cx\Core\ContentManager\Model\Entity\Page             $page         The resolved page
-     * @param boolean                                               $isFirstBlock podcast firstblock show/hide
+     * @param boolean                                               $isFirstBlock podcast firstblock true/false
      *
      * @return null
      */
@@ -171,7 +173,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @param array $params Request parameters
      *
-     * @return array
+     * @return array Returns content array
      */
     public function getPodcastContent($params)
     {
@@ -190,7 +192,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $podcast = new PodcastHomeContent(
                             $theme->getContentFromFile($file)
                         );
-            return array('content' => $podcast->getContent($isFirstBlock));
+            return array('content' => $podcast->getContent($isFirstBlock, $langId));
         } catch (\Exception $ex) {
             \DBG::log($ex->getMessage());
             return array('content' => '');
