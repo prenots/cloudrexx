@@ -21,7 +21,7 @@
                 cx.bind("loadingStart", cx.lock, "resetPasswordFtp");
                 cx.bind("loadingEnd", cx.unlock, "resetPasswordFtp");
                 cx.trigger("loadingStart", "resetPasswordFtp", {});
-                cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + $('#loading').html() + "</div>");
+                cx.tools.StatusMessage.showMessage("{TXT_SETTINGS_FTP_RESET_LOADING}");
                 cx.jQuery.ajax({
                     dataType: "json",
                     url: url,
