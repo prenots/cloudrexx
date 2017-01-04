@@ -20,6 +20,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
     //Customize the info tab
     var infoTab = dialogDefinition.getContents( 'info' );
     if (infoTab !== null) {
+        infoTab.remove( 'ratioLock' );
         infoTab.remove( 'txtWidth' );
         infoTab.remove( 'txtHeight' );
     }
@@ -59,7 +60,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
             //If the attribute is style, check and remove the property
             //values of width and height from style attribute
             if (attrName == 'style') {
-                attrVal = attrVal.replace(/(width|height):(\s|)\d{2,3}px(;|)/g, '');
+                attrVal = attrVal.replace(/(?:\s|\;|^)(width|height):(\s|)\d{2,3}px(;|)/g, '');
             }
             tag.setAttribute(attrName, attrVal);
         }
@@ -97,11 +98,13 @@ CKEDITOR.on('dialogDefinition', function (event) {
                                 label: cx.variables.get('TXT_FILEBROWSER_SELECT_THUMBNAIL', 'mediabrowser'),
                                 className: "btn-success",
                                 callback: function () {
-                                    var image, thumbnail = $J("[name='size']").val();
+                                    var image, style, thumbnail = $J("[name='size']").val();
                                     if (thumbnail == 0) {
                                         image = callback.data[0].datainfo.filepath;
                                     } else {
                                         image = callback.data[0].datainfo.thumbnail[thumbnail];
+                                        style = dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle');
+                                        dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenStyle', style + 'max-width: ' + thumbnail + 'px;');
                                     }
                                     dialogDefinition.dialog.setValueOf(targetType[0], targetType[1], image);
 
