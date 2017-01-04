@@ -294,9 +294,7 @@ class MediaDirectory extends MediaDirectoryLibrary
         }
 
         //get navtree
-        if($this->_objTpl->blockExists($this->moduleNameLC.'Navtree') && ($intCategoryId != 0 || $intLevelId != 0)){
-            $this->getNavtree($intCategoryId, $intLevelId);
-        }
+        $this->getNavtree($intCategoryId, $intLevelId);
 
         //get searchform
         if($this->_objTpl->blockExists($this->moduleNameLC.'Searchform')){
@@ -417,9 +415,7 @@ class MediaDirectory extends MediaDirectoryLibrary
         $this->_objTpl->setTemplate($this->pageContent, true, true);
 
         //get navtree
-        if($this->_objTpl->blockExists($this->moduleNameLC.'Navtree') && ($intCategoryId != 0 || $intLevelId != 0)){
-            $this->getNavtree($intCategoryId, $intLevelId);
-        }
+        $this->getNavtree($intCategoryId, $intLevelId);
 
         //get searchform
         $searchTerm = null;
@@ -539,9 +535,7 @@ class MediaDirectory extends MediaDirectoryLibrary
         }
 
         //get navtree
-        if($this->_objTpl->blockExists($this->moduleNameLC.'Navtree') && ($intCategoryId != 0 || $intLevelId != 0)){
-            $this->getNavtree($intCategoryId, $intLevelId);
-        }
+        $this->getNavtree($intCategoryId, $intLevelId);
 
         if($intEntryId != 0 && $this->_objTpl->blockExists($this->moduleNameLC.'EntryList')) {
             $objEntry = new MediaDirectoryEntry($this->moduleName);
@@ -1117,15 +1111,38 @@ class MediaDirectory extends MediaDirectoryLibrary
     }
 
 
-
-    function getNavtree($intCategoryId, $intLevelId)
-    {
+    /**
+     * Parse the component's own breadcrumb
+     *
+     * @param   integer $intCategoryId  ID of the requested category
+     * @param   integer $intLevelId  ID of the requested level
+     * @param   \Cx\Core\Html\Sigma $template Optional template object to be used instead of the component's own template object ($this->_objTpl)
+     */
+    public function getNavtree($intCategoryId, $intLevelId, $template = null) {
         global $_ARRAYLANG;
 
+        // if no specific \Cx\Core\Html\Sigma template is set,
+        // do use the currently loaded template
+        if (!$template) {
+            $template = $this->_objTpl;
+        }
+
+        // abort in case the associated template block is missing
+        if (!$template->blockExists($this->moduleNameLC.'Navtree') && ($intCategoryId != 0 || $intLevelId != 0)){
+            return;
+        }
+
+        // abort in case no category or level data is set
+        if (!$intCategoryId && !$intLevelId) {
+            return;
+        }
+
+        // load categories into tree
         if($intCategoryId != 0) {
            $this->getNavtreeCategories($intCategoryId);
         }
 
+        // load levels into tree
         if($intLevelId != 0 && $this->arrSettings['settingsShowLevels'] == 1) {
            $this->getNavtreeLevels($intLevelId);
         }
@@ -1140,8 +1157,17 @@ class MediaDirectory extends MediaDirectoryLibrary
             $strOverviewCmd = null;
         }
 
+        $arrEntry = null;
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
+        if (isset($requestParams['eid'])) {
+            $arrEntry = $this->getCurrentFetchedEntryDataObject()->arrEntries[$requestParams['eid']];
+        }
 
-        $this->arrNavtree[] = '<a href="?section='.$this->moduleName.$strOverviewCmd.'">'.$_ARRAYLANG['TXT_MEDIADIR_OVERVIEW'].'</a>';
+// TODO: this does not yet work on reisen & tours on the same time
+        $url = $this->getAutoSlugPath($arrEntry);
+        if ($url) {
+            $this->arrNavtree[] = '<a href="'.$url.'">'.$_ARRAYLANG['TXT_MEDIADIR_OVERVIEW'].'</a>';
+        }
         krsort($this->arrNavtree);
 
         if(!empty($this->arrNavtree)) {
@@ -1151,18 +1177,18 @@ class MediaDirectory extends MediaDirectoryLibrary
                 $strClass = $i == $count -1 ? 'last' : '';
                 $strSeparator = $i == 0 ? '' : '&gt;';
 
-                $this->_objTpl->setVariable(array(
+                $template->setVariable(array(
                     $this->moduleLangVar.'_NAVTREE_LINK'    =>  $strName,
                     $this->moduleLangVar.'_NAVTREE_LINK_CLASS'    =>  $strClass,
                     $this->moduleLangVar.'_NAVTREE_SEPARATOR'    =>  $strSeparator
                 ));
 
                 $i++;
-                $this->_objTpl->parse($this->moduleNameLC.'NavtreeElement');
+                $template->parse($this->moduleNameLC.'NavtreeElement');
             }
-            $this->_objTpl->parse($this->moduleNameLC.'Navtree');
+            $template->parse($this->moduleNameLC.'Navtree');
         } else {
-            $this->_objTpl->hideBlock($this->moduleNameLC.'Navtree');
+            $template->hideBlock($this->moduleNameLC.'Navtree');
         }
     }
 
