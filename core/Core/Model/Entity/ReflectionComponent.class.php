@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- * 
+ *
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
- 
+
 /**
  * Represents an abstraction of a component
  *
@@ -61,31 +61,31 @@ class ReflectionComponent {
     /**
      * List of all available component types
      * @todo Wouldn't it be better to move this to Component class?
-     * @var array List of component types 
+     * @var array List of component types
      */
     protected static $componentTypes = array('core', 'core_module', 'module', 'lib');
-    
+
     /**
      * Name of the component this instance is an abstraction of
      * @var string Component name
      */
     protected $componentName = null;
-    
+
     /**
      * Type of the component this instance is an abstraction of
      * @var string Component type
      */
     protected $componentType = null;
-    
+
     /**
      * Fully qualified filename for/of the package file
      * @var string ZIP package filename
      */
     protected $packageFile = null;
-    
+
     /**
      * Database object
-     * 
+     *
      * @var object
      */
     private $db = null;
@@ -116,7 +116,7 @@ class ReflectionComponent {
             return;
         }
         $arg1Parts = explode('.', $arg1);
-	if (file_exists($arg1) && end($arg1Parts) == 'zip') {
+        if (file_exists($arg1) && end($arg1Parts) == 'zip') {
             // clean up tmp dir
             \Cx\Lib\FileSystem\FileSystem::delete_folder($this->cx->getWebsiteAppCacheFolderPath(), true);
         
@@ -128,14 +128,14 @@ class ReflectionComponent {
             if (!file_exists($this->cx->getWebsiteAppCacheFolderPath() . '/meta.yml')) {
                 throw new ReflectionComponentException('This ain\'t no package file: "' . $arg1 . '"');
             }
-            
+
             // Read meta info
             $metaTypes = array('core'=>'core', 'core_module'=>'system', 'module'=>'application', 'lib'=>'other');
             $yaml = new \Symfony\Component\Yaml\Yaml();
             $content = file_get_contents($this->cx->getWebsiteAppCacheFolderPath() . '/meta.yml');
             $meta = $yaml->load($content);
-            $type = array_key_exists($meta['DlcInfo']['type'], $metaTypes) ? $meta['DlcInfo']['type'] : 'lib';            
-            
+            $type = array_key_exists($meta['DlcInfo']['type'], $metaTypes) ? $meta['DlcInfo']['type'] : 'lib';
+
             // initialize ReflectionComponent
             $this->packageFile = $arg1;
             $this->componentName = $meta['DlcInfo']['name'];
@@ -144,7 +144,7 @@ class ReflectionComponent {
         } else if (is_string($arg1) && $arg2 && in_array($arg2, self::$componentTypes)) {
             $this->componentName = $arg1;
             $this->componentType = $arg2;
-            
+
             // look for the valid component name or legacy
             if (!$this->isValidComponentName($this->componentName) && !$this->isValid()) {
                 throw new \BadMethodCallException("Provided component name \"{$this->componentName}\" is invalid. Component name must be written in CamelCase notation.");
@@ -193,8 +193,8 @@ class ReflectionComponent {
     /**
      * Returns wheter this component exists or not in the system
      * Note : It not depends the component type
-     * 
-     * @param boolean $allowCustomizing (optional) Set to false if you want to ignore customizings     
+     *
+     * @param boolean $allowCustomizing (optional) Set to false if you want to ignore customizings
      * @return boolean True if it exists, false otherwise
      */
     public function exists($allowCustomizing = true) {
@@ -229,8 +229,8 @@ class ReflectionComponent {
         $result = $this->db->query($query);
         if ($result && $result->RecordCount()) {
             return true;
-        }        
-        
+        }
+
         $query = '
             SELECT
                 `id`
@@ -240,11 +240,11 @@ class ReflectionComponent {
                 `name` = \'' . $this->componentName . '\'
         ';
         $result = $this->db->query($query);
-        
+
         if ($result && $result->RecordCount()) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -257,16 +257,16 @@ class ReflectionComponent {
         if (!$this->exists()) {
             return false;
         }
-        
+
         // DB: entry in components or modules
         // DB: entry in backend areas
         // DB: existing page if necessary
-        
+
         // what else?
-        
+
         return true;
     }
-    
+
     /**
      * Tells wheter this is a legacy component or not
      * @return boolean True if its a legacy one, false otherwise
@@ -280,7 +280,7 @@ class ReflectionComponent {
         }
         return true;
     }
-    
+
     /**
      * Returns the absolute path to this component's location in the file system
      * @param boolean $allowCustomizing (optional) Set to false if you want to ignore customizings
@@ -300,7 +300,7 @@ class ReflectionComponent {
         }
         return $this->cx->getClassLoader()->getFilePath($componentPath);
     }
-    
+
     /**
      * Installs this component from a zip file (if available)
      * @todo DB stuff (structure and data)
@@ -318,14 +318,14 @@ class ReflectionComponent {
         if ($this->exists()) {
             throw new SystemComponentException('Component is already installed');
         }
-        
+
         $websitePath = $this->cx->getWebsiteDocumentRootPath();
-        
+
         // Read meta file
         $yaml = new \Symfony\Component\Yaml\Yaml();
         $content = file_get_contents($this->cx->getWebsiteAppCacheFolderPath() . '/meta.yml');
         $meta = $yaml->load($content);
-        
+
         // Check dependencies
         echo "Checking  dependencies ... ";
         foreach ($meta['DlcInfo']['dependencies'] as $dependencyInfo) {
@@ -335,10 +335,10 @@ class ReflectionComponent {
             }
         }
         echo "Done \n";
-        
+
         // Copy ZIP contents
         echo "Copying files to installation ... ";
-        $filesystem = new \Cx\Lib\FileSystem\FileSystem();        
+        $filesystem = new \Cx\Lib\FileSystem\FileSystem();
         $filesystem->copyDir(
             $this->cx->getWebsiteAppCacheFolderPath() . '/DLC_FILES',
             $this->cx->getWebsiteAppCacheFolderWebPath() . '/DLC_FILES',
@@ -349,13 +349,13 @@ class ReflectionComponent {
             true
         );
         echo "Done \n";
-        
+
         // Activate (if type is system or application)
         // TODO: templates need to be activated too!
         if ($this->componentType != 'core' && $this->componentType != 'core_module' && $this->componentType != 'module') {
             return;
         }
-        
+
         // Copy ZIP contents (also copy meta.yml into component folder if type is system or application)
         try {
             $objFile = new \Cx\Lib\FileSystem\File($this->cx->getWebsiteAppCacheFolderPath() . '/meta.yml');
@@ -363,7 +363,7 @@ class ReflectionComponent {
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::msg($e->getMessage());
         }
-        
+
         echo "Importing component data (structure & data) ... ";
         if (!file_exists($this->getDirectory(false)."/Model/Yaml")) {
             $this->importStructureFromSql();
@@ -372,13 +372,13 @@ class ReflectionComponent {
         }
         $this->importDataFromSql();
         echo "Done \n";
-        
+
         // Activate this component
         echo "Activating component ... ";
         $this->activate();
         echo "Done \n";
     }
-    
+
     /**
      * Import table's from the yml files
      */
@@ -396,9 +396,9 @@ class ReflectionComponent {
         $scm = new \Doctrine\ORM\Tools\SchemaTool($em);
         $scm->createSchema($classes);
     }
-        
+
     /**
-     * Imports table structure from sql     
+     * Imports table structure from sql
      */
     function importStructureFromSql()
     {
@@ -424,9 +424,9 @@ class ReflectionComponent {
             }
         } else {
             throw new SystemComponentException('File not found : '. $sqlDump);
-        }        
+        }
     }
-    
+
     /**
      * import component data's from sql
      */
@@ -439,9 +439,9 @@ class ReflectionComponent {
         if (!file_exists($sqlDump)) {
             return;
         }
-        
+
         $pattern = '/\s+INTO\s+`?([a-z\\d_]+)`?/i';
-        
+
         $moduleId = 0;
         $fp = @fopen ($sqlDump, "r");
         if ($fp !== false) {
@@ -454,12 +454,12 @@ class ReflectionComponent {
                         $matches = null;
                         preg_match($pattern, $sqlQuery , $matches , 0);
                         $table = isset($matches[1]) ? $matches[1] : '';
-                        
+
                         switch ($table) {
                              case DBPREFIX.'modules':
                                  $data = $this->getColumnsAndDataFromSql($sqlQuery);
                                  $newModuleId = $this->db->GetOne('SELECT MAX(`id`)+1 FROM `'. DBPREFIX .'modules`');
-                                 $replacements = array('id' => $newModuleId);                                 
+                                 $replacements = array('id' => $newModuleId);
                                  $sqlQuery = $this->repalceDataInQuery($table, $data, $replacements);
                                  break;
                              case DBPREFIX.'component':
@@ -468,14 +468,14 @@ class ReflectionComponent {
                                  $sqlQuery = $this->repalceDataInQuery($table, $data, $replacements);
                                  break;
                              case DBPREFIX.'backend_areas':
-                                 $data = $this->getColumnsAndDataFromSql($sqlQuery);                                                                  
+                                 $data = $this->getColumnsAndDataFromSql($sqlQuery);
                                  $replacements = array('module_id' => $newModuleId);
                                  $sqlQuery = $this->repalceDataInQuery($table, $data, $replacements);
                                  break;
                              default :
                                  break;
-                        }                        
-                        
+                        }
+
                         $result = $this->db->Execute($sqlQuery);
                         if ($result === false) {
                             throw new SystemComponentException($sqlQuery .' ('. $this->db->ErrorMsg() .')');
@@ -486,56 +486,56 @@ class ReflectionComponent {
             }
         }
     }
-    
+
     /**
      * replace data in the existing data by the given replacements
      * and return the sql query
-     * 
+     *
      * @param string $table        Table name
      * @param array  $columns      Columns array
-     * @param array  $data         Data array 
+     * @param array  $data         Data array
      * @param array  $replacements Replacement data array
      */
     function repalceDataInQuery($table, $data, $replacements)
-    {                        
+    {
         $data = array_intersect_key($replacements + $data, $data);
-        
+
         $sql  = 'INSERT INTO `'.$table.'` ';
         $sql .= "SET \n";
-        
+
         $firstCol = true;
         foreach($data as $column => $data) {
             $value = is_null($data) ? "NULL" : (is_string($data) ? "'$data'" : $data);
-            
+
             $sql .= '    '.($firstCol ? '' : ',') ."`$column` = $value\n";
             $firstCol = false;
         }
-        
+
         return $sql;
     }
-    
+
     /**
-     * parse the mysql query and return the columns and data from the given query. 
-     * 
+     * parse the mysql query and return the columns and data from the given query.
+     *
      * @param string $sqlQuery Mysql query
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getColumnsAndDataFromSql($sqlQuery)
     {
         $columnAndData = null;
-        preg_match_all('/\((.+?)\)/', $sqlQuery, $columnAndData);                                 
+        preg_match_all('/\((.+?)\)/', $sqlQuery, $columnAndData);
         $columnsString = $columnAndData[1][0];
         $dataString    = $columnAndData[1][1];
-        
+
         $columns = null;
         preg_match_all('/\`(.*?)\`/', $columnsString, $columns);
         $data = null;
         preg_match_all('/\'(.*?)\'/', $dataString, $data);
-        
+
         return array_combine($columns[1], $data[1]);
     }
-    
+
     /**
      * Create zip install package for this component
      * @param string $path Path to store zip file at
@@ -545,8 +545,8 @@ class ReflectionComponent {
      * @todo test $customized
      */
     public function pack($path, $customized = false) {
-        
-        $pathParts = explode('.', $path);	
+
+        $pathParts = explode('.', $path);
         if (empty($path) || end($pathParts) != 'zip') {
             throw new ReflectionComponentException('Invalid file name passed. Provide a valid zip file name');
         }
@@ -571,7 +571,7 @@ class ReflectionComponent {
             true
         );
         echo "Done \n";
-        
+
         if ($customized) {
             // overwrite with contents of $this->getDirectory(true, true)
             echo "Copying customizing files ... ";
@@ -586,11 +586,11 @@ class ReflectionComponent {
             );
             echo "Done \n";
         }
-        
+
         echo "Writing component data (structure & data) ... ";
-        $this->writeDatabaseStructureAndData();                
+        $this->writeDatabaseStructureAndData();
         echo "Done \n";
-        
+
         $componentFolder = $this->getDirectory($customized);
         if (!file_exists($componentFolder . '/meta.yml')) {
             echo "Meta file not exist. \n";
@@ -628,7 +628,7 @@ class ReflectionComponent {
                         echo "WARNING: File missing - ". $additionalFile;
                     }
                 }
-            }            
+            }
             echo "Done \n";
         }
         $filesystem->copy_file($cacheComponentFolderPath . '/meta.yml', $this->cx->getWebsiteAppCacheFolderPath() . '/meta.yml');
@@ -640,31 +640,31 @@ class ReflectionComponent {
         $file->create($this->cx->getWebsiteAppCacheFolderPath(), PCLZIP_OPT_REMOVE_PATH, $this->cx->getWebsiteAppCacheFolderPath());
         echo "Done \n";
     }
-    
+
     /**
      * Get the component related tables
-     * 
+     *
      * @return array  component related tables
      */
     protected function getComponentTables() {
         global $_DBCONFIG;
-        
+
         // load tables
         $tblSyntax = DBPREFIX . $this->componentType . '_' . strtolower($this->componentName);
         $objResult = $this->db->query('SHOW TABLES LIKE "'. $tblSyntax .'_%"');
-        
+
         $componentTables = array();
         while (!$objResult->EOF) {
             $componentTables[] = $objResult->fields['Tables_in_'. $_DBCONFIG['database'] .' ('. $tblSyntax .'_%)'];
             $objResult->MoveNext();
-        } 
-        
+        }
+
         return $componentTables;
     }
-    
+
     /**
-     * Write db structure and data into a file 
-     * 
+     * Write db structure and data into a file
+     *
      * @global type $_DBCONFIG
      */
     private function writeDatabaseStructureAndData()
@@ -675,18 +675,18 @@ class ReflectionComponent {
                       SystemComponent::getPathForType($this->componentType) . '/' . 
                       $this->componentName . '/Data';
         \Cx\Lib\FileSystem\FileSystem::make_folder($dataFolder);
-        
+
         // check whether its a doctrine component
         if (!file_exists($this->getDirectory(false)."/Model/Yaml")) {
             $this->writeTableStructureToFile($componentTables, $dataFolder . '/Structure.sql');
         }
-        
+
         $this->writeTableDataToFile($componentTables, $dataFolder . '/Data.sql');
     }
-    
+
     /**
      * Write the component data into the file
-     * 
+     *
      * @param type $arrayTables
      * @param type $path
      * @return type
@@ -695,13 +695,13 @@ class ReflectionComponent {
     {
         if (empty($path)) {
             return;
-        }        
-        
+        }
+
         try {
             $objFile = new \Cx\Lib\FileSystem\File($path);
             $objFile->touch();
-            
-            // Dump the core data's to the file            
+
+            // Dump the core data's to the file
             $objFile->append("-- modules".PHP_EOL);
             $table = DBPREFIX .'modules';
             $query = 'SELECT *
@@ -710,95 +710,95 @@ class ReflectionComponent {
                         WHERE
                             `name` = "' . $this->componentName . '"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             $objFile->append("-- component".PHP_EOL);
-            
+
             $table = DBPREFIX .'component';
             $query = 'SELECT *
-                        FROM                             
+                        FROM
                             `'. DBPREFIX .'component`
                         WHERE
                             `name` = "' . $this->componentName . '"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-                      
+
             $objFile->append("-- Backend Areas".PHP_EOL);
             $table = DBPREFIX .'backend_areas';
             $query = 'SELECT b.*
-                        FROM 
-                            `'. DBPREFIX .'backend_areas` AS b 
-                        LEFT JOIN 
+                        FROM
+                            `'. DBPREFIX .'backend_areas` AS b
+                        LEFT JOIN
                             `'. DBPREFIX .'modules` AS m
-                        ON 
+                        ON
                             m.`id` = b.`module_id`
-                        WHERE 
+                        WHERE
                             m.`name` = "' . $this->componentName . '"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             $objFile->append("-- Access group static ids".PHP_EOL);
             $table = DBPREFIX .'access_group_static_ids';
             $query = 'SELECT a.*
-                        FROM 
+                        FROM
                             `'. DBPREFIX .'access_group_static_ids` AS a
                         LEFT JOIN
-                            `'. DBPREFIX .'backend_areas` AS b 
-                        ON 
+                            `'. DBPREFIX .'backend_areas` AS b
+                        ON
                             b.`access_id` = a.`access_id`
-                        LEFT JOIN 
+                        LEFT JOIN
                             `'. DBPREFIX .'modules` AS m
-                        ON 
+                        ON
                             m.`id` = b.`module_id`
-                        WHERE 
+                        WHERE
                             m.`name` = "' . $this->componentName . '"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             $objFile->append("-- Mail template".PHP_EOL);
             $table = DBPREFIX .'core_mail_template';
             $query = 'SELECT * FROM `'. DBPREFIX .'core_mail_template` WHERE `section` = "'. $this->componentName .'"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             $objFile->append("-- Mail text".PHP_EOL);
             $table = DBPREFIX .'core_text';
             $query = 'SELECT * FROM `'. DBPREFIX .'core_text` WHERE `section` = "'. $this->componentName .'"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             $objFile->append("-- Core Settings".PHP_EOL);
             $table = DBPREFIX .'core_setting';
             $query = 'SELECT * FROM `'. DBPREFIX .'core_setting` WHERE `section` = "'. $this->componentName .'"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             $objFile->append("-- Settings".PHP_EOL);
             $table = DBPREFIX .'settings';
             $query = 'SELECT * FROM `'. DBPREFIX .'settings` WHERE `setname` LIKE "'. $this->componentName .'%"';
             $this->writeTableDataToFileFromQuery($table, $query, $objFile);
-            
+
             foreach ($arrayTables as $table) {
                 $query = 'SELECT * FROM '.$table;
                 $this->writeTableDataToFileFromQuery($table, $query, $objFile);
             }
-            
+
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::msg($e->getMessage());
         }
     }
-    
+
     /**
      * write the database table data's in to the given file object
-     * 
+     *
      * @see self::writeTableDataToFile()
-     * 
+     *
      * @param string $table   Table name
      * @param string $query   query to the records
      * @param object $objFile File object
-     * 
+     *
      * @return null
      */
     private function writeTableDataToFileFromQuery($table, $query, $objFile)
     {
         $fields       = $this->getColumnsFromTable($table);
         $columnString = '`'. implode('`, `', $fields) .'`';
-                
+
         $tableName = preg_replace('#'. DBPREFIX .'#', 'contrexx_', $table, 1);
-        
+
         $objResult = $this->db->query($query);
         if ($objResult) {
             while (!$objResult->EOF) {
@@ -817,35 +817,35 @@ class ReflectionComponent {
             }
         }
     }
-    
+
     /**
      * Returns the tables column's
-     * 
+     *
      * @see self::writeTableDataToFileFromQuery()
-     * 
+     *
      * @param string $tableName table name
-     * 
+     *
      * @return array Array of table columns
      */
     private function getColumnsFromTable($tableName)
     {
         $fields = array();
-        
+
         $objCoulmns = $this->db->query('SHOW COLUMNS FROM `' . $tableName . '`');
         while (!$objCoulmns->EOF) {
             $fields[] = $objCoulmns->fields['Field'];
             $objCoulmns->MoveNext();
         }
-        
+
         return $fields;
     }
-    
+
     /**
      * Write the table sturctures to the file
-     * 
+     *
      * @param array  $arrayTables Table name to export structure
      * @param string $path        File path
-     * 
+     *
      * @return null
      */
     private function writeTableStructureToFile($arrayTables, $path)
@@ -853,7 +853,7 @@ class ReflectionComponent {
         if (empty($arrayTables) || empty($path)) {
             return;
         }
-        
+
         try {
             $file = new \Cx\Lib\FileSystem\File($path);
             $file->touch();
@@ -864,10 +864,10 @@ class ReflectionComponent {
             \DBG::msg($e->getMessage());
         }
     }
-    
+
     /**
      * Writes to file the $table's structure
-     * 
+     *
      * @param string $table The table name
      * @access private
      * @return boolean|string return false when table not exists or return table schema
@@ -879,7 +879,7 @@ class ReflectionComponent {
         $structure .= "-- \n";
         $structure .= "-- Table structure for table `{$table}` \n";
         $structure .= "-- \n\n";
-                
+
         $tableName = preg_replace('#'. DBPREFIX .'#', 'contrexx_', $table, 1);
 
         // Dump Structure
@@ -889,7 +889,7 @@ class ReflectionComponent {
         if ( $objResult->RecordCount() == 0 ) {
             return false;
         }
-        while(!$objResult->EOF) {            
+        while(!$objResult->EOF) {
             $structure .= '`'.$objResult->fields['Field'].'` '.$objResult->fields['Type'];
             if ( @strcmp($objResult->fields['Null'],'YES') != 0 ) {
                 $structure .= ' NOT NULL';
@@ -908,7 +908,7 @@ class ReflectionComponent {
             $structure .= ",\n";
             $objResult->MoveNext();
         }
-        
+
         $structure = preg_replace("/,\n$/", '', $structure);
 
         // Save all Column Indexes
@@ -927,13 +927,13 @@ class ReflectionComponent {
         }
 
         $structure .= ";\n\n-- --------------------------------------------------------\n\n";
-        
+
         return $structure;
     }
-    
+
     /**
      * Writes to file the $table's structure
-     * 
+     *
      * @param string $table The table name
      * @access private
      * @return boolean|string return false when table not exists or return table schema
@@ -942,7 +942,7 @@ class ReflectionComponent {
     {
         $primary = "";
         $unique  = $index = $fulltext = array();
-        
+
         $objResult = $this->db->Execute("SHOW KEYS FROM `{$table}`");
         if ($objResult->RecordCount() == 0) {
             return false;
@@ -978,8 +978,8 @@ class ReflectionComponent {
             }
             $objResult->MoveNext();
         }
-        
-        
+
+
         $sqlKeyStatement = '';
         // generate primary, unique, key and fulltext
         if ($primary != "") {
@@ -992,25 +992,25 @@ class ReflectionComponent {
             $keyDef .= ")";
             $sqlKeyStatement .= $keyDef;
         }
-        
+
         foreach ($index as $keyName => $keyDef) {
             $sqlKeyStatement .= ",\n";
             $keyDef .= ")";
             $sqlKeyStatement .= $keyDef;
         }
-        
+
         foreach ($fulltext as $keyName => $keyDef) {
             $sqlKeyStatement .= ",\n";
             $keyDef .= ")";
             $sqlKeyStatement .= $keyDef;
         }
-        
+
         return $sqlKeyStatement;
     }
-        
+
     /**
      * Write the meta information of the component to the file
-     * 
+     *
      * @param \Cx\Lib\FileSystem\File $file Path to meta file
      */
     private function writeMetaDataToFile($file)
@@ -1026,18 +1026,18 @@ class ReflectionComponent {
             LIMIT 1
         ';
         $result = $this->db->query($query);
-        
+
         if (!$result->EOF) {
             $publisher = $result->fields['distributor'];
         }
-        
+
         $content = array(
             'DlcInfo' => array(
                  'name' => $this->componentName,
                  'type' => $this->componentType,
                  'publisher' => $publisher,
                  'dependencies' => null,
-                 'versions' => null,                 
+                 'versions' => null,
                  'rating' => 0,
                  'downloads' => 0,
                  'price' => 0.0,
@@ -1045,7 +1045,7 @@ class ReflectionComponent {
                  'additionalFiles' => array()
             )
         );
-        
+
         try {
             $file = new \Cx\Lib\FileSystem\File($file);
             $file->touch();
@@ -1056,7 +1056,7 @@ class ReflectionComponent {
             \DBG::msg($e->getMessage());
         }
     }
-    
+
     /**
      * Creates this component using a skeleton
      */
@@ -1064,7 +1064,7 @@ class ReflectionComponent {
         if ($this->exists()) {
             throw new SystemComponentException('Component is already Exists');
         }
-        
+
         // copy skeleton component
         \Cx\Lib\FileSystem\FileSystem::copy_folder(
             $this->cx->getCodeBaseCorePath() . '/Core/Data/Skeleton',
@@ -1075,14 +1075,14 @@ class ReflectionComponent {
         $this->fixLanguagePlaceholders('MODULE_SKELETON', $this->getDirectory());
         $this->fixDocBlocks('modules_skeleton', $this->getDirectory());
         $this->setComponentName($this->getDirectory());
-        
+
         // activate component
         $this->activate();
     }
-    
+
     /**
      * Removes this component
-     * 
+     *
      * This might not work perfectly for legacy components, since there could
      * be files outside the component's directory!
      * Be sure there is no other component relying on this one!
@@ -1099,7 +1099,7 @@ class ReflectionComponent {
         // remove from fs
         \Cx\Lib\FileSystem\FileSystem::delete_folder($this->getDirectory(), true);
     }
-    
+
     /**
      * List dependencies from this component to other parts of the system
      * @todo List files for matches (rxqcmv1)
@@ -1112,21 +1112,21 @@ class ReflectionComponent {
             return array('unknown');
         }
         $dependencies = array();
-        
+
         $directoryIterator = new \RecursiveDirectoryIterator($this->getDirectory());
         $iterator = new \RecursiveIteratorIterator($directoryIterator);
         $files = new \RegexIterator($iterator, '/^.+\.php$/i', \RegexIterator::GET_MATCH);
-        
+
         // recursive foreach .php file
         $componentNs = SystemComponent::getBaseNamespaceForType($this->componentType) . '\\' . $this->componentName;
         $matches = array();
         foreach($files as $file) {
             $file = current($file);
             // search for namespaces other than Component's
-            
+
             $objFile = new \Cx\Lib\FileSystem\File($file);
             $content = $objFile->getData();
-            
+
             preg_match_all('/(?:[A-Za-z_]+)?\\\\[A-Za-z_\\\\]+/', $content, $matches);
             foreach ($matches[0] as $match) {
                 if (substr($match, 0, 1) != '\\') {
@@ -1144,12 +1144,12 @@ class ReflectionComponent {
                 }
             }
         }
-        
+
         $dependencies = array_count_values($dependencies);
         arsort($dependencies);
         return $dependencies;
     }
-    
+
     /**
      * This adds all necessary DB entries in order to activate this component (if they do not exist)
      * @todo Backend navigation entry (from meta.yml) (rxqcmv1)
@@ -1348,27 +1348,27 @@ class ReflectionComponent {
             // only modules need a frontend page to be active
             return;
         }
-        
+
         // we will not use modulemanager here in order to be able to replace
         // modulemanager by this in a later release
-        
+
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-        
+
         $pages = $pageRepo->findBy(array(
             'module' => $this->componentName,
             'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
         ));
-        
+
         //Pages already exists so no need of adding pages again
         if (!empty($pages)) {
             return;
         }
-        
+
         // does the module repository have something for us?
         if (!$this->loadPagesFromModuleRepository($id)) {
-        
-            $nodeRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Node');            
-                        
+
+            $nodeRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Node');
+
             // if not: create an empty page
             $parcat = $nodeRepo->getRoot();
             $newnode = new \Cx\Core\ContentManager\Model\Entity\Node();
@@ -1395,7 +1395,7 @@ class ReflectionComponent {
                 $em->persist($page);
             }
             $em->flush();
-        }            
+        }
     }
 
     /**
@@ -1407,12 +1407,12 @@ class ReflectionComponent {
         $em = $this->cx->getDb()->getEntityManager();
 
         $id = $moduleId;
-        
+
         $nodeRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Node');
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
 
         $module_name = $this->componentName;
-            
+
         // get content from repo
         $query = '
             SELECT
@@ -1493,7 +1493,7 @@ class ReflectionComponent {
 
         return true;
     }
-    
+
     /**
      * This deactivates the component (does not remove any DB entries, except for pages)
      */
@@ -1521,7 +1521,7 @@ class ReflectionComponent {
         }
         $em->flush();
     }
-    
+
     /**
      * This completely removes this component from DB
      * @todo Test removing components tables (including doctrine schema)
@@ -1538,7 +1538,7 @@ class ReflectionComponent {
             $em->remove($systemComponent->getSystemComponent());
             $em->flush();
         }
-        
+
         // modules (legacy)
         $query = '
             SELECT
@@ -1550,7 +1550,7 @@ class ReflectionComponent {
         ';
         $res = $this->db->execute($query);
         $moduleId = $res->fields['id'];
-        
+
         if (!empty($moduleId)) {
             $query = '
                 DELETE FROM
@@ -1569,7 +1569,7 @@ class ReflectionComponent {
             ';
             $this->db->execute($query);
         }
-        
+
         // module tables (LIKE DBPREFIX . strtolower($moduleName)%)
         $query = '
             SHOW TABLES
@@ -1586,8 +1586,8 @@ class ReflectionComponent {
             
             $result->MoveNext();
         }
-        
-        
+
+
         $query = 'DELETE FROM `'. DBPREFIX .'core_mail_template` WHERE `section` = "'. $this->componentName .'"';
         $this->db->execute($query);
         
@@ -1603,10 +1603,10 @@ class ReflectionComponent {
         // pages
         $this->deactivate();
     }
-    
+
     /**
      * Changes type or name of this component
-     * 
+     *
      * This can move a component to customizing and back
      * @param string $newName New component name
      * @param string $newType New component type, one of 'core', 'core_module' and 'module'
@@ -1616,10 +1616,10 @@ class ReflectionComponent {
     public function move($newName, $newType, $customized = false) {
         return $this->internalRelocate($newName, $newType, $customized, false);
     }
-    
+
     /**
      * Generates a copy of this component with name and type specified.
-     * 
+     *
      * Using the third parameter this can be used to copy a component to
      * customizing or the other way
      * @param string $newName New component name
@@ -1630,7 +1630,7 @@ class ReflectionComponent {
     public function copy($newName, $newType, $customized = false) {
         return $this->internalRelocate($newName, $newType, $customized, true);
     }
-    
+
     /**
      * Fix the namespace of all files of this component
      * @param string $oldBaseNs Base namespace of old component
@@ -1642,11 +1642,11 @@ class ReflectionComponent {
         // calculate new proper base NS
         $baseNs = SystemComponent::getBaseNamespaceForType($this->componentType) . '\\' . $this->componentName;
         //$baseDir = $this->getDirectory();
-        
+
         $directoryIterator = new \RecursiveDirectoryIterator($baseDir);
         $iterator = new \RecursiveIteratorIterator($directoryIterator);
         $files = new \RegexIterator($iterator, '/^.+\.php$/i', \RegexIterator::GET_MATCH);
-        
+
         // recursive foreach .php file
         foreach($files as $file) {
             // prepare data
@@ -1656,26 +1656,26 @@ class ReflectionComponent {
             //$offsetNs = preg_replace('#/#', '\\', $offsetDir);
             $ns = $baseNs;// . $offsetNs;
             $oldNs = $oldBaseNs;// . $offsetNs;
-            
-            
+
+
             // file_get_contents()
             $objFile = new \Cx\Lib\FileSystem\File($file);
             $content = $objFile->getData();
-            
+
             // if "namespace" cannot be found, continue (non class file or legacy one)
             if (!preg_match('/namespace ' . preg_replace('/\\\\/', '\\\\\\', $oldNs) . '/', $content)) {
                 continue;
             }
-            
+
             // replace old NS with new NS (without leading \, be sure to match \ and \\)
             $regexDoubleBackslash = '/' . preg_quote(str_replace('\\', '\\\\', $oldNs) . '\\', '/') . '/';
-            
+
             $content = preg_replace(
                 $regexDoubleBackslash,
                 preg_quote(str_replace('\\', '\\\\', $ns)) . '\\\\',
                 $content
             );
-            
+
             $content = preg_replace(
                 '/' . preg_quote($oldNs . '\\', '/') . '/',
                 $ns . '\\',
@@ -1683,7 +1683,7 @@ class ReflectionComponent {
             );
             $objFile->write($content);
         }
-        
+
         // fix namespaces in DB
         // at the moment, only log_entry stores namespaces so we can simply:
         $em = $this->cx->getDb()->getEntityManager();
@@ -1699,10 +1699,10 @@ class ReflectionComponent {
             $em->persist($log);
         }
         $em->flush();
-        
+
         return true;
     }
-    
+
     /**
      * Fix the language variables of all files of this component
      * @param string $oldBaseIndex Base language var index of old component
@@ -1710,34 +1710,34 @@ class ReflectionComponent {
      */
     public function fixLanguagePlaceholders($oldBaseIndex, $baseDir) {
         $baseIndex = strtoupper($this->componentType . '_' . $this->componentName);
-        
+
         $directoryIterator = new \RecursiveDirectoryIterator($baseDir);
         $iterator = new \RecursiveIteratorIterator($directoryIterator);
         $files = new \RegexIterator($iterator, '/^.+\.(php|html|js)$/i', \RegexIterator::GET_MATCH);
-        
+
         // recursive foreach .php, .html and .js file
         foreach($files as $file) {
             // prepare data
             $file = current($file);
             $bi = $baseIndex;
             $oldBi = $oldBaseIndex;
-            
-            
+
+
             // file_get_contents()
             $objFile = new \Cx\Lib\FileSystem\File($file);
             $content = $objFile->getData();
-            
+
             $content = preg_replace(
                 '/' . $oldBi . '/',
                 preg_quote($bi),
                 $content
             );
             echo 'Replace ' . $oldBi . ' by ' . $bi . ' in ' . $file . "\n";
-            
+
             $objFile->write($content);
         }
     }
-    
+
     /**
      * Fix the component names in doc blocks of all files of this component
      * @param string $oldComponentIdentifier Old lowercase, underscore separated type and nameBase
@@ -1745,30 +1745,30 @@ class ReflectionComponent {
      */
     public function fixDocBlocks($oldComponentIdentifier, $baseDir) {
         $baseIndex = strtolower($this->componentType . '_' . $this->componentName);
-        
+
         $directoryIterator = new \RecursiveDirectoryIterator($baseDir);
         $iterator = new \RecursiveIteratorIterator($directoryIterator);
         $files = new \RegexIterator($iterator, '/^.+\.(php|html|js)$/i', \RegexIterator::GET_MATCH);
-        
+
         // recursive foreach .php, .html and .js file
         foreach($files as $file) {
             // prepare data
             $file = current($file);
             $bi = $baseIndex;
             $oldBi = $oldComponentIdentifier;
-            
-            
+
+
             // file_get_contents()
             $objFile = new \Cx\Lib\FileSystem\File($file);
             $content = $objFile->getData();
-            
+
             $content = preg_replace(
                 '/' . $oldBi . '/',
                 preg_quote($bi),
                 $content
             );
             echo 'Replace ' . $oldBi . ' by ' . $bi . ' in ' . $file . "\n";
-            
+
             $objFile->write($content);
         }
     }
@@ -1779,34 +1779,34 @@ class ReflectionComponent {
      */
     public function setComponentName($baseDir) {
         $componentNamePlaceholder = '{COMPONENT_NAME}';
-        
+
         $directoryIterator = new \RecursiveDirectoryIterator($baseDir);
         $iterator = new \RecursiveIteratorIterator($directoryIterator);
         $files = new \RegexIterator($iterator, '/^.+(frontend|backend)\.php$/i', \RegexIterator::GET_MATCH);
-        
+
         // recursive foreach frontend.php and backend.php file
         foreach($files as $file) {
             // prepare data
             $file = current($file);
-            
+
             // file_get_contents()
             $objFile = new \Cx\Lib\FileSystem\File($file);
             $content = $objFile->getData();
-            
+
             $content = preg_replace(
                 '/'.preg_quote($componentNamePlaceholder).'/',
                 preg_quote($this->componentName),
                 $content
             );
             echo 'Replace ' . $componentNamePlaceholder . ' by ' . $this->componentName . ' in ' . $file . "\n";
-            
+
             $objFile->write($content);
         }
     }
-    
+
     /**
      * Relocates this component (copy or move)
-     * 
+     *
      * This does the following tasks
      * - Remove all DB entries for this component if moved
      * - Relocate the component in filesystem
@@ -1824,11 +1824,11 @@ class ReflectionComponent {
     protected function internalRelocate($newName, $newType, $customized, $copy) {
         // create new ReflectionComponent
         $newComponent = new self($newName, $newType);
-        
+
         if ($newComponent->exists()) {
             throw new SystemComponentException('The target component is already Exists. Please provide different component name or use uninstall command to remove old component..');
         }
-        
+
         // move or copy pages before removing DB entries
         $em       = $this->cx->getDb()->getEntityManager();
         $pageRepo = $em->getRepository('Cx\\Core\\ContentManager\\Model\\Entity\\Page');
@@ -1857,18 +1857,18 @@ class ReflectionComponent {
             }
         }
         $em->flush();
-        
+
         $this->internalCopyData($newComponent);
-        
+
         // remove old component from db (component, modules, backend_areas)
         if (!$copy) {
              $this->removeFromDb();
         }
-        
+
         // copy/move in filesystem (name, type and customizing)
         $newLocation = $newComponent->getDirectory(false, $customized);
         $this->internalFsRelocate($newLocation, $copy);
-        
+
         // fix namespaces
         $baseDir = $this->cx->getCodeBaseDocumentRootPath();
         if ($copy) {
@@ -1879,38 +1879,38 @@ class ReflectionComponent {
         $newComponent->fixDocBlocks(strtolower($this->componentType . '_' . $this->componentName), $baseDir);
         // renaming the component in backend navigation does not yet work
         //$newComponent->setComponentName($baseDir);
-        
+
         // add new component to db and activate it (component, modules, backend_areas, pages)
         $newComponent->activate();
-        
+
         return $newComponent;
     }
-    
+
     /**
      * Moves or copies the filesystem part of this component to another location
      * @param string $destination Destination path
      * @param boolean $copy (optional) Copy or move? True means copy, default is move
-     * @return null 
+     * @return null
      */
     protected function internalFsRelocate($destination, $copy = false) {
         if ($destination == $this->getDirectory()) {
             // nothing to do
             return;
         }
-        
+
         $status = false;
         if ($copy) {
             $status = \Cx\Lib\FileSystem\FileSystem::copy_folder($this->getDirectory(), $destination);
         } else {
             $status = \Cx\Lib\FileSystem\FileSystem::move($this->getDirectory(), $destination);
         }
-        
+
         return $status;
     }
-    
+
     /**
      * Copy table data's using mysql query
-     * 
+     *
      * @param string $table        Table name
      * @param array  $replacements Possible replacements
      * @param string $query        mysql query
@@ -1918,29 +1918,29 @@ class ReflectionComponent {
     protected function copyDataFromQuery($table, $replacements, $query) {
         $fields    = $this->getColumnsFromTable($table);
         $objResult = $this->db->query($query);
-        
+
         if ($objResult) {
             while (!$objResult->EOF) {
                 $datas = array();
                 foreach ($fields as $field) {
                     $datas[$field] = $objResult->fields[$field];
                 }
-                
+
                 $sqlQuery = $this->repalceDataInQuery($table, contrexx_raw2db($datas), $replacements);
                 $this->db->query($sqlQuery);
-                
+
                 $objResult->MoveNext();
             }
         }
     }
-    
+
     /**
      * Copy the DB data's to new component name
-     * 
+     *
      * @param object $newComponent Cx\Core\Core\Model\Entity\ReflectionComponent target component name
      */
     protected function internalCopyData($newComponent) {
-        
+
         // copy module table
         $newModuleId = $this->db->GetOne('SELECT MAX(`id`)+1 FROM `'. DBPREFIX .'modules`');
         $table = DBPREFIX.'modules';
@@ -1955,59 +1955,59 @@ class ReflectionComponent {
             'is_core' => $newComponent->getType() == SystemComponent::TYPE_CORE_MODULE ? 1 : 0
         );
         $this->copyDataFromQuery($table, $replacements, $query);
-        
+
         // copy component table
         $table = DBPREFIX .'component';
         $query = 'SELECT *
-                        FROM                             
+                        FROM
                             `'. DBPREFIX .'component`
                         WHERE
                             `name` = "' . $this->componentName . '"';
         $replacements = array(
-            'id'   => NULL,            
+            'id'   => NULL,
             'type' => $newComponent->getType()
         );
         $this->copyDataFromQuery($table, $replacements, $query);
-        
+
         // copy backend areas
         $table = DBPREFIX .'backend_areas';
         $query = 'SELECT b.*
-                    FROM 
-                        `'. DBPREFIX .'backend_areas` AS b 
-                    LEFT JOIN 
+                    FROM
+                        `'. DBPREFIX .'backend_areas` AS b
+                    LEFT JOIN
                         `'. DBPREFIX .'modules` AS m
-                    ON 
+                    ON
                         m.`id` = b.`module_id`
-                    WHERE 
+                    WHERE
                         m.`name` = "' . $this->componentName . '"';
         $replacements = array('module_id' => $newModuleId);
         $this->copyDataFromQuery($table, $replacements, $query);
-        
-        
+
+
         $query = 'SELECT `key`, `text_id` FROM `'. DBPREFIX .'core_mail_template` WHERE `section` = "'. $this->componentName .'"';
         $objResult = $this->db->query($query);
-        
+
         $coreMailTemplatetable = DBPREFIX .'core_mail_template';
         $coreTextTable         = DBPREFIX .'core_text';
         if ($objResult) {
             while (!$objResult->EOF) {
                 $newTextId = $this->db->GetOne('SELECT MAX(`text_id`)+1 FROM `'. DBPREFIX .'core_mail_template`');
-                                
+
                 $query = 'SELECT * FROM `'. DBPREFIX .'core_mail_template` WHERE `section` = "'. $this->componentName .'" AND `key` = "'. $objResult->fields['key'] .'"';
                 $replacements = array(
                     'section' => $newComponent->getName(),
                     'text_id' => $newTextId
                 );
                 $this->copyDataFromQuery($coreMailTemplatetable, $replacements, $query);
-                
-                $query = 'SELECT * FROM `'. DBPREFIX .'core_text` WHERE `section` = "'. $this->componentName .'" AND `text_id` = "'. $objResult->fields['text_id'] .'"';        
+
+                $query = 'SELECT * FROM `'. DBPREFIX .'core_text` WHERE `section` = "'. $this->componentName .'" AND `text_id` = "'. $objResult->fields['text_id'] .'"';
                 $replacements = array('section' => $newComponent->getName(), 'id' => $newTextId);
                 $this->copyDataFromQuery($table, $replacements, $query);
-                
+
                 $objResult->MoveNext();
             }
         }
-        
+
         $table = DBPREFIX .'core_setting';
         $query = 'SELECT * FROM `'. DBPREFIX .'core_setting` WHERE `section` = "'. $this->componentName .'"';
         $replacements = array('section' => $newComponent->getName());
@@ -2017,7 +2017,7 @@ class ReflectionComponent {
         $query = 'SELECT * FROM `'. DBPREFIX .'settings` WHERE `setname` LIKE "'. $this->componentName .'%"';
         $replacements = array('section' => $newComponent->getName());
         $this->copyDataFromQuery($table, $replacements, $query);
-        
+
         $componentTables = $this->getComponentTables();
         foreach ($componentTables as $table) {
             $newTable = preg_replace('/(\w)'. $this->componentType .'_'. strtolower($this->componentName) .'_(\w)/', '$1'. $newComponent->getType() .'_'. strtolower($newComponent->getName()) .'_$2', $table);
@@ -2026,6 +2026,6 @@ class ReflectionComponent {
             $query = 'INSERT '. $newTable .' SELECT * FROM '. $table;
             $this->db->query($query);
         }
-        
+
     }
 }
