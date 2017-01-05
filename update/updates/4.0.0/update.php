@@ -541,12 +541,17 @@ function executeContrexxUpdate() {
             return false;
         }
 
+        // check if DateTime module is installed (for "Daylight Saving Time Hotfix")
+        $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+
         return true;
         /////////////////////////////////////////
         // END: UPDATE FOR CONTREXX 3 OR NEWER //
         /////////////////////////////////////////
     }
 
+    // check if DateTime module is installed (for "Daylight Saving Time Hotfix")
+    $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
 
     ///////////////////////////////////////////
     // CONTINUE UPDATE FOR NON CX 3 VERSIONS //
@@ -840,6 +845,14 @@ function executeContrexxUpdate() {
     }
 
     return true;
+}
+
+function moduleExists($name) {
+    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `' . DBPREFIX . 'modules` WHERE `name` = "' . $name . '" ORDER BY `name` ASC');
+    if ($result && $result->RecordCount() > 0) {
+        return true;
+    }
+    return false;
 }
 
 function getMissedModules() {
