@@ -599,11 +599,24 @@ class PHPMailer {
    * @return bool
    */
   protected function SendmailSend($header, $body) {
-    if ($this->Sender != '') {
-      $sendmail = sprintf("%s -oi -f %s -t", escapeshellcmd($this->Sendmail), escapeshellarg($this->Sender));
+    // CVE-2016-10033, CVE-2016-10045: Don't pass -f if characters will be escaped.
+    if (!empty($this->Sender) and self::isShellSafe($this->Sender)) {
+      if ($this->Mailer == 'qmail') {
+        $sendmailFmt = '%s -f%s';
     } else {
-      $sendmail = sprintf("%s -oi -t", escapeshellcmd($this->Sendmail));
+        $sendmailFmt = '%s -oi -f%s -t';
     }
+    } else {
+      if ($this->Mailer == 'qmail') {
+        $sendmailFmt = '%s';
+      } else {
+        $sendmailFmt = '%s -oi -t';
+      }
+    }
+
+    // TODO: If possible, this should be changed to escapeshellarg.  Needs thorough testing.
+    $sendmail = sprintf($sendmailFmt, escapeshellcmd($this->Sendmail), $this->Sender);
+
     if ($this->SingleTo === true) {
       foreach ($this->SingleToArray as $key => $val) {
         if(!@$mail = popen($sendmail, 'w')) {
@@ -638,6 +651,40 @@ class PHPMailer {
   }
 
   /**
+   * Fix CVE-2016-10033 and CVE-2016-10045 by disallowing potentially unsafe shell characters.
+   *
+   * Note that escapeshellarg and escapeshellcmd are inadequate for our purposes, especially on Windows.
+   * @param string $string The string to be validated
+   * @see https://github.com/PHPMailer/PHPMailer/issues/924 CVE-2016-10045 bug report
+   * @access protected
+   * @return boolean
+   */
+  protected static function isShellSafe($string)
+  {
+    // Future-proof
+    if (escapeshellcmd($string) !== $string
+        or !in_array(escapeshellarg($string), array("'$string'", "\"$string\""))
+    ) {
+      return false;
+    }
+
+    $length = strlen($string);
+
+    for ($i = 0; $i < $length; $i++) {
+      $c = $string[$i];
+
+      // All other characters have a special meaning in at least one common shell, including = and +.
+      // Full stop (.) has a special meaning in cmd.exe, but its impact should be negligible here.
+      // Note that this does permit non-Latin alphanumeric characters based on the current locale.
+      if (!ctype_alnum($c) && strpos('@_-.', $c) === false) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Sends mail using the PHP mail() function.
    * @param string $header The message headers
    * @param string $body The message body
@@ -651,10 +698,18 @@ class PHPMailer {
     }
     $to = implode(', ', $toArr);
 
-    $params = sprintf("-oi -f %s", $this->Sender);
-    if ($this->Sender != '' && strlen(ini_get('safe_mode'))< 1) {
+    $params = null;
+    //This sets the SMTP envelope sender which gets turned into a return-path header by the receiver
+    if (!empty($this->Sender) and $this->validateAddress($this->Sender)) {
+      // CVE-2016-10033, CVE-2016-10045: Don't pass -f if characters will be escaped.
+      if (self::isShellSafe($this->Sender)) {
+        $params = sprintf('-f%s', $this->Sender);
+      }
+    }
+    if (!empty($this->Sender) and !ini_get('safe_mode') and $this->validateAddress($this->Sender)) {
       $old_from = ini_get('sendmail_from');
       ini_set('sendmail_from', $this->Sender);
+    }
       if ($this->SingleTo === true && count($toArr) > 1) {
         foreach ($toArr as $key => $val) {
           $rt = @mail($val, $this->EncodeHeader($this->SecureHeader($this->Subject)), $body, $header, $params);
@@ -667,21 +722,6 @@ class PHPMailer {
         // implement call back function if it exists
         $isSent = ($rt == 1) ? 1 : 0;
         $this->doCallback($isSent,$to,$this->cc,$this->bcc,$this->Subject,$body);
-      }
-    } else {
-      if ($this->SingleTo === true && count($toArr) > 1) {
-        foreach ($toArr as $key => $val) {
-          $rt = @mail($val, $this->EncodeHeader($this->SecureHeader($this->Subject)), $body, $header, $params);
-          // implement call back function if it exists
-          $isSent = ($rt == 1) ? 1 : 0;
-          $this->doCallback($isSent,$val,$this->cc,$this->bcc,$this->Subject,$body);
-        }
-      } else {
-        $rt = @mail($to, $this->EncodeHeader($this->SecureHeader($this->Subject)), $body, $header);
-        // implement call back function if it exists
-        $isSent = ($rt == 1) ? 1 : 0;
-        $this->doCallback($isSent,$to,$this->cc,$this->bcc,$this->Subject,$body);
-      }
     }
     if (isset($old_from)) {
       ini_set('sendmail_from', $old_from);
