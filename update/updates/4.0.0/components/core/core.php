@@ -1799,7 +1799,7 @@ define('CONTEXX_INSTALLED', true);
 \$_DBCONFIG['password'] = '{$_DBCONFIG['password']}'; // Database password
 \$_DBCONFIG['dbType'] = '{$_DBCONFIG['dbType']}';    // Database type (e.g. mysql,postgres ..)
 \$_DBCONFIG['charset'] = '{$dbCharset}'; // Charset (default, latin1, utf8, ..)
-\$_DBCONFIG['timezone'] = '{$_CONFIG['timezone']}'; // Controller's timezone for model
+\$_DBCONFIG['timezone'] = 'UTC'; // Controller's timezone for model
 \$_DBCONFIG['collation'] = '{$_DBCONFIG['collation']}';
 
 /**

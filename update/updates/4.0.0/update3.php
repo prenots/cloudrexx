@@ -1654,8 +1654,6 @@ if ($version == 'rc1') {
     $updates = $updates310To400;
 } elseif ($version == '311') {
     $updates = $updates310Sp1To400;
-} else {
-    $updates = $updates310Sp1To400;
 }
 
 
