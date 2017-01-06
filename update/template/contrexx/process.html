@@ -80,6 +80,7 @@
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`) VALUES (112,'DateTime','Cloudrexx AG','TXT_CORE_DATETIME_DESCRIPTION','n',1,1,1,1);</div>
             </div>
             <div id="tab2" class="tabcontent">
+                <p>Bitte führen Sie nur die SQL-Statements von einem der nachstehenden Codefelder aus. D.h. entweder die Statements für "während der Winterzeit" oder für "während der Sommerzeit", auf keinen Fall aber beide!</p>
                 <p>Die folgenden Abfragen beheben das Problem für im Sommer stattfindende Einträge der nächsten 10 Jahre, die <strong>während der Winterzeit erfasst</strong> wurden:</p>
                 <div class="code">UPDATE
     `contrexx_module_calendar_event`
