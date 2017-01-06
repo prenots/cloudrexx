@@ -66,6 +66,129 @@
         <li><a href="{URL_BACKEND}" target="_blank">Administrationskonsole (Backend)</a></li>
     </ul>
 
+        <!-- BEGIN daylight_saving_time -->
+        <div class="message-info">
+            <h3 style="padding-top:0px;">Daylight Saving Time Hotfix</h3>
+            Das System hat während dem Update festgestellt, dass Sie den "Daylight Saving Time Hotfix" noch nicht installiert hatten.<br />
+            Folglich bitten wir Sie noch die nachstehenden SQL-Statements in der Datenbank Ihrer Contrexx-Installation auszuführen.
+            <ul class="tab">
+                <li><a href="javascript:void(0)" class="tablinks" onclick="switchTab(event, 'tab1')">Neue Komponente hinzufügen</a></li>
+                <li><a href="javascript:void(0)" class="tablinks" onclick="switchTab(event, 'tab2')">Bestehende Einträge anpassen</a></li>
+            </ul>
+            <div id="tab1" class="tabcontent">
+                <div class="code">INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (112, 'DateTime', 'core');
+INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`) VALUES (112,'DateTime','Cloudrexx AG','TXT_CORE_DATETIME_DESCRIPTION','n',1,1,1,1);</div>
+            </div>
+            <div id="tab2" class="tabcontent">
+                <p>Die folgenden Abfragen beheben das Problem für im Sommer stattfindende Einträge der nächsten 10 Jahre, die <strong>während der Winterzeit erfasst</strong> wurden:</p>
+                <div class="code">UPDATE
+    `contrexx_module_calendar_event`
+SET
+    `startdate` = DATE_SUB(
+        `startdate`,
+        INTERVAL 1 HOUR
+    )
+WHERE
+        `startdate` BETWEEN '2016-03-27 02:00:00' AND '2016-10-30 03:00:00' OR
+        `startdate` BETWEEN '2017-03-26 02:00:00' AND '2017-10-29 03:00:00' OR
+        `startdate` BETWEEN '2018-03-25 02:00:00' AND '2018-10-28 03:00:00' OR
+        `startdate` BETWEEN '2019-03-31 02:00:00' AND '2019-10-27 03:00:00' OR
+        `startdate` BETWEEN '2020-03-29 02:00:00' AND '2020-10-25 03:00:00' OR
+        `startdate` BETWEEN '2021-03-28 02:00:00' AND '2021-10-31 03:00:00' OR
+        `startdate` BETWEEN '2022-03-27 02:00:00' AND '2022-10-30 03:00:00' OR
+        `startdate` BETWEEN '2023-03-26 02:00:00' AND '2023-10-29 03:00:00' OR
+        `startdate` BETWEEN '2024-03-31 02:00:00' AND '2024-10-27 03:00:00' OR
+        `startdate` BETWEEN '2025-03-30 02:00:00' AND '2025-10-26 03:00:00';
+UPDATE
+    `contrexx_module_calendar_event`
+SET
+    `enddate` = DATE_SUB(
+        `enddate`,
+        INTERVAL 1 HOUR
+    )
+WHERE
+        `enddate` BETWEEN '2016-03-27 02:00:00' AND '2016-10-30 03:00:00' OR
+        `enddate` BETWEEN '2017-03-26 02:00:00' AND '2017-10-29 03:00:00' OR
+        `enddate` BETWEEN '2018-03-25 02:00:00' AND '2018-10-28 03:00:00' OR
+        `enddate` BETWEEN '2019-03-31 02:00:00' AND '2019-10-27 03:00:00' OR
+        `enddate` BETWEEN '2020-03-29 02:00:00' AND '2020-10-25 03:00:00' OR
+        `enddate` BETWEEN '2021-03-28 02:00:00' AND '2021-10-31 03:00:00' OR
+        `enddate` BETWEEN '2022-03-27 02:00:00' AND '2022-10-30 03:00:00' OR
+        `enddate` BETWEEN '2023-03-26 02:00:00' AND '2023-10-29 03:00:00' OR
+        `enddate` BETWEEN '2024-03-31 02:00:00' AND '2024-10-27 03:00:00' OR
+        `enddate` BETWEEN '2025-03-30 02:00:00' AND '2025-10-26 03:00:00';</div>
+                <p>Die folgenden Abfragen beheben das Problem für im Winter stattfindende Einträge der nächsten 10 Jahre, die <strong>während der Sommerzeit erfasst</strong> wurden:</p>
+                <div class="code">
+UPDATE
+    `contrexx_module_calendar_event`
+SET
+    `startdate` = DATE_ADD(
+        `startdate`,
+        INTERVAL 1 HOUR
+    )
+WHERE
+        `startdate` NOT BETWEEN '2015-03-29 02:00:00' AND '2015-10-25 03:00:00' AND
+        `startdate` NOT BETWEEN '2016-03-27 02:00:00' AND '2016-10-30 03:00:00' AND
+        `startdate` NOT BETWEEN '2017-03-26 02:00:00' AND '2017-10-29 03:00:00' AND
+        `startdate` NOT BETWEEN '2018-03-25 02:00:00' AND '2018-10-28 03:00:00' AND
+        `startdate` NOT BETWEEN '2019-03-31 02:00:00' AND '2019-10-27 03:00:00' AND
+        `startdate` NOT BETWEEN '2020-03-29 02:00:00' AND '2020-10-25 03:00:00' AND
+        `startdate` NOT BETWEEN '2021-03-28 02:00:00' AND '2021-10-31 03:00:00' AND
+        `startdate` NOT BETWEEN '2022-03-27 02:00:00' AND '2022-10-30 03:00:00' AND
+        `startdate` NOT BETWEEN '2023-03-26 02:00:00' AND '2023-10-29 03:00:00' AND
+        `startdate` NOT BETWEEN '2024-03-31 02:00:00' AND '2024-10-27 03:00:00' AND
+        `startdate` NOT BETWEEN '2025-03-30 02:00:00' AND '2025-10-26 03:00:00' AND
+        `startdate` > '2015-03-29 02:00:00';
+UPDATE
+    `contrexx_module_calendar_event`
+SET
+    `enddate` = DATE_ADD(
+        `enddate`,
+        INTERVAL 1 HOUR
+    )
+WHERE
+        `enddate` NOT BETWEEN '2015-03-29 02:00:00' AND '2015-10-25 03:00:00' AND
+        `enddate` NOT BETWEEN '2016-03-27 02:00:00' AND '2016-10-30 03:00:00' AND
+        `enddate` NOT BETWEEN '2017-03-26 02:00:00' AND '2017-10-29 03:00:00' AND
+        `enddate` NOT BETWEEN '2018-03-25 02:00:00' AND '2018-10-28 03:00:00' AND
+        `enddate` NOT BETWEEN '2019-03-31 02:00:00' AND '2019-10-27 03:00:00' AND
+        `enddate` NOT BETWEEN '2020-03-29 02:00:00' AND '2020-10-25 03:00:00' AND
+        `enddate` NOT BETWEEN '2021-03-28 02:00:00' AND '2021-10-31 03:00:00' AND
+        `enddate` NOT BETWEEN '2022-03-27 02:00:00' AND '2022-10-30 03:00:00' AND
+        `enddate` NOT BETWEEN '2023-03-26 02:00:00' AND '2023-10-29 03:00:00' AND
+        `enddate` NOT BETWEEN '2024-03-31 02:00:00' AND '2024-10-27 03:00:00' AND
+        `enddate` NOT BETWEEN '2025-03-30 02:00:00' AND '2025-10-26 03:00:00' AND
+        `enddate` > '2015-03-29 02:00:00';
+                </div>
+            </div>
+            <script type="text/javascript">
+                function switchTab(evt, tabName) {
+                    // Declare all variables
+                    var i, tabcontent, tablinks;
+
+                    // Get all elements with class="tabcontent" and hide them
+                    tabcontent = document.getElementsByClassName("tabcontent");
+                    for (i = 0; i &lt; tabcontent.length; i++) {
+                        tabcontent[i].style.display = "none";
+                    }
+
+                    // Get all elements with class="tablinks" and remove the class "active"
+                    tablinks = document.getElementsByClassName("tablinks");
+                    for (i = 0; i &lt; tablinks.length; i++) {
+                        tablinks[i].className = tablinks[i].className.replace(" active", "");
+                    }
+
+                    // Show the current tab, and add an "active" class to the link that opened the tab
+                    document.getElementById(tabName).style.display = "block";
+                    evt.currentTarget.className += " active";
+
+                    // Open "tab1" by default
+                    document.getElementById("tab1").click();
+                }
+            </script>
+        </div>
+        <!-- END daylight_saving_time -->
+
         <!-- BEGIN backed_files -->
         <div class="message-alert">
         <h3 style="padding-top:0px;">Modifizierte Dateien</h3>
