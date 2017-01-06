@@ -688,7 +688,7 @@ class ContrexxUpdate
                     $this->objTemplate->hideblock('backed_files');
                 }
 
-                    if (   !empty($_SESSION['contrexx_update']['modified_cmds'])
+                if (   !empty($_SESSION['contrexx_update']['modified_cmds'])
                     && count($_SESSION['contrexx_update']['modified_cmds'])) {
                     foreach ($_SESSION['contrexx_update']['modified_cmds'] as $arrCmds) {
                         $this->objTemplate->setVariable(array(

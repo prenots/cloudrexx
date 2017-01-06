@@ -118,8 +118,7 @@ WHERE
         `enddate` BETWEEN '2024-03-31 02:00:00' AND '2024-10-27 03:00:00' OR
         `enddate` BETWEEN '2025-03-30 02:00:00' AND '2025-10-26 03:00:00';</div>
                 <p>Die folgenden Abfragen beheben das Problem für im Winter stattfindende Einträge der nächsten 10 Jahre, die <strong>während der Sommerzeit erfasst</strong> wurden:</p>
-                <div class="code">
-UPDATE
+                <div class="code">UPDATE
     `contrexx_module_calendar_event`
 SET
     `startdate` = DATE_ADD(
@@ -158,8 +157,7 @@ WHERE
         `enddate` NOT BETWEEN '2023-03-26 02:00:00' AND '2023-10-29 03:00:00' AND
         `enddate` NOT BETWEEN '2024-03-31 02:00:00' AND '2024-10-27 03:00:00' AND
         `enddate` NOT BETWEEN '2025-03-30 02:00:00' AND '2025-10-26 03:00:00' AND
-        `enddate` > '2015-03-29 02:00:00';
-                </div>
+        `enddate` > '2015-03-29 02:00:00';</div>
             </div>
             <script type="text/javascript">
                 function switchTab(evt, tabName) {
@@ -181,10 +179,10 @@ WHERE
                     // Show the current tab, and add an "active" class to the link that opened the tab
                     document.getElementById(tabName).style.display = "block";
                     evt.currentTarget.className += " active";
-
-                    // Open "tab1" by default
-                    document.getElementById("tab1").click();
                 }
+
+                // Open "tab1" by default
+                document.getElementsByClassName("tablinks")[0].click();
             </script>
         </div>
         <!-- END daylight_saving_time -->
