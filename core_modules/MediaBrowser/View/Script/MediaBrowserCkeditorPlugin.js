@@ -104,6 +104,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
                                     } else {
                                         image = callback.data[0].datainfo.thumbnail[thumbnail];
                                         style = dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle');
+                                        style = style.replace(/(?:\s|\;|^)(max-width):(\s|)\d{2,3}px(;|)/g, '');
                                         dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenStyle', style + 'max-width: ' + thumbnail + 'px;');
                                     }
                                     dialogDefinition.dialog.setValueOf(targetType[0], targetType[1], image);
@@ -132,6 +133,10 @@ CKEDITOR.on('dialogDefinition', function (event) {
 
                 dialogDefinition.dialog.on('show', function (event) {
                     var that = this;
+                    if (event.sender.getSelectedElement()) {
+                        var srcset = event.sender.getSelectedElement().getAttribute('srcset');
+                        dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenSrcSet', srcset);
+                    }
                     setTimeout(function () {
                         var inputfield = that.getValueOf('info', 'txtUrl');
                         if (inputfield == '') {
