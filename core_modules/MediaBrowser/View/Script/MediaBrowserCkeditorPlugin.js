@@ -60,7 +60,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
             //If the attribute is style, check and remove the property
             //values of width and height from style attribute
             if (attrName == 'style') {
-                attrVal = attrVal.replace(/(?:\s|\;|^)(width|height):(\s|)\d{2,3}px(;|)/g, '');
+                attrVal = attrVal.replace(/(?:\s|\;|^)(width|height):(\s|)\d{2,4}px(;|)/g, '');
             }
             tag.setAttribute(attrName, attrVal);
         }
@@ -117,7 +117,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
 
                                     //Set max-width to style
                                     style = dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle')
-                                        .replace(/(?:\s|\;|^)(max-width|width|height):(\s|)\d{2,3}px(;|)/g, '');
+                                        .replace(/(?:\s|\;|^)(max-width|width|height):(\s|)\d{2,4}px(;|)/g, '');
                                     dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenStyle', style + 'max-width: ' + thumbnail + 'px;');
 
                                     //Set default value to srcSet
