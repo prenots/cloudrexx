@@ -77,7 +77,6 @@ CKEDITOR.on('dialogDefinition', function (event) {
              * Handling image selection.
              */
             if (browseButton.filebrowser.target == 'info:txtUrl' || browseButton.filebrowser.target == 'info:src') {
-                var targetType = browseButton.filebrowser.target.split(':');
                 browseButton.hidden = false;
                 var filelistCallback = function (callback) {
                     if (callback.type == 'close') {
@@ -88,8 +87,19 @@ CKEDITOR.on('dialogDefinition', function (event) {
                         url: "index.php?cmd=jsondata&object=MediaBrowser&act=createThumbnails&file=" + callback.data[0].datainfo.filepath
                     });
                     var dialog = cx.variables.get('jquery','mediabrowser')(cx.variables.get('thumbnails_template', 'mediabrowser'));
-                    var image = dialog.find('.image');
+                    var option = dialog.find('select[name=size] option:first-child');
+                    var image  = dialog.find('.image');
                     image.attr('src', callback.data[0].datainfo.filepath);
+                    var img    = new Image();
+                    img.src    = callback.data[0].datainfo.filepath;
+                    img.onload = function() {
+                        option.attr('value', this.width);
+                        setTimeout(function () {
+                            callPreviewDialog(callback, dialog);
+                        }, 1);
+                    };
+                };
+                var callPreviewDialog = function (callback, dialog) {
                     bootbox.dialog({
                         title: cx.variables.get('TXT_FILEBROWSER_SELECT_THUMBNAIL', 'mediabrowser'),
                         message: dialog.html(),
@@ -99,15 +109,16 @@ CKEDITOR.on('dialogDefinition', function (event) {
                                 className: "btn-success",
                                 callback: function () {
                                     var image, style, thumbnail = $J("[name='size']").val();
-                                    if (thumbnail == 0) {
+                                    image = callback.data[0].datainfo.thumbnail[thumbnail];
+                                    if (typeof image === 'undefined') {
                                         image = callback.data[0].datainfo.filepath;
-                                    } else {
-                                        image = callback.data[0].datainfo.thumbnail[thumbnail];
-                                        style = dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle');
-                                        style = style.replace(/(?:\s|\;|^)(max-width):(\s|)\d{2,3}px(;|)/g, '');
-                                        dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenStyle', style + 'max-width: ' + thumbnail + 'px;');
                                     }
-                                    dialogDefinition.dialog.setValueOf(targetType[0], targetType[1], image);
+                                    dialogDefinition.dialog.setValueOf('info', 'txtUrl', image);
+
+                                    //Set max-width to style
+                                    style = dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle')
+                                        .replace(/(?:\s|\;|^)(max-width|width|height):(\s|)\d{2,3}px(;|)/g, '');
+                                    dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenStyle', style + 'max-width: ' + thumbnail + 'px;');
 
                                     //Set default value to srcSet
                                     var srcSetValue = [];
@@ -120,7 +131,6 @@ CKEDITOR.on('dialogDefinition', function (event) {
                         }
                     });
                 };
-
                 browseButton.onClick = function (dialog, i) {
                     editor._.filebrowserSe = this;
                     //editor.execCommand ('image');
