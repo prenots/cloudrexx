@@ -63,7 +63,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         $serverWebsite = \Cx\Core\Setting\Controller\Setting::getValue('website_server','MultiSite');
         if ($websiteMode == \Cx\Core_Modules\MultiSite\Controller\ComponentController::WEBSITE_MODE_CLIENT && !empty($serverWebsite)) {
 // TODO: properly set path where the websites are located
-            $this->serverWebsiteFileSystem
+            $this->additionalFileSystems[]
                 = new \Cx\Core\MediaSource\Model\Entity\LocalFileSystem('/var/www/websites/' . $serverWebsite . \Cx\Core\Core\Controller\Cx::FOLDER_NAME_THEMES);
         }
     }
