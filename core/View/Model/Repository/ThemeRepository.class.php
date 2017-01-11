@@ -312,7 +312,7 @@ class ThemeRepository
      */
     public function loadComponentData(\Cx\Core\View\Model\Entity\Theme &$theme)
     {
-        $filePath = $theme->getFilePath($theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_COMPONENT_FILE);
+        $filePath = $theme->getFilePath('/' . $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_COMPONENT_FILE);
         if ($filePath) {
             try {
                 $objYaml = new \Symfony\Component\Yaml\Yaml();
@@ -366,7 +366,7 @@ class ThemeRepository
             }
         }
         
-        $themePath = $theme->getFilePath($foldername);
+        $themePath = $theme->getFilePath('/'.$foldername);
         if (!file_exists($themePath)) {
             \DBG::log($foldername. ' :Theme folder not Exists');
             return $theme;

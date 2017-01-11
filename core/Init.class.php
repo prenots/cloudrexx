@@ -618,7 +618,7 @@ class InitCMS
      */
     private function getThemeFileContent($themesPath, $file)
     {
-        $filePath = $themesPath.'/'.$file;
+        $filePath = '/' . $themesPath . '/' . $file;
         $content = '';
 
         $theme       = new \Cx\Core\View\Model\Entity\Theme();

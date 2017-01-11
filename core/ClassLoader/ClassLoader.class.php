@@ -282,7 +282,7 @@ class ClassLoader {
         $path = $this->getFileFromWebsiteRepository($file, $webPath, $isWebsite);
         if ($path) return $path;
 
-        // 4. check if file exists in the website's shared repository
+        // 4. check if file exists in a MediaSource (shared repository)
         $path = $this->getFileFromMediaSource($file, $webPath);
         if ($path) return $path;
 

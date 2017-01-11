@@ -33,26 +33,26 @@ namespace Cx\Core\ViewManager\Model\Entity;
  *
  * @copyright   Cloudrexx AG
  * @author      Robin Glauser <robin.glauser@comvation.com>
+ * @author      Thomas Däppen <thomas.daeppen@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_viewmanager
  */
 class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileSystem
 {
     /**
-     * @var \Cx\Core\MediaSource\Model\Entity\LocalFileSystem
+     * An array containing additional file systems of
+     * type \Cx\Core\MediaSource\Model\Entity\LocalFileSystem
+     *
+     * @var array
      */
-    protected $codeBaseFileSystem;
-    /**
-     * @var \Cx\Core\MediaSource\Model\Entity\LocalFileSystem
-     */
-    protected $serverWebsiteFileSystem;
+    protected $additionalFileSystems = array();
 
     function __construct($path)
     {
         parent::__construct($path);
 
         if ($path != $this->cx->getCodeBaseThemesPath()) {
-            $this->codeBaseFileSystem
+            $this->additionalFileSystems[]
                 = new \Cx\Core\MediaSource\Model\Entity\LocalFileSystem($this->cx->getCodeBaseThemesPath());
         }
 
@@ -77,17 +77,16 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     public function getFileList($directory, $recursive = false)
     {
         $fileList = array();
-        if ($this->codeBaseFileSystem) {
-            $fileList = $this->codeBaseFileSystem->getFileList(
+
+        // fetch files from additional file systems
+        foreach ($this->additionalFileSystems as $fileSystem) {
+            $additionalFileList = $fileSystem->getFileList(
                 $directory, $recursive, true
             );
+            $fileList = $this->mergeFileList($fileList, $additionalFileList);
         }
-        if ($this->serverWebsiteFileSystem) {
-            $serverWebsiteFileList = $this->serverWebsiteFileSystem->getFileList(
-                $directory, $recursive, true
-            );
-            $fileList = $this->mergeFileList($fileList, $serverWebsiteFileList);
-        }
+
+        // fetch files form local file system
         $websiteFileList = parent::getFileList($directory, $recursive);
         if (!empty($websiteFileList)) {
             $fileList = $this->mergeFileList($fileList, $websiteFileList);
@@ -198,12 +197,38 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
             }
         } elseif (file_exists($this->getRootPath() . $file->__toString())) {
             $basePath = $this->getRootPath();
-        } elseif ($this->serverWebsiteFileSystem && file_exists($this->serverWebsiteFileSystem->getRootPath() . $file->__toString())) {
-            $basePath = $this->serverWebsiteFileSystem->getRootPath();
-        } elseif ($this->codeBaseFileSystem && file_exists($this->codeBaseFileSystem->getRootPath() . $file->__toString())) {
-            $basePath = $this->codeBaseFileSystem->getRootPath();
+        } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
+            $basePath = $path;
         }
         return $basePath . $file->__toString();
+    }
+
+    /**
+     * Locate a file in one of the additional file systems
+     * and return the containing file system's root path.
+     * The additional file systems are defined in
+     * $this->additionalFileSystems
+     *
+     * @param   string  $filePath   Path to the file to locate
+     * @return  mixed   Returns the root path of the file system
+     *                  the file is located in as string.
+     *                  If the file can't be located in any of
+     *                  the additional file systems FALSE is returned.
+     */                  
+    protected function locateFileInAdditionalFileSystem($filePath)
+    {
+        // lookup the filesystems in reverse order
+        // -> we first shall try to locate the file in the
+        // file system that has been added as additional file system
+        // the latest.
+        $fileSystems = array_reverse($this->additionalFileSystems);
+        foreach ($fileSystems as $fileSystem) {
+            if (file_exists($fileSystem->getRootPath() . $filePath)) {
+                return $fileSystem->getRootPath();
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -231,19 +256,15 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     public function isResettable(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
         $isFileExistsInWebsite = file_exists($this->getRootPath() . $file->__toString());
-        if (   $this->serverWebsiteFileSystem
-            && $isFileExistsInWebsite
-            && file_exists($this->serverWebsiteFileSystem->getRootPath() . $file->__toString())
-        ) {
+
+        if (!$isFileExistsInWebsite) {
+            return false;
+        }
+
+        if ($this->locateFileInAdditionalFileSystem($file->__toString())) {
             return true;
         }
-        if (   $this->cx->getWebsiteThemesPath() != $this->cx->getCodeBaseThemesPath()
-            && $this->codeBaseFileSystem
-            && $isFileExistsInWebsite
-            && file_exists($this->codeBaseFileSystem->getRootPath() . $file->__toString())
-        ) {
-            return true;
-        }
+
         return false;
     }
 
@@ -260,46 +281,41 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     }
 
     /**
-     * Copies the folder from codebase, server website and current filesystem to the given new folder path
+     * Copies the folder from the additional file systems and current filesystem to the given new folder path
      *
      * @param \Cx\Core\ViewManager\Model\Entity\ViewManagerFile $fromFile
      * @param \Cx\Core\ViewManager\Model\Entity\ViewManagerFile $toFile
      */
     public function copyFolder(ViewManagerFile $fromFile, ViewManagerFile $toFile)
     {
-        if (
-               $this->codeBaseFileSystem
-            && file_exists($this->codeBaseFileSystem->getRootPath() . $fromFile->__toString())
+        // copy folder from additional file systems
+        foreach ($this->additionalFileSystems as $fileSystem) {
+            if (!file_exists($fileSystem->getRootPath() . $fromFile->__toString())) {
+                continue;
+            }
+
+            if (!\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                    $fileSystem->getRootPath() . $fromFile->__toString(),
+                    $this->getRootPath() . $toFile->__toString(), true
+                )
+            ) {
+                return false;
+            }
+        }
+
+        // if folder does not exist in local file system, then we're all done
+        if (!file_exists($this->getRootPath() . $fromFile->__toString())) {
+            return true;
+        }
+
+        if (!\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                $this->getRootPath() . $fromFile->__toString(),
+                $this->getRootPath() . $toFile->__toString(), true
+            )
         ) {
-            if (!\Cx\Lib\FileSystem\FileSystem::copy_folder(
-                    $this->codeBaseFileSystem->getRootPath() . $fromFile->__toString(),
-                    $this->getRootPath() . $toFile->__toString(), true
-                )
-            ) {
-                return false;
-            }
+            return false;
         }
-        if (
-               $this->serverWebsiteFileSystem
-            && file_exists($this->serverWebsiteFileSystem->getRootPath() . $fromFile->__toString())
-        ) {
-            if (!\Cx\Lib\FileSystem\FileSystem::copy_folder(
-                    $this->serverWebsiteFileSystem->getRootPath() . $fromFile->__toString(),
-                    $this->getRootPath() . $toFile->__toString(), true
-                )
-            ) {
-                return false;
-            }
-        }
-        if (file_exists($this->getRootPath() . $fromFile->__toString())) {
-            if (!\Cx\Lib\FileSystem\FileSystem::copy_folder(
-                    $this->getRootPath() . $fromFile->__toString(),
-                    $this->getRootPath() . $toFile->__toString(), true
-                )
-            ) {
-                return false;
-            }
-        }
+
         return true;
     }
 
