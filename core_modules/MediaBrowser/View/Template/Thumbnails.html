@@ -1,11 +1,13 @@
 <div>
     <script>
         !function($){
-            $('#thumbnailSelector').find('.thumbnail-size').change(function () {
+            var sizeDropdown = $('#thumbnailSelector').find('.thumbnail-size');
+            sizeDropdown.change(function () {
                 var size = $(this).val();
                 size = size == 0 ? '100%' : size;
                 $('#thumbnailSelector').find('.image').css({'width': size})
             });
+            sizeDropdown.trigger('change');
         }(cx.variables.get('jquery','mediabrowser'))
     </script>
     <div id="thumbnailSelector">
