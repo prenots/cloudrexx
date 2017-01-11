@@ -60,10 +60,25 @@ CKEDITOR.on('dialogDefinition', function (event) {
             //If the attribute is style, check and remove the property
             //values of width and height from style attribute
             if (attrName == 'style') {
-                attrVal = attrVal.replace(/(?:\s|\;|^)(width|height):(\s|)\d{2,4}px(;|)/g, '');
+                attrVal = removeProperty(/^(width|height)$/, attrVal);
             }
             tag.setAttribute(attrName, attrVal);
         }
+    };
+
+    var removeProperty = function (pattern, value) {
+        if (!pattern || !value) {
+            return '';
+        }
+
+        var property = value.split(';'), result = [];
+        $J.each(property, function(i, v) {
+            var propertyName = v.split(':')[0];
+            if (pattern.test($J.trim(propertyName)) === false) {
+               result.push(v);
+            }
+        });
+        return result.length > 0 ? result.join(';') : '';
     };
 
     for (var i = 0; i < tabCount; i++) {
@@ -116,8 +131,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
                                     dialogDefinition.dialog.setValueOf('info', 'txtUrl', image);
 
                                     //Set max-width to style
-                                    style = dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle')
-                                        .replace(/(?:\s|\;|^)(max-width|width|height):(\s|)\d{2,4}px(;|)/g, '');
+                                    style = removeProperty(/^(max-width|width|height)$/, dialogDefinition.dialog.getValueOf('advanced', 'txtdlgGenStyle'));
                                     dialogDefinition.dialog.setValueOf('advanced', 'txtdlgGenStyle', style + 'max-width: ' + thumbnail + 'px;');
 
                                     //Set default value to srcSet
