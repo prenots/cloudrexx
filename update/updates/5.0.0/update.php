@@ -1126,10 +1126,45 @@ function executeContrexxUpdate() {
     }
 
 
+
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    /******************** STAGE 24 - INSTALL NEW LICENSE ***************************/
+    /*********************** STAGE 24 - INSTALL LOCALIZATION ***********************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    \DBG::msg('update: install localization');
+    if (
+        !in_array('installLocalization', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) &&
+        $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')
+    ) {
+        // load localization installation script; execution will be manually called later by _localeInstall()
+        if (!include_once(dirname(__FILE__) . '/components/core/locale.php')) {
+            setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/locale.php'));
+            return false;
+        }
+        if (!_localeInstall()) {
+            setUpdateMsg('Locale konnte nicht installiert werden.');
+            return false;
+        }
+        if (!include_once(dirname(__FILE__) . '/components/core/view.php')) {
+            setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/view.php'));
+            return false;
+        }
+        if (!_viewInstall()) {
+            setUpdateMsg('View konnte nicht installiert werden.');
+            return false;
+        }
+        $_SESSION['contrexx_update']['update']['done'][] = 'installLocalization';
+    }
+
+
+
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /******************** STAGE 25 - INSTALL NEW LICENSE ***************************/
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -2409,7 +2444,7 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
 
     // list of core components who's update script will be executed independently
     $specialComponents2skip = array(
-        'backendAreas', 'componentmanager', 'contentmanager', 'core', 'modules', 'repository', 'settings', 'utf8',
+        'backendAreas', 'componentmanager', 'contentmanager', 'core', 'modules', 'repository', 'settings', 'utf8', 'locale', 'view'
     );
 
     // component update scripts that introduce changes for all versions (pre and post v3)
