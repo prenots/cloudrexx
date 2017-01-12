@@ -276,6 +276,7 @@ function executeContrexxUpdate() {
             'comment' => 'cx3upgrade',
             'engine' => 'MyISAM',
         ),
+        // @TODO: only execute this before country update
         array (
             'table' => DBPREFIX . 'core_country',
             'structure' => array(
