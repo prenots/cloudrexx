@@ -227,23 +227,40 @@ function _egovUpdate()
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 
-    $arrOrderColumns = $objDatabase->MetaColumns(DBPREFIX.'module_egov_orders');
-    if ($arrOrderColumns === false) {
-        setUpdateMsg(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], DBPREFIX.'module_egov_orders'));
-        return false;
-    }
-
     // Add reservation date to order table
     if (!isset($arrORDERColumns['ORDER_RESERVATION_DATE'])) {
-        $query = "
-            ALTER TABLE ".DBPREFIX."module_egov_orders
-            ADD `order_reservation_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `order_values`
-        ";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return _databaseError($query, $objDatabase->ErrorMsg());
+        try {
+            \Cx\Lib\UpdateUtil::sql("ALTER TABLE ".DBPREFIX."module_egov_orders ADD `order_reservation_date` DATE NOT NULL DEFAULT '0000-00-00' AFTER `order_values`");
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
     }
+
+    // set order_reservation_date
+    try {
+        $dateLabel = '';
+        $objResult = \Cx\Lib\UpdateUtil::sql('SELECT value FROM '.DBPREFIX.'module_egov_configuration WHERE name = "set_calendar_date_label" LIMIT 1');
+        if ($objResult->RecordCount()) {
+            $dateLabel = $objResult->fields['value'];
+        }
+        if (!empty($dateLabel)) {
+            $objResult = \Cx\Lib\UpdateUtil::sql('SELECT order_id, order_values FROM '.DBPREFIX.'module_egov_orders WHERE (order_reservation_date IS NULL OR order_reservation_date = "0000-00-00") AND order_values REGEXP "'.$dateLabel.'::[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+;;"');
+            while (!$objResult->EOF) {
+                $reservationDate = null;
+                if (preg_match('/'.preg_quote($dateLabel).'::(\d+)\.(\d+)\.(\d+);;/', $objResult->fields['order_values'], $matches)) {
+                    $day = $matches[1];
+                    $month = $matches[2];
+                    $year = $matches[3];
+                    $reservationDate = "$year-$month-$day";
+                    \Cx\Lib\UpdateUtil::sql('UPDATE '.DBPREFIX.'module_egov_orders SET order_reservation_date="'.$reservationDate.'" WHERE order_id='.$objResult->fields['order_id']);
+                }
+                $objResult->MoveNext();
+            }
+        }
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+    }
+
 
     // migrate path to images and media
     $pathsToMigrate = \Cx\Lib\UpdateUtil::getMigrationPaths();
