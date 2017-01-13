@@ -31,6 +31,9 @@ function _viewInstall() {
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             // structure
+            \Cx\Lib\UpdateUtil::sql("
+                ALTER TABLE `".DBPREFIX."skins` ENGINE = InnoDB
+            ");
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_view_frontend',
                 array(
