@@ -1210,7 +1210,7 @@ function executeContrexxUpdate() {
 function getMissedModules() {
     global $objUpdate, $_CONFIG;
     $installedModules = array();
-    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `'.DBPREFIX.'modules` WHERE `status` = "y" ORDER BY `name` ASC');
+    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `'.DBPREFIX.'modules` WHERE `status` = "y" OR `name` = "crm" ORDER BY `name` ASC');
     if ($result) {
         while (!$result->EOF) {
             $installedModules[] = $result->fields['name'];
@@ -2391,13 +2391,13 @@ function insertSessionArray($sessionId, $sessionArr, $parentId = 0)
                 `parent_id` = "'. intval($parentId) .'",
                 `sessionid` = "'. $sessionId .'",
                 `key` = "'. contrexx_input2db($key) .'",
-                `value` = "'. (is_array($value) ? '' : contrexx_input2db(serialize($value)))  .'"
+                `value` = "'. (is_array($value) || get_class($value) == 'Cx\Core\Model\RecursiveArrayAccess' ? '' : contrexx_input2db(serialize($value)))  .'"
             ON DUPLICATE KEY UPDATE
-                `value` = "'. (is_array($value) ? '' : contrexx_input2db(serialize($value))) .'"
+                `value` = "'. (is_array($value) || get_class($value) == 'Cx\Core\Model\RecursiveArrayAccess' ? '' : contrexx_input2db(serialize($value))) .'"
         ');
         $insertId = $objDatabase->Insert_ID();
         
-        if (is_array($value)) {
+        if (is_array($value) || get_class($value) == 'Cx\Core\Model\RecursiveArrayAccess') {
             insertSessionArray($sessionId, $value, $insertId);
         }
     }
@@ -2476,6 +2476,9 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
         $dh = opendir(dirname(__FILE__).'/components/'.$dir);
         if ($dh) {
             while (($file = readdir($dh)) !== false) {
+                if (in_array($file, array('.', '..'))) {
+                    continue;
+                }
                 if (in_array($file, ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['migrateComponentsDone']))) {
                     continue;
                 }
@@ -2553,6 +2556,9 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
                             return false;
                         }
                     }
+                } else {
+                    $_SESSION['contrexx_update']['update']['migrateComponentsDone'][] = $file;
+                    continue;
                 }
 
                 $_SESSION['contrexx_update']['update']['migrateComponentsDone'][] = $file;
@@ -2983,7 +2989,7 @@ function installContentApplicationTemplates() {
                 continue;
             }
 
-            $designTemplateName  = $page->getSkin() ? $themeRepo->findById($page->getSkin())->getFoldername() : $themeRepo->getDefaultTheme()->getFoldername();
+            $designTemplateName  = $page->getSkin() && $themeRepo->findById($page->getSkin()) ? $themeRepo->findById($page->getSkin())->getFoldername() : $themeRepo->getDefaultTheme()->getFoldername();
             $cmd                 = !$page->getCmd() ? 'Default' : ucfirst($page->getCmd());
             $moduleFolderName    = \Cx\Core\ModuleChecker::getInstance(\Env::get('em'), \Env::get('db'), \Env::get('ClassLoader'))->isCoreModule($page->getModule()) ? 'core_modules' : 'modules';
 
