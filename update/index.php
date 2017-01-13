@@ -146,7 +146,11 @@ require_once(UPDATE_CORE . '/Model/RecursiveArrayAccess.class.php');
 
 require_once(UPDATE_LIB . '/PEAR/HTML/Template/Sigma/Sigma.php');
 require_once(UPDATE_LIB . '/adodb/adodb.inc.php');
-require_once(UPDATE_LIB . '/FRAMEWORK/Language.class.php');
+if (!in_array('installLocale', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+    require_once(UPDATE_LIB . '/FRAMEWORK/LanguagePre50.class.php');
+} else {
+    require_once(UPDATE_LIB . '/FRAMEWORK/Language.class.php');
+}
 require_once(UPDATE_LIB . '/FRAMEWORK/cxjs/ContrexxJavascript.class.php');
 require_once(UPDATE_LIB . '/FRAMEWORK/Javascript.class.php');
 
