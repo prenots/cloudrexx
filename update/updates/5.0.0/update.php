@@ -642,6 +642,11 @@ function executeContrexxUpdate() {
         }
     }
 
+    // check if DateTime module is installed (for "Daylight Saving Time Hotfix")
+    if (!isset($_SESSION['contrexx_update']['date_time'])) {
+        $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+    }
+
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -3115,6 +3120,14 @@ function detectCx3Version() {
     } catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
+}
+
+function moduleExists($name) {
+    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `' . DBPREFIX . 'modules` WHERE `name` = "' . $name . '" ORDER BY `name` ASC');
+    if ($result && $result->RecordCount() > 0) {
+        return true;
+    }
+    return false;
 }
 
 class License {

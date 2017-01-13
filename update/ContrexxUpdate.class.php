@@ -683,6 +683,12 @@ class ContrexxUpdate
                 $this->objTemplate->hideBlock('processStatus');
                 $urlFrontend = (ASCMS_PATH_OFFSET !== '')  ? ASCMS_PATH_OFFSET : '/';
 
+                if ($_SESSION['contrexx_update']['date_time']) {
+                    $this->objTemplate->hideblock('daylight_saving_time');
+                } else {
+                    $this->objTemplate->touchBlock('daylight_saving_time');
+                }
+
                 if (   !empty($_SESSION['contrexx_update']['modified_files'])
                     && count($_SESSION['contrexx_update']['modified_files'])) {
                     foreach ($_SESSION['contrexx_update']['modified_files'] as $arrFile) {
