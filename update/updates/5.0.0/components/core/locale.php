@@ -40,7 +40,8 @@ function _localeInstall() {
                 ),
                 array(
                     'contrexx_core_locale_backend_ibfk_iso_1'    => array('fields' => array('iso_1'))
-                )
+                ),
+                'InnoDB'
             );
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_locale_language',
@@ -48,7 +49,9 @@ function _localeInstall() {
                     'iso_1'      => array('type' => 'CHAR(2)', 'primary' => true),
                     'iso_3'      => array('type' => 'CHAR(3)', 'notnull' => false, 'after' => 'iso_1'),
                     'source'     => array('type' => 'TINYINT(1)', 'after' => 'iso_3')
-                )
+                ),
+                array(),
+                'InnoDB'
             );
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_locale_locale',
@@ -69,7 +72,8 @@ function _localeInstall() {
                     'contrexx_core_locale_locale_ibfk_country'               => array('fields' => array('country')),
                     'contrexx_core_locale_locale_ibfk_fallback'              => array('fields' => array('fallback')),
                     'contrexx_core_locale_locale_ibfk_source_language'       => array('fields' => array('source_language'))
-                )
+                ),
+                'InnoDB'
             );
             // data
             \Cx\Lib\UpdateUtil::sql("

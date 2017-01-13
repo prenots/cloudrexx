@@ -40,7 +40,8 @@ function _countryInstall() {
                 ),
                 array(
                     'alpha3'     => array('fields' => array('alpha3'), 'type' => 'UNIQUE')
-                )
+                ),
+                'InnoDB'
             );
             // data
             \Cx\Lib\UpdateUtil::sql(

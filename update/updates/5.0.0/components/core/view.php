@@ -42,7 +42,8 @@ function _viewInstall() {
                 ),
                 array(
                     'contrexx_core_view_frontend_ibfk_theme'     => array('fields' => array('theme'))
-                )
+                ),
+                'InnoDB'
             );
             // data
             if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
