@@ -642,6 +642,11 @@ function executeContrexxUpdate() {
         }
     }
 
+    // check if DateTime module is installed (for "Daylight Saving Time Hotfix")
+    if (!isset($_SESSION['contrexx_update']['date_time'])) {
+        $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+    }
+
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1126,10 +1131,58 @@ function executeContrexxUpdate() {
     }
 
 
+
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    /******************** STAGE 24 - INSTALL NEW LICENSE ***************************/
+    /*********************** STAGE 24 - INSTALL LOCALIZATION ***********************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    \DBG::msg('update: install localization');
+    if (
+        !in_array('installLocalization', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) &&
+        $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')
+    ) {
+        if (!in_array('installLocale', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+            // load localization installation script; execution will be manually called later by _localeInstall()
+            if (!include_once(dirname(__FILE__) . '/components/core/locale.php')) {
+                setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/locale.php'));
+                return false;
+            }
+            if (!_localeInstall()) {
+                setUpdateMsg('Locale konnte nicht installiert werden.');
+                return false;
+            }
+            $_SESSION['contrexx_update']['update']['done'][] = 'installLocale';
+        }
+        if (!in_array('installView', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+            if (!include_once(dirname(__FILE__) . '/components/core/view.php')) {
+                setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/view.php'));
+                return false;
+            }
+            if (!_viewInstall()) {
+                setUpdateMsg('View konnte nicht installiert werden.');
+                return false;
+            }
+            $_SESSION['contrexx_update']['update']['done'][] = 'installView';
+        }
+        if(!dropOldLangTable()) {
+            setUpdateMsg(DBPREFIX . 'languages konnte nicht gelöscht werden.');
+            return false;
+        }
+        $_SESSION['contrexx_update']['update']['done'][] = 'installLocalization';
+        // force reload to load new FWLanguage
+        setUpdateMsg(1, 'timeout');
+        return false;
+    }
+
+
+
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /******************** STAGE 25 - INSTALL NEW LICENSE ***************************/
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1162,7 +1215,7 @@ function executeContrexxUpdate() {
 function getMissedModules() {
     global $objUpdate, $_CONFIG;
     $installedModules = array();
-    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `'.DBPREFIX.'modules` WHERE `status` = "y" ORDER BY `name` ASC');
+    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `'.DBPREFIX.'modules` WHERE `status` = "y" OR `name` = "crm" ORDER BY `name` ASC');
     if ($result) {
         while (!$result->EOF) {
             $installedModules[] = $result->fields['name'];
@@ -2343,13 +2396,13 @@ function insertSessionArray($sessionId, $sessionArr, $parentId = 0)
                 `parent_id` = "'. intval($parentId) .'",
                 `sessionid` = "'. $sessionId .'",
                 `key` = "'. contrexx_input2db($key) .'",
-                `value` = "'. (is_array($value) ? '' : contrexx_input2db(serialize($value)))  .'"
+                `value` = "'. (is_array($value) || get_class($value) == 'Cx\Core\Model\RecursiveArrayAccess' ? '' : contrexx_input2db(serialize($value)))  .'"
             ON DUPLICATE KEY UPDATE
-                `value` = "'. (is_array($value) ? '' : contrexx_input2db(serialize($value))) .'"
+                `value` = "'. (is_array($value) || get_class($value) == 'Cx\Core\Model\RecursiveArrayAccess' ? '' : contrexx_input2db(serialize($value))) .'"
         ');
         $insertId = $objDatabase->Insert_ID();
         
-        if (is_array($value)) {
+        if (is_array($value) || get_class($value) == 'Cx\Core\Model\RecursiveArrayAccess') {
             insertSessionArray($sessionId, $value, $insertId);
         }
     }
@@ -2409,7 +2462,7 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
 
     // list of core components who's update script will be executed independently
     $specialComponents2skip = array(
-        'backendAreas', 'componentmanager', 'contentmanager', 'core', 'modules', 'repository', 'settings', 'utf8',
+        'backendAreas', 'componentmanager', 'contentmanager', 'core', 'modules', 'repository', 'settings', 'utf8', 'locale', 'view'
     );
 
     // component update scripts that introduce changes for all versions (pre and post v3)
@@ -2428,6 +2481,9 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
         $dh = opendir(dirname(__FILE__).'/components/'.$dir);
         if ($dh) {
             while (($file = readdir($dh)) !== false) {
+                if (in_array($file, array('.', '..'))) {
+                    continue;
+                }
                 if (in_array($file, ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['migrateComponentsDone']))) {
                     continue;
                 }
@@ -2505,6 +2561,9 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
                             return false;
                         }
                     }
+                } else {
+                    $_SESSION['contrexx_update']['update']['migrateComponentsDone'][] = $file;
+                    continue;
                 }
 
                 $_SESSION['contrexx_update']['update']['migrateComponentsDone'][] = $file;
@@ -2935,7 +2994,7 @@ function installContentApplicationTemplates() {
                 continue;
             }
 
-            $designTemplateName  = $page->getSkin() ? $themeRepo->findById($page->getSkin())->getFoldername() : $themeRepo->getDefaultTheme()->getFoldername();
+            $designTemplateName  = $page->getSkin() && $themeRepo->findById($page->getSkin()) ? $themeRepo->findById($page->getSkin())->getFoldername() : $themeRepo->getDefaultTheme()->getFoldername();
             $cmd                 = !$page->getCmd() ? 'Default' : ucfirst($page->getCmd());
             $moduleFolderName    = \Cx\Core\ModuleChecker::getInstance(\Env::get('em'), \Env::get('db'), \Env::get('ClassLoader'))->isCoreModule($page->getModule()) ? 'core_modules' : 'modules';
 
@@ -3061,6 +3120,14 @@ function detectCx3Version() {
     } catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
+}
+
+function moduleExists($name) {
+    $result = \Cx\Lib\UpdateUtil::sql('SELECT `name`, `description_variable` FROM `' . DBPREFIX . 'modules` WHERE `name` = "' . $name . '" ORDER BY `name` ASC');
+    if ($result && $result->RecordCount() > 0) {
+        return true;
+    }
+    return false;
 }
 
 class License {

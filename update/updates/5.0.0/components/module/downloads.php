@@ -384,7 +384,7 @@ function _downloadsUpdate()
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try{
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (16,'use_attr_metakeys','1')");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (16,'use_attr_metakeys','1')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (17,'downloads_sorting_order','newestToOldest')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (18,'categories_sorting_order','alphabetic')");
 
