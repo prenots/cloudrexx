@@ -45,22 +45,24 @@ function _viewInstall() {
                 )
             );
             // data
-            $themesArray = array(
-                'themesid' => 'default',
-                'mobile_themes_id' => 'mobile',
-                'print_themes_id' => 'print',
-                'pdf_themes_id' => 'pdf',
-                'app_themes_id' => 'app'
-            );
-            foreach ($themesArray as $themesIdCol => $channel) {
-                \Cx\Lib\UpdateUtil::sql("
-                    INSERT INTO `".DBPREFIX."core_view_frontend` (`language`, `theme`, `channel`) 
-                    SELECT 
-                        l.id, 
-                        (SELECT `".$themesIdCol."` FROM `".DBPREFIX."languages` WHERE `lang` = l.iso_1), 
-                        ".$channel."
-                    FROM `".DBPREFIX."core_locale_locale` AS l;
-                ");
+            if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
+                $themesArray = array(
+                    'themesid' => 'default',
+                    'mobile_themes_id' => 'mobile',
+                    'print_themes_id' => 'print',
+                    'pdf_themes_id' => 'pdf',
+                    'app_themes_id' => 'app'
+                );
+                foreach ($themesArray as $themesIdCol => $channel) {
+                    \Cx\Lib\UpdateUtil::sql("
+                        INSERT IGNORE INTO `" . DBPREFIX . "core_view_frontend` (`language`, `theme`, `channel`) 
+                        SELECT 
+                            l.id, 
+                            (SELECT `" . $themesIdCol . "` FROM `" . DBPREFIX . "languages` WHERE `lang` = l.iso_1), 
+                            " . $channel . "
+                        FROM `" . DBPREFIX . "core_locale_locale` AS l;
+                    ");
+                }
             }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

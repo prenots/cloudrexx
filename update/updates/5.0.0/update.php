@@ -1150,19 +1150,26 @@ function executeContrexxUpdate() {
                 return false;
             }
             $_SESSION['contrexx_update']['update']['done'][] = 'installLocale';
-            // force reload to load new FWLanguage
-            setUpdateMsg(1, 'timeout');
-            return false;
         }
-        if (!include_once(dirname(__FILE__) . '/components/core/view.php')) {
-            setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/view.php'));
-            return false;
+        if (!in_array('installView', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+            if (!include_once(dirname(__FILE__) . '/components/core/view.php')) {
+                setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/view.php'));
+                return false;
+            }
+            if (!_viewInstall()) {
+                setUpdateMsg('View konnte nicht installiert werden.');
+                return false;
+            }
+            $_SESSION['contrexx_update']['update']['done'][] = 'installView';
         }
-        if (!_viewInstall()) {
-            setUpdateMsg('View konnte nicht installiert werden.');
+        if(!dropOldLangTable()) {
+            setUpdateMsg(DBPREFIX . 'languages konnte nicht gelöscht werden.');
             return false;
         }
         $_SESSION['contrexx_update']['update']['done'][] = 'installLocalization';
+        // force reload to load new FWLanguage
+        setUpdateMsg(1, 'timeout');
+        return false;
     }
 
 

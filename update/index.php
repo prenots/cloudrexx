@@ -146,7 +146,7 @@ require_once(UPDATE_CORE . '/Model/RecursiveArrayAccess.class.php');
 
 require_once(UPDATE_LIB . '/PEAR/HTML/Template/Sigma/Sigma.php');
 require_once(UPDATE_LIB . '/adodb/adodb.inc.php');
-if (!in_array('installLocale', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
     require_once(UPDATE_LIB . '/FRAMEWORK/LanguagePre50.class.php');
 } else {
     require_once(UPDATE_LIB . '/FRAMEWORK/Language.class.php');

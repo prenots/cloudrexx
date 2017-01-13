@@ -44,7 +44,7 @@ function _countryInstall() {
             );
             // data
             \Cx\Lib\UpdateUtil::sql(
-                "INSERT INTO `".DBPREFIX."core_country_country` (`alpha2`, `alpha3`, `ord`) 
+                "INSERT IGNORE INTO `".DBPREFIX."core_country_country` (`alpha2`, `alpha3`, `ord`) 
                 VALUES 
                 ('AF','AFG',0),
                 ('AL','ALB',0),

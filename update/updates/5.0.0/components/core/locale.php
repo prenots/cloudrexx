@@ -73,7 +73,7 @@ function _localeInstall() {
             );
             // data
             \Cx\Lib\UpdateUtil::sql("
-                INSERT INTO `".DBPREFIX."core_locale_language` (`iso_1`,`iso_3`,`source`) 
+                INSERT IGNORE INTO `".DBPREFIX."core_locale_language` (`iso_1`,`iso_3`,`source`) 
                 VALUES ('aa','aar',0),
                        ('ab','abk',0),
                        ('ae','ave',0),
@@ -258,28 +258,40 @@ function _localeInstall() {
                        ('zh','zho',0),
                        ('zu','zul',0)
             ");
-            \Cx\Lib\UpdateUtil::sql("
-                INSERT INTO `".DBPREFIX."core_locale_backend` (`iso_1`) 
-                SELECT 
-                    lang 
-                FROM `".DBPREFIX."languages` 
-                WHERE backend = 1
-            ");
-            \Cx\Lib\UpdateUtil::sql("
-                INSERT INTO `".DBPREFIX."core_locale_locale` (`iso_1`,`label`,`country`,`fallback`,`source_language`) 
-                SELECT 
-                    lang, 
-                    name, 
-                    NULL, 
-                    fallback, 
-                    lang 
-                FROM `".DBPREFIX."languages` 
-                WHERE frontend = 1;
-            ");
-            // @TODO: Drop old language table
+            if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
+                \Cx\Lib\UpdateUtil::sql("
+                    INSERT IGNORE INTO `" . DBPREFIX . "core_locale_backend` (`iso_1`) 
+                    SELECT 
+                        lang 
+                    FROM `" . DBPREFIX . "languages` 
+                    WHERE backend = 1
+                ");
+                \Cx\Lib\UpdateUtil::sql("
+                    INSERT IGNORE INTO `" . DBPREFIX . "core_locale_locale` (`iso_1`,`label`,`country`,`fallback`,`source_language`) 
+                    SELECT 
+                        lang, 
+                        name, 
+                        NULL, 
+                        fallback, 
+                        lang 
+                    FROM `" . DBPREFIX . "languages` 
+                    WHERE frontend = 1;
+                ");
+            }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
+    }
+    return true;
+}
+
+function dropOldLangTable() {
+    try {
+        if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
+            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX.'languages');
+        }
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
     return true;
 }
