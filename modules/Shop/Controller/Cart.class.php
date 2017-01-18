@@ -598,6 +598,7 @@ class Cart
                 'article_id' => $objProduct->article_id(),
                 'product_images' => $objProduct->pictures(),
                 'minimum_order_quantity' => $objProduct->minimum_order_quantity(),
+                'raw_price' => $objProduct->get_custom_price(null, $options_price, 1, true),
             );
 //DBG::log("Cart::update(): Loop 1: Product: ".var_export(self::$products[$cart_id], true));
         }
@@ -901,6 +902,8 @@ die("Cart::view(): ERROR: No template");
                     'SHOP_PRODUCT_QUANTITY' => $arrProduct['quantity'],
                     'SHOP_PRODUCT_ITEMPRICE' => $arrProduct['itemprice'],
                     'SHOP_PRODUCT_ITEMPRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_RAWPRICE' => $arrProduct['raw_price'],
+                    'SHOP_PRODUCT_RAWPRICE_UNIT' => Currency::getActiveCurrencySymbol(),
 // TODO: Move this to (global) language variables
                     'SHOP_REMOVE_PRODUCT' => $_ARRAYLANG['TXT_SHOP_REMOVE_ITEM'],
                 ));
