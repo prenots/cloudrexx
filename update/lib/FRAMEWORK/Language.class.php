@@ -97,47 +97,41 @@ class FWLanguage
     {
         global $_CONFIG, $objDatabase;
 
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getDb()
-            ->getEntityManager();
-        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
-        $backendRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Backend');
-
-        $license = \Cx\Core_Modules\License\License::getCached($_CONFIG, $objDatabase);
-        $license->check();
-        $full = $license->isInLegalComponents('fulllanguage');
+        $objLocaleResult = $objDatabase->Execute('SELECT * FROM '.DBPREFIX.'core_locale_locale');
 
         // frontend locales
-        foreach($localeRepo->findAll() as $locale) {
+        while (!$objLocaleResult->EOF) {
             // get the theme for each channel of the locale's language
             $themeId = $mobileThemeId = $printThemeId = $pdfThemeId = $appThemeId = 0;
-            foreach ($locale->getFrontends() as $frontend) {
-                switch ($frontend->getChannel()) {
+            $objFrontendResult = $objDatabase->Execute('SELECT theme, channel FROM '.DBPREFIX.'core_view_frontend WHERE language = '.$objLocaleResult->fields['id']);
+            while (!$objFrontendResult->EOF) {
+                switch ($objFrontendResult->fields['channel']) {
                     case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_MOBILE:
-                        $mobileThemeId = $frontend->getTheme();
+                        $mobileThemeId = $objFrontendResult->fields['theme'];
                         break;
                     case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_PRINT:
-                        $printThemeId = $frontend->getTheme();
+                        $printThemeId = $objFrontendResult->fields['theme'];
                         break;
                     case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_PDF:
-                        $pdfThemeId = $frontend->getTheme();
+                        $pdfThemeId = $objFrontendResult->fields['theme'];
                         break;
                     case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_APP:
-                        $appThemeId = $frontend->getTheme();
+                        $appThemeId = $objFrontendResult->fields['theme'];
                         break;
                     default: // web
-                        $themeId = $frontend->getTheme();
+                        $themeId = $objFrontendResult->fields['theme'];
                         break;
                 }
+                $objLocaleResult->moveNext();
             }
             // check if locale is default
-            $isFrontendDefault = $locale->getId() == $_CONFIG['defaultLocaleId'];
-            static::$arrFrontendLanguages[$locale->getId()] = array(
-                'id'  => $locale->getId(),
-                'lang' => $locale->getShortForm(),
-                'name' => $locale->__toString(),
-                'iso1' => $locale->getIso1()->getIso1(),
-                'source_lang' => $locale->getSourceLanguage()->getIso1(),
+            $isFrontendDefault = $objLocaleResult->fields['id'] == $_CONFIG['defaultLocaleId'];
+            static::$arrFrontendLanguages[$objLocaleResult->fields['id']] = array(
+                'id'  => $objLocaleResult->fields['id'],
+                'lang' => $objLocaleResult->fields['alpha'] ? $objLocaleResult->fields['iso_1'].'-'.$objLocaleResult->fields['country'] : $objLocaleResult->fields['iso_1'],
+                'name' => $objLocaleResult->fields['label'],
+                'iso1' => $objLocaleResult->fields['iso_1'],
+                'source_lang' => $objLocaleResult->fields['source_language'],
                 'themesid'   => $themeId,
                 'print_themes_id' => $printThemeId,
                 'pdf_themes_id' => $pdfThemeId,
@@ -145,35 +139,30 @@ class FWLanguage
                 'app_themes_id' => $appThemeId,
                 'frontend'   => true, // every existing locale is active
                 'is_default' => $isFrontendDefault,
-                'fallback'   => $locale->getFallback() ? $locale->getFallback()->getId() : false,
+                'fallback'   => $objLocaleResult->fields['fallback'] ? $objLocaleResult->fields['fallback'] : false,
             );
-            // activate only default locale, if system not in full lang mode
-            if (!$full && !$isFrontendDefault) {
-                static::$arrFrontendLanguages[$locale->getId()]['frontend'] = 0;
-            }
             if ($isFrontendDefault) {
-                static::$defaultFrontendLangId = $locale->getId();
+                static::$defaultFrontendLangId = $objLocaleResult->fields['id'];
             }
+            $objLocaleResult->moveNext();
         }
 
         // backend languages
-        foreach($backendRepo->findAll() as $backendLanguage) {
+        $objBackendResult = $objDatabase->Execute('SELECT * FROM '.DBPREFIX.'core_locale_backend');
+        while (!$objBackendResult->EOF) {
             // check if language is default
-            $isBackendDefault = $backendLanguage->getId() == $_CONFIG['defaultLanguageId'];
-            static::$arrBackendLanguages[$backendLanguage->getId()] = array(
-                'id' => $backendLanguage->getId(),
-                'lang' => $backendLanguage->getIso1()->getIso1(),
-                'name' => $backendLanguage->__toString(),
+            $isBackendDefault = $objBackendResult->fields['id'] == $_CONFIG['defaultLanguageId'];
+            static::$arrBackendLanguages[$objBackendResult->fields['id']] = array(
+                'id' => $objBackendResult->fields['id'],
+                'lang' => $objBackendResult->fields['iso_1'],
+                'name' => \Locale::getDisplayLanguage($objBackendResult->fields['iso_1']),
                 'backend' => true,
                 'is_default' => $isBackendDefault
             );
-            // activate only default language, if system not in full lang mode
-            if (!$full && !$isBackendDefault) {
-                static::$arrBackendLanguages[$backendLanguage->getId()]['backend'] = 0;
-            }
             if ($isBackendDefault) {
-                static::$defaultBackendLangId = $backendLanguage->getId();
+                static::$defaultBackendLangId = $objBackendResult->fields['id'];
             }
+            $objBackendResult->moveNext();
         }
     }
 
@@ -480,30 +469,29 @@ class FWLanguage
      */
     public static function getLangIdByIso639_1($langCode)
     {
+        global $objDatabase;
         // Don't bother if the "code" looks like an ID already
         if (is_numeric($langCode)) return $langCode;
 
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getDb()
-            ->getEntityManager();
-        $qb = $em->createQueryBuilder();
-
         // Something like "fr; q=1.0, en-gb; q=0.5"
         $arrLangCode = preg_split('/,\s*/', $langCode);
-        $arrLangCode = preg_replace(
+        $strLangCode = "'".
+            join("','",
+                preg_replace(
             '/(?:-\w+)?(?:;\s*q(?:\=\d?\.?\d*)?)?/i',
             '',
-            $arrLangCode
-        );
+                    $arrLangCode)
+            ).
+            "'";
         // search for locale with matching iso1 code
-        $qb->select('l')
-            ->from('\Cx\Core\Locale\Model\Entity\Locale', 'l')
-            ->where($qb->expr()->in('l.iso1', $arrLangCode))
-            ->setMaxResults(1);
-        $query = $qb->getQuery();
-        $locale = $query->getResult();
-        if ($locale) {
-            return $locale[0]->getId();
+        $objResult = $objDatabase->Execute("
+            SELECT id 
+            FROM ".DBPREFIX."core_locale_locale 
+            WHERE iso_1 IN ($strLangCode)  
+            LIMIT 1
+        ");
+        if ($objResult && $objResult->RecordCount()) {
+            return $objResult->fields['id'];
         }
         // The code was not found.  Pick the default.
         $defaultLocaleId = \Cx\Core\Setting\Controller\Setting::getValue('defaultLocaleId');
@@ -511,14 +499,13 @@ class FWLanguage
             return $defaultLocaleId;
         }
         // Still nothing.  Pick the first frontend language available.
-        $qb = $em->createQueryBuilder();
-        $qb->select('l')
-            ->from('\Cx\Core\Locale\Model\Entity\Locale', 'l')
-            ->setMaxResults(1);
-        $query = $qb->getQuery();
-        $locale = $query->getSingleResult();
-        if ($locale) {
-            return $locale->getId();
+        $objResult = $objDatabase->Execute("
+            SELECT id
+            FROM ".DBPREFIX."core_locale_locale
+            LIMIT 1;
+        ");
+        if ($objResult && $objResult->RecordCount()) {
+            return $objResult->fields['id'];
         }
         // Give up.
         return null;

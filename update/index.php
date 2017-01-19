@@ -146,11 +146,6 @@ require_once(UPDATE_CORE . '/Model/RecursiveArrayAccess.class.php');
 
 require_once(UPDATE_LIB . '/PEAR/HTML/Template/Sigma/Sigma.php');
 require_once(UPDATE_LIB . '/adodb/adodb.inc.php');
-if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
-    require_once(UPDATE_LIB . '/FRAMEWORK/LanguagePre50.class.php');
-} else {
-    require_once(UPDATE_LIB . '/FRAMEWORK/Language.class.php');
-}
 require_once(UPDATE_LIB . '/FRAMEWORK/cxjs/ContrexxJavascript.class.php');
 require_once(UPDATE_LIB . '/FRAMEWORK/Javascript.class.php');
 
@@ -163,7 +158,11 @@ if (!$objDatabase) {
     die($errorMsg);
 }
 Env::set('db', $objDatabase);
-
+if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
+    require_once(UPDATE_LIB . '/FRAMEWORK/LanguagePre50.class.php');
+} else {
+    require_once(UPDATE_LIB . '/FRAMEWORK/Language.class.php');
+}
 if (!\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'session_variable')) {    
     require_once(UPDATE_CORE . '/sessionPre32.class.php');
     // Start session
