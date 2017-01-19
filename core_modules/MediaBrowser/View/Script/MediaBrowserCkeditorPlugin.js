@@ -102,19 +102,9 @@ CKEDITOR.on('dialogDefinition', function (event) {
                         url: "index.php?cmd=jsondata&object=MediaBrowser&act=createThumbnails&file=" + callback.data[0].datainfo.filepath
                     });
                     var dialog = cx.variables.get('jquery','mediabrowser')(cx.variables.get('thumbnails_template', 'mediabrowser'));
-                    var option = dialog.find('select[name=size] option:first-child');
+                    dialog.find('select[name=size] option:first-child').attr('value', callback.data[0].datainfo.width);
                     var image  = dialog.find('.image');
                     image.attr('src', callback.data[0].datainfo.filepath);
-                    var img    = new Image();
-                    img.src    = callback.data[0].datainfo.filepath;
-                    img.onload = function() {
-                        option.attr('value', this.width);
-                        setTimeout(function () {
-                            callPreviewDialog(callback, dialog);
-                        }, 1);
-                    };
-                };
-                var callPreviewDialog = function (callback, dialog) {
                     bootbox.dialog({
                         title: cx.variables.get('TXT_FILEBROWSER_SELECT_THUMBNAIL', 'mediabrowser'),
                         message: dialog.html(),

@@ -118,6 +118,9 @@ class LocalFileSystem extends EntityBase implements FileSystem
             }
 
             $size = \FWSystem::getLiteralSizeFormat($file->getSize());
+            list($width) = getimagesize(
+                $file->getPath() . '/' . $file->getFilename()
+            );
             $fileInfos = array(
                 'filepath' => mb_strcut(
                     $file->getPath() . '/' . $file->getFilename(),
@@ -125,6 +128,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
                 ),
                 // preselect in mediabrowser or mark a folder
                 'name' => $file->getFilename(),
+                'width' => $width,
                 'size' => $size ? $size : '0 B',
                 'cleansize' => $file->getSize(),
                 'extension' => ucfirst(mb_strtolower($extension)),
