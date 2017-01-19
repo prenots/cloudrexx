@@ -297,21 +297,35 @@ function _localeInstall() {
                 \Cx\Lib\UpdateUtil::sql("
                     INSERT IGNORE INTO `" . DBPREFIX . "core_locale_backend` (`iso_1`) 
                     SELECT 
-                        lang 
+                        `lang` 
                     FROM `" . DBPREFIX . "languages` 
                     WHERE backend = 1
                 ");
-                \Cx\Lib\UpdateUtil::sql("
-                    INSERT IGNORE INTO `" . DBPREFIX . "core_locale_locale` (`iso_1`,`label`,`country`,`fallback`,`source_language`) 
-                    SELECT 
-                        lang, 
-                        name, 
-                        NULL, 
-                        fallback, 
-                        lang 
+                $objResult = \Cx\Lib\UpdateUtil::sql("
+                    SELECT `lang`, `name`, `fallback`, `lang`
                     FROM `" . DBPREFIX . "languages` 
                     WHERE frontend = 1;
                 ");
+                DBG::msg('found ' . $objResult->RecordCount() . ' frontend langs');
+                checkTimeoutLimit();
+                if ($objResult->RecordCount()) {
+                    while (!$objResult->EOF) {
+                        $fallback = $objResult->fields['fallback'] == '0' ? 'NULL' : '\''. $objResult->fields['fallback'].'\'';
+                        \Cx\Lib\UpdateUtil::sql("
+                            INSERT IGNORE INTO `" . DBPREFIX . "core_locale_locale` 
+                            (`iso_1`,`label`,`country`,`fallback`,`source_language`) 
+                            VALUES (
+                                '".$objResult->fields['lang']."',
+                                '".$objResult->fields['name']."',
+                                NULL,
+                                ".$fallback.",
+                                '".$objResult->fields['lang']."'
+                            )
+                        ");
+                        $objResult->MoveNext();
+                    }
+                }
+                DBG::msg('migrated front and backend langs');
             }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
