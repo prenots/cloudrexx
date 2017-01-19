@@ -37,16 +37,29 @@ function _viewInstall() {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_view_frontend',
                 array(
-                    'language'                                   => array('type' => 'INT(11)'),
-                    'theme'                                      => array('type' => 'INT(2)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'language'),
-                    'channel'                                    => array('type' => 'ENUM(\'default\',\'mobile\',\'print\',\'pdf\',\'app\')', 'notnull' => true, 'default' => 'default', 'after' => 'theme'),
-                    'contrexx_core_view_frontend_ibfk_locale'    => array('type' => 'FOREIGN', 'after' => 'channel'),
-                    'contrexx_core_view_frontend_ibfk_theme'     => array('type' => 'FOREIGN', 'after' => 'contrexx_core_view_frontend_ibfk_locale')
+                    'language'                                   => array('type' => 'INT(11)', 'primary' => true),
+                    'theme'                                      => array('type' => 'INT(2)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'primary' => true, 'after' => 'language'),
+                    'channel'                                    => array('type' => 'ENUM(\'default\',\'mobile\',\'print\',\'pdf\',\'app\')', 'notnull' => true, 'default' => 'default', 'primary' => true, 'after' => 'theme'),
                 ),
                 array(
                     'contrexx_core_view_frontend_ibfk_theme'     => array('fields' => array('theme'))
                 ),
-                'InnoDB'
+                'InnoDB',
+                '',
+                array(
+                    'language' => array(
+                        'table'     => DBPREFIX.'core_locale_locale',
+                        'column'    => 'id',
+                        'onDelete'  => 'NO ACTION',
+                        'onUpdate'  => 'NO ACTION'
+                    ),
+                    'theme' => array(
+                        'table'     => DBPREFIX.'skins',
+                        'column'    => 'id',
+                        'onDelete'  => 'NO ACTION',
+                        'onUpdate'  => 'NO ACTION'
+                    )
+                )
             );
             // data
             if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
@@ -63,7 +76,7 @@ function _viewInstall() {
                         SELECT 
                             l.id, 
                             (SELECT `" . $themesIdCol . "` FROM `" . DBPREFIX . "languages` WHERE `lang` = l.iso_1), 
-                            " . $channel . "
+                            '" . $channel . "'
                         FROM `" . DBPREFIX . "core_locale_locale` AS l;
                     ");
                 }
