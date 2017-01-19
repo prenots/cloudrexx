@@ -747,7 +747,7 @@ function executeContrexxUpdate() {
     /*******************************************************************************/
     if (
         !in_array('coreSettings', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) &&
-        $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')
+        $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')
     ) {
         \DBG::msg('update: update settings');
         $result = _updateSettings();
