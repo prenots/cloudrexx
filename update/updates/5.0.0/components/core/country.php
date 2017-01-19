@@ -25,7 +25,7 @@
  * our trademarks remain entirely with us.
  */
 
-function _countryInstall() {
+function _countryUpdate() {
     global $objUpdate, $_CONFIG;
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {

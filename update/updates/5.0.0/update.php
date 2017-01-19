@@ -2468,7 +2468,7 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
     // component update scripts that introduce changes for all versions (pre and post v3)
     $genericMigrationScripts = array(
         // core
-        'routing', 'wysiwyg',
+        'routing', 'wysiwyg', 'country',
         // core module
         'access', 'contact',
         'cron', 'linkmanager', 'news',
