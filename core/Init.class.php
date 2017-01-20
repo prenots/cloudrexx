@@ -409,6 +409,15 @@ class InitCMS
           return $this->frontendLangId;
     }
 
+    /**
+     * Get the current channel
+     *
+     * @return string
+     */
+    public function getCurrentChannel()
+    {
+        return $this->currentChannel;
+    }
 
     function getFrontendLangName()
     {

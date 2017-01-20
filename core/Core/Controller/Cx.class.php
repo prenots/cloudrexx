@@ -657,7 +657,7 @@ namespace Cx\Core\Core\Controller {
             // register this new Cx instance
             // will be used by \Cx\Core\Core\Controller\Cx::instanciate()
             self::registerInstance($this, $configFilePath, $setAsPreferred);
-
+            
             try {
                 /**
                  * This starts time measurement
@@ -802,17 +802,119 @@ namespace Cx\Core\Core\Controller {
              */
             catch (\Exception $e) {
                 \header($_SERVER['SERVER_PROTOCOL'] . ' 500 Server Error');
-                if (file_exists($this->websiteDocumentRootPath . '/offline.html')) {
-                    $offlinePath = $this->websiteDocumentRootPath;
-                } else {
-                    $offlinePath = $this->codeBaseDocumentRootPath;
-                }
-                echo file_get_contents($offlinePath . '/offline.html');
+                echo file_get_contents($this->getOfflineTplPath());
                 \DBG::msg('Cloudrexx initialization failed! ' . get_class($e) . ': "' . $e->getMessage() . '"');
                 \DBG::msg('In file ' . $e->getFile() . ' on Line ' . $e->getLine());
                 \DBG::dump($e->getTrace());
                 die();
             }
+        }
+
+        /**
+         * Get the offline template path
+         *
+         * @return string
+         */
+        public function getOfflineTplPath() 
+        {
+            \Cx\Core\Setting\Controller\Setting::init(
+                'Config',
+                'core',
+                'Yaml'
+            );
+            $maintenanceFilesJson =
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'maintenanceFiles',
+                    'Config'
+                );
+            if (empty($maintenanceFilesJson)) {
+                goto loadRootPathOffline;
+            }
+
+            $maintenanceFiles = json_decode($maintenanceFilesJson, true);
+            if (empty($maintenanceFiles)) {
+                goto loadRootPathOffline;
+            }
+
+            $init = \Env::get('init');
+            $currentChannel  = ($init instanceof \InitCMS)
+                ? $init->getCurrentChannel() : '';
+            $currentLangId   = ($init instanceof \InitCMS)
+                ? $init->getFrontendLangId() : '';
+            $defaultLangId   = \FWLanguage::getDefaultLangId();
+
+            $pathFrmCurrentChannelLang = $this->getOfflinePathFrmConfig(
+                $maintenanceFiles,
+                $currentLangId,
+                $currentChannel
+            );
+            if ($pathFrmCurrentChannelLang) {
+                return $pathFrmCurrentChannelLang;
+            }
+
+            $pathFrmCurrentLang = $this->getOfflinePathFrmConfig(
+                $maintenanceFiles,
+                $currentLangId
+            );
+            if ($pathFrmCurrentLang) {
+                return $pathFrmCurrentLang;
+            }
+
+            $pathFrmDefaultLang = $this->getOfflinePathFrmConfig(
+                $maintenanceFiles,
+                $defaultLangId
+            );
+            if ($pathFrmDefaultLang) {
+                return $pathFrmDefaultLang;
+            }
+
+            loadRootPathOffline:
+            if (file_exists($this->websiteDocumentRootPath . '/offline.html')) {
+                $offlinePath = $this->websiteDocumentRootPath . '/offline.html';
+            } else {
+                $offlinePath = $this->codeBaseDocumentRootPath . '/offline.html';
+            }
+
+            return $offlinePath;
+        }
+
+        /**
+         * Get offline template path
+         *
+         * @param array   $config  value of config 'maintenanceFiles'
+         * @param integer $langId  value of current language ID
+         * @param string  $channel value of current channel
+         *
+         * @return string
+         */
+        public function getOfflinePathFrmConfig(
+            $config,
+            $langId,
+            $channel = 'standard'
+        ) {
+            if (empty($config) || empty($channel) || empty($langId)) {
+                return '';
+            }
+
+            if (!isset($config[$channel]) ||
+                !isset($config[$channel][$langId]) ||
+                empty($config[$channel][$langId])
+            ) {
+                return '';
+            }
+
+            $offlinePath = $config[$channel][$langId];
+            $websitePath = $this->websiteDocumentRootPath;
+            if (file_exists($websitePath . '/' . $offlinePath)) {
+                return $websitePath . '/' . $offlinePath;
+            }
+
+            $codeBasePath = $this->codeBaseDocumentRootPath;
+            if (file_exists($codeBasePath . '/' . $offlinePath)) {
+                return $codeBasePath . '/' . $offlinePath;
+            }
+
+            return '';
         }
 
         /**
