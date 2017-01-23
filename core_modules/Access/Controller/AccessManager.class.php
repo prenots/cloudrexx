@@ -1331,12 +1331,10 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
 
         $associatedGroups = '';
         $notAssociatedGroups = '';
-        $cssDisplayStatusCreate = 'none';
 
         $objFWUser = \FWUser::getFWUserObject();
         if (($objUser = $objFWUser->objUser->getUser(isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0)) === false) {
             $objUser = new \User();
-            $cssDisplayStatusCreate = '';
         }
 
         if ($objFWUser->objUser->getAdminStatus()) {
@@ -1391,7 +1389,9 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
 
             $objUser->setPrimaryGroup(isset($_POST['access_user_primary_group']) ? $_POST['access_user_primary_group'] : 0);
 
-            if (((isset($_POST['notification_email']) && $_POST['notification_email'] == 1 && !$objUser->getId()) || $objUser->setPassword(isset($_POST['access_user_password']) ? trim(contrexx_stripslashes($_POST['access_user_password'])) : '', isset($_POST['access_user_password_confirmed']) ? trim(contrexx_stripslashes($_POST['access_user_password_confirmed'])) : '')) &&
+            $notificationEmail = isset($_POST['notification_email'])
+                ? contrexx_input2int($_POST['notification_email']) : 0;
+            if (($objUser->setAccountInvitationMailStatus($notificationEmail) || $objUser->setPassword(isset($_POST['access_user_password']) ? trim(contrexx_stripslashes($_POST['access_user_password'])) : '', isset($_POST['access_user_password_confirmed']) ? trim(contrexx_stripslashes($_POST['access_user_password_confirmed'])) : '')) &&
                 // only administrators are allowed to change the admin status and the account validity
                 (!\Permission::hasAllAccess() || $objUser->getId() == $objFWUser->objUser->getId() || (
                     $objUser->setAdminStatus(isset($_POST['access_user_is_admin']) ? (bool)$_POST['access_user_is_admin'] : false) &&
@@ -1547,7 +1547,6 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
             'ACCESS_USER_VALIDITY_OPTION_DISPLAY'  => $objUser->getAdminStatus() ? 'none' : '',
             'ACCESS_JAVASCRIPT_FUNCTIONS'          => $this->getJavaScriptCode(),
             'CSS_DISPLAY_STATUS'                   => $cssDisplayStatus,
-            'CSS_DISPLAY_STATUS_CREATE'            => $cssDisplayStatusCreate,
             'ACCESS_PASSWORT_COMPLEXITY'           => isset($_CONFIG['passwordComplexity']) ? $_CONFIG['passwordComplexity'] : 'off',
             'SOURCE'                               => $source, //if source was newletter for ex.
             'CANCEL_URL'                           => $cancelUrl,
@@ -3271,4 +3270,3 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
         }
     }
 }
-?>

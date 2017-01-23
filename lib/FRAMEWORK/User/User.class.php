@@ -331,6 +331,12 @@ class User extends User_Profile
      */
     private $loggedIn;
 
+    /**
+     * Status of user account invitation mail
+     *
+     * @var boolean
+     */
+    protected $sendAccountInvitation = false;
 
     public function __construct()
     {
@@ -522,6 +528,7 @@ class User extends User_Profile
         $this->EOF = true;
         $this->loggedIn = false;
         $this->networks = null;
+        $this->sendAccountInvitation = false;
     }
 
 
@@ -1713,23 +1720,26 @@ class User extends User_Profile
             $this->networks->save();
         }
 
+        if (
+            \FWValidator::isEmpty($this->getHashedPassword()) &&
+            (!$this->id || $this->sendAccountInvitation)
+        ) {
+            $generatedPassword = $this->make_password();
+            $this->setPassword($generatedPassword);
+        }
+
         if ($this->id) {
             // update existing account
             \Env::get('cx')->getEvents()->triggerEvent('model/preUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
             $this->updateUser($userChangeStatus);
         } else {
             // add new account
-            if(\FWValidator::isEmpty($this->getHashedPassword())){
-                $generatedPassword = $this->make_password();
-                $this->setPassword($generatedPassword);
-            }
-
             \Env::get('cx')->getEvents()->triggerEvent('model/prePersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
             $this->createUser();
+        }
 
-            if(!\FWValidator::isEmpty($generatedPassword)) {
-                $this->sendUserAccountInvitationMail($generatedPassword);
-            }
+        if (!\FWValidator::isEmpty($generatedPassword)) {
+            $this->sendUserAccountInvitationMail($generatedPassword);
         }
 
         if (!$this->storeGroupAssociations($userChangeStatus)) {
@@ -1756,6 +1766,23 @@ class User extends User_Profile
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
         }
 
+        return true;
+    }
+
+    /**
+     * Set status for sending user account invitation mail
+     *
+     * @param type $status status of invitation email
+     *
+     * @return boolean
+     */
+    public function setAccountInvitationMailStatus($status)
+    {
+        if (!$status) {
+            return false;
+        }
+
+        $this->sendAccountInvitation = true;
         return true;
     }
 
