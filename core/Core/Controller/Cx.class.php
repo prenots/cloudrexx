@@ -817,6 +817,10 @@ namespace Cx\Core\Core\Controller {
          */
         public function getOfflineTplPath() 
         {
+            if (!class_exists('\Cx\Core\Setting\Controller\Setting')) {
+                return $this->getDefaultOfflinePath();
+            }
+
             \Cx\Core\Setting\Controller\Setting::init(
                 'Config',
                 'core',
@@ -828,20 +832,21 @@ namespace Cx\Core\Core\Controller {
                     'Config'
                 );
             if (empty($maintenanceFilesJson)) {
-                goto loadRootPathOffline;
+                return $this->getDefaultOfflinePath();
             }
 
             $maintenanceFiles = json_decode($maintenanceFilesJson, true);
             if (empty($maintenanceFiles)) {
-                goto loadRootPathOffline;
+                return $this->getDefaultOfflinePath();
             }
 
-            $init = \Env::get('init');
-            $currentChannel  = ($init instanceof \InitCMS)
-                ? $init->getCurrentChannel() : '';
-            $currentLangId   = ($init instanceof \InitCMS)
-                ? $init->getFrontendLangId() : '';
-            $defaultLangId   = \FWLanguage::getDefaultLangId();
+            if (!(\Env::get('init') instanceof \InitCMS)) {
+                return $this->getDefaultOfflinePath();
+            }
+
+            $currentChannel = \Env::get('init')->getCurrentChannel();
+            $currentLangId  = \Env::get('init')->getFrontendLangId();
+            $defaultLangId  = \FWLanguage::getDefaultLangId();
 
             $pathFrmCurrentChannelLang = $this->getOfflinePathFrmConfig(
                 $maintenanceFiles,
@@ -868,7 +873,16 @@ namespace Cx\Core\Core\Controller {
                 return $pathFrmDefaultLang;
             }
 
-            loadRootPathOffline:
+            return $this->getDefaultOfflinePath();
+        }
+
+        /**
+         * Get default offline path from website/codebase
+         *
+         * @return string
+         */
+        public function getDefaultOfflinePath()
+        {
             if (file_exists($this->websiteDocumentRootPath . '/offline.html')) {
                 $offlinePath = $this->websiteDocumentRootPath . '/offline.html';
             } else {
