@@ -1,0 +1,28 @@
+Cx\Modules\Block\Model\Entity\Categories:
+  type: entity
+  table: module_block_categories
+  repositoryClass: Cx\Modules\Block\Model\Repository\CategoriesRepository
+  id:
+    id:
+      type: integer
+      unsigned: true
+  fields:
+    parent:
+      type: integer
+    name:
+      type: string
+      length: 255
+    seperator:
+      type: string
+      length: 255
+    order:
+      type: integer
+    status:
+      type: boolean
+  oneToMany:
+    blocks:
+      targetEntity: Blocks
+      mappedBy: categories
+      joinColumn:
+        name: id
+        referencedColumnName: cat

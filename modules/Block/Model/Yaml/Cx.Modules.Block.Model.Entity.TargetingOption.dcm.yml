@@ -1,0 +1,23 @@
+Cx\Modules\Block\Model\Entity\TargetingOption:
+  type: entity
+  table: module_block_targeting_option
+  repositoryClass: Cx\Modules\Block\Model\Repository\TargetingOptionRepository
+  id:
+    blockId:
+      type: integer
+      unsigned: true
+      column: block_id
+    type:
+      type: string
+  fields:
+    filter:
+      type: string
+    value:
+      type: text
+  manyToOne:
+    blocks:
+      targetEntity: Blocks
+      inversedBy: targetingOptions
+      joinColumn:
+        name: block_id
+        referencedColumnName: id

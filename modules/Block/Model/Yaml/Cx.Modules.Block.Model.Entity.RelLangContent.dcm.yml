@@ -1,0 +1,26 @@
+Cx\Modules\Block\Model\Entity\RelLangContent:
+  type: entity
+  table: module_block_rel_lang_content
+  repositoryClass: Cx\Modules\Block\Model\Repository\RelLangContentRepository
+  id:
+    blockId:
+      type: integer
+      unsigned: true
+      column: block_id
+    langId:
+      type: integer
+      column: lang_id
+  fields:
+    content:
+      type: text
+    active:
+      type: integer
+  manyToOne:
+    blocks:
+      targetEntity: Blocks
+      inversedBy: relLangContents
+      joinColumns:
+        block_id:
+          referencedColumnName: id
+        lang_id:
+          referencedColumnName: id

@@ -1,0 +1,30 @@
+Cx\Modules\Block\Model\Entity\RelPages:
+  type: entity
+  table: module_block_rel_pages
+  repositoryClass: Cx\Modules\Block\Model\Repository\RelPagesRepository
+  indexes:
+    module_block_rel_pages_ibfk_page_id_idx:
+      columns: [ page_id ]
+  id:
+    blockId:
+      type: integer
+      unsigned: true
+      column: block_id
+    pageId:
+      type: integer
+      column: page_id
+    placeholder:
+      type: string
+  manyToOne:
+    blocks:
+      targetEntity: Blocks
+      inversedBy: relPages
+      joinColumn:
+        name: block_id
+        referencedColumnName: id
+    contentPage:
+      targetEntity: Cx\Core\ContentManager\Model\Entity\Page
+      inversedBy: relPages
+      joinColumn:
+        name: page_id
+        referencedColumnName: id

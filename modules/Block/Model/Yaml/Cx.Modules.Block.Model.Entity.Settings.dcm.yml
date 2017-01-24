@@ -1,0 +1,15 @@
+Cx\Modules\Block\Model\Entity\Settings:
+  type: entity
+  table: module_block_settings
+  repositoryClass: Cx\Modules\Block\Model\Repository\SettingsRepository
+  id:
+    id:
+      type: integer
+      unsigned: true
+  fields:
+    name:
+      type: string
+      length: 100
+    value:
+      type: string
+      length: 100

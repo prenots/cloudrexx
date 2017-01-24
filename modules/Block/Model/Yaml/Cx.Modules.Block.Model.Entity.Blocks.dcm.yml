@@ -1,0 +1,72 @@
+Cx\Modules\Block\Model\Entity\Blocks:
+  type: entity
+  table: module_block_blocks
+  repositoryClass: Cx\Modules\Block\Model\Repository\BlocksRepository
+  indexes:
+    module_block_blocks_ibfk_cat_idx:
+      columns: [ cat ]
+  id:
+    id:
+      type: integer
+      unsigned: true
+  fields:
+    cat:
+      type: integer
+      unsigned: true
+    start:
+      type: integer
+    end:
+      type: integer
+    name:
+      type: string
+      length: 255
+    random:
+      type: integer
+    random2:
+      type: integer
+      column: random_2
+    random3:
+      type: integer
+      column: random_3
+    random4:
+      type: integer
+      column: random_4
+    global:
+      type: integer
+    category:
+      type: integer
+    direct:
+      type: integer
+    active:
+      type: integer
+    order:
+      type: integer
+    wysiwygEditor:
+      type: integer
+      column: wysiwyg_editor
+  oneToMany:
+    relLangContents:
+      targetEntity: RelLangContent
+      mappedBy: blocks
+      joinColumns:
+        id:
+          referencedColumnName: lang_id
+    relPages:
+      targetEntity: RelPages
+      mappedBy: blocks
+      joinColumn:
+        name: id
+        referencedColumnName: block_id
+    targetingOptions:
+      targetEntity: TargetingOption
+      mappedBy: blocks
+      joinColumn:
+        name: id
+        referencedColumnName: block_id
+  manyToOne:
+    categories:
+      targetEntity: Categories
+      inversedBy: blocks
+      joinColumn:
+        name: cat
+        referencedColumnName: id
