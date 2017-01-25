@@ -542,7 +542,9 @@ function executeContrexxUpdate() {
         }
 
         // check if DateTime module is installed (for "Daylight Saving Time Hotfix")
-        $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+        if (!isset($_SESSION['contrexx_update']['date_time'])) {
+            $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+        }
 
         return true;
         /////////////////////////////////////////
@@ -551,7 +553,9 @@ function executeContrexxUpdate() {
     }
 
     // check if DateTime module is installed (for "Daylight Saving Time Hotfix")
-    $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+    if (!isset($_SESSION['contrexx_update']['date_time'])) {
+        $_SESSION['contrexx_update']['date_time'] = moduleExists('DateTime');
+    }
 
     ///////////////////////////////////////////
     // CONTINUE UPDATE FOR NON CX 3 VERSIONS //
