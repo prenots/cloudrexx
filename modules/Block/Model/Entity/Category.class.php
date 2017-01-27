@@ -5,47 +5,48 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\Category
  */
-class Category extends \Cx\Model\Base\EntityBase {
+class Category extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer $id
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $parent
      */
-    private $parent;
+    protected $parent;
 
     /**
      * @var string $name
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $seperator
      */
-    private $seperator;
+    protected $seperator;
 
     /**
      * @var integer $order
      */
-    private $order;
+    protected $order;
 
     /**
      * @var boolean $status
      */
-    private $status;
+    protected $status;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Block
      */
-    private $blocks;
+    protected $blocks;
 
     public function __construct()
     {
         $this->blocks = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     /**
      * Get id
      *

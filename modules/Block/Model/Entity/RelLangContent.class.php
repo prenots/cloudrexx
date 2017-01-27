@@ -5,36 +5,37 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\RelLangContent
  */
-class RelLangContent extends \Cx\Model\Base\EntityBase {
+class RelLangContent extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer $blockId
      */
-    private $blockId;
+    protected $blockId;
 
     /**
      * @var integer $langId
      */
-    private $langId;
+    protected $langId;
 
     /**
      * @var text $content
      */
-    private $content;
+    protected $content;
 
     /**
      * @var integer $active
      */
-    private $active;
+    protected $active;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Block
      */
-    private $block;
+    protected $block;
 
     /**
      * @var Cx\Core\Locale\Model\Entity\Locale
      */
-    private $locale;
+    protected $locale;
 
 
     /**

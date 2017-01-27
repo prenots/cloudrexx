@@ -5,21 +5,22 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\Setting
  */
-class Setting extends \Cx\Model\Base\EntityBase {
+class Setting extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer $id
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $name
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $value
      */
-    private $value;
+    protected $value;
 
 
     /**

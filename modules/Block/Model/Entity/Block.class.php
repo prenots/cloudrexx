@@ -5,104 +5,105 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\Block
  */
-class Block extends \Cx\Model\Base\EntityBase {
+class Block extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer $id
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $cat
      */
-    private $cat;
+    protected $cat;
 
     /**
      * @var integer $start
      */
-    private $start;
+    protected $start;
 
     /**
      * @var integer $end
      */
-    private $end;
+    protected $end;
 
     /**
      * @var string $name
      */
-    private $name;
+    protected $name;
 
     /**
      * @var integer $random
      */
-    private $random;
+    protected $random;
 
     /**
      * @var integer $random2
      */
-    private $random2;
+    protected $random2;
 
     /**
      * @var integer $random3
      */
-    private $random3;
+    protected $random3;
 
     /**
      * @var integer $random4
      */
-    private $random4;
+    protected $random4;
 
     /**
      * @var integer $global
      */
-    private $global;
+    protected $global;
 
     /**
      * @var integer $direct
      */
-    private $direct;
+    protected $direct;
 
     /**
      * @var integer $active
      */
-    private $active;
+    protected $active;
 
     /**
      * @var integer $order
      */
-    private $order;
+    protected $order;
 
     /**
      * @var integer $wysiwygEditor
      */
-    private $wysiwygEditor;
+    protected $wysiwygEditor;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\RelLangContent
      */
-    private $relLangContents;
+    protected $relLangContents;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\RelPage
      */
-    private $relPages;
+    protected $relPages;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\TargetingOption
      */
-    private $targetingOptions;
+    protected $targetingOptions;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Category
      */
-    private $category;
+    protected $category;
 
     public function __construct()
     {
         $this->relLangContents = new \Doctrine\Common\Collections\ArrayCollection();
-    $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
-    $this->targetingOptions = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->targetingOptions = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     /**
      * Get id
      *

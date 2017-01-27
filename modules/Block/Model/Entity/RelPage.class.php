@@ -5,31 +5,32 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\RelPage
  */
-class RelPage extends \Cx\Model\Base\EntityBase {
+class RelPage extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer $blockId
      */
-    private $blockId;
+    protected $blockId;
 
     /**
      * @var integer $pageId
      */
-    private $pageId;
+    protected $pageId;
 
     /**
      * @var string $placeholder
      */
-    private $placeholder;
+    protected $placeholder;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Block
      */
-    private $block;
+    protected $block;
 
     /**
      * @var Cx\Core\ContentManager\Model\Entity\Page
      */
-    private $contentPage;
+    protected $contentPage;
 
 
     /**

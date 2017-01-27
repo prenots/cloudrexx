@@ -5,31 +5,32 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\TargetingOption
  */
-class TargetingOption extends \Cx\Model\Base\EntityBase {
+class TargetingOption extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer $blockId
      */
-    private $blockId;
+    protected $blockId;
 
     /**
      * @var string $type
      */
-    private $type;
+    protected $type;
 
     /**
      * @var string $filter
      */
-    private $filter;
+    protected $filter;
 
     /**
      * @var text $value
      */
-    private $value;
+    protected $value;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Block
      */
-    private $block;
+    protected $block;
 
 
     /**
