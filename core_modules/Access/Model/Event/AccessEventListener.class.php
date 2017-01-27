@@ -115,7 +115,7 @@ class AccessEventListener extends DefaultEventListener
             foreach ($accessBlocks as $block => $adaptor) {
                 $themesBlock[$themeId][$adaptor] = array();
                 foreach ($searchTemplateFiles as $file) {
-                    if ($theme->isBlockExistsInfile($file, $block)) {
+                    if ($theme->isBlockExistentInFile($file, $block)) {
                         $themesBlock[$themeId][$adaptor][] = $file;
                     }
                 }

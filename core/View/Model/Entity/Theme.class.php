@@ -425,7 +425,7 @@ class Theme extends \Cx\Model\Base\EntityBase
      *
      * @return boolean  True when block exists false otherwise
      */
-    public function isBlockExistsInfile($file, $block)
+    public function isBlockExistentInFile($file, $block)
     {
         $content = $this->getContentFromFile($file);
         if (   !$content

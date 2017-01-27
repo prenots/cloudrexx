@@ -293,7 +293,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         //Check $block exists in index.html,
         //If so return theme id and filename as parameter's list
-        if ($theme->isBlockExistsInfile('index.html', $block)) {
+        if ($theme->isBlockExistentInFile('index.html', $block)) {
             return array(
                 'template' => $theme->getId(),
                 'file'     => 'index.html'
@@ -305,7 +305,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if (
             $plainSection == 'Home' &&
             !$objInit->hasCustomContent() &&
-            $theme->isBlockExistsInfile('home.html', $block)
+            $theme->isBlockExistentInFile('home.html', $block)
         ) {
             return array(
                 'template' => $theme->getId(),
@@ -320,7 +320,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             //Check $block exists in custom content template using channelTheme,
             //If so return channelTheme id and filename as parameter's list
             $channelTheme  = $themeRepository->findById($objInit->channelThemeId);
-            if ($channelTheme->isBlockExistsInfile($objInit->customContentTemplate, $block)) {
+            if ($channelTheme->isBlockExistentInFile($objInit->customContentTemplate, $block)) {
                 return array(
                     'template' => $channelTheme->getId(),
                     'file'     => $objInit->customContentTemplate
@@ -328,7 +328,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
             //Check $block exists in custom content template using defaultTheme,
             //If so return defaultTheme id and filename as parameter's list
-            if ($theme->isBlockExistsInfile($objInit->customContentTemplate, $block)) {
+            if ($theme->isBlockExistentInFile($objInit->customContentTemplate, $block)) {
                 return array(
                     'template' => $theme->getId(),
                     'file'     => $objInit->customContentTemplate
@@ -338,7 +338,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         //Check $block exists in content.html,
         //If so return theme id and filename as parameter's list
-        if ($theme->isBlockExistsInfile('content.html', $block)) {
+        if ($theme->isBlockExistentInFile('content.html', $block)) {
             return array(
                 'template' => $theme->getId(),
                 'file'     => 'content.html'
