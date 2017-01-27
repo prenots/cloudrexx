@@ -538,10 +538,20 @@ CREATE TABLE `contrexx_log_entry` (
   KEY `log_date_lookup_idx` (`logged_at`),
   KEY `log_user_lookup_idx` (`username`)
 ) ENGINE=InnoDB ;
+CREATE TABLE `contrexx_module_block_categories` (
+  `id` int(11) unsigned NOT NULL,
+  `parent` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `seperator` varchar(255) NOT NULL DEFAULT '',
+  `order` int(11) NOT NULL DEFAULT '0',
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_blocks` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `start` int(10) NOT NULL DEFAULT '0',
-  `end` int(10) NOT NULL DEFAULT '0',
+  `id` int(11) unsigned NOT NULL,
+  `cat` int(11) unsigned NOT NULL DEFAULT '0',
+  `start` int(11) NOT NULL DEFAULT '0',
+  `end` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
   `random` int(1) NOT NULL DEFAULT '0',
   `random_2` int(1) NOT NULL DEFAULT '0',
@@ -552,38 +562,36 @@ CREATE TABLE `contrexx_module_block_blocks` (
   `direct` int(1) NOT NULL DEFAULT '0',
   `active` int(1) NOT NULL DEFAULT '0',
   `order` int(1) NOT NULL DEFAULT '0',
-  `cat` int(10) NOT NULL DEFAULT '0',
   `wysiwyg_editor` int(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
-CREATE TABLE `contrexx_module_block_categories` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `parent` int(10) NOT NULL DEFAULT '0',
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `seperator` varchar(255) NOT NULL DEFAULT '',
-  `order` int(10) NOT NULL DEFAULT '0',
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+  PRIMARY KEY (`id`),
+  KEY `module_block_blocks_ibfk_cat_idx` (`cat`),
+  CONSTRAINT `module_block_blocks_ibfk_cat` FOREIGN KEY (`cat`) REFERENCES `contrexx_module_block_categories` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_rel_lang_content` (
-  `block_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `lang_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `block_id` int(11) unsigned NOT NULL,
+  `lang_id` int(11) NOT NULL,
   `content` mediumtext NOT NULL,
   `active` int(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `id_lang` (`block_id`,`lang_id`)
-) ENGINE=MyISAM;
+  PRIMARY KEY (`block_id`,`lang_id`),
+  KEY `module_block_rel_lang_content_ibfk_lang_id` (`lang_id`),
+  CONSTRAINT `module_block_rel_lang_content_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`),
+  CONSTRAINT `module_block_rel_lang_content_ibfk_lang_id` FOREIGN KEY (`lang_id`) REFERENCES `contrexx_core_locale_locale` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_rel_pages` (
-  `block_id` int(7) NOT NULL DEFAULT '0',
-  `page_id` int(7) NOT NULL DEFAULT '0',
+  `block_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `page_id` int(11) NOT NULL DEFAULT '0',
   `placeholder` enum('global','direct','category') NOT NULL DEFAULT 'global',
-  PRIMARY KEY (`block_id`,`page_id`,`placeholder`)
-) ENGINE=MyISAM;
+  PRIMARY KEY (`block_id`,`page_id`,`placeholder`),
+  KEY `module_block_rel_pages_ibfk_page_id_idx` (`page_id`),
+  CONSTRAINT `module_block_rel_pages_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`),
+  CONSTRAINT `module_block_rel_pages_ibfk_page_id` FOREIGN KEY (`page_id`) REFERENCES `contrexx_content_page` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_settings` (
-  `id` int(7) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
   `name` varchar(100) NOT NULL DEFAULT '',
   `value` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_targeting_option` (
   `block_id` int(11) NOT NULL,
   `filter` enum('include','exclude') NOT NULL DEFAULT 'include',
