@@ -5,32 +5,31 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\TargetingOption
  */
-class TargetingOption extends \Cx\Model\Base\EntityBase
-{
+class TargetingOption extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $blockId
      */
-    protected $blockId;
+    private $blockId;
 
     /**
      * @var string $type
      */
-    protected $type;
+    private $type;
 
     /**
      * @var string $filter
      */
-    protected $filter;
+    private $filter;
 
     /**
      * @var text $value
      */
-    protected $value;
+    private $value;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Blocks
+     * @var Cx\Modules\Block\Model\Entity\Block
      */
-    protected $blocks;
+    private $block;
 
 
     /**
@@ -114,22 +113,22 @@ class TargetingOption extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set blocks
+     * Set block
      *
-     * @param Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @param Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function setBlocks(\Cx\Modules\Block\Model\Entity\Blocks $blocks)
+    public function setBlock(\Cx\Modules\Block\Model\Entity\Block $block)
     {
-        $this->blocks = $blocks;
+        $this->block = $block;
     }
 
     /**
-     * Get blocks
+     * Get block
      *
-     * @return Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @return Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function getBlocks()
+    public function getBlock()
     {
-        return $this->blocks;
+        return $this->block;
     }
 }

@@ -15,9 +15,9 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
     value:
       type: text
   manyToOne:
-    blocks:
-      targetEntity: Blocks
-      inversedBy: targetingOptions
+    block:
+      targetEntity: Block
+      inversedBy: targetingOption
       joinColumn:
         name: block_id
         referencedColumnName: id

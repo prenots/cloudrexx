@@ -5,32 +5,36 @@ namespace Cx\Modules\Block\Model\Entity;
 /**
  * Cx\Modules\Block\Model\Entity\RelLangContent
  */
-class RelLangContent extends \Cx\Model\Base\EntityBase
-{
+class RelLangContent extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $blockId
      */
-    protected $blockId;
+    private $blockId;
 
     /**
      * @var integer $langId
      */
-    protected $langId;
+    private $langId;
 
     /**
      * @var text $content
      */
-    protected $content;
+    private $content;
 
     /**
      * @var integer $active
      */
-    protected $active;
+    private $active;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Blocks
+     * @var Cx\Modules\Block\Model\Entity\Block
      */
-    protected $blocks;
+    private $block;
+
+    /**
+     * @var Cx\Core\Locale\Model\Entity\Locale
+     */
+    private $locale;
 
 
     /**
@@ -114,22 +118,42 @@ class RelLangContent extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set blocks
+     * Set block
      *
-     * @param Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @param Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function setBlocks(\Cx\Modules\Block\Model\Entity\Blocks $blocks)
+    public function setBlock(\Cx\Modules\Block\Model\Entity\Block $block)
     {
-        $this->blocks = $blocks;
+        $this->block = $block;
     }
 
     /**
-     * Get blocks
+     * Get block
      *
-     * @return Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @return Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function getBlocks()
+    public function getBlock()
     {
-        return $this->blocks;
+        return $this->block;
+    }
+
+    /**
+     * Set locale
+     *
+     * @param Cx\Core\Locale\Model\Entity\Locale $locale
+     */
+    public function setLocale(\Cx\Core\Locale\Model\Entity\Locale $locale)
+    {
+        $this->locale = $locale;
+    }
+
+    /**
+     * Get locale
+     *
+     * @return Cx\Core\Locale\Model\Entity\Locale $locale
+     */
+    public function getLocale()
+    {
+        return $this->locale;
     }
 }

@@ -1,9 +1,9 @@
-Cx\Modules\Block\Model\Entity\RelPages:
+Cx\Modules\Block\Model\Entity\RelPage:
   type: entity
   table: module_block_rel_pages
-  repositoryClass: Cx\Modules\Block\Model\Repository\RelPagesRepository
+  repositoryClass: Cx\Modules\Block\Model\Repository\RelPageRepository
   indexes:
-    module_block_rel_pages_ibfk_page_id_idx:
+    module_block_rel_page_ibfk_page_id_idx:
       columns: [ page_id ]
   id:
     blockId:
@@ -16,15 +16,15 @@ Cx\Modules\Block\Model\Entity\RelPages:
     placeholder:
       type: string
   manyToOne:
-    blocks:
-      targetEntity: Blocks
-      inversedBy: relPages
+    block:
+      targetEntity: Block
+      inversedBy: relPage
       joinColumn:
         name: block_id
         referencedColumnName: id
     contentPage:
       targetEntity: Cx\Core\ContentManager\Model\Entity\Page
-      inversedBy: relPages
+      inversedBy: relPage
       joinColumn:
         name: page_id
         referencedColumnName: id

@@ -1,11 +1,13 @@
-Cx\Modules\Block\Model\Entity\Categories:
+Cx\Modules\Block\Model\Entity\Category:
   type: entity
   table: module_block_categories
-  repositoryClass: Cx\Modules\Block\Model\Repository\CategoriesRepository
+  repositoryClass: Cx\Modules\Block\Model\Repository\CategoryRepository
   id:
     id:
       type: integer
       unsigned: true
+      generator:
+        strategy: AUTO
   fields:
     parent:
       type: integer
@@ -21,8 +23,8 @@ Cx\Modules\Block\Model\Entity\Categories:
       type: boolean
   oneToMany:
     blocks:
-      targetEntity: Blocks
-      mappedBy: categories
+      targetEntity: Block
+      mappedBy: category
       joinColumn:
         name: id
         referencedColumnName: cat

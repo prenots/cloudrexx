@@ -1,14 +1,16 @@
-Cx\Modules\Block\Model\Entity\Blocks:
+Cx\Modules\Block\Model\Entity\Block:
   type: entity
   table: module_block_blocks
-  repositoryClass: Cx\Modules\Block\Model\Repository\BlocksRepository
+  repositoryClass: Cx\Modules\Block\Model\Repository\BlockRepository
   indexes:
-    module_block_blocks_ibfk_cat_idx:
+    module_block_block_ibfk_cat_idx:
       columns: [ cat ]
   id:
     id:
       type: integer
       unsigned: true
+      generator:
+        strategy: AUTO
   fields:
     cat:
       type: integer
@@ -33,8 +35,6 @@ Cx\Modules\Block\Model\Entity\Blocks:
       column: random_4
     global:
       type: integer
-    category:
-      type: integer
     direct:
       type: integer
     active:
@@ -47,26 +47,27 @@ Cx\Modules\Block\Model\Entity\Blocks:
   oneToMany:
     relLangContents:
       targetEntity: RelLangContent
-      mappedBy: blocks
-      joinColumns:
-        id:
-          referencedColumnName: lang_id
+      mappedBy: block
+      joinColumn:
+        name: id
+        referencedColumnName: lang_id
     relPages:
-      targetEntity: RelPages
-      mappedBy: blocks
+      targetEntity: RelPage
+      mappedBy: block
       joinColumn:
         name: id
         referencedColumnName: block_id
     targetingOptions:
       targetEntity: TargetingOption
-      mappedBy: blocks
+      mappedBy: block
       joinColumn:
         name: id
         referencedColumnName: block_id
   manyToOne:
-    categories:
-      targetEntity: Categories
-      inversedBy: blocks
+    category:
+      targetEntity: Category
+      inversedBy: block
+      type: integer
       joinColumn:
         name: cat
         referencedColumnName: id

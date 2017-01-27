@@ -16,11 +16,15 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
     active:
       type: integer
   manyToOne:
-    blocks:
-      targetEntity: Blocks
-      inversedBy: relLangContents
-      joinColumns:
-        block_id:
-          referencedColumnName: id
-        lang_id:
-          referencedColumnName: id
+    block:
+      targetEntity: Block
+      inversedBy: relLangContent
+      joinColumn:
+        name: block_id
+        referencedColumnName: id
+    locale:
+      targetEntity: Cx\Core\Locale\Model\Entity\Locale
+      inversedBy: relLangContent
+      joinColumn:
+        name: lang_id
+        referencedColumnName: id

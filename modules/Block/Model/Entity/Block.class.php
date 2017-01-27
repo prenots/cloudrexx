@@ -3,122 +3,106 @@
 namespace Cx\Modules\Block\Model\Entity;
 
 /**
- * Cx\Modules\Block\Model\Entity\Blocks
+ * Cx\Modules\Block\Model\Entity\Block
  */
-class Blocks extends \Cx\Model\Base\EntityBase
-{
+class Block extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */
-    protected $id;
+    private $id;
 
     /**
      * @var integer $cat
      */
-    protected $cat;
+    private $cat;
 
     /**
      * @var integer $start
      */
-    protected $start;
+    private $start;
 
     /**
      * @var integer $end
      */
-    protected $end;
+    private $end;
 
     /**
      * @var string $name
      */
-    protected $name;
+    private $name;
 
     /**
      * @var integer $random
      */
-    protected $random;
+    private $random;
 
     /**
      * @var integer $random2
      */
-    protected $random2;
+    private $random2;
 
     /**
      * @var integer $random3
      */
-    protected $random3;
+    private $random3;
 
     /**
      * @var integer $random4
      */
-    protected $random4;
+    private $random4;
 
     /**
      * @var integer $global
      */
-    protected $global;
-
-    /**
-     * @var integer $category
-     */
-    protected $category;
+    private $global;
 
     /**
      * @var integer $direct
      */
-    protected $direct;
+    private $direct;
 
     /**
      * @var integer $active
      */
-    protected $active;
+    private $active;
 
     /**
      * @var integer $order
      */
-    protected $order;
+    private $order;
 
     /**
      * @var integer $wysiwygEditor
      */
-    protected $wysiwygEditor;
+    private $wysiwygEditor;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\RelLangContent
      */
-    protected $relLangContents;
+    private $relLangContents;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\RelPages
+     * @var Cx\Modules\Block\Model\Entity\RelPage
      */
-    protected $relPages;
+    private $relPages;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\TargetingOption
      */
-    protected $targetingOptions;
+    private $targetingOptions;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Categories
+     * @var Cx\Modules\Block\Model\Entity\Category
      */
-    protected $categories;
+    private $category;
 
     public function __construct()
     {
         $this->relLangContents = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->targetingOptions = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->targetingOptions = new \Doctrine\Common\Collections\ArrayCollection();
     }
-
-    /**
-     * Set id
-     *
-     * @param integer $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
+    
     /**
      * Get id
      *
@@ -310,26 +294,6 @@ class Blocks extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set category
-     *
-     * @param integer $category
-     */
-    public function setCategory($category)
-    {
-        $this->category = $category;
-    }
-
-    /**
-     * Get category
-     *
-     * @return integer $category
-     */
-    public function getCategory()
-    {
-        return $this->category;
-    }
-
-    /**
      * Set direct
      *
      * @param integer $direct
@@ -432,9 +396,9 @@ class Blocks extends \Cx\Model\Base\EntityBase
     /**
      * Add relPages
      *
-     * @param Cx\Modules\Block\Model\Entity\RelPages $relPages
+     * @param Cx\Modules\Block\Model\Entity\RelPage $relPages
      */
-    public function addRelPages(\Cx\Modules\Block\Model\Entity\RelPages $relPages)
+    public function addRelPages(\Cx\Modules\Block\Model\Entity\RelPage $relPages)
     {
         $this->relPages[] = $relPages;
     }
@@ -470,22 +434,22 @@ class Blocks extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set categories
+     * Set category
      *
-     * @param Cx\Modules\Block\Model\Entity\Categories $categories
+     * @param Cx\Modules\Block\Model\Entity\Category $category
      */
-    public function setCategories(\Cx\Modules\Block\Model\Entity\Categories $categories)
+    public function setCategory(\Cx\Modules\Block\Model\Entity\Category $category)
     {
-        $this->categories = $categories;
+        $this->category = $category;
     }
 
     /**
-     * Get categories
+     * Get category
      *
-     * @return Cx\Modules\Block\Model\Entity\Categories $categories
+     * @return Cx\Modules\Block\Model\Entity\Category $category
      */
-    public function getCategories()
+    public function getCategory()
     {
-        return $this->categories;
+        return $this->category;
     }
 }

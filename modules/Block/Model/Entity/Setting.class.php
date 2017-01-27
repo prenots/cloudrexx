@@ -3,35 +3,24 @@
 namespace Cx\Modules\Block\Model\Entity;
 
 /**
- * Cx\Modules\Block\Model\Entity\Settings
+ * Cx\Modules\Block\Model\Entity\Setting
  */
-class Settings extends \Cx\Model\Base\EntityBase
-{
+class Setting extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */
-    protected $id;
+    private $id;
 
     /**
      * @var string $name
      */
-    protected $name;
+    private $name;
 
     /**
      * @var string $value
      */
-    protected $value;
+    private $value;
 
-
-    /**
-     * Set id
-     *
-     * @param integer $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
 
     /**
      * Get id

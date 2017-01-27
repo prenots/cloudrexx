@@ -3,60 +3,49 @@
 namespace Cx\Modules\Block\Model\Entity;
 
 /**
- * Cx\Modules\Block\Model\Entity\Categories
+ * Cx\Modules\Block\Model\Entity\Category
  */
-class Categories extends \Cx\Model\Base\EntityBase
-{
+class Category extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */
-    protected $id;
+    private $id;
 
     /**
      * @var integer $parent
      */
-    protected $parent;
+    private $parent;
 
     /**
      * @var string $name
      */
-    protected $name;
+    private $name;
 
     /**
      * @var string $seperator
      */
-    protected $seperator;
+    private $seperator;
 
     /**
      * @var integer $order
      */
-    protected $order;
+    private $order;
 
     /**
      * @var boolean $status
      */
-    protected $status;
+    private $status;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Blocks
+     * @var Cx\Modules\Block\Model\Entity\Block
      */
-    protected $blocks;
+    private $blocks;
 
     public function __construct()
     {
         $this->blocks = new \Doctrine\Common\Collections\ArrayCollection();
     }
-
-    /**
-     * Set id
-     *
-     * @param integer $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
+    
     /**
      * Get id
      *
@@ -170,9 +159,9 @@ class Categories extends \Cx\Model\Base\EntityBase
     /**
      * Add blocks
      *
-     * @param Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @param Cx\Modules\Block\Model\Entity\Block $blocks
      */
-    public function addBlocks(\Cx\Modules\Block\Model\Entity\Blocks $blocks)
+    public function addBlocks(\Cx\Modules\Block\Model\Entity\Block $blocks)
     {
         $this->blocks[] = $blocks;
     }

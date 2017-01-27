@@ -1,11 +1,13 @@
-Cx\Modules\Block\Model\Entity\Settings:
+Cx\Modules\Block\Model\Entity\Setting:
   type: entity
   table: module_block_settings
-  repositoryClass: Cx\Modules\Block\Model\Repository\SettingsRepository
+  repositoryClass: Cx\Modules\Block\Model\Repository\SettingRepository
   id:
     id:
       type: integer
       unsigned: true
+      generator:
+        strategy: AUTO
   fields:
     name:
       type: string

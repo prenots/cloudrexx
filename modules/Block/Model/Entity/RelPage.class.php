@@ -3,34 +3,33 @@
 namespace Cx\Modules\Block\Model\Entity;
 
 /**
- * Cx\Modules\Block\Model\Entity\RelPages
+ * Cx\Modules\Block\Model\Entity\RelPage
  */
-class RelPages extends \Cx\Model\Base\EntityBase
-{
+class RelPage extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $blockId
      */
-    protected $blockId;
+    private $blockId;
 
     /**
      * @var integer $pageId
      */
-    protected $pageId;
+    private $pageId;
 
     /**
      * @var string $placeholder
      */
-    protected $placeholder;
+    private $placeholder;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Blocks
+     * @var Cx\Modules\Block\Model\Entity\Block
      */
-    protected $blocks;
+    private $block;
 
     /**
      * @var Cx\Core\ContentManager\Model\Entity\Page
      */
-    protected $contentPage;
+    private $contentPage;
 
 
     /**
@@ -94,23 +93,23 @@ class RelPages extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set blocks
+     * Set block
      *
-     * @param Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @param Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function setBlocks(\Cx\Modules\Block\Model\Entity\Blocks $blocks)
+    public function setBlock(\Cx\Modules\Block\Model\Entity\Block $block)
     {
-        $this->blocks = $blocks;
+        $this->block = $block;
     }
 
     /**
-     * Get blocks
+     * Get block
      *
-     * @return Cx\Modules\Block\Model\Entity\Blocks $blocks
+     * @return Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function getBlocks()
+    public function getBlock()
     {
-        return $this->blocks;
+        return $this->block;
     }
 
     /**
