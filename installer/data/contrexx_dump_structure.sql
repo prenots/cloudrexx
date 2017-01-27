@@ -539,7 +539,7 @@ CREATE TABLE `contrexx_log_entry` (
   KEY `log_user_lookup_idx` (`username`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_block_categories` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `parent` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
   `seperator` varchar(255) NOT NULL DEFAULT '',
@@ -548,7 +548,7 @@ CREATE TABLE `contrexx_module_block_categories` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_blocks` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `cat` int(11) unsigned NOT NULL DEFAULT '0',
   `start` int(11) NOT NULL DEFAULT '0',
   `end` int(11) NOT NULL DEFAULT '0',
@@ -568,8 +568,8 @@ CREATE TABLE `contrexx_module_block_blocks` (
   CONSTRAINT `module_block_blocks_ibfk_cat` FOREIGN KEY (`cat`) REFERENCES `contrexx_module_block_categories` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_rel_lang_content` (
-  `block_id` int(11) unsigned NOT NULL,
-  `lang_id` int(11) NOT NULL,
+  `block_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `lang_id` int(11) NOT NULL DEFAULT '0',
   `content` mediumtext NOT NULL,
   `active` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`block_id`,`lang_id`),
@@ -587,7 +587,7 @@ CREATE TABLE `contrexx_module_block_rel_pages` (
   CONSTRAINT `module_block_rel_pages_ibfk_page_id` FOREIGN KEY (`page_id`) REFERENCES `contrexx_content_page` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_settings` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
   `value` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
