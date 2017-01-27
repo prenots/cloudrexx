@@ -1288,8 +1288,17 @@ namespace Cx\Core\Core\Controller {
             }
 
             // redirect to correct domain and protocol
+            $url = $protocol . '://' . $domain . $_SERVER['REQUEST_URI'];
+            $this->getComponent('Cache')->writeCacheFileForRequest(
+                null,
+                array(
+                    $_SERVER['SERVER_PROTOCOL'] . ' 301 Moved Permanently',
+                    'Location' => $url,
+                ),
+                ''
+            );
             \header($_SERVER['SERVER_PROTOCOL'] . ' 301 Moved Permanently');
-            \header('Location: ' . $protocol . '://' . $domain . $_SERVER['REQUEST_URI']);
+            \header('Location: ' . $url);
             exit;
         }
 
@@ -2395,6 +2404,9 @@ namespace Cx\Core\Core\Controller {
                         $command = ($cmdValue && $cmdValue instanceof \Cx\Core_Modules\Access\Model\Entity\Permission) ? $cmdKey : $cmdValue;
                         if (isset($this->commands[$command])) {
                             throw new \Exception('Command \'' . $command . '\' is already in index');
+                        }
+                        if (!$component->hasAccessToExecuteCommand($command, array())) {
+                            continue;
                         }
                         $this->commands[$command] = $component;
                     }
