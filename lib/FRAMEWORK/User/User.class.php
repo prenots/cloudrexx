@@ -2209,12 +2209,20 @@ class User extends User_Profile
      * In the case that the specified language isn't valid, the ID 0 is taken instead.
      * $scope could either be 'frontend' or 'backend'
      *
+     * @throws UserException
      * @param string $scope
      */
     private function validateLanguageId($scope)
     {
+        if ($scope == 'frontend') {
+            $paramMethod = 'getLanguageParameter';
+        } elseif ($scope == 'backend') {
+            $paramMethod = 'getBackendLanguageParameter';
+        } else {
+            throw new UserException("User->validateLanguageId(): Scope is neither front- nor backend");
+        }
         $this->{$scope.'_language'} =
-            (FWLanguage::getLanguageParameter(
+            (FWLanguage::$paramMethod(
                 $this->{$scope.'_language'}, $scope)
                   ? $this->{$scope.'_language'} : 0);
     }
@@ -2556,14 +2564,15 @@ class User extends User_Profile
      * If $status is FALSE then it will only be accepted if this object
      * isn't the only administrator.
      * @param boolean $status
+     * @param boolean $force
      * @global array
      * @return boolean
      */
-    public function setAdminStatus($status)
+    public function setAdminStatus($status, $force = false)
     {
         global $_CORELANG;
 
-        if ($status || !$this->isLastAdmin()) {
+        if ($status || !$this->isLastAdmin() || $force) {
             $this->is_admin = (bool)$status;
             return true;
         }
