@@ -374,7 +374,7 @@ class Theme extends \Cx\Model\Base\EntityBase
      */
     public function getContentFromFile($file)
     {
-        $filePath = $this->getFilePath($file);
+        $filePath = $this->getFilePath($this->foldername . '/' . $file);
         if (empty($filePath)) {
             return false;
         }
