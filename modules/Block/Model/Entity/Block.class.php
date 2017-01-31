@@ -48,6 +48,11 @@ class Block extends \Cx\Model\Base\EntityBase
     protected $random4;
 
     /**
+     * @var integer $category
+     */
+    protected $category;
+
+    /**
      * @var integer $global
      */
     protected $global;
@@ -247,6 +252,26 @@ class Block extends \Cx\Model\Base\EntityBase
     public function getRandom4()
     {
         return $this->random4;
+    }
+
+    /**
+     * Set category
+     *
+     * @param integer $category
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
+    }
+
+    /**
+     * Get category
+     *
+     * @return integer $category
+     */
+    public function getCategory()
+    {
+        return $this->category;
     }
 
     /**

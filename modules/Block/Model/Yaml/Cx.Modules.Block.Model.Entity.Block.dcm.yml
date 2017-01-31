@@ -30,6 +30,8 @@ Cx\Modules\Block\Model\Entity\Block:
     random4:
       type: integer
       column: random_4
+    category:
+      type: integer
     global:
       type: integer
     direct:
