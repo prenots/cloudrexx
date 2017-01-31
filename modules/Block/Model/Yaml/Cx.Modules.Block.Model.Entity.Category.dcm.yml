@@ -2,6 +2,9 @@ Cx\Modules\Block\Model\Entity\Category:
   type: entity
   table: module_block_categories
   repositoryClass: Cx\Modules\Block\Model\Repository\CategoryRepository
+  indexes:
+    module_block_category_ibfk_parent:
+      columns: [ parent ]
   id:
     id:
       type: integer
@@ -9,8 +12,6 @@ Cx\Modules\Block\Model\Entity\Category:
       generator:
         strategy: AUTO
   fields:
-    parent:
-      type: integer
     name:
       type: string
       length: 255
@@ -28,3 +29,17 @@ Cx\Modules\Block\Model\Entity\Category:
       joinColumn:
         name: id
         referencedColumnName: cat
+    categories:
+      targetEntity: Category
+      mappedBy: parent
+      joinColumn:
+        name: id
+        referencedColumnName: parent
+  manyToOne:
+    parent:
+      targetEntity: Category
+      inversedBy: categories
+      joinColumn:
+        name: parent
+        referencedColumnName: id
+        nullable: true

@@ -114,67 +114,44 @@ class BlockLibrary
     */
     public function getBlocks($catId = 0)
     {
-        global $objDatabase;
-
         $catId = intval($catId);
-        $where = '';
-
-        if ($catId > 0) {
-            $where = 'WHERE `cat` = '.$catId;
-        }
 
         if (!is_array($this->_arrBlocks)) {
-            $query = 'SELECT    `id`,
-                                `cat`,
-                                `name`,
-                                `start`,
-                                `end`,
-                                `order`,
-                                `random`,
-                                `random_2`,
-                                `random_3`,
-                                `random_4`,
-                                `global`,
-                                `active`,
-                                `direct`
-                        FROM `%1$s`
-                        # WHERE
-                        %2$s
-                        ORDER BY `order`';
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
-            $objResult = $objDatabase->Execute(sprintf($query, DBPREFIX.'module_block_blocks',
-                                                               $where));
-            if ($objResult !== false) {
-                $this->_arrBlocks = array();
+            if ($catId != 0) {
+                $blocks = $blockRepo->findBy(array('cat' => $catId));
+            } else {
+                $blocks = $blockRepo->findAll();
+            }
 
-                while (!$objResult->EOF) {
-                    $langArr          = array();
-                    $objBlockLang = $objDatabase->Execute("SELECT lang_id FROM ".DBPREFIX."module_block_rel_lang_content WHERE block_id=".$objResult->fields['id']." AND `active` = 1 ORDER BY lang_id ASC");
+            $this->_arrBlocks = array();
 
-                    if ($objBlockLang) {
-                        while (!$objBlockLang->EOF) {
-                            $langArr[] = $objBlockLang->fields['lang_id'];
-                            $objBlockLang->MoveNext();
-
-                        }
+            foreach ($blocks as $block) {
+                $langArr = array();
+                $contents = $block->getRelLangContents();
+                foreach ($contents as $content) {
+                    if ($content->getActive() == 1) {
+                        array_push($langArr, $content->getLocale()->getId());
                     }
-                    $this->_arrBlocks[$objResult->fields['id']] = array(
-                        'cat'       => $objResult->fields['cat'],
-                        'start'     => $objResult->fields['start'],
-                        'end'       => $objResult->fields['end'],
-                        'order'     => $objResult->fields['order'],
-                        'random'    => $objResult->fields['random'],
-                        'random2'   => $objResult->fields['random_2'],
-                        'random3'   => $objResult->fields['random_3'],
-                        'random4'   => $objResult->fields['random_4'],
-                        'global'    => $objResult->fields['global'],
-                        'active'    => $objResult->fields['active'],
-                        'direct'    => $objResult->fields['direct'],
-                        'name'      => $objResult->fields['name'],
-                        'lang'      => array_unique($langArr),
-                    );
-                    $objResult->MoveNext();
                 }
+
+                $this->_arrBlocks[$block->getId()] = array(
+                    'cat' => $block->getCat(),
+                    'start' => $block->getStart(),
+                    'end' => $block->getEnd(),
+                    'order' => $block->getOrder(),
+                    'random' => $block->getRandom(),
+                    'random2' => $block->getRandom2(),
+                    'random3' => $block->getRandom3(),
+                    'random4' => $block->getRandom4(),
+                    'global' => $block->getGlobal(),
+                    'active' => $block->getActive(),
+                    'direct' => $block->getDirect(),
+                    'name' => $block->getName(),
+                    'lang' => array_unique($langArr),
+                );
             }
         }
 
@@ -199,36 +176,36 @@ class BlockLibrary
      */
     public function _addBlock($cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
 
-        $query = "INSERT INTO `".DBPREFIX."module_block_blocks` (
-                    `order`,
-                    `name`,
-                    `cat`,
-                    `start`,
-                    `end`,
-                    `random`,
-                    `random_2`,
-                    `random_3`,
-                    `random_4`,
-                    `wysiwyg_editor`,
-                    `active`
-                  ) SELECT MAX(`order`) + 1,
-                      '".contrexx_raw2db($name)."',
-                      ".intval($cat).",
-                      ".intval($start).",
-                      ".intval($end).",
-                      ".intval($blockRandom).",
-                      ".intval($blockRandom2).",
-                      ".intval($blockRandom3).",
-                      ".intval($blockRandom4).",
-                      ".intval($blockWysiwygEditor).",
-                       1
-                  FROM `".DBPREFIX."module_block_blocks`";
-        if ($objDatabase->Execute($query) === false) {
-            return false;
-        }
-        $id = $objDatabase->Insert_ID();
+        $qb = $em->createQueryBuilder();
+        $order = $qb->select('MAX(b.order)')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->getQuery()
+            ->getSingleResult();
+
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $block->setCat($categoryRepo->findOneBy(array('id' => intval($cat))));
+        $block->setStart(intval($start));
+        $block->setEnd(intval($end));
+        $block->setName(contrexx_raw2db($name));
+        $block->setRandom(intval($blockRandom));
+        $block->setRandom2(intval($blockRandom2));
+        $block->setRandom3(intval($blockRandom3));
+        $block->setRandom4(intval($blockRandom4));
+        $block->setGlobal(0);
+        $block->setCategory(0);
+        $block->setDirect(0);
+        $block->setActive(1);
+        $block->setOrder(intval($order[1]) + 1);
+        $block->setWysiwygEditor(intval($blockWysiwygEditor));
+
+        $em->persist($block);
+        $em->flush();
+        $em->refresh($block);
+
+        $id = $block->getId();
 
         $this->storeBlockContent($id, $arrContent, $arrLangActive);
 

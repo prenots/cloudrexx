@@ -581,16 +581,18 @@ CREATE TABLE `contrexx_log_entry` (
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_block_categories` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `parent` int(11) NOT NULL DEFAULT '0',
+  `parent` int(11) unsigned DEFAULT NULL,
   `name` varchar(255) NOT NULL DEFAULT '',
   `seperator` varchar(255) NOT NULL DEFAULT '',
   `order` int(11) NOT NULL DEFAULT '0',
   `status` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `module_block_category_ibfk_parent_idx` (`parent`),
+  CONSTRAINT `module_block_category_ibfk_parent` FOREIGN KEY (`parent`) REFERENCES `contrexx_module_block_categories` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_blocks` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `cat` int(11) unsigned NOT NULL DEFAULT '0',
+  `cat` int(11) unsigned DEFAULT NULL,
   `start` int(11) NOT NULL DEFAULT '0',
   `end` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',

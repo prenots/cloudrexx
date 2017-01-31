@@ -13,11 +13,6 @@ class Category extends \Cx\Model\Base\EntityBase
     protected $id;
 
     /**
-     * @var integer $parent
-     */
-    protected $parent;
-
-    /**
      * @var string $name
      */
     protected $name;
@@ -42,9 +37,20 @@ class Category extends \Cx\Model\Base\EntityBase
      */
     protected $blocks;
 
+    /**
+     * @var Cx\Modules\Block\Model\Entity\Category
+     */
+    protected $categories;
+
+    /**
+     * @var Cx\Modules\Block\Model\Entity\Category
+     */
+    protected $parent;
+
     public function __construct()
     {
         $this->blocks = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -55,26 +61,6 @@ class Category extends \Cx\Model\Base\EntityBase
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set parent
-     *
-     * @param integer $parent
-     */
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-    }
-
-    /**
-     * Get parent
-     *
-     * @return integer $parent
-     */
-    public function getParent()
-    {
-        return $this->parent;
     }
 
     /**
@@ -175,5 +161,45 @@ class Category extends \Cx\Model\Base\EntityBase
     public function getBlocks()
     {
         return $this->blocks;
+    }
+
+    /**
+     * Add categories
+     *
+     * @param Cx\Modules\Block\Model\Entity\Category $categories
+     */
+    public function addCategories(\Cx\Modules\Block\Model\Entity\Category $categories)
+    {
+        $this->categories[] = $categories;
+    }
+
+    /**
+     * Get categories
+     *
+     * @return Doctrine\Common\Collections\Collection $categories
+     */
+    public function getCategories()
+    {
+        return $this->categories;
+    }
+
+    /**
+     * Set parent
+     *
+     * @param Cx\Modules\Block\Model\Entity\Category $parent
+     */
+    public function setParent(\Cx\Modules\Block\Model\Entity\Category $parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return Cx\Modules\Block\Model\Entity\Category $parent
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 }

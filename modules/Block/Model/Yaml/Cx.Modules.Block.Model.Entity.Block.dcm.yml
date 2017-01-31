@@ -12,9 +12,6 @@ Cx\Modules\Block\Model\Entity\Block:
       generator:
         strategy: AUTO
   fields:
-    cat:
-      type: integer
-      unsigned: true
     start:
       type: integer
     end:
@@ -41,6 +38,7 @@ Cx\Modules\Block\Model\Entity\Block:
       type: integer
     order:
       type: integer
+      column: `order`
     wysiwygEditor:
       type: integer
       column: wysiwyg_editor
@@ -64,10 +62,11 @@ Cx\Modules\Block\Model\Entity\Block:
         name: id
         referencedColumnName: block_id
   manyToOne:
-    category:
+    cat:
       targetEntity: Category
       inversedBy: block
       type: integer
+      nullable: true
       joinColumn:
         name: cat
         referencedColumnName: id

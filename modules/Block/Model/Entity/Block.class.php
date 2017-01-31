@@ -13,11 +13,6 @@ class Block extends \Cx\Model\Base\EntityBase
     protected $id;
 
     /**
-     * @var integer $cat
-     */
-    protected $cat;
-
-    /**
      * @var integer $start
      */
     protected $start;
@@ -95,7 +90,7 @@ class Block extends \Cx\Model\Base\EntityBase
     /**
      * @var Cx\Modules\Block\Model\Entity\Category
      */
-    protected $category;
+    protected $cat;
 
     public function __construct()
     {
@@ -112,26 +107,6 @@ class Block extends \Cx\Model\Base\EntityBase
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set cat
-     *
-     * @param integer $cat
-     */
-    public function setCat($cat)
-    {
-        $this->cat = $cat;
-    }
-
-    /**
-     * Get cat
-     *
-     * @return integer $cat
-     */
-    public function getCat()
-    {
-        return $this->cat;
     }
 
     /**
@@ -435,22 +410,22 @@ class Block extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set category
+     * Set cat
      *
-     * @param Cx\Modules\Block\Model\Entity\Category $category
+     * @param Cx\Modules\Block\Model\Entity\Category $cat
      */
-    public function setCategory(\Cx\Modules\Block\Model\Entity\Category $category)
+    public function setCat(\Cx\Modules\Block\Model\Entity\Category $cat)
     {
-        $this->category = $category;
+        $this->cat = $cat;
     }
 
     /**
-     * Get category
+     * Get cat
      *
-     * @return Cx\Modules\Block\Model\Entity\Category $category
+     * @return Cx\Modules\Block\Model\Entity\Category $cat
      */
-    public function getCategory()
+    public function getCat()
     {
-        return $this->category;
+        return $this->cat;
     }
 }
