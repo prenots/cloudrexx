@@ -439,7 +439,7 @@ class Block extends \Cx\Model\Base\EntityBase
      *
      * @param Cx\Modules\Block\Model\Entity\Category $cat
      */
-    public function setCat(\Cx\Modules\Block\Model\Entity\Category $cat)
+    public function setCat($cat)
     {
         $this->cat = $cat;
     }
