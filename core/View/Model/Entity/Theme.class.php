@@ -374,7 +374,7 @@ class Theme extends \Cx\Model\Base\EntityBase
      */
     public function getContentFromFile($file)
     {
-        $filePath = $this->getFilePath($file);
+        $filePath = $this->getFilePath($this->foldername . '/' . $file);
         if (empty($filePath)) {
             return false;
         }
@@ -425,7 +425,7 @@ class Theme extends \Cx\Model\Base\EntityBase
      *
      * @return boolean  True when block exists false otherwise
      */
-    public function isBlockExistsInfile($file, $block)
+    public function isBlockExistentInFile($file, $block)
     {
         $content = $this->getContentFromFile($file);
         if (   !$content
