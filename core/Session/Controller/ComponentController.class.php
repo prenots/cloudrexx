@@ -58,9 +58,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function preInit(\Cx\Core\Core\Controller\Cx $cx)
     {
-        // TO-DO: Input and output handling is not possible in pre init cook
+        // TO-DO: Input and output handling is not possible in pre init hook
         // So we need to find the right place
-        $sessionId = !empty($_GET['session']) ? $_GET['session'] : '';
+        $sessionId = isset($_GET['session']) ? $_GET['session'] : '';
         if (!empty($sessionId)) {
             session_id($sessionId);
         }

@@ -148,6 +148,25 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
      */
     public function startContrexxCaching()
     {
+        // TODO: $dynVars needs to be built dynamically (via event handler)
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $this->dynVars = array(
+            'GEO' => array(
+                'country_code' => function() use ($cx) {
+                    return $cx->getComponent('GeoIp')->getCountryCode(array())['content'];
+                },
+            ),
+            'HTTP_COOKIE' => array(
+                'PHPSESSID' => function() {
+                    $sessId = 0;
+                    if (!empty($_COOKIE[session_name()])) {
+                        $sessId = $_COOKIE[session_name()];
+                    }
+                    return $sessId;
+                },
+            ),
+        );
+
         if (!$this->boolIsEnabled) {
             return null;
         }
@@ -194,16 +213,6 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
      */
     public function endContrexxCaching($page, $endcode)
     {
-        // TODO: $dynVars needs to be built dynamically
-        $this->dynVars = array(
-            'GEO' => array(
-                'country_code' => \Cx\Core\Routing\Url::fromApi('Data', array('Plain', 'GeoIp', 'getCountryCode'))->toString(),
-            ),
-            'HTTP_COOKIE' => array(
-                'PHPSESSID' => session_id()
-            )
-        );
-
         // back-replace ESI variables that are url encoded
         foreach ($this->dynVars as $groupName=>$vars) {
             foreach ($vars as $varName=>$url) {
@@ -343,16 +352,12 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
         $settings = $this->getSettings();
         // apply ESI dynamic variables
         foreach ($this->dynVars as $groupName=>$vars) {
-            foreach ($vars as $varName=>$url) {
+            foreach ($vars as $varName=>$callback) {
                 $esiPlaceholder = '$(' . $groupName . '{\'' . $varName . '\'})';
                 if (strpos($htmlCode, $esiPlaceholder) === false) {
                     continue;
                 }
-                try {
-                    $varValue = $this->getApiResponseForUrl($url);
-                } catch (\Exception $e) {
-                    $varValue = '';
-                }
+                $varValue = $callback();
                 $htmlCode = str_replace($esiPlaceholder, $varValue, $htmlCode);
             }
         }
