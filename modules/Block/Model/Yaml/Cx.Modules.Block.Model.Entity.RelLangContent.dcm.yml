@@ -2,6 +2,11 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
   type: entity
   table: module_block_rel_lang_content
   repositoryClass: Cx\Modules\Block\Model\Repository\RelLangContentRepository
+  id:
+    block:
+      associationKey: true
+    locale:
+      associationKey: true
   fields:
     content:
       type: text
@@ -9,7 +14,6 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
       type: integer
   manyToOne:
     block:
-      associationKey: true
       type: integer
       unsigned: true
       column: block_id
@@ -19,7 +23,6 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
         name: block_id
         referencedColumnName: id
     locale:
-      associationKey: true
       type: integer
       column: lang_id
       targetEntity: Cx\Core\Locale\Model\Entity\Locale

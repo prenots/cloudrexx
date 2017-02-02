@@ -5,12 +5,16 @@ Cx\Modules\Block\Model\Entity\RelPage:
   indexes:
     module_block_rel_page_ibfk_page_id_idx:
       columns: [ page_id ]
+  id:
+    block:
+      associationKey: true
+    contentPage:
+      associationKey: true
   fields:
     placeholder:
       type: string
   manyToOne:
     block:
-      associationKey: true
       type: integer
       unsigned: true
       column: block_id
@@ -20,7 +24,6 @@ Cx\Modules\Block\Model\Entity\RelPage:
         name: block_id
         referencedColumnName: id
     contentPage:
-      associationKey: true
       type: integer
       column: page_id
       targetEntity: Cx\Core\ContentManager\Model\Entity\Page

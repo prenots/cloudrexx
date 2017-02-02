@@ -343,8 +343,6 @@ class BlockLibrary
             $locale = $localeRepo->findOneBy(array('id' => intval($langId)));
             if (in_array($langId, $arrPresentLang)) {
                 $relLangContent = $relLangContentRepo->findOneBy(array('block' => $block, 'locale' => $locale));
-                var_dump($relLangContent);
-                die('here');
                 $relLangContent->setContent($content);
                 $relLangContent->setActive(intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0)));
             } else {
