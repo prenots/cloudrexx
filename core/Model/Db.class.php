@@ -188,7 +188,7 @@ namespace Cx\Core\Model {
                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'' . $offsetString . '\'',
                 )
             );
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+            $this->pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array('Doctrine\DBAL\Driver\PDOStatement', array()));
 
             // disable ONLY_FULL_GROUP_BY, STRICT_TRANS_TABLES mode
             // this is a temporary fix to ensure MySQL 5.7 compatability
@@ -281,7 +281,7 @@ namespace Cx\Core\Model {
             }
 
             $drivers = $this->em->getConfiguration()->getMetadataDriverImpl()->getDrivers();
-            $drivers['Cx']->addPaths($paths);
+            $drivers['Cx']->getLocator()->addPaths($paths);
         }
 
         /**
@@ -295,7 +295,7 @@ namespace Cx\Core\Model {
 
             $config = new \Doctrine\ORM\Configuration();
 
-            //$config->setResultCacheImpl($this->cacheDriver);
+            $config->setResultCacheImpl($this->cacheDriver);
             $config->setMetadataCacheImpl($this->cacheDriver);
             $config->setQueryCacheImpl($this->cacheDriver);
 
@@ -367,10 +367,8 @@ namespace Cx\Core\Model {
             $chainDriverImpl->addDriver($translatableDriverImpl,
                 'Gedmo\Translatable');
             // RK: Note:
-            // This might have been renamed in newer versions:
-            //$translationListener = new \Gedmo\Translatable\TranslatableListener();
             // In this Doctrine version, it is present as:
-            $this->translationListener = new \Gedmo\Translatable\TranslationListener();
+            $this->translationListener = new \Gedmo\Translatable\TranslatableListener();
             // current translation locale should be set from session
             // or hook later into the listener,
             // but *before the entity manager is flushed*
@@ -403,7 +401,6 @@ namespace Cx\Core\Model {
 
             //resolve enum, set errors
             $conn = $em->getConnection();
-            $conn->setCharset($this->db->getCharset());
             $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
             $conn->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
 
