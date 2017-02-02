@@ -35,9 +35,9 @@ function _livecamUpdate()
             DBPREFIX.'module_livecam',
             array(
                 'id'                 => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '1', 'primary' => true),
-                'currentImagePath'   => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '/webcam/cam1/current.jpg'),
-                'archivePath'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '/webcam/cam1/archive/'),
-                'thumbnailPath'      => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '/webcam/cam1/thumbs/'),
+                'currentImagePath'   => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '/images/Livecam/cam1/current.jpg'),
+                'archivePath'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '/images/Livecam/cam1/archive/'),
+                'thumbnailPath'      => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '/images/Livecam/cam1/thumbs/'),
                 'maxImageWidth'      => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '400'),
                 'thumbMaxSize'       => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '200'),
                 'shadowboxActivate'  => array('type' => 'SET(\'1\',\'0\')', 'notnull' => true, 'default' => '1', 'renamefrom' => 'lightboxActivate'),
@@ -143,7 +143,7 @@ function _livecamUpdate()
     // Try migrating the directory
     try {
         \Cx\Lib\UpdateUtil::migrateOldDirectory(ASCMS_DOCUMENT_ROOT . '/webcam',
-            ASCMS_DOCUMENT_ROOT . '/media/Webcam');
+            ASCMS_DOCUMENT_ROOT . '/images/Livecam');
     } catch (\Exception $e) {
         \DBG::log($e->getMessage());
         return false;
