@@ -8,16 +8,6 @@ namespace Cx\Modules\Block\Model\Entity;
 class RelPage extends \Cx\Model\Base\EntityBase
 {
     /**
-     * @var integer $blockId
-     */
-    protected $blockId;
-
-    /**
-     * @var integer $pageId
-     */
-    protected $pageId;
-
-    /**
      * @var string $placeholder
      */
     protected $placeholder;
@@ -32,46 +22,6 @@ class RelPage extends \Cx\Model\Base\EntityBase
      */
     protected $contentPage;
 
-
-    /**
-     * Set blockId
-     *
-     * @param integer $blockId
-     */
-    public function setBlockId($blockId)
-    {
-        $this->blockId = $blockId;
-    }
-
-    /**
-     * Get blockId
-     *
-     * @return integer $blockId
-     */
-    public function getBlockId()
-    {
-        return $this->blockId;
-    }
-
-    /**
-     * Set pageId
-     *
-     * @param integer $pageId
-     */
-    public function setPageId($pageId)
-    {
-        $this->pageId = $pageId;
-    }
-
-    /**
-     * Get pageId
-     *
-     * @return integer $pageId
-     */
-    public function getPageId()
-    {
-        return $this->pageId;
-    }
 
     /**
      * Set placeholder

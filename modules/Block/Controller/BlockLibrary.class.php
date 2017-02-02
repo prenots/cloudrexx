@@ -178,6 +178,8 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $block = new \Cx\Modules\Block\Model\Entity\Block();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => intval($cat)));
 
         $qb = $em->createQueryBuilder();
         $order = $qb->select('MAX(b.order)')
@@ -185,8 +187,7 @@ class BlockLibrary
             ->getQuery()
             ->getSingleResult();
 
-        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $block->setCat($categoryRepo->findOneBy(array('id' => intval($cat))));
+        $block->setCat($category);
         $block->setStart(intval($start));
         $block->setEnd(intval($end));
         $block->setName(contrexx_raw2db($name));
@@ -232,22 +233,23 @@ class BlockLibrary
      */
     public function _updateBlock($id, $cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $block = $blockRepo->findOneBy(array('id' => intval($id)));
+        $category = $categoryRepo->findOneBy(array('id' => intval($cat)));
 
-        $query = "UPDATE `".DBPREFIX."module_block_blocks`
-                    SET `name`              = '".contrexx_raw2db($name)."',
-                        `cat`               = ".intval($cat).",
-                        `start`             = ".intval($start).",
-                        `end`               = ".intval($end).",
-                        `random`            = ".intval($blockRandom).",
-                        `random_2`          = ".intval($blockRandom2).",
-                        `random_3`          = ".intval($blockRandom3).",
-                        `random_4`          = ".intval($blockRandom4).",
-                        `wysiwyg_editor`    = ".intval($blockWysiwygEditor)."
-                  WHERE `id` = ".intval($id);
-        if ($objDatabase->Execute($query) === false) {
-            return false;
-        }
+        $block->setName(contrexx_raw2db($name));
+        $block->setCat($category);
+        $block->setStart(intval($start));
+        $block->setEnd(intval($end));
+        $block->setRandom(intval($blockRandom));
+        $block->setRandom2(intval($blockRandom2));
+        $block->setRandom3(intval($blockRandom3));
+        $block->setRandom4(intval($blockRandom4));
+        $block->setWysiwygEditor(intval($blockWysiwygEditor));
+
+        $em->flush();
 
         $this->storeBlockContent($id, $arrContent, $arrLangActive);
 
@@ -267,14 +269,22 @@ class BlockLibrary
      * @return bool it was successfully saved
      */
     protected function storePlaceholderSettings($blockId, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages) {
-        global $objDatabase;
-        $objDatabase->Execute("UPDATE `" . DBPREFIX . "module_block_blocks`
-                                SET `global` = ?,
-                                    `direct` = ?,
-                                    `category` = ?
-                                WHERE `id` = ?", array($global, $direct, $category, $blockId));
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
 
-        $objDatabase->Execute("DELETE FROM `" . DBPREFIX . "module_block_rel_pages` WHERE `block_id` = '" . intval($blockId) . "'");
+        $block->setGlobal($global);
+        $block->setDirect($direct);
+        $block->setCategory($category);
+
+        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $relPages = $relPageRepo->findBy(array('block' => $block));
+
+        foreach ($relPages as $relPage) {
+            $em->remove($relPage);
+        }
+        $em->flush();
+
         if ($global == 2) {
             $this->storePageAssociations($blockId, $globalAssociatedPages, 'global');
         }
@@ -296,49 +306,74 @@ class BlockLibrary
      */
     private function storePageAssociations($blockId, $blockAssociatedPageIds, $placeholder)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+
         foreach ($blockAssociatedPageIds as $pageId) {
-            $objDatabase->Execute("INSERT INTO `" . DBPREFIX . "module_block_rel_pages` (`block_id`, `page_id`, `placeholder`)
-                                    VALUES (?, ?, ?)", array($blockId, $pageId, $placeholder));
+            $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+            $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
+
+            $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
+            $relPage->setBlock($block);
+            $relPage->setContentPage($page);
+            $relPage->setPlaceholder($placeholder);
+
+            $em->persist($relPage);
+            $em->flush();
         }
     }
 
     private function storeBlockContent($blockId, $arrContent, $arrLangActive)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+        $relLangContents = $relLangContentRepo->findBy(array('block' => $block));
 
         $arrPresentLang = array();
-        $objResult = $objDatabase->Execute('SELECT lang_id FROM '.DBPREFIX.'module_block_rel_lang_content WHERE block_id='.$blockId);
-        if ($objResult) {
-            while (!$objResult->EOF) {
-                $arrPresentLang[] = $objResult->fields['lang_id'];
-                $objResult->MoveNext();
-            }
+        foreach ($relLangContents as $relLangContent) {
+            $arrPresentLang[] = $relLangContent->getLocale()->getId();
         }
 
         foreach ($arrContent as $langId => $content) {
-            if (in_array($langId, $arrPresentLang)) {
-                $query = 'UPDATE `%1$s` SET %2$s WHERE `block_id` = %3$s AND `lang_id`='.intval($langId);
-            } else {
-                $query = 'INSERT INTO `%1$s` SET %2$s, `block_id` = %3$s';
-            }
-
             $content = preg_replace('/\[\[([A-Z0-9_-]+)\]\]/', '{\\1}', $content);
-            $objDatabase->Execute(sprintf($query, DBPREFIX.'module_block_rel_lang_content',
-                                                  "lang_id='".intval($langId)."',
-                                                   content='".contrexx_raw2db($content)."',
-                                                   active='".intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0))."'",
-                                                  $blockId));
+            $locale = $localeRepo->findOneBy(array('id' => intval($langId)));
+            if (in_array($langId, $arrPresentLang)) {
+                $relLangContent = $relLangContentRepo->findOneBy(array('block' => $block, 'locale' => $locale));
+                var_dump($relLangContent);
+                die('here');
+                $relLangContent->setContent($content);
+                $relLangContent->setActive(intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0)));
+            } else {
+                $relLangContent = new \Cx\Modules\Block\Model\Entity\RelLangContent();
+                $relLangContent->setContent($content);
+                $relLangContent->setActive(intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0)));
+                $relLangContent->setBlock($block);
+                $relLangContent->setLocale($locale);
+                $em->persist($relLangContent);
+            }
         }
-            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
-                'Block',
-                'getBlockContent',
-                array(
-                    'block' => $blockId,
-                )
-            );
 
-        $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_block_rel_lang_content WHERE block_id=".$blockId." AND lang_id NOT IN (".join(',', array_map('intval', array_keys($arrLangActive))).")");
+        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+            'Block',
+            'getBlockContent',
+            array(
+                'block' => $blockId,
+            )
+        );
+
+        $qb = $em->createQueryBuilder();
+        $qb->delete('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
+            ->where('rlc.block_id = :blockId')
+            ->andWhere($qb->expr()->notIn('rlc.lang_id', implode(',', $arrLangActive)))
+            ->setParameter('blockId', $blockId)
+            ->getQuery()
+            ->getResult();
+
+        $em->flush();
     }
 
     /**
@@ -435,29 +470,20 @@ class BlockLibrary
      */
     public function loadTargetingSettings($blockId)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
+        $targetingOptions = $targetingOptionRepo->findBy(array('blockId' => contrexx_raw2db($blockId)));
 
-        $query = 'SELECT
-                    `filter`,
-                    `type`,
-                    `value`
-                  FROM
-                    `'. DBPREFIX .'module_block_targeting_option`
-                  WHERE
-                    `block_id` = "'. contrexx_raw2db($blockId) .'"
-                 ';
-        $targeting = $objDatabase->Execute($query);
-        if (!$targeting) {
+        if (!$targetingOptions) {
             return array();
         }
 
         $targetingArr = array();
-        while (!$targeting->EOF) {
-            $targetingArr[$targeting->fields['type']] = array(
-                'filter' => $targeting->fields['filter'],
-                'value'  => json_decode($targeting->fields['value'])
+        foreach ($targetingOptions as $targetingOption) {
+            $targetingArr[$targetingOption->getType()] = array(
+                'filter' => $targetingOption->getFilter(),
+                'value' => json_decode($targetingOption->getValue())
             );
-            $targeting->MoveNext();
         }
 
         return $targetingArr;
@@ -475,40 +501,37 @@ class BlockLibrary
     */
     function _getBlock($id)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $id));
 
-        $objBlock = $objDatabase->SelectLimit("SELECT name, cat, start, end, random, random_2, random_3, random_4, global, direct, category, active, wysiwyg_editor FROM ".DBPREFIX."module_block_blocks WHERE id=".$id, 1);
-
-
-        if ($objBlock !== false && $objBlock->RecordCount() == 1) {
+        if ($block) {
             $arrContent = array();
             $arrActive = array();
 
-            $objBlockContent = $objDatabase->Execute("SELECT lang_id, content, active FROM ".DBPREFIX."module_block_rel_lang_content WHERE block_id=".$id);
-            if ($objBlockContent !== false) {
-                while (!$objBlockContent->EOF) {
-                    $arrContent[$objBlockContent->fields['lang_id']] = $objBlockContent->fields['content'];
-                    $arrActive[$objBlockContent->fields['lang_id']]  = $objBlockContent->fields['active'];
-                    $objBlockContent->MoveNext();
-                }
+            $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
+            $relLangContents = $relLangContentRepo->findBy(array('block' => $block));
+            foreach ($relLangContents as $relLangContent) {
+                $arrContent[$relLangContent->getLocale()->getId()] = $relLangContent->getContent();
+                $arrActive[$relLangContent->getLocale()->getId()] = $relLangContent->getActive();
             }
 
             return array(
-                'cat'               => $objBlock->fields['cat'],
-                'start'             => $objBlock->fields['start'],
-                'end'               => $objBlock->fields['end'],
-                'random'            => $objBlock->fields['random'],
-                'random2'           => $objBlock->fields['random_2'],
-                'random3'           => $objBlock->fields['random_3'],
-                'random4'           => $objBlock->fields['random_4'],
-                'global'            => $objBlock->fields['global'],
-                'direct'            => $objBlock->fields['direct'],
-                'category'          => $objBlock->fields['category'],
-                'active'            => $objBlock->fields['active'],
-                'name'              => $objBlock->fields['name'],
-                'wysiwyg_editor'    => $objBlock->fields['wysiwyg_editor'],
-                'content'           => $arrContent,
-                'lang_active'       => $arrActive,
+                'cat' => $block->getCat(),
+                'start' => $block->getStart(),
+                'end' => $block->getEnd(),
+                'random' => $block->getRandom(),
+                'random2' => $block->getRandom2(),
+                'random3' => $block->getRandom3(),
+                'random4' => $block->getRandom4(),
+                'global' => $block->getGlobal(),
+                'direct' => $block->getDirect(),
+                'category' => $block->getCategory(),
+                'active' => $block->getActive(),
+                'name' => $block->getName(),
+                'wysiwyg_editor' => $block->getWysiwygEditor(),
+                'content' => $arrContent,
+                'lang_active' => $arrActive,
             );
         }
 
@@ -524,16 +547,21 @@ class BlockLibrary
      */
     function _getAssociatedPageIds($blockId, $placeholder)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+
+        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+        $relPages = $relPageRepo->findBy(array(
+            'block' => $block,
+            'placeholder' => contrexx_raw2db($placeholder)
+        ));
 
         $arrPageIds = array();
-        $objResult = $objDatabase->Execute("SELECT page_id FROM ".DBPREFIX."module_block_rel_pages WHERE block_id = '" . intval($blockId) . "' AND placeholder = '" . contrexx_raw2db($placeholder) . "'");
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-                array_push($arrPageIds, $objResult->fields['page_id']);
-                $objResult->MoveNext();
-            }
+        foreach ($relPages as $relPage) {
+            array_push($arrPageIds, $relPage->getBlock()->getId());
         }
+
         return $arrPageIds;
     }
 
@@ -591,51 +619,60 @@ class BlockLibrary
         return $arrBlocks;
     }
 
-    function _setBlocksForPageId($pageId, $blockIds) {
-        global $objDatabase;
+    function _setBlocksForPageId($pageId, $blockIds)
+    {
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
 
-        $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_block_rel_pages WHERE page_id = " . intval($pageId) . " AND placeholder = 'global'");
+        $relPages = $relPageRepo->findBy(array('pageId' => intval($pageId), 'placeholder' => 'global'));
+        foreach ($relPages as $relPage) {
+            $em->remove($relPage);
+        }
 
-        $values = array();
+        $blocks = array();
         foreach ($blockIds as $blockId) {
-            $block = $this->_getBlock($blockId);
+            $block = $blockRepo->findOneBy(array('id' => $blockId));
+            array_push($blocks, $block);
+
             // block is global and will be shown on all pages, don't need to save the relation
-            if ($block['global'] == 1) {
+            if ($block->getGlobal() == 1) {
                 continue;
             }
             // if the block was not global till now, make it global
-            if ($block['global'] == 0) {
-                $objDatabase->Execute("UPDATE `" . DBPREFIX . "module_block_blocks` SET `global` = 2 WHERE `id` = " . intval($blockId));
+            if ($block->getGlobal() == 0) {
+                $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+                $block->setGlobal(2);
             }
-            $values[] = '
-                (
-                    \'' . intval($blockId) . '\',
-                    \'' . intval($pageId) . '\',
-                    \'global\'
-                )';
+
+            $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
+            $page = $pageRepo->findOneBy(array('id' => $pageId));
+
+            $relPage->setBlock($block);
+            $relPage->setContentPage($page);
+            $relPage->setPlaceholder('global');
+            $em->persist($relPage);
         }
-        if (!empty($values)) {
-            $query = 'INSERT INTO
-                    `' . DBPREFIX . 'module_block_rel_pages`
-                    (
-                        `block_id`,
-                        `page_id`,
-                        `placeholder`
-                    )
-                VALUES' . implode(', ', $values);
-            $objDatabase->Execute($query);
+
+        $page = $pageRepo->findOneBy(array('id' => $pageId));
+
+        $qb = $em->createQueryBuilder();
+        $qb->delete('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
+            ->where('rp.placeholder = :placeholder')
+            ->andWhere('rp.page = :page')
+            ->andWhere($qb->expr()->notIn('rp.block', $blocks))
+            ->setParameters(array(
+                'placeholder' => 'global',
+                'page' => $page,
+            ))
+            ->getQuery()
+            ->getSingleResult();
+
+        foreach ($relPages as $relPage) {
+            $em->remove($relPage);
         }
-        $objDatabase->Execute('
-            DELETE FROM
-                `' . DBPREFIX . 'module_block_rel_pages`
-            WHERE
-                `page_id` = \'' . $pageId . '\' AND
-                `block_id` NOT IN
-                    (
-                        \'' . implode('\',\'', array_map('intval', $blockIds)).'\'
-                    ) AND
-                `placeholder` = \'global\'
-        ');
+        $em->flush();
     }
 
     /**
@@ -771,28 +808,14 @@ class BlockLibrary
     */
     function _setBlockGlobal(&$code, $pageId)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
 
         // fetch separator
-        $separator = '';
-        $objResult = $objDatabase->Execute(
-            '
-                SELECT
-                    `value`
-                FROM
-                    `' . DBPREFIX . 'module_block_settings`
-                WHERE
-                    `name` = "blockGlobalSeperator"
-                LIMIT
-                    1
-            '
-        );
-        if ($objResult !== false) {
-            $separator = $objResult->fields['value'];
-        }
+        $separator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'))->getValue();
 
         $now = time();
-        
+
         $this->replaceBlocks(
             $this->blockNamePrefix . 'GLOBAL',
             '
@@ -1043,8 +1066,6 @@ class BlockLibrary
      */
     function _getCategoriesDropdown($parent = 0, $catId = 0, $arrCategories = array(), $arrOptions = array(), $level = 0)
     {
-        global $objDatbase;
-
         $first = false;
         if(count($arrCategories) == 0){
             $first = true;
@@ -1162,15 +1183,29 @@ class BlockLibrary
      */
     function _deleteCategory($id = 0)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
 
         $id = intval($id);
-        if($id < 1){
+        if ($id < 1) {
             return false;
         }
-        return $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'module_block_categories` WHERE `id`='.$id)
-            && $objDatabase->Execute('UPDATE `'.DBPREFIX.'module_block_categories` SET `parent` = 0 WHERE `parent`='.$id)
-            && $objDatabase->Execute('UPDATE `'.DBPREFIX.'module_block_blocks` SET `cat` = 0 WHERE `cat`='.$id);
+
+        $category = $categoryRepo->findOneBy(array('id' => $id));
+        $em->remove($category);
+
+        $categoryParent = $categoryRepo->findOneBy(array('parent' => $id));
+        $categoryParent->setParent(null);
+
+        $blocks = $blockRepo->findBy(array('cat' => $id));
+        foreach ($blocks as $block) {
+            $block->setCat(null);
+        }
+
+        $em->flush();
+
+        return true;
     }
 
     /**
@@ -1191,27 +1226,33 @@ class BlockLibrary
      */
     function _getCategories($refresh = false)
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $_ARRAYLANG;
 
-        if(!empty($this->_categories) && !$refresh){
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        if (!empty($this->_categories) && !$refresh) {
             return $this->_categories;
         }
 
         $this->_categories = array(0 => array());
-
         $this->_categoryNames[0] = $_ARRAYLANG['TXT_BLOCK_NONE'];
-        $objRS = $objDatabase->Execute('
-           SELECT `id`,`parent`,`name`,`order`,`status`,`seperator`
-           FROM `'.DBPREFIX.'module_block_categories`
-           ORDER BY `order` ASC, `id` ASC
-        ');
-        if ($objRS !== false && $objRS->RecordCount() > 0) {
-            while(!$objRS->EOF){
-                $this->_categories[$objRS->fields['parent']][] = $objRS->fields;
-                $this->_categoryNames[$objRS->fields['id']] = $objRS->fields['name'];
-                $objRS->MoveNext();
-            }
+
+        $categoryRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\Category');
+        $categories= array();
+//        $categories = $categoryRepo->findBy(array(), array('order' => 'ASC', 'id' => 'ASC'));
+
+        foreach ($categories as $category) {
+            $this->_categories[$category->getParent()->getId()][] = array(
+                'id' => $category->getId(),
+                'parent' => $category->getParent()->getId(),
+                'name' => $category->getName(),
+                'order' => $category->getOrder(),
+                'status' => $category->getStatus(),
+                'seperator' => $category->getSeperator(),
+            );
+            $this->_categoryNames[$category->getId()] = $category->getName();
         }
+
         return $this->_categories;
     }
 
@@ -1223,21 +1264,23 @@ class BlockLibrary
      */
     function _getCategory($id = 0)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
         $id = intval($id);
-        if($id == 0){
+        if ($id == 0) {
             return false;
         }
 
-        $objRS = $objDatabase->Execute('
-           SELECT `id`,`parent`,`name`,`seperator`,`order`,`status`
-           FROM `'.DBPREFIX.'module_block_categories`
-           WHERE `id`= '.$id
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => $id));
+
+        return array(
+            'id' => $category->getId(),
+            'parent' => $category->getParent()->getId(),
+            'name' => $category->getName(),
+            'order' => $category->getOrder(),
+            'status' => $category->getStatus(),
+            'seperator' => $category->getSeperator(),
         );
-        if(!$objRS){
-            return false;
-        }
-        return $objRS->fields;
     }
 }

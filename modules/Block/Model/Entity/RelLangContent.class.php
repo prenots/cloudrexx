@@ -8,16 +8,6 @@ namespace Cx\Modules\Block\Model\Entity;
 class RelLangContent extends \Cx\Model\Base\EntityBase
 {
     /**
-     * @var integer $blockId
-     */
-    protected $blockId;
-
-    /**
-     * @var integer $langId
-     */
-    protected $langId;
-
-    /**
      * @var text $content
      */
     protected $content;
@@ -37,46 +27,6 @@ class RelLangContent extends \Cx\Model\Base\EntityBase
      */
     protected $locale;
 
-
-    /**
-     * Set blockId
-     *
-     * @param integer $blockId
-     */
-    public function setBlockId($blockId)
-    {
-        $this->blockId = $blockId;
-    }
-
-    /**
-     * Get blockId
-     *
-     * @return integer $blockId
-     */
-    public function getBlockId()
-    {
-        return $this->blockId;
-    }
-
-    /**
-     * Set langId
-     *
-     * @param integer $langId
-     */
-    public function setLangId($langId)
-    {
-        $this->langId = $langId;
-    }
-
-    /**
-     * Get langId
-     *
-     * @return integer $langId
-     */
-    public function getLangId()
-    {
-        return $this->langId;
-    }
 
     /**
      * Set content

@@ -188,7 +188,7 @@ class Category extends \Cx\Model\Base\EntityBase
      *
      * @param Cx\Modules\Block\Model\Entity\Category $parent
      */
-    public function setParent(\Cx\Modules\Block\Model\Entity\Category $parent)
+    public function setParent($parent)
     {
         $this->parent = $parent;
     }
