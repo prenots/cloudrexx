@@ -138,7 +138,7 @@ class BlockLibrary
                 }
 
                 $this->_arrBlocks[$block->getId()] = array(
-                    'cat' => $block->getCat(),
+                    'cat' => $block->getCat()->getId(),
                     'start' => $block->getStart(),
                     'end' => $block->getEnd(),
                     'order' => $block->getOrder(),
@@ -190,7 +190,7 @@ class BlockLibrary
         $block->setCat($category);
         $block->setStart(intval($start));
         $block->setEnd(intval($end));
-        $block->setName(contrexx_raw2db($name));
+        $block->setName($name);
         $block->setRandom(intval($blockRandom));
         $block->setRandom2(intval($blockRandom2));
         $block->setRandom3(intval($blockRandom3));
@@ -239,7 +239,7 @@ class BlockLibrary
         $block = $blockRepo->findOneBy(array('id' => intval($id)));
         $category = $categoryRepo->findOneBy(array('id' => intval($cat)));
 
-        $block->setName(contrexx_raw2db($name));
+        $block->setName($name);
         $block->setCat($category);
         $block->setStart(intval($start));
         $block->setEnd(intval($end));
@@ -308,20 +308,22 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
 
         foreach ($blockAssociatedPageIds as $pageId) {
-            $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
-            $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
+            if ($pageId > 0) {
+                $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
+                $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
+                $relPage->setBlock($block);
+                $relPage->setContentPage($page);
+                $relPage->setPlaceholder($placeholder);
 
-            $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
-            $relPage->setBlock($block);
-            $relPage->setContentPage($page);
-            $relPage->setPlaceholder($placeholder);
-
-            $em->persist($relPage);
-            $em->flush();
+                $em->persist($relPage);
+            }
         }
+
+        $em->flush();
     }
 
     private function storeBlockContent($blockId, $arrContent, $arrLangActive)
@@ -363,14 +365,10 @@ class BlockLibrary
             )
         );
 
-        $locales = array();
-        foreach ($locales as $locale) {
-
-        }
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
             ->where('rlc.block = :block')
-            ->andWhere($qb->expr()->notIn('rlc.locale', implode(',', $arrLangActive)))
+            ->andWhere($qb->expr()->notIn('rlc.locale', array_map('intval', array_keys($arrLangActive))))
             ->setParameter('block', $block)
             ->getQuery()
             ->getResult();
@@ -474,7 +472,7 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
-        $targetingOptions = $targetingOptionRepo->findBy(array('blockId' => contrexx_raw2db($blockId)));
+        $targetingOptions = $targetingOptionRepo->findBy(array('blockId' => $blockId));
 
         if (!$targetingOptions) {
             return array();
@@ -519,7 +517,7 @@ class BlockLibrary
             }
 
             return array(
-                'cat' => $block->getCat(),
+                'cat' => $block->getCat()->getId(),
                 'start' => $block->getStart(),
                 'end' => $block->getEnd(),
                 'random' => $block->getRandom(),
@@ -556,12 +554,12 @@ class BlockLibrary
         $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
         $relPages = $relPageRepo->findBy(array(
             'block' => $block,
-            'placeholder' => contrexx_raw2db($placeholder)
+            'placeholder' => $placeholder,
         ));
 
         $arrPageIds = array();
         foreach ($relPages as $relPage) {
-            array_push($arrPageIds, $relPage->getBlock()->getId());
+            array_push($arrPageIds, $relPage->getContentPage()->getId());
         }
 
         return $arrPageIds;
@@ -569,55 +567,56 @@ class BlockLibrary
 
     function _getBlocksForPageId($pageId)
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $page = $pageRepo->findOneBy(array('id' => $pageId));
+
+        $qb = $em->createQueryBuilder();
+        $blocks = $qb->select('
+                b.id,
+                IDENTITY(b.cat),
+                b.name,
+                b.start,
+                b.end,
+                b.order,
+                b.random,
+                b.random2,
+                b.random3,
+                b.random4,
+                b.global,
+                b.direct,
+                b.category,
+                b.active
+            ')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
+            ->where('b = rp.block')
+            ->andWhere('rp.contentPage = :page')
+            ->andWhere('rp.placeholder = \'global\'')
+            ->groupBy('b.id')
+            ->setParameters(array('page' => $page))
+            ->getQuery()
+            ->getResult();
 
         $arrBlocks = array();
-        $objResult = $objDatabase->Execute('
-            SELECT
-                `b`.`id`,
-                `b`.`cat`,
-                `b`.`name`,
-                `b`.`start`,
-                `b`.`end`,
-                `b`.`order`,
-                `b`.`random`,
-                `b`.`random_2`,
-                `b`.`random_3`,
-                `b`.`random_4`,
-                `b`.`global`,
-                `b`.`direct`,
-                `b`.`category`,
-                `b`.`active`
-            FROM
-                `'.DBPREFIX.'module_block_blocks` AS `b`,
-                `'.DBPREFIX.'module_block_rel_pages` AS `p`
-            WHERE
-                `b`.`id` = `p`.`block_id`
-                AND `p`.`page_id` = \'' . $pageId . '\'
-                AND `p`.`placeholder` = \'global\'
-            GROUP BY
-                `b`.`id`
-        ');
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-                $arrBlocks[$objResult->fields['id']] = array(
-                    'cat'       => $objResult->fields['cat'],
-                    'start'     => $objResult->fields['start'],
-                    'end'       => $objResult->fields['end'],
-                    'order'     => $objResult->fields['order'],
-                    'random'    => $objResult->fields['random'],
-                    'random2'   => $objResult->fields['random_2'],
-                    'random3'   => $objResult->fields['random_3'],
-                    'random4'   => $objResult->fields['random_4'],
-                    'global'    => $objResult->fields['global'],
-                    'direct'    => $objResult->fields['direct'],
-                    'category'  => $objResult->fields['category'],
-                    'active'    => $objResult->fields['active'],
-                    'name'      => $objResult->fields['name'],
-                );
-                $objResult->MoveNext();
-            }
+        foreach ($blocks as $block) {
+            $arrBlocks[$block['id']] = array(
+                'cat' => $block['id'],
+                'start' => $block['start'],
+                'end' => $block['end'],
+                'order' => $block['order'],
+                'random' => $block['random'],
+                'random2' => $block['random2'],
+                'random3' => $block['random3'],
+                'random4' => $block['random4'],
+                'global' => $block['global'],
+                'direct' => $block['direct'],
+                'category' => $block['category'],
+                'active' => $block['active'],
+                'name' => $block['name'],
+            );
         }
+
         return $arrBlocks;
     }
 
@@ -1116,8 +1115,6 @@ class BlockLibrary
      */
     function _saveCategory($id = 0, $parent = 0, $name, $seperator, $order = 1, $status = 1)
     {
-        global $objDatabase;
-
         $id = intval($id);
         if($id > 0 && $id == $parent){ //don't allow category to attach to itself
             return false;
@@ -1133,21 +1130,35 @@ class BlockLibrary
         }
         $name = contrexx_addslashes($name);
         $seperator = contrexx_addslashes($seperator);
-        if($objDatabase->Execute('
-            INSERT INTO `'.DBPREFIX."module_block_categories`
-            (`id`, `parent`, `name`, `seperator`, `order`, `status`)
-            VALUES
-            ($id, $parent, '$name', '$seperator', $order, $status )
-            ON DUPLICATE KEY UPDATE
-            `id`       = $id,
-            `parent`   = $parent,
-            `name`     = '$name',
-            `seperator`= '$seperator',
-            `order`    = $order,
-            `status`   = $status"))
-        {
-            return $id == 'NULL' ? $objDatabase->Insert_ID() : $id;
-        } else {
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => $id));
+
+        try {
+            $new = false;
+            if (!$category) {
+                $category = new \Cx\Modules\Block\Model\Entity\Category();
+                $new = true;
+            }
+
+            $parent = $categoryRepo->findOneBy(array('id' => $parent));
+            $category->setParent($parent);
+            $category->setName($name);
+            $category->setSeperator($seperator);
+            $category->setOrder($order);
+            $category->setStatus($status);
+
+            if ($new) {
+                $em->persist($category);
+                $em->flush();
+                $em->refresh($category);
+            } else {
+                $em->flush();
+            }
+
+            return $category->getId();
+        } catch (\Exception $e) {
             return false;
         }
     }
