@@ -276,7 +276,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * @return boolean true if everything finished with success
      */
     public function saveBlockContent($params) {
-        global $_CORELANG, $objDatabase;
+        global $_CORELANG;
 
         // security check
         if (   !\FWUser::getFWUserObject()->objUser->login()
@@ -303,17 +303,24 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         }
         $content = $params['post']['content'];
 
-        // query to update content in database
-        $query = "UPDATE `".DBPREFIX."module_block_rel_lang_content`
-                      SET content = '".\contrexx_input2db($content)."'
-                  WHERE
-                      block_id = ".$id." AND lang_id = ".$lang;
-        $result = $objDatabase->Execute($query);
+        try {
+            // query to update content in database
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+            $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
 
-        // error handling
-        if ($result === false) {
+            $locale = $localeRepo->findOneBy(array('id' => $lang));
+            $block = $blockRepo->findOneBy(array('id' => $id));
+            $relLangContent = $relLangContentRepo->findOneBy(array('locale' => $locale, 'block' => $block));
+            $relLangContent->setContent($content);
+
+            $em->flush();
+        } catch (Exception $e) {
+            // error handling
             throw new BlockCouldNotBeSavedException('block could not be saved');
         }
+
         \LinkGenerator::parseTemplate($content);
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
