@@ -331,7 +331,7 @@ class BlockLibrary
         $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
         $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
-        $relLangContents = $relLangContentRepo->findBy(array('block' => $block));
+        $relLangContents = $block->getRelLangContents();
 
         $arrPresentLang = array();
         foreach ($relLangContents as $relLangContent) {
@@ -363,11 +363,15 @@ class BlockLibrary
             )
         );
 
+        $locales = array();
+        foreach ($locales as $locale) {
+
+        }
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
-            ->where('rlc.block_id = :blockId')
-            ->andWhere($qb->expr()->notIn('rlc.lang_id', implode(',', $arrLangActive)))
-            ->setParameter('blockId', $blockId)
+            ->where('rlc.block = :block')
+            ->andWhere($qb->expr()->notIn('rlc.locale', implode(',', $arrLangActive)))
+            ->setParameter('block', $block)
             ->getQuery()
             ->getResult();
 
@@ -1236,8 +1240,7 @@ class BlockLibrary
         $this->_categoryNames[0] = $_ARRAYLANG['TXT_BLOCK_NONE'];
 
         $categoryRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\Category');
-        $categories= array();
-//        $categories = $categoryRepo->findBy(array(), array('order' => 'ASC', 'id' => 'ASC'));
+        $categories = $categoryRepo->findBy(array(), array('order' => 'ASC', 'id' => 'ASC'));
 
         foreach ($categories as $category) {
             $this->_categories[$category->getParent()->getId()][] = array(

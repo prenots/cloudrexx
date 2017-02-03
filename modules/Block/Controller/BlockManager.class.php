@@ -253,14 +253,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     function _showOverview()
     {
-        global $_ARRAYLANG, $objDatabase, $_CORELANG;
+        global $_ARRAYLANG, $_CORELANG;
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
         if (isset($_POST['displaysubmit'])) {
-            foreach ($_POST['displayorder'] as $blockId => $value){
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET `order`='".intval($value)."' WHERE id='".intval($blockId)."'";
-                $objDatabase->Execute($query);
+            foreach ($_POST['displayorder'] as $blockId => $value) {
+                $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+                $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+                $block->setOrder(intval($value));
             }
         }
+
+        $em->flush();
 
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_BLOCKS'];
         $this->_objTpl->loadTemplateFile('module_block_overview.html');
@@ -1041,21 +1046,27 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     public function storeTargetingSetting($blockId, $filter, $type, $arrayValues = array())
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
+        $targetingOptions = $block->getTargetingOptions();
 
         $valueString = json_encode($arrayValues);
-        $query = 'INSERT INTO
-                    `'. DBPREFIX .'module_block_targeting_option`
-                  SET
-                    `block_id` = "'. contrexx_raw2db($blockId) .'",
-                    `filter`   = "'. contrexx_raw2db($filter) .'",
-                    `type`     = "'. contrexx_raw2db($type) .'",
-                    `value`    = "'. contrexx_raw2db($valueString) .'"
-                  ON DUPLICATE KEY UPDATE
-                    `filter`   = "'. contrexx_raw2db($filter) .'",
-                    `value`    = "'. contrexx_raw2db($valueString) .'"
-                 ';
-        $objDatabase->Execute($query);
+        foreach ($targetingOptions as $targetingOption) {
+            if ($targetingOption) {
+                $targetingOption->setFilter($filter);
+                $targetingOption->setValue($valueString);
+            } else {
+                $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
+                $targetingOption->setBlock($block);
+                $targetingOption->setFilter($filter);
+                $targetingOption->setType($type);
+                $targetingOption->setValue($valueString);
+                $em->persist($targetingOption);
+            }
+        }
+
+        $em->flush();
     }
 
     /**
@@ -1066,15 +1077,15 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     public function removeTargetingSetting($blockId, $type)
     {
-        global $objDatabase;
-
-        $query = 'DELETE FROM
-                    `'. DBPREFIX .'module_block_targeting_option`
-                  WHERE
-                    `block_id` = "'. contrexx_raw2db($blockId) .'"
-                  AND
-                    `type`     = "'. contrexx_raw2db($type) .'"';
-        $objDatabase->Execute($query);
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
+        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
+        $targetingOptions = $targetingOptionRepo->findBy(array('block' => $block, 'type' => $type));
+        foreach ($targetingOptions as $targetingOption) {
+            $em->remove($targetingOption);
+        }
+        $em->flush();
     }
 
     /**
@@ -1148,7 +1159,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     function _delBlock()
     {
-        global $_ARRAYLANG, $objDatabase;
+        global $_ARRAYLANG;
 
         $arrDelBlocks = array();
         $arrFailedBlock = array();
@@ -1171,13 +1182,28 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         }
 
         if (count($arrDelBlocks) > 0) {
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+
             foreach ($arrDelBlocks as $blockId) {
-                foreach ($arrDelBlocks as $blockId) {
-                    if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_block_rel_lang_content WHERE block_id=".$blockId) === false || $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_block_blocks WHERE id=".$blockId) === false || $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_block_rel_pages WHERE block_id=".$blockId) === false) {
-                        array_push($arrFailedBlock, $blockId);
+                try {
+                    $block = $blockRepo->findOneBy(array('id' => $blockId));
+                    $em->remove($block);
+
+                    $relLangContents = $block->getRelLangContents();
+                    foreach ($relLangContents as $relLangContent) {
+                        $em->remove($relLangContent);
                     }
+
+                    $relPages = $block->getRelPages();
+                    foreach ($relPages as $relPage) {
+                        $em->remove($relPage);
+                    }
+                } catch (Exception $e) {
+                    array_push($arrFailedBlock, $blockId);
                 }
             }
+            $em->flush();
 
             if (count($arrFailedBlock) == 1) {
                 $this->_strErrMessage = sprintf($_ARRAYLANG['TXT_BLOCK_COULD_NOT_DELETE_BLOCK'], $arrBlockNames[$arrFailedBlock[0]]);
@@ -1202,21 +1228,24 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     function _activateBlock()
     {
-        global $_ARRAYLANG, $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
-        if($arrStatusBlocks != null){
-            foreach ($arrStatusBlocks as $blockId){
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='1' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+        if ($arrStatusBlocks != null) {
+            foreach ($arrStatusBlocks as $blockId) {
+                $block = $blockRepo->findOneBy(array('id' => $blockId));
+                $block->setActive(1);
             }
-        }else{
-            if(isset($_GET['blockId'])){
+        } else {
+            if (isset($_GET['blockId'])) {
                 $blockId = $_GET['blockId'];
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='1' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                $block = $blockRepo->findOneBy(array('id' => $blockId));
+                $block->setActive(1);
             }
         }
+
+        $em->flush();
 
         \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?cmd=Block");
     }
@@ -1229,24 +1258,27 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     * @access private
     * @global array
     * @global ADONewConnection
-    */
+     */
     function _deactivateBlock()
     {
-        global $objDatabase;
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
-        if($arrStatusBlocks != null){
-            foreach ($arrStatusBlocks as $blockId){
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='0' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+        if ($arrStatusBlocks != null) {
+            foreach ($arrStatusBlocks as $blockId) {
+                $block = $blockRepo->findOneBy(array('id' => $blockId));
+                $block->setActive(0);
             }
-        }else{
-            if(isset($_GET['blockId'])){
+        } else {
+            if (isset($_GET['blockId'])) {
                 $blockId = $_GET['blockId'];
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='0' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                $block = $blockRepo->findOneBy(array('id' => $blockId));
+                $block->setActive(0);
             }
         }
+
+        $em->flush();
 
         \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?cmd=Block");
     }
@@ -1262,14 +1294,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     function _globalBlock()
     {
-        global $objDatabase;
-
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
-        if($arrStatusBlocks != null){
-            foreach ($arrStatusBlocks as $blockId){
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET global='1' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+        if ($arrStatusBlocks != null) {
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+
+            foreach ($arrStatusBlocks as $blockId) {
+                $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+                $block->setGlobal(1);
             }
+
+            $em->flush();
         }
     }
 
@@ -1283,14 +1318,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     function _globalBlockOff()
     {
-        global $objDatabase;
-
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
-        if($arrStatusBlocks != null){
-            foreach ($arrStatusBlocks as $blockId){
-                $query = "UPDATE ".DBPREFIX."module_block_blocks SET global='0' WHERE id=".intval($blockId);
-                $objDatabase->Execute($query);
+        if ($arrStatusBlocks != null) {
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+
+            foreach ($arrStatusBlocks as $blockId) {
+                $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+                $block->setGlobal(0);
             }
+
+            $em->flush();
         }
     }
 
@@ -1306,7 +1344,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     function _showSettings()
     {
-        global $_ARRAYLANG, $_CONFIG, $objDatabase;
+        global $_ARRAYLANG, $_CONFIG;
 
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_SETTINGS'];
         $this->_objTpl->loadTemplateFile('module_block_settings.html');
@@ -1324,30 +1362,24 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             'TXT_BLOCK_SAVE'                            => $_ARRAYLANG['TXT_BLOCK_SAVE'],
         ));
 
-        $objResult = $objDatabase->Execute("SELECT  value
-                                            FROM    ".DBPREFIX."module_block_settings
-                                            WHERE   name='blockGlobalSeperator'
-                                            ");
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-                $blockGlobalSeperator   = $objResult->fields['value'];
-                $objResult->MoveNext();
-            }
-        }
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
 
+        $seperator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'));
         $this->_objTpl->setVariable(array(
-            'BLOCK_GLOBAL_SEPERATOR'                        => addslashes($blockGlobalSeperator),
+            'BLOCK_GLOBAL_SEPERATOR' => addslashes($seperator->getValue()),
         ));
 
         $this->_objTpl->setVariable('BLOCK_USE_BLOCK_SYSTEM', $_CONFIG['blockStatus'] == '1' ? 'checked="checked"' : '');
         $this->_objTpl->setVariable('BLOCK_USE_BLOCK_RANDOM', $_CONFIG['blockRandom'] == '1' ? 'checked="checked"' : '');
 
-
         if (isset($_POST['saveSettings'])) {
-            foreach ($_POST['blockSettings'] as $setName => $setValue){
-                $query = "UPDATE ".DBPREFIX."module_block_settings SET value='".contrexx_addslashes($setValue)."' WHERE name='".$setName."'";
-                $objDatabase->Execute($query);
+            foreach ($_POST['blockSettings'] as $setName => $setValue) {
+                $setting = $settingRepo->findOneBy(array('name' => $setName));
+                $setting->setValue(contrexx_addslashes($setValue));
             }
+
+            $em->flush();
 
             \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Block&act=settings');
         }
