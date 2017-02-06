@@ -41,35 +41,45 @@ namespace Cx\Modules\Block\Controller;
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class JsonBlockException extends \Exception {}
+class JsonBlockException extends \Exception
+{
+}
 
 /**
  * Class NoPermissionException
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class NoPermissionException extends JsonBlockException {}
+class NoPermissionException extends JsonBlockException
+{
+}
 
 /**
  * Class NotEnoughArgumentsException
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class NotEnoughArgumentsException extends JsonBlockException {}
+class NotEnoughArgumentsException extends JsonBlockException
+{
+}
 
 /**
  * Class NoBlockFoundException
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class NoBlockFoundException extends JsonBlockException {}
+class NoBlockFoundException extends JsonBlockException
+{
+}
 
 /**
  * Class BlockCouldNotBeSavedException
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class BlockCouldNotBeSavedException extends JsonBlockException {}
+class BlockCouldNotBeSavedException extends JsonBlockException
+{
+}
 
 /**
  * JSON Adapter for Block
@@ -127,7 +137,8 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * Returns all messages as string
      * @return String HTML encoded error messages
      */
-    public function getMessagesAsString() {
+    public function getMessagesAsString()
+    {
         return implode('<br />', $this->messages);
     }
 
@@ -150,12 +161,12 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         if (!defined('FRONTEND_LANG_ID')) {
             define('FRONTEND_LANG_ID', 1);
         }
-        $arrCountries = \Cx\Core\Country\Controller\Country::searchByName($term,null,false);
+        $arrCountries = \Cx\Core\Country\Controller\Country::searchByName($term, null, false);
         foreach ($arrCountries as $country) {
             $countries[] = array(
-                'id'    => $country['id'],
+                'id' => $country['id'],
                 'label' => $country['name'],
-                'val'   => $country['name'],
+                'val' => $country['name'],
             );
         }
         return array(
@@ -168,7 +179,8 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      *
      * @return array List of blocks (lang => id )
      */
-    public function getBlocks() {
+    public function getBlocks()
+    {
         global $objInit, $_CORELANG;
 
         if (!\FWUser::getFWUserObject()->objUser->login() || $objInit->mode != 'backend') {
@@ -181,7 +193,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $blockLib = new \Cx\Modules\Block\Controller\BlockLibrary();
         $blocks = $blockLib->getBlocks();
         $data = array();
-        foreach ($blocks as $id=>$block) {
+        foreach ($blocks as $id => $block) {
             $data[$id] = array(
                 'id' => $id,
                 'name' => $block['name'],
@@ -201,7 +213,8 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * @throws NoBlockFoundException
      * @return string the html content of the block
      */
-    public function getBlockContent($params) {
+    public function getBlockContent($params)
+    {
         // check for necessary arguments
         if (
             empty($params['get']) ||
@@ -258,7 +271,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $em = $cx->getDb()->getEntityManager();
         $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $page = $pageRepo->find($params['get']['page']);
-        
+
         \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
         \LinkGenerator::parseTemplate($content);
         $ls = new \LinkSanitizer(
@@ -278,12 +291,14 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * @throws BlockCouldNotBeSavedException
      * @return boolean true if everything finished with success
      */
-    public function saveBlockContent($params) {
+    public function saveBlockContent($params)
+    {
         global $_CORELANG;
 
         // security check
-        if (   !\FWUser::getFWUserObject()->objUser->login()
-            || !\Permission::checkAccess(76, 'static', true)) {
+        if (!\FWUser::getFWUserObject()->objUser->login()
+            || !\Permission::checkAccess(76, 'static', true)
+        ) {
             throw new NoPermissionException($_CORELANG['TXT_ACCESS_DENIED_DESCRIPTION']);
         }
 
