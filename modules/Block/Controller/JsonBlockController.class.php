@@ -229,21 +229,29 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         // language id
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $id));
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $locale = $localeRepo->findOneBy(array('id' => $lang));
+
         $qb = $em->createQueryBuilder();
-        $block = $qb->select('rlc.content')
+        $content = $qb->select('rlc.content')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
-            ->where('b.id = ' . $id)
-            ->andWhere('(rlc.langId = ' . $lang . ' AND rlc.active = 1)')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.block = b')
+            ->where('b = :block')
+            ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
+            ->setParameters(array(
+                'block' => $block,
+                'locale' => $locale,
+            ))
             ->getQuery()
             ->getResult();
 
         // nothing found
-        if (count($block) == 0) {
+        if (count($content) == 0) {
             throw new NoBlockFoundException('no block content found with id: ' . $id);
         }
-
-        $content = $block['content'];
+        $content = $content['content'];
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->parseGlobalPlaceholders($content);

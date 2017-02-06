@@ -51,19 +51,19 @@ namespace Cx\Modules\Block\Controller;
 class BlockLibrary
 {
     /**
-    * Block name prefix
-    *
-    * @access public
-    * @var string
-    */
+     * Block name prefix
+     *
+     * @access public
+     * @var string
+     */
     var $blockNamePrefix = 'BLOCK_';
 
     /**
-    * Block ids
-    *
-    * @access private
-    * @var array
-    */
+     * Block ids
+     *
+     * @access private
+     * @var array
+     */
     var $_arrBlocks;
 
     /**
@@ -103,15 +103,15 @@ class BlockLibrary
 
 
     /**
-    * Get blocks
-    *
-    * Get all blocks
-    *
-    * @access private
-    * @global ADONewConnection
-    * @see array blockLibrary::_arrBlocks
-    * @return array Array with block ids
-    */
+     * Get blocks
+     *
+     * Get all blocks
+     *
+     * @access private
+     * @global ADONewConnection
+     * @see array blockLibrary::_arrBlocks
+     * @return array Array with block ids
+     */
     public function getBlocks($catId = 0)
     {
         $catId = intval($catId);
@@ -268,7 +268,8 @@ class BlockLibrary
      * @param array $categoryAssociatedPages
      * @return bool it was successfully saved
      */
-    protected function storePlaceholderSettings($blockId, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages) {
+    protected function storePlaceholderSettings($blockId, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages)
+    {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
@@ -368,7 +369,11 @@ class BlockLibrary
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
             ->where('rlc.block = :block')
-            ->andWhere($qb->expr()->notIn('rlc.locale', array_map('intval', array_keys($arrLangActive))))
+            ->andWhere(
+                $qb->expr()->notIn(
+                    'rlc.locale', array_map('intval', array_keys($arrLangActive))
+                )
+            )
             ->setParameter('block', $block)
             ->getQuery()
             ->getResult();
@@ -384,9 +389,9 @@ class BlockLibrary
     public function getGeoIpComponent()
     {
         $componentRepo = \Cx\Core\Core\Controller\Cx::instanciate()
-                            ->getDb()
-                            ->getEntityManager()
-                            ->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+            ->getDb()
+            ->getEntityManager()
+            ->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
         $geoIpComponent = $componentRepo->findOneBy(array('name' => 'GeoIp'));
         if (!$geoIpComponent) {
             return null;
@@ -431,9 +436,9 @@ class BlockLibrary
     /**
      * Check Country targeting option
      *
-     * @param string $filter      include => client country should exists in given country ids
+     * @param string $filter include => client country should exists in given country ids
      *                            exclude => client country should not exists in given country ids
-     * @param array  $countryIds  Country ids to match
+     * @param array $countryIds Country ids to match
      *
      * @return boolean True when targeting country option matching to client country
      *                 False otherwise
@@ -451,7 +456,7 @@ class BlockLibrary
             return false;
         }
         $clientCountryAlpha2 = $clientRecord->country->isoCode;
-        $clientCountryId     = \Cx\Core\Country\Controller\Country::getIdByAlpha2($clientCountryAlpha2);
+        $clientCountryId = \Cx\Core\Country\Controller\Country::getIdByAlpha2($clientCountryAlpha2);
 
         $isCountryExists = in_array($clientCountryId, $countryIds);
         if ($filter == 'include') {
@@ -490,15 +495,15 @@ class BlockLibrary
     }
 
     /**
-    * Get block
-    *
-    * Return a block
-    *
-    * @access private
-    * @param integer $id
-    * @global ADONewConnection
-    * @return mixed content on success, false on failure
-    */
+     * Get block
+     *
+     * Return a block
+     *
+     * @access private
+     * @param integer $id
+     * @global ADONewConnection
+     * @return mixed content on success, false on failure
+     */
     function _getBlock($id)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
@@ -594,7 +599,7 @@ class BlockLibrary
             ->andWhere('rp.contentPage = :page')
             ->andWhere('rp.placeholder = \'global\'')
             ->groupBy('b.id')
-            ->setParameters(array('page' => $page))
+            ->setParameter('page', $page)
             ->getQuery()
             ->getResult();
 
@@ -661,7 +666,7 @@ class BlockLibrary
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
             ->where('rp.placeholder = :placeholder')
-            ->andWhere('rp.page = :page')
+            ->andWhere('rp.contentPage = :page')
             ->andWhere($qb->expr()->notIn('rp.block', $blocks))
             ->setParameters(array(
                 'placeholder' => 'global',
@@ -677,17 +682,17 @@ class BlockLibrary
     }
 
     /**
-    * Set block
-    *
-    * Parse the block with the id $id
-    *
-    * @access private
-    * @param integer $id Block ID
-    * @param string &$code
-    * @param int $pageId
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set block
+     *
+     * Parse the block with the id $id
+     *
+     * @access private
+     * @param integer $id Block ID
+     * @param string &$code
+     * @param int $pageId
+     * @global ADONewConnection
+     * @global integer
+     */
     function _setBlock($id, &$code, $pageId)
     {
         if (!$this->checkTargetingOptions($id)) {
@@ -697,31 +702,43 @@ class BlockLibrary
         $now = time();
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => intval($id)));
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb = $em->createQueryBuilder();
         $qb2 = $em->createQueryBuilder();
         $blocks = $qb->select('b.id')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
-            ->where('b.id = ' . intval($id))
+            ->where('b = :block')
             ->andWhere(
                 '(b.direct = 0 OR ' .
                 $qb->expr()->count(
                     $qb2->select('count(1)')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
-                        ->where('rp.pageId = ' . intval($pageId))
-                        ->andWhere('rp.blockId = b.id')
+                        ->where('rp.contentPage = :page')
+                        ->andWhere('rp.block = b')
                         ->andWhere('rp.placeholder = \'direct\'')
+                        ->setParameter('page', $page)
                         ->getQuery()
                         ->getResult()
                 ) .
                 ' > 0)'
             )
-            ->andWhere('rlc.blockId = b.id')
-            ->andWhere('(rlc.langId = ' . FRONTEND_LANG_ID . ' AND rlc.active = 1)')
-            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
-            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->andWhere('rlc.block = b')
+            ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
+            ->andWhere('(b.start <= :now OR b.start = 0)')
+            ->andWhere('(b.end >= :now OR b.end = 0)')
             ->andWhere('b.active = 1')
+            ->setParameters(array(
+                'block' => $block,
+                'locale' => $locale,
+                'now' => $now,
+            ))
             ->getQuery()
             ->getResult();
 
@@ -734,17 +751,17 @@ class BlockLibrary
     }
 
     /**
-    * Set category block
-    *
-    * Parse the category block with the id $id
-    *
-    * @access private
-    * @param integer $id Category ID
-    * @param string &$code
-    * @param int $pageId
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set category block
+     *
+     * Parse the category block with the id $id
+     *
+     * @access private
+     * @param integer $id Category ID
+     * @param string &$code
+     * @param int $pageId
+     * @global ADONewConnection
+     * @global integer
+     */
     function _setCategoryBlock($id, &$code, $pageId)
     {
         $category = $this->_getCategory($id);
@@ -753,32 +770,43 @@ class BlockLibrary
         $now = time();
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => intval($id)));
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb = $em->createQueryBuilder();
         $qb2 = $em->createQueryBuilder();
         $blocks = $qb->select('b.id')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
-            ->where('b.cat = ' . $id)
-            ->andWhere(' )')
+            ->where('b.cat = :cat')
             ->andWhere(
                 '(b.category = 0 OR ' .
                 $qb->expr()->count(
                     $qb2->select('count(1)')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
-                        ->where('rp.pageId = ' . intval($pageId))
-                        ->andWhere('rp.blockId = b.id')
+                        ->where('rp.contentPage = :page')
+                        ->andWhere('rp.block = b')
                         ->andWhere('rp.placeholder = \'category\'')
+                        ->setParameter('page', $page)
                         ->getQuery()
                         ->getResult()
                 ) .
                 ' > 0)'
             )
             ->andWhere('b.active = 1')
-            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
-            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
-            ->andWhere('(b.langId = ' . FRONTEND_LANG_ID . ' AND rlc.active = 1)')
+            ->andWhere('(b.start <= :now OR b.start = 0)')
+            ->andWhere('(b.end >= :now OR b.end = 0)')
+            ->andWhere('(b.locale = :locale AND rlc.active = 1)')
             ->orderBy('order')
+            ->setParameters(array(
+                'cat' => $category,
+                'now' => $now,
+                'locale' => $locale,
+            ))
             ->getQuery()
             ->getResult();
 
@@ -792,16 +820,16 @@ class BlockLibrary
     }
 
     /**
-    * Set block Global
-    *
-    * Parse the block with the id $id
-    *
-    * @access private
-    * @param integer $id
-    * @param string &$code
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set block Global
+     *
+     * Parse the block with the id $id
+     *
+     * @access private
+     * @param integer $id
+     * @param string &$code
+     * @global ADONewConnection
+     * @global integer
+     */
     function _setBlockGlobal(&$code, $pageId)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
@@ -812,6 +840,11 @@ class BlockLibrary
 
         $now = time();
 
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
+
         $qb1 = $em->createQueryBuilder();
         $result1 = $qb1->select('
                 b.id AS id,
@@ -820,17 +853,22 @@ class BlockLibrary
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'rp.blockId = b.id')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.block = b')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'rp.block = b')
             ->where('b.global = 2')
-            ->andWhere('rp.pageId = ' . intval($pageId))
-            ->andWhere('rlc.langId = ' . FRONTEND_LANG_ID)
+            ->andWhere('rp.contentPage = :page')
+            ->andWhere('rlc.locale = :locale')
             ->andWhere('rlc.active = 1')
             ->andWhere('b.active = 1')
             ->andWhere('rp.placeholder = \'global\'')
-            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
-            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->andWhere('(b.start <= :now OR b.start = 0)')
+            ->andWhere('(b.end >= :now OR b.end = 0)')
             ->orderBy('order')
+            ->setParameters(array(
+                'locale' => $locale,
+                'page' => $page,
+                'now' => $now,
+            ))
             ->getQuery()
             ->getResult();
 
@@ -841,14 +879,18 @@ class BlockLibrary
                 b.order AS order
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.block = b')
             ->where('b.global = 1')
-            ->andWhere('rlc.langId = ' . FRONTEND_LANG_ID)
+            ->andWhere('rlc.locale = :locale')
             ->andWhere('rlc.active = 1')
             ->andWhere('b.active = 1')
-            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
-            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->andWhere('(b.start <= :now OR b.start = 0)')
+            ->andWhere('(b.end >= :now OR b.end = 0)')
             ->orderBy('order')
+            ->setParameters(array(
+                'locale' => $locale,
+                'now' => $now,
+            ))
             ->getQuery()
             ->getResult();
 
@@ -864,36 +906,39 @@ class BlockLibrary
     }
 
     /**
-    * Set block Random
-    *
-    * Parse the block with the id $id
-    *
-    * @access private
-    * @param integer $id
-    * @param string &$code
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set block Random
+     *
+     * Parse the block with the id $id
+     *
+     * @access private
+     * @param integer $id
+     * @param string &$code
+     * @global ADONewConnection
+     * @global integer
+     */
     function _setBlockRandom(&$code, $id, $pageId)
     {
         $now = time();
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
+
         $qb = $em->createQueryBuilder();
         $qb->select('b.id')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlp')
-            ->where('rlp.block_id = b.id')
-            ->andWhere('(rlp.lang_id = ' . FRONTEND_LANG_ID . ' AND rp.active = 1)')
-            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
-            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
+            ->where('rlc.block = b')
+            ->andWhere('(rlc.locale = :locale AND rp.active = 1)')
+            ->andWhere('(b.start <= :now OR b.start = 0)')
+            ->andWhere('(b.end >= :now OR b.end = 0)')
             ->andWhere('b.active = 1');
 
         // Get Block Name and Status
+        $blockNr = '';
         switch ($id) {
             case '1':
                 $qb->andWhere('b.random = 1');
-                $blockNr = '';
                 break;
             case '2':
                 $qb->andWhere('b.random2 = 1');
@@ -909,7 +954,10 @@ class BlockLibrary
                 break;
         }
 
-        $blocks = $qb->getQuery()->getResult();
+        $blocks = $qb->setParameters(array(
+            'locale' => $locale,
+            'now' => $now,
+        ))->getQuery()->getResult();
 
         if (count($blocks) <= 0) {
             return;
@@ -937,7 +985,8 @@ class BlockLibrary
      * @param string $separator (optional) Separator used to separate the blocks
      * @param boolean $randomize (optional) Wheter to randomize the blocks or not, default false
      */
-    protected function replaceBlocks($placeholderName, $blocks, $pageId, &$code, $separator = '', $randomize = false) {
+    protected function replaceBlocks($placeholderName, $blocks, $pageId, &$code, $separator = '', $randomize = false)
+    {
         // find all block IDs to parse
         if (count($blocks) <= 0) {
             return;
@@ -1001,18 +1050,18 @@ class BlockLibrary
     }
 
     /**
-    * Save the settings associated to the block system
-    *
-    * @access    private
-    * @param    array     $arrSettings
-    */
+     * Save the settings associated to the block system
+     *
+     * @access    private
+     * @param    array $arrSettings
+     */
     function _saveSettings($arrSettings)
     {
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'component','Yaml');
+        \Cx\Core\Setting\Controller\Setting::init('Config', 'component', 'Yaml');
         if (isset($arrSettings['blockStatus'])) {
             if (!\Cx\Core\Setting\Controller\Setting::isDefined('blockStatus')) {
                 \Cx\Core\Setting\Controller\Setting::add('blockStatus', $arrSettings['blockStatus'], 1,
-                \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:TXT_ACTIVATED,0:TXT_DEACTIVATED', 'component');
+                    \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:TXT_ACTIVATED,0:TXT_DEACTIVATED', 'component');
             } else {
                 \Cx\Core\Setting\Controller\Setting::set('blockStatus', $arrSettings['blockStatus']);
                 \Cx\Core\Setting\Controller\Setting::update('blockStatus');
@@ -1021,7 +1070,7 @@ class BlockLibrary
         if (isset($arrSettings['blockRandom'])) {
             if (!\Cx\Core\Setting\Controller\Setting::isDefined('blockRandom')) {
                 \Cx\Core\Setting\Controller\Setting::add('blockRandom', $arrSettings['blockRandom'], 1,
-                \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:TXT_ACTIVATED,0:TXT_DEACTIVATED', 'component');
+                    \Cx\Core\Setting\Controller\Setting::TYPE_RADIO, '1:TXT_ACTIVATED,0:TXT_DEACTIVATED', 'component');
             } else {
                 \Cx\Core\Setting\Controller\Setting::set('blockRandom', $arrSettings['blockRandom']);
                 \Cx\Core\Setting\Controller\Setting::update('blockRandom');
@@ -1040,7 +1089,7 @@ class BlockLibrary
     function _getCategoriesDropdown($parent = 0, $catId = 0, $arrCategories = array(), $arrOptions = array(), $level = 0)
     {
         $first = false;
-        if(count($arrCategories) == 0){
+        if (count($arrCategories) == 0) {
             $first = true;
             $level = 0;
             $this->_getCategories();
@@ -1049,27 +1098,27 @@ class BlockLibrary
 
         foreach ($arrCategories as $arrCategory) {
             $this->_categoryOptions[] =
-                '<option value="'.$arrCategory['id'].'" '
-                .(
-                  $parent > 0 && $parent == $arrCategory['id']  //selected if parent specified and id is parent
+                '<option value="' . $arrCategory['id'] . '" '
+                . (
+                $parent > 0 && $parent == $arrCategory['id']  //selected if parent specified and id is parent
                     ? 'selected="selected"'
                     : ''
-                 )
-                .(
-                  ( $catId > 0 && in_array($arrCategory['id'], $this->_getChildCategories($catId)) ) || $catId == $arrCategory['id'] //disable children and self
+                )
+                . (
+                ($catId > 0 && in_array($arrCategory['id'], $this->_getChildCategories($catId))) || $catId == $arrCategory['id'] //disable children and self
                     ? 'disabled="disabled"'
                     : ''
-                 )
-                .' >' // <option>
-                .str_repeat('&nbsp;', $level*4)
-                .htmlentities($arrCategory['name'], ENT_QUOTES, CONTREXX_CHARSET)
-                .'</option>';
+                )
+                . ' >' // <option>
+                . str_repeat('&nbsp;', $level * 4)
+                . htmlentities($arrCategory['name'], ENT_QUOTES, CONTREXX_CHARSET)
+                . '</option>';
 
-            if(!empty($this->_categories[$arrCategory['id']])){
-                $this->_getCategoriesDropdown($parent, $catId, $this->_categories[$arrCategory['id']], $arrOptions, $level+1);
+            if (!empty($this->_categories[$arrCategory['id']])) {
+                $this->_getCategoriesDropdown($parent, $catId, $this->_categories[$arrCategory['id']], $arrOptions, $level + 1);
             }
         }
-        if($first){
+        if ($first) {
             return implode("\n", $this->_categoryOptions);
         }
     }
@@ -1088,15 +1137,15 @@ class BlockLibrary
     function _saveCategory($id = 0, $parent = 0, $name, $seperator, $order = 1, $status = 1)
     {
         $id = intval($id);
-        if($id > 0 && $id == $parent){ //don't allow category to attach to itself
+        if ($id > 0 && $id == $parent) { //don't allow category to attach to itself
             return false;
         }
 
-        if($id == 0){ //if new record then set to NULL for auto increment
+        if ($id == 0) { //if new record then set to NULL for auto increment
             $id = 'NULL';
         } else {
             $arrChildren = $this->_getChildCategories($id);
-            if(in_array($parent, $arrChildren)){ //don't allow category to be attached to one of it's own children
+            if (in_array($parent, $arrChildren)) { //don't allow category to be attached to one of it's own children
                 return false;
             }
         }
@@ -1144,14 +1193,14 @@ class BlockLibrary
      */
     function _getChildCategories($id, &$_arrChildCategories = array())
     {
-        if(empty($this->_categories)){
+        if (empty($this->_categories)) {
             $this->_getCategories();
         }
         if (!isset($this->_categories[$id])) {
             return array();
         }
         foreach ($this->_categories[$id] as $cat) {
-            if(!empty($this->_categories[$cat['parent']])){
+            if (!empty($this->_categories[$cat['parent']])) {
                 $_arrChildCategories[] = $cat['id'];
                 $this->_getChildCategories($cat['id'], $_arrChildCategories);
             }
