@@ -696,44 +696,38 @@ class BlockLibrary
 
         $now = time();
 
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+        $qb2 = $em->createQueryBuilder();
+        $blocks = $qb->select('b.id')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
+            ->where('b.id = ' . intval($id))
+            ->andWhere(
+                '(b.direct = 0 OR ' .
+                $qb->expr()->count(
+                    $qb2->select('count(1)')
+                        ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
+                        ->where('rp.pageId = ' . intval($pageId))
+                        ->andWhere('rp.blockId = b.id')
+                        ->andWhere('rp.placeholder = \'direct\'')
+                        ->getQuery()
+                        ->getResult()
+                ) .
+                ' > 0)'
+            )
+            ->andWhere('rlc.blockId = b.id')
+            ->andWhere('(rlc.langId = ' . FRONTEND_LANG_ID . ' AND rlc.active = 1)')
+            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
+            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->andWhere('b.active = 1')
+            ->getQuery()
+            ->getResult();
+
         $this->replaceBlocks(
             $this->blockNamePrefix . $id,
-            '
-                SELECT
-                    tblBlock.id
-                FROM
-                    ' . DBPREFIX . 'module_block_blocks AS tblBlock,
-                    ' . DBPREFIX . 'module_block_rel_lang_content AS tblContent
-                WHERE
-                    tblBlock.id = ' . intval($id) . '
-                    AND (
-                        tblBlock.`direct` = 0
-                        OR (
-                            SELECT
-                                count(1)
-                            FROM
-                                `' . DBPREFIX . 'module_block_rel_pages` AS tblRel
-                            WHERE
-                                tblRel.`page_id` = ' . intval($pageId) . '
-                                AND tblRel.`block_id` = tblBlock.`id`
-                                AND tblRel.`placeholder` = "direct") > 0
-                        )
-                    AND tblContent.block_id = tblBlock.id
-                    AND (
-                        tblContent.lang_id = ' . FRONTEND_LANG_ID . '
-                        AND tblContent.active = 1
-                    )
-                    AND (
-                        tblBlock.`start` <= ' . $now . '
-                        OR tblBlock.`start` = 0
-                    )
-                    AND (
-                        tblBlock.`end` >= ' . $now . '
-                        OR tblBlock.end = 0
-                    )
-                    AND
-                        tblBlock.active = 1
-            ',
+            $blocks,
             $pageId,
             $code
         );
@@ -758,38 +752,39 @@ class BlockLibrary
 
         $now = time();
 
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+        $qb2 = $em->createQueryBuilder();
+        $blocks = $qb->select('b.id')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
+            ->where('b.cat = ' . $id)
+            ->andWhere(' )')
+            ->andWhere(
+                '(b.category = 0 OR ' .
+                $qb->expr()->count(
+                    $qb2->select('count(1)')
+                        ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
+                        ->where('rp.pageId = ' . intval($pageId))
+                        ->andWhere('rp.blockId = b.id')
+                        ->andWhere('rp.placeholder = \'category\'')
+                        ->getQuery()
+                        ->getResult()
+                ) .
+                ' > 0)'
+            )
+            ->andWhere('b.active = 1')
+            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
+            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->andWhere('(b.langId = ' . FRONTEND_LANG_ID . ' AND rlc.active = 1)')
+            ->orderBy('order')
+            ->getQuery()
+            ->getResult();
+
         $this->replaceBlocks(
             $this->blockNamePrefix . 'CAT_' . $id,
-            '
-                SELECT
-                    tblBlock.id
-                FROM
-                    `' . DBPREFIX . 'module_block_blocks` AS tblBlock
-                INNER JOIN
-                    `' . DBPREFIX . 'module_block_rel_lang_content` AS tblContent
-                ON
-                    tblBlock.id = tblContent.block_id
-                WHERE
-                    tblBlock.`cat` = ' . $id . '
-                    AND (
-                        tblBlock.`category` = 0
-                        OR (
-                            SELECT
-                                count(1)
-                            FROM
-                                `' . DBPREFIX . 'module_block_rel_pages` AS tblRel
-                            WHERE
-                                tblRel.`page_id` = ' . intval($pageId) . '
-                                AND tblRel.`block_id` = tblBlock.`id`
-                                AND tblRel.`placeholder` = "category") > 0
-                        )
-                    AND tblBlock.`active` = 1
-                    AND (tblBlock.`start` <= ' . $now . ' OR tblBlock.`start` = 0)
-                    AND (tblBlock.`end` >= ' . $now . ' OR tblBlock.`end` = 0)
-                    AND (tblContent.lang_id = ' . FRONTEND_LANG_ID . ' AND tblContent.active = 1)
-                ORDER BY
-                    tblBlock.`order`
-            ',
+            $blocks,
             $pageId,
             $code,
             $separator
@@ -817,65 +812,51 @@ class BlockLibrary
 
         $now = time();
 
+        $qb1 = $em->createQueryBuilder();
+        $result1 = $qb1->select('
+                b.id AS id,
+                rlc.content AS content,
+                b.order AS order
+            ')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'rp.blockId = b.id')
+            ->where('b.global = 2')
+            ->andWhere('rp.pageId = ' . intval($pageId))
+            ->andWhere('rlc.langId = ' . FRONTEND_LANG_ID)
+            ->andWhere('rlc.active = 1')
+            ->andWhere('b.active = 1')
+            ->andWhere('rp.placeholder = \'global\'')
+            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
+            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->orderBy('order')
+            ->getQuery()
+            ->getResult();
+
+        $qb2 = $em->createQueryBuilder();
+        $result2 = $qb2->select('
+                b.id AS id,
+                rlc.content AS content,
+                b.order AS order
+            ')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
+            ->where('b.global = 1')
+            ->andWhere('rlc.langId = ' . FRONTEND_LANG_ID)
+            ->andWhere('rlc.active = 1')
+            ->andWhere('b.active = 1')
+            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
+            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->orderBy('order')
+            ->getQuery()
+            ->getResult();
+
+        $blocks = array_merge($result1, $result2);
+
         $this->replaceBlocks(
             $this->blockNamePrefix . 'GLOBAL',
-            '
-                SELECT
-                    `tblBlock`.`id` AS `id`,
-                    `tblContent`.`content` AS `content`,
-                    `tblBlock`.`order`
-                FROM
-                    ' . DBPREFIX . 'module_block_blocks AS tblBlock
-                INNER JOIN
-                    ' . DBPREFIX . 'module_block_rel_lang_content AS tblContent
-                ON
-                    tblContent.`block_id` = tblBlock.`id` 
-                INNER JOIN
-                    ' . DBPREFIX . 'module_block_rel_pages AS tblPage
-                ON
-                    tblPage.`block_id` = tblBlock.`id`
-                WHERE
-                    tblBlock.`global` = 2
-                    AND tblPage.page_id = ' . intval($pageId) . '
-                    AND tblContent.`lang_id` = ' . FRONTEND_LANG_ID . '
-                    AND tblContent.`active` = 1
-                    AND tblBlock.active = 1
-                    AND tblPage.placeholder = "global"
-                    AND (
-                        tblBlock.`start` <= ' . $now . '
-                        OR tblBlock.`start` = 0
-                    )
-                    AND (
-                        tblBlock.`end` >= ' . $now . '
-                        OR tblBlock.end = 0
-                    )
-                UNION DISTINCT
-                    SELECT
-                        tblBlock.`id` AS `id`,
-                        tblContent.`content` AS `content`,
-                        tblBlock.`order`
-                    FROM
-                        ' . DBPREFIX . 'module_block_blocks AS tblBlock
-                    INNER JOIN
-                        ' . DBPREFIX . 'module_block_rel_lang_content AS tblContent
-                    ON
-                        tblContent.`block_id` = tblBlock.`id` 
-                    WHERE
-                        tblBlock.`global` = 1
-                        AND tblContent.`lang_id` = ' . FRONTEND_LANG_ID . '
-                        AND tblContent.`active` = 1
-                        AND tblBlock.active=1
-                        AND (
-                            tblBlock.`start` <= ' . $now . '
-                            OR tblBlock.`start` = 0
-                        )
-                        AND (
-                            tblBlock.`end` >= ' . $now . '
-                            OR tblBlock.end = 0
-                        )
-                ORDER BY
-                    `order`
-            ',
+            $blocks,
             $pageId,
             $code,
             $separator
@@ -895,56 +876,52 @@ class BlockLibrary
     */
     function _setBlockRandom(&$code, $id, $pageId)
     {
-        global $objDatabase;
-
         $now = time();
-        $query = "  SELECT
-                        tblBlock.id
-                    FROM
-                        ".DBPREFIX."module_block_blocks AS tblBlock,
-                        ".DBPREFIX."module_block_rel_lang_content AS tblContent
-                    WHERE
-                        tblContent.block_id = tblBlock.id
-                    AND
-                        (tblContent.lang_id = ".FRONTEND_LANG_ID." AND tblContent.active = 1)
-                    AND (tblBlock.`start` <= $now OR tblBlock.`start` = 0)
-                    AND (tblBlock.`end` >= $now OR tblBlock.end = 0)
-                    AND
-                        tblBlock.active = 1 ";
 
-        //Get Block Name and Status
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $qb->select('b.id')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlp')
+            ->where('rlp.block_id = b.id')
+            ->andWhere('(rlp.lang_id = ' . FRONTEND_LANG_ID . ' AND rp.active = 1)')
+            ->andWhere('(b.start <= ' . $now . ' OR b.start = 0)')
+            ->andWhere('(b.end >= ' . $now . ' OR b.end = 0)')
+            ->andWhere('b.active = 1');
+
+        // Get Block Name and Status
         switch ($id) {
             case '1':
-                $query .= "AND tblBlock.random=1";
-                $blockNr        = "";
+                $qb->andWhere('b.random = 1');
+                $blockNr = '';
                 break;
             case '2':
-                $query .= "AND tblBlock.random_2=1";
-                $blockNr        = "_2";
+                $qb->andWhere('b.random2 = 1');
+                $blockNr = '_2';
                 break;
             case '3':
-                $query .= "AND tblBlock.random_3=1";
-                $blockNr        = "_3";
+                $qb->andWhere('b.random3 = 1');
+                $blockNr = '_3';
                 break;
             case '4':
-                $query .= "AND tblBlock.random_4=1";
-                $blockNr        = "_4";
+                $qb->andWhere('b.random4 = 1');
+                $blockNr = '_4';
                 break;
         }
 
+        $blocks = $qb->getQuery()->getResult();
 
-        if ($objBlockName === false || $objBlockName->RecordCount() <= 0) {
+        if (count($blocks) <= 0) {
             return;
         }
 
-        while (!$objBlockName->EOF) {
-            $arrActiveBlocks[] = $objBlockName->fields['id'];
-            $objBlockName->MoveNext();
+        foreach ($blocks as $block) {
+            $arrActiveBlocks[] = $block['id'];
         }
 
         $this->replaceBlocks(
             $this->blockNamePrefix . 'RANDOMIZER' . $blockNr,
-            $query,
+            $blocks,
             $pageId,
             $code,
             '',
@@ -955,27 +932,22 @@ class BlockLibrary
     /**
      * Replaces a placeholder with block content
      * @param string $placeholderName Name of placeholder to replace
-     * @param string $query SQL query used to fetch blocks
+     * @param array $blocks Fetched blocks from database
      * @param string $code (by reference) Code to replace placeholder in
      * @param string $separator (optional) Separator used to separate the blocks
      * @param boolean $randomize (optional) Wheter to randomize the blocks or not, default false
      */
-    protected function replaceBlocks($placeholderName, $query, $pageId, &$code, $separator = '', $randomize = false) {
-        global $objDatabase;
-
+    protected function replaceBlocks($placeholderName, $blocks, $pageId, &$code, $separator = '', $randomize = false) {
         // find all block IDs to parse
-        $objResult = $objDatabase->Execute($query);
-        $blockIds = array();
-        if ($objResult === false || $objResult->RecordCount() <= 0) {
+        if (count($blocks) <= 0) {
             return;
         }
-        while(!$objResult->EOF) {
-            if (!$this->checkTargetingOptions($objResult->fields['id'])) {
-                $objResult->MoveNext();
+        $blockIds = array();
+        foreach ($blocks as $block) {
+            if (!$this->checkTargetingOptions($block['id'])) {
                 continue;
             }
-            $blockIds[] = $objResult->fields['id'];
-            $objResult->MoveNext();
+            $blockIds[] = $block['id'];
         }
 
         // parse

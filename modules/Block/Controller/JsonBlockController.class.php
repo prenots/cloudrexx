@@ -202,8 +202,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * @return string the html content of the block
      */
     public function getBlockContent($params) {
-        global $_CORELANG, $objDatabase;
-
         // check for necessary arguments
         if (
             empty($params['get']) ||
@@ -229,26 +227,23 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         // database query to get the html content of a block by block id and
         // language id
-        $query = "SELECT
-                      c.content
-                  FROM
-                      `".DBPREFIX."module_block_blocks` b
-                  INNER JOIN
-                      `".DBPREFIX."module_block_rel_lang_content` c
-                  ON c.block_id = b.id
-                  WHERE
-                      b.id = ".$id."
-                  AND
-                      (c.lang_id = ".$lang." AND c.active = 1)";
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        $result = $objDatabase->Execute($query);
+        $qb = $em->createQueryBuilder();
+        $block = $qb->select('rlc.content')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
+            ->where('b.id = ' . $id)
+            ->andWhere('(rlc.langId = ' . $lang . ' AND rlc.active = 1)')
+            ->getQuery()
+            ->getResult();
 
         // nothing found
-        if ($result === false || $result->RecordCount() == 0) {
+        if (count($block) == 0) {
             throw new NoBlockFoundException('no block content found with id: ' . $id);
         }
 
-        $content = $result->fields['content'];
+        $content = $block['content'];
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->parseGlobalPlaceholders($content);
