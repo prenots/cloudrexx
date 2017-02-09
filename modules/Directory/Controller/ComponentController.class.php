@@ -46,10 +46,30 @@ namespace Cx\Modules\Directory\Controller;
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
 
-    public function getControllerClasses() {
-// Return an empty array here to let the component handler know that there
-// does not exist a backend, nor a frontend controller of this component.
-        return array();
+    /**
+     * Returns all Controller class names for this component (except this)
+     *
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
     }
 
     /**
@@ -91,32 +111,34 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
-    /*
-     * Do something before content is loaded from DB
+    /**
+     * Do something after system initialization
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
      */
+    public function postInit()
+    {
+        global $_CONFIG;
 
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-
-        global $_CONFIG, $cl, $dirc, $themesPages, $page_template, $themesPages;
-
-        // get Directory Homecontent
         if ($_CONFIG['directoryHomeContent'] == '1') {
-            if ($cl->loadFile(ASCMS_MODULE_PATH . '/Directory/Controller/DirHomeContent.class.php')) {
-
-                $dirc = $themesPages['directory_content'];
-                if (preg_match('/{DIRECTORY_FILE}/', \Env::get('cx')->getPage()->getContent())) {
-                    \Env::get('cx')->getPage()->setContent(str_replace('{DIRECTORY_FILE}', DirHomeContent::getObj($dirc)->getContent(), \Env::get('cx')->getPage()->getContent()));
-                }
-                if (preg_match('/{DIRECTORY_FILE}/', $page_template)) {
-                    $page_template = str_replace('{DIRECTORY_FILE}', DirHomeContent::getObj($dirc)->getContent(), $page_template);
-                }
-                if (preg_match('/{DIRECTORY_FILE}/', $themesPages['index'])) {
-                    $themesPages['index'] = str_replace('{DIRECTORY_FILE}', DirHomeContent::getObj($dirc)->getContent(), $themesPages['index']);
-                }
-            }
+            $lId = isset($_GET['lid']) ? contrexx_input2raw($_GET['lid']) : '';
+            $cId = isset($_GET['cid']) ? contrexx_input2raw($_GET['cid']) : '';
+            $widgetController = $this->getComponent('Widget');
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                $this,
+                'DIRECTORY_FILE',
+                true,
+                '',
+                '',
+                array('lid' => $lId, 'cid' => $cId)
+            );
+            $widgetController->registerWidget(
+                $widget
+            );
         }
+
     }
 
     /**
