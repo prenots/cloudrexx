@@ -476,8 +476,9 @@ class BlockLibrary
     public function loadTargetingSettings($blockId)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
-        $targetingOptions = $targetingOptionRepo->findBy(array('blockId' => $blockId));
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
+        $targetingOptions = $block->getTargetingOptions();
 
         if (!$targetingOptions) {
             return array();
@@ -606,7 +607,7 @@ class BlockLibrary
         $arrBlocks = array();
         foreach ($blocks as $block) {
             $arrBlocks[$block['id']] = array(
-                'cat' => $block['id'],
+                'cat' => $block['cat'],
                 'start' => $block['start'],
                 'end' => $block['end'],
                 'order' => $block['order'],
@@ -632,7 +633,11 @@ class BlockLibrary
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
 
-        $relPages = $relPageRepo->findBy(array('pageId' => intval($pageId), 'placeholder' => 'global'));
+        $page = $pageRepo->findOneBy(array('id' => $pageId));
+        $relPages = $relPageRepo->findBy(array(
+            'page' => $page,
+            'placeholder' => 'global',
+        ));
         foreach ($relPages as $relPage) {
             $em->remove($relPage);
         }
@@ -646,22 +651,18 @@ class BlockLibrary
             if ($block->getGlobal() == 1) {
                 continue;
             }
-            // if the block was not global till now, make it global
-            if ($block->getGlobal() == 0) {
-                $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
-                $block->setGlobal(2);
-            }
 
             $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
-            $page = $pageRepo->findOneBy(array('id' => $pageId));
-
             $relPage->setBlock($block);
             $relPage->setContentPage($page);
             $relPage->setPlaceholder('global');
             $em->persist($relPage);
-        }
 
-        $page = $pageRepo->findOneBy(array('id' => $pageId));
+            // if the block was not global till now, make it global
+            if ($block->getGlobal() == 0) {
+                $block->setGlobal(1);
+            }
+        }
 
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
@@ -710,24 +711,25 @@ class BlockLibrary
         $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb = $em->createQueryBuilder();
+        $orX = $qb->expr()->orX();
         $qb2 = $em->createQueryBuilder();
         $blocks = $qb->select('b.id')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
             ->where('b = :block')
             ->andWhere(
-                '(b.direct = 0 OR ' .
-                $qb->expr()->count(
-                    $qb2->select('count(1)')
+                $orX->addMultiple(array(
+                    'b.direct = 0',
+                    $qb2->select('count(rp)')
+                        ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
                         ->where('rp.contentPage = :page')
                         ->andWhere('rp.block = b')
                         ->andWhere('rp.placeholder = \'direct\'')
                         ->setParameter('page', $page)
                         ->getQuery()
-                        ->getResult()
-                ) .
-                ' > 0)'
+                        ->getSingleResult()[1] . ' > 0'
+                ))
             )
             ->andWhere('rlc.block = b')
             ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
@@ -778,30 +780,31 @@ class BlockLibrary
         $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb = $em->createQueryBuilder();
+        $orX = $qb->expr()->orX();
         $qb2 = $em->createQueryBuilder();
         $blocks = $qb->select('b.id')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.blockId = b.id')
+            ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
             ->where('b.cat = :cat')
             ->andWhere(
-                '(b.category = 0 OR ' .
-                $qb->expr()->count(
-                    $qb2->select('count(1)')
+                $orX->addMultiple(array(
+                    'b.category = 0',
+                    $qb2->select('count(rp)')
+                        ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
                         ->where('rp.contentPage = :page')
                         ->andWhere('rp.block = b')
                         ->andWhere('rp.placeholder = \'category\'')
                         ->setParameter('page', $page)
                         ->getQuery()
-                        ->getResult()
-                ) .
-                ' > 0)'
+                        ->getSingleResult()[1] . ' > 0'
+                ))
             )
             ->andWhere('b.active = 1')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->andWhere('(b.locale = :locale AND rlc.active = 1)')
-            ->orderBy('order')
+            ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
+            ->orderBy('b.order')
             ->setParameters(array(
                 'cat' => $category,
                 'now' => $now,
@@ -849,12 +852,11 @@ class BlockLibrary
         $result1 = $qb1->select('
                 b.id AS id,
                 rlc.content AS content,
-                b.order AS order
+                b.order AS order1
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.block = b')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'rp.block = b')
+            ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
+            ->innerJoin('\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'WITH', 'rp.block = b')
             ->where('b.global = 2')
             ->andWhere('rp.contentPage = :page')
             ->andWhere('rlc.locale = :locale')
@@ -863,7 +865,7 @@ class BlockLibrary
             ->andWhere('rp.placeholder = \'global\'')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->orderBy('order')
+            ->orderBy('order1')
             ->setParameters(array(
                 'locale' => $locale,
                 'page' => $page,
@@ -876,17 +878,17 @@ class BlockLibrary
         $result2 = $qb2->select('
                 b.id AS id,
                 rlc.content AS content,
-                b.order AS order
+                b.order AS order2
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.block = b')
+            ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
             ->where('b.global = 1')
             ->andWhere('rlc.locale = :locale')
             ->andWhere('rlc.active = 1')
             ->andWhere('b.active = 1')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->orderBy('order')
+            ->orderBy('order2')
             ->setParameters(array(
                 'locale' => $locale,
                 'now' => $now,
@@ -1275,9 +1277,14 @@ class BlockLibrary
         $categories = $categoryRepo->findBy(array(), array('order' => 'ASC', 'id' => 'ASC'));
 
         foreach ($categories as $category) {
-            $this->_categories[$category->getParent()->getId()][] = array(
+            $parentId = 0;
+            $parent = $category->getParent();
+            if ($parent) {
+                $parentId = $parent->getId();
+            }
+            $this->_categories[$parentId][] = array(
                 'id' => $category->getId(),
-                'parent' => $category->getParent()->getId(),
+                'parent' => $parentId,
                 'name' => $category->getName(),
                 'order' => $category->getOrder(),
                 'status' => $category->getStatus(),
@@ -1307,9 +1314,14 @@ class BlockLibrary
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => $id));
 
+        $parentId = 0;
+        $parent = $category->getParent();
+        if ($parent) {
+            $parentId = $parent->getId();
+        }
         return array(
             'id' => $category->getId(),
-            'parent' => $category->getParent()->getId(),
+            'parent' => $parentId,
             'name' => $category->getName(),
             'order' => $category->getOrder(),
             'status' => $category->getStatus(),

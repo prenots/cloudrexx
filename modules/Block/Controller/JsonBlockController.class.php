@@ -250,7 +250,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $qb = $em->createQueryBuilder();
         $content = $qb->select('rlc.content')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->innerJoin('b', '\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'rlc.block = b')
+            ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
             ->where('b = :block')
             ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
             ->setParameters(array(
@@ -264,11 +264,9 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         if (count($content) == 0) {
             throw new NoBlockFoundException('no block content found with id: ' . $id);
         }
-        $content = $content['content'];
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->parseGlobalPlaceholders($content);
-        $em = $cx->getDb()->getEntityManager();
         $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $page = $pageRepo->find($params['get']['page']);
 
