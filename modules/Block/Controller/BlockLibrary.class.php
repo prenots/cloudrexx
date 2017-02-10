@@ -696,10 +696,6 @@ class BlockLibrary
      */
     function _setBlock($id, &$code, $pageId)
     {
-        if (!$this->checkTargetingOptions($id)) {
-            return;
-        }
-
         $now = time();
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
