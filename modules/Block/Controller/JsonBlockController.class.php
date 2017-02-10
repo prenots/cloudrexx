@@ -265,8 +265,20 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             throw new NoBlockFoundException('no block content found with id: ' . $id);
         }
 
+        $content = $result->fields['content'];
+
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->parseGlobalPlaceholders($content);
+        $template = new \Cx\Core\Html\Sigma();
+        $template->setTemplate($content);
+        $this->getComponent('Widget')->parseWidgets(
+            $template,
+            'Block',
+            'Block',
+            $id
+        );
+        $content = $template->get();
+        $em = $cx->getDb()->getEntityManager();
         $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $page = $pageRepo->find($params['get']['page']);
 

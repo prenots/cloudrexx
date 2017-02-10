@@ -339,12 +339,8 @@ namespace Cx\Core\Model {
             $sluggableDriverImpl = $config->newDefaultAnnotationDriver(
                 $cx->getCodeBaseLibraryPath() . '/doctrine/Gedmo/Sluggable'
             );
-            $chainDriverImpl->addDriver($sluggableDriverImpl,
-                'Gedmo\Sluggable');
             $sluggableListener = new \Gedmo\Sluggable\SluggableListener();
-            // you should set the used annotation reader to listener,
-            // to avoid creating new one for mapping drivers
-            //$sluggableListener->setAnnotationReader($cachedAnnotationReader);
+            $sluggableListener->setAnnotationReader($sluggableDriverImpl);
             $evm->addEventSubscriber($sluggableListener);
 
             $timestampableDriverImpl = $config->newDefaultAnnotationDriver(
@@ -364,8 +360,6 @@ namespace Cx\Core\Model {
             $translatableDriverImpl = $config->newDefaultAnnotationDriver(
                 $cx->getCodeBaseLibraryPath() . '/doctrine/Gedmo/Translatable/Entity'
             );
-            $chainDriverImpl->addDriver($translatableDriverImpl,
-                'Gedmo\Translatable');
             // RK: Note:
             // In this Doctrine version, it is present as:
             $this->translationListener = new \Gedmo\Translatable\TranslatableListener();
@@ -377,7 +371,7 @@ namespace Cx\Core\Model {
             // Set the current locale (e.g. from the active language)
             // wherever that's required.
             //$translationListener->setTranslatableLocale('de_ch');
-            //$translationListener->setAnnotationReader($cachedAnnotationReader);
+            $this->translationListener->setAnnotationReader($translatableDriverImpl);
             $evm->addEventSubscriber($this->translationListener);
 
             // RK: Note:

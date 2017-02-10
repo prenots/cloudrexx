@@ -155,6 +155,12 @@ namespace Cx\Core\Core\Controller {
         protected $request = null;
 
         /**
+         * Response object
+         * @var \Cx\Lib\Net\Model\Entity\Response
+         */
+        protected $response = null;
+
+        /**
          * Component handler
          * @var \Cx\Core\Core\Controller\ComponentHandler
          */
@@ -1448,6 +1454,11 @@ namespace Cx\Core\Core\Controller {
                         break;
                 }
             }
+            $this->response = new \Cx\Lib\Net\Model\Entity\Response(
+                null,
+                200,
+                $this->request
+            );
             //call post-init hooks
             $this->ch->callPostInitHooks();
         }
@@ -1506,6 +1517,20 @@ namespace Cx\Core\Core\Controller {
                         unset($params['__cap']);
                     }
                     $params = contrexx_input2raw($params);
+                    if (isset($params['lang'])) {
+                        $langId = \FWLanguage::getLanguageIdByCode($params['lang']);
+                        if ($langId) {
+                            if (!defined('FRONTEND_LANG_ID')) {
+                                define('FRONTEND_LANG_ID', $langId);
+                            }
+                            if (!defined('BACKEND_LANG_ID')) {
+                                define('BACKEND_LANG_ID', $langId);
+                            }
+                            if (!defined('LANG_ID')) {
+                                define('LANG_ID', $langId);
+                            }
+                        }
+                    }
 
                     // parse body arguments:
                     // todo: this does not work for form-data encoded body (boundary...)
@@ -2314,6 +2339,14 @@ namespace Cx\Core\Core\Controller {
          */
         public function getRequest() {
             return $this->request;
+        }
+
+        /**
+         * Returns the Response object
+         * @return \Cx\Lib\Net\Model\Entit\Response Response object
+         */
+        public function getResponse() {
+            return $this->response;
         }
 
         /**

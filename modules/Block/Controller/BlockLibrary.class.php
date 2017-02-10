@@ -1006,6 +1006,7 @@ class BlockLibrary
         $em = $cx->getDb()->getEntityManager();
         $systemComponentRepo = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
         $frontendEditingComponent = $systemComponentRepo->findOneBy(array('name' => 'FrontendEditing'));
+        $settings = $this->getSettings();
 
         if ($randomize) {
             $esiBlockInfos = array();
@@ -1048,15 +1049,64 @@ class BlockLibrary
             }
             $content = implode($separator, $contentList);
         }
+
+        if (!empty($settings['markParsedBlock'])) {
+            $content = "<!-- start $placeholderName -->$content<!-- end $placeholderName -->";
+        }
+
         $code = str_replace('{' . $placeholderName . '}', $content, $code);
     }
 
     /**
+<<<<<<< HEAD
      * Save the settings associated to the block system
      *
      * @access    private
      * @param    array $arrSettings
      */
+=======
+     * Get the settings from database
+     *
+     * @staticvar array $settings settings array
+     *
+     * @return array settings array
+     */
+    public function getSettings()
+    {
+
+        static $settings = array();
+        if (!empty($settings)) {
+            return $settings;
+        }
+
+        $query = '
+            SELECT
+                `name`,
+                `value`
+            FROM
+                `'. DBPREFIX .'module_block_settings`';
+        $setting = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getDb()
+                    ->getAdoDb()
+                    ->Execute($query);
+        if ($setting === false) {
+            return array();
+        }
+        while (!$setting->EOF) {
+            $settings[$setting->fields['name']] = $setting->fields['value'];
+            $setting->MoveNext();
+        }
+
+        return $settings;
+    }
+
+    /**
+    * Save the settings associated to the block system
+    *
+    * @access    private
+    * @param    array     $arrSettings
+    */
+>>>>>>> origin/CLX-407-core-doctrine-orm-migration
     function _saveSettings($arrSettings)
     {
         \Cx\Core\Setting\Controller\Setting::init('Config', 'component', 'Yaml');
