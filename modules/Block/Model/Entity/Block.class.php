@@ -132,18 +132,11 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      */
     protected $cat;
 
-    public function __construct()
+    public function __construct($blockId)
     {
         $this->relLangContents = new \Doctrine\Common\Collections\ArrayCollection();
         $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
         $this->targetingOptions = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-    /**
-     * Creates a new block entity used for WidgetParseTarget
-     * @param int $blockId Block ID
-     */
-    public function __construct($blockId) {
         $this->id = $blockId;
     }
     
