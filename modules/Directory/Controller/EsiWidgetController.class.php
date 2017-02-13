@@ -59,14 +59,37 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $themesPages;
+        global $themesPages, $_CONFIG, $_CORELANG;
 
-        if ($name == 'DIRECTORY_FILE') {
+        //Parse Directory Homecontent
+        if (
+            $name == 'DIRECTORY_FILE' &&
+            $_CONFIG['directoryHomeContent'] == '1'
+        ) {
             $content = $themesPages['directory_content'];
             $template->setVariable(
                 $name,
                 DirHomeContent::getObj($content)->getContent()
             );
+        }
+
+        //Parse Latest Directory entries
+        $matches = null;
+        if (preg_match('/^directoryLatest_row_(\d{1,2})/', $name, $matches)) {
+            $currentBlock = $matches[1];
+            $arrBlocks = array();
+            for ($i = 1; $i <= 10; $i++) {
+                if ($template->blockExists('directoryLatest_row_' . $i)) {
+                    $arrBlocks[] = $i;
+                }
+            }
+
+            $directory = new Directory('');
+            $template->setVariable(
+                'TXT_DIRECTORY_LATEST',
+                $_CORELANG['TXT_DIRECTORY_LATEST']
+            );
+            $directory->getBlockLatest($template, $arrBlocks, $currentBlock);
         }
     }
 }

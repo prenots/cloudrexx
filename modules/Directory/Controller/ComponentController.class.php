@@ -120,50 +120,32 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function postInit()
     {
-        global $_CONFIG;
+        //Get Directory Homecontent
+        $lId = isset($_GET['lid']) ? contrexx_input2raw($_GET['lid']) : '';
+        $cId = isset($_GET['cid']) ? contrexx_input2raw($_GET['cid']) : '';
+        $widgetController = $this->getComponent('Widget');
+        $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+            $this,
+            'DIRECTORY_FILE',
+            false,
+            '',
+            '',
+            array('lid' => $lId, 'cid' => $cId)
+        );
+        $widgetController->registerWidget(
+            $widget
+        );
 
-        if ($_CONFIG['directoryHomeContent'] == '1') {
-            $lId = isset($_GET['lid']) ? contrexx_input2raw($_GET['lid']) : '';
-            $cId = isset($_GET['cid']) ? contrexx_input2raw($_GET['cid']) : '';
-            $widgetController = $this->getComponent('Widget');
+        //Show Latest Directory entries
+        for ($i = 1; $i <= 10; $i++) {
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
-                'DIRECTORY_FILE',
-                true,
-                '',
-                '',
-                array('lid' => $lId, 'cid' => $cId)
+                'directoryLatest_row_' . $i,
+                true
             );
             $widgetController->registerWidget(
                 $widget
             );
-        }
-
-    }
-
-    /**
-     * Do something after content is loaded from DB
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
-     */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-
-        global $directoryCheck, $objTemplate, $cl, $objDirectory, $_CORELANG;
-
-        // Directory Show Latest
-        $directoryCheck = array();
-        for ($i = 1; $i <= 10; $i++) {
-            if ($objTemplate->blockExists('directoryLatest_row_' . $i)) {
-                array_push($directoryCheck, $i);
-            }
-        }
-        if (!empty($directoryCheck)
-                /** @ignore */ && $cl->loadFile(ASCMS_MODULE_PATH . '/Directory/Controller/Directory.class.php')) {
-            $objDirectory = new Directory('');
-            if (!empty($directoryCheck)) {
-                $objTemplate->setVariable('TXT_DIRECTORY_LATEST', $_CORELANG['TXT_DIRECTORY_LATEST']);
-                $objDirectory->getBlockLatest($directoryCheck);
-            }
         }
     }
 

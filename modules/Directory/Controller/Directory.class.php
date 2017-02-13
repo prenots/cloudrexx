@@ -2050,59 +2050,79 @@ $this->arrRows[2] = '';
 
 
     /**
-     * Get latest directory entries
-     * @access    public
-     * @param    string $pageContent
-     * @param     string
+     * Get the latest directory entries
+     *
+     * @param \Cx\Core\Html\Sigma $template  template object
+     * @param array               $arrBlocks array of blocks
+     * @param integer             $blockId   block ID
+     *
+     * @return null
      */
-    function getBlockLatest($arrBlocks)
+    function getBlockLatest(\Cx\Core\Html\Sigma $template, $arrBlocks, $blockId)
     {
-        global $objDatabase, $objTemplate;
+        global $objDatabase;
 
-        $i = 0;
-        $numBlocks = count($arrBlocks);
         //get latest
-        $query = "
-            SELECT id, title, description, logo, `date`
-              FROM ".DBPREFIX."module_directory_dir
-             WHERE status != 0
-             ORDER BY id DESC
-        ";
-        $objResult = $objDatabase->SelectLimit($query, $this->settings['latest_content']['value']);
-        if ($objResult) {
-            while (!$objResult->EOF) {
-                if (!empty($objResult->fields['logo'])) {
-                    $logo =
-                        '<img src="'.$this->mediaWebPath.'thumbs/'.
-                        $objResult->fields['logo'].'" border="0" alt="'.
-                        stripslashes($objResult->fields['title']).'" />';
-                } else {
-                    $logo = '';
-                }
-                if (strlen($objResult->fields['description']) > 60) {
-                    $points = "...";
-                } else {
-                    $points = "";
-                }
-                $parts= explode("\n", wordwrap($objResult->fields['description'], 60, "\n"));
+        $query = '
+            SELECT `id`,
+                   `title`,
+                   `description`,
+                   `logo`,
+                   `date`
+                FROM `' . DBPREFIX . 'module_directory_dir`
+                WHERE `status` != 0
+                ORDER BY `id` DESC';
+        $objResult = $objDatabase->SelectLimit(
+            $query,
+            $this->settings['latest_content']['value']
+        );
+        if (!$objResult || $objResult->RecordCount() == 0) {
+            return;
+        }
 
-                // set variables
-                $objTemplate->setVariable(array(
-                    'DIRECTORY_DATE' => date("d.m.Y", $objResult->fields['date']),
-                    'DIRECTORY_TITLE' => stripslashes($objResult->fields['title']),
-                    'DIRECTORY_DESC' => $parts[0].$points,
-                    'DIRECTORY_LOGO' => $logo,
-                    'DIRECTORY_ID' => $objResult->fields['id'],
-                ));
-                $blockId = $arrBlocks[$i];
-                $objTemplate->parse('directoryLatest_row_'.$blockId);
-                if ($i < $numBlocks-1) {
-                    ++$i;
-                } else {
-                    $i = 0;
-                }
+        $i             = 0;
+        $numOfBlocks   = count($arrBlocks);
+        $blockPosition = array_search($blockId, $arrBlocks);
+        while (!$objResult->EOF) {
+            if ($i != $blockPosition) {
+                $i++;
                 $objResult->MoveNext();
+                continue;
             }
+
+            $logo = '';
+            if (!empty($objResult->fields['logo'])) {
+                $logo = \Html::getImageByPath(
+                    $this->mediaWebPath . 'thumbs/' . $objResult->fields['logo'],
+                    'border="0" alt="' .
+                    contrexx_raw2xhtml($objResult->fields['title']) . '"'
+                );
+            }
+            $points = '';
+            if (strlen($objResult->fields['description']) > 60) {
+                $points = '...';
+            }
+            $parts = explode(
+                "\n",
+                wordwrap(
+                    contrexx_raw2xhtml($objResult->fields['description']),
+                    60,
+                    "\n"
+                )
+            );
+
+            // set variables
+            $template->setVariable(array(
+                'DIRECTORY_DATE'  => date('d.m.Y', $objResult->fields['date']),
+                'DIRECTORY_TITLE' => contrexx_raw2xhtml($objResult->fields['title']),
+                'DIRECTORY_DESC'  => $parts[0] . $points,
+                'DIRECTORY_LOGO'  => $logo,
+                'DIRECTORY_ID'    => contrexx_raw2xhtml($objResult->fields['id']),
+            ));
+            $template->parse('directoryLatest_row_'.$blockId);
+            $i++;
+            $blockPosition += $numOfBlocks;
+            $objResult->MoveNext();
         }
     }
 
