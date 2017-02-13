@@ -582,11 +582,9 @@ class BlockLibrary
         return $arrPageIds;
     }
 
-    function _getBlocksForPageId($pageId)
+    function _getBlocksForPage($page)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-        $page = $pageRepo->findOneBy(array('id' => $pageId));
 
         $qb = $em->createQueryBuilder();
         $blocks = $qb->select('
@@ -637,14 +635,12 @@ class BlockLibrary
         return $arrBlocks;
     }
 
-    function _setBlocksForPageId($pageId, $blockIds)
+    function _setBlocksForPage($page, $blockIds)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
 
-        $page = $pageRepo->findOneBy(array('id' => $pageId));
         $relPages = $relPageRepo->findBy(array(
             'page' => $page,
             'placeholder' => 'global',
@@ -699,23 +695,19 @@ class BlockLibrary
      * Parse the block with the id $id
      *
      * @access private
-     * @param integer $id Block ID
+     * @param object $block
      * @param string &$code
-     * @param int $pageId
+     * @param object $page
      * @global ADONewConnection
      * @global integer
      */
-    function _setBlock($id, &$code, $pageId)
+    function _setBlock($block, &$code, $page)
     {
         $now = time();
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => intval($id)));
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
         $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
-        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-        $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb = $em->createQueryBuilder();
         $orX = $qb->expr()->orX();
@@ -752,9 +744,9 @@ class BlockLibrary
             ->getResult();
 
         $this->replaceBlocks(
-            $this->blockNamePrefix . $id,
+            $this->blockNamePrefix . $block->getId(),
             $blocks,
-            $pageId,
+            $page->getId(),
             $code
         );
     }
@@ -771,20 +763,13 @@ class BlockLibrary
      * @global ADONewConnection
      * @global integer
      */
-    function _setCategoryBlock($id, &$code, $pageId)
+    function _setCategoryBlock($category, &$code, $page)
     {
-        $category = $this->_getCategory($id);
-        $separator = $category['seperator'];
-
         $now = time();
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $category = $categoryRepo->findOneBy(array('id' => intval($id)));
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
         $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
-        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-        $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb = $em->createQueryBuilder();
         $orX = $qb->expr()->orX();
@@ -821,11 +806,11 @@ class BlockLibrary
             ->getResult();
 
         $this->replaceBlocks(
-            $this->blockNamePrefix . 'CAT_' . $id,
+            $this->blockNamePrefix . 'CAT_' . $category->getId(),
             $blocks,
-            $pageId,
+            $page->getId(),
             $code,
-            $separator
+            $category->getSeperator()
         );
     }
 
@@ -840,7 +825,7 @@ class BlockLibrary
      * @global ADONewConnection
      * @global integer
      */
-    function _setBlockGlobal(&$code, $pageId)
+    function _setBlockGlobal(&$code, $page)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
@@ -852,8 +837,6 @@ class BlockLibrary
 
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
         $locale = $localeRepo->findOneBy(array('id' => FRONTEND_LANG_ID));
-        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-        $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
 
         $qb1 = $em->createQueryBuilder();
         $result1 = $qb1->select('
@@ -908,7 +891,7 @@ class BlockLibrary
         $this->replaceBlocks(
             $this->blockNamePrefix . 'GLOBAL',
             $blocks,
-            $pageId,
+            $page->getId(),
             $code,
             $separator
         );
@@ -925,7 +908,7 @@ class BlockLibrary
      * @global ADONewConnection
      * @global integer
      */
-    function _setBlockRandom(&$code, $id, $pageId)
+    function _setBlockRandom(&$code, $id, $page)
     {
         $now = time();
 
@@ -979,7 +962,7 @@ class BlockLibrary
         $this->replaceBlocks(
             $this->blockNamePrefix . 'RANDOMIZER' . $blockNr,
             $blocks,
-            $pageId,
+            $page->getId(),
             $code,
             '',
             true
@@ -990,11 +973,12 @@ class BlockLibrary
      * Replaces a placeholder with block content
      * @param string $placeholderName Name of placeholder to replace
      * @param array $blocks Fetched blocks from database
+     * @param object $page
      * @param string $code (by reference) Code to replace placeholder in
      * @param string $separator (optional) Separator used to separate the blocks
      * @param boolean $randomize (optional) Wheter to randomize the blocks or not, default false
      */
-    protected function replaceBlocks($placeholderName, $blocks, $pageId, &$code, $separator = '', $randomize = false)
+    protected function replaceBlocks($placeholderName, $blocks, $page, &$code, $separator = '', $randomize = false)
     {
         // find all block IDs to parse
         if (count($blocks) <= 0) {
@@ -1023,7 +1007,7 @@ class BlockLibrary
                     array(
                         'block' => $blockId,
                         'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        'page' => $pageId,
+                        'page' => $page->getId(),
                     )
                 );
             }
@@ -1044,7 +1028,7 @@ class BlockLibrary
                     array(
                         'block' => $blockId,
                         'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        'page' => $pageId,
+                        'page' => $page->getId(),
                     )
                 );
                 $frontendEditingComponent->prepareBlock(

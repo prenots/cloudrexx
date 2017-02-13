@@ -43,6 +43,7 @@ namespace Cx\Modules\Block\Controller;
  * block module class
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @access      public
  * @version     1.0.0
  * @package     cloudrexx
@@ -64,18 +65,18 @@ class Block extends \Cx\Modules\Block\Controller\BlockLibrary
 
         foreach ($arrTemplates as &$template) {
             // Set blocks [[BLOCK_<ID>]]
-            if (preg_match_all('/{'.$objBlock->blockNamePrefix.'([0-9]+)}/', $template, $arrMatches)) {
-                $objBlock->setBlock($arrMatches[1], $template, $page->getId());
+            if (preg_match_all('/{' . $objBlock->blockNamePrefix . '([0-9]+)}/', $template, $arrMatches)) {
+                $objBlock->setBlock($arrMatches[1], $template, $page);
             }
 
             // Set global block [[BLOCK_GLOBAL]]
-            if (preg_match('/{'.$objBlock->blockNamePrefix.'GLOBAL}/', $template)) {
-                $objBlock->setBlockGlobal($template, $page->getId());
+            if (preg_match('/{' . $objBlock->blockNamePrefix . 'GLOBAL}/', $template)) {
+                $objBlock->setBlockGlobal($template, $page);
             }
 
             // Set category blocks [[BLOCK_CAT_<ID>]]
-            if (preg_match_all('/{'.$objBlock->blockNamePrefix.'CAT_([0-9]+)}/', $template, $arrMatches)) {
-                $objBlock->setCategoryBlock($arrMatches[1], $template, $page->getId());
+            if (preg_match_all('/{' . $objBlock->blockNamePrefix . 'CAT_([0-9]+)}/', $template, $arrMatches)) {
+                $objBlock->setCategoryBlock($arrMatches[1], $template, $page);
             }
 
             /* Set random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
@@ -85,12 +86,12 @@ class Block extends \Cx\Modules\Block\Controller\BlockLibrary
 
                 $randomBlockIdx = 1;
                 while ($randomBlockIdx <= 4) {
-                    if (preg_match('/{'.$objBlock->blockNamePrefix.'RANDOMIZER'.$placeholderSuffix.'}/', $template)) {
-                        $objBlock->setBlockRandom($template, $randomBlockIdx, $page->getId());
+                    if (preg_match('/{' . $objBlock->blockNamePrefix . 'RANDOMIZER' . $placeholderSuffix . '}/', $template)) {
+                        $objBlock->setBlockRandom($template, $randomBlockIdx, $page);
                     }
 
                     $randomBlockIdx++;
-                    $placeholderSuffix = '_'.$randomBlockIdx;
+                    $placeholderSuffix = '_' . $randomBlockIdx;
                 }
             }
         }
@@ -98,59 +99,68 @@ class Block extends \Cx\Modules\Block\Controller\BlockLibrary
 
 
     /**
-    * Set block
-    *
-    * Parse a block
-    *
-    * @access public
-    * @param array $arrBlocks
-    * @param string &$code
-    * @param int $pageId
-    * @see blockLibrary::_setBlock()
-    */
-    function setBlock($arrBlocks, &$code, $pageId)
+     * Set block
+     *
+     * Parse a block
+     *
+     * @access public
+     * @param array $arrBlocks
+     * @param string &$code
+     * @param object $page
+     * @see blockLibrary::_setBlock()
+     */
+    function setBlock($arrBlocks, &$code, $page)
     {
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+
         foreach ($arrBlocks as $blockId) {
-            $this->_setBlock(intval($blockId), $code, $pageId);
+            $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+            $this->_setBlock($block, $code, $page);
         }
     }
 
 
     /**
-    * Set category block
-    *
-    * Parse a category block
-    *
-    * @access public
-    * @param array $arrCategoryBlocks
-    * @param string &$code
-    * @param int $pageId
-    * @see blockLibrary::_setBlock()
-    */
-    function setCategoryBlock($arrCategoryBlocks, &$code, $pageId)
+     * Set category block
+     *
+     * Parse a category block
+     *
+     * @access public
+     * @param array $arrCategoryBlocks
+     * @param string &$code
+     * @param object $page
+     * @see blockLibrary::_setBlock()
+     */
+    function setCategoryBlock($arrCategoryBlocks, &$code, $page)
     {
-        foreach ($arrCategoryBlocks as $blockId) {
-            $this->_setCategoryBlock(intval($blockId), $code, $pageId);
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+
+        foreach ($arrCategoryBlocks as $categoryId) {
+            $category = $categoryRepo->findOneBy(array('id' => intval($categoryId)));
+            $this->_setCategoryBlock($category, $code, $page);
         }
     }
 
     /**
-    * Set block Random
-    *
-    * Parse a block Random
-    *
-    * @access public
-    * @param array $arrBlocks
-    * @param string &$code
-    * @see blockLibrary::_setBlock()
-    */
-    function setBlockRandom(&$code, $id, $pageId)
+     * Set block Random
+     *
+     * Parse a block Random
+     *
+     * @access public
+     * @param string &$code
+     * @param int $id
+     * @param object $page
+     * @see blockLibrary::_setBlock()
+     */
+    function setBlockRandom(&$code, $id, $page)
     {
-        $this->_setBlockRandom($code, $id, $pageId);
+        $this->_setBlockRandom($code, $id, $page);
     }
 
-    function setBlockGlobal(&$code, $pageId)
+    function setBlockGlobal(&$code, $page)
     {
-        $this->_setBlockGlobal($code, $pageId);
+        $this->_setBlockGlobal($code, $page);
     }
 }

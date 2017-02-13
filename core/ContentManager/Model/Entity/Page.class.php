@@ -2036,7 +2036,7 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
      */
     public function getRelatedBlocks() {
         $blockLib = new \Cx\Modules\Block\Controller\BlockLibrary();
-        $blocks = $blockLib->_getBlocksForPageId($this->getId());
+        $blocks = $blockLib->_getBlocksForPage($this);
         return $blocks;
     }
 
@@ -2046,7 +2046,7 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
      */
     public function setRelatedBlocks($relatedBlocks) {
         $blockLib = new \Cx\Modules\Block\Controller\BlockLibrary();
-        $blockLib->_setBlocksForPageId($this->getId(), $relatedBlocks);
+        $blockLib->_setBlocksForPage($this, $relatedBlocks);
     }
 
     /**
