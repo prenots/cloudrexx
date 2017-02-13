@@ -137,8 +137,14 @@ class BlockLibrary
                     }
                 }
 
+                $catId = 0;
+                $cat = $block->getCat();
+                if ($cat) {
+                    $catId = $block->getCat()->getId();
+                }
+
                 $this->_arrBlocks[$block->getId()] = array(
-                    'cat' => $block->getCat()->getId(),
+                    'cat' => $catId,
                     'start' => $block->getStart(),
                     'end' => $block->getEnd(),
                     'order' => $block->getOrder(),
@@ -177,7 +183,6 @@ class BlockLibrary
     public function _addBlock($cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $block = new \Cx\Modules\Block\Model\Entity\Block();
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => intval($cat)));
 
@@ -187,6 +192,7 @@ class BlockLibrary
             ->getQuery()
             ->getSingleResult();
 
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
         $block->setCat($category);
         $block->setStart(intval($start));
         $block->setEnd(intval($end));
@@ -478,19 +484,17 @@ class BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => $blockId));
-        $targetingOptions = $block->getTargetingOptions();
+        $targetingOption = $block->getTargetingOption();
 
-        if (!$targetingOptions) {
+        if (!$targetingOption) {
             return array();
         }
 
         $targetingArr = array();
-        foreach ($targetingOptions as $targetingOption) {
-            $targetingArr[$targetingOption->getType()] = array(
-                'filter' => $targetingOption->getFilter(),
-                'value' => json_decode($targetingOption->getValue())
-            );
-        }
+        $targetingArr[$targetingOption->getType()] = array(
+            'filter' => $targetingOption->getFilter(),
+            'value' => json_decode($targetingOption->getValue())
+        );
 
         return $targetingArr;
     }
@@ -522,8 +526,14 @@ class BlockLibrary
                 $arrActive[$relLangContent->getLocale()->getId()] = $relLangContent->getActive();
             }
 
+            $catId = 0;
+            $cat = $block->getCat();
+            if ($cat) {
+                $catId = $cat->getId();
+            }
+
             return array(
-                'cat' => $block->getCat()->getId(),
+                'cat' => $catId,
                 'start' => $block->getStart(),
                 'end' => $block->getEnd(),
                 'random' => $block->getRandom(),
@@ -1224,7 +1234,7 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
         $id = intval($id);
         if ($id < 1) {
@@ -1232,14 +1242,16 @@ class BlockLibrary
         }
 
         $category = $categoryRepo->findOneBy(array('id' => $id));
+
+        $blocks = $blockRepo->findBy(array('cat' => $category));
+        foreach ($blocks as $block) {
+            $block->setCat(null);
+        }
         $em->remove($category);
 
         $categoryParent = $categoryRepo->findOneBy(array('parent' => $id));
-        $categoryParent->setParent(null);
-
-        $blocks = $blockRepo->findBy(array('cat' => $id));
-        foreach ($blocks as $block) {
-            $block->setCat(null);
+        if ($categoryParent) {
+            $categoryParent->setParent(null);
         }
 
         $em->flush();

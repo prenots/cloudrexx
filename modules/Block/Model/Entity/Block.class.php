@@ -125,7 +125,7 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     /**
      * @var Cx\Modules\Block\Model\Entity\TargetingOption
      */
-    protected $targetingOptions;
+    protected $targetingOption;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Category
@@ -136,7 +136,6 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     {
         $this->relLangContents = new \Doctrine\Common\Collections\ArrayCollection();
         $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->targetingOptions = new \Doctrine\Common\Collections\ArrayCollection();
         $this->id = $blockId;
     }
     
@@ -451,23 +450,23 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
-     * Add targetingOptions
+     * Add targetingOption
      *
-     * @param Cx\Modules\Block\Model\Entity\TargetingOption $targetingOptions
+     * @param Cx\Modules\Block\Model\Entity\TargetingOption $targetingOption
      */
-    public function addTargetingOptions(\Cx\Modules\Block\Model\Entity\TargetingOption $targetingOptions)
+    public function addTargetingOption(\Cx\Modules\Block\Model\Entity\TargetingOption $targetingOption)
     {
-        $this->targetingOptions[] = $targetingOptions;
+        $this->targetingOption[] = $targetingOption;
     }
 
     /**
-     * Get targetingOptions
+     * Get targetingOption
      *
-     * @return Doctrine\Common\Collections\Collection $targetingOptions
+     * @return Doctrine\Common\Collections\Collection $targetingOption
      */
-    public function getTargetingOptions()
+    public function getTargetingOption()
     {
-        return $this->targetingOptions;
+        return $this->targetingOption;
     }
 
     /**

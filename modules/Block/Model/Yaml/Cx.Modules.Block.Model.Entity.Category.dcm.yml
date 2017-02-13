@@ -20,6 +20,7 @@ Cx\Modules\Block\Model\Entity\Category:
       length: 255
     order:
       type: integer
+      column: `order`
     status:
       type: boolean
   oneToMany:

@@ -44,6 +44,13 @@ Cx\Modules\Block\Model\Entity\Block:
     wysiwygEditor:
       type: integer
       column: wysiwyg_editor
+  oneToOne:
+    targetingOption:
+      targetEntity: TargetingOption
+      mappedBy: block
+      joinColumn:
+        name: id
+        referencedColumnName: block_id
   oneToMany:
     relLangContents:
       targetEntity: RelLangContent
@@ -53,12 +60,6 @@ Cx\Modules\Block\Model\Entity\Block:
         referencedColumnName: lang_id
     relPages:
       targetEntity: RelPage
-      mappedBy: block
-      joinColumn:
-        name: id
-        referencedColumnName: block_id
-    targetingOptions:
-      targetEntity: TargetingOption
       mappedBy: block
       joinColumn:
         name: id

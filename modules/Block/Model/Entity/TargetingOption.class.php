@@ -8,11 +8,6 @@ namespace Cx\Modules\Block\Model\Entity;
 class TargetingOption extends \Cx\Model\Base\EntityBase
 {
     /**
-     * @var integer $blockId
-     */
-    protected $blockId;
-
-    /**
      * @var string $type
      */
     protected $type;
@@ -32,26 +27,6 @@ class TargetingOption extends \Cx\Model\Base\EntityBase
      */
     protected $block;
 
-
-    /**
-     * Set blockId
-     *
-     * @param integer $blockId
-     */
-    public function setBlockId($blockId)
-    {
-        $this->blockId = $blockId;
-    }
-
-    /**
-     * Get blockId
-     *
-     * @return integer $blockId
-     */
-    public function getBlockId()
-    {
-        return $this->blockId;
-    }
 
     /**
      * Set type

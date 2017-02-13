@@ -263,9 +263,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
                 $block->setOrder(intval($value));
             }
+            $em->flush();
         }
-
-        $em->flush();
 
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_BLOCKS'];
         $this->_objTpl->loadTemplateFile('module_block_overview.html');
@@ -284,7 +283,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             'TXT_BLOCK_SUBMIT_GLOBAL_OFF'       => $_ARRAYLANG['TXT_BLOCK_SUBMIT_GLOBAL_OFF'],
             'TXT_BLOCK_SELECT_ALL'              => $_ARRAYLANG['TXT_BLOCK_SELECT_ALL'],
             'TXT_BLOCK_DESELECT_ALL'            => $_ARRAYLANG['TXT_BLOCK_DESELECT_ALL'],
-            'TXT_BLOCK_PLACEHOLDER'             => $_ARRAYLANG['TXT_BLOCK_PLACEHOLDER'],
             'TXT_BLOCK_FUNCTIONS'               => $_ARRAYLANG['TXT_BLOCK_FUNCTIONS'],
             'TXT_BLOCK_DELETE_SELECTED_BLOCKS'  => $_ARRAYLANG['TXT_BLOCK_DELETE_SELECTED_BLOCKS'],
             'TXT_BLOCK_CONFIRM_DELETE_BLOCK'    => $_ARRAYLANG['TXT_BLOCK_CONFIRM_DELETE_BLOCK'],
@@ -1054,21 +1052,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => $blockId));
-        $targetingOptions = $block->getTargetingOptions();
+        $targetingOption = $block->getTargetingOption();
 
         $valueString = json_encode($arrayValues);
-        foreach ($targetingOptions as $targetingOption) {
-            if ($targetingOption) {
-                $targetingOption->setFilter($filter);
-                $targetingOption->setValue($valueString);
-            } else {
-                $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
-                $targetingOption->setBlock($block);
-                $targetingOption->setFilter($filter);
-                $targetingOption->setType($type);
-                $targetingOption->setValue($valueString);
-                $em->persist($targetingOption);
-            }
+        if ($targetingOption) {
+            $targetingOption->setFilter($filter);
+            $targetingOption->setValue($valueString);
+        } else {
+            $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
+            $targetingOption->setBlock($block);
+            $targetingOption->setFilter($filter);
+            $targetingOption->setType($type);
+            $targetingOption->setValue($valueString);
+            $em->persist($targetingOption);
         }
 
         $em->flush();
@@ -1086,11 +1082,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => $blockId));
         $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
-        $targetingOptions = $targetingOptionRepo->findBy(array('block' => $block, 'type' => $type));
-        foreach ($targetingOptions as $targetingOption) {
+        $targetingOption = $targetingOptionRepo->findOneBy(array('block' => $block, 'type' => $type));
+        if ($targetingOption) {
             $em->remove($targetingOption);
+            $em->flush();
         }
-        $em->flush();
     }
 
     /**
@@ -1353,6 +1349,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $_ARRAYLANG, $_CONFIG;
 
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
         if (isset($_POST['saveSettings']) && !empty($_POST['blockSettings'])) {
             $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
             foreach ($_POST['blockSettings'] as $setName => $setValue) {
@@ -1383,9 +1381,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             'TXT_BLOCK_SAVE'                            => $_ARRAYLANG['TXT_BLOCK_SAVE'],
         ));
 
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
-
         $seperator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'));
         $parsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
         $this->_objTpl->setVariable(array(

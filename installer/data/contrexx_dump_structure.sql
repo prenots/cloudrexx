@@ -636,11 +636,12 @@ CREATE TABLE `contrexx_module_block_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_targeting_option` (
-  `block_id` int(11) NOT NULL,
+  `block_id` int(11) unsigned NOT NULL,
   `filter` enum('include','exclude') NOT NULL DEFAULT 'include',
   `type` enum('country') NOT NULL DEFAULT 'country',
   `value` text NOT NULL,
-  PRIMARY KEY (`block_id`,`type`)
+  PRIMARY KEY (`block_id`,`type`),
+  CONSTRAINT `module_block_targeting_option_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_blog_categories` (
   `category_id` int(4) unsigned NOT NULL DEFAULT '0',

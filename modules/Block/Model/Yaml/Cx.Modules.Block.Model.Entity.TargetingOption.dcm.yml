@@ -3,10 +3,8 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
   table: module_block_targeting_option
   repositoryClass: Cx\Modules\Block\Model\Repository\TargetingOptionRepository
   id:
-    blockId:
-      type: integer
-      unsigned: true
-      column: block_id
+    block:
+      associationKey: true
     type:
       type: string
   fields:
@@ -14,8 +12,10 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
       type: string
     value:
       type: text
-  manyToOne:
+  oneToOne:
     block:
+      type: integer
+      unsigned: true
       targetEntity: Block
       inversedBy: targetingOption
       joinColumn:

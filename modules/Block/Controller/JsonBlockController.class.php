@@ -247,18 +247,13 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
         $locale = $localeRepo->findOneBy(array('id' => $lang));
 
-        $qb = $em->createQueryBuilder();
-        $content = $qb->select('rlc.content')
-            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
-            ->where('b = :block')
-            ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
-            ->setParameters(array(
-                'block' => $block,
-                'locale' => $locale,
-            ))
-            ->getQuery()
-            ->getResult();
+        $relLangContentRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\RelLangContent');
+        $relLangContent = $relLangContentRepo->findOneBy(array(
+            'block' => $block,
+            'locale' => $locale,
+            'active' => 1,
+        ));
+        $content = $relLangContent->getContent();
 
         // nothing found
         if (count($content) == 0) {
@@ -276,7 +271,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             $id
         );
         $content = $template->get();
-        $em = $cx->getDb()->getEntityManager();
         $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $page = $pageRepo->find($params['get']['page']);
 
