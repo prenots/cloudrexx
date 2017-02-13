@@ -3,7 +3,7 @@
 /**
  * Cloudrexx
  *
- * @link      http://www.cloudrexx.com
+ * @link      https://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2017
  *
  * According to our dual licensing model, this program can be used either
@@ -29,7 +29,7 @@
  * Block Entity
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
- * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
