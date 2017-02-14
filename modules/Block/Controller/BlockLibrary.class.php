@@ -1291,4 +1291,47 @@ class BlockLibrary
         }
         return $objRS->fields;
     }
+
+    /**
+     * Get all the block names
+     *
+     * @return array
+     */
+    public function getAllBlockNames()
+    {
+        $blockNames = array();
+
+        //Get all the blocks [[BLOCK_<ID>]]
+        $blocks = $this->getBlocks();
+        if ($blocks) {
+            foreach ($blocks as $blockId => $blockDetails) {
+                $blockNames[] = $this->blockNamePrefix . $blockId;
+            }
+        }
+
+        // Get global block name[[BLOCK_GLOBAL]]
+        $blockNames[] = 'BLOCK_GLOBAL';
+
+        // Get category blocks [[BLOCK_CAT_<ID>]]
+        $blockCategories = $this->_getCategories();
+        foreach ($blockCategories as $blockCategory) {
+            foreach ($blockCategory as $category) {
+                $blockNames[] = $this->blockNamePrefix . 'CAT_' . $category['id'];
+            }
+        }
+
+        // Set random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
+        //                   [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
+        $widgetName = $this->blockNamePrefix . 'RANDOMIZER';
+        for ($i = 1; $i <= 4; $i++) {
+            $widgetSuffix = '_' . $i;
+            if ($i == 1) {
+                $widgetSuffix = '';
+            }
+
+            $blockNames[] = $widgetName . $widgetSuffix;
+        }
+
+        return $blockNames;
+    }
 }

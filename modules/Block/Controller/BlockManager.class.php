@@ -131,6 +131,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             );
             $this->_saveSettings($arrSettings);
             $this->_strOkMessage = $_ARRAYLANG['TXT_SETTINGS_UPDATED'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
         }
 
     }
@@ -256,9 +259,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         global $_ARRAYLANG, $objDatabase, $_CORELANG;
 
         if (isset($_POST['displaysubmit'])) {
+            $clearCache = false;
             foreach ($_POST['displayorder'] as $blockId => $value){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET `order`='".intval($value)."' WHERE id='".intval($blockId)."'";
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
+            }
+            if ($clearCache) {
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
             }
         }
 
@@ -488,7 +499,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $_ARRAYLANG;
 
-        if($this->_deleteCategory($_REQUEST['id'])){
+        if ($this->_deleteCategory($_REQUEST['id'])) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
             $this->_strOkMessage  = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_OK'];
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_ERROR'];
@@ -576,9 +590,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $success = false;
                     }
                 }
-                if(!$success){
+                if (!$success) {
                     $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_ERROR'];
                 } else {
+                    // Clear cache
+                    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                    $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
                     $this->_strOkMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_OK'];
                 }
                 break;
@@ -603,7 +620,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $order      = !empty($_POST['frmCategoryOrder' ])    ? $_POST['frmCategoryOrder' ]    : 1;
         $status     = !empty($_POST['frmCategoryStatus'])    ? $_POST['frmCategoryStatus']    : 1;
 
-        if($this->_saveCategory($id, $parent, $name, $seperator, $order, $status)){
+        if ($this->_saveCategory($id, $parent, $name, $seperator, $order, $status)) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
             $this->_strOkMessage  = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_ADD_OK'];
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_ADD_ERROR'];
@@ -813,6 +833,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 if ($this->_updateBlock($blockId, $blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
                     if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
+                        // Clear cache
+                        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
                         exit;
                     }
@@ -822,6 +845,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 if ($blockId = $this->_addBlock($blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
                     if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
+                        // Clear cache
+                        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
                         exit;
                     }
@@ -1184,14 +1210,22 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 }
             }
 
+            $clearCache = false;
             if (count($arrFailedBlock) == 1) {
                 $this->_strErrMessage = sprintf($_ARRAYLANG['TXT_BLOCK_COULD_NOT_DELETE_BLOCK'], $arrBlockNames[$arrFailedBlock[0]]);
             } elseif (count($arrFailedBlock) > 1) {
                 $this->_strErrMessage = sprintf($_ARRAYLANG['TXT_BLOCK_FAILED_TO_DELETE_BLOCKS'], implode(', ', $arrBlockNames));
             } elseif (count($arrDelBlocks) == 1) {
+                $clearCache = true;
                 $this->_strOkMessage = sprintf($_ARRAYLANG['TXT_BLOCK_SUCCESSFULLY_DELETED'], $arrBlockNames[$arrDelBlocks[0]]);
             } else {
+                $clearCache = true;
                 $this->_strOkMessage = $_ARRAYLANG['TXT_BLOCK_BLOCKS_SUCCESSFULLY_DELETED'];
+            }
+            if ($clearCache) {
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
             }
         }
     }
@@ -1209,20 +1243,30 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $_ARRAYLANG, $objDatabase;
 
+        $clearCache = false;
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
         if($arrStatusBlocks != null){
             foreach ($arrStatusBlocks as $blockId){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='1' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
             }
         }else{
             if(isset($_GET['blockId'])){
                 $blockId = $_GET['blockId'];
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='1' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
             }
         }
 
+        if ($clearCache) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+        }
         $categoryParam = isset($_GET['catId']) ? '&catId=' . contrexx_input2int($_GET['catId']) : '';
         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block' . $categoryParam);
     }
@@ -1240,20 +1284,30 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $objDatabase;
 
+        $clearCache = false;
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
         if($arrStatusBlocks != null){
             foreach ($arrStatusBlocks as $blockId){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='0' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
             }
         }else{
             if(isset($_GET['blockId'])){
                 $blockId = $_GET['blockId'];
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='0' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
             }
         }
 
+        if ($clearCache) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+        }
         $categoryParam = isset($_GET['catId']) ? '&catId=' . contrexx_input2int($_GET['catId']) : '';
         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block' . $categoryParam);
     }
@@ -1271,12 +1325,20 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $objDatabase;
 
+        $clearCache = false;
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
         if($arrStatusBlocks != null){
             foreach ($arrStatusBlocks as $blockId){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET global='1' WHERE id=$blockId";
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
             }
+        }
+        if ($clearCache) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', array('BLOCK_GLOBAL')));
         }
     }
 
@@ -1292,12 +1354,21 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $objDatabase;
 
+        $clearCache = false;
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
         if($arrStatusBlocks != null){
             foreach ($arrStatusBlocks as $blockId){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET global='0' WHERE id=".intval($blockId);
-                $objDatabase->Execute($query);
+                if ($objDatabase->Execute($query)) {
+                    $clearCache = true;
+                }
             }
+        }
+
+        if ($clearCache) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', array('BLOCK_GLOBAL')));
         }
     }
 

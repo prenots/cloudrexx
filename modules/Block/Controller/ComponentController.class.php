@@ -77,23 +77,64 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Do something before content is loaded from DB
+     * Do something after system initialization
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx   $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $_CONFIG, $themesPages, $page_template;
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                if ($_CONFIG['blockStatus'] == '1') {
-                    $content = \Env::get('cx')->getPage()->getContent();
-                    \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
-                    \Env::get('cx')->getPage()->setContent($content);
-                    \Cx\Modules\Block\Controller\Block::setBlocks($themesPages, $page);
-                    // TODO: this call in unhappy, becase the content/home template already gets parsed just the line above
-                    \Cx\Modules\Block\Controller\Block::setBlocks($page_template, $page);
-                }
-                break;
+    public function postInit()
+    {
+        $block            = new Block();
+        $widgetController = $this->getComponent('Widget');
+
+        // Set blocks [[BLOCK_<ID>]]
+        $blocks = $block->getBlocks();
+        if ($blocks) {
+            foreach ($blocks as $blockId => $blockDetails) {
+                $widgetController->createWidget(
+                    $this,
+                    $block->blockNamePrefix . $blockId,
+                    false
+                );
+            }
+        }
+
+        // Set global block [[BLOCK_GLOBAL]]
+        $widgetController->createWidget(
+            $this,
+            $block->blockNamePrefix . 'GLOBAL',
+            false
+        );
+
+        // Set category blocks [[BLOCK_CAT_<ID>]]
+        $blockCategories = $block->_getCategories();
+        foreach ($blockCategories as $blockCategory) {
+            foreach ($blockCategory as $category) {
+                $widgetController->createWidget(
+                    $this,
+                    $block->blockNamePrefix . 'CAT_' . $category['id'],
+                    false
+                );
+            }
+        }
+
+        // Set random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
+        //                   [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
+        $widgetName = $block->blockNamePrefix . 'RANDOMIZER';
+        for ($i = 1; $i <= 4; $i++) {
+            $widgetSuffix = '_' . $i;
+            if ($i == 1) {
+                $widgetSuffix = '';
+            }
+
+            $widgetController->createWidget(
+                $this,
+                $widgetName . $widgetSuffix,
+                false
+            );
         }
     }
 }
