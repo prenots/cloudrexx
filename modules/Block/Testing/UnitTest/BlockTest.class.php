@@ -48,22 +48,14 @@ namespace Cx\Modules\Block\Testing\UnitTest;
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase {
-    /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
-     * @expectedException \Cx\Modules\Block\Controller\NoPermissionException
-     */
-    public function testGetBlockContentNoPermission() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $jsonBlock = $this->getJsonBlockController();
-        $jsonBlock->getBlockContent(array('get' => array('block' => 1, 'lang' => 'de')));
-    }
-
+class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
+{
     /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
      * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
      */
-    public function testGetBlockContentNotEnoughArguments() {
+    public function testGetBlockContentNotEnoughArguments()
+    {
         $sessionObj = self::$cx->getComponent('Session')->getSession();
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
@@ -76,25 +68,43 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase {
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
      * @expectedException \Cx\Modules\Block\Controller\NoBlockFoundException
      */
-    public function testGetBlockContentNoBlockFound() {
+    public function testGetBlockContentNoBlockFound()
+    {
         $sessionObj = self::$cx->getComponent('Session')->getSession();
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
 
         $jsonBlock = $this->getJsonBlockController();
-        $jsonBlock->getBlockContent(array('get' => array('block' => 999, 'lang' => 'de')));
+        $jsonBlock->getBlockContent(
+            array(
+                'get' => array(
+                    'block' => 999,
+                    'lang' => 'de',
+                    'page' => 999,
+                )
+            )
+        );
     }
 
     /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
      */
-    public function testGetBlockContent() {
+    public function testGetBlockContent()
+    {
         $sessionObj = self::$cx->getComponent('Session')->getSession();
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
 
         $jsonBlock = $this->getJsonBlockController();
-        $result = $jsonBlock->getBlockContent(array('get' => array('block' => 32, 'lang' => 'de')));
+        $result = $jsonBlock->getBlockContent(
+            array(
+                'get' => array(
+                    'block' => 32,
+                    'lang' => 'de',
+                    'page' => 1,
+                )
+            )
+        );
         $this->assertArrayHasKey('content', $result);
     }
 
@@ -102,7 +112,8 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase {
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::saveBlockContent
      * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
      */
-    public function testSaveBlockContentNotEnoughArguments() {
+    public function testSaveBlockContentNotEnoughArguments()
+    {
         $sessionObj = self::$cx->getComponent('Session')->getSession();
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
@@ -114,15 +125,34 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase {
     /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::saveBlockContent
      */
-    public function testSaveBlockContent() {
+    public function testSaveBlockContent()
+    {
         $sessionObj = self::$cx->getComponent('Session')->getSession();
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
 
         $jsonBlock = $this->getJsonBlockController();
-        $jsonBlock->saveBlockContent(array('get' => array('block' => 32, 'lang' => 'de'), 'post' => array('content' => 'bla')));
+        $jsonBlock->saveBlockContent(
+            array(
+                'get' => array(
+                    'block' => 32,
+                    'lang' => 'de',
+                ),
+                'post' => array(
+                    'content' => 'bla',
+                )
+            )
+        );
 
-        $result = $jsonBlock->getBlockContent(array('get' => array('block' => 32, 'lang' => 'de')));
+        $result = $jsonBlock->getBlockContent(
+            array(
+                'get' => array(
+                    'block' => 32,
+                    'lang' => 'de',
+                    'page' => 1,
+                )
+            )
+        );
         $this->assertEquals('bla', $result['content']);
     }
 
@@ -134,9 +164,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase {
     public function getJsonBlockController()
     {
         $componentRepo = self::$cx
-                            ->getDb()
-                            ->getEntityManager()
-                            ->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+            ->getDb()
+            ->getEntityManager()
+            ->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
         $componentContoller = $componentRepo->findOneBy(array('name' => 'Block'));
         if (!$componentContoller) {
             return;

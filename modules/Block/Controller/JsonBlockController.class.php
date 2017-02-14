@@ -209,7 +209,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * Get the block content as html
      *
      * @param array $params all given params from http request
-     * @throws NoPermissionException
      * @throws NotEnoughArgumentsException
      * @throws NoBlockFoundException
      * @return string the html content of the block
@@ -254,12 +253,13 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             'locale' => $locale,
             'active' => 1,
         ));
-        $content = $relLangContent->getContent();
 
         // nothing found
-        if (count($content) == 0) {
+        if (!$relLangContent) {
             throw new NoBlockFoundException('no block content found with id: ' . $id);
         }
+
+        $content = $relLangContent->getContent();
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->parseGlobalPlaceholders($content);
