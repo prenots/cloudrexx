@@ -81,12 +81,19 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
 
     function getHomeHeadlines($catId=0)
     {
-        global $_CORELANG, $objDatabase, $_LANGID;
+        global $_CORELANG, $_ARRAYLANG, $objDatabase, $_LANGID;
 
         $i = 0;
         $catId= intval($catId);
 
         $this->_objTemplate->setTemplate($this->_pageContent,true,true);
+
+        $this->_objTemplate->setGlobalVariable(array(
+            'TXT_MORE_NEWS'         => $_CORELANG['TXT_MORE_NEWS'],
+            'TXT_NEWS_MORE'         => $_ARRAYLANG['TXT_NEWS_MORE'],
+            'TXT_NEWS_MORE_INFO'    => $_ARRAYLANG['TXT_NEWS_MORE_INFO'],
+            'TXT_NEWS_HEADLINE'     => $_ARRAYLANG['TXT_NEWS_HEADLINE'],
+        ));
 
         $newsLimit = intval($this->arrSettings['news_headlines_limit']);
         if ($newsLimit>50) { //limit to a maximum of 50 news
@@ -98,7 +105,7 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
         } else {//fetch news
             $objResult = $objDatabase->SelectLimit("
                 SELECT DISTINCT(tblN.id) AS id,
-                       tblN.`date`, 
+                       tblN.`date`,
                        tblN.teaser_image_path,
                        tblN.teaser_image_thumbnail_path,
                        tblN.redirect,
@@ -108,7 +115,7 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
                        tblN.author_id,
                        tblN.redirect_new_window AS redirectNewWindow,
                        tblL.text NOT REGEXP '^(<br type=\"_moz\" />)?\$' AS newscontent,
-                       tblL.title AS title, 
+                       tblL.title AS title,
                        tblL.teaser_text
                   FROM ".DBPREFIX."module_news AS tblN
             INNER JOIN ".DBPREFIX."module_news_locale AS tblL ON tblL.news_id=tblN.id
@@ -165,7 +172,7 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
                     'NEWS_DATE'         => date(ASCMS_DATE_FORMAT_DATE, $objResult->fields['date']),
                     'NEWS_TIME'         => date(ASCMS_DATE_FORMAT_TIME, $objResult->fields['date']),
                     'NEWS_TITLE'        => contrexx_raw2xhtml($newstitle),
-                    'NEWS_TEASER'       => nl2br($objResult->fields['teaser_text']),
+                    'NEWS_TEASER'       => $this->arrSettings['news_use_teaser_text'] ? nl2br($objResult->fields['teaser_text']) : '',
                     'NEWS_LINK_TITLE'   => $htmlLinkTitle,
                     'NEWS_LINK'         => $htmlLink,
                     'NEWS_LINK_URL'     => contrexx_raw2xhtml($newsUrl),
@@ -176,7 +183,7 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
                     // Backward compatibility for templates pre 3.0
                     'HEADLINE_ID'       => $newsid,
                     'HEADLINE_DATE'     => date(ASCMS_DATE_FORMAT_DATE, $objResult->fields['date']),
-                    'HEADLINE_TEXT'     => nl2br($objResult->fields['teaser_text']),
+                    'HEADLINE_TEXT'     => $this->arrSettings['news_use_teaser_text'] ? nl2br($objResult->fields['teaser_text']) : '',
                     'HEADLINE_LINK'     => $htmlLinkTitle,
                     'HEADLINE_AUTHOR'   => contrexx_raw2xhtml($author),
                 ));
@@ -201,10 +208,10 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         $this->_objTemplate->hideBlock('news_image');
                     }
                 }
-                
+
                 self::parseImageBlock($this->_objTemplate, $objResult->fields['teaser_image_thumbnail_path'], $newstitle, $newsUrl, 'image_thumbnail');
                 self::parseImageBlock($this->_objTemplate, $objResult->fields['teaser_image_path'], $newstitle, $newsUrl, 'image_detail');
-                
+
                 $this->_objTemplate->parse('headlines_row');
                 $i++;
                 $objResult->MoveNext();
@@ -212,8 +219,7 @@ class NewsHeadlines extends \Cx\Core_Modules\News\Controller\NewsLibrary
         } else {
             $this->_objTemplate->hideBlock('headlines_row');
         }
-        $this->_objTemplate->setVariable("TXT_MORE_NEWS", $_CORELANG['TXT_MORE_NEWS']);
+
         return $this->_objTemplate->get();
     }
 }
-

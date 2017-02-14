@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- * 
+ *
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
- 
+
 /**
 * User Management
 * @copyright    CLOUDREXX CMS - CLOUDREXX AG
@@ -349,7 +349,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
         }
 
         $uploader = $this->getImageUploader();
-        
+
         $this->parseAccountAttributes($objFWUser->objUser, true);
         $this->parseNewsletterLists($objFWUser->objUser);
 
@@ -523,6 +523,9 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 $this->_objTpl->hideBlock('access_signup_confirm_success');
             }
 
+            $this->_objTpl->hideBlock('access_signup_form');
+            \Cx\Lib\SocialLogin::hideLogin($this->_objTpl, 'access_');
+
             return;
         } else {
             $this->_objTpl->hideBlock('access_signup_confirm_success');
@@ -611,6 +614,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 }
 
                 $this->_objTpl->hideBlock('access_signup_form');
+                \Cx\Lib\SocialLogin::hideLogin($this->_objTpl, 'access_');
                 return;
             } else {
                 if (is_array($uploadImageError)) {
@@ -742,21 +746,9 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 $objUserMail->load($mail2load, $_LANGID) ||
                 $objUserMail->load($mail2load)
             ) &&
-            (\Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH.'/phpmailer/class.phpmailer.php')) &&
-            ($objMail = new \PHPMailer()) !== false
+            ($objMail = new \Cx\Core\MailTemplate\Model\Entity\Mail()) !== false
         ) {
-            if ($_CONFIG['coreSmtpServer'] > 0 && \Env::get('ClassLoader')->loadFile(ASCMS_CORE_PATH.'/SmtpSettings.class.php')) {
-                if (($arrSmtp = \SmtpSettings::getSmtpAccount($_CONFIG['coreSmtpServer'])) !== false) {
-                    $objMail->IsSMTP();
-                    $objMail->Host = $arrSmtp['hostname'];
-                    $objMail->Port = $arrSmtp['port'];
-                    $objMail->SMTPAuth = true;
-                    $objMail->Username = $arrSmtp['username'];
-                    $objMail->Password = $arrSmtp['password'];
-                }
-            }
 
-            $objMail->CharSet = CONTREXX_CHARSET;
             $objMail->SetFrom($objUserMail->getSenderMail(), $objUserMail->getSenderName());
             $objMail->Subject = $objUserMail->getSubject();
 

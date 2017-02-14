@@ -103,7 +103,7 @@ class NewsTop extends \Cx\Core_Modules\News\Controller\NewsLibrary
         } else {//fetch news
             $objResult = $objDatabase->SelectLimit("
                 SELECT DISTINCT(tblN.id) AS id,
-                       tblN.`date`, 
+                       tblN.`date`,
                        tblN.teaser_image_path,
                        tblN.teaser_image_thumbnail_path,
                        tblN.redirect,
@@ -112,7 +112,7 @@ class NewsTop extends \Cx\Core_Modules\News\Controller\NewsLibrary
                        tblN.publisher_id,
                        tblN.author,
                        tblN.author_id,
-                       tblL.title AS title, 
+                       tblL.title AS title,
                        tblL.teaser_text
                   FROM ".DBPREFIX."module_news AS tblN
             INNER JOIN ".DBPREFIX."module_news_locale AS tblL ON tblL.news_id=tblN.id
@@ -166,7 +166,7 @@ class NewsTop extends \Cx\Core_Modules\News\Controller\NewsLibrary
                     'NEWS_DATE'         => date(ASCMS_DATE_FORMAT_DATE, $objResult->fields['date']),
                     'NEWS_TIME'         => date(ASCMS_DATE_FORMAT_TIME, $objResult->fields['date']),
                     'NEWS_TITLE'        => contrexx_raw2xhtml($newstitle),
-                    'NEWS_TEASER'       => nl2br($objResult->fields['teaser_text']),
+                    'NEWS_TEASER'       => $this->arrSettings['news_use_teaser_text'] ? nl2br($objResult->fields['teaser_text']) : '',
                     'NEWS_LINK_TITLE'   => $htmlLinkTitle,
                     'NEWS_LINK'         => $htmlLink,
                     'NEWS_LINK_TARGET'  => $linkTarget,
@@ -191,10 +191,10 @@ class NewsTop extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         $this->_objTemplate->hideBlock('news_image');
                     }
                 }
-                
+
                 self::parseImageBlock($this->_objTemplate, $objResult->fields['teaser_image_thumbnail_path'], $newstitle, $newsUrl, 'image_thumbnail');
                 self::parseImageBlock($this->_objTemplate, $objResult->fields['teaser_image_path'], $newstitle, $newsUrl, 'image_detail');
-               
+
                 $this->_objTemplate->parseCurrentBlock();
                 $i++;
                 $objResult->MoveNext();
@@ -206,4 +206,3 @@ class NewsTop extends \Cx\Core_Modules\News\Controller\NewsLibrary
         return $this->_objTemplate->get();
     }
 }
-
