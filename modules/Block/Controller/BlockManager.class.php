@@ -26,22 +26,21 @@
  */
 
 /**
- * Block
+ * Cx\Modules\Block
+ *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
- * @version     1.0.1
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
- * @todo        Edit PHP DocBlocks!
  */
 
 namespace Cx\Modules\Block\Controller;
 use Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser;
 
 /**
- * Block
+ * Cx\Modules\Block\Controller\BlockManager
  *
- * block module class
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
@@ -49,6 +48,7 @@ use Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser;
  * @version     1.0.1
  * @package     cloudrexx
  * @subpackage  module_block
+ * @todo        Edit PHP DocBlocks!
  */
 class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 {
@@ -261,7 +261,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         if (isset($_POST['displaysubmit'])) {
             foreach ($_POST['displayorder'] as $blockId => $value) {
                 $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-                $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+                $block = $blockRepo->findOneBy(array('id' => $blockId));
                 $block->setOrder(intval($value));
             }
             $em->flush();

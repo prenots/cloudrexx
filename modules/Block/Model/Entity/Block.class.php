@@ -26,10 +26,10 @@
  */
 
 /**
- * Block Entity
+ * Cx\Modules\Block
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
- * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
@@ -39,6 +39,12 @@ namespace Cx\Modules\Block\Model\Entity;
 
 /**
  * Cx\Modules\Block\Model\Entity\Block
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
  */
 class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
 {
@@ -138,7 +144,7 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
         $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
         $this->id = $blockId;
     }
-    
+
     /**
      * Get id
      *
@@ -494,7 +500,8 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      * @param string $widgetName
      * @return string Attribute name
      */
-    public function getWidgetContentAttributeName($widgetName) {
+    public function getWidgetContentAttributeName($widgetName)
+    {
         return 'content';
     }
 }

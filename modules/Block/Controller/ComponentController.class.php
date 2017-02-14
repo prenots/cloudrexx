@@ -26,10 +26,11 @@
  */
 
 /**
- * Main controller for Block
+ * Cx\Modules\Block
  *
- * @copyright   Cloudrexx AG
- * @author      Project Team SS4U <info@cloudrexx.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */
@@ -37,10 +38,14 @@
 namespace Cx\Modules\Block\Controller;
 
 /**
+ * Cx\Modules\Block\Controller\ComponentController
+ *
  * Main controller for Block
  *
- * @copyright   Cloudrexx AG
- * @author      Project Team SS4U <info@cloudrexx.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @access      public
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */

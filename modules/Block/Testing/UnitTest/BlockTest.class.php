@@ -3,8 +3,8 @@
 /**
  * Cloudrexx
  *
- * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2015
+ * @link      https://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2017
  *
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
@@ -26,11 +26,10 @@
  */
 
 /**
- * BlockTest
+ * Cx\Modules\Block
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
- * @author      SS4U <ss4u.comvation@gmail.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
@@ -39,11 +38,12 @@
 namespace Cx\Modules\Block\Testing\UnitTest;
 
 /**
- * BlockTest
+ * Cx\Modules\Block\Testing\UnitTest\BlockTest
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      SS4U <ss4u.comvation@gmail.com>
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block

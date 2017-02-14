@@ -26,11 +26,11 @@
  */
 
 /**
- * JSON Adapter for Block
+ * Cx\Modules\Block
  *
- * @copyright   Cloudrexx AG
- * @author      Project Team SS4U <info@cloudrexx.com>
- * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */
@@ -38,7 +38,11 @@
 namespace Cx\Modules\Block\Controller;
 
 /**
- * Class JsonBlockException
+ * Cx\Modules\Block\Controller\JsonBlockException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */
@@ -47,7 +51,11 @@ class JsonBlockException extends \Exception
 }
 
 /**
- * Class NotEnoughArgumentsException
+ * Cx\Modules\Block\Controller\NotEnoughArgumentsException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */
@@ -56,7 +64,11 @@ class NotEnoughArgumentsException extends JsonBlockException
 }
 
 /**
- * Class NoBlockFoundException
+ * Cx\Modules\Block\Controller\NoBlockFoundException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */
@@ -65,10 +77,13 @@ class NoBlockFoundException extends JsonBlockException
 }
 
 /**
+ * Cx\Modules\Block\Controller\JsonBlockController
+ *
  * JSON Adapter for Block
  *
- * @copyright   Cloudrexx AG
- * @author      Project Team SS4U <info@cloudrexx.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
  */

@@ -26,21 +26,22 @@
  */
 
 /**
- * Block
+ * Cx\Modules\Block
+ *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
- * @todo        Edit PHP DocBlocks!
  */
 
 namespace Cx\Modules\Block\Controller;
 
 /**
- * Block
+ * Cx\Modules\Block\Controller\BlockLibrary
  *
  * Block library class
+ *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
@@ -48,6 +49,7 @@ namespace Cx\Modules\Block\Controller;
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
+ * @todo        Edit PHP DocBlocks!
  */
 class BlockLibrary
 {
@@ -115,8 +117,6 @@ class BlockLibrary
      */
     public function getBlocks($catId = 0)
     {
-        $catId = intval($catId);
-
         if (!is_array($this->_arrBlocks)) {
             $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
             $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
@@ -185,7 +185,7 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $category = $categoryRepo->findOneBy(array('id' => intval($cat)));
+        $category = $categoryRepo->findOneBy(array('id' => $cat));
 
         $qb = $em->createQueryBuilder();
         $order = $qb->select('MAX(b.order)')
@@ -195,19 +195,19 @@ class BlockLibrary
 
         $block = new \Cx\Modules\Block\Model\Entity\Block();
         $block->setCat($category);
-        $block->setStart(intval($start));
-        $block->setEnd(intval($end));
+        $block->setStart($start);
+        $block->setEnd($end);
         $block->setName($name);
-        $block->setRandom(intval($blockRandom));
-        $block->setRandom2(intval($blockRandom2));
-        $block->setRandom3(intval($blockRandom3));
-        $block->setRandom4(intval($blockRandom4));
+        $block->setRandom($blockRandom);
+        $block->setRandom2($blockRandom2);
+        $block->setRandom3($blockRandom3);
+        $block->setRandom4($blockRandom4);
         $block->setGlobal(0);
         $block->setCategory(0);
         $block->setDirect(0);
         $block->setActive(1);
-        $block->setOrder(intval($order[1]) + 1);
-        $block->setWysiwygEditor(intval($blockWysiwygEditor));
+        $block->setOrder($order[1] + 1);
+        $block->setWysiwygEditor($blockWysiwygEditor);
 
         $em->persist($block);
         $em->flush();
@@ -243,18 +243,18 @@ class BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $block = $blockRepo->findOneBy(array('id' => intval($id)));
-        $category = $categoryRepo->findOneBy(array('id' => intval($cat)));
+        $block = $blockRepo->findOneBy(array('id' => $id));
+        $category = $categoryRepo->findOneBy(array('id' => $cat));
 
         $block->setName($name);
         $block->setCat($category);
-        $block->setStart(intval($start));
-        $block->setEnd(intval($end));
-        $block->setRandom(intval($blockRandom));
-        $block->setRandom2(intval($blockRandom2));
-        $block->setRandom3(intval($blockRandom3));
-        $block->setRandom4(intval($blockRandom4));
-        $block->setWysiwygEditor(intval($blockWysiwygEditor));
+        $block->setStart($start);
+        $block->setEnd($end);
+        $block->setRandom($blockRandom);
+        $block->setRandom2($blockRandom2);
+        $block->setRandom3($blockRandom3);
+        $block->setRandom4($blockRandom4);
+        $block->setWysiwygEditor($blockWysiwygEditor);
 
         $em->flush();
 
@@ -279,7 +279,7 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
 
         $block->setGlobal($global);
         $block->setDirect($direct);
@@ -316,12 +316,12 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
 
         foreach ($blockAssociatedPageIds as $pageId) {
             if ($pageId > 0) {
-                $page = $pageRepo->findOneBy(array('id' => intval($pageId)));
+                $page = $pageRepo->findOneBy(array('id' => $pageId));
                 $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
                 $relPage->setBlock($block);
                 $relPage->setContentPage($page);
@@ -340,7 +340,7 @@ class BlockLibrary
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
-        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $relLangContents = $block->getRelLangContents();
 
         $arrPresentLang = array();
@@ -350,15 +350,15 @@ class BlockLibrary
 
         foreach ($arrContent as $langId => $content) {
             $content = preg_replace('/\[\[([A-Z0-9_-]+)\]\]/', '{\\1}', $content);
-            $locale = $localeRepo->findOneBy(array('id' => intval($langId)));
+            $locale = $localeRepo->findOneBy(array('id' => $langId));
             if (in_array($langId, $arrPresentLang)) {
                 $relLangContent = $relLangContentRepo->findOneBy(array('block' => $block, 'locale' => $locale));
                 $relLangContent->setContent($content);
-                $relLangContent->setActive(intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0)));
+                $relLangContent->setActive(isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0);
             } else {
                 $relLangContent = new \Cx\Modules\Block\Model\Entity\RelLangContent();
                 $relLangContent->setContent($content);
-                $relLangContent->setActive(intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0)));
+                $relLangContent->setActive(isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0);
                 $relLangContent->setBlock($block);
                 $relLangContent->setLocale($locale);
                 $em->persist($relLangContent);
@@ -378,7 +378,7 @@ class BlockLibrary
             ->where('rlc.block = :block')
             ->andWhere(
                 $qb->expr()->notIn(
-                    'rlc.locale', array_map('intval', array_keys($arrLangActive))
+                    'rlc.locale', array_keys($arrLangActive)
                 )
             )
             ->setParameter('block', $block)
@@ -568,7 +568,7 @@ class BlockLibrary
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
-        $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $relPages = $relPageRepo->findBy(array(
             'block' => $block,
             'placeholder' => $placeholder,
@@ -1136,7 +1136,6 @@ class BlockLibrary
      */
     function _saveCategory($id = 0, $parent = 0, $name, $seperator, $order = 1, $status = 1)
     {
-        $id = intval($id);
         if ($id > 0 && $id == $parent) { //don't allow category to attach to itself
             return false;
         }
@@ -1221,7 +1220,6 @@ class BlockLibrary
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
-        $id = intval($id);
         if ($id < 1) {
             return false;
         }
@@ -1306,7 +1304,6 @@ class BlockLibrary
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        $id = intval($id);
         if ($id == 0) {
             return false;
         }

@@ -26,10 +26,10 @@
  */
 
 /**
- * Block Entity
+ * Cx\Modules\Block
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
- * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
@@ -39,6 +39,12 @@ namespace Cx\Modules\Block\Model\Entity;
 
 /**
  * Cx\Modules\Block\Model\Entity\TargetingOption
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
  */
 class TargetingOption extends \Cx\Model\Base\EntityBase
 {

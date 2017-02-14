@@ -26,21 +26,22 @@
  */
 
 /**
- * Block
+ * Cx\Modules\Block
+ *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
- * @todo        Edit PHP DocBlocks!
  */
 
 namespace Cx\Modules\Block\Controller;
 
 /**
- * Block
+ * Cx\Modules\Block\Controller\Block
  *
  * block module class
+ *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
@@ -48,6 +49,7 @@ namespace Cx\Modules\Block\Controller;
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
+ * @todo        Edit PHP DocBlocks!
  */
 class Block extends \Cx\Modules\Block\Controller\BlockLibrary
 {
@@ -115,7 +117,7 @@ class Block extends \Cx\Modules\Block\Controller\BlockLibrary
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
         foreach ($arrBlocks as $blockId) {
-            $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
+            $block = $blockRepo->findOneBy(array('id' => $blockId));
             $this->_setBlock($block, $code, $page);
         }
     }
@@ -138,7 +140,7 @@ class Block extends \Cx\Modules\Block\Controller\BlockLibrary
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
 
         foreach ($arrCategoryBlocks as $categoryId) {
-            $category = $categoryRepo->findOneBy(array('id' => intval($categoryId)));
+            $category = $categoryRepo->findOneBy(array('id' => $categoryId));
             $this->_setCategoryBlock($category, $code, $page);
         }
     }
