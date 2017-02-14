@@ -47,15 +47,6 @@ class JsonBlockException extends \Exception
 }
 
 /**
- * Class NoPermissionException
- * @package     cloudrexx
- * @subpackage  module_block
- */
-class NoPermissionException extends JsonBlockException
-{
-}
-
-/**
  * Class NotEnoughArgumentsException
  * @package     cloudrexx
  * @subpackage  module_block
@@ -70,15 +61,6 @@ class NotEnoughArgumentsException extends JsonBlockException
  * @subpackage  module_block
  */
 class NoBlockFoundException extends JsonBlockException
-{
-}
-
-/**
- * Class BlockCouldNotBeSavedException
- * @package     cloudrexx
- * @subpackage  module_block
- */
-class BlockCouldNotBeSavedException extends JsonBlockException
 {
 }
 
@@ -130,7 +112,13 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
                 array('get', 'cli', 'post'),
                 false
             ),
-            'saveBlockContent' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('post'), true)
+            'saveBlockContent' => new \Cx\Core_Modules\Access\Model\Entity\Permission(
+                null,
+                array('post', 'cli'),
+                true,
+                array(),
+                array(76)
+            )
         );
     }
 
@@ -289,21 +277,12 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * Save the block content
      *
      * @param array $params all given params from http request
-     * @throws NoPermissionException
      * @throws NotEnoughArgumentsException
-     * @throws BlockCouldNotBeSavedException
      * @return boolean true if everything finished with success
      */
     public function saveBlockContent($params)
     {
         global $_CORELANG;
-
-        // security check
-        if (!\FWUser::getFWUserObject()->objUser->login()
-            || !\Permission::checkAccess(76, 'static', true)
-        ) {
-            throw new NoPermissionException($_CORELANG['TXT_ACCESS_DENIED_DESCRIPTION']);
-        }
 
         // check arguments
         if (empty($params['get']['block']) || empty($params['get']['lang'])) {
@@ -324,23 +303,18 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         }
         $content = $params['post']['content'];
 
-        try {
-            // query to update content in database
-            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-            $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
-            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-            $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
+        // query to update content in database
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
 
-            $locale = $localeRepo->findOneBy(array('id' => $lang));
-            $block = $blockRepo->findOneBy(array('id' => $id));
-            $relLangContent = $relLangContentRepo->findOneBy(array('locale' => $locale, 'block' => $block));
-            $relLangContent->setContent($content);
+        $locale = $localeRepo->findOneBy(array('id' => $lang));
+        $block = $blockRepo->findOneBy(array('id' => $id));
+        $relLangContent = $relLangContentRepo->findOneBy(array('locale' => $locale, 'block' => $block));
+        $relLangContent->setContent($content);
 
-            $em->flush();
-        } catch (Exception $e) {
-            // error handling
-            throw new BlockCouldNotBeSavedException('block could not be saved');
-        }
+        $em->flush();
 
         \LinkGenerator::parseTemplate($content);
 
