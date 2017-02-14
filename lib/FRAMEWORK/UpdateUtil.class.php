@@ -634,8 +634,9 @@ class UpdateUtil
         $type = array_key_exists('type', $spec) ? $spec['type'] : '';
         $descr = null;
         if (isset($spec['force']) && $spec['force']) {
-//            $descr = "ALTER IGNORE TABLE `$table` ADD $type INDEX `$name` ($fields)";
-            $descr = "ALTER IGNORE TABLE `$table` ADD $type KEY `$name` ($fields)";
+//            $descr = "ALTER TABLE `$table` ADD $type INDEX `$name` ($fields)";
+//            $descr = "ALTER IGNORE TABLE `$table` ADD $type KEY `$name` ($fields)";
+            $descr = "ALTER TABLE `$table` ADD $type KEY `$name` ($fields)";
         } else {
 // TODO "INDEX" instead of "KEY" produces an error for type "PRIMARY"? -- RK
   //          $descr  = "ALTER TABLE `$table` ADD $type INDEX `$name` ($fields)";

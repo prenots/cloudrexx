@@ -1615,7 +1615,7 @@ die("MailTemplate::init(): Empty section!");
         $table_name = DBPREFIX."core_mail_template";
         $table_structure = array(
             'key' => array('type' => 'TINYTEXT', 'default' => ''),
-            'section' => array('type' => 'TINYTEXT', 'notnull' => false, 'default' => null, 'renamefrom' => 'module_id'),
+            'section' => array('type' => 'TINYTEXT', 'notnull' => true, 'default' => null, 'renamefrom' => 'module_id'),
             'text_id' => array('type' => 'INT(10)', 'unsigned' => true, 'renamefrom' => 'text_name_id'),
             'html' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => '0'),
             'protected' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => '0'),
