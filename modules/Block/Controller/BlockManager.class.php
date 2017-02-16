@@ -451,7 +451,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $_ARRAYLANG;
 
-        $catId = !empty($_REQUEST['catId']) ? intval($_REQUEST['catId']) : 0;
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_CATEGORIES'];
         $this->_objTpl->loadTemplateFile('module_block_categories.html');
 
@@ -543,23 +542,33 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_EDIT'];
         $this->_objTpl->loadTemplateFile('module_block_categories_edit.html');
 
-        $arrCategory = $this->_getCategory($_GET['id']);
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => $catId));
 
-        $this->_objTpl->setVariable(array(
-            'TXT_BLOCK_NAME'                        => $_ARRAYLANG['TXT_BLOCK_NAME'],
-            'TXT_BLOCK_SAVE'                        => $_ARRAYLANG['TXT_BLOCK_SAVE'],
-            'TXT_BLOCK_PARENT'                      => $_ARRAYLANG['TXT_BLOCK_PARENT'],
-            'TXT_BLOCK_NONE'                        => $_ARRAYLANG['TXT_BLOCK_NONE'],
-            'TXT_BLOCK_CATEGORIES_EDIT'             => $_ARRAYLANG['TXT_BLOCK_CATEGORIES_EDIT'],
-            'TXT_BLOCK_BACK'                        => $_CORELANG['TXT_BACK'],
-            'TXT_BLOCK_CATEGORY_SEPERATOR'          => $_ARRAYLANG['TXT_BLOCK_CATEGORY_SEPERATOR'],
-            'BLOCK_CATEGORY_ID'                     => $catId,
-            'BLOCK_CATEGORIES_PARENT_DROPDOWN'      => $this->_getCategoriesDropdown($arrCategory['parent'], $catId),
-            'BLOCK_CATEGORY_NAME'                   => contrexx_raw2xhtml($arrCategory['name']),
-            'BLOCK_CATEGORY_SEPERATOR'              => contrexx_raw2xhtml($arrCategory['seperator']),
-            'DIRECTORY_INDEX'                       => CONTREXX_DIRECTORY_INDEX,
-            'CSRF_PARAM'                            => \Cx\Core\Csrf\Controller\Csrf::param(),
-        ));
+        if ($category) {
+            $parentId = 0;
+            $parent = $category->getParent();
+            if ($parent) {
+                $parentId = $parent->getId();
+            }
+
+            $this->_objTpl->setVariable(array(
+                'TXT_BLOCK_NAME'                        => $_ARRAYLANG['TXT_BLOCK_NAME'],
+                'TXT_BLOCK_SAVE'                        => $_ARRAYLANG['TXT_BLOCK_SAVE'],
+                'TXT_BLOCK_PARENT'                      => $_ARRAYLANG['TXT_BLOCK_PARENT'],
+                'TXT_BLOCK_NONE'                        => $_ARRAYLANG['TXT_BLOCK_NONE'],
+                'TXT_BLOCK_CATEGORIES_EDIT'             => $_ARRAYLANG['TXT_BLOCK_CATEGORIES_EDIT'],
+                'TXT_BLOCK_BACK'                        => $_CORELANG['TXT_BACK'],
+                'TXT_BLOCK_CATEGORY_SEPERATOR'          => $_ARRAYLANG['TXT_BLOCK_CATEGORY_SEPERATOR'],
+                'BLOCK_CATEGORY_ID'                     => $category->getId(),
+                'BLOCK_CATEGORIES_PARENT_DROPDOWN'      => $this->_getCategoriesDropdown($parentId, $catId),
+                'BLOCK_CATEGORY_NAME'                   => contrexx_raw2xhtml($category->getName()),
+                'BLOCK_CATEGORY_SEPERATOR'              => contrexx_raw2xhtml($category->getSeperator()),
+                'DIRECTORY_INDEX'                       => CONTREXX_DIRECTORY_INDEX,
+                'CSRF_PARAM'                            => \Cx\Core\Csrf\Controller\Csrf::param(),
+            ));
+        }
     }
 
 

@@ -1293,36 +1293,4 @@ class BlockLibrary
 
         return $this->_categories;
     }
-
-    /**
-     * return the categoriy specified by ID
-     *
-     * @param integer $id
-     * @return array category information
-     */
-    function _getCategory($id = 0)
-    {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-
-        if ($id == 0) {
-            return false;
-        }
-
-        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $category = $categoryRepo->findOneBy(array('id' => $id));
-
-        $parentId = 0;
-        $parent = $category->getParent();
-        if ($parent) {
-            $parentId = $parent->getId();
-        }
-        return array(
-            'id' => $category->getId(),
-            'parent' => $parentId,
-            'name' => $category->getName(),
-            'order' => $category->getOrder(),
-            'status' => $category->getStatus(),
-            'seperator' => $category->getSeperator(),
-        );
-    }
 }
