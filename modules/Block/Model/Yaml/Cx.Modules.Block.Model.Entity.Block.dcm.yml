@@ -30,12 +30,15 @@ Cx\Modules\Block\Model\Entity\Block:
     random4:
       type: integer
       column: random_4
-    category:
+    showInCategory:
       type: integer
-    global:
+      column: category
+    showInGlobal:
       type: integer
-    direct:
+      column: global
+    showInDirect:
       type: integer
+      column: direct
     active:
       type: integer
     order:
@@ -65,7 +68,7 @@ Cx\Modules\Block\Model\Entity\Block:
         name: id
         referencedColumnName: block_id
   manyToOne:
-    cat:
+    category:
       targetEntity: Category
       inversedBy: block
       type: integer

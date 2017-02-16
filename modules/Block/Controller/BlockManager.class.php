@@ -1314,7 +1314,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
             foreach ($arrStatusBlocks as $blockId) {
                 $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
-                $block->setGlobal(1);
+                $block->setShowInGlobal(1);
             }
 
             $em->flush();
@@ -1338,7 +1338,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
             foreach ($arrStatusBlocks as $blockId) {
                 $block = $blockRepo->findOneBy(array('id' => intval($blockId)));
-                $block->setGlobal(0);
+                $block->setShowInGlobal(0);
             }
 
             $em->flush();

@@ -122,7 +122,7 @@ class BlockLibrary
             $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
             if ($catId != 0) {
-                $blocks = $blockRepo->findBy(array('cat' => $catId));
+                $blocks = $blockRepo->findBy(array('category' => $catId));
             } else {
                 $blocks = $blockRepo->findAll();
             }
@@ -139,9 +139,9 @@ class BlockLibrary
                 }
 
                 $catId = 0;
-                $cat = $block->getCat();
+                $cat = $block->getCategory();
                 if ($cat) {
-                    $catId = $block->getCat()->getId();
+                    $catId = $block->getCategory()->getId();
                 }
 
                 $this->_arrBlocks[$block->getId()] = array(
@@ -153,9 +153,9 @@ class BlockLibrary
                     'random2' => $block->getRandom2(),
                     'random3' => $block->getRandom3(),
                     'random4' => $block->getRandom4(),
-                    'global' => $block->getGlobal(),
+                    'global' => $block->getShowInGlobal(),
                     'active' => $block->getActive(),
-                    'direct' => $block->getDirect(),
+                    'direct' => $block->getShowInDirect(),
                     'name' => $block->getName(),
                     'lang' => array_unique($langArr),
                 );
@@ -194,7 +194,7 @@ class BlockLibrary
             ->getSingleResult();
 
         $block = new \Cx\Modules\Block\Model\Entity\Block();
-        $block->setCat($category);
+        $block->setCategory($category);
         $block->setStart($start);
         $block->setEnd($end);
         $block->setName($name);
@@ -202,9 +202,9 @@ class BlockLibrary
         $block->setRandom2($blockRandom2);
         $block->setRandom3($blockRandom3);
         $block->setRandom4($blockRandom4);
-        $block->setGlobal(0);
-        $block->setCategory(0);
-        $block->setDirect(0);
+        $block->setShowInGlobal(0);
+        $block->setShowInCategory(0);
+        $block->setShowInDirect(0);
         $block->setActive(1);
         $block->setOrder($order[1] + 1);
         $block->setWysiwygEditor($blockWysiwygEditor);
@@ -247,7 +247,7 @@ class BlockLibrary
         $category = $categoryRepo->findOneBy(array('id' => $cat));
 
         $block->setName($name);
-        $block->setCat($category);
+        $block->setCategory($category);
         $block->setStart($start);
         $block->setEnd($end);
         $block->setRandom($blockRandom);
@@ -281,9 +281,9 @@ class BlockLibrary
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => $blockId));
 
-        $block->setGlobal($global);
-        $block->setDirect($direct);
-        $block->setCategory($category);
+        $block->setShowInGlobal($global);
+        $block->setShowInDirect($direct);
+        $block->setShowInCategory($category);
 
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
         $relPages = $relPageRepo->findBy(array('block' => $block));
@@ -528,7 +528,7 @@ class BlockLibrary
             }
 
             $catId = 0;
-            $cat = $block->getCat();
+            $cat = $block->getCategory();
             if ($cat) {
                 $catId = $cat->getId();
             }
@@ -541,9 +541,9 @@ class BlockLibrary
                 'random2' => $block->getRandom2(),
                 'random3' => $block->getRandom3(),
                 'random4' => $block->getRandom4(),
-                'global' => $block->getGlobal(),
-                'direct' => $block->getDirect(),
-                'category' => $block->getCategory(),
+                'global' => $block->getShowInGlobal(),
+                'direct' => $block->getShowInDirect(),
+                'category' => $block->getShowInCategory(),
                 'active' => $block->getActive(),
                 'name' => $block->getName(),
                 'wysiwyg_editor' => $block->getWysiwygEditor(),
@@ -655,7 +655,7 @@ class BlockLibrary
             array_push($blocks, $block);
 
             // block is global and will be shown on all pages, don't need to save the relation
-            if ($block->getGlobal() == 1) {
+            if ($block->getShowInGlobal() == 1) {
                 continue;
             }
 
@@ -666,8 +666,8 @@ class BlockLibrary
             $em->persist($relPage);
 
             // if the block was not global till now, make it global
-            if ($block->getGlobal() == 0) {
-                $block->setGlobal(1);
+            if ($block->getShowInGlobal() == 0) {
+                $block->setShowInGlobal(1);
             }
         }
 
@@ -1226,9 +1226,9 @@ class BlockLibrary
 
         $category = $categoryRepo->findOneBy(array('id' => $id));
 
-        $blocks = $blockRepo->findBy(array('cat' => $category));
+        $blocks = $blockRepo->findBy(array('category' => $category));
         foreach ($blocks as $block) {
-            $block->setCat(null);
+            $block->setCategory(null);
         }
         $em->remove($category);
 

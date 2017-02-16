@@ -89,19 +89,19 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     protected $random4;
 
     /**
-     * @var integer $category
+     * @var integer $showInCategory
      */
-    protected $category;
+    protected $showInCategory;
 
     /**
-     * @var integer $global
+     * @var integer $showInGlobal
      */
-    protected $global;
+    protected $showInGlobal;
 
     /**
-     * @var integer $direct
+     * @var integer $showInDirect
      */
-    protected $direct;
+    protected $showInDirect;
 
     /**
      * @var integer $active
@@ -136,7 +136,7 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     /**
      * @var Cx\Modules\Block\Model\Entity\Category
      */
-    protected $cat;
+    protected $category;
 
     public function __construct($blockId)
     {
@@ -296,63 +296,63 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
-     * Set category
+     * Set showInCategory
      *
-     * @param integer $category
+     * @param integer $showInCategory
      */
-    public function setCategory($category)
+    public function setShowInCategory($showInCategory)
     {
-        $this->category = $category;
+        $this->showInCategory = $showInCategory;
     }
 
     /**
-     * Get category
+     * Get showInCategory
      *
-     * @return integer $category
+     * @return integer $showInCategory
      */
-    public function getCategory()
+    public function getShowInCategory()
     {
-        return $this->category;
+        return $this->showInCategory;
     }
 
     /**
-     * Set global
+     * Set showInGlobal
      *
-     * @param integer $global
+     * @param integer $showInGlobal
      */
-    public function setGlobal($global)
+    public function setShowInGlobal($showInGlobal)
     {
-        $this->global = $global;
+        $this->showInGlobal = $showInGlobal;
     }
 
     /**
-     * Get global
+     * Get showInGlobal
      *
-     * @return integer $global
+     * @return integer $showInGlobal
      */
-    public function getGlobal()
+    public function getShowInGlobal()
     {
-        return $this->global;
+        return $this->showInGlobal;
     }
 
     /**
-     * Set direct
+     * Set showInDirect
      *
-     * @param integer $direct
+     * @param integer $showInDirect
      */
-    public function setDirect($direct)
+    public function setShowInDirect($showInDirect)
     {
-        $this->direct = $direct;
+        $this->showInDirect = $showInDirect;
     }
 
     /**
-     * Get direct
+     * Get showInDirect
      *
-     * @return integer $direct
+     * @return integer $showInDirect
      */
-    public function getDirect()
+    public function getShowInDirect()
     {
-        return $this->direct;
+        return $this->showInDirect;
     }
 
     /**
@@ -476,23 +476,23 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
-     * Set cat
+     * Set category
      *
-     * @param Cx\Modules\Block\Model\Entity\Category $cat
+     * @param Cx\Modules\Block\Model\Entity\Category $category
      */
-    public function setCat($cat)
+    public function setCategory($category)
     {
-        $this->cat = $cat;
+        $this->category = $category;
     }
 
     /**
-     * Get cat
+     * Get category
      *
-     * @return Cx\Modules\Block\Model\Entity\Category $cat
+     * @return Cx\Modules\Block\Model\Entity\Category $category
      */
-    public function getCat()
+    public function getCategory()
     {
-        return $this->cat;
+        return $this->category;
     }
 
     /**
