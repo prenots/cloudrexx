@@ -48,11 +48,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function getControllerClasses() {
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
-        return array('JsonBlock');
+        return array('JsonBlock', 'EsiWidget');
     }
 
     public function getControllersAccessableByJson() {
-        return array('JsonBlockController');
+        return array('JsonBlockController', 'EsiWidgetController');
     }
 
      /**
@@ -91,13 +91,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $widgetController = $this->getComponent('Widget');
 
         // Set blocks [[BLOCK_<ID>]]
-        $blocks = $block->getBlocks();
-        if ($blocks) {
-            foreach ($blocks as $blockId => $blockDetails) {
+        $blockNames = $block->getBlockNamesByCriteria('block');
+        if ($blockNames) {
+            foreach ($blockNames as $blockName) {
                 $widgetController->createWidget(
                     $this,
-                    $block->blockNamePrefix . $blockId,
-                    false
+                    $blockName
                 );
             }
         }
@@ -105,35 +104,30 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // Set global block [[BLOCK_GLOBAL]]
         $widgetController->createWidget(
             $this,
-            $block->blockNamePrefix . 'GLOBAL',
-            false
+            $block->blockNamePrefix . 'GLOBAL'
         );
 
         // Set category blocks [[BLOCK_CAT_<ID>]]
-        $blockCategories = $block->_getCategories();
-        foreach ($blockCategories as $blockCategory) {
-            foreach ($blockCategory as $category) {
-                $widgetController->createWidget(
-                    $this,
-                    $block->blockNamePrefix . 'CAT_' . $category['id'],
-                    false
-                );
-            }
+        $catBlockNames = $block->getBlockNamesByCriteria('categoryBlock');
+        foreach ($catBlockNames as $catBlockName) {
+            $widgetController->createWidget(
+                $this,
+                $catBlockName
+            );
         }
 
         // Set random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
         //                   [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
-        $widgetName = $block->blockNamePrefix . 'RANDOMIZER';
-        for ($i = 1; $i <= 4; $i++) {
-            $widgetSuffix = '_' . $i;
-            if ($i == 1) {
-                $widgetSuffix = '';
+        $randomizerNames = $block->getBlockNamesByCriteria('randomizerBlock');
+        foreach ($randomizerNames as $key => $randomizerName) {
+            if ($key > 0) {
+                $key += 1;
             }
-
-            $widgetController->createWidget(
+            $availableBlocks = $block->getBlockNamesForRandomizer($key);
+            $widgetController->createRandomWidget(
                 $this,
-                $widgetName . $widgetSuffix,
-                false
+                $randomizerName,
+                $availableBlocks
             );
         }
     }

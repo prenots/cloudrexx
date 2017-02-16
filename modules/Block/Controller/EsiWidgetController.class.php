@@ -59,10 +59,18 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     protected $currentPageId;
 
     /**
+     * Random name for randomizer block
+     *
+     * @var string
+     */
+    protected $randomName;
+
+    /**
      * Parses a widget
-     * @param string $name Widget name
-     * @param \Cx\Core\Html\Sigma Widget template
-     * @param string $locale RFC 3066 locale identifier
+     *
+     * @param string                     $name     Widget name
+     * @param \Cx\Core\Html\Sigma Widget $template Template
+     * @param string                     $locale   RFC 3066 locale identifier
      */
     public function parseWidget($name, $template, $locale)
     {
@@ -75,22 +83,24 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         // Parse blocks [[BLOCK_<ID>]]
         $block        = new Block();
         $matches      = null;
+        $code         = '{' . $name . '}';
         $blockPattern = '/^' . $block->blockNamePrefix . '([0-9]+)/';
         if (preg_match($blockPattern, $name, $matches)) {
-            $block->setBlock(array($matches[1]), $template, $this->currentPageId);
+            $block->setBlock(array($matches[1]), $code, $this->currentPageId);
         }
 
         // parse global block [[BLOCK_GLOBAL]]
         if ($name == $block->blockNamePrefix . 'GLOBAL') {
-            $block->setBlockGlobal($template, $this->currentPageId);
+            $block->setBlockGlobal($code, $this->currentPageId);
         }
 
         // Set category blocks [[BLOCK_CAT_<ID>]]
         $catMatches = null;
         $catPattern = '/^' . $block->blockNamePrefix . 'CAT_([0-9]+)/';
         if (preg_match($catPattern, $name, $catMatches)) {
-            $block->setCategoryBlock(array($catMatches[1]), $template, $this->currentPageId);
+            $block->setCategoryBlock(array($catMatches[1]), $code, $this->currentPageId);
         }
+        $template->setVariable($name, $code);
 
         // Parse random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
         //                     [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
@@ -98,11 +108,17 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        $randomMatches = null;
-        $randomPattern = '/^' . $block->blockNamePrefix . 'RANDOMIZER(_([2-4])|$)/';
-        if (preg_match($randomPattern, $name, $randomMatches)) {
-            $randomId = !isset($randomMatches[2]) ? 1 : $randomMatches[2];
-            $block->setBlockRandom($template, $randomId, $this->currentPageId);
+        if (
+            preg_match(
+                '/^' . $block->blockNamePrefix . 'RANDOMIZER(_([2-4])|$)/',
+                $name
+            )
+        ) {
+            $code = '{' . $this->randomName . '}';
+            if (preg_match($blockPattern, $this->randomName, $matches)) {
+                $block->setBlock(array($matches[1]), $code, $this->currentPageId);
+                $template->setVariable($name, $code);
+            }
         }
     }
 
@@ -118,6 +134,24 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         if (isset($params['get']) && isset($params['get']['page'])) {
             $this->currentPageId = $params['get']['page'];
         }
-        parent::getWidget($params);
+
+        $widgetName = '';
+        if (isset($params['get']) && isset($params['get']['name'])) {
+            $widgetName = contrexx_input2raw($params['get']['name']);
+        }
+
+        $block = new Block();
+        if (
+            preg_match(
+                '/^' . $block->blockNamePrefix . 'RANDOMIZER(_([2-4])|$)/',
+                $widgetName
+            )
+        ) {
+            if (!isset($params['get']) || !isset($params['get']['randomName'])) {
+                return;
+            }
+            $this->randomName = contrexx_input2raw($params['get']['randomName']);
+        }
+        return parent::getWidget($params);
     }
 }

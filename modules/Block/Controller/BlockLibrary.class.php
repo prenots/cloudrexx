@@ -353,13 +353,6 @@ class BlockLibrary
                                                    active='".intval((isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0))."'",
                                                   $blockId));
         }
-            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
-                'Block',
-                'getBlockContent',
-                array(
-                    'block' => $blockId,
-                )
-            );
 
         $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_block_rel_lang_content WHERE block_id=".$blockId." AND lang_id NOT IN (".join(',', array_map('intval', array_keys($arrLangActive))).")");
     }
@@ -662,17 +655,13 @@ class BlockLibrary
     }
 
     /**
-    * Set block
-    *
-    * Parse the block with the id $id
-    *
-    * @access private
-    * @param integer $id Block ID
-    * @param string &$code
-    * @param int $pageId
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set block
+     * Parse the block with the id $id
+     *
+     * @param integer $id     category ID
+     * @param string  $code   content
+     * @param integer $pageId page ID
+     */
     function _setBlock($id, &$code, $pageId)
     {
         $now = time();
@@ -681,7 +670,8 @@ class BlockLibrary
             $this->blockNamePrefix . $id,
             '
                 SELECT
-                    tblBlock.id
+                    `tblBlock`.`id`,
+                    `tblContent`.`content` AS `content`
                 FROM
                     ' . DBPREFIX . 'module_block_blocks AS tblBlock,
                     ' . DBPREFIX . 'module_block_rel_lang_content AS tblContent
@@ -715,23 +705,18 @@ class BlockLibrary
                     AND
                         tblBlock.active = 1
             ',
-            $pageId,
             $code
         );
     }
 
     /**
-    * Set category block
-    *
-    * Parse the category block with the id $id
-    *
-    * @access private
-    * @param integer $id Category ID
-    * @param string &$code
-    * @param int $pageId
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set category block
+     * Parse the category block with the id $id
+     *
+     * @param integer $id     category ID
+     * @param string  $code   content
+     * @param integer $pageId page ID
+     */
     function _setCategoryBlock($id, &$code, $pageId)
     {
         $category = $this->_getCategory($id);
@@ -743,7 +728,8 @@ class BlockLibrary
             $this->blockNamePrefix . 'CAT_' . $id,
             '
                 SELECT
-                    tblBlock.id
+                    `tblBlock`.`id`,
+                    `tblContent`.`content` AS `content`
                 FROM
                     `' . DBPREFIX . 'module_block_blocks` AS tblBlock
                 INNER JOIN
@@ -771,23 +757,17 @@ class BlockLibrary
                 ORDER BY
                     tblBlock.`order`
             ',
-            $pageId,
             $code,
             $separator
         );
     }
 
     /**
-    * Set block Global
-    *
-    * Parse the block with the id $id
-    *
-    * @access private
-    * @param integer $id
-    * @param string &$code
-    * @global ADONewConnection
-    * @global integer
-    */
+     * Set block Global
+     *
+     * @param string  $code   content
+     * @param integer $pageId page ID
+     */
     function _setBlockGlobal(&$code, $pageId)
     {
         global $objDatabase;
@@ -871,24 +851,21 @@ class BlockLibrary
                 ORDER BY
                     `order`
             ',
-            $pageId,
             $code,
             $separator
         );
     }
 
     /**
-    * Set block Random
-    *
-    * Parse the block with the id $id
-    *
-    * @access private
-    * @param integer $id
-    * @param string &$code
-    * @global ADONewConnection
-    * @global integer
-    */
-    function _setBlockRandom(&$code, $id, $pageId)
+     * Set block Random
+     * Parse the block with the id $id
+     *
+     * @param string  $code content
+     * @param integer $id   ID
+     *
+     * @return boolean
+     */
+    function _setBlockRandom(&$code, $id)
     {
         global $objDatabase;
 
@@ -908,109 +885,154 @@ class BlockLibrary
                         tblBlock.active = 1 ";
 
         //Get Block Name and Status
-        switch ($id) {
+        switch($id) {
             case '1':
-                $query .= "AND tblBlock.random=1";
+                $objBlockName   = $objDatabase->Execute($query."AND tblBlock.random=1");
                 $blockNr        = "";
                 break;
             case '2':
-                $query .= "AND tblBlock.random_2=1";
+                $objBlockName   = $objDatabase->Execute($query."AND tblBlock.random_2=1");
                 $blockNr        = "_2";
                 break;
             case '3':
-                $query .= "AND tblBlock.random_3=1";
+                $objBlockName = $objDatabase->Execute($query."AND tblBlock.random_3=1");
                 $blockNr        = "_3";
                 break;
             case '4':
-                $query .= "AND tblBlock.random_4=1";
+                $objBlockName = $objDatabase->Execute($query."AND tblBlock.random_4=1");
                 $blockNr        = "_4";
                 break;
         }
 
-        $this->replaceBlocks(
-            $this->blockNamePrefix . 'RANDOMIZER' . $blockNr,
-            $query,
-            $pageId,
-            $code,
-            '',
-            true
-        );
+
+        if ($objBlockName !== false && $objBlockName->RecordCount() > 0) {
+
+            while (!$objBlockName->EOF) {
+                $blockId = $objBlockName->fields['id'];
+                if ($this->checkTargetingOptions($blockId)) {
+                    $arrActiveBlocks[] = $blockId;
+                }
+                $objBlockName->MoveNext();
+            }
+
+            $ranId = $arrActiveBlocks[@array_rand($arrActiveBlocks, 1)];
+
+            $objBlock = $objDatabase->SelectLimit("SELECT content FROM ".DBPREFIX."module_block_rel_lang_content WHERE block_id=".$ranId." AND lang_id=".FRONTEND_LANG_ID, 1);
+            if ($objBlock !== false) {
+                $em = \Env::get('cx')->getDb()->getEntityManager();
+                $systemComponentRepo = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
+                $frontendEditingComponent = $systemComponentRepo->findOneBy(array('name' => 'FrontendEditing'));
+
+                $content = $objBlock->fields['content'];
+                $frontendEditingComponent->prepareBlock($objBlockName->fields['id'], $content);
+                \LinkGenerator::parseTemplate($content);
+                $code = str_replace("{".$this->blockNamePrefix."RANDOMIZER".$blockNr."}", $content, $code);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get block names for randomizer
+     *
+     * @param integer $id Id of randomizer
+     *
+     * @return array
+     */
+    public function getBlockNamesForRandomizer($id = 0)
+    {
+        global $objDatabase;
+
+        $randomCondition = ' AND `tblBlock`.`random` = 1';
+        if (!empty($id)) {
+            $randomCondition = ' AND `tblBlock`.`random_'. $id .'` = 1';
+        }
+
+        $now   = time();
+        $query = '
+            SELECT
+                `tblBlock`.`id`
+            FROM
+                `' . DBPREFIX . 'module_block_blocks` AS `tblBlock`,
+                `' . DBPREFIX . 'module_block_rel_lang_content` AS `tblContent`
+            WHERE
+                `tblContent`.`block_id` = `tblBlock`.`id`
+            AND
+                (   `tblContent`.`lang_id` = ' . FRONTEND_LANG_ID . '
+                AND `tblContent`.`active` = 1
+                )
+            AND (   `tblBlock`.`start` <= ' . $now . '
+                OR  `tblBlock`.`start` = 0
+                )
+            AND (   `tblBlock`.`end` >= ' . $now . '
+                OR  `tblBlock`.`end` = 0
+                )
+            AND
+                `tblBlock`.`active` = 1
+            ' . $randomCondition;
+        $objResult = $objDatabase->Execute($query);
+        if ($objResult === false || $objResult->RecordCount() <= 0) {
+            return;
+        }
+
+        $blocks = array();
+        while (!$objResult->EOF) {
+            if (!$this->checkTargetingOptions($objResult->fields['id'])) {
+                $objResult->MoveNext();
+                continue;
+            }
+            $blocks[] = $this->blockNamePrefix . $objResult->fields['id'];
+            $objResult->MoveNext();
+        }
+
+        return $blocks;
     }
 
     /**
      * Replaces a placeholder with block content
+     *
      * @param string $placeholderName Name of placeholder to replace
-     * @param string $query SQL query used to fetch blocks
-     * @param string $code (by reference) Code to replace placeholder in
-     * @param string $separator (optional) Separator used to separate the blocks
-     * @param boolean $randomize (optional) Wheter to randomize the blocks or not, default false
+     * @param string $query           SQL query used to fetch blocks
+     * @param string $code            (by reference) Code to replace placeholder in
+     * @param string $separator       (optional) Separator used to separate the blocks
      */
-    protected function replaceBlocks($placeholderName, $query, $pageId, &$code, $separator = '', $randomize = false) {
+    protected function replaceBlocks(
+        $placeholderName,
+        $query,
+        &$code,
+        $separator = ''
+    ) {
         global $objDatabase;
 
         // find all block IDs to parse
         $objResult = $objDatabase->Execute($query);
-        $blockIds = array();
         if ($objResult === false || $objResult->RecordCount() <= 0) {
             return;
         }
+
+        $cx             = \Cx\Core\Core\Controller\Cx::instanciate();
+        $settings       = $this->getSettings();
+        $contentList    = array();
+        $fronendEditing = $cx->getComponent('FrontendEditing');
+        // parse
         while(!$objResult->EOF) {
             if (!$this->checkTargetingOptions($objResult->fields['id'])) {
                 $objResult->MoveNext();
                 continue;
             }
-            $blockIds[] = $objResult->fields['id'];
+
+            $fronendEditing->prepareBlock(
+                $objResult->fields['id'],
+                $objResult->fields['content']
+            );
+            $contentList[] = $objResult->fields['content'];
             $objResult->MoveNext();
         }
 
-        // parse
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $em = $cx->getDb()->getEntityManager();
-        $systemComponentRepo = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
-        $frontendEditingComponent = $systemComponentRepo->findOneBy(array('name' => 'FrontendEditing'));
-        $settings = $this->getSettings();
-
-        if ($randomize) {
-            $esiBlockInfos = array();
-            foreach ($blockIds as $blockId) {
-                $esiBlockInfos[] = array(
-                    'Block',
-                    'getBlockContent',
-                    array(
-                        'block' => $blockId,
-                        'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        'page' => $pageId,
-                    )
-                );
-            }
-            $blockContent = $cx->getComponent('Cache')->getRandomizedEsiContent(
-                $esiBlockInfos
-            );
-            $frontendEditingComponent->prepareBlock(
-                $blockId,
-                $blockContent
-            );
-            $content = $blockContent;
-        } else {
-            $contentList = array();
-            foreach ($blockIds as $blockId) {
-                $blockContent = $cx->getComponent('Cache')->getEsiContent(
-                    'Block',
-                    'getBlockContent',
-                    array(
-                        'block' => $blockId,
-                        'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        'page' => $pageId,
-                    )
-                );
-                $frontendEditingComponent->prepareBlock(
-                    $blockId,
-                    $blockContent
-                );
-                $contentList[] = $blockContent;
-            }
-            $content = implode($separator, $contentList);
-        }
+        $content = implode($separator, $contentList);
+        \LinkGenerator::parseTemplate($content);
 
         if (!empty($settings['markParsedBlock'])) {
             $content = "<!-- start $placeholderName -->$content<!-- end $placeholderName -->";
@@ -1293,11 +1315,16 @@ class BlockLibrary
     }
 
     /**
-     * Get all the block names
+     * Get block names by criteria
+     * Usage:
+     *  If $criteria is 'block' then return all the available block names([[BLOCK_<ID>]])
+     *  If $criteria is 'categoryBlock' then return all the category block names([[BLOCK_CAT_<ID>]])
+     *  If $criteria is 'randomizerBlock' then return all the randomizer block names
+     *  ([[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_[2-4]]])
      *
      * @return array
      */
-    public function getAllBlockNames()
+    public function getBlockNamesByCriteria($criteria = '')
     {
         $blockNames = array();
 
@@ -1309,19 +1336,29 @@ class BlockLibrary
             }
         }
 
+        if ($criteria == 'block') {
+            return $blockNames;
+        }
+
         // Get global block name[[BLOCK_GLOBAL]]
         $blockNames[] = 'BLOCK_GLOBAL';
 
         // Get category blocks [[BLOCK_CAT_<ID>]]
+        $catBlockNames   = array();
         $blockCategories = $this->_getCategories();
         foreach ($blockCategories as $blockCategory) {
             foreach ($blockCategory as $category) {
-                $blockNames[] = $this->blockNamePrefix . 'CAT_' . $category['id'];
+                $catBlockNames[] = $this->blockNamePrefix . 'CAT_' . $category['id'];
             }
+        }
+
+        if ($criteria == 'categoryBlock') {
+            return $catBlockNames;
         }
 
         // Set random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
         //                   [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
+        $randomBlockNames = array();
         $widgetName = $this->blockNamePrefix . 'RANDOMIZER';
         for ($i = 1; $i <= 4; $i++) {
             $widgetSuffix = '_' . $i;
@@ -1329,9 +1366,13 @@ class BlockLibrary
                 $widgetSuffix = '';
             }
 
-            $blockNames[] = $widgetName . $widgetSuffix;
+            $randomBlockNames[] = $widgetName . $widgetSuffix;
         }
 
-        return $blockNames;
+        if ($criteria == 'randomizerBlock') {
+            return $randomBlockNames;
+        }
+
+        return array_merge($blockNames, $catBlockNames, $randomBlockNames);
     }
 }
