@@ -950,6 +950,10 @@ class BlockLibrary
             $randomCondition = ' AND `tblBlock`.`random_'. $id .'` = 1';
         }
 
+        $langId = FRONTEND_LANG_ID;
+        if (!defined('FRONTEND_LANG_ID')) {
+            $langId = \Env::get('init')->userFrontendLangId;
+        }
         $now   = time();
         $query = '
             SELECT
@@ -960,7 +964,7 @@ class BlockLibrary
             WHERE
                 `tblContent`.`block_id` = `tblBlock`.`id`
             AND
-                (   `tblContent`.`lang_id` = ' . FRONTEND_LANG_ID . '
+                (   `tblContent`.`lang_id` = ' . $langId . '
                 AND `tblContent`.`active` = 1
                 )
             AND (   `tblBlock`.`start` <= ' . $now . '
