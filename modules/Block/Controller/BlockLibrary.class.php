@@ -38,6 +38,32 @@
 namespace Cx\Modules\Block\Controller;
 
 /**
+ * Cx\Modules\Block\Controller\BlockLibraryException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
+ */
+class BlockLibraryException extends \Exception
+{
+}
+
+/**
+ * Cx\Modules\Block\Controller\NoCategoryFoundException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
+ */
+class NoCategoryFoundException extends BlockLibraryException
+{
+}
+
+/**
  * Cx\Modules\Block\Controller\BlockLibrary
  *
  * Block library class
@@ -1132,10 +1158,20 @@ class BlockLibrary
      * @param string $seperator
      * @param integer $order
      * @param integer $status
+     * @throws NotEnoughArgumentsException
+     * @throws NoCategoryFoundException
      * @return integer inserted ID or false on failure
      */
     function _saveCategory($id = 0, $parent = 0, $name, $seperator, $order = 1, $status = 1)
     {
+        // check for necessary arguments
+        if (
+            empty($name) ||
+            empty($seperator)
+        ) {
+            throw new NotEnoughArgumentsException('not enough arguments');
+        }
+
         if ($id > 0 && $id == $parent) { //don't allow category to attach to itself
             return false;
         }
@@ -1155,32 +1191,31 @@ class BlockLibrary
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => $id));
 
-        try {
-            $new = false;
-            if (!$category) {
-                $category = new \Cx\Modules\Block\Model\Entity\Category();
-                $new = true;
+        $new = false;
+        if (!$category) {
+            if ($id > 0) {
+                throw new NoCategoryFoundException('no category found');
             }
-
-            $parent = $categoryRepo->findOneBy(array('id' => $parent));
-            $category->setParent($parent);
-            $category->setName($name);
-            $category->setSeperator($seperator);
-            $category->setOrder($order);
-            $category->setStatus($status);
-
-            if ($new) {
-                $em->persist($category);
-                $em->flush();
-                $em->refresh($category);
-            } else {
-                $em->flush();
-            }
-
-            return $category->getId();
-        } catch (\Exception $e) {
-            return false;
+            $category = new \Cx\Modules\Block\Model\Entity\Category();
+            $new = true;
         }
+
+        $parent = $categoryRepo->findOneBy(array('id' => $parent));
+        $category->setParent($parent);
+        $category->setName($name);
+        $category->setSeperator($seperator);
+        $category->setOrder($order);
+        $category->setStatus($status);
+
+        if ($new) {
+            $em->persist($category);
+            $em->flush();
+            $em->refresh($category);
+        } else {
+            $em->flush();
+        }
+
+        return $category->getId();
     }
 
     /**
@@ -1212,6 +1247,8 @@ class BlockLibrary
      * delete a category by id
      *
      * @param integer $id category id
+     * @throws NotEnoughArgumentsException
+     * @throws NoCategoryFoundException
      * @return bool success
      */
     function _deleteCategory($id = 0)
@@ -1221,10 +1258,13 @@ class BlockLibrary
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
 
         if ($id < 1) {
-            return false;
+            throw new NotEnoughArgumentsException('not enough arguments');
         }
 
         $category = $categoryRepo->findOneBy(array('id' => $id));
+        if (!$category) {
+            throw new NoCategoryFoundException('no category found');
+        }
 
         $blocks = $blockRepo->findBy(array('category' => $category));
         foreach ($blocks as $block) {
@@ -1238,7 +1278,6 @@ class BlockLibrary
         }
 
         $em->flush();
-
         return true;
     }
 

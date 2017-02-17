@@ -26,10 +26,12 @@
  */
 
 /**
- * Cx\Modules\Block
+ * Cx\Modules\Block\Testing\UnitTest\BlockTest
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @author      SS4U <ss4u.comvation@gmail.com>
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
  * @version     1.0.0
  * @package     cloudrexx
  * @subpackage  module_block
@@ -163,7 +165,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function getJsonBlockController()
     {
-        $componentRepo = self::$cx
+        $componentRepo = static::$cx
             ->getDb()
             ->getEntityManager()
             ->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
