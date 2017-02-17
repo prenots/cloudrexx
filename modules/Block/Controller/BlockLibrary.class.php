@@ -350,7 +350,7 @@ class BlockLibrary
                 $page = $pageRepo->findOneBy(array('id' => $pageId));
                 $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
                 $relPage->setBlock($block);
-                $relPage->setContentPage($page);
+                $relPage->setPage($page);
                 $relPage->setPlaceholder($placeholder);
 
                 $em->persist($relPage);
@@ -602,7 +602,7 @@ class BlockLibrary
 
         $arrPageIds = array();
         foreach ($relPages as $relPage) {
-            array_push($arrPageIds, $relPage->getContentPage()->getId());
+            array_push($arrPageIds, $relPage->getPage()->getId());
         }
 
         return $arrPageIds;
@@ -632,7 +632,7 @@ class BlockLibrary
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
             ->where('b = rp.block')
-            ->andWhere('rp.contentPage = :page')
+            ->andWhere('rp.page = :page')
             ->andWhere('rp.placeholder = \'global\'')
             ->groupBy('b.id')
             ->setParameter('page', $page)
@@ -687,7 +687,7 @@ class BlockLibrary
 
             $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
             $relPage->setBlock($block);
-            $relPage->setContentPage($page);
+            $relPage->setPage($page);
             $relPage->setPlaceholder('global');
             $em->persist($relPage);
 
@@ -700,7 +700,7 @@ class BlockLibrary
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
             ->where('rp.placeholder = :placeholder')
-            ->andWhere('rp.contentPage = :page')
+            ->andWhere('rp.page = :page')
             ->andWhere($qb->expr()->notIn('rp.block', $blocks))
             ->setParameters(array(
                 'placeholder' => 'global',
@@ -744,11 +744,11 @@ class BlockLibrary
             ->where('b = :block')
             ->andWhere(
                 $orX->addMultiple(array(
-                    'b.direct = 0',
+                    'b.showInDirect = 0',
                     $qb2->select('count(rp)')
                         ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
-                        ->where('rp.contentPage = :page')
+                        ->where('rp.page = :page')
                         ->andWhere('rp.block = b')
                         ->andWhere('rp.placeholder = \'direct\'')
                         ->setParameter('page', $page)
@@ -803,14 +803,14 @@ class BlockLibrary
         $blocks = $qb->select('b.id')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
-            ->where('b.cat = :cat')
+            ->where('b.category = :category')
             ->andWhere(
                 $orX->addMultiple(array(
                     'b.category = 0',
                     $qb2->select('count(rp)')
                         ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
-                        ->where('rp.contentPage = :page')
+                        ->where('rp.page = :page')
                         ->andWhere('rp.block = b')
                         ->andWhere('rp.placeholder = \'category\'')
                         ->setParameter('page', $page)
@@ -824,7 +824,7 @@ class BlockLibrary
             ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
             ->orderBy('b.order')
             ->setParameters(array(
-                'cat' => $category,
+                'category' => $category,
                 'now' => $now,
                 'locale' => $locale,
             ))
@@ -874,7 +874,7 @@ class BlockLibrary
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'WITH', 'rp.block = b')
             ->where('b.global = 2')
-            ->andWhere('rp.contentPage = :page')
+            ->andWhere('rp.page = :page')
             ->andWhere('rlc.locale = :locale')
             ->andWhere('rlc.active = 1')
             ->andWhere('b.active = 1')

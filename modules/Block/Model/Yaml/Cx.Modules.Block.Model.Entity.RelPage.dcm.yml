@@ -8,7 +8,7 @@ Cx\Modules\Block\Model\Entity\RelPage:
   id:
     block:
       associationKey: true
-    contentPage:
+    page:
       associationKey: true
   fields:
     placeholder:
@@ -23,7 +23,7 @@ Cx\Modules\Block\Model\Entity\RelPage:
       joinColumn:
         name: block_id
         referencedColumnName: id
-    contentPage:
+    page:
       type: integer
       column: page_id
       targetEntity: Cx\Core\ContentManager\Model\Entity\Page

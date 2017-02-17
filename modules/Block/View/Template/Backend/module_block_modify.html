@@ -447,7 +447,13 @@
         // do not overwrite data on first call, but parse it into json object
         if (cachedLang == "") {
             selectedOps = cx.jQuery.parseJSON(cx.variables.get(placeholder + "PagesSelectedOptions", "block"));
+            if (selectedOps instanceof Array && !selectedOps.length) {
+                selectedOps = "";
+            }
             unselectedOps = cx.jQuery.parseJSON(cx.variables.get(placeholder + "PagesUnselectedOptions", "block"));
+            if (unselectedOps instanceof Array && !unselectedOps.length) {
+                unselectedOps = "";
+            }
         } else {
             selectedOps = cx.variables.get(placeholder + "PagesSelectedOptions", "block");
             unselectedOps = cx.variables.get(placeholder + "PagesUnselectedOptions", "block");

@@ -61,7 +61,7 @@ class RelPage extends \Cx\Model\Base\EntityBase
     /**
      * @var Cx\Core\ContentManager\Model\Entity\Page
      */
-    protected $contentPage;
+    protected $page;
 
 
     /**
@@ -105,22 +105,22 @@ class RelPage extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Set contentPage
+     * Set page
      *
-     * @param Cx\Core\ContentManager\Model\Entity\Page $contentPage
+     * @param Cx\Core\ContentManager\Model\Entity\Page $page
      */
-    public function setContentPage(\Cx\Core\ContentManager\Model\Entity\Page $contentPage)
+    public function setPage(\Cx\Core\ContentManager\Model\Entity\Page $page)
     {
-        $this->contentPage = $contentPage;
+        $this->page = $page;
     }
 
     /**
-     * Get contentPage
+     * Get page
      *
-     * @return Cx\Core\ContentManager\Model\Entity\Page $contentPage
+     * @return Cx\Core\ContentManager\Model\Entity\Page $page
      */
-    public function getContentPage()
+    public function getPage()
     {
-        return $this->contentPage;
+        return $this->page;
     }
 }
