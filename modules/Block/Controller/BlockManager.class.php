@@ -133,7 +133,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $this->_strOkMessage = $_ARRAYLANG['TXT_SETTINGS_UPDATED'];
             // Clear cache
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
         }
 
     }
@@ -269,7 +269,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             if ($clearCache) {
                 // Clear cache
                 $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+                $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
             }
         }
 
@@ -502,7 +502,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         if ($this->_deleteCategory($_REQUEST['id'])) {
             // Clear cache
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
             $this->_strOkMessage  = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_OK'];
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_ERROR'];
@@ -595,7 +595,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 } else {
                     // Clear cache
                     $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                    $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+                    $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
                     $this->_strOkMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_OK'];
                 }
                 break;
@@ -623,7 +623,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         if ($this->_saveCategory($id, $parent, $name, $seperator, $order, $status)) {
             // Clear cache
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
             $this->_strOkMessage  = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_ADD_OK'];
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_ADD_ERROR'];
@@ -835,7 +835,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
                         // Clear cache
                         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+                        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
                         exit;
                     }
@@ -847,7 +847,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
                         // Clear cache
                         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+                        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
                         exit;
                     }
@@ -1225,7 +1225,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             if ($clearCache) {
                 // Clear cache
                 $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+                $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
             }
         }
     }
@@ -1265,7 +1265,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         if ($clearCache) {
             // Clear cache
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
         }
         $categoryParam = isset($_GET['catId']) ? '&catId=' . contrexx_input2int($_GET['catId']) : '';
         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block' . $categoryParam);
@@ -1306,7 +1306,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         if ($clearCache) {
             // Clear cache
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getAllBlockNames()));
+            $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $this->getBlockNamesByCriteria()));
         }
         $categoryParam = isset($_GET['catId']) ? '&catId=' . contrexx_input2int($_GET['catId']) : '';
         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block' . $categoryParam);
