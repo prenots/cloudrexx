@@ -1634,7 +1634,7 @@ JSCODE;
             $objInputfields = new MediaDirectoryInputfield($entry['entryFormId'], false, $entry['entryTranslationStatus'], $this->moduleName);
             $inputFields    = $objInputfields->getInputfields();
             foreach ($inputFields as $arrInputfield) {
-                $intInputfieldId = intval($arrInputfield['id']);
+                $intInputFieldId = intval($arrInputfield['id']);
                 $contextType = isset($arrInputfield['context_type']) ? $arrInputfield['context_type'] : '';
                 if (!in_array($contextType, array('title', 'content'))) {
                     continue;
@@ -1666,7 +1666,6 @@ JSCODE;
                                 )
                             )
                         );
-                        \Cx\Modules\Block\Controller\Block::setBlocks($arrInputfieldContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'], \Cx\Core\Core\Controller\Cx::instanciate()->getPage());
                     }
                 } catch (\Exception $e) {
                     \DBG::log($e->getMessage());

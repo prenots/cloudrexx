@@ -265,7 +265,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $page = $pageRepo->find($params['get']['page']);
         
-        \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
         \LinkGenerator::parseTemplate($content);
         $ls = new \LinkSanitizer(
             $cx,
