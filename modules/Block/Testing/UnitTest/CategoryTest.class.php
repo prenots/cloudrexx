@@ -49,7 +49,8 @@ namespace Cx\Modules\Block\Testing\UnitTest;
 class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 {
     /**
-     * @covers \Cx\Modules\Block\Controller\BlockLibrary::_saveCategory
+     * Tests category creation without enough arguments
+     *
      * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
      */
     public function testCreateCategoryNotEnoughArguments()
@@ -67,7 +68,7 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
-     * @covers \Cx\Modules\Block\Controller\BlockLibrary::_saveCategory
+     * Tests category creation
      */
     public function testCreateCategory()
     {
@@ -82,18 +83,16 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             1
         );
         $this->assertNotFalse($id);
-    }
 
-    public function testReadCategory()
-    {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $category = $categoryRepo->findOneBy(array('id' => 2));
-        $this->assertNotNull($category);
+        $category = $categoryRepo->findOneBy(array('id' => $id));
+        $this->assertEquals('Test Category', $category->getName());
     }
 
     /**
-     * @covers \Cx\Modules\Block\Controller\BlockLibrary::_saveCategory
+     * Tests update on non existing category
+     *
      * @expectedException \Cx\Modules\Block\Controller\NoCategoryFoundException
      */
     public function testUpdateCategoryNoCategoryFound()
@@ -111,7 +110,7 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
-     * @covers \Cx\Modules\Block\Controller\BlockLibrary::_saveCategory
+     * Tests block saving
      */
     public function testUpdateCategory()
     {
@@ -126,9 +125,16 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             1
         );
         $this->assertNotFalse($id);
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => 2));
+        $this->assertEquals('Test Category updated', $category->getName());
     }
 
     /**
+     * Test category deleting without enough arguments
+     *
      * @covers \Cx\Modules\Block\Controller\BlockLibrary::_deleteCategory
      * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
      */
@@ -140,6 +146,8 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
+     * Tests deleting on non existing category
+     *
      * @covers \Cx\Modules\Block\Controller\BlockLibrary::_deleteCategory
      * @expectedException \Cx\Modules\Block\Controller\NoCategoryFoundException
      */
@@ -151,6 +159,8 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
+     * Tests category deleting
+     *
      * @covers \Cx\Modules\Block\Controller\BlockLibrary::_deleteCategory
      */
     public function testDeleteCategory()
@@ -159,10 +169,15 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $blockLibrary = $this->getBlockLibrary();
         $return = $blockLibrary->_deleteCategory(2);
         $this->assertTrue($return);
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => 2));
+        $this->assertNull($category);
     }
 
     /**
-     * Get block library using repository
+     * Gets block library using repository
      *
      * @return \Cx\Modules\Block\Controller\BlockLibrary
      */
