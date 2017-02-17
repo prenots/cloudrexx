@@ -172,9 +172,21 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return \Cx\Model\Base\EntityBase Parse target entity
      */
     protected function getParseTarget($componentName, $entityName, $entityId) {
+        // the following IF block can be dropped as soon as InputField is a Doctrine entity
+        if ($componentName == 'MediaDir' && $entityName == 'InputField') {
+            $entityId = explode('/', $entityId);
+            if (count($entityId) != 3) {
+                throw new \Exception('Wrong ID format for MediaDir InputField');
+            }
+            return new \Cx\Modules\MediaDir\Model\Entity\RelEntryInputfields(
+                $entityId[0],
+                $entityId[1],
+                $entityId[2]
+            );
         // the following IF block can be dropped as soon as Block is a Doctrine entity
-        if ($componentName == 'Block' && $entityName == 'Block') {
+        } else if ($componentName == 'Block' && $entityName == 'Block') {
             return new \Cx\Modules\Block\Model\Entity\Block($entityId);
+        // the following IF block can be dropped as soon as Theme is a Doctrine entity
         } else if ($componentName == 'View' && $entityName == 'Theme') {
             $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
             return $themeRepo->findById($entityId);

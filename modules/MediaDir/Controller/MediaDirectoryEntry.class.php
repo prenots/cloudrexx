@@ -1634,6 +1634,7 @@ JSCODE;
             $objInputfields = new MediaDirectoryInputfield($entry['entryFormId'], false, $entry['entryTranslationStatus'], $this->moduleName);
             $inputFields    = $objInputfields->getInputfields();
             foreach ($inputFields as $arrInputfield) {
+                $intInputfieldId = intval($arrInputfield['id']);
                 $contextType = isset($arrInputfield['context_type']) ? $arrInputfield['context_type'] : '';
                 if (!in_array($contextType, array('title', 'content'))) {
                     continue;
@@ -1648,6 +1649,23 @@ JSCODE;
                     $arrInputfieldContent = $objInputfield->getContent($entry['entryId'], $arrInputfield, $arrTranslationStatus);
                     if (\Cx\Core\Core\Controller\Cx::instanciate()->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND && \Cx\Core\Setting\Controller\Setting::getValue('blockStatus', 'Config')) {
                         $arrInputfieldContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = preg_replace('/\\[\\[(BLOCK_[A-Z0-9_-]+)\\]\\]/', '{\\1}', $arrInputfieldContent[$this->moduleLangVar.'_INPUTFIELD_VALUE']);
+                        $inputFieldTemplate = new \Cx\Core\Html\Sigma();
+                        $inputFieldTemplate->setTemplate(
+                            $arrInputfieldContent[$this->moduleLangVar.'_INPUTFIELD_VALUE']
+                        );
+                        $arrInputfieldContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $cx->getComponent('Widget')->parseWidgets(
+                            $inputFieldTemplate,
+                            'MediaDir',
+                            'InputField',
+                            implode(
+                                '/',
+                                array(
+                                    $entry['entryId'],
+                                    $entryForm,
+                                    $intInputFieldId,
+                                )
+                            )
+                        );
                         \Cx\Modules\Block\Controller\Block::setBlocks($arrInputfieldContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'], \Cx\Core\Core\Controller\Cx::instanciate()->getPage());
                     }
                 } catch (\Exception $e) {
