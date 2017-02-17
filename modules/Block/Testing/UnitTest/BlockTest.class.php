@@ -58,10 +58,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testGetBlockContentNotEnoughArguments()
     {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $user = \FWUser::getFWUserObject()->objUser->getUser(1);
-        \FWUser::loginUser($user);
-
         $jsonBlock = $this->getJsonBlockController();
         $jsonBlock->getBlockContent(array());
     }
@@ -72,10 +68,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testGetBlockContentNoBlockFound()
     {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $user = \FWUser::getFWUserObject()->objUser->getUser(1);
-        \FWUser::loginUser($user);
-
         $jsonBlock = $this->getJsonBlockController();
         $jsonBlock->getBlockContent(
             array(
@@ -93,10 +85,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testGetBlockContent()
     {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $user = \FWUser::getFWUserObject()->objUser->getUser(1);
-        \FWUser::loginUser($user);
-
         $jsonBlock = $this->getJsonBlockController();
         $result = $jsonBlock->getBlockContent(
             array(
@@ -116,10 +104,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testSaveBlockContentNotEnoughArguments()
     {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $user = \FWUser::getFWUserObject()->objUser->getUser(1);
-        \FWUser::loginUser($user);
-
         $jsonBlock = $this->getJsonBlockController();
         $jsonBlock->saveBlockContent(array());
     }
@@ -129,10 +113,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testSaveBlockContent()
     {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $user = \FWUser::getFWUserObject()->objUser->getUser(1);
-        \FWUser::loginUser($user);
-
         $jsonBlock = $this->getJsonBlockController();
         $jsonBlock->saveBlockContent(
             array(

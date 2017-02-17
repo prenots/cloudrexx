@@ -55,7 +55,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testCreateCategoryNotEnoughArguments()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $blockLibrary->_saveCategory(
             0,
@@ -72,7 +71,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testCreateCategory()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $id = $blockLibrary->_saveCategory(
             0,
@@ -97,7 +95,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testUpdateCategoryNoCategoryFound()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $blockLibrary->_saveCategory(
             1,
@@ -114,7 +111,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testUpdateCategory()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $id = $blockLibrary->_saveCategory(
             2,
@@ -140,7 +136,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testDeleteCategoryNotEnoughArguments()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $blockLibrary->_deleteCategory();
     }
@@ -153,7 +148,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testDeleteCategoryNoCategoryFound()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $blockLibrary->_deleteCategory(1);
     }
@@ -165,7 +159,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testDeleteCategory()
     {
-        $this->loginUser();
         $blockLibrary = $this->getBlockLibrary();
         $return = $blockLibrary->_deleteCategory(2);
         $this->assertTrue($return);
@@ -184,15 +177,5 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     public function getBlockLibrary()
     {
         return new \Cx\Modules\Block\Controller\BlockLibrary();
-    }
-
-    /**
-     * Login a user for testing
-     */
-    protected function loginUser()
-    {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $user = \FWUser::getFWUserObject()->objUser->getUser(1);
-        \FWUser::loginUser($user);
     }
 }
