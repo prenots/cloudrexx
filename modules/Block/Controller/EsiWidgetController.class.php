@@ -87,11 +87,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         $blockPattern = '/^' . $block->blockNamePrefix . '([0-9]+)/';
         if (preg_match($blockPattern, $name, $matches)) {
             $block->setBlock(array($matches[1]), $code, $this->currentPageId);
+            $template->setVariable($name, $code);
         }
 
         // parse global block [[BLOCK_GLOBAL]]
         if ($name == $block->blockNamePrefix . 'GLOBAL') {
             $block->setBlockGlobal($code, $this->currentPageId);
+            $template->setVariable($name, $code);
         }
 
         // Set category blocks [[BLOCK_CAT_<ID>]]
@@ -99,8 +101,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         $catPattern = '/^' . $block->blockNamePrefix . 'CAT_([0-9]+)/';
         if (preg_match($catPattern, $name, $catMatches)) {
             $block->setCategoryBlock(array($catMatches[1]), $code, $this->currentPageId);
+            $template->setVariable($name, $code);
         }
-        $template->setVariable($name, $code);
 
         // Parse random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
         //                     [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
