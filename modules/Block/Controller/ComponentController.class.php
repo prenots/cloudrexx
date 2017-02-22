@@ -94,26 +94,29 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $blockNames = $block->getBlockNamesByCriteria('block');
         if ($blockNames) {
             foreach ($blockNames as $blockName) {
-                $widgetController->createWidget(
+                $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                     $this,
                     $blockName
                 );
+                $widgetController->registerWidget($widget);
             }
         }
 
         // Set global block [[BLOCK_GLOBAL]]
-        $widgetController->createWidget(
+        $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
             $this,
             $block->blockNamePrefix . 'GLOBAL'
         );
+        $widgetController->registerWidget($widget);
 
         // Set category blocks [[BLOCK_CAT_<ID>]]
         $catBlockNames = $block->getBlockNamesByCriteria('categoryBlock');
         foreach ($catBlockNames as $catBlockName) {
-            $widgetController->createWidget(
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $catBlockName
             );
+            $widgetController->registerWidget($widget);
         }
 
         // Set random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
@@ -124,11 +127,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $key += 1;
             }
             $availableBlocks = $block->getBlockNamesForRandomizer($key);
-            $widgetController->createRandomWidget(
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\RandomEsiWidget(
                 $this,
                 $randomizerName,
                 $availableBlocks
             );
+            $widgetController->registerWidget($widget);
         }
     }
 }
