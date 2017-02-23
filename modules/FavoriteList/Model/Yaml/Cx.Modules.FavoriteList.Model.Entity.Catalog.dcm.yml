@@ -1,0 +1,42 @@
+Cx\Modules\FavoriteList\Model\Entity\Catalog:
+  type: entity
+  table: module_favoritelist_catalog
+  repositoryClass: Cx\Modules\FavoriteList\Model\Repository\CatalogRepository
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    sessionId:
+      column: session_id
+      type: string
+      length: 255
+      nullable: true
+    name:
+      type: string
+      length: 255
+    date:
+      type: datetime
+    meta:
+      type: text
+      nullable: true
+    counterMail:
+      column: counter_mail
+      type: integer
+    counterPrint:
+      column: counter_print
+      type: integer
+    counterRecommendation:
+      column: counter_recommendation
+      type: integer
+    counterInquiry:
+      column: counter_inquiry
+      type: integer
+  oneToMany:
+    favorites:
+      targetEntity: Favorite
+      mappedBy: catalog
+      joinColumn:
+        name: id
+        referencedColumnName: listId

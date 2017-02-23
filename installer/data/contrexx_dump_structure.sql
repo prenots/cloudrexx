@@ -1766,6 +1766,41 @@ CREATE TABLE `contrexx_module_egov_settings` (
   `set_paypal_ipn` tinyint(1) NOT NULL DEFAULT '0',
   KEY `set_id` (`set_id`)
 ) ENGINE=MyISAM;
+CREATE TABLE `contrexx_module_favoritelist_catalog` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `date` datetime NOT NULL,
+  `meta` longtext COLLATE utf8_unicode_ci DEFAULT NULL,
+  `counter_mail` INT NOT NULL DEFAULT 0,
+  `counter_print` INT NOT NULL DEFAULT 0,
+  `counter_recommendation` INT NOT NULL DEFAULT 0,
+  `counter_inquiry` INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_module_favoritelist_favorite` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `list_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `description` longtext COLLATE utf8_unicode_ci,
+  `message` longtext COLLATE utf8_unicode_ci,
+  `price` float DEFAULT NULL,
+  `image_1` varchar(255) DEFAULT NULL,
+  `image_2` varchar(255) DEFAULT NULL,
+  `image_3` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `contrexx_module_favoritelist_favorite_ibfk_list_id` FOREIGN KEY (`list_id`) REFERENCES `contrexx_module_favoritelist_catalog` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_module_favoritelist_form_field` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` enum('text','textarea','select','radio','checkbox','mail') NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `required` int(1) NOT NULL DEFAULT '0',
+  `order` int(11) NOT NULL DEFAULT '0',
+  `values` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_feed_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(150) NOT NULL DEFAULT '',

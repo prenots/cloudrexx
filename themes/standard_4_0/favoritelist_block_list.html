@@ -1,0 +1,24 @@
+<!-- BEGIN favoritelist_block_list_no_list -->
+<p>{FAVORITELIST_BLOCK_LIST_MESSAGE_NO_CATALOG}</p>
+<!-- END favoritelist_block_list_no_list -->
+
+<!-- BEGIN favoritelist_block_list_no_entries -->
+<p>{FAVORITELIST_BLOCK_LIST_MESSAGE_NO_ENTRIES}</p>
+<!-- END favoritelist_block_list_no_entries -->
+
+<!-- BEGIN favoritelist_block_list -->
+<ul>
+    <!-- BEGIN favoritelist_block_list_row -->
+    <li class="{FAVORITELIST_BLOCK_LIST_ENTITY}" data-id="{FAVORITELIST_BLOCK_LIST_ID}">
+        <span>{FAVORITELIST_BLOCK_LIST_NAME}</span>
+        <span class="functions">
+            <a class="edit" href="{FAVORITELIST_BLOCK_LIST_EDIT_LINK}"></a>
+            <a class="delete" href="javascript:void(0);" onclick="{FAVORITELIST_BLOCK_LIST_DELETE_ACTION}"></a>
+        </span>
+        <textarea name="{FAVORITELIST_BLOCK_LIST_MESSAGE_NAME}">{FAVORITELIST_BLOCK_LIST_MESSAGE}</textarea>
+    </li>
+    <!-- END favoritelist_block_list_row -->
+</ul>
+<a class="btn btn-default" href="javascript:void(0);" onclick="{FAVORITELIST_BLOCK_SAVE_ACTION}">{FAVORITELIST_BLOCK_SAVE_LABEL}</a>
+<p>{FAVORITELIST_BLOCK_TOTAL_PRICE_LABEL}: {FAVORITELIST_BLOCK_TOTAL_PRICE}</p>
+<!-- END favoritelist_block_list -->
