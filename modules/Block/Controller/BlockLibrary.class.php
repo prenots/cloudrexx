@@ -1165,10 +1165,7 @@ class BlockLibrary
     function _saveCategory($id = 0, $parent = 0, $name, $seperator, $order = 1, $status = 1)
     {
         // check for necessary arguments
-        if (
-            empty($name) ||
-            empty($seperator)
-        ) {
+        if (empty($name)) {
             throw new NotEnoughArgumentsException('not enough arguments');
         }
 

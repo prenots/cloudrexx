@@ -59,7 +59,7 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $blockLibrary->_saveCategory(
             0,
             0,
-            'Test Category',
+            null,
             null,
             1,
             1

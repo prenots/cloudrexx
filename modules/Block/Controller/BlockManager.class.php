@@ -1395,12 +1395,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $seperator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'));
         $parsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
         $this->_objTpl->setVariable(array(
-            'BLOCK_GLOBAL_SEPERATOR'  =>   isset($seperator)
-                                         ? contrexx_raw2xhtml($parsedBlock) : '',
-            'BLOCK_MARK_PARSED_BLOCK' =>   !empty($parsedBlock)
-                                         ? 'checked="checked"' : '',
-            'BLOCK_USE_BLOCK_SYSTEM'  => $_CONFIG['blockStatus'] == '1' ? 'checked="checked"' : '',
-            'BLOCK_USE_BLOCK_RANDOM'  => $_CONFIG['blockRandom'] == '1' ? 'checked="checked"' : '',
+            'BLOCK_GLOBAL_SEPERATOR' => isset($seperator) ? contrexx_raw2xhtml($parsedBlock) : '',
+            'BLOCK_MARK_PARSED_BLOCK' => !empty($parsedBlock) ? 'checked="checked"' : '',
+            'BLOCK_USE_BLOCK_SYSTEM' => $_CONFIG['blockStatus'] == '1' ? 'checked="checked"' : '',
+            'BLOCK_USE_BLOCK_RANDOM' => $_CONFIG['blockRandom'] == '1' ? 'checked="checked"' : '',
         ));
 
     }
