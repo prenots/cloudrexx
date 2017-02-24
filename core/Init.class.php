@@ -928,10 +928,10 @@ class InitCMS
         $isCustomized = false;
         $customizedPath = \Env::get('ClassLoader')->getFilePath($path, $isCustomized);
         if (file_exists($path) || !file_exists($customizedPath)) {
-            require_once $path;
+            require $path;
         }
         if ($isCustomized) {
-            require_once $customizedPath;
+            require $customizedPath;
         }
 
         return $_ARRAYLANG;
