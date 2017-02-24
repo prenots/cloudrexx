@@ -44,7 +44,7 @@ namespace Cx\Core\LanguageManager\Controller;
  * @package     cloudrexx
  * @subpackage  core_languagemanager
  */
-class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController implements \Cx\Core\Event\Model\Entity\EventListener {
 
     /**
      * List of replacements for additional characters for slugifier
@@ -114,6 +114,62 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
         return array();
+    }
+
+    public function registerEventListeners() {
+        $this->cx->getEvents()->addEventListener('preComponent', $this);
+    }
+
+    /**
+     * Event handler to load component language
+     * @param string $eventName Name of triggered event, should always be static::EVENT_NAME
+     * @param array $eventArgs Supplied arguments, should be an array (see DBG message below)
+     */
+    public function onEvent($eventName, array $eventArgs) {
+        global $_ARRAYLANG;
+
+        // we might be in a hook where lang is not yet initialized (before resolve)
+        if (!count($_ARRAYLANG)) {
+            $_ARRAYLANG = array();
+        }
+
+        $frontend = $this->cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND;
+        $languageId = 0;
+        if ($frontend) {
+            if (defined('FRONTEND_LANG_ID')) {
+                $languageId = FRONTEND_LANG_ID;
+            }
+        } else {
+            if (defined('BACKEND_LANG_ID')) {
+                $languageId = BACKEND_LANG_ID;
+            }
+        }
+        $objInit = \Env::get('init');
+        if (!$objInit || !$languageId) {
+            return;
+        }
+        switch ($eventName) {
+            case 'preComponent':
+                // Skip if this component's lang already is in $_ARRAYLANG
+                if (
+                in_array(
+                    $eventArgs['componentName'],
+                    $this->componentsWithLoadedLang
+                )
+                ) {
+                    return;
+                }
+
+                $_ARRAYLANG = array_merge(
+                    $_ARRAYLANG,
+                    $objInit->getComponentSpecificLanguageData(
+                        $eventArgs['componentName'],
+                        $frontend
+                    )
+                );
+                $this->componentsWithLoadedLang[] = $eventArgs['componentName'];
+                break;
+        }
     }
 
      /**
