@@ -92,7 +92,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
-    public function executeCommand($command, $arguments)
+    public function executeCommand($command, $arguments, $dataArguments = array())
     {
         $subcommand = null;
         if (!empty($arguments[0])) {
