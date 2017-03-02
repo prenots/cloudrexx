@@ -571,6 +571,12 @@ class DirectoryManager extends DirectoryLibrary
                                 onlyentries='".$levOnlyEntries."'");
         if ($objResult !== false) {
             $this->strOkMessage = $_ARRAYLANG['TXT_LEVEL_SUCCESSULL_ADDED'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('DIRECTORY_FILE'))
+            );
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_ADD_LEVEL_ERROR'];
         }
@@ -739,6 +745,12 @@ class DirectoryManager extends DirectoryLibrary
             if ($objResult !== false) {
                 $this->showLevels();
                 $this->strOkMessage = $_ARRAYLANG['TXT_LEVEL_SUCCESSFULL_EDIT'];
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('DIRECTORY_FILE'))
+                );
             } else {
                 $this->strErrMessage = $_ARRAYLANG['TXT_LEVEL_EDIT_ERROR'];
             }
@@ -1069,6 +1081,12 @@ class DirectoryManager extends DirectoryLibrary
 
         //status
         $this->strOkMessage = $_ARRAYLANG['TXT_DIR_CAT_SUCCESSFULL_ADDED'];
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('DIRECTORY_FILE'))
+        );
     }
 
 
@@ -1082,6 +1100,7 @@ class DirectoryManager extends DirectoryLibrary
     {
         global $objDatabase, $_ARRAYLANG;
 
+        $clearCache = true;
         switch ($_GET['act']) {
             case'move':
                 foreach($_POST["formSelected"] as $catName => $catKey) {
@@ -1101,6 +1120,7 @@ class DirectoryManager extends DirectoryLibrary
                 break;
             case'movefile':
                 // initialize variables
+                $clearCache = false;
                 $this->_objTpl->loadTemplateFile('module_directory_entry_move.html',true,true);
                 $this->pageTitle =  "Eintr�ge verschieben";
 
@@ -1246,8 +1266,17 @@ EOF;
                     }
                     $_SESSION['formSelected'] = null;
                     $this->showFiles('', '');
+                    $clearCache = true;
                 }
                 break;
+        }
+        if ($clearCache) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('DIRECTORY_FILE'))
+            );
         }
     }
 
@@ -1398,6 +1427,12 @@ EOF;
             $this->restoreVoting($id);
             $this->strOkMessage = $_ARRAYLANG['TXT_DIR_FEED_SUCCESSFULL_DEL'];
             $this->dirLog ="";
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDirectoryWidgetNames())
+            );
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_DIR_CORRUPT_DEL'];
         }
@@ -1427,7 +1462,13 @@ EOF;
         }
 
         if ($status == '') {
-            $this->strOkMessage = $_ARRAYLANG['TXT_LEVEL_SUCCESSFULL_DEL'];;
+            $this->strOkMessage = $_ARRAYLANG['TXT_LEVEL_SUCCESSFULL_DEL'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('DIRECTORY_FILE'))
+            );
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_LEVEL_CORRUPT_DEL'];
         }
@@ -1499,6 +1540,12 @@ EOF;
         $this->deleteSubcategorie($catId);
 
         $this->strOkMessage = $_ARRAYLANG['TXT_DIR_CAT_SUCCESSFULL_DEL'];
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('DIRECTORY_FILE'))
+        );
     }
 
 
@@ -1559,6 +1606,12 @@ EOF;
 
                 //change status
                 $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_directory_levels SET status='".$levelStatus."' WHERE id='".$levelId."'");
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('DIRECTORY_FILE'))
+                );
 
                 \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Directory&act=levels');
                 exit;
@@ -1569,6 +1622,12 @@ EOF;
 
                 //change status
                 $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_directory_categories SET status='".$catStatus."' WHERE id='".$catId."'");
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('DIRECTORY_FILE'))
+                );
 
                 \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Directory');
                 exit;
@@ -1596,6 +1655,12 @@ EOF;
         }
         //status
         $this->strOkMessage = $_ARRAYLANG['TXT_DIR_CHANGES_SAVED'];
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('DIRECTORY_FILE'))
+        );
     }
 
 
@@ -1620,6 +1685,12 @@ EOF;
         //status
         if ($objResult !== false) {
             $this->strOkMessage = $_ARRAYLANG['TXT_DIR_CHANGES_SAVED'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('DIRECTORY_FILE'))
+            );
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_ORDER_CORRUPT_EDIT'];
         }
@@ -1737,6 +1808,12 @@ EOF;
             if ($objResult !== false) {
                 $this->showCategories();
                 $this->strOkMessage = $_ARRAYLANG['TXT_CAT_SUCCESSFULL_EDIT'];
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('DIRECTORY_FILE'))
+                );
             } else {
                 $this->strErrMessage = $_ARRAYLANG['TXT_CAT_CORRUPT_EDIT'];;
             }
@@ -2930,6 +3007,12 @@ EOF;
 
             }
             $this->strOkMessage = $_ARRAYLANG['TXT_DIR_SETTINGS_SUCCESFULL_SAVE'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('DIRECTORY_FILE'))
+            );
         }
 
         if (isset($_POST['set_homecontent_submit'])) {
@@ -2944,6 +3027,12 @@ EOF;
                 }
             }
 
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('DIRECTORY_FILE'))
+            );
             \Cx\Core\Csrf\Controller\Csrf::header('Location: ?cmd=Directory&act=settings&tpl=homecontent');
             exit;
 

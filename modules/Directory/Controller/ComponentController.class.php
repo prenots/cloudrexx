@@ -138,14 +138,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         //Show Latest Directory entries
         for ($i = 1; $i <= 10; $i++) {
-            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
-                $this,
-                'directoryLatest_row_' . $i,
-                true
-            );
-            $widgetController->registerWidget(
-                $widget
-            );
+            for ($j = 1; $j <= $i; $j++) {
+                $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                    $this,
+                    'directoryLatest_row_' . $j . '_' . $i,
+                    true
+                );
+                $widgetController->registerWidget(
+                    $widget
+                );
+            }
         }
     }
 

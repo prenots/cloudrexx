@@ -2052,14 +2052,17 @@ $this->arrRows[2] = '';
     /**
      * Get the latest directory entries
      *
-     * @param \Cx\Core\Html\Sigma $template  template object
-     * @param array               $arrBlocks array of blocks
-     * @param integer             $blockId   block ID
+     * @param \Cx\Core\Html\Sigma $template         template object
+     * @param integer             $startingPosition entries starting position
+     * @param integer             $diffCount        difference between two entries position
      *
-     * @return null
+     * @return type
      */
-    function getBlockLatest(\Cx\Core\Html\Sigma $template, $arrBlocks, $blockId)
-    {
+    function getBlockLatest(
+        \Cx\Core\Html\Sigma $template,
+        $startingPosition,
+        $diffCount
+    ) {
         global $objDatabase;
 
         //get latest
@@ -2080,11 +2083,10 @@ $this->arrRows[2] = '';
             return;
         }
 
-        $i             = 0;
-        $numOfBlocks   = count($arrBlocks);
-        $blockPosition = array_search($blockId, $arrBlocks);
+        $i        = 1;
+        $position = $startingPosition;
         while (!$objResult->EOF) {
-            if ($i != $blockPosition) {
+            if ($i != $position) {
                 $i++;
                 $objResult->MoveNext();
                 continue;
@@ -2119,9 +2121,9 @@ $this->arrRows[2] = '';
                 'DIRECTORY_LOGO'  => $logo,
                 'DIRECTORY_ID'    => contrexx_raw2xhtml($objResult->fields['id']),
             ));
-            $template->parse('directoryLatest_row_'.$blockId);
+            $template->parse('directoryLatest_row_' . $startingPosition . '_' . $diffCount);
             $i++;
-            $blockPosition += $numOfBlocks;
+            $position += $diffCount;
             $objResult->MoveNext();
         }
     }
