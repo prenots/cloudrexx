@@ -105,7 +105,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * file config/postInitHooks.yml.
      * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function postInit()
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
         $widgetController = $this->getComponent('Widget');
         foreach (array('FORUM_FILE', 'FORUM_TAG_CLOUD') as $widgetName) {
