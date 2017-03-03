@@ -177,6 +177,12 @@ class ForumLibrary
         if ($objDatabase->Execute($query) === false) {
             die('Database error: '.$objDatabase->ErrorMsg());
         }
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+        );
 //      $objCache = new \Cache();
 //      $objCache->deleteAllFiles();
         return true;
@@ -282,6 +288,12 @@ class ForumLibrary
         } else {
             die('Database error: '.$objDatabase->ErrorMsg());
         }
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+        );
 //      $objCache = new \Cache();
 //      $objCache->deleteAllFiles();
         return true;
@@ -387,7 +399,8 @@ class ForumLibrary
                     $strCssClass = 'forumTagCloudSmallest';
                 }
 
-                $strReturn .= '<li class="'.$strCssClass.'"><a href="'.CONTREXX_SCRIPT_PATH.'?section=Forum&amp;cmd=searchTags&amp;term='.$strTag.'" title="'.$strTag.'">'.$strTag.'</a></li>';
+                $url = \Cx\Core\Routing\Url::fromModuleAndCmd('Forum', 'searchTags', '', array('term' => $strTag))->toString();
+                $strReturn .= '<li class="'.$strCssClass.'"><a href="'.$url.'" title="'.$strTag.'">'.$strTag.'</a></li>';
             }
 
             $strReturn .= '</ul>';
@@ -1261,9 +1274,25 @@ class ForumLibrary
         $rowclass=0;
         foreach ($arrLatestEntries as $entry) {
             $strUserProfileLink = ($entry['user_id'] > 0) ? '<a href="'.CONTREXX_DIRECTORY_INDEX.'?section=Access&amp;cmd=user&amp;id='.$entry['user_id'].'" title="'.$entry['username'].'">'.$entry['username'].'</a>' : $entry['username'] ;
+            $threadUrl = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Forum',
+                'thread',
+                '',
+                array(
+                    'postid' => $entry['post_id'],
+                    'l' => 1,
+                    'id' => $entry['thread_id'] . '#p' . $entry['post_id']
+                )
+            )->toString();
+            $forumUrl  = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Forum',
+                'board',
+                '',
+                array('id' => $entry['cat_id'])
+            )->toString();
             $this->_objTpl->setVariable(array(
-                'FORUM_THREAD'              =>  '<a href="'.CONTREXX_SCRIPT_PATH.'?section=Forum&amp;cmd=thread&amp;postid='.$entry['post_id'].'&amp;l=1&amp;id='.$entry['thread_id'].'#p'.$entry['post_id'].'" title="'.$entry['subject'].'">'.$this->_shortenString($entry['subject'], $this->_maxStringlength).'</a>',
-                'FORUM_FORUM_NAME'          =>  '<a href="'.CONTREXX_SCRIPT_PATH.'?section=Forum&amp;cmd=board&amp;id='.$entry['cat_id'].'" title="'.$entry['category_name'].'">'.$this->_shortenString($entry['category_name'], $this->_maxStringlength/2).'</a>',
+                'FORUM_THREAD'              =>  '<a href="' . $threadUrl . '" title="' . $entry['subject'] . '">' . $this->_shortenString($entry['subject'], $this->_maxStringlength).'</a>',
+                'FORUM_FORUM_NAME'          =>  '<a href="' . $forumUrl . '" title="' . $entry['category_name'] . '">' . $this->_shortenString($entry['category_name'], $this->_maxStringlength/2) . '</a>',
                 'FORUM_THREAD_STARTER'      =>  $strUserProfileLink,
                 'FORUM_POST_COUNT'          =>  $entry['postcount'],
                 'FORUM_THREAD_CREATE_DATE'  =>  $entry['time'],

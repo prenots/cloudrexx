@@ -372,6 +372,12 @@ class ForumAdmin extends ForumLibrary {
                                     LIMIT    1
                                 ');
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_STATUS_UPDATED'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+            );
 //            $objCache = new \CacheManager();
 //            $objCache->deleteAllFiles();
         }
@@ -441,6 +447,12 @@ class ForumAdmin extends ForumLibrary {
                             ');
 
         $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_DELETED'];
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+        );
 //        $objCache = new \CacheManager();
 //        $objCache->deleteAllFiles();
     }
@@ -466,6 +478,12 @@ class ForumAdmin extends ForumLibrary {
                 }
             }
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_SORTING_UPDATED'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+            );
 //            $objCache = new \CacheManager();
 //            $objCache->deleteAllFiles();
         }
@@ -557,6 +575,13 @@ class ForumAdmin extends ForumLibrary {
 
             $this->_arrTranslations = $this->createTranslationArray();
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_ADD_SUCCESS'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+            );
+
 //            $objCache = new \CacheManager();
 //            $objCache->deleteAllFiles();
         } else {
@@ -721,6 +746,12 @@ class ForumAdmin extends ForumLibrary {
 
             $this->_arrTranslations = $this->createTranslationArray();
             $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_UPDATE_OK'];
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+            );
 //            $objCache = new \CacheManager();
 //            $objCache->deleteAllFiles();
         } else {
@@ -788,6 +819,12 @@ class ForumAdmin extends ForumLibrary {
                 $objResult->MoveNext();
             }
         }
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+        );
 //        $objCache = new \CacheManager();
 //        $objCache->deleteAllFiles();
     }
@@ -897,6 +934,12 @@ class ForumAdmin extends ForumLibrary {
            foreach($arrRights as $intGroupId => $arrRights) {
             $this->saveRights($intCategoryId,$intGroupId,$arrRights,$boolBequeath);
         }
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+        );
 //        $objCache = new CacheManager();
 //        $objCache->deleteAllFiles();
         $this->_strOkMessage = $_ARRAYLANG['TXT_FORUM_CATEGORY_ACCESS_UPDATED'];
@@ -1095,6 +1138,12 @@ class ForumAdmin extends ForumLibrary {
         $this->_arrSettings     = $this->createSettingsArray();
 //        $objCache = new \CacheManager();
 //        $objCache->deleteAllFiles();
+        // Clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('FORUM_FILE', 'FORUM_TAG_CLOUD'))
+        );
         $this->_strOkMessage     = $_ARRAYLANG['TXT_FORUM_SETTINGS_UPDATE_OK'];
     }
 }
