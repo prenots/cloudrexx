@@ -62,11 +62,24 @@ function _accessUpdate()
             );
             $result = \Cx\Lib\UpdateUtil::sql('SHOW KEYS FROM `' . DBPREFIX . 'access_group_dynamic_ids`');
             if ($result->EOF) {
-                \Cx\Lib\UpdateUtil::sql('ALTER IGNORE TABLE `' . DBPREFIX . 'access_group_dynamic_ids` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                // ALTER IGNORE TABLE has been removed in MySQL 5.7.4
+                //\Cx\Lib\UpdateUtil::sql('ALTER IGNORE TABLE `' . DBPREFIX . 'access_group_dynamic_ids` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                \Cx\Lib\UpdateUtil::sql('CREATE TABLE `' . DBPREFIX . 'access_group_dynamic_ids_unique` LIKE `' . DBPREFIX . 'access_group_dynamic_ids`');
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `' . DBPREFIX . 'access_group_dynamic_ids_unique` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                \Cx\Lib\UpdateUtil::sql('INSERT IGNORE `' . DBPREFIX . 'access_group_dynamic_ids_unique` SELECT * FROM `' . DBPREFIX . 'access_group_dynamic_ids`');
+                \Cx\Lib\UpdateUtil::sql('DROP TABLE `' . DBPREFIX . 'access_group_dynamic_ids`');
+                \Cx\Lib\UpdateUtil::sql('RENAME TABLE `' . DBPREFIX . 'access_group_dynamic_ids_unique` TO `' . DBPREFIX . 'access_group_dynamic_ids`');
             }
             $result = \Cx\Lib\UpdateUtil::sql('SHOW KEYS FROM `' . DBPREFIX . 'access_group_static_ids`');
             if ($result->EOF) {
-                \Cx\Lib\UpdateUtil::sql('ALTER IGNORE TABLE `' . DBPREFIX . 'access_group_static_ids` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                // ALTER IGNORE TABLE has been removed in MySQL 5.7.4
+                //\Cx\Lib\UpdateUtil::sql('ALTER IGNORE TABLE `' . DBPREFIX . 'access_group_static_ids` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                //\Cx\Lib\UpdateUtil::sql('ALTER TABLE `' . DBPREFIX . 'access_group_static_ids` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                \Cx\Lib\UpdateUtil::sql('CREATE TABLE `' . DBPREFIX . 'access_group_static_ids_unique` LIKE `' . DBPREFIX . 'access_group_static_ids`');
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `' . DBPREFIX . 'access_group_static_ids_unique` ADD PRIMARY KEY ( `access_id` , `group_id` )');
+                \Cx\Lib\UpdateUtil::sql('INSERT IGNORE `' . DBPREFIX . 'access_group_static_ids_unique` SELECT * FROM `' . DBPREFIX . 'access_group_static_ids`');
+                \Cx\Lib\UpdateUtil::sql('DROP TABLE `' . DBPREFIX . 'access_group_static_ids`');
+                \Cx\Lib\UpdateUtil::sql('RENAME TABLE `' . DBPREFIX . 'access_group_static_ids_unique` TO `' . DBPREFIX . 'access_group_static_ids`');
             }
         }
         catch (\Cx\Lib\UpdateException $e) {
@@ -981,6 +994,14 @@ function _accessUpdate()
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."access_settings` (`key`, `value`, `status`) VALUES ('user_account_verification', '1', '1') ON DUPLICATE KEY UPDATE `key` = `key`");
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."access_user_mail` (`type`, `lang_id`, `sender_mail`, `sender_name`, `subject`, `format`, `body_text`, `body_html`) VALUES ('user_account_invitation',0,'info@cloudrexx.com','Cloudrexx','Willkommen bei Cloudrexx','multipart','Hallo [[FIRSTNAME]] [[LASTNAME]]\r\n\r\nFür Sie wurde ein persönlicher Zugang bei [[WEBSITE]] eingerichtet.\r\nSie können sich unter dem Link [[LINK]] mit den folgenden Angaben anmelden:\r\nBenutzername: [[EMAIL]]\r\nPasswort: [[PASSWORD]]\r\n\r\n\r\nSupport\r\n--------------------------------------\r\nHaben Sie noch Fragen? Antworten Sie einfach auf diese E-Mail oder melden Sie sich unter support@cloudrexx.com. Wir sind gerne für Sie da.\r\n\r\n\r\nFreundliche Grüsse\r\nIhr Cloudrexx-Team','<html>\r\n<head>\r\n	<title></title>\r\n</head>\r\n<body style=\"cursor: auto;\">\r\n<style type=\"text/css\">*, html, body, table {padding: 0;margin: 0;font-size: 14px;font-family: arial;line-height: 1.5;color: #000000;}\r\n  body {background-color: #fff;}\r\n  a {color: #0071bc;text-decoration: none;}\r\n</style>\r\n<table bgcolor=\"#fff\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\r\n	<tbody>\r\n		<tr>\r\n			<td bgcolor=\"#0071bc\" style=\"height:75px;\">\r\n			<div align=\"center\">\r\n			<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"596\">\r\n				<tbody>\r\n					<tr>\r\n						<td align=\"left\" style=\"padding-top: 15px; padding-bottom: 12px;\"><img alt=\"logo\" src=\"https://media.cloudrexx.com/1.0.0/cloudrexx_logo_145x25.png\" /></td>\r\n						<td align=\"right\" style=\"padding-top: 12px; padding-bottom: 12px;\"><span style=\"color:#fff; font-size: 18px;font-family: arial;\">Ihr pers&ouml;nlicher Zugang</span></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n			</div>\r\n			</td>\r\n		</tr>\r\n		<tr>\r\n			<td>&nbsp;</td>\r\n		</tr>\r\n		<tr>\r\n			<td>\r\n			<div align=\"center\">\r\n			<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"480\">\r\n				<tbody>\r\n					<tr>\r\n						<td style=\"padding-bottom: 7px;\">\r\n						<h1 style=\"font-size: 25px;font-family: arial;\">Willkommen bei Cloudrexx!</h1>\r\n						</td>\r\n					</tr>\r\n					<tr>\r\n						<td style=\"padding-bottom: 13px;  font-family: arial; font-size:14px\"><br />\r\n						Hallo [[FIRSTNAME]] [[LASTNAME]]<br />\r\n						<br />\r\n						F&uuml;r Sie wurde ein pers&ouml;nlicher Zugang bei [[WEBSITE]] eingerichtet.<br />\r\n						Sie k&ouml;nnen sich unter dem Link [[LINK]] mit den folgenden Angaben anmelden:<br />\r\n						<br />\r\n						Benutzername: [[EMAIL]]<br />\r\n						Passwort: [[PASSWORD]]\r\n						<h2 style=\"font-size: 19px;\">Support</h2>\r\n						<span style=\"line-height: 21px;\">Haben Sie noch Fragen? Antworten Sie einfach auf diese E-Mail oder melden Sie sich unter </span><a href=\"mailto:support@cloudrexx.com\" style=\"line-height: 21px;\">support@cloudrexx.com</a><span style=\"line-height: 21px;\">. Wir sind gerne f&uuml;r Sie da.<br />\r\n						<br />\r\n						Freundliche Gr&uuml;sse<br />\r\n						Ihr Cloudrexx-Team</span><br />\r\n						&nbsp;</td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n			</div>\r\n			</td>\r\n		</tr>\r\n		<tr>\r\n			<td style=\"border-top: 1px solid #B9B9B9\">\r\n			<div align=\"center\">\r\n			<table cellspacing=\"0\" width=\"596\">\r\n				<tbody>\r\n					<tr>\r\n						<td align=\"left\" style=\"font-family: arial; color: #939fa2; font-size: 11px; padding-top: 14px;\" width=\"50%\">&copy; 2017 Cloudrexx AG</td>\r\n						<td align=\"right\" style=\"padding-top: 12px;\" width=\"33%\">&nbsp;</td>\r\n						<td align=\"right\" style=\"padding-top: 12px;\"><a href=\"https://www.cloudrexx.com/\" style=\"font-family: arial; color: #0071bc; font-size: 11px;\">www.cloudrexx.com</a></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n			</div>\r\n			</td>\r\n		</tr>\r\n	</tbody>\r\n</table>\r\n</body>\r\n</html>\r\n' ");
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
