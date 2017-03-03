@@ -518,6 +518,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             }
 
             $this->_strOkMessage = $_ARRAYLANG['TXT_DATA_CATEGORY_ADD_SUCCESSFULL'];
+            //clear Cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDataPlaceholderNames())
+            );
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_DATA_CATEGORY_ADD_ERROR_ACTIVE'];
         }
@@ -557,6 +563,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             $this->writeCategoryRSS();
 
             $this->_strOkMessage = $_ARRAYLANG['TXT_DATA_CATEGORY_DELETE_SUCCESSFULL'];
+            //clear Cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDataPlaceholderNames())
+            );
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_DATA_CATEGORY_DELETE_ERROR'];
         }
@@ -868,6 +880,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             }
 
             $this->_strOkMessage = $_ARRAYLANG['TXT_DATA_CATEGORY_UPDATE_SUCCESSFULL'];
+            //clear Cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDataPlaceholderNames())
+            );
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_DATA_CATEGORY_UPDATE_ERROR_ACTIVE'];
         }
@@ -1332,11 +1350,17 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                                         `release_time_end`  = '.$release_time_end);
             $intMessageId = $objDatabase->insert_id();
             $this->insertEntryData($intMessageId);
-
+            
             $this->writeMessageRSS();
             $this->writeCategoryRSS();
 
             $this->_strOkMessage = $_ARRAYLANG['TXT_DATA_ENTRY_ADD_SUCCESSFULL'];
+            //clear Cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDataPlaceholderNames())
+            );
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_DATA_ENTRY_ADD_ERROR_LANGUAGES'];
         }
@@ -1691,7 +1715,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                                     WHERE    message_id='.$intMessageId.'
                                     LIMIT    1
                                 ');
-
+            
 
             //Remove existing data for all languages
             $objDatabase->Execute('    DELETE
@@ -1713,6 +1737,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             $this->writeCategoryRSS();
 
             $this->_strOkMessage =  $_ARRAYLANG['TXT_DATA_ENTRY_UPDATE_SUCCESSFULL'];
+            //clear Cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDataPlaceholderNames())
+            );
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_DATA_ENTRY_UPDATE_ERROR_LANGUAGES'];
         }
@@ -1827,6 +1857,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             $this->writeCommentRSS();
 
             $this->_strOkMessage = $_ARRAYLANG['TXT_DATA_ENTRY_DELETE_SUCCESSFULL'];
+            //clear Cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', $this->getDataPlaceholderNames())
+            );
         } else {
             $this->_strErrMessage = $_ARRAYLANG['TXT_DATA_ENTRY_DELETE_ERROR_ID'];
         }
@@ -2023,6 +2059,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         $this->_arrSettings = $this->createSettingsArray();
 
         $this->_strOkMessage = $_ARRAYLANG['TXT_DATA_SETTINGS_SAVE_SUCCESSFULL'];
+        //clear Cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', $this->getDataPlaceholderNames())
+        );
     }
 
     /**

@@ -45,16 +45,34 @@ namespace Cx\Modules\Data\Controller;
  * @subpackage module_data
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+
     /**
-     * getControllerClasses
+     * Returns all Controller class names for this component (except this)
      *
-     * @return type
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
      */
-    public function getControllerClasses() {
-        return array();
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
     }
 
-     /**
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
      * Load the component Data.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -84,23 +102,27 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-    * Do something before content is loaded from DB
-    *
-    * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
-    */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $_CONFIG, $cl, $lang, $objInit, $dataBlocks, $lang, $dataBlocks, $themesPages, $page_template;
-        // Initialize counter and track search engine robot
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'component','Yaml');
-
-        if (\Cx\Core\Setting\Controller\Setting::getValue('dataUseModule') && $cl->loadFile(ASCMS_MODULE_PATH.'/Data/Controller/DataBlocks.class.php')) {
-            $lang = $objInit->loadLanguageData('Data');
-            $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks($lang);
-            \Env::get('cx')->getPage()->setContent($dataBlocks->replace(\Env::get('cx')->getPage()->getContent()));
-            $themesPages = $dataBlocks->replace($themesPages);
-            $page_template = $dataBlocks->replace($page_template);
+     * Do something after system initialization
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx   $cx The instance of \Cx\Core\Core\Controller\Cx
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+        $dataLibrary      = new DataLibrary();
+        foreach ($dataLibrary->getDataPlaceholderNames() as $widgetName) {
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                $this,
+                $widgetName
+            );
+            $widgetController->registerWidget(
+                $widget
+            );
         }
-
     }
 
 }

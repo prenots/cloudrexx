@@ -80,31 +80,6 @@ class DataBlocks extends \Cx\Modules\Data\Controller\DataLibrary
 
 
     /**
-     * Do the replacements
-     * @param string $data The pages on which the replacement should be done
-     * @return string
-     */
-    function replace($data)
-    {
-        if ($this->active) {
-            if (is_array($data)) {
-                foreach ($data as $key => $value) {
-                    $data[$key] = $this->replace($value);
-                }
-            } else {
-                $matches = array();
-                if (preg_match_all('/\{DATA_[A-Z_0-9]+\}/', $data, $matches) > 0) {
-                    foreach ($matches[0] as $match) {
-                        $data = str_replace($match, $this->getData($match), $data);
-                    }
-                }
-            }
-        }
-        return $data;
-    }
-
-
-    /**
      * Get the replacement content for the placeholder
      * @param string $placeholder
      * @return string

@@ -1378,4 +1378,26 @@ class DataLibrary
         return $retarr;
     }
 
+    /**
+     * Get the data placeholder names
+     *
+     * @return array
+     */
+    public function getDataPlaceholderNames()
+    {
+        global $objDatabase;
+
+        $query = 'SELECT `placeholder` FROM `' . DBPREFIX . 'module_data_placeholders`';
+        $dataPlaceholders = $objDatabase->Execute($query);
+        if (!$dataPlaceholders || $dataPlaceholders->RecordCount() == 0) {
+            return false;
+        }
+
+        while (!$dataPlaceholders->EOF) {
+            $placeholders[] = 'DATA_' . $dataPlaceholders->fields['placeholder'];
+            $dataPlaceholders->MoveNext();
+        }
+
+        return $placeholders;
+    }
 }
