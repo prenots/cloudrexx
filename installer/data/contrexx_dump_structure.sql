@@ -128,7 +128,7 @@ CREATE TABLE `contrexx_access_users` (
   `is_admin` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `username` varchar(255) DEFAULT NULL,
   `password` varchar(32) DEFAULT NULL,
-  `auth_token` varchar(32) NOT NULL,
+  `auth_token` varchar(32) NOT NULL DEFAULT '',
   `auth_token_timeout` int(14) unsigned NOT NULL DEFAULT '0',
   `regdate` int(14) unsigned NOT NULL DEFAULT '0',
   `expiration` int(14) unsigned NOT NULL DEFAULT '0',
@@ -316,8 +316,8 @@ CREATE TABLE `contrexx_core_module_cron_job` (
 CREATE TABLE `contrexx_core_module_linkmanager_crawler` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `lang` tinyint(2) NOT NULL,
-  `startTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `endTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `startTime` timestamp NULL DEFAULT NULL,
+  `endTime` timestamp NULL DEFAULT NULL,
   `totalLinks` int(11) NOT NULL,
   `totalBrokenLinks` int(11) NOT NULL,
   `runStatus` enum('running','incomplete','completed') NOT NULL,
@@ -332,7 +332,7 @@ CREATE TABLE `contrexx_core_module_linkmanager_history` (
   `moduleName` varchar(100) DEFAULT NULL,
   `moduleAction` varchar(100) DEFAULT NULL,
   `moduleParams` varchar(255) DEFAULT NULL,
-  `detectedTime` timestamp NOT NULL,
+  `detectedTime` timestamp NULL DEFAULT NULL,
   `flagStatus` tinyint(2) NOT NULL,
   `updatedBy` int(2) NOT NULL,
   `requestedLinkType` varchar(25) DEFAULT NULL,
@@ -352,7 +352,7 @@ CREATE TABLE `contrexx_core_module_linkmanager_link` (
   `moduleName` varchar(100) DEFAULT NULL,
   `moduleAction` varchar(100) DEFAULT NULL,
   `moduleParams` varchar(255) DEFAULT NULL,
-  `detectedTime` timestamp NOT NULL,
+  `detectedTime` timestamp NULL DEFAULT NULL,
   `flagStatus` tinyint(2) NOT NULL,
   `updatedBy` int(2) NOT NULL,
   `requestedLinkType` varchar(25) DEFAULT NULL,
@@ -512,7 +512,7 @@ CREATE TABLE `contrexx_lib_country` (
 CREATE TABLE `contrexx_log` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `userid` int(6) unsigned DEFAULT NULL,
-  `datetime` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `datetime` timestamp NULL DEFAULT NULL,
   `useragent` varchar(250) DEFAULT NULL,
   `userlanguage` varchar(250) DEFAULT NULL,
   `remote_addr` varchar(250) DEFAULT NULL,
@@ -681,8 +681,8 @@ CREATE TABLE `contrexx_module_calendar_category_name` (
 CREATE TABLE `contrexx_module_calendar_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` int(11) NOT NULL DEFAULT '0',
-  `startdate` timestamp NULL DEFAULT '0000-00-00 00:00:00',
-  `enddate` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `startdate` timestamp NULL DEFAULT NULL,
+  `enddate` timestamp NULL DEFAULT NULL,
   `use_custom_date_display` tinyint(1) NOT NULL,
   `showStartDateList` int(1) NOT NULL,
   `showEndDateList` int(1) NOT NULL,
@@ -728,7 +728,7 @@ CREATE TABLE `contrexx_module_calendar_event` (
   `series_pattern_type` int(11) NOT NULL DEFAULT '0',
   `series_pattern_dourance_type` int(11) NOT NULL DEFAULT '0',
   `series_pattern_end` int(11) NOT NULL DEFAULT '0',
-  `series_pattern_end_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `series_pattern_end_date` timestamp NULL DEFAULT NULL,
   `series_pattern_begin` int(11) NOT NULL DEFAULT '0',
   `series_pattern_exceptions` longtext NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
@@ -806,7 +806,7 @@ CREATE TABLE `contrexx_module_calendar_registration` (
   `id` int(7) NOT NULL AUTO_INCREMENT,
   `event_id` int(7) NOT NULL,
   `date` int(15) NOT NULL,
-  `submission_date` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `submission_date` timestamp NULL DEFAULT NULL,
   `host_name` varchar(255) NOT NULL,
   `ip_address` varchar(15) NOT NULL,
   `type` int(1) NOT NULL,
@@ -1680,7 +1680,7 @@ CREATE TABLE `contrexx_module_egov_configuration` (
 ) ENGINE=MyISAM;
 CREATE TABLE `contrexx_module_egov_orders` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
-  `order_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `order_date` timestamp NULL DEFAULT NULL,
   `order_ip` varchar(255) NOT NULL DEFAULT '',
   `order_product` int(11) NOT NULL DEFAULT '0',
   `order_values` text NOT NULL,
@@ -2013,7 +2013,7 @@ CREATE TABLE `contrexx_module_guestbook` (
   `ip` varchar(15) NOT NULL DEFAULT '',
   `location` tinytext NOT NULL,
   `lang_id` tinyint(2) NOT NULL DEFAULT '1',
-  `datetime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `datetime` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `comment` (`comment`)
 ) ENGINE=MyISAM ;
@@ -2151,8 +2151,8 @@ CREATE TABLE `contrexx_module_jobs` (
   `catid` int(2) unsigned NOT NULL DEFAULT '0',
   `lang` int(2) unsigned NOT NULL DEFAULT '0',
   `userid` int(6) unsigned NOT NULL DEFAULT '0',
-  `startdate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `enddate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `startdate` timestamp NULL DEFAULT NULL,
+  `enddate` timestamp NULL DEFAULT NULL,
   `status` tinyint(4) NOT NULL DEFAULT '1',
   `changelog` int(14) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
@@ -2635,8 +2635,8 @@ CREATE TABLE `contrexx_module_news` (
   `author` varchar(255) NOT NULL DEFAULT '',
   `author_id` int(5) unsigned NOT NULL DEFAULT '0',
   `userid` int(6) unsigned NOT NULL DEFAULT '0',
-  `startdate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `enddate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `startdate` timestamp NULL DEFAULT NULL,
+  `enddate` timestamp NULL DEFAULT NULL,
   `status` tinyint(4) NOT NULL DEFAULT '1',
   `validated` enum('0','1') NOT NULL DEFAULT '0',
   `frontend_access_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2729,7 +2729,7 @@ CREATE TABLE `contrexx_module_news_settings_locale` (
 CREATE TABLE `contrexx_module_news_stats_view` (
   `user_sid` char(32) NOT NULL,
   `news_id` int(6) unsigned NOT NULL,
-  `time` timestamp NOT NULL,
+  `time` timestamp NULL DEFAULT NULL,
   KEY `idx_user_sid` (`user_sid`),
   KEY `idx_news_id` (`news_id`)
 ) ENGINE=MyISAM;
@@ -2939,7 +2939,7 @@ CREATE TABLE `contrexx_module_order_order` (
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_order_payment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL,
+  `date` timestamp NULL DEFAULT NULL,
   `amount` decimal(10,0) NOT NULL,
   `transaction_reference` varchar(255) NOT NULL,
   `invoice_id` int(11) DEFAULT NULL,
@@ -3169,7 +3169,7 @@ CREATE TABLE `contrexx_module_shop_order_attributes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `item_id` int(10) unsigned NOT NULL DEFAULT '0',
   `attribute_name` varchar(255) NOT NULL DEFAULT '',
-  `option_name` TEXT NOT NULL DEFAULT '',
+  `option_name` TEXT NULL,
   `price` decimal(9,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`)
@@ -3191,7 +3191,7 @@ CREATE TABLE `contrexx_module_shop_orders` (
   `customer_id` int(10) unsigned NOT NULL DEFAULT '0',
   `currency_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sum` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
-  `date_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date_time` timestamp NULL DEFAULT NULL,
   `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `gender` varchar(50) DEFAULT NULL,
   `company` varchar(100) DEFAULT NULL,
@@ -3275,8 +3275,8 @@ CREATE TABLE `contrexx_module_shop_products` (
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `b2b` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `b2c` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `date_start` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `date_end` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date_start` timestamp NULL DEFAULT NULL,
+  `date_end` timestamp NULL DEFAULT NULL,
   `manufacturer_id` int(10) unsigned DEFAULT NULL,
   `ord` int(10) NOT NULL DEFAULT '0',
   `vat_id` int(10) unsigned DEFAULT NULL,
@@ -3363,7 +3363,7 @@ CREATE TABLE `contrexx_module_survey_addtionalfields` (
   `zip` varchar(400) NOT NULL,
   `email` varchar(400) NOT NULL,
   `city` varchar(400) NOT NULL,
-  `added_date` timestamp NOT NULL,
+  `added_date` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM;
 CREATE TABLE `contrexx_module_survey_columnChoices` (
@@ -3405,7 +3405,7 @@ CREATE TABLE `contrexx_module_survey_surveyAnswers` (
 CREATE TABLE `contrexx_module_survey_surveyQuestions` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `survey_id` int(10) NOT NULL,
-  `created` timestamp NOT NULL,
+  `created` timestamp NULL DEFAULT NULL,
   `isActive` int(2) NOT NULL DEFAULT '1',
   `isCommentable` int(2) NOT NULL DEFAULT '0',
   `QuestionType` int(10) NOT NULL,
@@ -3423,8 +3423,8 @@ CREATE TABLE `contrexx_module_survey_surveygroup` (
   `description` text NOT NULL,
   `isActive` int(2) NOT NULL DEFAULT '1',
   `isHomeBox` int(2) NOT NULL DEFAULT '0',
-  `created` timestamp NOT NULL,
-  `updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` timestamp NULL DEFAULT NULL,
+  `updated` timestamp NULL DEFAULT NULL,
   `votes` int(10) NOT NULL DEFAULT '0',
   `additional_salutation` tinyint(1) NOT NULL,
   `additional_nickname` tinyint(1) NOT NULL,
@@ -3460,7 +3460,7 @@ CREATE TABLE `contrexx_module_u2u_sent_messages` (
   `message_id` int(11) unsigned NOT NULL DEFAULT '0',
   `receiver_id` int(11) unsigned NOT NULL DEFAULT '0',
   `mesage_open_status` enum('0','1') NOT NULL DEFAULT '0',
-  `date_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_u2u_settings` (
@@ -3494,7 +3494,7 @@ CREATE TABLE `contrexx_session_variable` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) NOT NULL,
   `sessionid` varchar(32) NOT NULL DEFAULT '',
-  `lastused` timestamp NOT NULL,
+  `lastused` timestamp NULL DEFAULT NULL,
   `key` varchar(100) NOT NULL DEFAULT '',
   `value` text,
   PRIMARY KEY (`id`),
@@ -3706,7 +3706,7 @@ CREATE TABLE `contrexx_voting_additionaldata` (
   `email` varchar(80) NOT NULL DEFAULT '',
   `comment` text NOT NULL,
   `voting_system_id` int(11) NOT NULL DEFAULT '0',
-  `date_entered` timestamp NOT NULL,
+  `date_entered` timestamp NULL DEFAULT NULL,
   `forename` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `voting_system_id` (`voting_system_id`)
@@ -3734,7 +3734,7 @@ CREATE TABLE `contrexx_voting_results` (
 ) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_voting_system` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL,
+  `date` timestamp NULL DEFAULT NULL,
   `title` varchar(60) NOT NULL DEFAULT '',
   `question` text,
   `status` tinyint(1) DEFAULT '1',
