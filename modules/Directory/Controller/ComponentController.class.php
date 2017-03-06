@@ -121,8 +121,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
         //Get Directory Homecontent
-        $lId = isset($_GET['lid']) ? contrexx_input2raw($_GET['lid']) : '';
-        $cId = isset($_GET['cid']) ? contrexx_input2raw($_GET['cid']) : '';
+        $params = array();
+        if (isset($_GET['lid'])) {
+            $params['lid'] = contrexx_input2raw($_GET['lid']);
+        }
+        if (isset($_GET['cid'])) {
+            $params['cid'] = contrexx_input2raw($_GET['cid']);
+        }
         $widgetController = $this->getComponent('Widget');
         $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
             $this,
@@ -130,7 +135,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             false,
             '',
             '',
-            array('lid' => $lId, 'cid' => $cId)
+            $params
         );
         $widget->setEsiVariable(
             \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
