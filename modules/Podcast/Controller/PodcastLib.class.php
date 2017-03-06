@@ -419,6 +419,12 @@ class PodcastLib
 
         if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_category WHERE id=".$id) !== false) {
             if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_category_lang WHERE category_id=".$id) !== false) {
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('PODCAST_FILE'))
+                );
                 return true;
             }
         }
@@ -467,6 +473,12 @@ class PodcastLib
                 $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_category_lang WHERE category_id=".$categoryId." AND lang_id=".$langId);
             }
 
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('PODCAST_FILE'))
+            );
             return true;
         } else {
             return false;
@@ -513,6 +525,12 @@ class PodcastLib
 
         if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$id) !== false) {
             if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_medium WHERE id=".$id) !== false) {
+                // Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('PODCAST_FILE'))
+                );
                 return true;
             }
         }
@@ -543,6 +561,12 @@ class PodcastLib
                 $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$mediumId." AND category_id=".$categoryId);
             }
 
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('PODCAST_FILE'))
+            );
             return true;
         } else {
             return false;
@@ -557,6 +581,12 @@ class PodcastLib
                     SET `setvalue` = '".implode(',', $arrCategories)."'
                     WHERE `setname` = 'latest_media_categories'";
         if ($objDatabase->Execute($query) !== false) {
+            // Clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('PODCAST_FILE'))
+            );
             return true;
         } else {
             return false;

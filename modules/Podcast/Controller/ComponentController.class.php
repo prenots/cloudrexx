@@ -46,15 +46,32 @@ namespace Cx\Modules\Podcast\Controller;
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
     /**
-     * getControllerClasses
+     * Returns all Controller class names for this component (except this)
      *
-     * @return type
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
      */
-    public function getControllerClasses() {
-        return array();
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
     }
 
-     /**
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
      * Load the component Podcast.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -84,56 +101,38 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-    * Do something before content is loaded from DB
-    *
-    * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
-    */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $podcastFirstBlock, $podcastContent, $_CONFIG, $cl, $podcastHomeContentInPageContent, $podcastHomeContentInPageTemplate, $podcastHomeContentInThemesPage, $page_template, $themesPages, $_ARRAYLANG, $objInit, $objPodcast, $podcastBlockPos, $contentPos;
-        // get latest podcast entries
-        $podcastFirstBlock = false;
-        $podcastContent = null;
-        if (!empty($_CONFIG['podcastHomeContent'])) {
-            /** @ignore */
-            if ($cl->loadFile(ASCMS_MODULE_PATH.'/Podcast/Controller/PodcastHomeContent.class.php')) {
-                $podcastHomeContentInPageContent = false;
-                $podcastHomeContentInPageTemplate = false;
-                $podcastHomeContentInThemesPage = false;
-                if (strpos(\Env::get('cx')->getPage()->getContent(), '{PODCAST_FILE}') !== false) {
-                    $podcastHomeContentInPageContent = true;
-                }
-                if (strpos($page_template, '{PODCAST_FILE}') !== false) {
-                    $podcastHomeContentInPageTemplate = true;
-                }
-                if (strpos($themesPages['index'], '{PODCAST_FILE}') !== false) {
-                    $podcastHomeContentInThemesPage = true;
-                }
-                if ($podcastHomeContentInPageContent || $podcastHomeContentInPageTemplate || $podcastHomeContentInThemesPage) {
-                    $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Podcast'));
-                    $objPodcast = new PodcastHomeContent($themesPages['podcast_content']);
-                    $podcastContent = $objPodcast->getContent();
-                    if ($podcastHomeContentInPageContent) {
-                        \Env::get('cx')->getPage()->setContent(str_replace('{PODCAST_FILE}', $podcastContent, \Env::get('cx')->getPage()->getContent()));
-                    }
-                    if ($podcastHomeContentInPageTemplate) {
-                        $page_template = str_replace('{PODCAST_FILE}', $podcastContent, $page_template);
-                    }
-                    if ($podcastHomeContentInThemesPage) {
-                        $podcastFirstBlock = false;
-                        if (strpos($_SERVER['REQUEST_URI'], 'section=Podcast')) {
-                            $podcastBlockPos = strpos($themesPages['index'], '{PODCAST_FILE}');
-                            $contentPos = strpos($themesPages['index'], '{CONTENT_FILE}');
-                            $podcastFirstBlock = $podcastBlockPos < $contentPos ? true : false;
-                        }
-                        $themesPages['index'] = str_replace('{PODCAST_FILE}',
-                        $objPodcast->getContent($podcastFirstBlock), $themesPages['index']);
-                    }
-                }
-            }
+     * Do something after system initialization
+     *
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+
+        $params = array();
+        if (isset($_GET['section'])) {
+            $params['section'] = contrexx_input2raw($_GET['section']);
         }
+        $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+            $this,
+            'PODCAST_FILE',
+            false,
+            '',
+            '',
+            $params
+        );
+        $widget->setEsiVariable(
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+        );
+        $widgetController->registerWidget(
+            $widget
+        );
     }
 
-    /**
+        /**
      * Register your event listeners here
      *
      * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
