@@ -118,7 +118,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * file config/postInitHooks.yml.
      * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function postInit()
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
         //Get Directory Homecontent
         $lId = isset($_GET['lid']) ? contrexx_input2raw($_GET['lid']) : '';
@@ -131,6 +131,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             '',
             '',
             array('lid' => $lId, 'cid' => $cId)
+        );
+        $widget->setEsiVariable(
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
         );
         $widgetController->registerWidget(
             $widget
