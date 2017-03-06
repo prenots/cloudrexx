@@ -1252,41 +1252,34 @@ CODE;
             }
             $this->strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_UPDATED_SUCCESSFUL'];
         }
-        $objResult = $objDatabase->Execute('
-            SELECT   `id`, `lang`, `name`, `frontend`, `themesid`, `mobile_themes_id`, `print_themes_id`, `pdf_themes_id`, `app_themes_id`, `is_default`
-            FROM     `'.DBPREFIX.'languages`
-            WHERE    `frontend` = 1
-            ORDER BY `id`
-        ');
 
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-                if (!$this->isInLanguageFullMode() && $objResult->fields['is_default'] == "false") {
-                    $objResult->MoveNext();
-                    continue;
-                }
-
-                if (($i % 2) == 0) {
-                    $class="row1";
-                } else {
-                    $class="row2";
-                }
-
-                $objTemplate->setVariable(array(
-                    'THEMES_ROWCLASS'             => $class,
-                    'THEMES_LANG_ID'              => $objResult->fields['id'],
-                    'THEMES_LANG_SHORTNAME'       => $objResult->fields['lang'],
-                    'THEMES_LANG_NAME'            => $objResult->fields['name'],
-                    'THEMES_TEMPLATE_MENU'        => $this->_getDropdownActivated($objResult->fields['themesid']),
-                    'THEMES_PRINT_TEMPLATE_MENU'  => $this->_getDropdownActivated($objResult->fields['print_themes_id']),
-                    'THEMES_MOBILE_TEMPLATE_MENU' => $this->_getDropdownActivated($objResult->fields['mobile_themes_id']),
-                    'THEMES_PDF_TEMPLATE_MENU'    => $this->_getDropdownActivated($objResult->fields['pdf_themes_id']),
-                    'THEMES_APP_TEMPLATE_MENU'    => $this->_getDropdownActivated($objResult->fields['app_themes_id']),
-                ));
-                $objTemplate->parse('themesLangRow');
-                $i++;
+        \FWLanguage::init();
+        $i = 1;
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $language) {
+            if (!$this->isInLanguageFullMode() && $language['is_default'] == "false") {
                 $objResult->MoveNext();
+                continue;
             }
+
+            if (($i % 2) == 0) {
+                $class="row1";
+            } else {
+                $class="row2";
+            }
+
+            $objTemplate->setVariable(array(
+                'THEMES_ROWCLASS'             => $class,
+                'THEMES_LANG_ID'              => $language['id'],
+                'THEMES_LANG_SHORTNAME'       => $language['lang'],
+                'THEMES_LANG_NAME'            => $language['name'],
+                'THEMES_TEMPLATE_MENU'        => $this->_getDropdownActivated($language['themesid']),
+                'THEMES_PRINT_TEMPLATE_MENU'  => $this->_getDropdownActivated($language['print_themes_id']),
+                'THEMES_MOBILE_TEMPLATE_MENU' => $this->_getDropdownActivated($language['mobile_themes_id']),
+                'THEMES_PDF_TEMPLATE_MENU'    => $this->_getDropdownActivated($language['pdf_themes_id']),
+                'THEMES_APP_TEMPLATE_MENU'    => $this->_getDropdownActivated($language['app_themes_id']),
+            ));
+            $objTemplate->parse('themesLangRow');
+            $i++;
         }
     }
 
