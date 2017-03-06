@@ -92,6 +92,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function postComponentLoad() {
+         self::errorHandler();
+    }
+
     public function executeCommand($command, $arguments, $dataArguments = array())
     {
         $subcommand = null;
