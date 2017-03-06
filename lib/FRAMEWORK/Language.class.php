@@ -98,8 +98,9 @@ class FWLanguage
         global $_CONFIG, $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            SELECT id, lang, name, charset, themesid,
-                   frontend, backend, is_default, fallback
+            SELECT id, lang, name, charset, themesid, print_themes_id, 
+                   mobile_themes_id, app_themes_id, pdf_themes_id, frontend, 
+                   backend, is_default, fallback
               FROM ".DBPREFIX."languages
              ORDER BY id ASC");
         if ($objResult) {
@@ -109,15 +110,19 @@ class FWLanguage
             while (!$objResult->EOF) {
                 // frontend languages
                 static::$arrFrontendLanguages[$objResult->fields['id']] = array(
-                    'id'         => $objResult->fields['id'],
-                    'lang'       => $objResult->fields['lang'],
-                    'name'       => $objResult->fields['name'],
-                    'charset'    => $objResult->fields['charset'],
-                    'themesid'   => $objResult->fields['themesid'],
-                    'frontend'   => $objResult->fields['frontend'],
-                    'backend'    => $objResult->fields['backend'],
-                    'is_default' => $objResult->fields['is_default'],
-                    'fallback'   => $objResult->fields['fallback'],
+                    'id'                => $objResult->fields['id'],
+                    'lang'              => $objResult->fields['lang'],
+                    'name'              => $objResult->fields['name'],
+                    'charset'           => $objResult->fields['charset'],
+                    'themesid'          => $objResult->fields['themesid'],
+                    'print_themes_id'   => $objResult->fields['print_themes_id'],
+                    'mobile_themes_id'  => $objResult->fields['mobile_themes_id'],
+                    'app_themes_id'     => $objResult->fields['app_themes_id'],
+                    'pdf_themes_id'     => $objResult->fields['pdf_themes_id'],
+                    'frontend'          => $objResult->fields['frontend'],
+                    'backend'           => $objResult->fields['backend'],
+                    'is_default'        => $objResult->fields['is_default'],
+                    'fallback'          => $objResult->fields['fallback'],
                 );
                 // backend languages
                 static::$arrBackendLanguages = static::$arrFrontendLanguages;
