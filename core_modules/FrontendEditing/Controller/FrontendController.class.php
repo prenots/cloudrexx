@@ -239,7 +239,6 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\Controller
      */
     private function getDefaultTemplate()
     {
-        $query = 'SELECT `id`, `lang`, `themesid` FROM `' . DBPREFIX . 'languages` WHERE `id` = ' . FRONTEND_LANG_ID;
-        return $this->cx->getDb()->getAdoDb()->SelectLimit($query, 1)->fields['themesid'];
+        return \FWLanguage::getLanguageParameter(FRONTEND_LANG_ID, 'themesid');
     }
 }
