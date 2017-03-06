@@ -219,18 +219,9 @@ class Theme extends \Cx\Model\Base\EntityBase
         }
 
         $languagesWithThisTheme = array();
-        $query = 'SELECT `id`
-                    FROM `'.DBPREFIX.'languages`
-                  WHERE
-                    `frontend` = 1
-                    AND
-                    `'. $dbField .'` = "'. $this->id .'"';
-
-        $result = $this->db->Execute($query);
-        if ($result !== false) {
-            while(!$result->EOF){
-                $languagesWithThisTheme[] = $result->fields['id'];
-                $result->MoveNext();
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $language) {
+            if ($language[$dbField] == $this->id) {
+                $languagesWithThisTheme[] = $language['id'];
             }
         }
 
@@ -243,24 +234,19 @@ class Theme extends \Cx\Model\Base\EntityBase
      */
     public function getLanguages() {
         $languagesWithThisTheme = array();
-        $query = 'SELECT `name`
-                    FROM `'.DBPREFIX.'languages`
-                  WHERE
-                    `frontend` = 1
-                    AND (
-                        `themesid` = '.$this->id.'
-                        OR `mobile_themes_id` = '.$this->id.'
-                        OR `print_themes_id` = '.$this->id.'
-                        OR `pdf_themes_id` = '.$this->id.'
-                        OR `app_themes_id` = '.$this->id.'
-                    )';
-        $result = $this->db->Execute($query);
-        if ($result !== false) {
-            while(!$result->EOF){
-                $languagesWithThisTheme[] = $result->fields['name'];
-                $result->MoveNext();
+
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $language) {
+            if (
+                $language['themesid'] == $this->id ||
+                $language['mobile_themes_id'] == $this->id ||
+                $language['print_themes_id'] == $this->id ||
+                $language['pdf_themes_id'] == $this->id ||
+                $language['app_themes_id'] == $this->id
+            ) {
+                $languagesWithThisTheme[] = $language['name'];
             }
         }
+
         return implode(', ', $languagesWithThisTheme);
     }
 
