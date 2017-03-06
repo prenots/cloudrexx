@@ -220,7 +220,7 @@ class Website extends \Cx\Model\Base\EntityBase {
         }
 
         $this->secretKey = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::generateSecretKey();
-        $this->validate();
+        self::validateName($this->name);
         $this->codeBase = \Cx\Core\Setting\Controller\Setting::getValue('defaultCodeBase','MultiSite');
         $this->setFqdn();
         $this->setBaseDn();
@@ -818,14 +818,12 @@ class Website extends \Cx\Model\Base\EntityBase {
         );
     }
     
-    /*
-    * function validate to validate website name
-    * */
-    public function validate()
-    {
-        self::validateName($this->getName());
-    }
-
+    /**
+     * To validate the website name
+     *
+     * @param string $name website name
+     * @return null
+     */
     public static function validateName($name) {
         global $_ARRAYLANG;
 
