@@ -643,13 +643,13 @@ div.row2 {
 }
 #login a.register{
     padding-left:18px;
-    background-image:url(../../images/modules/login/register_small.gif);
+    background-image:url(/core_modules/Login/View/Media/register_small.gif);
     background-position:left center;
     background-repeat:no-repeat;
 }
 #login a.lostpw{
     padding-left:18px;
-    background-image:url(../../images/modules/login/lost_pw_small.gif);
+    background-image:url(/core_modules/Login/View/Media/lost_pw_small.gif);
     background-position:left center;
     background-repeat:no-repeat;
 }
