@@ -498,13 +498,10 @@ class ContentManager extends \Module
 
     protected function getDefaultTemplates()
     {
-        $query = 'SELECT `id`, `lang`, `themesid` FROM `' . DBPREFIX . 'languages`';
-        $rs    = $this->db->Execute($query);
 
         $defaultThemes = array();
-        while (!$rs->EOF) {
-            $defaultThemes[$rs->fields['lang']] = $rs->fields['themesid'];
-            $rs->MoveNext();
+        foreach (\FWLanguage::getActiveFrontendLanguages() as $language) {
+            $defaultThemes[$language['lang']] = $language['themesid'];
         }
 
         return $defaultThemes;
