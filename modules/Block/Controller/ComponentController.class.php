@@ -85,7 +85,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * file config/postInitHooks.yml.
      * @param \Cx\Core\Core\Controller\Cx   $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function postInit()
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
         $block            = new Block();
         $widgetController = $this->getComponent('Widget');
@@ -98,6 +98,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     $this,
                     $blockName
                 );
+                $widget->setEsiVariable(
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+                );
                 $widgetController->registerWidget($widget);
             }
         }
@@ -107,6 +111,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $this,
             $block->blockNamePrefix . 'GLOBAL'
         );
+        $widget->setEsiVariable(
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+        );
         $widgetController->registerWidget($widget);
 
         // Set category blocks [[BLOCK_CAT_<ID>]]
@@ -115,6 +123,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $catBlockName
+            );
+            $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
             );
             $widgetController->registerWidget($widget);
         }
@@ -131,6 +143,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $this,
                 $randomizerName,
                 $availableBlocks
+            );
+            $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
             );
             $widgetController->registerWidget($widget);
         }
