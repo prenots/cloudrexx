@@ -113,6 +113,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $this,
                 $widgetName
             );
+            $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+            );
             $widgetController->registerWidget(
                 $widget
             );
