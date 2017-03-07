@@ -45,11 +45,30 @@ namespace Cx\Modules\Feed\Controller;
  * @subpackage  module_feed
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+    /**
+     * Returns all Controller class names for this component (except this)
+     *
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
+    }
 
-    public function getControllerClasses() {
-// Return an empty array here to let the component handler know that there
-// does not exist a backend, nor a frontend controller of this component.
-        return array();
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
     }
 
     /**
@@ -81,40 +100,33 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
-    /*
-     * Do something before content is loaded from DB
+    /**
+     * Do something after system initialization
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
      */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+        $feedLib = new FeedLibrary();
+        if (!$feedLib->getFeedPlaceholderNames()) {
+            return;
+        }
 
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-
-        global $_CONFIG, $objNewsML, $arrMatches, $page_template, $themesPages, $cl;
-
-        // Set NewsML messages
-        if ($_CONFIG['feedNewsMLStatus'] == '1') {
-            if (preg_match_all('/{NEWSML_([0-9A-Z_-]+)}/', \Env::get('cx')->getPage()->getContent(), $arrMatches)) {
-                /** @ignore */
-                if ($cl->loadFile(\Env::get('cx')->getCodeBaseModulePath() . '/Feed/Controller/NewsML.class.php')) {
-                    $objNewsML = new NewsML();
-                    $objNewsML->setNews($arrMatches[1], \Env::get('cx')->getPage()->getContent());
-                }
-            }
-            if (preg_match_all('/{NEWSML_([0-9A-Z_-]+)}/', $page_template, $arrMatches)) {
-                /** @ignore */
-                if ($cl->loadFile(\Env::get('cx')->getCodeBaseModulePath() . '/Feed/Controller/NewsML.class.php')) {
-                    $objNewsML = new NewsML();
-                    $objNewsML->setNews($arrMatches[1], $page_template);
-                }
-            }
-            if (preg_match_all('/{NEWSML_([0-9A-Z_-]+)}/', $themesPages['index'], $arrMatches)) {
-                /** @ignore */
-                if ($cl->loadFile(\Env::get('cx')->getCodeBaseModulePath() . '/Feed/Controller/NewsML.class.php')) {
-                    $objNewsML = new NewsML();
-                    $objNewsML->setNews($arrMatches[1], $themesPages['index']);
-                }
-            }
+        foreach ($feedLib->getFeedPlaceholderNames() as $widgetName) {
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                $this,
+                $widgetName
+            );
+            $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+            );
+            $widgetController->registerWidget(
+                $widget
+            );
         }
     }
-
 }

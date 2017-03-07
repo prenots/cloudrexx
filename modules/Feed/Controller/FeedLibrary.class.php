@@ -100,6 +100,23 @@ class FeedLibrary
             @unlink($path.$old_filename);
         }
     }
-}
 
-?>
+    /**
+     * get Feed placeholder names
+     *
+     * @return array
+     */
+    public function getFeedPlaceholderNames()
+    {
+        $newsML = new NewsML();
+        if (empty($newsML->arrTplPlaceholders)) {
+            return;
+        }
+
+        $placeholders = array();
+        foreach($newsML->arrTplPlaceholders as $tplPlaceholder) {
+            $placeholders[] = 'NEWSML_' . strtoupper($tplPlaceholder);
+        }
+        return $placeholders;
+    }
+}
