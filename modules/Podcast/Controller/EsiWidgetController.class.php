@@ -76,11 +76,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         global $_CONFIG, $_ARRAYLANG, $objInit, $_LANGID;
 
-        //Parse Directory Homecontent
-        if (
-            $name != 'PODCAST_FILE' ||
-            empty($_CONFIG['podcastHomeContent'])
-        ) {
+        //Parse Podcast Homecontent
+        if ($name != 'PODCAST_FILE' || empty($_CONFIG['podcastHomeContent'])) {
             return;
         }
 
