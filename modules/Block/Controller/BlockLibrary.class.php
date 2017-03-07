@@ -615,7 +615,7 @@ class BlockLibrary
         $qb = $em->createQueryBuilder();
         $blocks = $qb->select('
                 b.id,
-                IDENTITY(b.cat),
+                IDENTITY(b.category) as category,
                 b.name,
                 b.start,
                 b.end,
@@ -624,9 +624,9 @@ class BlockLibrary
                 b.random2,
                 b.random3,
                 b.random4,
-                b.global,
-                b.direct,
-                b.category,
+                b.showInGlobal,
+                b.showInDirect,
+                b.showInCategory,
                 b.active
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
@@ -642,7 +642,7 @@ class BlockLibrary
         $arrBlocks = array();
         foreach ($blocks as $block) {
             $arrBlocks[$block['id']] = array(
-                'cat' => $block['cat'],
+                'cat' => $block['category'],
                 'start' => $block['start'],
                 'end' => $block['end'],
                 'order' => $block['order'],
@@ -650,9 +650,9 @@ class BlockLibrary
                 'random2' => $block['random2'],
                 'random3' => $block['random3'],
                 'random4' => $block['random4'],
-                'global' => $block['global'],
-                'direct' => $block['direct'],
-                'category' => $block['category'],
+                'global' => $block['showInGlobal'],
+                'direct' => $block['showInDirect'],
+                'category' => $block['showInCategory'],
                 'active' => $block['active'],
                 'name' => $block['name'],
             );
@@ -772,7 +772,7 @@ class BlockLibrary
         $this->replaceBlocks(
             $this->blockNamePrefix . $block->getId(),
             $blocks,
-            $page->getId(),
+            $page,
             $code
         );
     }
@@ -806,7 +806,7 @@ class BlockLibrary
             ->where('b.category = :category')
             ->andWhere(
                 $orX->addMultiple(array(
-                    'b.category = 0',
+                    'b.showInCategory = 0',
                     $qb2->select('count(rp)')
                         ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
@@ -834,7 +834,7 @@ class BlockLibrary
         $this->replaceBlocks(
             $this->blockNamePrefix . 'CAT_' . $category->getId(),
             $blocks,
-            $page->getId(),
+            $page,
             $code,
             $category->getSeperator()
         );
@@ -873,7 +873,7 @@ class BlockLibrary
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelPage', 'rp', 'WITH', 'rp.block = b')
-            ->where('b.global = 2')
+            ->where('b.showInGlobal = 2')
             ->andWhere('rp.page = :page')
             ->andWhere('rlc.locale = :locale')
             ->andWhere('rlc.active = 1')
@@ -898,7 +898,7 @@ class BlockLibrary
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
-            ->where('b.global = 1')
+            ->where('b.showInGlobal = 1')
             ->andWhere('rlc.locale = :locale')
             ->andWhere('rlc.active = 1')
             ->andWhere('b.active = 1')
@@ -917,7 +917,7 @@ class BlockLibrary
         $this->replaceBlocks(
             $this->blockNamePrefix . 'GLOBAL',
             $blocks,
-            $page->getId(),
+            $page,
             $code,
             $separator
         );
@@ -988,7 +988,7 @@ class BlockLibrary
         $this->replaceBlocks(
             $this->blockNamePrefix . 'RANDOMIZER' . $blockNr,
             $blocks,
-            $page->getId(),
+            $page,
             $code,
             '',
             true
