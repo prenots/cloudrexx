@@ -415,6 +415,12 @@ class VotingManager
            }
         }
         $this->strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_STORED_SUCCESSFUL'];
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('voting_result'))
+        );
         return true;
     }
 
@@ -479,6 +485,12 @@ class VotingManager
         #print "<pre>$query</pre>";
         if ($objDatabase->Execute($query)) {
             $this->strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_STORED_SUCCESSFUL'];
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('voting_result'))
+        );
             return true;
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_SUBMIT_ERROR'];
@@ -514,6 +526,12 @@ class VotingManager
         $objDatabase->Execute($query);
           $query="DELETE FROM ".DBPREFIX."voting_results WHERE voting_system_id=".intval($_GET['votingid'])." ";
         $objDatabase->Execute($query);
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('voting_result'))
+        );
     }
 
 
@@ -543,6 +561,12 @@ class VotingManager
         $objDatabase->Execute($query);
         $query="UPDATE ".DBPREFIX."voting_system set status=1,date=date where id=".intval($_GET['votingid'])." ";
         $objDatabase->Execute($query);
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('voting_result'))
+        );
     }
 
 
@@ -552,6 +576,12 @@ class VotingManager
 
         $query="UPDATE ".DBPREFIX."voting_system set status=0, date=date";
         $objDatabase->Execute($query);
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('voting_result'))
+        );
     }
 
 

@@ -46,12 +46,29 @@ namespace Cx\Modules\Voting\Controller;
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
     /**
-     * getControllerClasses
+     * Returns all Controller class names for this component (except this)
      *
-     * @return type
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
      */
-    public function getControllerClasses() {
-        return array();
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
     }
 
     /**
@@ -64,7 +81,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                \Env::get('cx')->getPage()->setContent(votingShowCurrent(\Env::get('cx')->getPage()->getContent()));
+                $voting = new Voting();
+                \Env::get('cx')->getPage()->setContent($voting->votingShowCurrent(\Env::get('cx')->getPage()->getContent()));
                 break;
 
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
@@ -83,32 +101,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Do something before content is loaded from DB
+     * Do something after system initialization
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx   $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $cl, $_ARRAYLANG, $objInit, $themesPages, $arrMatches, $page_template;
-        // get voting
-        /** @ignore */
-        if ($cl->loadFile(ASCMS_MODULE_PATH.'/Voting/Controller/Voting.class.php')) {
-            $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Voting'));
-            //  if ($objTemplate->blockExists('voting_result')) {
-            //      $objTemplate->_blocks['voting_result'] = setVotingResult($objTemplate->_blocks['voting_result']);
-            //  }
-            if (preg_match('@<!--\s+BEGIN\s+(voting_result)\s+-->(.*)<!--\s+END\s+\1\s+-->@m', $themesPages['sidebar'], $arrMatches)) {
-                $themesPages['sidebar'] = preg_replace('@(<!--\s+BEGIN\s+(voting_result)\s+-->.*<!--\s+END\s+\2\s+-->)@m', setVotingResult($arrMatches[2]), $themesPages['sidebar']);
-            }
-            if (preg_match('@<!--\s+BEGIN\s+(voting_result)\s+-->(.*)<!--\s+END\s+\1\s+-->@m', $themesPages['index'], $arrMatches)) {
-                $themesPages['index'] = preg_replace('@(<!--\s+BEGIN\s+(voting_result)\s+-->.*<!--\s+END\s+\2\s+-->)@m', setVotingResult($arrMatches[2]), $themesPages['index']);
-            }
-            if (preg_match('@<!--\s+BEGIN\s+(voting_result)\s+-->(.*)<!--\s+END\s+\1\s+-->@m', \Env::get('cx')->getPage()->getContent(), $arrMatches)) {
-                \Env::get('cx')->getPage()->setContent(preg_replace('@(<!--\s+BEGIN\s+(voting_result)\s+-->.*<!--\s+END\s+\2\s+-->)@m', setVotingResult($arrMatches[2]), \Env::get('cx')->getPage()->getContent()));
-            }
-            if (preg_match('@<!--\s+BEGIN\s+(voting_result)\s+-->(.*)<!--\s+END\s+\1\s+-->@m', $page_template, $arrMatches)) {
-                $page_template = preg_replace('@(<!--\s+BEGIN\s+(voting_result)\s+-->.*<!--\s+END\s+\2\s+-->)@m', setVotingResult($arrMatches[2]), $page_template);
-            }
-        }
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+        $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+            $this,
+            'voting_result',
+            true
+        );
+        $widgetController->registerWidget(
+            $widget
+        );
     }
-
 }
