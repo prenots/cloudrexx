@@ -767,6 +767,12 @@ class MarketManager extends MarketLibrary
 
         if ($objResult !== false) {
             $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_STATUS_CHANGED'];
+            //clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget', array('marketLatest'))
+            );
            }else{
            $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];
            }
@@ -1028,6 +1034,12 @@ class MarketManager extends MarketLibrary
 
                 if ($objResult !== false) {
                     $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_EDIT_SUCCESSFULL'];
+                    //clear cache
+                    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                    $cx->getEvents()->triggerEvent(
+                        'clearEsiCache',
+                        array('Widget', array('marketLatest'))
+                    );
                     $this->entries();
                 }else{
                     $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];

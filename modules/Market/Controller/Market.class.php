@@ -982,6 +982,12 @@ class Market extends MarketLibrary
 
         $today = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
         $objDatabase->Execute('UPDATE '.DBPREFIX.'module_market SET status = 0 WHERE enddate < '.$today.'');
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('marketLatest'))
+        );
     }
 
 
@@ -1166,6 +1172,12 @@ class Market extends MarketLibrary
 
                         if ($objResultUpdate !== false) {
                             \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Market&cmd=detail&id='.$objResult->fields['id'].'');
+                            //clear cache
+                            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                            $cx->getEvents()->triggerEvent(
+                                'clearEsiCache',
+                                array('Widget', array('marketLatest'))
+                            );
                         }
 
                         $objResult->MoveNext();
@@ -1690,6 +1702,12 @@ class Market extends MarketLibrary
 
                     if ($objResult !== false) {
                         \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Market&cmd=detail&id='.$_POST['id']);
+                        //clear cache
+                        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                        $cx->getEvents()->triggerEvent(
+                            'clearEsiCache',
+                            array('Widget', array('marketLatest'))
+                        );
                         exit;
                     }else{
 // TODO: Never used
@@ -1781,39 +1799,36 @@ class Market extends MarketLibrary
 
 
     /**
-    * Get Market Latest Entrees
-    *
-    * getContentLatest
-    *
-    * @access    public
-    * @param    string $pageContent
-    * @param     string
-    */
-    function getBlockLatest()
+     * Get Market Latest Entrees
+     *
+     * @param \Cx\Core\Html\Sigma $template template object
+     */
+    function getBlockLatest(\Cx\Core\Html\Sigma $template)
     {
-        global $objDatabase, $objTemplate;
+        global $objDatabase;
 
         //get latest
-        $query = "SELECT id, title, enddate, catid
-                    FROM ".DBPREFIX."module_market
-                   WHERE status = '1'
-                ORDER BY id DESC
-                   LIMIT 5";
+        $query = "SELECT `id`,
+                         `title`,
+                         `enddate`,
+                         `catid`
+                    FROM ". DBPREFIX ."module_market
+                    WHERE `status` = '1' ORDER BY id DESC LIMIT 5";
 
         $objResult = $objDatabase->Execute($query);
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-                // set variables
-                $objTemplate->setVariable('MARKET_DATE', date("d.m.Y", $objResult->fields['enddate']));
-                $objTemplate->setVariable('MARKET_TITLE', $objResult->fields['title']);
-                $objTemplate->setVariable('MARKET_ID', $objResult->fields['id']);
-                $objTemplate->setVariable('MARKET_CATID', $objResult->fields['catid']);
-
-                $objTemplate->parse('marketLatest');
-
-
-                $objResult->MoveNext();
-            }
+        if (!$objResult || $objResult->RecordCount() == 0 ) {
+            return;
+        }
+        while (!$objResult->EOF) {
+            $template->setVariable(array(
+                'MARKET_DATE'    =>
+                    date('d.m.Y', contrexx_raw2xhtml($objResult->fields['enddate'])),
+                'MARKET_TITLE'   => contrexx_raw2xhtml($objResult->fields['title']),
+                'MARKET_ID'      => contrexx_raw2xhtml($objResult->fields['id']),
+                'MARKET_CATID'   => contrexx_raw2xhtml($objResult->fields['catid'])
+            ));
+            $template->parse('marketLatest');
+            $objResult->MoveNext();
         }
     }
 }

@@ -230,6 +230,12 @@ class MarketLibrary
 
             if($objResult !== false){
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_ADD_SUCCESS'];
+                //clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('marketLatest'))
+                );
                 if($backend == 0 && $settings['confirmFrontend']){
                     $entryId = $objDatabase->Insert_ID();
                     $this->sendCodeMail($entryId);
@@ -539,6 +545,12 @@ class MarketLibrary
                 $objResultDel = $objDatabase->Execute('DELETE FROM '.DBPREFIX.'module_market WHERE id = '.$entryId.'');
                 if($objResultDel !== false){
                     $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_DELETE_SUCCESS'];
+                    //clear cache
+                    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                    $cx->getEvents()->triggerEvent(
+                        'clearEsiCache',
+                        array('Widget', array('marketLatest'))
+                    );
                 }else{
                     $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];
                 }

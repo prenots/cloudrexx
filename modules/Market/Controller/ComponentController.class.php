@@ -45,10 +45,30 @@ namespace Cx\Modules\Market\Controller;
  * @subpackage  module_market
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-    public function getControllerClasses() {
-        // Return an empty array here to let the component handler know that there
-        // does not exist a backend, nor a frontend controller of this component.
-        return array();
+    /**
+     * Returns all Controller class names for this component (except this)
+     *
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
     }
 
      /**
@@ -77,22 +97,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Do something after content is loaded from DB
+     * Do something after system initialization
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     * @param \Cx\Core\Core\Controller\Cx   $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $marketCheck, $objTemplate, $objMarket, $_CORELANG;
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                // Market Show Latest
-                $marketCheck = $objTemplate->blockExists('marketLatest');
-                if ($marketCheck) {
-                    $objMarket = new Market('');
-                    $objTemplate->setVariable('TXT_MARKET_LATEST', $_CORELANG['TXT_MARKET_LATEST']);
-                    $objMarket->getBlockLatest();
-                }
-                break;
-        }
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+        $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+            $this,
+            'marketLatest',
+            true
+        );
+        $widgetController->registerWidget(
+            $widget
+        );
     }
 }
