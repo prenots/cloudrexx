@@ -175,6 +175,12 @@ class FeedManager extends FeedLibrary
             }
         }
 
+        //clear Cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', $this->getFeedPlaceholderNames())
+        );
         $_SESSION['strOkMessage'] = $_CORELANG['TXT_SETTINGS_UPDATED'];
     }
 
@@ -242,6 +248,12 @@ class FeedManager extends FeedLibrary
         if ($categoryId != 0) {
             if ($this->_objNewsML->deleteCategory($categoryId)) {
                 $_SESSION['strOkMessage'] .= $_ARRAYLANG['TXT_FEED_CATEGORY_SUCCESSFULLY_DELETED']."<br />";
+                //clear Cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', $this->getFeedPlaceholderNames())
+                );
                 $this->_objNewsML->initCategories();
             } else {
                 $_SESSION['strErrMessage'] .= str_replace('%CATEGORY%', $this->_objNewsML->arrCategories[$categoryId]['name'], $_ARRAYLANG['TXT_FEED_CATEGORY_COULD_NOT_BE_DELETED']."<br />");
@@ -494,14 +506,25 @@ class FeedManager extends FeedLibrary
             $templateHtml = isset($_POST['feedNewsMLCategoryTemplate']) ? contrexx_addslashes($_POST['feedNewsMLCategoryTemplate']) : '';
             $templateHtml = preg_replace('/\[\[([A-Za-z0-9_]*?)\]\]/', '{\\1}', $templateHtml);
 
+            $clearCache = true;
             if ($categoryId != 0) {
                 if ($this->_objNewsML->updateCategory($categoryId, $providerId, $categoryName, $arrSubjectCodes, $subjectCodeMethod, $templateHtml, $msgCount, $showPics) === false) {
+                    $clearCache = false;
                     $_SESSION['strErrMessage'] .= $_ARRAYLANG['TXT_FEED_CATEGORY_COULD_NOT_BE_UPDATED']."<br />";
                 }
             } else {
                 if ($this->_objNewsML->addCategory($providerId, $categoryName, $arrSubjectCodes, $subjectCodeMethod, $templateHtml, $msgCount, $showPics) === false) {
+                    $clearCache = false;
                     $_SESSION['strErrMessage'] .= $_ARRAYLANG['TXT_FEED_COULD_NOT_ADD_CATEGORY']."<br />";
                 }
+            }
+            if ($clearCache) {
+                //clear Cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', $this->getFeedPlaceholderNames())
+                );
             }
             $this->_objNewsML->initCategories();
         }

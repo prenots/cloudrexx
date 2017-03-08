@@ -61,7 +61,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $_CONFIG, $objInit, $_LANGID, $_ARRAYLANG;
+        global $_CONFIG, $objInit, $_LANGID, $_CORELANG;
 
         // Set NewsML messages
         $matches = null;
@@ -73,7 +73,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         $_LANGID    = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Feed'));
+        $_CORELANG  = array_merge($_CORELANG, $objInit->loadLanguageData());
         $objNewsML  = new NewsML();
         $code       = '{' . $name . '}';
         $objNewsML->setNews(array($matches[1]), $code);
