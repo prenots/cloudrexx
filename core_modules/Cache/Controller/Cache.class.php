@@ -386,7 +386,25 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             // return cached content if available
             $cacheFile = $this->getCacheFileNameFromUrl($matches[1]);
             if ($settings['internalSsiCache'] == 'on' && file_exists($this->strCachePath . $cacheFile)) {
-                if (filemtime($this->strCachePath . $cacheFile) > (time() - $this->intCachingTime)) {
+                $expireTimestamp = -1;
+                if (file_exists($this->strCachePath . $cacheFile . '_h')) {
+                    $expireTimestamp = file_get_contents(
+                        $this->strCachePath . $cacheFile . '_h'
+                    );
+                }
+
+                if (
+                    (
+                        $expireTimestamp && $expireTimestamp > time()
+                    ) ||
+                    (
+                        filemtime(
+                            $this->strCachePath . $cacheFile
+                        ) > (
+                            time() - $this->intCachingTime
+                        )
+                    )
+                ) {
                     return file_get_contents($this->strCachePath . $cacheFile);
                 } else {
                     $file = new \Cx\Lib\FileSystem\File($this->strCachePath . $cacheFile);
@@ -418,9 +436,18 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             }
 
             try {
-                $content = $this->getApiResponseForUrl($matches[1]);
+                $response = new \Cx\Lib\Net\Model\Entity\Response();
+                $content = $this->getApiResponseForUrl($matches[1], $response);
 
                 if ($settings['internalSsiCache'] == 'on') {
+                    if ($response->getExpirationDate()) {
+                        $headerFile = new \Cx\Lib\FileSystem\File(
+                            $this->strCachePath . $cacheFile . '_h'
+                        );
+                        $headerFile->write(
+                            $response->getExpirationDate()->format('U')
+                        );
+                    }
                     $file = new \Cx\Lib\FileSystem\File($this->strCachePath . $cacheFile);
                     $file->write($content);
                 }
