@@ -436,7 +436,7 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             }
 
             try {
-                $response = new \Cx\Lib\Net\Model\Entity\Response();
+                $response = new \Cx\Lib\Net\Model\Entity\Response('');
                 $content = $this->getApiResponseForUrl($matches[1], $response);
 
                 if ($settings['internalSsiCache'] == 'on') {
