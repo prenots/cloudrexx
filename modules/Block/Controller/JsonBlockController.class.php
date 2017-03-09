@@ -218,12 +218,20 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      */
     public function getBlockContent($params)
     {
+        $parsing = true;
+        if ($params['get']['parsing'] == 'false') {
+            $parsing = false;
+        }
+
         // check for necessary arguments
         if (
             empty($params['get']) ||
             empty($params['get']['block']) ||
             empty($params['get']['lang']) ||
-            empty($params['get']['page'])
+            (
+                empty($params['get']['page']) &&
+                $parsing
+            )
         ) {
             throw new NotEnoughArgumentsException('not enough arguments');
         }
@@ -275,10 +283,13 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             $id
         );
         $content = $template->get();
-        $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
-        $page = $pageRepo->find($params['get']['page']);
 
-        \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
+        if ($parsing) {
+            $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
+            $page = $pageRepo->find($params['get']['page']);
+            \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
+        }
+
         \LinkGenerator::parseTemplate($content);
         $ls = new \LinkSanitizer(
             $cx,
