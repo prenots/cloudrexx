@@ -45,13 +45,24 @@ namespace Cx\Modules\Gallery\Controller;
  * @subpackage  module_gallery
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-    public function getControllerClasses() {
-        // Return an empty array here to let the component handler know that there
-        // does not exist a backend, nor a frontend controller of this component.
-        return array();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
     }
 
-     /**
+    /**
+     * {@inheritdoc}
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
      * Load your component.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -86,50 +97,36 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
     }
-    /**
-     * Do something before content is loaded from DB
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
-     */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $page_template, $themesPages, $latestImage;
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $objGalleryHome = new GalleryHomeContent();
-                if ($objGalleryHome->checkRandom()) {
-                    if (preg_match('/{GALLERY_RANDOM}/', \Env::get('cx')->getPage()->getContent())) {
-                        \Env::get('cx')->getPage()->setContent(str_replace('{GALLERY_RANDOM}', $objGalleryHome->getRandomImage(), \Env::get('cx')->getPage()->getContent()));
-                    }
-                    if (preg_match('/{GALLERY_RANDOM}/', $page_template))  {
-                        $page_template = str_replace('{GALLERY_RANDOM}', $objGalleryHome->getRandomImage(), $page_template);
-                    }
-                    if (preg_match('/{GALLERY_RANDOM}/', $themesPages['index'])) {
-                        $themesPages['index'] = str_replace('{GALLERY_RANDOM}', $objGalleryHome->getRandomImage(), $themesPages['index']);
-                    }
-                    if (preg_match('/{GALLERY_RANDOM}/', $themesPages['sidebar'])) {
-                        $themesPages['sidebar'] = str_replace('{GALLERY_RANDOM}', $objGalleryHome->getRandomImage(), $themesPages['sidebar']);
-                    }
-                }
-                if ($objGalleryHome->checkLatest()) {
-                    $latestImage = $objGalleryHome->getLastImage();
-                    if (preg_match('/{GALLERY_LATEST}/', \Env::get('cx')->getPage()->getContent())) {
-                        \Env::get('cx')->getPage()->setContent(str_replace('{GALLERY_LATEST}', $latestImage, \Env::get('cx')->getPage()->getContent()));
-                    }
-                    if (preg_match('/{GALLERY_LATEST}/', $page_template)) {
-                        $page_template = str_replace('{GALLERY_LATEST}', $latestImage, $page_template);
-                    }
-                    if (preg_match('/{GALLERY_LATEST}/', $themesPages['index'])) {
-                        $themesPages['index'] = str_replace('{GALLERY_LATEST}', $latestImage, $themesPages['index']);
-                    }
-                    if (preg_match('/{GALLERY_LATEST}/', $themesPages['sidebar'])) {
-                        $themesPages['sidebar'] = str_replace('{GALLERY_LATEST}', $latestImage, $themesPages['sidebar']);
-                    }
-                }
-                break;
-            default:
-                break;
-        }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+
+        foreach (array('GALLERY_LATEST', 'GALLERY_RANDOM') as $widgetName) {
+
+            if ($widgetName === 'GALLERY_RANDOM') {
+                $gallery = new GalleryHomeContent();
+                $randomNames = preg_filter('/^/', 'GALLERY_', $gallery->getImageIds());
+                $widget = new \Cx\Core_Modules\Widget\Model\Entity\RandomEsiWidget(
+                    $this,
+                    $widgetName,
+                    $randomNames
+                );
+            } else {
+                $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                    $this,
+                    $widgetName
+                );
+            }
+            $widget->setEsiVariable(
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+            );
+            $widgetController->registerWidget($widget);
+        }
     }
 
     /**
