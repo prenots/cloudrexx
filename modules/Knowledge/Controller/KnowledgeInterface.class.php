@@ -70,33 +70,38 @@ class KnowledgeInterface extends KnowledgeLibrary
      */
     public function getTagCloud()
     {
-        global $_LANGID, $objInit;
+        global $_LANGID;
 
         $tpl = new \Cx\Core\Html\Sigma();
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
-        $template = $this->settings->formatTemplate($this->settings->get("tag_cloud_sidebar_template"));
+        $template = $this->settings->formatTemplate(
+            $this->settings->get('tag_cloud_sidebar_template')
+        );
         $tpl->setTemplate($template);
-
-
-        $highestFontSize = 20;
-        $lowestFontSize = 10;
 
         try {
             $tags_pop = $this->tags->getAllOrderByPopularity($_LANGID, true);
-            $tags = $this->tags->getAll($_LANGID, true);
+            $tags     = $this->tags->getAll($_LANGID, true);
         } catch (DatabaseError $e) {
             echo $e->plain();
         }
 
         $tagCloud = new TagCloud();
         $tagCloud->setTags($tags);
-        $tagCloud->setTagVals($tags_pop[0]['popularity'], $tags_pop[count($tags_pop)-1]['popularity']);
+        $tagCloud->setTagVals(
+            $tags_pop[0]['popularity'],
+            $tags_pop[count($tags_pop)-1]['popularity']
+        );
         $tagCloud->setFont(20, 10);
-        $tagCloud->setUrlFormat("index.php?section=Knowledge".MODULE_INDEX."&amp;tid=%id");
-
-
-        $tpl->setVariable("CLOUD", $tagCloud->getCloud());
+        $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+            'Knowledge',
+            '',
+            $_LANGID,
+            array('tid' => '%id')
+        );
+        $tagCloud->setUrlFormat($url->toString());
+        $tpl->setVariable('CLOUD', $tagCloud->getCloud());
 
         //$tpl->parse("cloud");
         return $tpl->get();
@@ -105,76 +110,98 @@ class KnowledgeInterface extends KnowledgeLibrary
     /**
      * Return the most popular
      *
-     * @return unknown
+     * @return string
      */
     public function getBestRated()
     {
         global $_LANGID;
 
         try {
-            $articles = $this->articles->getBestRated($_LANGID, $this->settings->get('best_rated_sidebar_amount'));
+            $articles = $this->articles->getBestRated(
+                $_LANGID,
+                $this->settings->get('best_rated_sidebar_amount')
+            );
         } catch (DatabaseError $e) {
             return;
         }
 
-        $template = $this->settings->formatTemplate($this->settings->get("best_rated_sidebar_template"));
+        $template = $this->settings->formatTemplate(
+            $this->settings->get('best_rated_sidebar_template')
+        );
 
         $objTemplate = new \Cx\Core\Html\Sigma(ASCMS_THEMES_PATH);
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($objTemplate);
         $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
-
         $objTemplate->setTemplate($template);
 
-        $max_length = $this->settings->get("best_rated_sidebar_length");
+        $max_length = $this->settings->get('best_rated_sidebar_length');
         foreach ($articles as $key => $article) {
             $question = $article['content'][$_LANGID]['question'];
             if (strlen($question) >= $max_length) {
-                $question = substr($question, 0, $max_length-3)."...";
+                $question = substr($question, 0, $max_length-3) . '...';
             }
+            $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Knowledge',
+                'article',
+                $_LANGID,
+                array('id' => $key)
+            );
             $objTemplate->setVariable(array(
-                "URL"        => "index.php?section=Knowledge&amp;cmd=article&amp;id=".$key,
-                "ARTICLE"   => $question
+                'URL'     => $url->toString(),
+                'ARTICLE' => contrexx_raw2xhtml($question)
             ));
-            $objTemplate->parse("article");
+            $objTemplate->parse('article');
         }
+
         return $objTemplate->get();
     }
 
     /**
      * Get the best rated articles
      *
+     * @return string
      */
     public function getMostRead()
     {
         global $_LANGID;
 
         try {
-           $articles = $this->articles->getMostRead($_LANGID, $this->settings->get('best_rated_sidebar_amount'));
+            $articles = $this->articles->getMostRead(
+                $_LANGID,
+                $this->settings->get('best_rated_sidebar_amount')
+            );
         } catch (DatabaseError $e) {
             return;
         }
 
-        $template = $this->settings->formatTemplate($this->settings->get("most_read_sidebar_template"));
+        $template = $this->settings->formatTemplate(
+            $this->settings->get('most_read_sidebar_template')
+        );
 
         $objTemplate = new \Cx\Core\Html\Sigma(ASCMS_THEMES_PATH);
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($objTemplate);
         $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
-
         $objTemplate->setTemplate($template);
 
-
-        $max_length = $this->settings->get("most_read_sidebar_length");
+        $max_length = $this->settings->get('most_read_sidebar_length');
         foreach ($articles as $key => $article) {
             $question = $article['content'][$_LANGID]['question'];
             if (strlen($question) >= $max_length) {
-                $question = substr($question, 0, $max_length-3)."...";
+                $question = substr($question, 0, $max_length-3) . '...';
             }
+            $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Knowledge',
+                'article',
+                $_LANGID,
+                array('id' => $key)
+            );
             $objTemplate->setVariable(array(
-                "URL"       => "index.php?section=Knowledge&amp;cmd=article&amp;id=".$key,
-                "ARTICLE"   => $question
+                'URL'     => $url->toString(),
+                'ARTICLE' => contrexx_raw2xhtml($question)
             ));
-            $objTemplate->parse("article");
+            $objTemplate->parse('article');
         }
+
         return$objTemplate->get();
     }
 }

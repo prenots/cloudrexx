@@ -45,13 +45,33 @@ namespace Cx\Modules\Knowledge\Controller;
  * @subpackage  module_knowledge
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-    public function getControllerClasses() {
-        // Return an empty array here to let the component handler know that there
-        // does not exist a backend, nor a frontend controller of this component.
-        return array();
+    /**
+     * Returns all Controller class names for this component (except this)
+     *
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
     }
 
-     /**
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
      * Load your component.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -86,29 +106,35 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Do something before content is loaded from DB
+     * Do something after system initialization
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     *
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
      */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $knowledgeInterface, $page_template, $themesPages;
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                // get knowledge content
-                \Cx\Core\Setting\Controller\Setting::init('Config', 'component','Yaml');
-                if (MODULE_INDEX < 2 && \Cx\Core\Setting\Controller\Setting::getValue('useKnowledgePlaceholders','Config')) {
-                    $knowledgeInterface = new KnowledgeInterface();
-                    if (preg_match('/{KNOWLEDGE_[A-Za-z0-9_]+}/i', \Env::get('cx')->getPage()->getContent())) {
-                        $knowledgeInterface->parse(\Env::get('cx')->getPage()->getContent());
-                    }
-                    if (preg_match('/{KNOWLEDGE_[A-Za-z0-9_]+}/i', $page_template)) {
-                        $knowledgeInterface->parse($page_template);
-                    }
-                    if (preg_match('/{KNOWLEDGE_[A-Za-z0-9_]+}/i', $themesPages['index'])) {
-                        $knowledgeInterface->parse($themesPages['index']);
-                    }
-                }
-                break;
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+
+        foreach (
+            array(
+                'KNOWLEDGE_TAG_CLOUD',
+                'KNOWLEDGE_MOST_READ',
+                'KNOWLEDGE_BEST_RATED'
+            ) as $widgetName
+        ) {
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                $this,
+                $widgetName
+            );
+            $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+            );
+            $widgetController->registerWidget($widget);
         }
     }
 }

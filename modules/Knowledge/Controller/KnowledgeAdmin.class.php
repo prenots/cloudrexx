@@ -411,6 +411,8 @@ class KnowledgeAdmin extends KnowledgeLibrary
         try {
             $this->articles->deleteOneArticle($id);
             $this->tags->clearTags();
+            // Clear cache
+            $this->clearEsiCache();
         } catch (DatabaseError $e) {
             $this->sendAjaxError($e->formatted());
         }
@@ -778,6 +780,8 @@ class KnowledgeAdmin extends KnowledgeLibrary
             } else {
                 $this->articles->deactivate($id);
             }
+            //clear cache
+            $this->clearEsiCache();
         } catch (DatabaseError $e) {
             $this->sendAjaxError($e->formatted());
         }
@@ -1172,6 +1176,8 @@ class KnowledgeAdmin extends KnowledgeLibrary
             foreach ($tags as $lang => $tag) {
                 $this->tags->updateFromString($id, $tag, $lang);
             }
+            //clear cache
+            $this->clearEsiCache();
         } catch (DatabaseError $e) {
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];
             $this->errorMessage .= $e->formatted();
@@ -1215,6 +1221,8 @@ class KnowledgeAdmin extends KnowledgeLibrary
             foreach ($tags as $lang => $tag) {
                 $this->tags->updateFromString($id, $tag, $lang);
             }
+            //clear cache
+            $this->clearEsiCache();
         } catch (DatabaseError $e) {
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];
             $this->errorMessage .= $e->formatted();
@@ -1239,6 +1247,8 @@ class KnowledgeAdmin extends KnowledgeLibrary
             foreach ($_POST['articlelist'] as $position => $id) {
                 $this->articles->setSort($id, $position);
             }
+            //clear cache
+            $this->clearEsiCache();
         } catch (DatabaseError $e) {
             $this->sendAjaxError($e->formatted());
         }
@@ -1440,6 +1450,8 @@ class KnowledgeAdmin extends KnowledgeLibrary
             $this->settings->set("best_rated_amount", $_POST['best_rated_amount']);
 
             $this->updateGlobalSetting(!empty($_POST['useKnowledgePlaceholders']) ? 1 : 0);
+            //clear cache
+            $this->clearEsiCache();
         } catch (DatabaseError $e) {
             global $_ARRAYLANG;
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];
@@ -1507,5 +1519,24 @@ class KnowledgeAdmin extends KnowledgeLibrary
         ));
 
         return $this->tpl->get();
+    }
+
+    /**
+     * Clear Cache
+     */
+    public function clearEsiCache()
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array(
+                'Widget',
+                array(
+                    'KNOWLEDGE_TAG_CLOUD',
+                    'KNOWLEDGE_MOST_READ',
+                    'KNOWLEDGE_BEST_RATED'
+                )
+            )
+        );
     }
 }
