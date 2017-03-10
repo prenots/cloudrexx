@@ -480,8 +480,12 @@ class NewsletterLib
 
     function _getHTML($onlyId=false)
     {
-        global $objDatabase, $_ARRAYLANG;
-
+        global $objDatabase, $_ARRAYLANG, $_LANGID, $url;
+        $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+            'Newsletter',
+            'subscribe',
+            $_LANGID
+        );
         $html = '';
         if ($onlyId) {
             $objResult = true;
@@ -490,7 +494,7 @@ class NewsletterLib
         }
 
         if ($objResult !== false) {
-            $html .= '<form name="newsletter" action="'.CONTREXX_DIRECTORY_INDEX.'?section=Newsletter&amp;act=subscribe" method="post">'."\n";
+            $html .= '<form name="newsletter" action="'.$url->toString().'" method="post">'."\n";
 
             if ($onlyId || $objResult->RecordCount() == 1) {
                 $html .= '<input type="hidden" name="list['.($onlyId ? $onlyId : $objResult->fields['id']).']" value="1" />'."\n";

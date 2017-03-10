@@ -368,6 +368,12 @@ class NewsletterManager extends NewsletterLib
                     self::$strErrMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
                 } else {
                     self::$strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
+                    //clear cache
+                    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                    $cx->getEvents()->triggerEvent(
+                        'clearEsiCache',
+                        array('Widget', array('NEWSLETTER_BLOCK'))
+                    );
                 }
             }
         }
@@ -473,6 +479,12 @@ class NewsletterManager extends NewsletterLib
 
                 if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_newsletter_category WHERE id=".$listId) !== false) {
                     self::$strOkMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_DELETED'], $arrList['name']);
+                    //clear cache
+                    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                    $cx->getEvents()->triggerEvent(
+                        'clearEsiCache',
+                        array('Widget', array('NEWSLETTER_BLOCK'))
+                    );
                 } else {
                     self::$strErrMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_COULD_NOT_DELETE_LIST'], $arrList['name']);
                 }
@@ -505,6 +517,12 @@ class NewsletterManager extends NewsletterLib
         if ($listId > 0) {
             if (($arrList = $this->_getList($listId)) !== false) {
                 $objDatabase->Execute("UPDATE ".DBPREFIX."module_newsletter_category SET `status`=".($arrList['status'] == 1 ? "0" : "1")." WHERE id=".$listId);
+                //clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('NEWSLETTER_BLOCK'))
+                );
             }
         }
     }
@@ -525,6 +543,12 @@ class NewsletterManager extends NewsletterLib
                     if ($listId == 0) {
                         if ($this->_addList($listName, $listStatus, $notificationMail) !== false) {
                             self::$strOkMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_CREATED'], $listName);
+                            //clear cache
+                            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                            $cx->getEvents()->triggerEvent(
+                                'clearEsiCache',
+                                array('Widget', array('NEWSLETTER_BLOCK'))
+                            );
                             return $this->_lists();
                         } else {
                             self::$strErrMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_COULD_NOT_CREATE_LIST'], $listName);
@@ -532,6 +556,12 @@ class NewsletterManager extends NewsletterLib
                     } else {
                         if ($this->_updateList($listId, $listName, $listStatus, $notificationMail) !== false) {
                             self::$strOkMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_LIST_SUCCESSFULLY_UPDATED'], $listName);
+                            //clear cache
+                            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                            $cx->getEvents()->triggerEvent(
+                                'clearEsiCache',
+                                array('Widget', array('NEWSLETTER_BLOCK'))
+                            );
                             return $this->_lists();
                         } else {
                             self::$strErrMessage .= sprintf($_ARRAYLANG['TXT_NEWSLETTER_COULD_NOT_UPDATE_LIST'], $listName);
