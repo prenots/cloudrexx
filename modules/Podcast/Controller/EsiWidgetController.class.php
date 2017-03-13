@@ -74,7 +74,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $_CONFIG, $_ARRAYLANG, $objInit, $_LANGID;
+        global $_CONFIG, $_ARRAYLANG, $_LANGID;
 
         //Parse Podcast Homecontent
         if ($name != 'PODCAST_FILE' || empty($_CONFIG['podcastHomeContent'])) {
@@ -89,7 +89,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         $_LANGID      = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG   = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Podcast'));
+        $_ARRAYLANG   = array_merge($_ARRAYLANG, \Env::get('init')->loadLanguageData('Podcast'));
         $isFirstBlock = false;
         if (!empty($this->section) && $this->section == 'Podcast') {
             $indexFile       = $this->getFileContent($theme, 'index.html');
