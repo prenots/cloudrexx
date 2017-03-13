@@ -95,9 +95,7 @@ class GalleryHomeContent extends GalleryLibrary
      */
     public function getImageIds()
     {
-        global $objInit;
-
-        $langId = $objInit->getDefaultFrontendLangId();
+        $langId = \Env::get('init')->getDefaultFrontendLangId();
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
             ->getDb()->getAdoDb();
         $objFWUser   = \FWUser::getFWUserObject();
