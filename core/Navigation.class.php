@@ -77,28 +77,47 @@ class Navigation
     }
 
 
-    public function getSubnavigation($templateContent, $license, $boolShop=false)
+    /**
+     * Get subnavigation content
+     *
+     * @param string                           $templateContent template content
+     * @param \Cx\Core_Modules\License\License $license         license object
+     *
+     * @return string
+     */
+    public function getSubnavigation($templateContent, $license)
     {
-        return $this->parseNavigation($templateContent, $license, $boolShop, true);
+        return $this->parseNavigation($templateContent, $license, true);
     }
 
 
-    public function getNavigation($templateContent, $license, $boolShop=false)
+    /**
+     * Get navigation content
+     *
+     * @param string                           $templateContent template content
+     * @param \Cx\Core_Modules\License\License $license         license object
+     *
+     * @return type
+     */
+    public function getNavigation($templateContent, $license)
     {
-        return $this->parseNavigation($templateContent, $license, $boolShop, false);
+        return $this->parseNavigation($templateContent, $license, false);
     }
 
     /**
-     * This is just a wrapper for \Cx\Core\PageTree\ classes and Shop::getNavbar()
-     * @param   string  $templateContent
-     * @param   boolean $boolShop         If true, parse the shop navigation
-     *                                    into {SHOPNAVBAR_FILE}
-     * @param   \Cx\Core\ContentManager\Model\Entity\Page requestedPage
-     * @access  private
+     * This is just a wrapper for \Cx\Core\PageTree class
+     *
+     * @param string                           $templateContent    template content
+     * @param \Cx\Core_Modules\License\License $license            license object
+     * @param boolean                          $parseSubnavigation If true, parse the subnavigation
+     *
      * @return mixed parsed navigation
      */
-    private function parseNavigation($templateContent, $license, $boolShop=false, $parseSubnavigation=false)
-    {
+    private function parseNavigation(
+        $templateContent,
+        $license,
+        $parseSubnavigation = false
+    ) {
         // only proceed if a navigation template had been set
         if (empty($templateContent)) {
             return;
@@ -108,13 +127,6 @@ class Navigation
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
         $this->_objTpl->setTemplate($templateContent);
-
-        if ($boolShop) {
-            $themesPages = \Env::get('init')->getTemplates($this->page);
-            $this->_objTpl->setVariable('SHOPNAVBAR_FILE', \Cx\Modules\Shop\Controller\Shop::getNavbar($themesPages['shopnavbar']));
-            $this->_objTpl->setVariable('SHOPNAVBAR2_FILE', \Cx\Modules\Shop\Controller\Shop::getNavbar($themesPages['shopnavbar2']));
-            $this->_objTpl->setVariable('SHOPNAVBAR3_FILE', \Cx\Modules\Shop\Controller\Shop::getNavbar($themesPages['shopnavbar3']));
-        }
 
         $rootNode = null;
         if ($parseSubnavigation) {
