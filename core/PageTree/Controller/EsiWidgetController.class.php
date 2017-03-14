@@ -93,7 +93,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         $matches = null;
-        if (preg_match('/^(SUBNAVBAR|NAVBAR)(\d{1,2}|)_FILE/', $name, $matches)) {
+        if (preg_match('/^((?:SUB)?NAVBAR)(\d{0,2})_FILE$/', $name, $matches)) {
             $content = $this->getFileContent(
                 $theme,
                 strtolower($matches[1]) . $matches[2] . '.html'
@@ -101,8 +101,10 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             if (!$content) {
                 return;
             }
-            $method    = ($matches[1] == 'SUBNAVBAR')
-                ? 'getSubnavigation' : 'getNavigation';
+            $method = 'getNavigation';
+            if ($matches[1] == 'SUBNAVBAR') {
+                $method = 'getSubnavigation';
+            }
             $navBarContent = $navbar->$method(
                 $content,
                 $this->cx->getLicense()
@@ -120,12 +122,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function getWidget($params)
     {
-        if (isset($params['get']) && isset($params['get']['theme'])) {
-            $this->currentThemeId = contrexx_input2db($params['get']['theme']);
-        }
-
-        if (isset($params['get']) && isset($params['get']['page'])) {
-            $this->currentPageId = contrexx_input2db($params['get']['page']);
+        if (isset($params['get'])) {
+            if (isset($params['get']['theme'])) {
+                $this->currentThemeId = $params['get']['theme'];
+            }
+            if (isset($params['get']['page'])) {
+                $this->currentPageId = $params['get']['page'];
+            }
         }
         return parent::getWidget($params);
     }
