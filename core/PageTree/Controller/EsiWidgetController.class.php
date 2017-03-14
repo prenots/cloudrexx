@@ -124,11 +124,11 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     public function getWidget($params)
     {
         if (isset($params['get']) && isset($params['get']['theme'])) {
-            $this->currentThemeId = contrexx_input2int($params['get']['theme']);
+            $this->currentThemeId = contrexx_input2db($params['get']['theme']);
         }
 
         if (isset($params['get']) && isset($params['get']['page'])) {
-            $this->currentPageId = contrexx_input2int($params['get']['page']);
+            $this->currentPageId = contrexx_input2db($params['get']['page']);
         }
         return parent::getWidget($params);
     }
