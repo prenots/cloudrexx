@@ -74,9 +74,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $_LANGID;
-
-        $_LANGID  = \FWLanguage::getLangIdByIso639_1($locale);
         $em       = $this->cx->getDb()->getEntityManager();
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
         $page     = $pageRepo->find($this->currentPageId);
