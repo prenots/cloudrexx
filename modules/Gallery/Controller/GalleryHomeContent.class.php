@@ -110,10 +110,10 @@ class GalleryHomeContent extends GalleryLibrary
             $objFWUser->objUser->login() &&
             !$objFWUser->objUser->getAdminStatus()
         ) {
-            $where = ' AND (`cat`.`frontendProtected` = 0';
+            $where = ' AND (`categories`.`frontendProtected` = 0';
             $dynamicPermissionIds = $objFWUser->objUser->getDynamicPermissionIds();
             if (count($dynamicPermissionIds)) {
-                $where .= ' OR `cat`.`frontend_access_id` IN (' .
+                $where .= ' OR `categories`.`frontend_access_id` IN (' .
                     implode(', ', $dynamicPermissionIds) . ')';
             }
             $where .= ')';
