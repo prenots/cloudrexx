@@ -68,16 +68,19 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         global $_LANGID;
 
+        $this->getComponent('Session')->getSession();
         $_LANGID = \FWLanguage::getLangIdByIso639_1($locale);
         $gallery = new GalleryHomeContent();
         if ($name === 'GALLERY_LATEST' && $gallery->checkLatest()) {
             $template->setVariable($name, $gallery->getLastImage());
+            return;
         }
 
         $matches = null;
-        if (    $name === 'GALLERY_RANDOM' &&
-                $gallery->checkRandom() &&
-                preg_match('/\d+/', $this->randomName, $matches)
+        if (
+            $name === 'GALLERY_RANDOM' &&
+            $gallery->checkRandom() &&
+            preg_match('/\d+/', $this->randomName, $matches)
         ) {
             $template->setVariable($name, $gallery->getImageById($matches[0]));
         }
@@ -94,13 +97,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         $widgetName = '';
         if (isset($params['get']) && isset($params['get']['name'])) {
-            $widgetName = contrexx_input2raw($params['get']['name']);
+            $widgetName = $params['get']['name'];
         }
         if ($widgetName === 'GALLERY_RANDOM') {
             if (!isset($params['get']) || !isset($params['get']['randomName'])) {
                 return;
             }
-            $this->randomName = contrexx_input2raw($params['get']['randomName']);
+            $this->randomName = $params['get']['randomName'];
         }
         return parent::getWidget($params);
     }

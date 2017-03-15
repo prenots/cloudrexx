@@ -106,10 +106,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $widgetController = $this->getComponent('Widget');
 
         foreach (array('GALLERY_LATEST', 'GALLERY_RANDOM') as $widgetName) {
-
             if ($widgetName === 'GALLERY_RANDOM') {
-                $gallery = new GalleryHomeContent();
-                $randomNames = preg_filter('/^/', 'GALLERY_', $gallery->getImageIds());
+                $gallery     = new GalleryHomeContent();
+                $randomNames = preg_filter(
+                    '/^/',
+                    'GALLERY_',
+                    $gallery->getImageIds()
+                );
+
                 $widget = new \Cx\Core_Modules\Widget\Model\Entity\RandomEsiWidget(
                     $this,
                     $widgetName,
@@ -122,6 +126,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 );
             }
             $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_USER |
                 \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
                 \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
             );

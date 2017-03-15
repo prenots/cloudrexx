@@ -95,12 +95,13 @@ class GalleryHomeContent extends GalleryLibrary
      */
     public function getImageIds()
     {
-        $langId = \Env::get('init')->getDefaultFrontendLangId();
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
             ->getDb()->getAdoDb();
+        \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getComponent('Session')->getSession();
         $objFWUser   = \FWUser::getFWUserObject();
-        $where       = '';
 
+        $where = '';
         if (!$objFWUser->objUser->login()) {
             $where = ' AND `categories`.`frontendProtected` = 0';
         }
@@ -109,44 +110,70 @@ class GalleryHomeContent extends GalleryLibrary
             $objFWUser->objUser->login() &&
             !$objFWUser->objUser->getAdminStatus()
         ) {
-            $where = ' AND (`categories`.`frontendProtected` = 0' .
-                (count($objFWUser->objUser->getDynamicPermissionIds())
-                    ? ' OR `categories`.`frontend_access_id` IN (' .
-                        implode(
-                            ', ',
-                            $objFWUser->objUser->getDynamicPermissionIds()
-                        ) . ')'
-                    : ''
-                ) . ')';
+            $where = ' AND (`cat`.`frontendProtected` = 0';
+            $dynamicPermissionIds = $objFWUser->objUser->getDynamicPermissionIds();
+            if (count($dynamicPermissionIds)) {
+                $where .= ' OR `cat`.`frontend_access_id` IN (' .
+                    implode(', ', $dynamicPermissionIds) . ')';
+            }
+            $where .= ')';
         }
         $query = '
             SELECT `pics`.`id` as picId
                 FROM  `' . DBPREFIX . 'module_gallery_categories` AS categories
                 INNER JOIN `' . DBPREFIX . 'module_gallery_pictures` AS pics
                     ON `pics`.`catid` = `categories`.`id`
-                INNER JOIN `' . DBPREFIX . 'module_gallery_language_pics` AS lang
-                    ON `lang`.`picture_id` = `pics`.`id`
                 WHERE `categories`.`status` = "1"
                     AND `pics`.`validated`  = "1"
-                    AND `pics`.`status`     = "1"
-                    AND `lang`.`lang_id`    = ' . $langId . $where . '
-                ORDER BY `categories`.`id`';
+                    AND `pics`.`status`     = "1"' . $where . '
+                ORDER BY `pics`.`sorting`';
         $objResult = $objDatabase->Execute($query);
         $entryIds  = array();
-        if ($objResult && $objResult->RecordCount()) {
-            while (!$objResult->EOF) {
-                $entryIds[] = $objResult->fields['picId'];
-                $objResult->MoveNext();
-            }
+        if (!$objResult || $objResult->RecordCount() == 0) {
+            return $entryIds;
         }
+
+        while (!$objResult->EOF) {
+            $entryIds[] = $objResult->fields['picId'];
+            $objResult->MoveNext();
+        }
+
         return $entryIds;
     }
 
     /**
-     * Get Image with html tag by id
+     * Returns the last inserted image from database
      *
-     * @param integer $id     image id
-     * @param integer $langId language Id
+     * @return string Complete <img>-tag for a randomized image
+     */
+    function getLastImage()
+    {
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getDb()->getAdoDb();
+
+        $objResult = $objDatabase->Execute(
+            'SELECT `pics`.`id`
+                FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
+                INNER JOIN `' . DBPREFIX . 'module_gallery_categories` AS categories
+                    ON `pics`.`catid` = `categories`.`id`
+                WHERE   `categories`.`status` = "1"
+                    AND `pics`.`validated` = "1"
+                    AND `pics`.`status` = "1"
+                ORDER BY `pics`.`id` DESC
+                LIMIT 1'
+        );
+
+        if (!$objResult || $objResult->RecordCount() == 0) {
+            return '';
+        }
+
+        return $this->getImageById($objResult->fields['id']);
+    }
+
+    /**
+     * Get image tag by ID
+     *
+     * @param integer $id picture ID
      *
      * @return string
      */
@@ -159,96 +186,135 @@ class GalleryHomeContent extends GalleryLibrary
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
             ->getDb()->getAdoDb();
         $query = '
-            SELECT `pics`.`catid` AS catId,
-                   `pics`.`path` AS path,
-                   `lang`.`name` AS name
-                FROM `' . DBPREFIX . 'module_gallery_categories` AS categories
-                LEFT JOIN `' . DBPREFIX . 'module_gallery_pictures` AS pics
-                    ON `pics`.`catid` = `categories`.`id`
-                LEFT JOIN  `' . DBPREFIX . 'module_gallery_language_pics` AS lang
-                    ON `pics`.`id` = `lang`.`picture_id`
-                WHERE `pics`.`validated` = "1"
-                    AND `pics`.`status`  = "1"
-                    AND `pics`.`id`      = ' . contrexx_input2db($id) . '
-                    AND `lang`.`lang_id` = ' . $this->_intLangId;
+            SELECT `catid` AS catId,
+                   `path` AS path
+                FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
+                WHERE `validated` = "1"
+                    AND `status`  = "1"
+                    AND `id`      = ' . contrexx_input2db($id);
         $objResult = $objDatabase->Execute($query);
-        $content   = '';
-        if ($objResult && $objResult->RecordCount()) {
-            $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
-                'Gallery',
-                '',
-                '',
-                array('cid' => $objResult->fields['catId'])
-            )->toString();
-            $imgName = contrexx_raw2xhtml($objResult->fields['name']);
-            $image   = \Html::getImageByPath(
-                $this->_strWebPath . $objResult->fields['path'],
-                'alt="' . $imgName . '" title="' . $imgName . '"'
-            );
-            $content = \Html::getLink($url, $image, '_self');
+        if (!$objResult || $objResult->RecordCount() == 0) {
+            return '';
         }
-        return $content;
+
+        //Loggedin user have permission to view the gallery picture
+        $objFWUser = \FWUser::getFWUserObject();
+        if (!$objFWUser->objUser->login()) {
+            $where = ' AND `cat`.`frontendProtected` = 0';
+        }
+
+        if (
+            $objFWUser->objUser->login() &&
+            !$objFWUser->objUser->getAdminStatus()
+        ) {
+            $where = ' AND (`cat`.`frontendProtected` = 0';
+            $dynamicPermissionIds = $objFWUser->objUser->getDynamicPermissionIds();
+            if (count($dynamicPermissionIds)) {
+                $where .= ' OR `cat`.`frontend_access_id` IN (' .
+                    implode(', ', $dynamicPermissionIds) . ')';
+            }
+            $where .= ')';
+        }
+
+        $query = '
+            SELECT 1
+                FROM `' . DBPREFIX . 'module_gallery_pictures` as pic
+                LEFT JOIN `' . DBPREFIX . 'module_gallery_categories` as cat
+                    ON `pic`.`catid` = `cat`.`id`
+                WHERE `pic`.`id` = ' . contrexx_input2db($id) . $where;
+
+        $result = $objDatabase->Execute($query);
+        if (!$result || $result->RecordCount() == 0) {
+            return '';
+        }
+
+        //Get paging count from DB
+        $paging = $objDatabase->getOne(
+            'SELECT `value`
+                FROM `' . DBPREFIX . 'module_gallery_settings`
+                 WHERE `name` = "paging"'
+        );
+
+        //Preparing paging link for the current gallery picture ID
+        $objPos = $objDatabase->Execute(
+            'SELECT `pics`.`id`
+                FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
+                WHERE   `pics`.`validated` = "1"
+                    AND `pics`.`status` = "1"
+                    AND `pics`.`catid`  = ' . $objResult->fields['catId'] . '
+                ORDER BY `pics`.`sorting`'
+        );
+        $picNr = 0;
+        if ($objPos !== false) {
+            while (!$objPos->EOF) {
+                if ($objPos->fields['id'] == $id) {
+                    break;
+                } else {
+                    $picNr++;
+                }
+                $objPos->MoveNext();
+            }
+        }
+
+        $pos = 0;
+        if ($picNr > $paging) {
+            $pageNum = ceil($picNr / $paging);
+            $pos     = (($pageNum - 1) * $paging);
+        }
+        if ($picNr == $paging) {
+            $pos = $picNr;
+        }
+        $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+            'Gallery',
+            '',
+            '',
+            array('cid' => $objResult->fields['catId'], 'pos' => $pos)
+        )->toString();
+
+        $imgName = $this->getPictureNameByCriteria($id, $this->_intLangId);
+        if (!$imgName) {
+            $imgName = $this->getPictureNameByCriteria($id);
+        }
+
+        $image = \Html::getImageByPath(
+            '/' . $this->_strWebPath . $objResult->fields['path'],
+            'alt="' . contrexx_raw2xhtml($imgName) .
+            '" title="' . contrexx_raw2xhtml($imgName) . '"'
+        );
+
+        return \Html::getLink($url, $image, '_self');
     }
 
     /**
-     * Returns the last inserted image from database
+     * Get picture name
      *
-     * @global     ADONewConnection
-     * @global     array
-     * @global     array
-     * @return     string     Complete <img>-tag for a randomized image
+     * @param integer $picId  picture ID
+     * @param integer $langId language ID
+     *
+     * @return type
      */
-    function getLastImage()
+    public function getPictureNameByCriteria($picId, $langId)
     {
+        if (empty($picId)) {
+            return;
+        }
+
         global $objDatabase;
 
-        $picNr = 0;
-        $objResult = $objDatabase->Execute('SELECT      pics.id,
-                                                        pics.catid  AS CATID,
-                                                        pics.path   AS PATH,
-                                                        lang.name   AS NAME
-                                            FROM        '.DBPREFIX.'module_gallery_pictures         AS pics
-                                            INNER JOIN  '.DBPREFIX.'module_gallery_language_pics    AS lang         ON pics.id = lang.picture_id
-                                            INNER JOIN  '.DBPREFIX.'module_gallery_categories       AS categories   ON pics.catid = categories.id
-                                            WHERE       categories.status = "1"     AND
-                                                        pics.validated = "1"        AND
-                                                        pics.status = "1"           AND
-                                                        lang.lang_id = '.$this->_intLangId.'
-                                            ORDER BY    pics.id DESC
-                                            LIMIT       1
-                                        ');
-
-        if ($objResult->RecordCount() == 1) {
-            $objPaging = $objDatabase->SelectLimit("SELECT value FROM ".DBPREFIX."module_gallery_settings WHERE name='paging'", 1);
-            $paging = $objPaging->fields['value'];
-
-            $objPos = $objDatabase->Execute('SELECT     pics.id
-                                                FROM        '.DBPREFIX.'module_gallery_pictures         AS pics
-                                                INNER JOIN  '.DBPREFIX.'module_gallery_language_pics    AS lang         ON pics.id = lang.picture_id
-                                                INNER JOIN  '.DBPREFIX.'module_gallery_categories       AS categories   ON pics.catid = categories.id
-                                                WHERE       categories.status = "1"     AND
-                                                            pics.validated = "1"        AND
-                                                            pics.status = "1"           AND
-                                                            lang.lang_id = '.$this->_intLangId.'
-                                                ORDER BY    pics.sorting');
-            if ($objPos !== false) {
-                while (!$objPos->EOF) {
-                    if ($objPos->fields['id'] == $objResult->fields['id']) {
-                        break;
-                    } else {
-                        $picNr++;
-                    }
-                    $objPos->MoveNext();
-                }
-            }
-
-            $strReturn =    '<a href="'.CONTREXX_DIRECTORY_INDEX.'?section=Gallery&amp;cid='.$objResult->fields['CATID'].($picNr >= $paging ? '&amp;pos='.(floor($picNr/$paging)*$paging) : '').'" target="_self">';
-            $strReturn .=   '<img alt="'.$objResult->fields['NAME'].'" title="'.$objResult->fields['NAME'].'" src="'.$this->_strWebPath.$objResult->fields['PATH'].'" /></a>';
-            return $strReturn;
-        } else {
-            return '';
+        if (empty($langId)) {
+            $langId = \FWLanguage::getDefaultLangId();
         }
+
+        $query = '
+            SELECT `picLang`.`name`
+                FROM `' . DBPREFIX . 'module_gallery_language_pics` as picLang
+                WHERE   `picture_id` = ' . contrexx_input2db($picId) . '
+                    AND `lang_id`    = ' . contrexx_input2db($langId);
+        $picName = $objDatabase->Execute($query);
+        if (!$picName || $picName->RecordCount() == 0) {
+            return;
+        }
+
+        return $picName->fields['name'];
     }
 }
-
-?>
