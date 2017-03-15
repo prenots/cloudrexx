@@ -937,8 +937,7 @@ class Resolver {
 
         // Authentification for protected pages
         if (   (   $page_protected
-                || $history
-                || !empty($_COOKIE['PHPSESSID']))
+                || $history)
             && (   !isset($_REQUEST['section'])
                 || $_REQUEST['section'] != 'Login')
         ) {
@@ -958,8 +957,6 @@ class Resolver {
                     \Cx\Core\Csrf\Controller\Csrf::header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('Login', 'noaccess', '', array('redirect' => $link)));
                     exit;
                 }
-            } elseif (!empty($_COOKIE['PHPSESSID']) && !$page_protected) {
-                unset($_COOKIE['PHPSESSID']);
             } else {
                 if (isset($_GET['redirect'])) {
                     $link = $_GET['redirect'];
