@@ -123,9 +123,9 @@ class GalleryHomeContent extends GalleryLibrary
                 FROM  `' . DBPREFIX . 'module_gallery_categories` AS categories
                 INNER JOIN `' . DBPREFIX . 'module_gallery_pictures` AS pics
                     ON `pics`.`catid` = `categories`.`id`
-                WHERE `categories`.`status` = "1"
-                    AND `pics`.`validated`  = "1"
-                    AND `pics`.`status`     = "1"' . $where . '
+                WHERE `categories`.`status` = \'1\'
+                    AND `pics`.`validated`  = \'1\'
+                    AND `pics`.`status`     = \'1\'' . $where . '
                 ORDER BY `pics`.`sorting`';
         $objResult = $objDatabase->Execute($query);
         $entryIds  = array();
@@ -156,9 +156,9 @@ class GalleryHomeContent extends GalleryLibrary
                 FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
                 INNER JOIN `' . DBPREFIX . 'module_gallery_categories` AS categories
                     ON `pics`.`catid` = `categories`.`id`
-                WHERE   `categories`.`status` = "1"
-                    AND `pics`.`validated` = "1"
-                    AND `pics`.`status` = "1"
+                WHERE   `categories`.`status` = \'1\'
+                    AND `pics`.`validated` = \'1\'
+                    AND `pics`.`status` = \'1\'
                 ORDER BY `pics`.`id` DESC
                 LIMIT 1'
         );
@@ -189,8 +189,8 @@ class GalleryHomeContent extends GalleryLibrary
             SELECT `catid` AS catId,
                    `path` AS path
                 FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
-                WHERE `validated` = "1"
-                    AND `status`  = "1"
+                WHERE `validated` = \'1\'
+                    AND `status`  = \'1\'
                     AND `id`      = ' . contrexx_input2db($id);
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->RecordCount() == 0) {
@@ -232,15 +232,15 @@ class GalleryHomeContent extends GalleryLibrary
         $paging = $objDatabase->getOne(
             'SELECT `value`
                 FROM `' . DBPREFIX . 'module_gallery_settings`
-                 WHERE `name` = "paging"'
+                 WHERE `name` = \'paging\''
         );
 
         //Preparing paging link for the current gallery picture ID
         $objPos = $objDatabase->Execute(
             'SELECT `pics`.`id`
                 FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
-                WHERE   `pics`.`validated` = "1"
-                    AND `pics`.`status` = "1"
+                WHERE   `pics`.`validated` = \'1\'
+                    AND `pics`.`status` = \'1\'
                     AND `pics`.`catid`  = ' . $objResult->fields['catId'] . '
                 ORDER BY `pics`.`sorting`'
         );
@@ -278,8 +278,8 @@ class GalleryHomeContent extends GalleryLibrary
 
         $image = \Html::getImageByPath(
             '/' . $this->_strWebPath . $objResult->fields['path'],
-            'alt="' . contrexx_raw2xhtml($imgName) .
-            '" title="' . contrexx_raw2xhtml($imgName) . '"'
+            'alt=\'' . contrexx_raw2xhtml($imgName) .
+            '\' title=\'' . contrexx_raw2xhtml($imgName) . '\''
         );
 
         return \Html::getLink($url, $image, '_self');
