@@ -1836,7 +1836,6 @@ namespace Cx\Core\Core\Controller {
             $content = str_replace('{PRINT_URL}',           contrexx_raw2xhtml(\Env::get('init')->getUriBy('printview', 1)),       $content);
             $content = str_replace('{PDF_URL}',             contrexx_raw2xhtml(\Env::get('init')->getUriBy('pdfview', 1)),         $content);
             $content = str_replace('{APP_URL}',             contrexx_raw2xhtml(\Env::get('init')->getUriBy('appview', 1)),         $content);
-            $content = str_replace('{LOGOUT_URL}',          contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'logout')),  $content);
             $content = str_replace('{GOOGLE_MAPS_API_KEY}', isset($_CONFIG['googleMapsAPIKey']) ? contrexx_raw2xhtml($_CONFIG['googleMapsAPIKey']) : '', $content);
         }
 
@@ -2043,7 +2042,6 @@ namespace Cx\Core\Core\Controller {
                 'PRINT_URL'                      => contrexx_raw2xhtml(\Env::get('init')->getUriBy('printview', 1)),
                 'PDF_URL'                        => contrexx_raw2xhtml(\Env::get('init')->getUriBy('pdfview', 1)),
                 'APP_URL'                        => contrexx_raw2xhtml(\Env::get('init')->getUriBy('appview', 1)),
-                'LOGOUT_URL'                     => contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'logout')),
                 'PAGE_URL'                       => htmlspecialchars(\Env::get('init')->getPageUri()),
                 'PAGE_URL_ENCODED'               => urlencode(\Env::get('init')->getPageUri()->toString()),
                 'CURRENT_URL'                    => contrexx_raw2xhtml(\Env::get('init')->getCurrentPageUri()),
@@ -2067,7 +2065,6 @@ namespace Cx\Core\Core\Controller {
                 'RANDOM'                         => md5(microtime()),
                 'TXT_SEARCH'                     => $_CORELANG['TXT_SEARCH'],
                 'MODULE_INDEX'                   => MODULE_INDEX,
-                'LOGIN_URL'                      => '<a href="' . contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'Login')) . '" class="start-frontend-editing">' . $_CORELANG['TXT_FRONTEND_EDITING_LOGIN'] . '</a>',
                 'TXT_CORE_LAST_MODIFIED_PAGE'    => $_CORELANG['TXT_CORE_LAST_MODIFIED_PAGE'],
                 'LAST_MODIFIED_PAGE'             => date(ASCMS_DATE_FORMAT_DATE, $this->resolvedPage->getUpdatedAt()->getTimestamp()),
                 'GOOGLE_MAPS_API_KEY'            => isset($_CONFIG['googleMapsAPIKey']) ? contrexx_raw2xhtml($_CONFIG['googleMapsAPIKey']) : '',
