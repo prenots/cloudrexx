@@ -641,7 +641,7 @@ CREATE TABLE `contrexx_module_block_targeting_option` (
   `type` enum('country') NOT NULL DEFAULT 'country',
   `value` text NOT NULL,
   PRIMARY KEY (`block_id`,`type`),
-  CONSTRAINT `module_block_targeting_option_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`)
+  CONSTRAINT `module_block_targeting_option_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_blog_categories` (
   `category_id` int(4) unsigned NOT NULL DEFAULT '0',

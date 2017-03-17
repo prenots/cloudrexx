@@ -21,3 +21,4 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
       joinColumn:
         name: block_id
         referencedColumnName: id
+        cascade: [update, remove]
