@@ -96,9 +96,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 !$request->isTablet()
             )
         ) {
-            $em = $this->cx->getDb()->getEntityManager();
-            $themeRepo = $em->getRepository('Cx\Core\View\Model\Entity\Theme');
-            $theme = $themeRepo->getDefaultTheme(
+            $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+            $theme     = $themeRepo->getDefaultTheme(
                 \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_MOBILE,
                 $page->getLang()
             );
