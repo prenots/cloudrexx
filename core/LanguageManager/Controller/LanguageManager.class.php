@@ -1176,10 +1176,22 @@ class LanguageManager
             }
             $this->strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_UPDATED_SUCCESSFUL'];
             //clear cache
+            $widgetNames = array(
+                'LANGUAGE_NAVBAR',
+                'LANGUAGE_NAVBAR_SHORT',
+                'ACTIVE_LANGUAGE_NAME',
+                'LOGOUT_URL',
+            );
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             $cx->getEvents()->triggerEvent(
                 'clearEsiCache',
-                array('Widget', array('LOGOUT_URL'))
+                array(
+                    'Widget',
+                    array_merge(
+                        $widgetNames,
+                        $this->getLanguagePlaceholderNames()
+                    )
+                )
             );
             \FWLanguage::init();
             return true;
@@ -1392,5 +1404,20 @@ class LanguageManager
         } else {
             $this->strOkMessage .= "<br />".$_ARRAYLANG['TXT_SUCCESSFULLY_EXPORTED_TO_FILES'];
         }
+    }
+
+    /**
+     * Get language placeholder names
+     *
+     * @return array
+     */
+    function getLanguagePlaceholderNames()
+    {
+        $activeLanguages = \FWLanguage::getActiveFrontendLanguages();
+        foreach ($activeLanguages as $langData) {
+            $placeholders[] = 'LANG_CHANGE_' . strtoupper($langData['lang']);
+            $placeholders[] = 'LANG_SELECTED_' . strtoupper($langData['lang']);
+        }
+        return $placeholders;
     }
 }
