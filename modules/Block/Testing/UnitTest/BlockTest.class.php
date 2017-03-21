@@ -53,6 +53,11 @@ namespace Cx\Modules\Block\Testing\UnitTest;
 class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 {
     /**
+     * Id of existing Block needed for testing
+     */
+    const EXISTING_BLOCK_ID = 29;
+
+    /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
      * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
      */
@@ -89,7 +94,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $result = $jsonBlock->getBlockContent(
             array(
                 'get' => array(
-                    'block' => 32,
+                    'block' => $this::EXISTING_BLOCK_ID,
                     'lang' => 'de',
                     'page' => 1,
                 )
@@ -117,7 +122,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $jsonBlock->saveBlockContent(
             array(
                 'get' => array(
-                    'block' => 32,
+                    'block' => $this::EXISTING_BLOCK_ID,
                     'lang' => 'de',
                 ),
                 'post' => array(
@@ -129,7 +134,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $result = $jsonBlock->getBlockContent(
             array(
                 'get' => array(
-                    'block' => 32,
+                    'block' => $this::EXISTING_BLOCK_ID,
                     'lang' => 'de',
                     'page' => 1,
                 )

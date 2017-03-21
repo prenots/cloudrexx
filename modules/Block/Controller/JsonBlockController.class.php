@@ -338,7 +338,9 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $locale = $localeRepo->findOneBy(array('id' => $lang));
         $block = $blockRepo->findOneBy(array('id' => $id));
         $relLangContent = $relLangContentRepo->findOneBy(array('locale' => $locale, 'block' => $block));
-        $relLangContent->setContent($content);
+        if ($relLangContent) {
+            $relLangContent->setContent($content);
+        }
 
         $em->flush();
 
