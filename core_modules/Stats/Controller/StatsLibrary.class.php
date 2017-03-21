@@ -138,10 +138,9 @@ class StatsLibrary
                 $searchTermPlain = contrexx_addslashes($_REQUEST['term']);
             }
 
-            if (isset($_SERVER['HTTP_REFERER'])) {
-                $referer = urlencode($_SERVER['HTTP_REFERER']);
-            } else {
-                $referer = "";
+            $referer = '';
+            if (isset($_GET['referer']) && !empty($_GET['referer'])) {
+                $referer = urlencode($_GET['referer']);
             }
 
             $ascms_core_module_web_path = $this->cx->getCodeBaseCoreModuleWebPath();
@@ -316,7 +315,14 @@ class StatsLibrary
         // remove outdated visitor entries
         $query = "DELETE FROM ".DBPREFIX."stats_visitors WHERE `timestamp` < '".(mktime(0,0,0,date('m'),date('d'),date('Y'))-($this->arrConfig['online_timeout']['status'] ? $this->arrConfig['online_timeout']['value'] : 0))."'";
         $objDatabase->Execute($query);
-
+        //clear cache
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget',
+                array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+            )
+        );
         // remove outdated request entries
         if ($this->arrConfig['remove_requests']['status']) {
             $query = "DELETE FROM ".DBPREFIX."stats_requests WHERE `timestamp` < '".$this->arrConfig['remove_requests']['value']."'";
@@ -370,6 +376,14 @@ class StatsLibrary
             // remove outdated visitor entries
             $query = "DELETE FROM ".DBPREFIX."stats_visitors WHERE `timestamp` < '".$lastTimestamp."'";
             $objDatabase->Execute($query);
+            //clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget',
+                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                )
+            );
         }
     }
 
@@ -1089,12 +1103,14 @@ class StatsLibrary
                 }
             }
 
+            $clearCache = false;
             if ($onlineTimeoutStatus != $this->arrConfig['online_timeout']['status']) {
                 // status wurde ge�ndert
                 if (!$onlineTimeoutStatus) {
                     // deaktiviert
                     $query = "UPDATE `".DBPREFIX."stats_config` SET `status` = 0 WHERE `name` = 'online_timeout'";
                     $objDatabase->Execute($query);
+                    $clearCache = true;
                 } else {
                     // aktiviert
                     if ($onlineTimeout < 60 || $onlineTimeout > 3600) {
@@ -1102,6 +1118,7 @@ class StatsLibrary
                     } else {
                         $query = "UPDATE `".DBPREFIX."stats_config` SET `status` = 1, `value` = ".$onlineTimeout." WHERE `name` = 'online_timeout'";
                         $objDatabase->Execute($query);
+                        $clearCache = true;
                     }
                 }
             } else {
@@ -1138,6 +1155,7 @@ class StatsLibrary
                 } else {
                     $query = "UPDATE `".DBPREFIX."stats_config` SET `value` = ".$reloadBlockTime." WHERE `name` = 'reload_block_time'";
                     $objDatabase->Execute($query);
+                    $clearCache = true;
                 }
             }
 
@@ -1145,6 +1163,7 @@ class StatsLibrary
             if ($makeStatistics != $this->arrConfig['make_statistics']['status']) {
                 $query = "UPDATE `".DBPREFIX."stats_config` SET `status` = ".$makeStatistics." WHERE `name` = 'make_statistics'";
                 $objDatabase->Execute($query);
+                $clearCache = true;
             }
             if ($countReferer != $this->arrConfig['count_referer']['status']) {
                 $query = "UPDATE `".DBPREFIX."stats_config` SET `status` = ".$countReferer." WHERE `name` = 'count_referer'";
@@ -1193,12 +1212,23 @@ class StatsLibrary
             if ($countVisitorNumber != $this->arrConfig['count_visitor_number']) {
                 $query = "UPDATE `".DBPREFIX."stats_config` SET `status` = ".$countVisitorNumber." WHERE `name` = 'count_visitor_number'";
                 $objDatabase->Execute($query);
+                $clearCache = true;
             }
         } else {
             $query = "UPDATE `".DBPREFIX."stats_config` SET `status` = 0 WHERE `name` = 'make_statistics'";
             $objDatabase->Execute($query);
         }
 
+        if ($clearCache) {
+            //clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget',
+                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                )
+            );
+        }
         // reinitialize configuration
         $this->_initConfiguration();
         return $statusMessage;
@@ -1219,6 +1249,14 @@ class StatsLibrary
                             if ($objDatabase->Execute($query)) {
 
                                 $statusMessage .= "".$_ARRAYLANG['TXT_STATISTIC_DELETED_SUCCESSFULLY']." ".$_ARRAYLANG['TXT_VISITORS_AND_PAGE_VIEWS']."<br />";
+                                //clear cache
+                                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                                $cx->getEvents()->triggerEvent(
+                                    'clearEsiCache',
+                                    array('Widget',
+                                        array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                                    )
+                                );
                                 break;
                             }
                         }
@@ -1229,6 +1267,14 @@ class StatsLibrary
                         $query = "DELETE FROM `".DBPREFIX."stats_visitors`";
                         if ($objDatabase->Execute($query)) {
                             $statusMessage .= "".$_ARRAYLANG['TXT_STATISTIC_DELETED_SUCCESSFULLY']." ".$_ARRAYLANG['TXT_VISITOR_DETAIL_FROM_TODAY']."<br />";
+                            //clear cache
+                            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                            $cx->getEvents()->triggerEvent(
+                                'clearEsiCache',
+                                array('Widget',
+                                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                                )
+                            );
                         } else {
                             $statusMessage .= "".$_ARRAYLANG['TXT_COULD_NOT_DELETE_STATISTIC']." ".$_ARRAYLANG['TXT_VISITOR_DETAIL_FROM_TODAY']."<br />";
                         }
@@ -1765,5 +1811,30 @@ class StatsLibrary
             'requests' => $arrRequests,
         );
     }
+
+    /**
+     * sets a script for 'GOOGLE_ANALYTICS' placeholder
+     *
+     * @return string
+     */
+    public function setGoogleAnalyticsScript()
+    {
+        \Cx\Core\Setting\Controller\Setting::init('Config', 'otherConfigurations','Yaml');
+        $trackingId = \Cx\Core\Setting\Controller\Setting::getValue('googleAnalyticsTrackingId', 'Config');
+
+        return '<script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push([\'_setAccount\', \''.(isset($trackingId) ? contrexx_raw2xhtml($trackingId) : '').'\']);
+            _gaq.push([\'_trackPageview\']);
+
+            (function() {
+                var ga = document.createElement(\'script\');
+                ga.type = \'text/javascript\';
+                ga.async = true;
+                ga.src = (\'https:\' == document.location.protocol ? \'https://ssl\' : \'http://www\') + \'.google-analytics.com/ga.js\';
+                var s = document.getElementsByTagName(\'script\')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>';
+    }
 }
-?>

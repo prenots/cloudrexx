@@ -471,6 +471,14 @@ class Counter
             }
             $query = "UPDATE `".DBPREFIX."stats_visitors` SET `timestamp` = '".$this->currentTime."' WHERE `sid` = '".$this->md5Id."'";
             $objDb->Execute($query);
+            //clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget',
+                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                )
+            );
         } else {
             $this->isNewVisitor = true;
             $query = "INSERT INTO `".DBPREFIX."stats_visitors` (
@@ -492,6 +500,14 @@ class Counter
                                   '".$this->arrProxy['host']."',
                                   '".$this->arrProxy['useragent']."')";
             $objDb->Execute($query);
+            //clear cache
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'clearEsiCache',
+                array('Widget',
+                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                )
+            );
         }
     }
 

@@ -53,13 +53,30 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     protected $counter;
 
-     /**
-     * getControllerClasses
+    /**
+     * Returns all Controller class names for this component (except this)
      *
-     * @return type
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
      */
-    public function getControllerClasses() {
-        return array();
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
     }
 
      /**
@@ -87,6 +104,61 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
         // Initialize counter and track search engine robot
         $this->getCounterInstance()->checkForSpider();
+    }
+
+    /**
+     * Do something after system initialization
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     *
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+        $params = array();
+
+        if (isset($_GET['term']) && !empty($_GET['term'])) {
+            $params['term'] = contrexx_input2raw($_GET['term']);
+        }
+
+        if (isset($_GET['section']) && !empty($_GET['section'])) {
+            $params['section'] = contrexx_input2raw($_GET['section']);
+        }
+
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $params['referer'] = $_SERVER['HTTP_REFERER'];
+        }
+        foreach (array(
+                'ONLINE_USERS',
+                'VISITOR_NUMBER',
+                'COUNTER',
+                'GOOGLE_ANALYTICS'
+            ) as $widgetName
+        ) {
+            $parameter = array();
+            if ($widgetName == 'COUNTER') {
+                $parameter = $params;
+            }
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                $this,
+                $widgetName,
+                false,
+                '',
+                '',
+                $parameter
+            );
+            $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+            );
+            $widgetController->registerWidget(
+                $widget
+            );
+        }
     }
 
     /**
