@@ -68,7 +68,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
 
         $objCounter = $stats->getCounterInstance();
         if ($name === 'GOOGLE_ANALYTICS') {
-            $template->setVariable($name, $objCounter->setGoogleAnalyticsScript());
+            $template->setVariable($name, $objCounter->getGoogleAnalyticsScript());
             return;
         }
 

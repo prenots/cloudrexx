@@ -1817,7 +1817,7 @@ class StatsLibrary
      *
      * @return string
      */
-    public function setGoogleAnalyticsScript()
+    public function getGoogleAnalyticsScript()
     {
         \Cx\Core\Setting\Controller\Setting::init('Config', 'otherConfigurations','Yaml');
         $trackingId = \Cx\Core\Setting\Controller\Setting::getValue('googleAnalyticsTrackingId', 'Config');
