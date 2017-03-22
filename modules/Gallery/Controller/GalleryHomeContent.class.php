@@ -141,33 +141,65 @@ class GalleryHomeContent extends GalleryLibrary
         return $entryIds;
     }
 
+
     /**
      * Returns the last inserted image from database
      *
-     * @return string Complete <img>-tag for a randomized image
+     * @global     ADONewConnection
+     * @global     array
+     * @global     array
+     * @return     string     Complete <img>-tag for a randomized image
      */
     function getLastImage()
     {
-        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getDb()->getAdoDb();
+        global $objDatabase;
 
-        $objResult = $objDatabase->Execute(
-            'SELECT `pics`.`id`
-                FROM `' . DBPREFIX . 'module_gallery_pictures` AS pics
-                INNER JOIN `' . DBPREFIX . 'module_gallery_categories` AS categories
-                    ON `pics`.`catid` = `categories`.`id`
-                WHERE   `categories`.`status` = \'1\'
-                    AND `pics`.`validated` = \'1\'
-                    AND `pics`.`status` = \'1\'
-                ORDER BY `pics`.`id` DESC
-                LIMIT 1'
-        );
+        $picNr = 0;
+        $objResult = $objDatabase->Execute('SELECT      pics.id,
+                                                        pics.catid  AS CATID,
+                                                        pics.path   AS PATH,
+                                                        lang.name   AS NAME
+                                            FROM        '.DBPREFIX.'module_gallery_pictures         AS pics
+                                            INNER JOIN  '.DBPREFIX.'module_gallery_language_pics    AS lang         ON pics.id = lang.picture_id
+                                            INNER JOIN  '.DBPREFIX.'module_gallery_categories       AS categories   ON pics.catid = categories.id
+                                            WHERE       categories.status = "1"     AND
+                                                        pics.validated = "1"        AND
+                                                        pics.status = "1"           AND
+                                                        lang.lang_id = '.$this->_intLangId.'
+                                            ORDER BY    pics.id DESC
+                                            LIMIT       1
+                                        ');
 
-        if (!$objResult || $objResult->RecordCount() == 0) {
+        if ($objResult->RecordCount() == 1) {
+            $objPaging = $objDatabase->SelectLimit("SELECT value FROM ".DBPREFIX."module_gallery_settings WHERE name='paging'", 1);
+            $paging = $objPaging->fields['value'];
+
+            $objPos = $objDatabase->Execute('SELECT     pics.id
+                                                FROM        '.DBPREFIX.'module_gallery_pictures         AS pics
+                                                INNER JOIN  '.DBPREFIX.'module_gallery_language_pics    AS lang         ON pics.id = lang.picture_id
+                                                INNER JOIN  '.DBPREFIX.'module_gallery_categories       AS categories   ON pics.catid = categories.id
+                                                WHERE       categories.status = "1"     AND
+                                                            pics.validated = "1"        AND
+                                                            pics.status = "1"           AND
+                                                            lang.lang_id = '.$this->_intLangId.'
+                                                ORDER BY    pics.sorting');
+            if ($objPos !== false) {
+                while (!$objPos->EOF) {
+                    if ($objPos->fields['id'] == $objResult->fields['id']) {
+                        break;
+                    } else {
+                        $picNr++;
+                    }
+                    $objPos->MoveNext();
+                }
+            }
+
+            $strReturn =    '<a href="'.CONTREXX_DIRECTORY_INDEX.'?section=Gallery&amp;cid='.$objResult->fields['CATID'].($picNr >= $paging ? '&amp;pos='.(floor($picNr/$paging)*$paging) : '').'" target="_self">';
+            $strReturn .=   '<img alt="'.$objResult->fields['NAME'].'" title="'.$objResult->fields['NAME'].'" src="'.$this->_strWebPath.$objResult->fields['PATH'].'" /></a>';
+            return $strReturn;
+        } else {
             return '';
         }
-
-        return $this->getImageById($objResult->fields['id']);
     }
 
     /**
