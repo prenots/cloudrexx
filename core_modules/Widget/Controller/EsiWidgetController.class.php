@@ -113,7 +113,12 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
 
         // ensure that the params can be fetched during internal parsing
         $backupGetParams = $_GET;
+        $backupRequestParams = $_REQUEST;
         $_GET = $params['get'];
+        $_REQUEST = $params['get'];
+        if (isset($params['post'])) {
+            $_REQUEST += $params['post'];
+        }
 
         // resolve widget template
         $widgetContent = '';
@@ -137,6 +142,8 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             }
         }
         $widgetTemplate = new \Cx\Core\Html\Sigma();
+        \LinkGenerator::parseTemplate($widgetContent);
+        $this->cx->parseGlobalPlaceholders($widgetContent);
         $widgetTemplate->setTemplate($widgetContent);
         $this->getComponent('Widget')->parseWidgets(
             $widgetTemplate,
@@ -151,7 +158,10 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             $params['get']['lang']
         );
         $_GET = $backupGetParams;
+        $_REQUEST = $backupRequestParams;
         $content = $widgetTemplate->get();
+
+        $content = preg_replace('/\\[\\[([A-Z0-9_-]+)\\]\\]/', '{\\1}', $content);
         \LinkGenerator::parseTemplate($content);
         $ls = new \LinkSanitizer(
             $this->cx,
