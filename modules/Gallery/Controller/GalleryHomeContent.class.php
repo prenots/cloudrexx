@@ -97,19 +97,17 @@ class GalleryHomeContent extends GalleryLibrary
     {
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
 
-        // create category base query
+        // get categories
         $objFWUser = \FWUser::getFWUserObject();
-        $baseQuery = '
+        $query = '
+            SELECT
+                pics.id
             FROM
                 '.DBPREFIX.'module_gallery_categories AS categories
             INNER JOIN
                 '.DBPREFIX.'module_gallery_pictures AS pics
             ON
                 pics.catid = categories.id
-            INNER JOIN
-                '.DBPREFIX.'module_gallery_language_pics AS lang
-            ON
-                lang.picture_id = pics.id
             WHERE
                 categories.status = "1" AND
                 pics.validated = "1" AND
@@ -119,57 +117,24 @@ class GalleryHomeContent extends GalleryLibrary
             // user is authenticated
             if (!$objFWUser->objUser->getAdminStatus()) {
                 // user is not administrator
-                $baseQuery .= ' AND
+                $query .= ' AND
                 (
                     categories.frontendProtected = 0';
                 if (count($objFWUser->objUser->getDynamicPermissionIds())) {
-                    $baseQuery .= ' OR
+                    $query .= ' OR
                     categories.frontend_access_id IN (' . implode(
                         ', ',
                         $objFWUser->objUser->getDynamicPermissionIds()
                     ) . ')';
                 }
-                $baseQuery .= '
+                $query .= '
                 )';
             }
         } else {
-            $baseQuery .= ' AND categories.frontendProtected = 0';
+            $query .= ' AND categories.frontendProtected = 0';
         }
-        $baseQuery .= '
-            GROUP BY
-                categories.id
-            ORDER BY
-                categories.id
-        ';
-
-        // get categories
-        $query = '
-            SELECT
-                categories.id';
-        $query .= $baseQuery;
 
         $objResult = $objDatabase->query($query);
-        if ($objResult === false || $objResult->RecordCount() == 0) {
-            return array();
-        }
-        $catIds = array();
-        while (!$objResult->EOF) {
-            $catIds[] = $objResult->fields['id'];
-            $objResult->MoveNext();
-        }
-
-        // get pictures in categories
-        $objResult = $objDatabase->query('
-            SELECT
-                pics.id
-            FROM
-                '.DBPREFIX.'module_gallery_pictures AS pics
-            WHERE
-                pics.validated = "1" AND
-                pics.status = "1" AND
-                pics.catid IN(' . implode(',', $catIds) . ')
-        ');
-
         if ($objResult === false || $objResult->RecordCount() == 0) {
             return array();
         }
