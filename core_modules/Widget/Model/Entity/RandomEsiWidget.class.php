@@ -59,40 +59,37 @@ class RandomEsiWidget extends EsiWidget {
      *
      * @param \Cx\Core\Core\Model\Entity\SystemComponentController $component Component registering this widget
      * @param string  $name            Name of this widget
-     * @param array   $randomNames     Array of random widget names
+     * @param array   $randomParams    Array of additional params for each entry of the random list
      * @param boolean $hasContent      (optional) Wheter this widget has content or not
      * @param string  $jsonAdapterName (optional) Name of the JsonAdapter to call. If not specified, $component->getName() is used
      * @param string  $jsonMethodName  (optional) Name of the JsonAdapter method to call. If not specified, "getWidget" is used
-     * @param array   $jsonParams      (optional) Params to pass on JsonAdapter call. If not specified, a default list is used, see getEsiParams()
      */
     public function __construct(
         $component,
         $name,
-        $randomNames,
+        $randomParams,
         $hasContent = false,
         $jsonAdapterName = '',
-        $jsonMethodName = '',
-        $jsonParams = array()
+        $jsonMethodName = ''
     ) {
         parent::__construct(
             $component,
             $name,
             $hasContent,
             $jsonAdapterName,
-            $jsonMethodName,
-            $jsonParams
+            $jsonMethodName
         );
-        $this->randomNames = $randomNames;
+        $this->randomParams = $randomParams;
     }
 
     /**
-     * Get the random widget names
+     * Get the random widget params
      *
-     * @return type
+     * @return array List of additional params
      */
-    public function getRandomNames()
+    public function getRandomParams()
     {
-        return $this->randomNames;
+        return $this->randomParams;
     }
 
     /*
@@ -116,17 +113,16 @@ class RandomEsiWidget extends EsiWidget {
         $targetId
     ) {
         $randomEsiParams   = array();
-        $randomWidgetnames = $this->getRandomNames();
         $esiParams         = $this->getEsiParams(
             $targetComponent,
             $targetEntity,
             $targetId
         );
-        foreach ($randomWidgetnames as $randomWidgetname) {
+        foreach ($this->getRandomParams() as $randomParams) {
             $randomEsiParams[] = array(
                 $this->getJsonAdapterName(),
                 $this->getJsonMethodName(),
-                array_merge($esiParams, array('randomName' => $randomWidgetname))
+                array_merge($esiParams, $randomParams)
             );
         }
         $esiContent = $this->getComponent('Cache')->getRandomizedEsiContent(
