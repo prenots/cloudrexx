@@ -89,59 +89,6 @@ class GalleryHomeContent extends GalleryLibrary
     }
 
     /**
-     * Get all the image ids
-     *
-     * @return array
-     */
-    public function getImageIds()
-    {
-        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getDb()->getAdoDb();
-        \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getComponent('Session')->getSession();
-        $objFWUser   = \FWUser::getFWUserObject();
-
-        $where = '';
-        if (!$objFWUser->objUser->login()) {
-            $where = ' AND `categories`.`frontendProtected` = 0';
-        }
-
-        if (
-            $objFWUser->objUser->login() &&
-            !$objFWUser->objUser->getAdminStatus()
-        ) {
-            $where = ' AND (`categories`.`frontendProtected` = 0';
-            $dynamicPermissionIds = $objFWUser->objUser->getDynamicPermissionIds();
-            if (count($dynamicPermissionIds)) {
-                $where .= ' OR `categories`.`frontend_access_id` IN (' .
-                    implode(', ', $dynamicPermissionIds) . ')';
-            }
-            $where .= ')';
-        }
-        $query = '
-            SELECT `pics`.`id` as picId
-                FROM  `' . DBPREFIX . 'module_gallery_categories` AS categories
-                INNER JOIN `' . DBPREFIX . 'module_gallery_pictures` AS pics
-                    ON `pics`.`catid` = `categories`.`id`
-                WHERE `categories`.`status` = \'1\'
-                    AND `pics`.`validated`  = \'1\'
-                    AND `pics`.`status`     = \'1\'' . $where . '
-                ORDER BY `pics`.`sorting`';
-        $objResult = $objDatabase->Execute($query);
-        $entryIds  = array();
-        if (!$objResult || $objResult->RecordCount() == 0) {
-            return $entryIds;
-        }
-
-        while (!$objResult->EOF) {
-            $entryIds[] = $objResult->fields['picId'];
-            $objResult->MoveNext();
-        }
-
-        return $entryIds;
-    }
-
-    /**
      * Returns the number of images per category that are accessible for randomizer
      *
      * @return array Index is the category ID, value is the number of accessible pictures in it
