@@ -40,6 +40,7 @@ namespace Cx\Core_Modules\Widget\Model\Entity;
 /**
  * Represents a template widget that is handled by ESI
  *
+ * @todo Add an additional ESI layer to allow de/-activation of Widgets
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
  * @author      Project Team SS4U <info@comvation.com>
  * @package     cloudrexx

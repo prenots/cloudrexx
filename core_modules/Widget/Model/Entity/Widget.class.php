@@ -38,6 +38,7 @@ namespace Cx\Core_Modules\Widget\Model\Entity;
 /**
  * Represents a template widget
  *
+ * @todo Add a method to de/-activate the Widget
  * @author Michael Ritter <michael.ritter@cloudrexx.com>
  * @package cloudrexx
  * @subpackage coremodules_widget
