@@ -848,6 +848,8 @@ class GalleryManager extends GalleryLibrary
                                             value="'.$arrInner['desc'].'"
                                 ');
         }
+        //clear Cache
+        $this->clearEsiCache();
         $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_MESSAGE_CATEGORY_INSERTED'];
     }
 
@@ -926,6 +928,8 @@ class GalleryManager extends GalleryLibrary
         $objDatabase->Execute('    UPDATE     '.DBPREFIX.'module_gallery_categories
                                 SET     status="'.$intNewStatus.'"
                                 WHERE     id='.$intCategoryId);
+        //clear Cache
+        $this->clearEsiCache();
     }
 
 
@@ -994,6 +998,8 @@ class GalleryManager extends GalleryLibrary
                                     WHERE    gallery_id='.$strValue.'
                                 ');
         }
+        //clear Cache
+        $this->clearEsiCache();
         $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_STATUS_MESSAGE_CATEGORY_DELETED'];
     }
 
@@ -1338,6 +1344,8 @@ class GalleryManager extends GalleryLibrary
                                     LIMIT     1
                                 ');
         }
+        //clear Cache
+        $this->clearEsiCache();
         $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_CATEGORY_STATUS_MESSAGE_CATEGORY_UPDATED'];
     }
 
@@ -1622,6 +1630,8 @@ class GalleryManager extends GalleryLibrary
         $objDatabase->Execute('    UPDATE     '.DBPREFIX.'module_gallery_pictures
                                 SET     status="'.$intNewStatus.'"
                                 WHERE     id='.$intImageId);
+        //clear Cache
+        $this->clearEsiCache();
     }
 
 
@@ -1659,6 +1669,8 @@ class GalleryManager extends GalleryLibrary
                                 WHERE    picid='.$intImageId.'
                             ');
 
+        //clear Cache
+        $this->clearEsiCache();
         $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_STATUS_MESSAGE_PICTURE_RESET'];
     }
 
@@ -1993,6 +2005,8 @@ class GalleryManager extends GalleryLibrary
         $objResult = $objDatabase->Execute('SELECT     catid
                                               FROM     '.DBPREFIX.'module_gallery_pictures
                                             WHERE     id='.$intPicId);
+        //clear Cache
+        $this->clearEsiCache();
         return $objResult->fields['catid'];
     }
 
@@ -2987,6 +3001,8 @@ $strFileOld = '';
 $strFileNew = '';
                 $this->createImages_JPG_GIF_PNG($strOrgPath, $strThumbPath, $strFileOld, $strFileNew, $intNewThumWidth, $intNewThumbHeight, $intNewThumbQuality);
                 $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_STATUS_MESSAGE_THUMBNAIL_VALIDATED'];
+                //clear Cache
+                $this->clearEsiCache();
             } else { // no category was selected, save the values and show an error message
                 $objDatabase->Execute('    UPDATE     '.DBPREFIX.'module_gallery_pictures
                                         SET     catid='.intval($_POST['validate_category']).',
@@ -3008,6 +3024,8 @@ $strFileNew = '';
                                     FROM     '.DBPREFIX.'module_gallery_pictures
                                     WHERE     id='.intval($_POST['validate_id']));
             $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_STATUS_MESSAGE_PICTURE_DELETED'];
+            //clear Cache
+            $this->clearEsiCache();
         }
     }
 
@@ -3171,6 +3189,8 @@ $strFileOld = '';
 $strFileNew = '';
                 $this->createImages_JPG_GIF_PNG($strOrgPath, $strThumbPath, $strFileOld, $strFileNew, $intNewThumWidth, $intNewThumbHeight, $intNewThumbQuality);
                 $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_STATUS_MESSAGE_THUMBNAIL_VALIDATED'];
+                //clear Cache
+                $this->clearEsiCache();
             }
         }
     }
@@ -3218,6 +3238,8 @@ $strFileNew = '';
                                 WHERE    picture_id='.$intImageId.'
                             ');
         $this->strOkMessage = $_ARRAYLANG['TXT_GALLERY_STATUS_MESSAGE_PICTURE_DELETED'];
+        //clear Cache
+        $this->clearEsiCache();
     }
 
 
@@ -3938,5 +3960,17 @@ $strFileNew = '';
             }
         }
         return false;
+    }
+
+    /**
+     * Clear Esi Cache Content
+     */
+    public function clearEsiCache()
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', array('GALLERY_LATEST', 'GALLERY_RANDOM'))
+        );
     }
 }

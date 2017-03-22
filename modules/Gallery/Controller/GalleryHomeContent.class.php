@@ -211,22 +211,52 @@ class GalleryHomeContent extends GalleryLibrary
         global $objDatabase;
 
         $picNr = 0;
-        $objResult = $objDatabase->Execute('SELECT      pics.id,
-                                                        pics.catid  AS CATID,
-                                                        pics.path   AS PATH,
-                                                        lang.name   AS NAME
-                                            FROM        '.DBPREFIX.'module_gallery_pictures         AS pics
-                                            INNER JOIN  '.DBPREFIX.'module_gallery_language_pics    AS lang         ON pics.id = lang.picture_id
-                                            INNER JOIN  '.DBPREFIX.'module_gallery_categories       AS categories   ON pics.catid = categories.id
-                                            WHERE       categories.status = "1"     AND
-                                                        pics.validated = "1"        AND
-                                                        pics.status = "1"           AND
-                                                        lang.lang_id = '.$this->_intLangId.'
-                                            ORDER BY    pics.id DESC
-                                            LIMIT       1
-                                        ');
+        $objResult = $objDatabase->Execute(
+            'SELECT `pics`.`id`,
+                    `pics`.`catid`  AS CATID,
+                    `pics`.`path`   AS PATH,
+                    `lang`.`name`   AS NAME,
+                    `cat`.`frontendProtected`,
+                    `cat`.`frontend_access_id` as frontendAccessId
+                FROM '.DBPREFIX.'module_gallery_pictures AS pics
+                    INNER JOIN  '.DBPREFIX.'module_gallery_language_pics AS lang
+                        ON `pics`.`id` = `lang`.`picture_id`
+                    INNER JOIN  '.DBPREFIX.'module_gallery_categories AS cat
+                        ON `pics`.`catid` = `cat`.`id`
+                WHERE `cat`.`status` = \'1\'
+                    AND `pics`.`validated` = \'1\'
+                    AND `pics`.`status` = \'1\'
+                    AND `lang`.`lang_id` = '.$this->_intLangId.'
+                ORDER BY `pics`.`id` DESC
+                LIMIT 1'
+        );
 
         if ($objResult->RecordCount() == 1) {
+
+            //check the user access permission to view the latest picture
+            if ($objResult->fields['frontendProtected']) {
+                \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getComponent('Session')->getSession();
+                $objFWUser   = \FWUser::getFWUserObject();
+
+                if (!$objFWUser->objUser->login()) {
+                    return '';
+                }
+
+                $dynamicPermissionIds = $objFWUser->objUser->getDynamicPermissionIds();
+                if (
+                    $objFWUser->objUser->login() &&
+                    !$objFWUser->objUser->getAdminStatus() &&
+                    count($dynamicPermissionIds) &&
+                    !in_array(
+                        $objResult->fields['frontendAccessId'],
+                        $dynamicPermissionIds
+                    )
+                ) {
+                    return '';
+                }
+            }
+
             $objPaging = $objDatabase->SelectLimit("SELECT value FROM ".DBPREFIX."module_gallery_settings WHERE name='paging'", 1);
             $paging = $objPaging->fields['value'];
 
