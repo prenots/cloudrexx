@@ -109,8 +109,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             if ($widgetName === 'GALLERY_RANDOM') {
                 $gallery     = new GalleryHomeContent();
 
-                // @todo: To optimize performance we should only parse this
-                // if the widget is active ($gallery->checkRandom())
+                // @todo: Replace the following IF as soon as a widget can be
+                // set inactive
+                if (!$gallery->checkRandom()) {
+                    continue;
+                }
                 $pictureIds = $gallery->getPictureIdsForRandomizer();
                 $randomParams = array();
                 foreach ($pictureIds as $picId) {
