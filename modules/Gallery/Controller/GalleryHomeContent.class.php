@@ -339,6 +339,7 @@ class GalleryHomeContent extends GalleryLibrary
 
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()
             ->getDb()->getAdoDb();
+        $where = '';
         $query = '
             SELECT `catid` AS catId,
                    `path` AS path
