@@ -80,7 +80,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         if (
             $name === 'GALLERY_RANDOM' &&
             $gallery->checkRandom() &&
-            preg_match('/\d+/', $this->randomName, $matches)
+            preg_match('/\d+/', $this->picId, $matches)
         ) {
             $template->setVariable($name, $gallery->getImageById($matches[0]));
         }
@@ -100,10 +100,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             $widgetName = $params['get']['name'];
         }
         if ($widgetName === 'GALLERY_RANDOM') {
-            if (!isset($params['get']) || !isset($params['get']['randomName'])) {
+            if (
+                !isset($params['get']) ||
+                !isset($params['get']['picId'])
+            ) {
                 return;
             }
-            $this->randomName = $params['get']['randomName'];
+            $this->picId = $params['get']['picId'];
         }
         return parent::getWidget($params);
     }

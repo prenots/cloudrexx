@@ -108,16 +108,18 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         foreach (array('GALLERY_LATEST', 'GALLERY_RANDOM') as $widgetName) {
             if ($widgetName === 'GALLERY_RANDOM') {
                 $gallery     = new GalleryHomeContent();
-                $randomNames = preg_filter(
-                    '/^/',
-                    'GALLERY_',
-                    $gallery->getImageIds()
-                );
 
+                $pictureIds = $gallery->getPictureIdsForRandomizer();
+                $randomParams = array();
+                foreach ($pictureIds as $picId) {
+                    $randomParams[] = array(
+                        'picId' => $picId,
+                    );
+                }
                 $widget = new \Cx\Core_Modules\Widget\Model\Entity\RandomEsiWidget(
                     $this,
                     $widgetName,
-                    $randomNames
+                    $randomParams
                 );
             } else {
                 $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
