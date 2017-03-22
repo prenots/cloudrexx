@@ -187,10 +187,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $page->getLang()
         );
         $fileInCurrentTheme = $currentTheme->getFilePath(
-            $currentTheme->getFoldername() . $page->getCustomContent()
+            $currentTheme->getFoldername() . '/' .$page->getCustomContent()
         );
         $fileInDefaultTheme = $defaultTheme->getFilePath(
-            $defaultTheme->getFoldername() . $page->getCustomContent()
+            $defaultTheme->getFoldername() . '/' .$page->getCustomContent()
         );
         if (
             $channel == \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_WEB ||

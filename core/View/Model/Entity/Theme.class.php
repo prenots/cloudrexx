@@ -414,7 +414,12 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      * @param string $channel Current channel
      * @return \Cx\Core\Html\Sigma Template which may contain the widget
      */
-    protected function getContentTemplateForWidget($widgetName, $langId, $page, $channel) {
+    protected function getContentTemplateForWidget(
+        $widgetName,
+        $langId,
+        $page,
+        $channel
+    ) {
         // get static files
         $indexFile = $this->getFilePath($this->getFolderName() . '/index.html');
         $sidebarFile = $this->getFilePath($this->getFolderName() . '/sidebar.html');
@@ -438,6 +443,30 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
                 'SIDEBAR_FILE',
                 'sidebar_file',
                 file_get_contents($sidebarFile)
+            );
+        }
+        //set content for shop navbar
+        foreach (
+            array(
+                'shopnavbar',
+                'shopnavbar2',
+                'shopnavbar3'
+            ) as $fileName
+        ) {
+            $placeholderName = strtoupper($fileName) . '_FILE';
+            if (!$template->placeholderExists($placeholderName)) {
+                continue;
+            }
+            $shopnavFile = $this->getFilePath(
+                $this->getFolderName() . '/' . $fileName . '.html'
+            );
+            if (!$shopnavFile || !file_exists($shopnavFile)) {
+                continue;
+            }
+            $template->addBlock(
+                $placeholderName,
+                 strtolower($placeholderName),
+                file_get_contents($shopnavFile)
             );
         }
 

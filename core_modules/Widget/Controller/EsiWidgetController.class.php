@@ -152,6 +152,13 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             $widgetTemplate,
             $params['get']['lang']
         );
+        $this->getComponent('Widget')->parseWidgets(
+            $widgetTemplate,
+            $params['get']['targetComponent'],
+            $params['get']['targetEntity'],
+            $params['get']['targetId'],
+            array($params['get']['name'])
+        );
         $_GET = $backupGetParams;
         $content = $widgetTemplate->get();
         $ls = new \LinkSanitizer(
