@@ -142,14 +142,15 @@ class GalleryHomeContent extends GalleryLibrary
     }
 
     /**
-     * Returns an randomized image from database
+     * Returns the number of images per category that are accessible for randomizer
      *
-     * @return     string     Complete <img>-tag for a randomized image
+     * @return array Index is the category ID, value is the number of accessible pictures in it
      */
-    function getRandomImage()
+    function getPictureIdsForRandomizer()
     {
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
 
+        // create category base query
         $objFWUser = \FWUser::getFWUserObject();
         $baseQuery = '
             FROM
@@ -165,8 +166,8 @@ class GalleryHomeContent extends GalleryLibrary
             WHERE
                 categories.status = "1" AND
                 pics.validated = "1" AND
-                pics.status = "1" AND
-                lang.lang_id = ' . $this->_intLangId;
+                pics.status = "1"
+        ';
         if ($objFWUser->objUser->login()) {
             // user is authenticated
             if (!$objFWUser->objUser->getAdminStatus()) {
@@ -194,104 +195,44 @@ class GalleryHomeContent extends GalleryLibrary
                 categories.id
         ';
 
-        $query = '
-            SELECT
-                SUM(1) AS catCount';
-        $query .= $baseQuery;
-        $objResult = $objDatabase->Execute($query);
-
-        if ($objResult === false || $objResult->RecordCount() == 0) {
-            return '';
-        }
-
-        $catNr = mt_rand(0, $objResult->RecordCount()-1);
-
+        // get categories
         $query = '
             SELECT
                 categories.id';
         $query .= $baseQuery;
 
-        $objResult = $objDatabase->SelectLimit($query, 1, $catNr);
+        $objResult = $objDatabase->query($query);
         if ($objResult === false || $objResult->RecordCount() == 0) {
-            return '';
+            return array();
         }
-        $catId = $objResult->fields['id'];
+        $catIds = array();
+        while (!$objResult->EOF) {
+            $catIds[] = $objResult->fields['id'];
+            $objResult->MoveNext();
+        }
 
-        $objResult = $objDatabase->SelectLimit(
-            'SELECT
-                SUM(1) AS picCount
+        // get pictures in categories
+        $objResult = $objDatabase->query('
+            SELECT
+                pics.id
             FROM
                 '.DBPREFIX.'module_gallery_pictures AS pics
-            INNER JOIN
-                '.DBPREFIX.'module_gallery_language_pics AS lang
-            ON
-                pics.id = lang.picture_id
             WHERE
                 pics.validated = "1" AND
                 pics.status = "1" AND
-                pics.catid = ' . $catId . ' AND
-                lang.lang_id = ' . $this->_intLangId
-            ,
-            1
-        );
+                pics.catid IN(' . implode(',', $catIds) . ')
+        ');
 
         if ($objResult === false || $objResult->RecordCount() == 0) {
-            return '';
+            return array();
         }
-        $picNr = mt_rand(0, $objResult->fields['picCount']-1);
 
-        $objResult = $objDatabase->SelectLimit(
-            '
-                SELECT
-                    value
-                FROM
-                    '.DBPREFIX.'module_gallery_settings
-                WHERE
-                    name = "paging"
-            ',
-            1
-        );
-        $paging = $objResult->fields['value'];
-
-        $objResult = $objDatabase->SelectLimit(
-            '
-                SELECT
-                    pics.catid AS CATID,
-                    pics.path AS PATH,
-                    lang.name AS NAME
-                FROM
-                    '.DBPREFIX.'module_gallery_pictures AS pics
-                INNER JOIN
-                    '.DBPREFIX.'module_gallery_language_pics AS lang
-                ON
-                    pics.id = lang.picture_id
-                WHERE 
-                    pics.validated = "1" AND
-                    pics.status = "1" AND
-                    pics.catid = ' . $catId . ' AND
-                    lang.lang_id = ' . $this->_intLangId . '
-                ORDER BY
-                    pics.sorting
-            ',
-            1,
-            $picNr
-        );
-
-        if ($objResult === false) {
-            return '';
+        $pics = array();
+        while (!$objResult->EOF) {
+            $pics[] = $objResult->fields['id'];
+            $objResult->MoveNext();
         }
-        $pagingUrl = \Cx\Core\Routing\Url::fromModuleAndCmd('Gallery');
-        $pagingUrl->setParam('cid', $objResult->fields['CATID']);
-        if ($picNr >= $paging) {
-            $pagingPosition = floor($picNr / $paging) * $paging;
-            $pagingUrl->setParam('pos', $pagingPosition);
-        }
-        $pictureName = contrexx_raw2xhtml($objResult->fields['NAME']);
-        $picturePath = $this->_strWebPath.$objResult->fields['PATH'];
-        $strReturn = '<a href="' . $pagingUrl->toString() . '" target="_self">';
-        $strReturn .= '<img alt="' . $pictureName . '" title="' . $pictureName . '" src="' . $picturePath . '" />';
-        $strReturn .= '</a>';
-        return $strReturn;
+        return $pics;
     }
 
     /**
