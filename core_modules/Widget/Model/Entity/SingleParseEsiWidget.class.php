@@ -63,7 +63,7 @@ class SingleParseEsiWidget extends EsiWidget {
      *
      * @var boolean
      */
-    protected $parsed;
+    protected $parsed = false;
 
     /*
      * Really parses this widget into $template
@@ -83,19 +83,17 @@ class SingleParseEsiWidget extends EsiWidget {
         $targetEntity,
         $targetId
     ) {
-        $esiContent = '';
-        if (!$this->parsed) {
-            $esiContent = $this->getComponent('Cache')->getEsiContent(
-                $this->getJsonAdapterName(),
-                $this->getJsonMethodName(),
-                $this->getEsiParams($targetComponent, $targetEntity, $targetId)
-            );
-            $this->parsed = true;
+        if ($this->parsed) {
+            return '';
         }
-        if (!$this->hasContent()) {
-            return $esiContent;
-        }
-        $template->replaceBlock($this->getName(), $esiContent);
-        $template->touchBlock($this->getName());
+
+        $this->parsed = true;
+        return parent::internalParse(
+            $template,
+            $response,
+            $targetComponent,
+            $targetEntity,
+            $targetId
+        );
     }
 }
