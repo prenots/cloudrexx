@@ -129,10 +129,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $params['section'] = contrexx_input2raw($_GET['section']);
         }
 
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $params['referer'] = $_SERVER['HTTP_REFERER'];
-        }
-        foreach (array(
+        foreach (
+            array(
                 'ONLINE_USERS',
                 'VISITOR_NUMBER',
                 'COUNTER',
@@ -152,8 +150,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $parameter
             );
             $widget->setEsiVariable(
-                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
-                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_LANG |
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_PAGE
             );
             $widgetController->registerWidget(
                 $widget

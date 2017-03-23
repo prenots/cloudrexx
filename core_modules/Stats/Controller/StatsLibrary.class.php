@@ -117,15 +117,13 @@ class StatsLibrary
 
 
     /**
-    * Creates the tag to call the counter
-    * @access   public
-    * @global   integer $pageId
-    * @return   string  $counterTag The counter tag
-    */
-    function getCounterTag()
+     * Creates the tag to call the counter
+     *
+     * @param  integer $pageId
+     * @return string  $counterTag The counter tag
+     */
+    function getCounterTag($pageId)
     {
-        global $pageId;
-
         $counterTag = '';
 
         if ($this->arrConfig['make_statistics']['status']) {

@@ -61,11 +61,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        $stats = $this->cx->getComponent('Stats');
-        if (!$stats) {
-            return;
-        }
-
+        $stats      = $this->cx->getComponent('Stats');
         $objCounter = $stats->getCounterInstance();
         if ($name === 'GOOGLE_ANALYTICS') {
             $template->setVariable($name, $objCounter->getGoogleAnalyticsScript());
@@ -82,8 +78,28 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
+        $em       = $this->cx->getDb()->getEntityManager();
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $pageId   = $pageRepo->find($this->currentPageId);
+
         if ($name === 'COUNTER') {
-            $template->setVariable($name, $objCounter->getCounterTag());
+            $template->setVariable($name, $objCounter->getCounterTag($pageId));
         }
     }
+
+    /**
+    * Returns the content of a widget
+    *
+    * @param array $params JsonAdapter parameters
+    *
+    * @return array Content in an associative array
+    */
+    public function getWidget($params)
+    {
+        if (isset($params['get']) && isset($params['get']['page'])) {
+            $this->currentPageId = $params['get']['page'];
+        }
+        return parent::getWidget($params);
+    }
+
 }
