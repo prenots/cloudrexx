@@ -78,12 +78,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        $em       = $this->cx->getDb()->getEntityManager();
-        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
-        $pageId   = $pageRepo->find($this->currentPageId);
-
         if ($name === 'COUNTER') {
-            $template->setVariable($name, $objCounter->getCounterTag($pageId));
+            $template->setVariable($name, $objCounter->getCounterTag($this->currentPageId));
         }
     }
 
