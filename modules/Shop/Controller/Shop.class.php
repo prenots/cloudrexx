@@ -151,23 +151,6 @@ die("Shop::init(): ERROR: Shop::init() called more than once!");
         self::_authenticate();
         \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
         self::$initialized = true;
-        if (isset($_REQUEST['remoteJs'])) return;
-        // Javascript Cart: Shown when active,
-        // either on shop pages only, or on any
-        if (   \Cx\Core\Setting\Controller\Setting::getValue('use_js_cart','Shop')
-            && (   \Cx\Core\Setting\Controller\Setting::getValue('shopnavbar_on_all_pages','Shop')
-                || (   isset($_REQUEST['section'])
-                    && $_REQUEST['section'] == 'Shop'.MODULE_INDEX
-                    && (   empty($_REQUEST['cmd'])
-                        || in_array($_REQUEST['cmd'],
-                              array('discounts', 'details')))))
-// Optionally limit to the first instance
-//            && MODULE_INDEX == ''
-        ) {
-//\DBG::log("Shop::init(): section {$_REQUEST['section']}, cmd {$_REQUEST['cmd']}: Calling setJsCart()");
-            self::setJsCart();
-        }
-//\DBG::log("Shop::init(): After setJsCart: shopnavbar: {$themesPages['shopnavbar']}");
     }
 
 
@@ -379,9 +362,6 @@ die("Failed to get Customer for ID $customer_id");
             default:
                 self::view_product_overview();
         }
-        // Note that the Shop Navbar *MUST* be set up *after* the request
-        // has been processed, otherwise the cart info won't be up to date!
-        self::setNavbar();
 // TODO: Set the Messages in the global template instead when that's ready
         \Message::show(self::$objTemplate);
 //\DBG::deactivate();
@@ -406,35 +386,18 @@ die("Failed to get Customer for ID $customer_id");
      * The content is created once and stored statically.
      * Repeated calls will always return the same string, unless either
      * a non-empty template is given, or $use_cache is set to false.
-     * @global  array   $_ARRAYLANG
-     * @global  array   $themesPages
-     * @global  array   $_CONFIGURATION
-     * @staticvar array $content    Caches created content
-     * @param   type    $template   Replaces the default template
-     *                              ($themesPages['shopnavbar']) and sets
-     *                              $use_cache to false unless empty.
-     *                              Defaults to NULL
-     * @param   type    $use_cache  Does not use any cached content, but builds
-     *                              it new from scratch if false.
-     *                              Defaults to true.
-     * @return  string              The Shop Navbar content
-     * @static
+     *
+     * @param string $template  template content
+     * @param array  $arrayLang array of language variables
+     *
+     * @return string The Shop Navbar content
      */
-    static function getNavbar($template=NULL, $use_cache=true)
+    static function getNavbar($template = null, $arrayLang = array())
     {
-        global $_ARRAYLANG, $themesPages;
-        static $content = array();
-        $templateHash = md5($template);
-
-        if (!$use_cache) $content[$templateHash] = NULL;
-        // Note: This is valid only as long as the content is the same every
-        // time this method is called!
-        if (isset($content[$templateHash])) return $content[$templateHash];
         $objTpl = new \Cx\Core\Html\Sigma('.');
         $objTpl->setErrorHandling(PEAR_ERROR_DIE);
-        $objTpl->setTemplate(empty($template)
-            ? $themesPages['shopnavbar'] : $template);
-        $objTpl->setGlobalVariable($_ARRAYLANG);
+        $objTpl->setTemplate($template);
+        $objTpl->setGlobalVariable($arrayLang);
         $loginInfo = $loginStatus = $redirect = '';
 //\DBG::log("Shop::getNavbar(): Customer: ".(self::$objCustomer ? "Logged in" : "nada"));
         if (self::$objCustomer) {
@@ -442,18 +405,18 @@ die("Failed to get Customer for ID $customer_id");
                 $loginInfo = self::$objCustomer->company().'<br />';
             } else {
                 $loginInfo =
-                    $_ARRAYLANG['TXT_SHOP_'.
+                    $arrayLang['TXT_SHOP_'.
                         strtoupper(self::$objCustomer->gender())].' '.
                     self::$objCustomer->lastname().'<br />';
             }
-            $loginStatus = $_ARRAYLANG['TXT_LOGGED_IN_AS'];
+            $loginStatus = $arrayLang['TXT_LOGGED_IN_AS'];
             // Show link to change the password
             if ($objTpl->blockExists('shop_changepass')) {
                 $objTpl->touchBlock('shop_changepass');
             }
         } else {
             // Show login form if the customer is not logged in already.
-            $loginStatus = $_ARRAYLANG['TXT_LOGGED_IN_AS_SHOP_GUEST'];
+            $loginStatus = $arrayLang['TXT_LOGGED_IN_AS_SHOP_GUEST'];
             // $redirect contains something like "section=Shop&cmd=details&productId=1"
             if (isset($_REQUEST['redirect'])) {
                 $redirect = $_REQUEST['redirect'];
@@ -533,8 +496,7 @@ die("Failed to get Customer for ID $customer_id");
 //        if ($objTpl->blockExists('shopJsCart')) {
 //            $objTpl->touchBlock('shopJsCart');
 //        }
-        $content[$templateHash] = $objTpl->get();
-        return $content[$templateHash];
+        return $objTpl->get();
     }
 
 
@@ -569,6 +531,11 @@ die("Failed to get Customer for ID $customer_id");
             }
 
             // parse shopNavbar
+            $shopUrl = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Shop' . MODULE_INDEX,
+                '',
+                FRONTEND_LANG_ID
+            )->toString();
             if ($objTpl->blockExists('shopNavbar')) {
                 $objTpl->setVariable(array(
                     'SHOP_CATEGORY_STYLE' => $style,
@@ -576,6 +543,7 @@ die("Failed to get Customer for ID $customer_id");
                     'SHOP_CATEGORY_NAME' =>
                         str_repeat('&nbsp;', 3*$level).
                         str_replace('"', '&quot;', $arrShopCategory['name']),
+                    'NODE_SHOP' => $shopUrl
                 ));
                 $objTpl->parse("shopNavbar");
             }
@@ -623,23 +591,6 @@ die("Failed to get Customer for ID $customer_id");
 
 
     /**
-     * Sets up the Shop Navbar in the global Template only
-     *
-     * To get the content for use with another Template, see {@see getNavbar()}
-     * @global  $objTemplate
-     * @global  $themesPages
-     */
-    static function setNavbar()
-    {
-        global $objTemplate, $themesPages;
-
-        $objTemplate->setVariable('SHOPNAVBAR_FILE', self::getNavbar($themesPages['shopnavbar']));
-        $objTemplate->setVariable('SHOPNAVBAR2_FILE', self::getNavbar($themesPages['shopnavbar2']));
-        $objTemplate->setVariable('SHOPNAVBAR3_FILE', self::getNavbar($themesPages['shopnavbar3']));
-    }
-
-
-    /**
      * Sets up the JavsScript cart
      *
      * Searches all $themesPages elements for the first occurrence of the
@@ -648,83 +599,75 @@ die("Failed to get Customer for ID $customer_id");
      * and registers all required JS code.
      * Note that this is only ever called when the JS cart is enabled in the
      * extended settings!
-     * @access  public
-     * @global  array   $_ARRAYLANG   Language array
-     * @global  array   $themesPages  Theme template array
-     * @return  void
-     * @static
+     *
+     * @param \Cx\Core\Html\Sigma $template  template object
+     * @param array               $arrayLang array of langauge variables
      */
-    static function setJsCart()
+    static function setJsCart(\Cx\Core\Html\Sigma $template, $arrayLang = array())
     {
-        global $_ARRAYLANG, $themesPages;
-
-        if (!\Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop')) return;
-        $objTemplate = new \Cx\Core\Html\Sigma('.');
-        $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
-        $match = null;
-        $div_cart = $div_product = '';
-        foreach ($themesPages as $index => $content) {
-//\DBG::log("Shop::setJsCart(): Section $index");
-            $objTemplate->setTemplate($content, false, false);
-            if (!$objTemplate->blockExists('shopJsCart')) {
-                continue;
-            }
-//\DBG::log("Shop::setJsCart(): In themespage $index: {$themesPages[$index]}");
-            $objTemplate->setCurrentBlock('shopJsCart');
-            // Set all language entries and replace formats
-            $objTemplate->setGlobalVariable($_ARRAYLANG);
-            if ($objTemplate->blockExists('shopJsCartProducts')) {
-                $objTemplate->parse('shopJsCartProducts');
-                $div_product = $objTemplate->get('shopJsCartProducts');
-//\DBG::log("Shop::setJsCart(): Got Product: $div_product");
-                $objTemplate->replaceBlock('shopJsCartProducts',
-                    '[[SHOP_JS_CART_PRODUCTS]]');
-            }
-            $objTemplate->touchBlock('shopJsCart');
-            $objTemplate->parse('shopJsCart');
-            $div_cart = $objTemplate->get('shopJsCart');
-//\DBG::log("Shop::setJsCart(): Got Cart: $div_cart");
-            if (preg_match('#^([\n\r]?[^<]*<.*id=["\']shopJsCart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
-                $div_cart, $match)) {
-//\DBG::log("Shop::setJsCart(): Matched DIV {$match[1]}, content: {$match[2]}");
-                $themesPages[$index] = preg_replace(
-                    '@(<!--\s*BEGIN\s+(shopJsCart)\s*-->.*?<!--\s*END\s+\2\s*-->)@s',
-                    $match[1].$_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'].$match[4],
-                    $content);
-/*
-// Template use won't work, because it kills the remaining <!-- blocks -->!
-                $objTemplate->setTemplate($content, false, false);
-                $objTemplate->replaceBlock('shopJsCart',
-                    $match[1].
-                    $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'].
-                    $match[4]);
-                $themesPages[$index] = $objTemplate->get();
-*/
-//\DBG::log("Shop::setJsCart(): Out themespage $index: {$themesPages[$index]}");
-            }
-            // One instance only (mind that there's a unique id attribute)
-            self::$use_js_cart = true;
-            break;
+        $template->setCurrentBlock('shopJsCart');
+        // Set all language entries and replace formats
+        $template->setGlobalVariable($arrayLang);
+        if ($template->blockExists('shopJsCartProducts')) {
+            $template->parse('shopJsCartProducts');
+            $divProduct = $template->get('shopJsCartProducts');
+            $template->replaceBlock(
+                'shopJsCartProducts',
+                '[[SHOP_JS_CART_PRODUCTS]]'
+            );
         }
-        if (!self::$use_js_cart) {
-            return;
-        }
+        $template->touchBlock('shopJsCart');
+        $template->parse('shopJsCart');
+        $divCart   = $template->get('shopJsCart');
+        $variables = array(
+            'shop/cart' => array(
+                'TXT_SHOP_CART_IS_LOADING'     => $arrayLang['TXT_SHOP_CART_IS_LOADING'],
+                'TXT_SHOP_COULD_NOT_LOAD_CART' => $arrayLang['TXT_SHOP_COULD_NOT_LOAD_CART'],
+                'TXT_EMPTY_SHOPPING_CART'      => $arrayLang['TXT_EMPTY_SHOPPING_CART'],
+                'url'                          => \Cx\Core\Routing\URL::fromModuleAndCmd(
+                    'Shop' . MODULE_INDEX,
+                    'cart',
+                    FRONTEND_LANG_ID,
+                    array('remoteJs' => 'addProduct')
+                )->toString()
+            ),
+            'shop' => array(
+                'TXT_SHOP_PRODUCT_ADDED_TO_CART'  => $arrayLang['TXT_SHOP_PRODUCT_ADDED_TO_CART'],
+                'TXT_SHOP_CONFIRM_DELETE_PRODUCT' => $arrayLang['TXT_SHOP_CONFIRM_DELETE_PRODUCT'],
+                'TXT_MAKE_DECISION_FOR_OPTIONS'   => $arrayLang['TXT_MAKE_DECISION_FOR_OPTIONS']
+            )
+        );
 
-        self::registerJavascriptCode();
-        \ContrexxJavascript::getInstance()->setVariable('TXT_SHOP_CART_IS_LOADING', $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'] ,'shop/cart');
-        \ContrexxJavascript::getInstance()->setVariable('TXT_SHOP_COULD_NOT_LOAD_CART', $_ARRAYLANG['TXT_SHOP_COULD_NOT_LOAD_CART'] ,'shop/cart');
-        \ContrexxJavascript::getInstance()->setVariable('TXT_EMPTY_SHOPPING_CART', $_ARRAYLANG['TXT_EMPTY_SHOPPING_CART'] ,'shop/cart');
-        \ContrexxJavascript::getInstance()->setVariable("url", (String)\Cx\Core\Routing\URL::fromModuleAndCMd('Shop'.MODULE_INDEX, 'cart', FRONTEND_LANG_ID, array('remoteJs' => 'addProduct')), 'shop/cart');
-        \JS::registerJS(substr(\Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() . '/Shop/View/Script/cart.js', 1));
-        \JS::registerCode(
-            "cartTpl = '".preg_replace(
-              array('/\'/', '/[\n\r]/', '/\//'),
-              array('\\\'', '\n', '\\/'),
-              $div_cart)."';\n".
-            "cartProductsTpl = '".preg_replace(
-              array('/\'/', '/[\n\r]/', '/\//'),
-              array('\\\'', '\n', '\\/'),
-              $div_product)."';\n"
+        $js = '';
+        foreach($variables as $scope => $variables) {
+            $js .= 'cx.variables.set(';
+            $js .= json_encode($variables);
+            $js .= ",'$scope');\n";
+        }
+        $js .= 'cartTpl = \'' .
+            preg_replace(
+                array('/\'/', '/[\n\r]/', '/\//'),
+                array('\\\'', '\n', '\\/'),
+                $divCart
+            ) . '\';' . 'cartProductsTpl = \'' .
+            preg_replace(
+                array('/\'/', '/[\n\r]/', '/\//'),
+                array('\\\'', '\n', '\\/'),
+                $divProduct
+            ) . '\';';
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $jsScript = <<<JSSCRIPT
+            <script type="text/javascript">
+            /* <![CDATA[ */
+                $js
+            /* ]]> */
+            </script>
+            <script type="text/javascript" src="{$cx->getModuleFolderName()}/Shop/View/Script/cart.js"></script>
+            <script type="text/javascript" src="{$cx->getModuleFolderName()}/Shop/View/Script/shop.js"></script>
+JSSCRIPT;
+        $template->replaceBlock(
+            'shopJsCart',
+            $arrayLang['TXT_SHOP_CART_IS_LOADING'] . $jsScript
         );
     }
 
@@ -826,6 +769,9 @@ die("Failed to update the Cart!");
             unset($_SESSION['shop']);
             self::$objCustomer = null;
         }
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
     }
 
 
@@ -1067,17 +1013,22 @@ die("Failed to update the Cart!");
     /**
      * Set up the shop page with products and discounts
      *
-     * @param   array       $product_ids    The optional array of Product IDs.
-     *                                      Overrides any URL parameters if set
-     * @return  boolean                     True on success, false otherwise
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     * @global  array       $_ARRAYLANG     Language array
-     * @global  array       $_CONFIG        Core configuration array, see {@link /config/settings.php}
-     * @global  string(?)   $themesPages    Themes pages(?)
+     * @param array               $product_ids the optional array of Product IDs.
+     * @param integer             $catId       product category ID
+     * @param \Cx\Core\Html\Sigma $template    template object
+     *
+     * @return boolean
      */
-    static function view_product_overview($product_ids=null)
-    {
+    static function view_product_overview(
+        $product_ids = null,
+        $catId = '',
+        $template = null
+    ) {
         global $_ARRAYLANG;
+
+        if ($template instanceof \Cx\Core\Html\Sigma) {
+            self::$objTemplate = $template;
+        }
 
         // activate javascript shadowbox
         \JS::activate('shadowbox');
@@ -1098,8 +1049,13 @@ die("Failed to update the Cart!");
             ? intval($_REQUEST['manufacturerId']) : null);
         $term = (isset($_REQUEST['term'])
             ? trim(contrexx_input2raw($_REQUEST['term'])) : null);
-        $category_id = (isset($_REQUEST['catId'])
-            ? intval($_REQUEST['catId']) : null);
+        $category_id = null;
+        if (isset($_REQUEST['catId'])) {
+            $category_id = contrexx_input2int($_REQUEST['catId']);
+        }
+        if (!$category_id && !empty($catId)) {
+            $category_id = contrexx_input2int($catId);
+        }
         if (!(   $product_id || $category_id || $manufacturer_id
               || $term || $cart_id)) {
             // NOTE: This is different from NULL
@@ -1727,46 +1683,6 @@ die("Failed to update the Cart!");
         }
         $content = self::$objTemplate->get();
         return $content;
-    }
-
-    /**
-     * Sets up a Product list in the given template
-     *
-     * If no Category ID is given, includes Products as indicated by the
-     * show_products_default setting.
-     * Otherwise, includes Products from the Category with the given ID.
-     * Note that you cannot use more than one such block per template!
-     * This would cause duplicate block names.
-     * Changes the $_REQUEST array temporarily and calls
-     * {@see view_product_overview()}, then restores the original request.
-     * @param   \Cx\Core\Html\Sigma $template       The template
-     * @param   integer             $category_id    The optional Category ID
-     * @return  \Cx\Core\Html\Sigma                 The parsed template
-     */
-    static function parse_products_blocks(\Cx\Core\Html\Sigma $template)
-    {
-        global $objInit, $_ARRAYLANG;
-
-        if (!\Cx\Core\Setting\Controller\Setting::init('Shop', 'config')) return false;
-        $_ARRAYLANG += $objInit->loadLanguageData('Shop');
-        $original_REQUEST = &$_REQUEST;
-        self::$objTemplate = $template;
-        $match = null;
-        foreach (array_keys($template->_blocks) as $block) {
-            // Match "block_shop_products" or "block_shop_products_category_X"
-            if (preg_match(
-                    '/^'.self::block_shop_products.'(?:_category_(\d+))?$/',
-                    $block, $match)) {
-                if (!self::$initialized) self::init();
-                $_REQUEST = array();
-                // You might add more parameters here!
-                if (isset($match[1])) $_REQUEST['catId'] = $match[1];
-                self::view_product_overview();
-                break;
-            }
-        }
-        $_REQUEST = &$original_REQUEST;
-        return $template;
     }
 
     /**

@@ -550,6 +550,10 @@ class Currency
             DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`
              WHERE `id`=$currency_id");
         if (!$objResult) return false;
+
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         unset(self::$arrCurrency[$currency_id]);
         $objDatabase->Execute("OPTIMIZE TABLE `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`");
         return true;
@@ -602,6 +606,9 @@ class Currency
             )";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         $currency_id = $objDatabase->Insert_Id();
         if (!\Text::replace($currency_id, FRONTEND_LANG_ID, 'Shop',
             self::TEXT_NAME, contrexx_input2raw($_POST['currencyNameNew']))) {
@@ -668,6 +675,10 @@ class Currency
                 return false;
             }
         } // end foreach
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
+
         if ($changed) {
             return self::setDefault($default_id);
         }
@@ -689,6 +700,9 @@ class Currency
                SET `default`=1
              WHERE `id`=$currency_id");
         if (!$objResult) return false;
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         return true;
     }
 

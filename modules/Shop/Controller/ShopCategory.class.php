@@ -449,6 +449,10 @@ class ShopCategory
             WHERE `id`=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
+
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         return true;
     }
 
@@ -481,6 +485,9 @@ class ShopCategory
             return false;
         }
         $this->id = $objDatabase->Insert_ID();
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         return true;
     }
 
@@ -523,6 +530,10 @@ class ShopCategory
         if (!$objResult) {
             return false;
         }
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
+
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_categories");
         return true;
@@ -568,37 +579,56 @@ class ShopCategory
 
         $category_id = intval($category_id);
         if ($category_id <= 0) return null;
-        $arrSql = \Text::getSqlSnippets('`category`.`id`',
-            FRONTEND_LANG_ID, 'Shop',
-            array(
-                'name' => self::TEXT_NAME,
-                'description' => self::TEXT_DESCRIPTION,
-            )
-        );
-        $query = "
+        $arrSql = array();
+        if (defined('FRONTEND_LANG_ID')) {
+            $arrSql = \Text::getSqlSnippets('`category`.`id`',
+                FRONTEND_LANG_ID, 'Shop',
+                array(
+                    'name' => self::TEXT_NAME,
+                    'description' => self::TEXT_DESCRIPTION,
+                )
+            );
+        }
+        $field = '';
+        if (isset($arrSql['field'])) {
+            $field = ', ' . $arrSql['field'];
+        }
+        $join = '';
+        if (isset($arrSql['join'])) {
+            $join = $arrSql['join'];
+        }
+        $query = '
             SELECT `category`.`id`,
                    `category`.`parent_id`,
                    `category`.`active`,
                    `category`.`ord`,
                    `category`.`picture`,
-                   `category`.`flags`, ".
-                   $arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories` AS `category`".
-                   $arrSql['join']."
-             WHERE `category`.`id`=$category_id";
+                   `category`.`flags` ' .
+                   $field . '
+            FROM `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_categories` AS `category`' .
+                $join . '
+            WHERE `category`.`id` = ' . $category_id;
         $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return self::errorHandler();
-        if ($objResult->EOF) return null;
+        if (!$objResult) {
+            return self::errorHandler();
+        }
+        if ($objResult->EOF) {
+            return null;
+        }
         $id = $objResult->fields['id'];
         $strName = $objResult->fields['name'];
         if ($strName === null) {
             $objText = \Text::getById($id, 'Shop', self::TEXT_NAME);
-            if ($objText) $strName = $objText->content();
+            if ($objText) {
+                $strName = $objText->content();
+            }
         }
         $strDescription = $objResult->fields['description'];
         if ($strDescription === null) {
             $objText = \Text::getById($id, 'Shop', self::TEXT_DESCRIPTION);
-            if ($objText) $strDescription = $objText->content();
+            if ($objText) {
+                $strDescription = $objText->content();
+            }
         }
 //DBG::log("ShopCategory::getById($category_id): Loaded '$strName' / '$strDescription'");
         $objCategory = new ShopCategory(

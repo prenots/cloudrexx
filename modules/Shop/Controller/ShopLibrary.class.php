@@ -410,4 +410,50 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         );
     }
 
+    /**
+     * Get global block and placeholder names
+     *
+     * @return array
+     */
+    public function getShopWidgetNames($criteria = '')
+    {
+        $placeholders = array(
+            'SHOPNAVBAR_FILE',
+            'SHOPNAVBAR2_FILE',
+            'SHOPNAVBAR3_FILE'
+        );
+        if ($criteria == 'placeholder') {
+            return $placeholders;
+        }
+        $blockNames     = array(Shop::block_shop_products);
+        $shopCategories = ShopCategories::getNameArray(true);
+        if (empty($shopCategories) && empty($criteria)) {
+            return array_merge($placeholders, $blockNames);
+        }
+
+        if (empty($shopCategories)) {
+            return $blockNames;
+        }
+
+        foreach (array_keys($shopCategories) as $shopCategoryId) {
+            $blockNames[] = Shop::block_shop_products . '_category_' . $shopCategoryId;
+        }
+
+        if ($criteria == 'block') {
+            return $blockNames;
+        }
+        return array_merge($placeholders, $blockNames);
+    }
+
+    /**
+     * clear ESI cache
+     */
+    public function clearEsiCache()
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', $this->getShopWidgetNames())
+        );
+    }
 }

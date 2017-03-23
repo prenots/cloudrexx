@@ -45,13 +45,33 @@ namespace Cx\Modules\Shop\Controller;
  * @subpackage  module_shop
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-    public function getControllerClasses() {
-        // Return an empty array here to let the component handler know that there
-        // does not exist a backend, nor a frontend controller of this component.
-        return array();
+    /**
+     * Returns all Controller class names for this component (except this)
+     *
+     * Be sure to return all your controller classes if you add your own
+     * @return array List of Controller class names (without namespace)
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
     }
 
-     /**
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
      * Load your component.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -85,37 +105,28 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Do something after content is loaded from DB
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
      */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                // Show the Shop navbar in the Shop, or on every page if configured to do so
-                if (!Shop::isInitialized()
-                // Optionally limit to the first instance
-                // && MODULE_INDEX == ''
-                ) {
-                    \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
-                    if (\Cx\Core\Setting\Controller\Setting::getValue('shopnavbar_on_all_pages', 'Shop')) {
-                        Shop::init();
-                        Shop::setNavbar();
-                    }
-
-                    // replace global product blocks
-                    $page->setContent(
-                        preg_replace_callback(
-                            '/<!--\s+BEGIN\s+(block_shop_products_category_(?:\d+)\s+-->).*<!--\s+END\s+\1/s',
-                            function ($matches) {
-                                $blockTemplate = new \Cx\Core\Html\Sigma();
-                                $blockTemplate->setTemplate($matches[0]);
-                                Shop::parse_products_blocks($blockTemplate);
-                                return $blockTemplate->get();
-                            },
-                            $page->getContent()
-                        )
-                    );
-                }
-                break;
+    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
+    {
+        if ($this->cx->getMode() !== \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
+            return;
+        }
+        // Show the Shop navbar in the Shop, or on every page if configured to do so
+        if (!Shop::isInitialized()
+        // Optionally limit to the first instance
+        // && MODULE_INDEX == ''
+        ) {
+            \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
+            if (
+                !\Cx\Core\Setting\Controller\Setting::getValue(
+                    'shopnavbar_on_all_pages',
+                    'Shop'
+                )
+            ) {
+                return;
+            }
+            Shop::init();
         }
     }
 
@@ -135,13 +146,92 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
     }
 
-    public function preFinalize(\Cx\Core\Html\Sigma $template)
+    /**
+     * Do something after system initialization
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     *
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
-        if (    $this->cx->getMode()
-            !== \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
-            return;
-        }
-        Shop::parse_products_blocks($template);
+        //Parse Shop navbar
+        $shopLibrary = new ShopLibrary();
+        $this->registerWidgets(
+            $shopLibrary->getShopWidgetNames('placeholder'),
+            false,
+            array('redirect', 'catId', 'productId', 'referer')
+        );
+
+        // parse global product blocks and based on its category/shopJsCart
+        $this->registerWidgets(
+            array_merge(array('shopJsCart'), $shopLibrary->getShopWidgetNames('block')),
+            true,
+            array('cmd', 'productId', 'referer', 'term', 'catId', 'manufacturerId')
+        );
     }
 
+    /**
+     * register the widget
+     *
+     * @param array   $widgetNames      array of widget names
+     * @param boolean $isBlock          If true, widget is template block otherwise placeholder
+     * @param array   $additionalParams array of additional parameters
+     *
+     * @return null
+     */
+    public function registerWidgets(
+        $widgetNames,
+        $isBlock,
+        $additionalParams = array()
+    ) {
+        if (empty($widgetNames)) {
+            return;
+        }
+
+        $params = array();
+        if (!empty($additionalParams)) {
+            foreach ($additionalParams as $paramName) {
+                if (isset($_GET[$paramName]) && !empty($_GET[$paramName])) {
+                    $params[$paramName] = contrexx_input2raw($_GET[$paramName]);
+                }
+            }
+        }
+
+        $widgetController = $this->getComponent('Widget');
+        foreach ($widgetNames as $widgetName) {
+            if ($widgetName === 'shopJsCart') {
+                $widget = new \Cx\Core_Modules\Widget\Model\Entity\SingleParseEsiWidget(
+                    $this,
+                    $widgetName,
+                    $isBlock
+                );
+            } else {
+                $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                    $this,
+                    $widgetName,
+                    $isBlock,
+                    '',
+                    '',
+                    $params
+                );
+                if (!$isBlock) {
+                    $widget->setEsiVariable(
+                        \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME|
+                        \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+                    );
+                }
+                $widget->setEsiVariable(
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CURRENCY|
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_USER
+                );
+            }
+            $widgetController->registerWidget(
+                $widget
+            );
+        }
+    }
 }

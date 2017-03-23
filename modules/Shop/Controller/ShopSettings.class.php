@@ -217,6 +217,9 @@ class ShopSettings
                 intval($_POST['num_categories_per_row']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
         }
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
     }
 
 

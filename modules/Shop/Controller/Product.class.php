@@ -1002,6 +1002,9 @@ class Product
         }
         \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
 
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_products");
         return true;
@@ -1159,6 +1162,9 @@ class Product
         $objResult = $objDatabase->Execute($query, $args);
         if ($objResult) {
             \Env::get('cx')->getEvents()->triggerEvent('model/postUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
+            //clear cache
+            $shopLib = new ShopLibrary();
+            $shopLib->clearEsiCache();
             return true;
         }
         return false;
@@ -1210,6 +1216,9 @@ class Product
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
             // My brand new ID
             $this->id = $objDatabase->Insert_ID();
+            //clear cache
+            $shopLib = new ShopLibrary();
+            $shopLib->clearEsiCache();
             return true;
         }
         return false;
@@ -1396,8 +1405,11 @@ class Product
                SET stock=stock-$quantity
              WHERE id=$this->id
                AND distribution='delivery'";
+        //clear cache
+        $shopLib = new ShopLibrary();
+        $shopLib->clearEsiCache();
         return (boolean)$objDatabase->Execute($query);
-        }
+    }
 
 
     /**
