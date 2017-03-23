@@ -183,7 +183,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @return null
      */
-    public function registerWidgets(
+    protected function registerWidgets(
         $widgetNames,
         $isBlock,
         $additionalParams = array()
