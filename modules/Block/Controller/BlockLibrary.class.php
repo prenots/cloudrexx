@@ -250,7 +250,7 @@ class BlockLibrary
     /**
      * Update an existing block
      *
-     * @param int $id
+     * @param object $block
      * @param int $cat
      * @param array $arrContent
      * @param string $name
@@ -264,12 +264,10 @@ class BlockLibrary
      * @param array $arrLangActive
      * @return bool|int the id of the block
      */
-    public function _updateBlock($id, $cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
+    public function _updateBlock($block, $cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $block = $blockRepo->findOneBy(array('id' => $id));
         $category = $categoryRepo->findOneBy(array('id' => $cat));
 
         $block->setName($name);
@@ -282,17 +280,15 @@ class BlockLibrary
         $block->setRandom4($blockRandom4);
         $block->setWysiwygEditor($blockWysiwygEditor);
 
-        $em->flush();
+        $this->storeBlockContent($block, $arrContent, $arrLangActive);
 
-        $this->storeBlockContent($id, $arrContent, $arrLangActive);
-
-        return $id;
+        return $block->getId();
     }
 
     /**
      * Store the placeholder settings for a block
      *
-     * @param int $blockId
+     * @param object $block
      * @param int $global
      * @param int $direct
      * @param int $category
@@ -301,18 +297,15 @@ class BlockLibrary
      * @param array $categoryAssociatedPages
      * @return bool it was successfully saved
      */
-    protected function storePlaceholderSettings($blockId, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages)
+    protected function storePlaceholderSettings($block, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
+        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $relPages = $relPageRepo->findBy(array('block' => $block));
 
         $block->setShowInGlobal($global);
         $block->setShowInDirect($direct);
         $block->setShowInCategory($category);
-
-        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-        $relPages = $relPageRepo->findBy(array('block' => $block));
 
         foreach ($relPages as $relPage) {
             $em->remove($relPage);
@@ -320,13 +313,13 @@ class BlockLibrary
         $em->flush();
 
         if ($global == 2) {
-            $this->storePageAssociations($blockId, $globalAssociatedPages, 'global');
+            $this->storePageAssociations($block, $globalAssociatedPages, 'global');
         }
         if ($direct == 1) {
-            $this->storePageAssociations($blockId, $directAssociatedPages, 'direct');
+            $this->storePageAssociations($block, $directAssociatedPages, 'direct');
         }
         if ($category == 1) {
-            $this->storePageAssociations($blockId, $categoryAssociatedPages, 'category');
+            $this->storePageAssociations($block, $categoryAssociatedPages, 'category');
         }
         return true;
     }
@@ -334,20 +327,31 @@ class BlockLibrary
     /**
      * Store the page associations
      *
-     * @param int $blockId the block id
+     * @param object $block \Cx\Modules\Block\Model\Entity\Block
      * @param array $blockAssociatedPageIds the page ids
      * @param string $placeholder the placeholder
      */
-    private function storePageAssociations($blockId, $blockAssociatedPageIds, $placeholder)
+    private function storePageAssociations($block, $blockAssociatedPageIds, $placeholder)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
 
         foreach ($blockAssociatedPageIds as $pageId) {
             if ($pageId > 0) {
                 $page = $pageRepo->findOneBy(array('id' => $pageId));
+                $relPage = $relPageRepo->findOneBy(
+                    array(
+                        'block' => $block,
+                        'page' => $page,
+                        'placeholder' => $placeholder,
+                    )
+                );
+
+                if ($relPage) {
+                    return;
+                }
+
                 $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
                 $relPage->setBlock($block);
                 $relPage->setPage($page);
@@ -356,17 +360,13 @@ class BlockLibrary
                 $em->persist($relPage);
             }
         }
-
-        $em->flush();
     }
 
-    private function storeBlockContent($blockId, $arrContent, $arrLangActive)
+    private function storeBlockContent($block, $arrContent, $arrLangActive)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $relLangContents = $block->getRelLangContents();
 
         $arrPresentLang = array();
@@ -395,7 +395,7 @@ class BlockLibrary
             'Block',
             'getBlockContent',
             array(
-                'block' => $blockId,
+                'block' => $block->getId(),
             )
         );
 
@@ -410,8 +410,6 @@ class BlockLibrary
             ->setParameter('block', $block)
             ->getQuery()
             ->getResult();
-
-        $em->flush();
     }
 
     /**

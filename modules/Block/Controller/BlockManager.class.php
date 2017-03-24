@@ -822,24 +822,92 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockDirectAssociatedPageIds = isset($_POST['directSelectedPagesList']) ? array_map('intval', explode(",", $_POST['directSelectedPagesList'])) : array();
             $blockCategoryAssociatedPageIds = isset($_POST['categorySelectedPagesList']) ? array_map('intval', explode(",", $_POST['categorySelectedPagesList'])) : array();
 
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
             if ($blockId) {
-                if ($this->_updateBlock($blockId, $blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
-                    if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
-                        $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
-                        exit;
-                    }
+                try {
+                    $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+                    $block = $blockRepo->findOneBy(array('id' => $blockId));
+
+                    $this->_updateBlock(
+                        $block,
+                        $blockCat,
+                        $blockContent,
+                        $blockName,
+                        $blockStart,
+                        $blockEnd,
+                        $blockRandom,
+                        $blockRandom2,
+                        $blockRandom3,
+                        $blockRandom4,
+                        $blockWysiwygEditor,
+                        $blockLangActive
+                    );
+
+                    $this->storePlaceholderSettings(
+                        $block,
+                        $blockGlobal,
+                        $blockDirect,
+                        $blockCategory,
+                        $blockGlobalAssociatedPageIds,
+                        $blockDirectAssociatedPageIds,
+                        $blockCategoryAssociatedPageIds
+                    );
+
+                    $this->storeTargetingSettings(
+                        $block,
+                        $targetingStatus,
+                        $targeting
+                    );
+
+                    $em->flush();
+
+                    \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
+                    exit;
+                } catch (\Exception $e) {
+                    $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_UPDATED'];
                 }
-                $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_UPDATED'];
             } else {
-                if ($blockId = $this->_addBlock($blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
-                    if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
-                        $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
-                        exit;
-                    }
+                try {
+                    $blockId = $this->_addBlock(
+                        $blockCat,
+                        $blockContent,
+                        $blockName,
+                        $blockStart,
+                        $blockEnd,
+                        $blockRandom,
+                        $blockRandom2,
+                        $blockRandom3,
+                        $blockRandom4,
+                        $blockWysiwygEditor,
+                        $blockLangActive
+                    );
+
+                    $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+                    $block = $blockRepo->findOneBy(array('id' => $blockId));
+
+                    $this->storePlaceholderSettings(
+                        $block,
+                        $blockGlobal,
+                        $blockDirect,
+                        $blockCategory,
+                        $blockGlobalAssociatedPageIds,
+                        $blockDirectAssociatedPageIds,
+                        $blockCategoryAssociatedPageIds
+                    );
+
+                    $this->storeTargetingSettings(
+                        $block,
+                        $targetingStatus,
+                        $targeting
+                    );
+
+                    $em->flush();
+
+                    \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
+                    exit;
+                } catch (\Exception $e) {
+                    $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_ADDED'];
                 }
-                $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_ADDED'];
             }
         } elseif (($arrBlock = $this->_getBlock($blockId)) !== false) {
             $blockStart         = $arrBlock['start'];
@@ -1031,20 +1099,20 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     /**
      * Store the targeting settings in to database
      *
-     * @param integer $blockId         Content block id
+     * @param object  $block           \Cx\Modules\Block\Model\Entity\Block
      * @param integer $targetingStatus status
      * @param array   $targeting       Array settings of targeting to store
      */
-    public function storeTargetingSettings($blockId, $targetingStatus, $targeting = array())
+    public function storeTargetingSettings($block, $targetingStatus, $targeting = array())
     {
         foreach ($this->availableTargeting as $targetingType) {
             if (!$targetingStatus) {
-                $this->removeTargetingSetting($blockId, $targetingType);
+                $this->removeTargetingSetting($block, $targetingType);
                 continue;
             }
             $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
             if (!empty($targetingArr)) {
-                $this->storeTargetingSetting($blockId, $targetingArr['filter'], $targetingType, $targetingArr['value']);
+                $this->storeTargetingSetting($block, $targetingArr['filter'], $targetingType, $targetingArr['value']);
             }
         }
     }
@@ -1052,16 +1120,14 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     /**
      * Store the targeting setting in to database
      *
-     * @param integer $blockId     Content block id
+     * @param object  $block       \Cx\Modules\Block\Model\Entity\Block
      * @param string  $filter      Targeting filter type (include/exclude)
      * @param string  $type        Targeting type (country)
      * @param array   $arrayValues Target selected option values
      */
-    public function storeTargetingSetting($blockId, $filter, $type, $arrayValues = array())
+    public function storeTargetingSetting($block, $filter, $type, $arrayValues = array())
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $targetingOption = $block->getTargetingOption();
 
         $valueString = json_encode($arrayValues);
@@ -1076,26 +1142,22 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $targetingOption->setValue($valueString);
             $em->persist($targetingOption);
         }
-
-        $em->flush();
     }
 
     /**
      * Remove the targeting settings from database
      *
-     * @param integer $blockId Content block id
+     * @param object  $block   \Cx\Modules\Block\Model\Entity\Block
      * @param string  $type    Targeting type (country)
      */
-    public function removeTargetingSetting($blockId, $type)
+    public function removeTargetingSetting($block, $type)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
         $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
         $targetingOption = $targetingOptionRepo->findOneBy(array('block' => $block, 'type' => $type));
+
         if ($targetingOption) {
             $em->remove($targetingOption);
-            $em->flush();
         }
     }
 
