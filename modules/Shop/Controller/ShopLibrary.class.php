@@ -425,7 +425,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         if ($criteria == 'placeholder') {
             return $placeholders;
         }
-        $blockNames     = array(Shop::block_shop_products);
+        $blockNames     = array('shopJsCart', Shop::block_shop_products);
         $shopCategories = ShopCategories::getNameArray(true);
         if (empty($shopCategories) && empty($criteria)) {
             return array_merge($placeholders, $blockNames);

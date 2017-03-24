@@ -168,7 +168,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         // parse global product blocks and based on its category/shopJsCart
         $this->registerWidgets(
-            array_merge(array('shopJsCart'), $shopLibrary->getShopWidgetNames('block')),
+            $shopLibrary->getShopWidgetNames('block'),
             true,
             array('cmd', 'productId', 'referer', 'term', 'catId', 'manufacturerId')
         );
