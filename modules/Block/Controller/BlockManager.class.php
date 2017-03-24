@@ -828,21 +828,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
                     $block = $blockRepo->findOneBy(array('id' => $blockId));
 
-                    $this->_updateBlock(
-                        $block,
-                        $blockCat,
-                        $blockContent,
-                        $blockName,
-                        $blockStart,
-                        $blockEnd,
-                        $blockRandom,
-                        $blockRandom2,
-                        $blockRandom3,
-                        $blockRandom4,
-                        $blockWysiwygEditor,
-                        $blockLangActive
-                    );
-
                     $this->storePlaceholderSettings(
                         $block,
                         $blockGlobal,
@@ -857,6 +842,21 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $block,
                         $targetingStatus,
                         $targeting
+                    );
+
+                    $this->_updateBlock(
+                        $block,
+                        $blockCat,
+                        $blockContent,
+                        $blockName,
+                        $blockStart,
+                        $blockEnd,
+                        $blockRandom,
+                        $blockRandom2,
+                        $blockRandom3,
+                        $blockRandom4,
+                        $blockWysiwygEditor,
+                        $blockLangActive
                     );
 
                     $em->flush();
