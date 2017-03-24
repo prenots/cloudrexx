@@ -868,7 +868,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 }
             } else {
                 try {
-                    $blockId = $this->_addBlock(
+                    $block = $this->_addBlock(
                         $blockCat,
                         $blockContent,
                         $blockName,
@@ -881,9 +881,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockWysiwygEditor,
                         $blockLangActive
                     );
-
-                    $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-                    $block = $blockRepo->findOneBy(array('id' => $blockId));
 
                     $this->storePlaceholderSettings(
                         $block,

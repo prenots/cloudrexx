@@ -205,7 +205,7 @@ class BlockLibrary
      * @param int $blockRandom4
      * @param int $blockWysiwygEditor
      * @param array $arrLangActive
-     * @return bool|int the block's id
+     * @return object $block
      */
     public function _addBlock($cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
     {
@@ -239,11 +239,9 @@ class BlockLibrary
         $em->flush();
         $em->refresh($block);
 
-        $id = $block->getId();
+        $this->storeBlockContent($block, $arrContent, $arrLangActive);
 
-        $this->storeBlockContent($id, $arrContent, $arrLangActive);
-
-        return $id;
+        return $block;
     }
 
 
