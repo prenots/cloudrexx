@@ -6,13 +6,17 @@ Cx\Modules\Block\Model\Entity\RelPage:
     module_block_rel_page_ibfk_page_id_idx:
       columns: [ page_id ]
   id:
-    block:
-      associationKey: true
-    page:
-      associationKey: true
+    id:
+      type: integer
+      unsigned: true
+      generator:
+        strategy: AUTO
   fields:
     placeholder:
       type: string
+  uniqueConstraints:
+    unique_block_page_placeholder:
+      columns: [ block, page, placeholder ]
   manyToOne:
     block:
       type: integer

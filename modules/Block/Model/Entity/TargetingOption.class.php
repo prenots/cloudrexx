@@ -49,6 +49,11 @@ namespace Cx\Modules\Block\Model\Entity;
 class TargetingOption extends \Cx\Model\Base\EntityBase
 {
     /**
+     * @var integer $id
+     */
+    protected $id;
+
+    /**
      * @var string $type
      */
     protected $type;
@@ -68,6 +73,26 @@ class TargetingOption extends \Cx\Model\Base\EntityBase
      */
     protected $block;
 
+
+    /**
+     * Set id
+     *
+     * @param integer $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer $id
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set type

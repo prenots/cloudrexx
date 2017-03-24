@@ -3,15 +3,21 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
   table: module_block_targeting_option
   repositoryClass: Cx\Modules\Block\Model\Repository\TargetingOptionRepository
   id:
-    block:
-      associationKey: true
+    id:
+      type: integer
+      unsigned: true
+      generator:
+        strategy: AUTO
+  fields:
     type:
       type: string
-  fields:
     filter:
       type: string
     value:
       type: text
+  uniqueConstraints:
+    unique_block_type:
+      columns: [ block, type ]
   oneToOne:
     block:
       type: integer

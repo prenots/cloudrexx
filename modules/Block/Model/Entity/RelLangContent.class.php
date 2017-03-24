@@ -49,6 +49,11 @@ namespace Cx\Modules\Block\Model\Entity;
 class RelLangContent extends \Cx\Model\Base\EntityBase
 {
     /**
+     * @var integer $id
+     */
+    protected $id;
+
+    /**
      * @var text $content
      */
     protected $content;
@@ -68,6 +73,26 @@ class RelLangContent extends \Cx\Model\Base\EntityBase
      */
     protected $locale;
 
+
+    /**
+     * Set id
+     *
+     * @param integer $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer $id
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set content

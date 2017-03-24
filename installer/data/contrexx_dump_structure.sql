@@ -611,23 +611,27 @@ CREATE TABLE `contrexx_module_block_blocks` (
   CONSTRAINT `module_block_blocks_ibfk_cat` FOREIGN KEY (`cat`) REFERENCES `contrexx_module_block_categories` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_rel_lang_content` (
-  `block_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `block_id` int(11) unsigned DEFAULT '0',
   `lang_id` int(11) NOT NULL DEFAULT '0',
   `content` mediumtext NOT NULL,
   `active` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`block_id`,`lang_id`),
-  KEY `module_block_rel_lang_content_ibfk_lang_id` (`lang_id`),
-  CONSTRAINT `module_block_rel_lang_content_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`),
-  CONSTRAINT `module_block_rel_lang_content_ibfk_lang_id` FOREIGN KEY (`lang_id`) REFERENCES `contrexx_core_locale_locale` (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_block_page` (`block_id`,`lang_id`),
+  KEY `module_block_rel_lang_content_ibfk_lang_id_idx` (`lang_id`),
+  CONSTRAINT `module_block_rel_lang_content_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `module_block_rel_lang_content_ibfk_lang_id` FOREIGN KEY (`lang_id`) REFERENCES `contrexx_core_locale_locale` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_rel_pages` (
-  `block_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `block_id` int(11) unsigned DEFAULT '0',
   `page_id` int(11) NOT NULL DEFAULT '0',
   `placeholder` enum('global','direct','category') NOT NULL DEFAULT 'global',
-  PRIMARY KEY (`block_id`,`page_id`,`placeholder`),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_block_page_placeholder` (`block_id`,`page_id`,`placeholder`),
   KEY `module_block_rel_pages_ibfk_page_id_idx` (`page_id`),
-  CONSTRAINT `module_block_rel_pages_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`),
-  CONSTRAINT `module_block_rel_pages_ibfk_page_id` FOREIGN KEY (`page_id`) REFERENCES `contrexx_content_page` (`id`)
+  CONSTRAINT `module_block_rel_page_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `module_block_rel_page_ibfk_page_id` FOREIGN KEY (`page_id`) REFERENCES `contrexx_content_page` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_settings` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -636,11 +640,13 @@ CREATE TABLE `contrexx_module_block_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_targeting_option` (
-  `block_id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `block_id` int(11) unsigned DEFAULT NULL,
   `filter` enum('include','exclude') NOT NULL DEFAULT 'include',
   `type` enum('country') NOT NULL DEFAULT 'country',
   `value` text NOT NULL,
-  PRIMARY KEY (`block_id`,`type`),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_block_type` (`block_id`,`type`),
   CONSTRAINT `module_block_targeting_option_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_blog_categories` (

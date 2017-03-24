@@ -3,15 +3,19 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
   table: module_block_rel_lang_content
   repositoryClass: Cx\Modules\Block\Model\Repository\RelLangContentRepository
   id:
-    block:
-      associationKey: true
-    locale:
-      associationKey: true
+    id:
+      type: integer
+      unsigned: true
+      generator:
+        strategy: AUTO
   fields:
     content:
       type: text
     active:
       type: integer
+  uniqueConstraints:
+    unique_block_page:
+      columns: [ block, page ]
   manyToOne:
     block:
       type: integer
