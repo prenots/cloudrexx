@@ -195,7 +195,6 @@ class BlockLibrary
      * Add a new block to database
      *
      * @param int $cat
-     * @param array $arrContent
      * @param string $name
      * @param int $start
      * @param int $end
@@ -204,17 +203,13 @@ class BlockLibrary
      * @param int $blockRandom3
      * @param int $blockRandom4
      * @param int $blockWysiwygEditor
-     * @param array $arrLangActive
      * @param int $showInGlobal
      * @param int $showInDirect
      * @param int $showInCategory
-     * @param object $relPages
-     * @param object $targetingOptions
      * @return object $block
      */
     public function _addBlock(
         $cat,
-        $arrContent,
         $name,
         $start,
         $end,
@@ -223,12 +218,9 @@ class BlockLibrary
         $blockRandom3,
         $blockRandom4,
         $blockWysiwygEditor,
-        $arrLangActive,
         $showInGlobal,
         $showInDirect,
-        $showInCategory,
-        $relPages,
-        $targetingOptions
+        $showInCategory
     )
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
@@ -264,22 +256,6 @@ class BlockLibrary
         $em->flush();
         $em->refresh($block);
 
-        // sets block on page relations
-        if ($relPages) {
-            foreach ($relPages as $relPage) {
-                $relPage->setBlock($block);
-            }
-        }
-
-        // sets block on targeting options
-        if ($targetingOptions) {
-            foreach ($targetingOptions as $targetingOption) {
-                $targetingOption->setBlock($block);
-            }
-        }
-
-        $this->storeBlockContent($block, $arrContent, $arrLangActive);
-
         return $block;
     }
 
@@ -288,7 +264,6 @@ class BlockLibrary
      *
      * @param object $block
      * @param int $cat
-     * @param array $arrContent
      * @param string $name
      * @param int $start
      * @param int $end
@@ -297,16 +272,13 @@ class BlockLibrary
      * @param int $blockRandom3
      * @param int $blockRandom4
      * @param int $blockWysiwygEditor
-     * @param array $arrLangActive
      * @param int $showInGlobal
      * @param int $showInDirect
      * @param int $showInCategory
-     * @return object $block
      */
     public function _updateBlock(
         $block,
         $cat,
-        $arrContent,
         $name,
         $start,
         $end,
@@ -315,7 +287,6 @@ class BlockLibrary
         $blockRandom3,
         $blockRandom4,
         $blockWysiwygEditor,
-        $arrLangActive,
         $showInGlobal,
         $showInDirect,
         $showInCategory
@@ -338,9 +309,7 @@ class BlockLibrary
         $block->setShowInDirect($showInDirect);
         $block->setShowInCategory($showInCategory);
 
-        $this->storeBlockContent($block, $arrContent, $arrLangActive);
-
-        return $block;
+        $em->flush();
     }
 
     /**
@@ -433,42 +402,56 @@ class BlockLibrary
         return $newRelPages;
     }
 
-    private function storeBlockContent($block, $arrContent, $arrLangActive)
+    protected function storeBlockContent($block, $arrContent, $arrLangActive)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
-        $relLangContents = $block->getRelLangContents();
 
         $arrPresentLang = array();
-        foreach ($relLangContents as $relLangContent) {
-            $arrPresentLang[] = $relLangContent->getLocale()->getId();
+        if ($block) {
+            $relLangContents = $block->getRelLangContents();
+
+            foreach ($relLangContents as $relLangContent) {
+                $arrPresentLang[] = $relLangContent->getLocale()->getId();
+            }
         }
 
+        $newRelLangContents = array();
         foreach ($arrContent as $langId => $content) {
+
             $content = preg_replace('/\[\[([A-Z0-9_-]+)\]\]/', '{\\1}', $content);
             $locale = $localeRepo->findOneBy(array('id' => $langId));
+
             if (in_array($langId, $arrPresentLang)) {
                 $relLangContent = $relLangContentRepo->findOneBy(array('block' => $block, 'locale' => $locale));
+
                 $relLangContent->setContent($content);
                 $relLangContent->setActive(isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0);
             } else {
                 $relLangContent = new \Cx\Modules\Block\Model\Entity\RelLangContent();
+
                 $relLangContent->setContent($content);
                 $relLangContent->setActive(isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0);
-                $relLangContent->setBlock($block);
+                if ($block) {
+                    $relLangContent->setBlock($block);
+                }
                 $relLangContent->setLocale($locale);
+
                 $em->persist($relLangContent);
+                array_push($newRelLangContents, $relLangContent);
             }
         }
 
-        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
-            'Block',
-            'getBlockContent',
-            array(
-                'block' => $block->getId(),
-            )
-        );
+        if ($block) {
+            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+                'Block',
+                'getBlockContent',
+                array(
+                    'block' => $block->getId(),
+                )
+            );
+        }
 
         $qb = $em->createQueryBuilder();
         $qb->delete('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
@@ -481,6 +464,8 @@ class BlockLibrary
             ->setParameter('block', $block)
             ->getQuery()
             ->getResult();
+
+        return $newRelLangContents;
     }
 
     /**

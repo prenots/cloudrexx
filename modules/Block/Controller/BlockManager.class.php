@@ -825,8 +825,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
             if ($blockId) {
                 try {
-                    // updates existing block
-
                     $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
                     $block = $blockRepo->findOneBy(array('id' => $blockId));
 
@@ -846,10 +844,15 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $targeting
                     );
 
+                    $this->storeBlockContent(
+                        $block,
+                        $blockContent,
+                        $blockLangActive
+                    );
+
                     $this->_updateBlock(
                         $block,
                         $blockCat,
-                        $blockContent,
                         $blockName,
                         $blockStart,
                         $blockEnd,
@@ -858,13 +861,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockRandom3,
                         $blockRandom4,
                         $blockWysiwygEditor,
-                        $blockLangActive,
                         $blockGlobal,
                         $blockDirect,
                         $blockCategory
                     );
-
-                    $em->flush();
 
                     \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
                     exit;
@@ -873,7 +873,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 }
             } else {
                 try {
-                    // adds new block
+                    $newTargetingOptions = $this->storeTargetingSettings(
+                        null,
+                        $targetingStatus,
+                        $targeting
+                    );
 
                     $newRelPages = $this->storePlaceholderSettings(
                         null,
@@ -885,15 +889,14 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockCategoryAssociatedPageIds
                     );
 
-                    $newTargetingOptions = $this->storeTargetingSettings(
+                    $newRelLangContents = $this->storeBlockContent(
                         null,
-                        $targetingStatus,
-                        $targeting
+                        $blockContent,
+                        $blockLangActive
                     );
 
-                    $this->_addBlock(
+                    $block = $this->_addBlock(
                         $blockCat,
-                        $blockContent,
                         $blockName,
                         $blockStart,
                         $blockEnd,
@@ -902,13 +905,31 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockRandom3,
                         $blockRandom4,
                         $blockWysiwygEditor,
-                        $blockLangActive,
                         $blockGlobal,
                         $blockDirect,
-                        $blockCategory,
-                        $newRelPages,
-                        $newTargetingOptions
+                        $blockCategory
                     );
+
+                    // sets block on new targeting options
+                    if ($newTargetingOptions) {
+                        foreach ($newTargetingOptions as $newTargetingOption) {
+                            $newTargetingOption->setBlock($block);
+                        }
+                    }
+
+                    // sets block on new page relations
+                    if ($newRelPages) {
+                        foreach ($newRelPages as $newRelPage) {
+                            $newRelPage->setBlock($block);
+                        }
+                    }
+
+                    // sets block on new language content relations
+                    if ($newRelLangContents) {
+                        foreach ($newRelLangContents as $newRelLangContent) {
+                            $newRelLangContent->setBlock($block);
+                        }
+                    }
 
                     $em->flush();
 
@@ -918,6 +939,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_ADDED'];
                 }
             }
+
         } elseif (($arrBlock = $this->_getBlock($blockId)) !== false) {
             $blockStart         = $arrBlock['start'];
             $blockEnd           = $arrBlock['end'];
