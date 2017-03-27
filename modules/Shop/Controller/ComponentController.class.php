@@ -194,9 +194,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $params = array();
         if (!empty($additionalParams)) {
+            $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
             foreach ($additionalParams as $paramName) {
-                if (isset($_GET[$paramName]) && !empty($_GET[$paramName])) {
-                    $params[$paramName] = contrexx_input2raw($_GET[$paramName]);
+                if (
+                    isset($requestParams[$paramName]) &&
+                    !empty($requestParams[$paramName])
+                ) {
+                    $params[$paramName] = $requestParams[$paramName];
                 }
             }
         }
