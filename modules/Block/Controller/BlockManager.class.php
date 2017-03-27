@@ -828,6 +828,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
                     $block = $blockRepo->findOneBy(array('id' => $blockId));
 
+                    $this->storeTargetingSettings(
+                        $block,
+                        $targetingStatus,
+                        $targeting
+                    );
+
                     $this->storePlaceholderSettings(
                         $block,
                         $blockGlobal,
@@ -836,12 +842,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockGlobalAssociatedPageIds,
                         $blockDirectAssociatedPageIds,
                         $blockCategoryAssociatedPageIds
-                    );
-
-                    $this->storeTargetingSettings(
-                        $block,
-                        $targetingStatus,
-                        $targeting
                     );
 
                     $this->storeBlockContent(
