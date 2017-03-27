@@ -205,9 +205,31 @@ class BlockLibrary
      * @param int $blockRandom4
      * @param int $blockWysiwygEditor
      * @param array $arrLangActive
+     * @param int $showInGlobal
+     * @param int $showInDirect
+     * @param int $showInCategory
+     * @param object $relPages
+     * @param object $targetingOptions
      * @return object $block
      */
-    public function _addBlock($cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
+    public function _addBlock(
+        $cat,
+        $arrContent,
+        $name,
+        $start,
+        $end,
+        $blockRandom,
+        $blockRandom2,
+        $blockRandom3,
+        $blockRandom4,
+        $blockWysiwygEditor,
+        $arrLangActive,
+        $showInGlobal,
+        $showInDirect,
+        $showInCategory,
+        $relPages,
+        $targetingOptions
+    )
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
@@ -234,16 +256,32 @@ class BlockLibrary
         $block->setActive(1);
         $block->setOrder($order[1] + 1);
         $block->setWysiwygEditor($blockWysiwygEditor);
+        $block->setShowInGlobal($showInGlobal);
+        $block->setShowInDirect($showInDirect);
+        $block->setShowInCategory($showInCategory);
 
         $em->persist($block);
         $em->flush();
         $em->refresh($block);
 
+        // sets block on page relations
+        if ($relPages) {
+            foreach ($relPages as $relPage) {
+                $relPage->setBlock($block);
+            }
+        }
+
+        // sets block on targeting options
+        if ($targetingOptions) {
+            foreach ($targetingOptions as $targetingOption) {
+                $targetingOption->setBlock($block);
+            }
+        }
+
         $this->storeBlockContent($block, $arrContent, $arrLangActive);
 
         return $block;
     }
-
 
     /**
      * Update an existing block
@@ -260,9 +298,28 @@ class BlockLibrary
      * @param int $blockRandom4
      * @param int $blockWysiwygEditor
      * @param array $arrLangActive
-     * @return bool|int the id of the block
+     * @param int $showInGlobal
+     * @param int $showInDirect
+     * @param int $showInCategory
+     * @return object $block
      */
-    public function _updateBlock($block, $cat, $arrContent, $name, $start, $end, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $arrLangActive)
+    public function _updateBlock(
+        $block,
+        $cat,
+        $arrContent,
+        $name,
+        $start,
+        $end,
+        $blockRandom,
+        $blockRandom2,
+        $blockRandom3,
+        $blockRandom4,
+        $blockWysiwygEditor,
+        $arrLangActive,
+        $showInGlobal,
+        $showInDirect,
+        $showInCategory
+    )
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
@@ -277,10 +334,13 @@ class BlockLibrary
         $block->setRandom3($blockRandom3);
         $block->setRandom4($blockRandom4);
         $block->setWysiwygEditor($blockWysiwygEditor);
+        $block->setShowInGlobal($showInGlobal);
+        $block->setShowInDirect($showInDirect);
+        $block->setShowInCategory($showInCategory);
 
         $this->storeBlockContent($block, $arrContent, $arrLangActive);
 
-        return $block->getId();
+        return $block;
     }
 
     /**
@@ -293,33 +353,21 @@ class BlockLibrary
      * @param array $globalAssociatedPages
      * @param array $directAssociatedPages
      * @param array $categoryAssociatedPages
-     * @return bool it was successfully saved
+     * @return array $newRelPages new page relations
      */
     protected function storePlaceholderSettings($block, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages)
     {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-        $relPages = $relPageRepo->findBy(array('block' => $block));
-
-        $block->setShowInGlobal($global);
-        $block->setShowInDirect($direct);
-        $block->setShowInCategory($category);
-
-        foreach ($relPages as $relPage) {
-            $em->remove($relPage);
-        }
-        $em->flush();
-
+        $newRelPages = array();
         if ($global == 2) {
-            $this->storePageAssociations($block, $globalAssociatedPages, 'global');
+            $newRelPages = array_merge($newRelPages, $this->storePageAssociations($block, $globalAssociatedPages, 'global'));
         }
         if ($direct == 1) {
-            $this->storePageAssociations($block, $directAssociatedPages, 'direct');
+            $newRelPages = array_merge($newRelPages, $this->storePageAssociations($block, $directAssociatedPages, 'direct'));
         }
         if ($category == 1) {
-            $this->storePageAssociations($block, $categoryAssociatedPages, 'category');
+            $newRelPages = array_merge($newRelPages, $this->storePageAssociations($block, $categoryAssociatedPages, 'category'));
         }
-        return true;
+        return $newRelPages;
     }
 
     /**
@@ -328,6 +376,7 @@ class BlockLibrary
      * @param object $block \Cx\Modules\Block\Model\Entity\Block
      * @param array $blockAssociatedPageIds the page ids
      * @param string $placeholder the placeholder
+     * @return array $newRelPages new page relations
      */
     private function storePageAssociations($block, $blockAssociatedPageIds, $placeholder)
     {
@@ -335,29 +384,53 @@ class BlockLibrary
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
 
+        $newRelPages = array();
         foreach ($blockAssociatedPageIds as $pageId) {
             if ($pageId > 0) {
                 $page = $pageRepo->findOneBy(array('id' => $pageId));
-                $relPage = $relPageRepo->findOneBy(
-                    array(
-                        'block' => $block,
-                        'page' => $page,
-                        'placeholder' => $placeholder,
-                    )
-                );
 
-                if ($relPage) {
-                    return;
+                if ($block) {
+                    $relPage = $relPageRepo->findOneBy(
+                        array(
+                            'block' => $block,
+                            'page' => $page,
+                            'placeholder' => $placeholder,
+                        )
+                    );
+                    if ($relPage) {
+                        continue;
+                    }
                 }
 
                 $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
-                $relPage->setBlock($block);
+                if ($block) {
+                    $relPage->setBlock($block);
+                }
                 $relPage->setPage($page);
                 $relPage->setPlaceholder($placeholder);
 
                 $em->persist($relPage);
+                array_push($newRelPages, $relPage);
             }
         }
+
+        if ($block) {
+            $relPages = $relPageRepo->findBy(
+                array(
+                    'block' => $block,
+                    'placeholder' => $placeholder,
+                )
+            );
+            if ($relPages) {
+                foreach ($relPages as $relPage) {
+                    if (!in_array($relPage->getPage()->getId(), $blockAssociatedPageIds)) {
+                        $em->remove($relPage);
+                    }
+                }
+            }
+        }
+
+        return $newRelPages;
     }
 
     private function storeBlockContent($block, $arrContent, $arrLangActive)

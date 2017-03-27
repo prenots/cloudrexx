@@ -825,6 +825,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
             if ($blockId) {
                 try {
+                    // updates existing block
+
                     $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
                     $block = $blockRepo->findOneBy(array('id' => $blockId));
 
@@ -856,7 +858,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockRandom3,
                         $blockRandom4,
                         $blockWysiwygEditor,
-                        $blockLangActive
+                        $blockLangActive,
+                        $blockGlobal,
+                        $blockDirect,
+                        $blockCategory
                     );
 
                     $em->flush();
@@ -868,7 +873,25 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 }
             } else {
                 try {
-                    $block = $this->_addBlock(
+                    // adds new block
+
+                    $newRelPages = $this->storePlaceholderSettings(
+                        null,
+                        $blockGlobal,
+                        $blockDirect,
+                        $blockCategory,
+                        $blockGlobalAssociatedPageIds,
+                        $blockDirectAssociatedPageIds,
+                        $blockCategoryAssociatedPageIds
+                    );
+
+                    $newTargetingOptions = $this->storeTargetingSettings(
+                        null,
+                        $targetingStatus,
+                        $targeting
+                    );
+
+                    $this->_addBlock(
                         $blockCat,
                         $blockContent,
                         $blockName,
@@ -879,23 +902,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockRandom3,
                         $blockRandom4,
                         $blockWysiwygEditor,
-                        $blockLangActive
-                    );
-
-                    $this->storePlaceholderSettings(
-                        $block,
+                        $blockLangActive,
                         $blockGlobal,
                         $blockDirect,
                         $blockCategory,
-                        $blockGlobalAssociatedPageIds,
-                        $blockDirectAssociatedPageIds,
-                        $blockCategoryAssociatedPageIds
-                    );
-
-                    $this->storeTargetingSettings(
-                        $block,
-                        $targetingStatus,
-                        $targeting
+                        $newRelPages,
+                        $newTargetingOptions
                     );
 
                     $em->flush();
@@ -1096,49 +1108,64 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     /**
      * Store the targeting settings in to database
      *
-     * @param object  $block           \Cx\Modules\Block\Model\Entity\Block
-     * @param integer $targetingStatus status
-     * @param array   $targeting       Array settings of targeting to store
+     * @param object  $block                \Cx\Modules\Block\Model\Entity\Block
+     * @param integer $targetingStatus      status
+     * @param array   $targeting            Array settings of targeting to store
+     * @return array  $newTargetingOptions  Collection of \Cx\Modules\Block\Model\Entity\TargetingOption
      */
     public function storeTargetingSettings($block, $targetingStatus, $targeting = array())
     {
+        $newTargetingOptions = array();
         foreach ($this->availableTargeting as $targetingType) {
-            if (!$targetingStatus) {
+            if (!$targetingStatus && $block) {
                 $this->removeTargetingSetting($block, $targetingType);
                 continue;
             }
             $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
             if (!empty($targetingArr)) {
-                $this->storeTargetingSetting($block, $targetingArr['filter'], $targetingType, $targetingArr['value']);
+                $newTargetingOptions = array_merge(
+                    $newTargetingOptions,
+                    $this->storeTargetingSetting($block, $targetingArr['filter'], $targetingType, $targetingArr['value'])
+                );
             }
         }
+        return $newTargetingOptions;
     }
 
     /**
      * Store the targeting setting in to database
      *
-     * @param object  $block       \Cx\Modules\Block\Model\Entity\Block
-     * @param string  $filter      Targeting filter type (include/exclude)
-     * @param string  $type        Targeting type (country)
-     * @param array   $arrayValues Target selected option values
+     * @param object  $block                \Cx\Modules\Block\Model\Entity\Block
+     * @param string  $filter               Targeting filter type (include/exclude)
+     * @param string  $type                 Targeting type (country)
+     * @param array   $arrayValues          Target selected option values
+     * @return array  $newTargetingOptions  Collection of \Cx\Modules\Block\Model\Entity\TargetingOption
      */
     public function storeTargetingSetting($block, $filter, $type, $arrayValues = array())
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $targetingOption = $block->getTargetingOption();
+        $targetingOption = null;
+        if ($block) {
+            $targetingOption = $block->getTargetingOption();
+        }
 
         $valueString = json_encode($arrayValues);
+        $newTargetingOptions = array();
         if ($targetingOption) {
             $targetingOption->setFilter($filter);
             $targetingOption->setValue($valueString);
         } else {
             $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
-            $targetingOption->setBlock($block);
+            if ($block) {
+                $targetingOption->setBlock($block);
+            }
             $targetingOption->setFilter($filter);
             $targetingOption->setType($type);
             $targetingOption->setValue($valueString);
             $em->persist($targetingOption);
+            array_push($newTargetingOptions, $targetingOption);
         }
+        return $newTargetingOptions;
     }
 
     /**
