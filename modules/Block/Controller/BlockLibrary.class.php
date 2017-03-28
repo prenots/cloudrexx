@@ -318,21 +318,21 @@ class BlockLibrary
      * @param array $globalAssociatedPages
      * @param array $directAssociatedPages
      * @param array $categoryAssociatedPages
-     * @return array $newRelPages new page relations
+     * @return array $relPagesWithoutBlock new page relations without block
      */
     protected function storePlaceholderSettings($block, $global, $direct, $category, $globalAssociatedPages, $directAssociatedPages, $categoryAssociatedPages)
     {
-        $newRelPages = array();
+        $relPagesWithoutBlock = array();
         if ($global == 2) {
-            $newRelPages = array_merge($newRelPages, $this->storePageAssociations($block, $globalAssociatedPages, 'global'));
+            $relPagesWithoutBlock = array_merge($relPagesWithoutBlock, $this->storePageAssociations($block, $globalAssociatedPages, 'global'));
         }
         if ($direct == 1) {
-            $newRelPages = array_merge($newRelPages, $this->storePageAssociations($block, $directAssociatedPages, 'direct'));
+            $relPagesWithoutBlock = array_merge($relPagesWithoutBlock, $this->storePageAssociations($block, $directAssociatedPages, 'direct'));
         }
         if ($category == 1) {
-            $newRelPages = array_merge($newRelPages, $this->storePageAssociations($block, $categoryAssociatedPages, 'category'));
+            $relPagesWithoutBlock = array_merge($relPagesWithoutBlock, $this->storePageAssociations($block, $categoryAssociatedPages, 'category'));
         }
-        return $newRelPages;
+        return $relPagesWithoutBlock;
     }
 
     /**
@@ -341,7 +341,7 @@ class BlockLibrary
      * @param object $block \Cx\Modules\Block\Model\Entity\Block
      * @param array $blockAssociatedPageIds the page ids
      * @param string $placeholder the placeholder
-     * @return array $newRelPages new page relations
+     * @return array $relPagesWithoutBlock new page relations without block
      */
     private function storePageAssociations($block, $blockAssociatedPageIds, $placeholder)
     {
@@ -349,7 +349,7 @@ class BlockLibrary
         $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
 
-        $newRelPages = array();
+        $relPagesWithoutBlock = array();
         foreach ($blockAssociatedPageIds as $pageId) {
             if ($pageId > 0) {
                 $page = $pageRepo->findOneBy(array('id' => $pageId));
@@ -368,14 +368,15 @@ class BlockLibrary
                 }
 
                 $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
-                if ($block) {
-                    $relPage->setBlock($block);
-                }
                 $relPage->setPage($page);
                 $relPage->setPlaceholder($placeholder);
+                if ($block) {
+                    $relPage->setBlock($block);
+                } else {
+                    array_push($relPagesWithoutBlock, $relPage);
+                }
 
                 $em->persist($relPage);
-                array_push($newRelPages, $relPage);
             }
         }
 
@@ -395,7 +396,7 @@ class BlockLibrary
             }
         }
 
-        return $newRelPages;
+        return $relPagesWithoutBlock;
     }
 
     protected function storeBlockContent($block, $arrContent, $arrLangActive)
@@ -413,7 +414,7 @@ class BlockLibrary
             }
         }
 
-        $newRelLangContents = array();
+        $relLangContentsWithoutBlock = array();
         foreach ($arrContent as $langId => $content) {
 
             $content = preg_replace('/\[\[([A-Z0-9_-]+)\]\]/', '{\\1}', $content);
@@ -429,13 +430,14 @@ class BlockLibrary
 
                 $relLangContent->setContent($content);
                 $relLangContent->setActive(isset($arrLangActive[$langId]) ? $arrLangActive[$langId] : 0);
+                $relLangContent->setLocale($locale);
                 if ($block) {
                     $relLangContent->setBlock($block);
+                } else {
+                    array_push($relLangContentsWithoutBlock, $relLangContent);
                 }
-                $relLangContent->setLocale($locale);
 
                 $em->persist($relLangContent);
-                array_push($newRelLangContents, $relLangContent);
             }
         }
 
@@ -461,7 +463,7 @@ class BlockLibrary
             ->getQuery()
             ->getResult();
 
-        return $newRelLangContents;
+        return $relLangContentsWithoutBlock;
     }
 
     /**

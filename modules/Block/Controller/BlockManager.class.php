@@ -918,13 +918,13 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             } else {
                 $em->getConnection()->beginTransaction();
                 try {
-                    $newTargetingOptions = $this->storeTargetingSettings(
+                    $targetingOptionsWithoutBlock = $this->storeTargetingSettings(
                         null,
                         $targetingStatus,
                         $targeting
                     );
 
-                    $newRelPages = $this->storePlaceholderSettings(
+                    $relPagesWithoutBlock = $this->storePlaceholderSettings(
                         null,
                         $blockGlobal,
                         $blockDirect,
@@ -934,7 +934,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockCategoryAssociatedPageIds
                     );
 
-                    $newRelLangContents = $this->storeBlockContent(
+                    $relLangContentsWithoutBlock = $this->storeBlockContent(
                         null,
                         $blockContent,
                         $blockLangActive
@@ -956,23 +956,23 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     );
 
                     // sets block on new targeting options
-                    if ($newTargetingOptions) {
-                        foreach ($newTargetingOptions as $newTargetingOption) {
-                            $newTargetingOption->setBlock($block);
+                    if ($targetingOptionsWithoutBlock) {
+                        foreach ($targetingOptionsWithoutBlock as $targetingOption) {
+                            $targetingOption->setBlock($block);
                         }
                     }
 
                     // sets block on new page relations
-                    if ($newRelPages) {
-                        foreach ($newRelPages as $newRelPage) {
-                            $newRelPage->setBlock($block);
+                    if ($relPagesWithoutBlock) {
+                        foreach ($relPagesWithoutBlock as $relPage) {
+                            $relPage->setBlock($block);
                         }
                     }
 
                     // sets block on new language content relations
-                    if ($newRelLangContents) {
-                        foreach ($newRelLangContents as $newRelLangContent) {
-                            $newRelLangContent->setBlock($block);
+                    if ($relLangContentsWithoutBlock) {
+                        foreach ($relLangContentsWithoutBlock as $relLangContent) {
+                            $relLangContent->setBlock($block);
                         }
                     }
 
@@ -1180,11 +1180,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      * @param object $block \Cx\Modules\Block\Model\Entity\Block
      * @param integer $targetingStatus status
      * @param array $targeting Array settings of targeting to store
-     * @return array  $newTargetingOptions  Collection of \Cx\Modules\Block\Model\Entity\TargetingOption
+     * @return array $targetingOptionsWithoutBlock Collection of \Cx\Modules\Block\Model\Entity\TargetingOption without block
      */
     public function storeTargetingSettings($block, $targetingStatus, $targeting = array())
     {
-        $newTargetingOptions = array();
+        $targetingOptionsWithoutBlock = array();
         foreach ($this->availableTargeting as $targetingType) {
             if (!$targetingStatus) {
                 if ($block) {
@@ -1194,13 +1194,13 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             }
             $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
             if (!empty($targetingArr)) {
-                $newTargetingOptions = array_merge(
-                    $newTargetingOptions,
+                $targetingOptionsWithoutBlock = array_merge(
+                    $targetingOptionsWithoutBlock,
                     $this->storeTargetingSetting($block, $targetingArr['filter'], $targetingType, $targetingArr['value'])
                 );
             }
         }
-        return $newTargetingOptions;
+        return $targetingOptionsWithoutBlock;
     }
 
     /**
@@ -1210,7 +1210,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      * @param string $filter Targeting filter type (include/exclude)
      * @param string $type Targeting type (country)
      * @param array $arrayValues Target selected option values
-     * @return array  $newTargetingOptions  Collection of \Cx\Modules\Block\Model\Entity\TargetingOption
+     * @return array $targetingOptionsWithoutBlock Collection of \Cx\Modules\Block\Model\Entity\TargetingOption without block
      */
     public function storeTargetingSetting($block, $filter, $type, $arrayValues = array())
     {
@@ -1221,22 +1221,23 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         }
 
         $valueString = json_encode($arrayValues);
-        $newTargetingOptions = array();
+        $targetingOptionsWithoutBlock = array();
         if ($targetingOption) {
             $targetingOption->setFilter($filter);
             $targetingOption->setValue($valueString);
         } else {
             $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
-            if ($block) {
-                $targetingOption->setBlock($block);
-            }
             $targetingOption->setFilter($filter);
             $targetingOption->setType($type);
             $targetingOption->setValue($valueString);
+            if ($block) {
+                $targetingOption->setBlock($block);
+            } else {
+                array_push($targetingOptionsWithoutBlock, $targetingOption);
+            }
             $em->persist($targetingOption);
-            array_push($newTargetingOptions, $targetingOption);
         }
-        return $newTargetingOptions;
+        return $targetingOptionsWithoutBlock;
     }
 
     /**
