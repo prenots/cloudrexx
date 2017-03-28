@@ -449,19 +449,16 @@ class BlockLibrary
                     'block' => $block->getId(),
                 )
             );
-        }
 
-        $qb = $em->createQueryBuilder();
-        $qb->delete('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
-            ->where('rlc.block = :block')
-            ->andWhere(
-                $qb->expr()->notIn(
-                    'rlc.locale', array_keys($arrLangActive)
-                )
-            )
-            ->setParameter('block', $block)
-            ->getQuery()
-            ->getResult();
+            $relLangContents = $block->getRelLangContents();
+            if ($relLangContents) {
+                foreach ($relLangContents as $relLangContent) {
+                    if (!in_array($relLangContent->getLocale()->getId(), array_keys($arrLangActive))) {
+                        $em->remove($relLangContent);
+                    }
+                }
+            }
+        }
 
         return $relLangContentsWithoutBlock;
     }
