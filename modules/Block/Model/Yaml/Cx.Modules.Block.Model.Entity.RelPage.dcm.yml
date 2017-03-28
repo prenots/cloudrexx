@@ -4,7 +4,7 @@ Cx\Modules\Block\Model\Entity\RelPage:
   repositoryClass: Cx\Modules\Block\Model\Repository\RelPageRepository
   indexes:
     module_block_rel_page_ibfk_page_id_idx:
-      columns: [ page_id ]
+      columns: [page_id]
   id:
     id:
       type: integer
@@ -16,7 +16,7 @@ Cx\Modules\Block\Model\Entity\RelPage:
       type: string
   uniqueConstraints:
     unique_block_page_placeholder:
-      columns: [ block, page, placeholder ]
+      columns: [block, page, placeholder]
   manyToOne:
     block:
       type: integer

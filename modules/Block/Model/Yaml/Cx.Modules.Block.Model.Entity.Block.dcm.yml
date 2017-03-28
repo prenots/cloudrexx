@@ -4,7 +4,7 @@ Cx\Modules\Block\Model\Entity\Block:
   repositoryClass: Cx\Modules\Block\Model\Repository\BlockRepository
   indexes:
     module_block_block_ibfk_cat_idx:
-      columns: [ cat ]
+      columns: [cat]
   id:
     id:
       type: integer

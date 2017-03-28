@@ -17,8 +17,8 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
       type: text
   uniqueConstraints:
     unique_block_type:
-      columns: [ block, type ]
-  oneToOne:
+      columns: [block, type]
+  manyToOne:
     block:
       type: integer
       unsigned: true

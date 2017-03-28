@@ -4,7 +4,7 @@ Cx\Modules\Block\Model\Entity\Category:
   repositoryClass: Cx\Modules\Block\Model\Repository\CategoryRepository
   indexes:
     module_block_category_ibfk_parent:
-      columns: [ parent ]
+      columns: [parent]
   id:
     id:
       type: integer
