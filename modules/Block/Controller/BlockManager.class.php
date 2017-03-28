@@ -39,6 +39,45 @@ namespace Cx\Modules\Block\Controller;
 use Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser;
 
 /**
+ * Cx\Modules\Block\Controller\BlockManagerException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
+ */
+class BlockManagerException extends \Exception
+{
+}
+
+/**
+ * Cx\Modules\Block\Controller\CouldNotCreateBlockException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
+ */
+class CouldNotCreateBlockException extends BlockManagerException
+{
+}
+
+/**
+ * Cx\Modules\Block\Controller\CouldNotUpdateBlockException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
+ */
+class CouldNotUpdateBlockException extends BlockManagerException
+{
+}
+
+/**
  * Cx\Modules\Block\Controller\BlockManager
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
@@ -870,10 +909,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
                     \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
                     exit;
-                } catch (\Exception $e) {
+                } catch (CouldNotUpdateBlockException $e) {
                     $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_UPDATED'];
                 }
             } else {
+                $em->getConnection()->beginTransaction();
                 try {
                     $newTargetingOptions = $this->storeTargetingSettings(
                         null,
@@ -934,10 +974,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     }
 
                     $em->flush();
+                    $em->getConnection()->commit();
 
                     \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
                     exit;
-                } catch (\Exception $e) {
+                } catch (CouldNotCreateBlockException $e) {
+                    $em->getConnection()->rollback();
                     $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_ADDED'];
                 }
             }
