@@ -1186,8 +1186,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         $newTargetingOptions = array();
         foreach ($this->availableTargeting as $targetingType) {
-            if (!$targetingStatus && $block) {
-                $this->removeTargetingSetting($block, $targetingType);
+            if (!$targetingStatus) {
+                if ($block) {
+                    $this->removeTargetingSetting($block, $targetingType);
+                }
                 continue;
             }
             $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
