@@ -253,8 +253,6 @@ class BlockLibrary
         $block->setShowInCategory($showInCategory);
 
         $em->persist($block);
-        $em->flush();
-        $em->refresh($block);
 
         return $block;
     }
@@ -308,8 +306,6 @@ class BlockLibrary
         $block->setShowInGlobal($showInGlobal);
         $block->setShowInDirect($showInDirect);
         $block->setShowInCategory($showInCategory);
-
-        $em->flush();
     }
 
     /**

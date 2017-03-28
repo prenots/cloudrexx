@@ -866,6 +866,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                         $blockCategory
                     );
 
+                    $em->flush();
+
                     \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
                     exit;
                 } catch (\Exception $e) {
