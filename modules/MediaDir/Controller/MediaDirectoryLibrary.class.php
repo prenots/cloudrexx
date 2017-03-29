@@ -1351,4 +1351,45 @@ EOF;
 
         self::$currentFetchedEntryDataObject->listEntries($template, 4, $placeholder);
     }
+
+    /**
+     * Clear ESI cache
+     *
+     * @param array $widgetNames array of widget name
+     */
+    public function clearEsiCache($widgetNames = array())
+    {
+        if (empty($widgetNames)) {
+            $widgetNames = array_merge(
+                array('MEDIADIR_NAVBAR', 'MEDIADIR_LATEST', 'mediadirNavtree'),
+                $this->getGlobalBlockNames()
+            );
+        }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array('Widget', $widgetNames)
+        );
+    }
+
+    /**
+     * Get global block names
+     *
+     * @return array
+     */
+    public function getGlobalBlockNames()
+    {
+        $blocks = array('mediadirLatest', 'mediadirList');
+
+        //Get mediadir latest row block names
+        // mediadirLatest_row_1_1, mediadirLatest_row_1_2, ... mediadirLatest_row_10_10
+        foreach (range(1, 10) as $row) {
+            foreach (range(1, $row) as $row1) {
+                $blocks[] =  'mediadirLatest_row_' . $row1 . '_' . $row;
+            }
+        }
+
+        return $blocks;
+    }
 }

@@ -1083,6 +1083,13 @@ JSCODE;
                 }
                 $objEntries->MoveNext();
             }
+            //clear cache
+            $this->clearEsiCache(
+                array_merge(
+                    array('MEDIADIR_LATEST'),
+                    $this->getGlobalBlockNames()
+                )
+            );
         }
     }
 
@@ -1227,7 +1234,13 @@ JSCODE;
             $objDeleteCategories = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE entry_id='".$intId."'");
             $objDeleteLevels = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_levels WHERE entry_id='".$intId."'");
         }
-
+        //clear cache
+        $this->clearEsiCache(
+            array_merge(
+                array('MEDIADIR_LATEST'),
+                $this->getGlobalBlockNames()
+            )
+        );
 
         //////////////////////
         // STORE ATTRIBUTES //
@@ -1466,6 +1479,13 @@ JSCODE;
             return false;
         }
 
+        //clear cache
+        $this->clearEsiCache(
+            array_merge(
+                array('MEDIADIR_LATEST'),
+                $this->getGlobalBlockNames()
+            )
+        );
         return true;
     }
 
@@ -1486,7 +1506,14 @@ JSCODE;
                 `id`='".intval($intEntryId)."'
         ");
 
-        if($objConfirmEntry !== false) {
+        if ($objConfirmEntry !== false) {
+            //clear cache
+            $this->clearEsiCache(
+                array_merge(
+                    array('MEDIADIR_LATEST'),
+                    $this->getGlobalBlockNames()
+                )
+            );
             $objMail = new MediaDirectoryMail(3, $intEntryId, $this->moduleName);
             return true;
         } else {
@@ -1525,16 +1552,23 @@ JSCODE;
 
             $intHits++;
 
-            $objResult = $objDatabase->Execute("UPDATE
-                                                    ".DBPREFIX."module_".$this->moduleTablePrefix."_entries
-                                                SET
-                                                    hits='".$intHits."',
-                                                    popular_hits='".$intPopularHits."',
-                                                    popular_date='".$strNewPopularDate."',
-                                                    last_ip='".$strNewIp."'
-                                                WHERE
-                                                    id='".intval($intEntryId)."'
-                                               ");
+            $objResult = $objDatabase->Execute(
+                'UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_entries`
+                    SET hits         = "' . $intHits . '",
+                        popular_hits = "' . $intPopularHits . '",
+                        popular_date = "' . $strNewPopularDate . '",
+                        last_ip      = "' . $strNewIp . '"
+                    WHERE id = "' . contrexx_input2db($intEntryId) . '"'
+            );
+            if ($objResult) {
+                //clear cache
+                $this->clearEsiCache(
+                    array_merge(
+                        array('MEDIADIR_LATEST'),
+                        $this->getGlobalBlockNames()
+                    )
+                );
+            }
         }
     }
 
@@ -1693,6 +1727,13 @@ JSCODE;
             }
         }
 
+        //clear cache
+        $this->clearEsiCache(
+            array_merge(
+                array('MEDIADIR_LATEST'),
+                $this->getGlobalBlockNames()
+            )
+        );
         return true;
     }
 

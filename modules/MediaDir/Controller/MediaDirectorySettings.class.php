@@ -1667,6 +1667,8 @@ EOF;
         if ($newActiveLanguage != $oldActiveLanguage) {
             $this->updateFormsAndEntries();
         }
+        // Clear cache
+        $this->clearEsiCache();
         return true;
     }
 

@@ -629,7 +629,11 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    //clear cache
+                    $this->clearEsiCache(
+                        array('MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirList')
+                    );
                     return true;
                 } else {
                     return false;
@@ -682,7 +686,16 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                         ");
                     }
 
-                    if($objInsertNames !== false) {
+                    if ($objInsertNames !== false) {
+                        //clear cache
+                        $this->clearEsiCache(
+                            array(
+                                'MEDIADIR_NAVBAR',
+                                'mediadirLatest',
+                                'mediadirList',
+                                'mediadirNavtree'
+                            )
+                        );
                         return true;
                     } else {
                         return false;
@@ -719,6 +732,15 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         $objDeleteCategoryRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE category_id='$intCategoryId'");
 
         if ($objDeleteCategoryRS !== false) {
+            //clear cache
+            $this->clearEsiCache(
+                array(
+                    'MEDIADIR_NAVBAR',
+                    'mediadirLatest',
+                    'mediadirList',
+                    'mediadirNavtree'
+                )
+            );
             return true;
         } else {
             return false;
@@ -791,6 +813,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
             }
         }
 
+        //clear cache
+        $this->clearEsiCache(array('MEDIADIR_NAVBAR', 'mediadirNavtree'));
         return true;
     }
 

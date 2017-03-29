@@ -650,7 +650,15 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    //clear cache
+                    $this->clearEsiCache(
+                        array(
+                            'MEDIADIR_NAVBAR',
+                            'mediadirNavtree',
+                            'mediadirList'
+                        )
+                    );
                     return true;
                 } else {
                     return false;
@@ -705,7 +713,16 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    //clearCache
+                    $this->clearEsiCache(
+                        array(
+                            'MEDIADIR_NAVBAR',
+                            'mediadirLatest',
+                            'mediadirList',
+                            'mediadirNavtree'
+                        )
+                    );
                     return true;
                 } else {
                     return false;
@@ -738,6 +755,15 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         $objDeleteLevelRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_levels WHERE level_id='$intLevelId'");
 
         if ($objDeleteLevelRS !== false) {
+            //clearCache
+            $this->clearEsiCache(
+                array(
+                    'MEDIADIR_NAVBAR',
+                    'mediadirLatest',
+                    'mediadirList',
+                    'mediadirNavtree'
+                )
+            );
             return true;
         } else {
             return false;
@@ -755,7 +781,8 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
             }
         }
 
+        //clear cache
+        $this->clearEsiCache(array('MEDIADIR_NAVBAR', 'mediadirNavtree'));
         return true;
     }
 }
-?>

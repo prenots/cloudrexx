@@ -872,36 +872,65 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
         \Permission::checkAccess(MediaDirectoryAccessIDs::ModifyEntry, 'static');
         global $objDatabase;
 
-        if (!isset($_GET['id']) && !isset($_GET['state']) && !isset($_GET['type'])) {
+        $params = $this->cx->getRequest()->getUrl()->getParamArray();
+        if (!isset($params['id']) && !isset($params['state']) && !isset($params['type'])) {
             die();
         }
 
-        $intId = intval($_GET['id']);
-        $intState = intval($_GET['state']);
-
-        switch ($_GET['type']){
+        $intId    = contrexx_input2int($params['id']);
+        $intState = contrexx_input2int($params['state']);
+        $type     = contrexx_input2raw($params['type']);
+        $widgetnames = array('MEDIADIR_NAVBAR', 'mediadirNavtree');
+        $clearCache = false;
+        switch ($type) {
             case 'category':
-                $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_categories SET active = '".$intState."' WHERE id = ".$intId;
+                $query = '
+                    UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_categories`
+                        SET `active` = ' . $intState . '
+                    WHERE `id` = ' . $intId;
+                $clearCache = true;
                 break;
             case 'level':
-                $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_levels SET active = '".$intState."' WHERE id = ".$intId;
+                $query = '
+                    UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_levels`
+                        SET `active` = ' . $intState . '
+                    WHERE `id` = ' . $intId;
+                $clearCache = true;
                 break;
             case 'mail_template':
-                $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_mails SET active = '".$intState."' WHERE id = ".$intId;
+                $query = '
+                    UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_mails`
+                        SET `active` = ' . $intState . '
+                    WHERE `id` = ' . $intId;
                 break;
             case 'form_template':
-                $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_forms SET active = '".$intState."' WHERE id = ".$intId;
+                $query = '
+                    UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_forms`
+                        SET `active` = ' . $intState . '
+                    WHERE `id` = ' . $intId;
                 break;
             case 'mask':
-                $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_masks SET active = '".$intState."' WHERE id = ".$intId;
+                $query = '
+                    UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_masks`
+                        SET `active` = ' . $intState . '
+                    WHERE `id` = ' . $intId;
                 break;
             case 'entry':
-                $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_entries SET active = '".$intState."' WHERE id = ".$intId;
+                $query = '
+                    UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_entries`
+                        SET `active` = ' . $intState . '
+                    WHERE `id` = ' . $intId;
+                $widgetnames = array_merge(array('MEDIADIR_LATEST'), $this->getGlobalBlockNames());
+                $clearCache = true;
                 break;
         }
 
-        $objDatabase->Execute($query);
+        if (!$objDatabase->Execute($query) || !$clearCache) {
+            die();
+        }
 
+        //clearCache
+        $this->clearEsiCache($widgetnames);
         die();
     }
 

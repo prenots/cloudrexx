@@ -444,7 +444,18 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
                     ");
                 }
 
-                if($objInsertNames !== false && $objCreateCatSelectors !== false && $objCreateLevelSelectors !== false) {
+                if (
+                    $objInsertNames !== false &&
+                    $objCreateCatSelectors !== false &&
+                    $objCreateLevelSelectors !== false
+                ) {
+                    //clear cache
+                    $this->clearEsiCache(
+                        array_merge(
+                            array('MEDIADIR_LATEST'),
+                            $this->getGlobalBlockNames()
+                        )
+                    );
                     return true;
                 } else {
                     return false;
@@ -488,7 +499,14 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
 
                 $objInsertNames = $this->updateFormLocale($arrName, $arrDescription, $intId);
 
-                if($objInsertNames !== false) {
+                if ($objInsertNames !== false) {
+                    //clear cache
+                    $this->clearEsiCache(
+                        array_merge(
+                            array('MEDIADIR_LATEST'),
+                            $this->getGlobalBlockNames()
+                        )
+                    );
                     return true;
                 } else {
                     return false;
@@ -596,6 +614,13 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
                                                         `id`='".intval($intFormId)."'
                                                     ");
 
+        //clear cache
+        $this->clearEsiCache(
+            array_merge(
+                array('MEDIADIR_LATEST'),
+                $this->getGlobalBlockNames()
+            )
+        );
         return true;
     }
 
@@ -615,4 +640,3 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
         return true;
     }
 }
-?>
