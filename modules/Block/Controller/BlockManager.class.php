@@ -866,6 +866,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
             $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
             if ($blockId) {
+                $em->getConnection()->beginTransaction();
                 try {
                     $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
                     $block = $blockRepo->findOneBy(array('id' => $blockId));
@@ -909,10 +910,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     );
 
                     $em->flush();
+                    $em->getConnection()->commit();
 
                     \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
                     exit;
                 } catch (CouldNotUpdateBlockException $e) {
+                    $em->getConnection()->rollback();
                     $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_UPDATED'];
                 }
             } else {
