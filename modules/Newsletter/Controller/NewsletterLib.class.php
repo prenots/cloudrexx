@@ -477,14 +477,25 @@ class NewsletterLib
         return $result !== false ? $result->fields['setvalue'] : false;
     }
 
-
-    function _getHTML($onlyId=false)
+    /**
+     * Get the newsletter subscribe form as HTML
+     *
+     * @param boolean $onlyId if $onlyId is true assign 1 as list name index
+     *                        otherwise the category id as index of the list name
+     * @param integer $langId Language id
+     * @return string
+     */
+    function _getHTML($onlyId=false, $langId = null)
     {
-        global $objDatabase, $_ARRAYLANG, $_LANGID, $url;
+        global $objDatabase, $_ARRAYLANG, $_LANGID;
+
+        if (empty($langId)) {
+            $langId = $_LANGID;
+        }
         $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
             'Newsletter',
             'subscribe',
-            $_LANGID
+            $langId
         );
         $html = '';
         if ($onlyId) {

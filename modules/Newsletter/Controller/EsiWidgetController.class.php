@@ -61,13 +61,20 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $_ARRAYLANG, $_LANGID;
+        global $_ARRAYLANG;
         if ($name !== 'NEWSLETTER_BLOCK') {
             return;
         }
         $newsletter = new NewsletterLib();
-        $_LANGID    = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG = array_merge($_ARRAYLANG, \Env::get('init')->loadLanguageData('Newsletter'));
-        $template->setVariable($name, $newsletter->_getHTML());
+        $langId    = \FWLanguage::getLangIdByIso639_1($locale);
+        $_ARRAYLANG = array_merge(
+            $_ARRAYLANG,
+            \Env::get('init')->getComponentSpecificLanguageData(
+                'Newsletter',
+                true,
+                $langId
+            )
+        );
+        $template->setVariable($name, $newsletter->_getHTML(false, $langId));
     }
 }
