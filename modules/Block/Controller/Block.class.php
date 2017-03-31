@@ -57,7 +57,7 @@ class Block extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         $config = \Env::get('config');
 
-        $objBlock = new self();
+        $objBlock = new static();
 
         if (!is_array($content)) {
             $arrTemplates = array(&$content);

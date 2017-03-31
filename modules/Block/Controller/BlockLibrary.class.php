@@ -1314,16 +1314,16 @@ class BlockLibrary
             throw new NoCategoryFoundException('no category found');
         }
 
+        $categoryParent = $categoryRepo->findOneBy(array('parent' => $id));
+        if ($categoryParent) {
+            $categoryParent->setParent(null);
+        }
+
         $blocks = $blockRepo->findBy(array('category' => $category));
         foreach ($blocks as $block) {
             $block->setCategory(null);
         }
         $em->remove($category);
-
-        $categoryParent = $categoryRepo->findOneBy(array('parent' => $id));
-        if ($categoryParent) {
-            $categoryParent->setParent(null);
-        }
 
         $em->flush();
         return true;

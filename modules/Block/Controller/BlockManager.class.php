@@ -1363,7 +1363,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             foreach ($arrDelBlocks as $blockId) {
                 try {
                     $block = $blockRepo->findOneBy(array('id' => $blockId));
-                    $em->remove($block);
+
+                    $targetingOptions = $block->getTargetingOptions();
+                    foreach ($targetingOptions as $targetingOption) {
+                        $em->remove($targetingOption);
+                    }
 
                     $relLangContents = $block->getRelLangContents();
                     foreach ($relLangContents as $relLangContent) {
@@ -1374,6 +1378,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     foreach ($relPages as $relPage) {
                         $em->remove($relPage);
                     }
+
+                    $em->remove($block);
                 } catch (Exception $e) {
                     array_push($arrFailedBlock, $blockId);
                 }
@@ -1559,7 +1565,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $seperator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'));
         $parsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
         $this->_objTpl->setVariable(array(
-            'BLOCK_GLOBAL_SEPERATOR' => isset($seperator) ? contrexx_raw2xhtml($parsedBlock) : '',
+            'BLOCK_GLOBAL_SEPERATOR' => isset($seperator) ? contrexx_raw2xhtml($seperator) : '',
             'BLOCK_MARK_PARSED_BLOCK' => !empty($parsedBlock) ? 'checked="checked"' : '',
             'BLOCK_USE_BLOCK_SYSTEM' => $_CONFIG['blockStatus'] == '1' ? 'checked="checked"' : '',
             'BLOCK_USE_BLOCK_RANDOM' => $_CONFIG['blockRandom'] == '1' ? 'checked="checked"' : '',
