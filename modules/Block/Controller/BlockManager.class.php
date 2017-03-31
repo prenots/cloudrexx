@@ -1222,23 +1222,25 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         $valueString = json_encode($arrayValues);
         $targetingOptionsWithoutBlock = array();
-        foreach ($targetingOptions as $targetingOption) {
-            if ($targetingOption) {
+
+        if (!is_null($targetingOptions)) {
+            foreach ($targetingOptions as $targetingOption) {
                 $targetingOption->setFilter($filter);
                 $targetingOption->setValue($valueString);
-            } else {
-                $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
-                $targetingOption->setFilter($filter);
-                $targetingOption->setType($type);
-                $targetingOption->setValue($valueString);
-                if ($block) {
-                    $targetingOption->setBlock($block);
-                } else {
-                    array_push($targetingOptionsWithoutBlock, $targetingOption);
-                }
-                $em->persist($targetingOption);
             }
+        } else {
+            $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
+            $targetingOption->setFilter($filter);
+            $targetingOption->setType($type);
+            $targetingOption->setValue($valueString);
+            if ($block) {
+                $targetingOption->setBlock($block);
+            } else {
+                array_push($targetingOptionsWithoutBlock, $targetingOption);
+            }
+            $em->persist($targetingOption);
         }
+
         return $targetingOptionsWithoutBlock;
     }
 
