@@ -74,12 +74,12 @@ class Category extends \Cx\Model\Base\EntityBase
     protected $status;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Block
+     * @var Doctrine\Common\Collections\Collection $blocks
      */
     protected $blocks;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\Category
+     * @var Doctrine\Common\Collections\Collection $categories
      */
     protected $categories;
 
@@ -87,6 +87,7 @@ class Category extends \Cx\Model\Base\EntityBase
      * @var Cx\Modules\Block\Model\Entity\Category
      */
     protected $parent;
+
 
     public function __construct()
     {
@@ -185,13 +186,23 @@ class Category extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Add blocks
+     * Add block
      *
-     * @param Cx\Modules\Block\Model\Entity\Block $blocks
+     * @param Cx\Modules\Block\Model\Entity\Block $block
      */
-    public function addBlocks(\Cx\Modules\Block\Model\Entity\Block $blocks)
+    public function addBlock(\Cx\Modules\Block\Model\Entity\Block $block)
     {
-        $this->blocks[] = $blocks;
+        $this->blocks[] = $block;
+    }
+
+    /**
+     * Set blocks
+     *
+     * @param Doctrine\Common\Collections\Collection $blocks
+     */
+    public function setBlocks($blocks)
+    {
+        $this->blocks = $blocks;
     }
 
     /**
@@ -205,13 +216,23 @@ class Category extends \Cx\Model\Base\EntityBase
     }
 
     /**
-     * Add categories
+     * Add category
      *
-     * @param Cx\Modules\Block\Model\Entity\Category $categories
+     * @param Cx\Modules\Block\Model\Entity\Category $category
      */
-    public function addCategories(\Cx\Modules\Block\Model\Entity\Category $categories)
+    public function addCategory(\Cx\Modules\Block\Model\Entity\Category $category)
     {
-        $this->categories[] = $categories;
+        $this->categories[] = $category;
+    }
+
+    /**
+     * Set categories
+     *
+     * @param Doctrine\Common\Collections\Collection $categories
+     */
+    public function setCategories($categories)
+    {
+        $this->categories = $categories;
     }
 
     /**

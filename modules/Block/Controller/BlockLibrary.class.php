@@ -560,17 +560,19 @@ class BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => $blockId));
-        $targetingOption = $block->getTargetingOption();
+        $targetingOptions = $block->getTargetingOptions();
 
-        if (!$targetingOption) {
+        if (!$targetingOptions) {
             return array();
         }
 
         $targetingArr = array();
-        $targetingArr[$targetingOption->getType()] = array(
-            'filter' => $targetingOption->getFilter(),
-            'value' => json_decode($targetingOption->getValue())
-        );
+        foreach ($targetingOptions as $targetingOption) {
+            $targetingArr[$targetingOption->getType()] = array(
+                'filter' => $targetingOption->getFilter(),
+                'value' => json_decode($targetingOption->getValue())
+            );
+        }
 
         return $targetingArr;
     }

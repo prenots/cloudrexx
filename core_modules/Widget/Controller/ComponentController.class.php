@@ -174,7 +174,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     protected function getParseTarget($componentName, $entityName, $entityId) {
         // the following IF block can be dropped as soon as Block is a Doctrine entity
         if ($componentName == 'Block' && $entityName == 'Block') {
-            return new \Cx\Modules\Block\Model\Entity\Block($entityId);
+            $block = new \Cx\Modules\Block\Model\Entity\Block();
+            $block->setId($entityId);
+            return $block;
         } else if ($componentName == 'View' && $entityName == 'Theme') {
             $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
             return $themeRepo->findById($entityId);

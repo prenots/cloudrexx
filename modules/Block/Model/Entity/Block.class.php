@@ -119,30 +119,40 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     protected $wysiwygEditor;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\RelLangContent
+     * @var Doctrine\Common\Collections\Collection $relLangContents
      */
     protected $relLangContents;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\RelPage
+     * @var Doctrine\Common\Collections\Collection $relPages
      */
     protected $relPages;
 
     /**
-     * @var Cx\Modules\Block\Model\Entity\TargetingOption
+     * @var Doctrine\Common\Collections\Collection $targetingOptions
      */
-    protected $targetingOption;
+    protected $targetingOptions;
 
     /**
      * @var Cx\Modules\Block\Model\Entity\Category
      */
     protected $category;
 
-    public function __construct($blockId)
+
+    public function __construct()
     {
         $this->relLangContents = new \Doctrine\Common\Collections\ArrayCollection();
         $this->relPages = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->id = $blockId;
+    }
+
+    /**
+     * Set id
+     *
+     * @param integer $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
     /**
@@ -416,13 +426,23 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
-     * Add relLangContents
+     * Add relLangContent
      *
-     * @param Cx\Modules\Block\Model\Entity\RelLangContent $relLangContents
+     * @param Cx\Modules\Block\Model\Entity\RelLangContent $relLangContent
      */
-    public function addRelLangContents(\Cx\Modules\Block\Model\Entity\RelLangContent $relLangContents)
+    public function addRelLangContent(\Cx\Modules\Block\Model\Entity\RelLangContent $relLangContent)
     {
-        $this->relLangContents[] = $relLangContents;
+        $this->relLangContents[] = $relLangContent;
+    }
+
+    /**
+     * Set relLangContents
+     *
+     * @param Doctrine\Common\Collections\Collection $relLangContents
+     */
+    public function setRelLangContents($relLangContents)
+    {
+        $this->relLangContents = $relLangContents;
     }
 
     /**
@@ -436,13 +456,23 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
-     * Add relPages
+     * Add relPage
      *
-     * @param Cx\Modules\Block\Model\Entity\RelPage $relPages
+     * @param Cx\Modules\Block\Model\Entity\RelPage $relPage
      */
-    public function addRelPages(\Cx\Modules\Block\Model\Entity\RelPage $relPages)
+    public function addRelPage(\Cx\Modules\Block\Model\Entity\RelPage $relPage)
     {
-        $this->relPages[] = $relPages;
+        $this->relPages[] = $relPage;
+    }
+
+    /**
+     * Set relPages
+     *
+     * @param Doctrine\Common\Collections\Collection $relPages
+     */
+    public function setRelPages($relPages)
+    {
+        $this->relPages = $relPages;
     }
 
     /**
@@ -462,17 +492,27 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      */
     public function addTargetingOption(\Cx\Modules\Block\Model\Entity\TargetingOption $targetingOption)
     {
-        $this->targetingOption[] = $targetingOption;
+        $this->targetingOptions[] = $targetingOption;
     }
 
     /**
-     * Get targetingOption
+     * Set targetingOptions
      *
-     * @return Doctrine\Common\Collections\Collection $targetingOption
+     * @param Doctrine\Common\Collections\Collection $targetingOptions
      */
-    public function getTargetingOption()
+    public function setTargetingOptions($targetingOptions)
     {
-        return $this->targetingOption;
+        $this->targetingOptions = $targetingOptions;
+    }
+
+    /**
+     * Get targetingOptions
+     *
+     * @return Doctrine\Common\Collections\Collection $targetingOptions
+     */
+    public function getTargetingOptions()
+    {
+        return $this->targetingOptions;
     }
 
     /**

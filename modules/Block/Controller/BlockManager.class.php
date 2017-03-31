@@ -1215,27 +1215,29 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     public function storeTargetingSetting($block, $filter, $type, $arrayValues = array())
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $targetingOption = null;
+        $targetingOptions = null;
         if ($block) {
-            $targetingOption = $block->getTargetingOption();
+            $targetingOptions = $block->getTargetingOptions();
         }
 
         $valueString = json_encode($arrayValues);
         $targetingOptionsWithoutBlock = array();
-        if ($targetingOption) {
-            $targetingOption->setFilter($filter);
-            $targetingOption->setValue($valueString);
-        } else {
-            $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
-            $targetingOption->setFilter($filter);
-            $targetingOption->setType($type);
-            $targetingOption->setValue($valueString);
-            if ($block) {
-                $targetingOption->setBlock($block);
+        foreach ($targetingOptions as $targetingOption) {
+            if ($targetingOption) {
+                $targetingOption->setFilter($filter);
+                $targetingOption->setValue($valueString);
             } else {
-                array_push($targetingOptionsWithoutBlock, $targetingOption);
+                $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
+                $targetingOption->setFilter($filter);
+                $targetingOption->setType($type);
+                $targetingOption->setValue($valueString);
+                if ($block) {
+                    $targetingOption->setBlock($block);
+                } else {
+                    array_push($targetingOptionsWithoutBlock, $targetingOption);
+                }
+                $em->persist($targetingOption);
             }
-            $em->persist($targetingOption);
         }
         return $targetingOptionsWithoutBlock;
     }
