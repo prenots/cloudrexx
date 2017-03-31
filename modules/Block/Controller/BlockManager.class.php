@@ -53,7 +53,7 @@ class BlockManagerException extends \Exception
 }
 
 /**
- * Cx\Modules\Block\Controller\CouldNotCreateBlockException
+ * Cx\Modules\Block\Controller\CouldNotStoreBlockException
  *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Manuel Schenk <manuel.schenk@comvation.com>
@@ -61,20 +61,7 @@ class BlockManagerException extends \Exception
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class CouldNotCreateBlockException extends BlockManagerException
-{
-}
-
-/**
- * Cx\Modules\Block\Controller\CouldNotUpdateBlockException
- *
- * @copyright   CLOUDREXX CMS - CLOUDREXX AG
- * @author      Manuel Schenk <manuel.schenk@comvation.com>
- * @version     1.0.0
- * @package     cloudrexx
- * @subpackage  module_block
- */
-class CouldNotUpdateBlockException extends BlockManagerException
+class CouldNotStoreBlockException extends BlockManagerException
 {
 }
 
@@ -865,98 +852,69 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockCategoryAssociatedPageIds = isset($_POST['categorySelectedPagesList']) ? array_map('intval', explode(",", $_POST['categorySelectedPagesList'])) : array();
 
             $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-            if ($blockId) {
-                $em->getConnection()->beginTransaction();
-                try {
-                    $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-                    $block = $blockRepo->findOneBy(array('id' => $blockId));
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+            $block = $blockRepo->findOneBy(array('id' => $blockId));
 
-                    $this->storeTargetingSettings(
-                        $block,
-                        $targetingStatus,
-                        $targeting
-                    );
+            $blockExists = false;
+            if ($block) {
+                $blockExists = true;
+            }
 
-                    $this->storePlaceholderSettings(
-                        $block,
-                        $blockGlobal,
-                        $blockDirect,
-                        $blockCategory,
-                        $blockGlobalAssociatedPageIds,
-                        $blockDirectAssociatedPageIds,
-                        $blockCategoryAssociatedPageIds
-                    );
+            $em->getConnection()->beginTransaction();
+            try {
+                $targetingOptionsWithoutBlock = $this->storeTargetingSettings(
+                    $block,
+                    $targetingStatus,
+                    $targeting
+                );
 
-                    $this->storeBlockContent(
-                        $block,
-                        $blockContent,
-                        $blockLangActive
-                    );
+                $relPagesWithoutBlock = $this->storePlaceholderSettings(
+                    $block,
+                    $blockGlobal,
+                    $blockDirect,
+                    $blockCategory,
+                    $blockGlobalAssociatedPageIds,
+                    $blockDirectAssociatedPageIds,
+                    $blockCategoryAssociatedPageIds
+                );
 
-                    $this->_updateBlock(
-                        $block,
-                        $blockCat,
-                        $blockName,
-                        $blockStart,
-                        $blockEnd,
-                        $blockRandom,
-                        $blockRandom2,
-                        $blockRandom3,
-                        $blockRandom4,
-                        $blockWysiwygEditor,
-                        $blockGlobal,
-                        $blockDirect,
-                        $blockCategory
-                    );
+                $relLangContentsWithoutBlock = $this->storeBlockContent(
+                    $block,
+                    $blockContent,
+                    $blockLangActive
+                );
 
-                    $em->flush();
-                    $em->getConnection()->commit();
-
-                    \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
-                    exit;
-                } catch (CouldNotUpdateBlockException $e) {
-                    $em->getConnection()->rollback();
-                    $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_UPDATED'];
+                if (!$blockExists) {
+                    $block = new \Cx\Modules\Block\Model\Entity\Block();
                 }
-            } else {
-                $em->getConnection()->beginTransaction();
-                try {
-                    $targetingOptionsWithoutBlock = $this->storeTargetingSettings(
-                        null,
-                        $targetingStatus,
-                        $targeting
-                    );
 
-                    $relPagesWithoutBlock = $this->storePlaceholderSettings(
-                        null,
-                        $blockGlobal,
-                        $blockDirect,
-                        $blockCategory,
-                        $blockGlobalAssociatedPageIds,
-                        $blockDirectAssociatedPageIds,
-                        $blockCategoryAssociatedPageIds
-                    );
+                $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+                $category = $categoryRepo->findOneBy(array('id' => $blockCat));
 
-                    $relLangContentsWithoutBlock = $this->storeBlockContent(
-                        null,
-                        $blockContent,
-                        $blockLangActive
-                    );
+                $block->setName($blockName);
+                $block->setCategory($category);
+                $block->setStart($blockStart);
+                $block->setEnd($blockEnd);
+                $block->setRandom($blockRandom);
+                $block->setRandom2($blockRandom2);
+                $block->setRandom3($blockRandom3);
+                $block->setRandom4($blockRandom4);
+                $block->setWysiwygEditor($blockWysiwygEditor);
+                $block->setShowInGlobal($blockGlobal);
+                $block->setShowInDirect($blockDirect);
+                $block->setShowInCategory($blockCategory);
 
-                    $block = $this->_addBlock(
-                        $blockCat,
-                        $blockName,
-                        $blockStart,
-                        $blockEnd,
-                        $blockRandom,
-                        $blockRandom2,
-                        $blockRandom3,
-                        $blockRandom4,
-                        $blockWysiwygEditor,
-                        $blockGlobal,
-                        $blockDirect,
-                        $blockCategory
-                    );
+                if (!$blockExists) {
+                    $qb = $em->createQueryBuilder();
+                    $order = $qb->select('MAX(b.order)')
+                        ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+                        ->getQuery()
+                        ->getSingleResult();
+
+                    $block->setActive(1);
+                    $block->setOrder($order[1] + 1);
+
+                    $em->persist($block);
 
                     // sets block on new targeting options
                     if ($targetingOptionsWithoutBlock) {
@@ -978,14 +936,20 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                             $relLangContent->setBlock($block);
                         }
                     }
+                }
 
-                    $em->flush();
-                    $em->getConnection()->commit();
+                $em->flush();
+                $em->getConnection()->commit();
 
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
+                if (!$blockExists) {
                     \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
-                    exit;
-                } catch (CouldNotCreateBlockException $e) {
-                    $em->getConnection()->rollback();
+                }
+                exit;
+            } catch (CouldNotStoreBlockException $e) {
+                $em->getConnection()->rollback();
+                $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_UPDATED'];
+                if (!$blockExists) {
                     $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_BLOCK_COULD_NOT_BE_ADDED'];
                 }
             }
@@ -1220,13 +1184,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $targetingOptions = null;
         if ($block) {
-            $targetingOptions = $block->getTargetingOptions();
+            $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
+            $targetingOptions = $targetingOptionRepo->findBy(array(
+                'block' => $block,
+                'type' => $type,
+            ));
         }
 
         $valueString = json_encode($arrayValues);
         $targetingOptionsWithoutBlock = array();
 
-        if (!is_null($targetingOptions)) {
+        if ($targetingOptions) {
             foreach ($targetingOptions as $targetingOption) {
                 $targetingOption->setFilter($filter);
                 $targetingOption->setValue($valueString);
