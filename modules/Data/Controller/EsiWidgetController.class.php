@@ -73,9 +73,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
 
         $_LANGID    = \FWLanguage::getLangIdByIso639_1($locale);
         $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
-        if (!$dataBlocks->active) {
-            return;
-        }
         $template->setVariable($name, $dataBlocks->getData('{' . $name . '}'));
     }
 }
