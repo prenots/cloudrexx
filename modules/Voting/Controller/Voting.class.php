@@ -50,7 +50,7 @@ namespace Cx\Modules\Voting\Controller;
  * @package     cloudrexx
  * @subpackage  module_voting
  */
-Class Voting {
+class Voting {
     /**
      * Show current voting
      */
@@ -322,7 +322,11 @@ Class Voting {
 
     }
 
-    function VotingSubmit(){
+    /**
+     * Update Voting details
+     */
+    function VotingSubmit()
+    {
         global $objDatabase, $_COOKIE;
 
         if ($_COOKIE['votingcookie'] != '1') {
@@ -337,6 +341,12 @@ Class Voting {
                 $objDatabase->Execute($query);
                 $query="UPDATE ".DBPREFIX."voting_results set votes=votes+1 WHERE id=".$votingOption." ";
                 $objDatabase->Execute($query);
+                //clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array('Widget', array('voting_result'))
+                );
                 $this->_store_additional_data($voting_id);
         }
             \Cx\Core\Csrf\Controller\Csrf::header("Location: ?section=Voting");

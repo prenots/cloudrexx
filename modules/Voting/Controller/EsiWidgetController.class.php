@@ -61,15 +61,23 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $_LANGID, $_ARRAYLANG;
+        global $_ARRAYLANG;
 
         if ($name !== 'voting_result') {
             return;
         }
 
-        $_LANGID    = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG = array_merge($_ARRAYLANG, \Env::get('init')->loadLanguageData('Voting'));
-        $voting     = new Voting();
+        //The global $_ARRAYLANG is required in the method Voting::setVotingResult()
+        $langId     = \FWLanguage::getLangIdByIso639_1($locale);
+        $_ARRAYLANG = array_merge(
+            $_ARRAYLANG,
+            \Env::get('init')->getComponentSpecificLanguageData(
+                'Voting',
+                true,
+                $langId
+            )
+        );
+        $voting = new Voting();
         $voting->setVotingResult($template);
     }
 }
