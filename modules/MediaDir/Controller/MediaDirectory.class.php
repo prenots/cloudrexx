@@ -931,13 +931,13 @@ class MediaDirectory extends MediaDirectoryLibrary
             $objTemplate->setVariable(array(
                 $this->moduleLangVar.'_LATEST_ROW_CLASS'           => $row,
                 $this->moduleLangVar.'_LATEST_ENTRY_ID'            =>
-                    contrexx_raw2xhtml($arrEntry['entryId']),
+                    $arrEntry['entryId'],
                 $this->moduleLangVar.'_LATEST_ENTRY_VALIDATE_DATE' =>
                     date('H:i:s - d.m.Y', $arrEntry['entryValdateDate']),
                 $this->moduleLangVar.'_LATEST_ENTRY_CREATE_DATE'   =>
                     date('H:i:s - d.m.Y', $arrEntry['entryCreateDate']),
                 $this->moduleLangVar.'_LATEST_ENTRY_HITS'          =>
-                    contrexx_raw2xhtml($arrEntry['entryHits']),
+                    $arrEntry['entryHits'],
                 $this->moduleLangVar.'_ENTRY_DETAIL_URL'           =>
                     $strDetailUrl,
                 'TXT_'.$this->moduleLangVar.'_ENTRY_DETAIL'        =>

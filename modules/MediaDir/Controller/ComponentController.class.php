@@ -139,38 +139,25 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $params['cid'] = $requestParams['cid'];
         }
 
-        //Parse widgets for placeholders
-        //Show Level/Category Navbar and Latest Entries
-        $this->parseWidgets(
-            array('MEDIADIR_NAVBAR', 'MEDIADIR_LATEST'),
-            false,
-            $params
-        );
-
-        //Parse widgets for template blocks
+        //Parse widgets for Placeholders and Template Blocks
+        // placeholders: Show Level/Category Navbar and Latest Entries
+        // template blocks:
         // mediadirLatest, mediadirList, mediadirNavtree
         // mediadirLatest_row_1_1 to mediadirLatest_row_10_10
         $mediaDirLib = new MediaDirectoryLibrary('.', $this->getName());
-        $this->parseWidgets(
-            array_merge(
-                array('mediadirNavtree'),
-                $mediaDirLib->getGlobalBlockNames()
-            ),
-            true,
-            $params
-        );
+        $widgetNames = $mediaDirLib->getWidgetNamesAffectedByEntityChange();
+        $this->parseWidgets($widgetNames, $params);
     }
 
     /**
      * Parse widgets
      *
-     * @param array   $widgetNames array of widget names
-     * @param boolean $isBlock     If its true, its a block or placeholder
-     * @param array   $params      array of additional parameters
+     * @param array   $widgetNames          array of widget names
+     * @param array   $additionalParameters array of additional parameters
      *
      * @return null
      */
-    protected function parseWidgets($widgetNames, $isBlock, $params)
+    protected function parseWidgets($widgetNames, $additionalParameters)
     {
         if (empty($widgetNames)) {
             return;
@@ -178,6 +165,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $widgetController = $this->getComponent('Widget');
         foreach ($widgetNames as $widgetName) {
+            //Use additional params if the widget name is
+            //either 'mediadirNavtree' or 'MEDIADIR_NAVBAR'
             $parameter = array();
             if (
                 in_array(
@@ -185,8 +174,21 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     array('mediadirNavtree', 'MEDIADIR_NAVBAR')
                 )
             ) {
-                $parameter = $params;
+                $parameter = $additionalParameters;
             }
+
+            //Identify if the current widget is Template block or Placeholder
+            $isBlock = true;
+            if (
+                in_array(
+                    $widgetName,
+                    array('MEDIADIR_NAVBAR', 'MEDIADIR_LATEST')
+                )
+            ) {
+                $isBlock = false;
+            }
+
+            //Create and register the widget in Widget Component
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $widgetName,

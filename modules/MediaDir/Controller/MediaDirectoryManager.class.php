@@ -877,11 +877,11 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
             die();
         }
 
-        $intId    = contrexx_input2int($params['id']);
-        $intState = contrexx_input2int($params['state']);
-        $type     = contrexx_input2raw($params['type']);
-        $widgetnames = array('MEDIADIR_NAVBAR', 'mediadirNavtree');
-        $clearCache = false;
+        $intId           = contrexx_input2int($params['id']);
+        $intState        = contrexx_input2int($params['state']);
+        $type            = contrexx_input2raw($params['type']);
+        $changedEntities = static::ENTITY_CHANGE_CATEGORY;
+        $clearCache      = false;
         switch ($type) {
             case 'category':
                 $query = '
@@ -920,7 +920,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
                     UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_entries`
                         SET `active` = ' . $intState . '
                     WHERE `id` = ' . $intId;
-                $widgetnames = array_merge(array('MEDIADIR_LATEST'), $this->getGlobalBlockNames());
+                $changedEntities = static::ENTITY_CHANGE_ENTRY | static::ENTITY_CHANGE_FORM;
                 $clearCache = true;
                 break;
         }
@@ -929,8 +929,16 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
             die();
         }
 
-        //clearCache
-        $this->clearEsiCache($widgetnames);
+        //If the $type is 'category or level'
+        //then clear cache only for the following widgets 'MEDIADIR_NAVBAR' and 'mediadirNavtree'.
+        //the reason is, these widgets, list category and level entries based on their status and
+        //in remaining widgets, listing category/level entries not based on their status, so the cache is not cleared.
+        //
+        //If the $type is 'entry' then clear cache for the following widgets:
+        //'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList', 'mediadirLatest_form_{\d}_{\d}'.
+        //The reason is, these widgets are listing MediaDir entries based on its status.
+        //The widgets 'MEDIADIR_NAVBAR' and 'mediadirNavtree' are not cleared because it does not list MediaDir entries.
+        $this->clearEsiCache($changedEntities);
         die();
     }
 

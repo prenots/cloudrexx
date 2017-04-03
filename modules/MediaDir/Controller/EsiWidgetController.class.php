@@ -29,7 +29,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_mediadir
  * @version     1.0.0
@@ -44,7 +44,7 @@ namespace Cx\Modules\MediaDir\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_mediadir
  * @version     1.0.0
@@ -83,16 +83,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         global $_ARRAYLANG;
 
-        // Show Level/Category Navbar
-        $mediaDirPlaceholders = new MediaDirectoryPlaceholders('MediaDir');
-        if ($name === 'MEDIADIR_NAVBAR') {
-            $template->setVariable(
-                $name,
-                $mediaDirPlaceholders->getNavigationPlacholder()
-            );
-            return;
-        }
-
         //The global $_ARRAYLANG is required by the method MediaDirectoryEntry::getEntries()
         $langId     = \FWLanguage::getLangIdByIso639_1($locale);
         $_ARRAYLANG = array_merge(
@@ -104,12 +94,15 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             )
         );
 
-        // Show Latest Entries
-        if ($name === 'MEDIADIR_LATEST') {
-            $template->setVariable(
-                $name,
-                $mediaDirPlaceholders->getLatestPlacholder()
-            );
+        // Show Level/Category Navbar or Show Latest Entries
+        if ($name === 'MEDIADIR_NAVBAR' || $name === 'MEDIADIR_LATEST') {
+            $mediaDirPlaceholders = new MediaDirectoryPlaceholders('MediaDir');
+            if ($name === 'MEDIADIR_NAVBAR') {
+                $content = $mediaDirPlaceholders->getNavigationPlacholder();
+            } else {
+                $content = $mediaDirPlaceholders->getLatestPlacholder();
+            }
+            $template->setVariable($name, $content);
             return;
         }
 
@@ -224,19 +217,19 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     /**
      * Get MediaDir filter list
      *
-     * function to match for placeholders in template that act as a filter. I.e.:
+     * method to match for placeholders in template that act as a filter. I.e.:
      *  MEDIADIR_FILTER_FORM_3
      *  MEDIADIR_FILTER_CATEGORY_4
      *  MEDIADIR_FILTER_LEVEL_5
      *
      * @param array $placeholderList array of placeholders
      *
-     * @return null|array
+     * @return array
      */
     protected function getMediaDirFilterList($placeholderList)
     {
         if (empty($placeholderList)) {
-            return;
+            return array();
         }
 
         $matches = array();
@@ -247,7 +240,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $matches
             )
         ) {
-            return;
+            return array();
         }
 
         $filter  = array();

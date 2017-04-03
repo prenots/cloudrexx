@@ -592,9 +592,14 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
 
     }
 
-
-
-
+    /**
+     * Insert/Update MediaDir level details
+     *
+     * @param array   $arrData    array of level data
+     * @param integer $intLevelId level ID
+     *
+     * @return boolean
+     */
     function saveLevel($arrData, $intLevelId=null)
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID;
@@ -651,13 +656,13 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                 }
 
                 if ($objInsertNames !== false) {
-                    //clear cache
+                    //The cache will be cleared for the following widgets:
+                    //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+                    //The reason is, MediaDir levels are listed in those widgets.
+                    //The remaining widgets which do not show levels are not cleared.
                     $this->clearEsiCache(
-                        array(
-                            'MEDIADIR_NAVBAR',
-                            'mediadirNavtree',
-                            'mediadirList'
-                        )
+                        static::ENTITY_CHANGE_LEVEL |
+                        static::ENTITY_CHANGE_FORM
                     );
                     return true;
                 } else {
@@ -714,14 +719,13 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
                 }
 
                 if ($objInsertNames !== false) {
-                    //clearCache
+                    //The cache will be cleared for the following widgets:
+                    //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+                    //The reason is, MediaDir levels are listed in those widgets.
+                    //The remaining widgets which do not show levels are not cleared.
                     $this->clearEsiCache(
-                        array(
-                            'MEDIADIR_NAVBAR',
-                            'mediadirLatest',
-                            'mediadirList',
-                            'mediadirNavtree'
-                        )
+                        static::ENTITY_CHANGE_LEVEL |
+                        static::ENTITY_CHANGE_FORM
                     );
                     return true;
                 } else {
@@ -733,8 +737,13 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         }
     }
 
-
-
+    /**
+     * Delete MediaDir level
+     *
+     * @param integer $intLevelId level ID
+     *
+     * @return boolean
+     */
     function deleteLevel($intLevelId=null)
     {
         global $objDatabase;
@@ -755,14 +764,13 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         $objDeleteLevelRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_levels WHERE level_id='$intLevelId'");
 
         if ($objDeleteLevelRS !== false) {
-            //clearCache
+            //The cache will be cleared for the following widgets:
+            //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+            //The reason is, MediaDir levels are listed in those widgets.
+            //The remaining widgets which do not show levels are not cleared.
             $this->clearEsiCache(
-                array(
-                    'MEDIADIR_NAVBAR',
-                    'mediadirLatest',
-                    'mediadirList',
-                    'mediadirNavtree'
-                )
+                static::ENTITY_CHANGE_LEVEL |
+                static::ENTITY_CHANGE_FORM
             );
             return true;
         } else {
@@ -770,7 +778,15 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
         }
     }
 
-    function saveOrder($arrData) {
+    /**
+     * Store sort order value in database
+     *
+     * @param array $arrData array of order details
+     *
+     * @return boolean
+     */
+    function saveOrder($arrData)
+    {
         global $objDatabase;
 
         foreach($arrData['levelOrder'] as $intLevelId => $intLevelOrder) {
@@ -781,8 +797,11 @@ class MediaDirectoryLevel extends MediaDirectoryLibrary
             }
         }
 
-        //clear cache
-        $this->clearEsiCache(array('MEDIADIR_NAVBAR', 'mediadirNavtree'));
+        //The cache will be cleared for the following widgets:
+        //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+        //The reason is, MediaDir levels are listed based on the `order` field value.
+        //The remaining widgets which do not show levels are not cleared.
+        $this->clearEsiCache(static::ENTITY_CHANGE_LEVEL);
         return true;
     }
 }

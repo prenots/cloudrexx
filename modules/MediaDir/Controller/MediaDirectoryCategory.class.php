@@ -575,8 +575,14 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
     }
 
-
-
+    /**
+     * Insert/Update MediaDir category details
+     *
+     * @param array   $arrData       array of category data
+     * @param integer $intCategoryId category ID
+     *
+     * @return boolean
+     */
     function saveCategory($arrData, $intCategoryId=null)
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID;
@@ -630,9 +636,13 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 }
 
                 if ($objInsertNames !== false) {
-                    //clear cache
+                    //The cache will be cleared for the following widgets:
+                    //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+                    //The reason is, MediaDir categories are listed in these widgets.
+                    //The remaining widgets which do not show categories are not cleared.
                     $this->clearEsiCache(
-                        array('MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirList')
+                        static::ENTITY_CHANGE_CATEGORY |
+                        static::ENTITY_CHANGE_FORM
                     );
                     return true;
                 } else {
@@ -687,14 +697,13 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                     }
 
                     if ($objInsertNames !== false) {
-                        //clear cache
+                        //The cache will be cleared for the following widgets:
+                        //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+                        //The reason is, MediaDir categories are listed in these widgets.
+                        //The remaining widgets which do not show categories are not cleared.
                         $this->clearEsiCache(
-                            array(
-                                'MEDIADIR_NAVBAR',
-                                'mediadirLatest',
-                                'mediadirList',
-                                'mediadirNavtree'
-                            )
+                            static::ENTITY_CHANGE_CATEGORY |
+                            static::ENTITY_CHANGE_FORM
                         );
                         return true;
                     } else {
@@ -709,9 +718,13 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         }
     }
 
-
-
-
+    /**
+     * Delete Categories
+     *
+     * @param integer $intCategoryId Category ID
+     *
+     * @return boolean
+     */
     function deleteCategory($intCategoryId=null)
     {
         global $objDatabase;
@@ -732,14 +745,12 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         $objDeleteCategoryRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE category_id='$intCategoryId'");
 
         if ($objDeleteCategoryRS !== false) {
-            //clear cache
+            //The cache will be cleared for the following widgets:
+            //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+            //The reason is, MediaDir categories are listed in these widgets.
+            //The remaining widgets which do not show categories are not cleared.
             $this->clearEsiCache(
-                array(
-                    'MEDIADIR_NAVBAR',
-                    'mediadirLatest',
-                    'mediadirList',
-                    'mediadirNavtree'
-                )
+                static::ENTITY_CHANGE_CATEGORY | static::ENTITY_CHANGE_FORM
             );
             return true;
         } else {
@@ -800,8 +811,13 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         return intval($this->intNumEntries);
     }
 
-
-
+    /**
+     * Store sort order value in database
+     *
+     * @param array $arrData array of category detail
+     *
+     * @return boolean
+     */
     function saveOrder($arrData) {
         global $objDatabase;
 
@@ -813,8 +829,11 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
             }
         }
 
-        //clear cache
-        $this->clearEsiCache(array('MEDIADIR_NAVBAR', 'mediadirNavtree'));
+        //The cache will be cleared for the following widgets:
+        //'MEDIADIR_NAVBAR' and 'mediadirNavtree'.
+        //The reason is, MediaDir categories are listed based on the `order` field value.
+        //The remaining widgets which do not show categories are not cleared.
+        $this->clearEsiCache(static::ENTITY_CHANGE_CATEGORY);
         return true;
     }
 
