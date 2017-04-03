@@ -70,7 +70,7 @@ class Podcast extends PodcastLib
     *
     * @access public
     */
-    function getPage($blockFirst = false)
+    function getPage()
     {
         switch($_GET['cmd']){
             case 'selectSource':
@@ -80,7 +80,7 @@ class Podcast extends PodcastLib
                 $this->_modifyMedium();
             break;
             default:
-                $this->showMedium($blockFirst);
+                $this->showMedium();
         }
 
 
@@ -88,7 +88,12 @@ class Podcast extends PodcastLib
         return $this->_objTpl->get();
     }
 
-    function showMedium($blockFirst = false){
+    /**
+     * Parse the podcast media details
+     *
+     * @return null
+     */
+    function showMedium(){
         global $_ARRAYLANG, $_CONFIG, $_LANGID;
         $categoryId = isset($_REQUEST['cid']) ? (intval($_REQUEST['cid']) == 0 ? false : intval($_REQUEST['cid'])) : false;
         $mediumId = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
@@ -102,11 +107,11 @@ class Podcast extends PodcastLib
         ));
 
         $maxSize = $this->_arrSettings['thumb_max_size'];
-        $tmpOnload = ($blockFirst) ? 'try{tmp();}catch(e){}' : '';
 
         $embedCode = <<< EOF
 <script type="text/javascript">
 //<![CDATA[
+cx.ready(function(){
     var thumbSizeMax = $maxSize;
     var previewSizeMax = 180;
 
@@ -129,14 +134,16 @@ class Podcast extends PodcastLib
         for(i=0;i<mThumbnails.length;i++){
             setSize(mThumbnails[i], thumbSizeMax);
         }
-        $tmpOnload
+        try{
+            tmp();
+        }catch(e){}
     }
-
+});
 //]]>
 </script>
 EOF;
 
-        if (($arrMedium = &$this->_getMedium($mediumId, true)) !== false) {
+        if (($arrMedium = $this->_getMedium($mediumId, true)) !== false) {
             if ($this->_objTpl->blockExists('podcast_medium')) {
                 $arrTemplate = &$this->_getTemplate($arrMedium['template_id']);
 
@@ -185,8 +192,9 @@ EOF;
         }
         if ($this->_objTpl->blockExists('podcast_media')) {
             $pos = isset($_GET['pos']) ? intval($_GET['pos']) : 0;
-            $arrMedia = &$this->_getMedia($categories, true, $_CONFIG['corePagingLimit'], $pos);
+            $arrMedia = $this->_getMedia($categories, true, $_CONFIG['corePagingLimit'], $pos);
             if (count($arrMedia) > 0) {
+                $i = 1;
                 foreach ($arrMedia as $mediumId => $arrMedium) {
                     $this->_objTpl->setVariable(array(
                         'PODCAST_MEDIUM_ROW'                => $i%2==0 ? 'row1' : 'row2',
@@ -212,7 +220,7 @@ EOF;
                 }
             }
 
-            $mediaCount = &$this->_getMediaCount($categoryId, true);
+            $mediaCount = $this->_getMediaCount($categoryId, true);
 
             if ($mediaCount > $_CONFIG['corePagingLimit']) {
                 $paging = getPaging($mediaCount, $pos, '&section=Podcast&cid='.$categoryId, $_ARRAYLANG['TXT_PODCAST_MEDIA']);

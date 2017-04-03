@@ -73,13 +73,13 @@ class PodcastHomeContent extends PodcastLib
      *
      * @return string parsed latest entries
      */
-    function getContent($blockFirst = false)
+    function getContent()
     {
         $this->_objTpl->setTemplate($this->_pageContent, true, true);
         if (empty($this->_latestMedia)){
             $this->_latestMedia = $this->_getLastestMedia();
         }
-        $this->_showLatestMedia($this->_latestMedia, $blockFirst);
+        $this->_showLatestMedia($this->_latestMedia);
         return $this->_objTpl->get();
     }
 
@@ -88,16 +88,16 @@ class PodcastHomeContent extends PodcastLib
      *
      * @param array $arrMedia
      */
-    function _showLatestMedia($arrMedia, $blockFirst = false)
+    function _showLatestMedia($arrMedia)
     {
         global $_ARRAYLANG;
 
-        $tmpOnload = (!$blockFirst) ? 'try{tmp();}catch(e){}' : '';
         $setSizeFunction = $this->_getSetSizeJS();
         $maxSize = $this->_arrSettings['thumb_max_size_homecontent'];
         $thumbailJS = <<< EOF
 <script type="text/javascript">
 //<![CDATA[
+cx.ready(function(){
     var thumbSizeMaxBlock = $maxSize;
 
     if (typeof(setSize == 'undefined')){
@@ -115,8 +115,11 @@ class PodcastHomeContent extends PodcastLib
                 setSize(bThumbnails[i], thumbSizeMaxBlock);
             }catch(e){}
         }
-        $tmpOnload
+        try{
+            tmp();
+        }catch(e){}
     }
+});
 //]]>
 </script>
 EOF;

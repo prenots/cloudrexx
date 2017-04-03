@@ -104,19 +104,9 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             )
         );
 
-        $isFirstBlock = false;
-        if (!empty($this->section) && $this->section == 'Podcast') {
-            $indexFile       = $this->getFileContent($theme, 'index.html');
-            $podcastBlockPos = strpos($indexFile, '{PODCAST_FILE}');
-            $contentPos      = strpos($indexFile, '{CONTENT_FILE}');
-            $isFirstBlock    = $podcastBlockPos < $contentPos ? true : false;
-        }
         $podcast = new PodcastHomeContent($content);
         $podcast->_langId = $langId;
-        $template->setVariable(
-            $name,
-            $podcast->getContent($isFirstBlock)
-        );
+        $template->setVariable($name, $podcast->getContent());
     }
 
     /**

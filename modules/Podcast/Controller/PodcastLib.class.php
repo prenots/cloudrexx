@@ -308,7 +308,7 @@ class PodcastLib
         if ($objCategory !== false) {
             while (!$objCategory->EOF) {
                 if ($langId !== false) {
-                    $arrLangIds = &$this->_getLangIdsOfCategory($objCategory->fields['id']);
+                    $arrLangIds = $this->_getLangIdsOfCategory($objCategory->fields['id']);
                     if (!in_array($_LANGID, $arrLangIds)) {
                         $objCategory->MoveNext();
                         continue;
@@ -366,7 +366,7 @@ class PodcastLib
         $menu .= "<option value=\"0\">".$_ARRAYLANG['TXT_PODCAST_SELECT_CATEGORY']."</option>\n";
         $menu .= "<option value=\"0\">".$_ARRAYLANG['TXT_PODCAST_ALL']."</option>\n";
 
-        if (($arrCategories = &$this->_getCategories($areActive, false, $langId)) !== false && count($arrCategories) > 0) {
+        if (($arrCategories = $this->_getCategories($areActive, false, $langId)) !== false && count($arrCategories) > 0) {
 
             foreach ($arrCategories as $categoryId => $arrCategory) {
                 $menu .= "<option value=\"".$categoryId.($categoryId == $selectedCategoryId ? "\" selected=\"selected\"" : "\"").">".htmlentities($arrCategory['title'], ENT_QUOTES, CONTREXX_CHARSET)."</option>\n";

@@ -82,7 +82,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 $objPodcast = new Podcast(\Env::get('cx')->getPage()->getContent());
-                \Env::get('cx')->getPage()->setContent($objPodcast->getPage($podcastFirstBlock));
+                \Env::get('cx')->getPage()->setContent($objPodcast->getPage());
                 break;
 
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
