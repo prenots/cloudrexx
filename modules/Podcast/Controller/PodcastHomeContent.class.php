@@ -77,7 +77,7 @@ class PodcastHomeContent extends PodcastLib
     {
         $this->_objTpl->setTemplate($this->_pageContent, true, true);
         if (empty($this->_latestMedia)){
-            $this->_latestMedia = &$this->_getLastestMedia();
+            $this->_latestMedia = $this->_getLastestMedia();
         }
         $this->_showLatestMedia($this->_latestMedia, $blockFirst);
         return $this->_objTpl->get();

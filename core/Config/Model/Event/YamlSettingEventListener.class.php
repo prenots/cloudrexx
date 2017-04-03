@@ -128,6 +128,17 @@ class YamlSettingEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventL
                         \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCache();
                     }
                     break;
+
+                case 'podcastHomeContent':
+                    if ($value !== $_CONFIG[$objSetting->getName()]) {
+                        // drop esi cache
+                        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                        $cx->getEvents()->triggerEvent(
+                            'clearEsiCache',
+                            array('Widget', 'PODCAST_FILE')
+                        );
+                    }
+                    break;
             }
         } catch (YamlSettingEventListenerException $e) {
             \DBG::msg($e->getMessage());

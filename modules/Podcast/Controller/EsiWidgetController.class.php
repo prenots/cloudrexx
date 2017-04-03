@@ -74,10 +74,16 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $locale)
     {
-        global $_CONFIG, $_ARRAYLANG, $_LANGID;
+        global $_ARRAYLANG;
 
-        //Parse Podcast Homecontent
-        if ($name != 'PODCAST_FILE' || empty($_CONFIG['podcastHomeContent'])) {
+        // If the setting option 'podcastHomeContent' is deactived then
+        // do not parse the placeholder PODCAST_FILE.
+        if (
+            !\Cx\Core\Setting\Controller\Setting::getValue(
+                'podcastHomeContent',
+                'Config'
+            )
+        ) {
             return;
         }
 
@@ -88,8 +94,16 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        $_LANGID      = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG   = array_merge($_ARRAYLANG, \Env::get('init')->loadLanguageData('Podcast'));
+        $langId      = \FWLanguage::getLangIdByIso639_1($locale);
+        $_ARRAYLANG  = array_merge(
+            $_ARRAYLANG,
+            \Env::get('init')->getComponentSpecificLanguageData(
+                'Podcast',
+                true,
+                $langId
+            )
+        );
+
         $isFirstBlock = false;
         if (!empty($this->section) && $this->section == 'Podcast') {
             $indexFile       = $this->getFileContent($theme, 'index.html');
@@ -98,6 +112,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             $isFirstBlock    = $podcastBlockPos < $contentPos ? true : false;
         }
         $podcast = new PodcastHomeContent($content);
+        $podcast->_langId = $langId;
         $template->setVariable(
             $name,
             $podcast->getContent($isFirstBlock)
