@@ -61,8 +61,12 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         global $_LANGID;
 
-        // get knowledge content
+
+        // The global $_LANGID is required in the getTagCloud(), getMostRead(),
+        // getBestRated() methods
         $_LANGID = \FWLanguage::getLangIdByIso639_1($locale);
+
+        // get knowledge content
         $knowledgeInterface = new KnowledgeInterface();
         if ($name == 'KNOWLEDGE_TAG_CLOUD') {
             $template->setVariable($name, $knowledgeInterface->getTagCloud());

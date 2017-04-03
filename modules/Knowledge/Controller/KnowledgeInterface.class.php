@@ -52,18 +52,6 @@ class KnowledgeInterface extends KnowledgeLibrary
     }
 
     /**
-     * Replace the placeholders
-     *
-     * @param unknown_type $content
-     */
-    public function parse(&$content)
-    {
-        $content = preg_replace("/{KNOWLEDGE_TAG_CLOUD}/i", $this->getTagCloud(), $content);
-        $content = preg_replace("/{KNOWLEDGE_MOST_READ}/i", $this->getMostRead(), $content);
-        $content = preg_replace("/{KNOWLEDGE_BEST_RATED}/i", $this->getBestRated(), $content);
-    }
-
-    /**
      * Return a tag cloud
      *
      * @return string
