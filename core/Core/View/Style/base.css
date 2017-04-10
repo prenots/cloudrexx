@@ -1601,9 +1601,10 @@ a.cke_dialog_ui_button_ok:hover {
     display: inline-block;
     font-size: 10px;
     height: 18px;
-    width: 21px;
+    width: auto;
     line-height: 18px;
     margin: 2px 7px 2px 0px;
+    padding: 0 5px;
     opacity: 0.8;
     text-align: center;
 }
