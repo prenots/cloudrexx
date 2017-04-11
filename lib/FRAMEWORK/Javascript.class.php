@@ -334,7 +334,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
                     if(cx.jQuery(".chzn-select").length > 0) {
                         cx.jQuery(".chzn-select").chosen({
                             disable_search: false,
-                            no_results_text:  cx.variables.get(\'TXT_CORE_CM_LOCALE_DOESNT_EXIST\', \'contentmanager/lang\')
+                            no_results_text:  cx.variables.get(\'TXT_CORE_LOCALE_DOESNT_EXIST\', \'contentmanager/lang\')
                         });
                     }
                 });'

@@ -314,6 +314,11 @@
                 addExeptionList(key, v);
             }
         });
+
+        cx.jQuery("#activeLocales").chosen({
+            width: "auto",
+            no_results_text: cx.variables.get("TXT_CORE_LOCALE_DOESNT_EXIST", "calendar")
+        });
     });
 
     function showOrHidePlaceFields(inputValue, type) {

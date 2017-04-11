@@ -1716,6 +1716,10 @@ a.cke_dialog_ui_button_ok:hover {
     display: none !important; /* limit dropdown to 10 locales */
 }
 
+#activeLocales_chosen {
+    max-width: 100%;
+}
+
 #configSettingsTabs input[type="text"] {
     width:558px;
 }

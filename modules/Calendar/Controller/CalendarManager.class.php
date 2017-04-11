@@ -361,6 +361,7 @@ class CalendarManager extends CalendarLibrary
         \ContrexxJavascript::getInstance()->setVariable(array(
             'language_id' => \FWLanguage::getDefaultLangId(),
             'active_lang' => implode(',', \FWLanguage::getIdArray()),
+            'TXT_CORE_LOCALE_DOESNT_EXIST' => $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST']
         ), 'calendar');
 
         $this->getSettings();
