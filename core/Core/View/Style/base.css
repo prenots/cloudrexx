@@ -1631,6 +1631,91 @@ a.cke_dialog_ui_button_ok:hover {
 .language-icons .language-icon.inexistent {
     background-color: #AAAAAA;
 }
+.language-icons.dropdown {
+    background: url(../../../ContentManager/View/Media/ActionPlus.png) no-repeat left center;
+    padding: 0 0 0 16px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 11px;
+    position: relative;
+}
+
+.language-icons.dropdown:hover,
+.language-icons.dropdown:focus,
+.language-icons.dropdown:active {
+    cursor: pointer;
+}
+
+.language-icons.dropdown .label {
+    float: left;
+    width: auto;
+}
+
+.language-icons.dropdown .arrow {
+    float: left;
+    width: 13px;
+    height: 100%;
+    background: url(../../../ContentManager/View/Media/ActionArrow.png) no-repeat right center;
+}
+.language-icons-expanded {
+    display: none;
+    position: absolute;
+    top: 23px;
+    left: 0;
+    z-index: 11;
+}
+
+.language-icons-expanded,
+.language-icons-expanded ul {
+    width: 100%;
+}
+
+.language-icons-expanded ul {
+    float: left;
+    background: #ffffff;
+    border:  1px solid #d3d3d3;
+    margin: 0;
+    padding: 0;
+    -moz-box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);
+    -o-box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);
+    -webkit-box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);
+    box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);
+    -ms-filter: progid:DXImageTransform.Microsoft.Shadow(Strength=3,Direction=135,Color='#999999');
+}
+
+.language-icons-expanded ul li {
+    float: left;
+    clear: both;
+    line-height: 16px;
+    background-repeat: no-repeat;
+    background-position: 2px center;
+    margin: 3px 0 3px 0;
+    display: block !important;
+}
+
+.language-icons-expanded ul li.language-icon {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 5px;
+    border: 1px solid #ffffff;
+    border-bottom: 0px;
+    text-transform: uppercase;
+}
+
+.language-icons-expanded ul li:last-child.language-icon {
+    border-bottom: none;
+}
+
+.language-icons-expanded ul li {
+    background-image: none;
+}
+
+.language-icons-expanded > ul > li:nth-child(n+11) {
+    display: none !important; /* limit dropdown to 10 locales */
+}
+
 #configSettingsTabs input[type="text"] {
     width:558px;
 }

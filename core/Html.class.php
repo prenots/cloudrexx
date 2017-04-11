@@ -2814,13 +2814,13 @@ function cloneElement(id)
      * @return  string                  The HTML code for the elements
      */
     public static function getLanguageIcons(&$languageStates, $link) {
+        $em = \Env::get('cx')->getDb()->getEntityManager();
         // resolve second to first form
         foreach ($languageStates as $langId=>$state) {
             if (is_array($state)) {
                 if (is_object($state['page'])) {
                     $languageStates[$langId] = $state['active'] ? 'active' : 'inactive';
                 } else {
-                    $em = \Env::get('cx')->getDb()->getEntityManager();
                     $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
                     $page = $pageRepo->findOneById($state['page']);
                     if (!$page) {
@@ -2832,35 +2832,130 @@ function cloneElement(id)
             }
         }
 
+        $localeRepo = $em->getRepository('Cx\Core\Locale\Model\Entity\Locale');
+        $locales = $localeRepo->findAll();
+        if (count($locales) > 4) {
+            // show dropdown
+            return static::getLocaleDropdown($locales, $languageStates, $link);
+        }
         // parse icons
-        $content = '<div class="language-icons">';
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $language) {
-            if (isset($languageStates[$language['id']])) {
-                $state = $languageStates[$language['id']];
+        $content = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $content->setAttribute('class', 'language-icons');
+        foreach ($locales as $locale) {
+            if (isset($languageStates[$locale->getId()])) {
+                $state = $languageStates[$locale->getId()];
             } else {
                 $state = 'inactive';
             }
-            $parsedLink = sprintf($link, $language['id'], $language['lang']);
-            $content .= self::getLanguageIcon($language['id'], $state, $parsedLink, strtoupper($language['lang']));
+            $parsedLink = sprintf($link, $locale->getId(), $locale->getShortForm());
+            $languageIcon = self::getLanguageIcon(
+                $locale->getId(),
+                $state,
+                $parsedLink,
+                strtoupper($locale->getShortForm()),
+                false
+            );
+            $content->addChild($languageIcon);
         }
-        return $content . '</div>';
+        return $content->render();
     }
 
     /**
      * Returns a single language icon
-     * @param   int     $languageId     Language ID
+     * @param   int     $localeId     Language ID
      * @param   string  $state          One of active,inactive,inexistent
      * @param   string  $languageLabel  (optional) Label for the icon, default is uppercase language code
      * @return  string                  The HTML code for the elements
      */
-    public static function getLanguageIcon($languageId, $state, $link, $languageLabel = '') {
+    public static function getLanguageIcon(
+        $languageId, $state, $link, $languageLabel = '', $rendered = true, $wrapper = 'div'
+    ) {
         if (empty($languageLabel)) {
             $languageLabel = strtoupper(\FWLanguage::getLanguageCodeById($languageId));
         }
-        return '<div class="language-icon ' . \FWLanguage::getLanguageCodeById($languageId) . ' ' . $state . '">
-            <a href="' . $link . '">
-                ' . $languageLabel . '
-            </a>
-        </div>';
+        $content = new \Cx\Core\Html\Model\Entity\HtmlElement($wrapper);
+        $content->setAttribute(
+            'class',
+            'language-icon ' .
+            \FWLanguage::getLanguageCodeById($languageId) . ' ' . $state
+        );
+        // link
+        $linkEl = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $linkEl->setAttribute('href', $link);
+        $linkText = new \Cx\Core\Html\Model\Entity\TextElement($languageLabel);
+        $linkEl->addChild($linkText);
+
+        $content->addChild($linkEl);
+        if ($rendered) {
+            return $content->render();
+        } else {
+            return $content;
+        }
+    }
+
+    /**
+     * Builds the locale dropdown
+     *
+     * @param   array   $locales          The locales
+     * @param   array   $languageStates   The language states
+     * @param   string  $link             The link
+     */
+    public static function getLocaleDropdown($locales, $languageStates, $link) {
+        global $_ARRAYLANG;
+
+        // register js
+        \JS::registerJS('core/Locale/View/Script/LocaleDropdown.js');
+
+        // build language-icons div
+        $languageIcons = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $languageIcons->setAttribute('class', 'language-icons dropdown');
+
+        // add label
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $label->setAttribute('class', 'label');
+        $labelText = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_CORE_CM_TRANSLATIONS']
+        );
+        $label->addChild($labelText);
+        $languageIcons->addChild($label);
+
+        // add language-icons-expanded div
+        $expanded = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $expanded->setAttribute('class', 'language-icons-expanded');
+        // add ul to expanded div
+        $dropdown =  new \Cx\Core\Html\Model\Entity\HtmlElement('ul');
+        // add each locale as list item
+        foreach($locales as $locale) {
+            // get correct state
+            if (isset($languageStates[$locale->getId()])) {
+                $state = $languageStates[$locale->getId()];
+            } else {
+                $state = 'inactive';
+            }
+            // parse link
+            $parsedLink = sprintf($link, $locale->getId(), $locale->getShortForm());
+            // build li
+            $languageIcon = static::getLanguageIcon(
+                $locale->getId(),
+                $state,
+                $parsedLink,
+                $locale->getShortForm(),
+                false,
+                'li'
+            );
+            // ad li to dropdown
+            $dropdown->addChild($languageIcon);
+        }
+        // add dropdown to expanded
+        $expanded->addChild($dropdown);
+
+        // add expanded to language-icons div
+        $languageIcons->addChild($expanded);
+
+        // add arrow
+        $arrow = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $arrow->setAttribute('class', 'arrow');
+        $languageIcons->addChild($arrow);
+        return $languageIcons->render();
     }
 }
