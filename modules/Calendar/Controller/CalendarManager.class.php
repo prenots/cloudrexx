@@ -1026,24 +1026,24 @@ class CalendarManager extends CalendarLibrary
             //parse "show in" checkboxes
             $arrShowIn = explode(",", $objEvent->showIn);
 
-            $langChecked = false;
+            $langSelected = false;
             if($eventId != 0) {
-                $langChecked = in_array($arrLang['id'], $arrShowIn);
-                if ($forcedLanguage && !$langChecked) {
-                    $langChecked = $forcedLanguage == $arrLang['id'];
+                $langSelected = in_array($arrLang['id'], $arrShowIn);
+                if ($forcedLanguage && !$langSelected) {
+                    $langSelected = $forcedLanguage == $arrLang['id'];
                 }
             } else {
-                $langChecked = $arrLang['is_default'] == 'true';
+                $langSelected = $arrLang['is_default'] == 'true';
             }
 
-            if ($langChecked) {
-                $langChecked = 'checked="checked"';
+            if ($langSelected) {
+                $langSelected = 'selected';
             } else {
-                $langChecked =  '';
+                $langSelected =  '';
             }
 
             $this->_objTpl->setVariable(array(
-                $this->moduleLangVar.'_EVENT_LANG_CHECKED'  => $langChecked,
+                $this->moduleLangVar.'_EVENT_LANG_CHECKED'  => $langSelected,
             ));
 
             $this->_objTpl->parse('eventShowIn');

@@ -452,20 +452,18 @@
         var pattern = /^showIn/;
         var reg = new RegExp(pattern);
 
-        for (i = 0; i < document.formModifyEvent.elements.length; ++i) {
-            var elm = document.formModifyEvent.elements[i];
+        var localeSelect = document.getElementById("activeLocales");
+        var options = localeSelect && localeSelect.options;
 
-            if (elm.name.match(reg)) {
-                var langId = elm.value;
-                if (elm.checked) {
-                    var elmTitle = document.getElementById('title_' + langId);
-                    if (elmTitle.value == '') {
-                        elmTitle.style.border = "#ff0000 1px solid";
-                        document.getElementById('errorMessage').style.display = 'block';
-                        status = false;
-                    } else {
-                        elmTitle.style.borderColor = '';
-                    }
+        for (i = 0; i < options.length; i++) {
+            if (options[i].selected) {
+                var elmTitle = document.getElementById('title_' + options[i].value);
+                if (elmTitle.value == '') {
+                    elmTitle.style.border = "#ff0000 1px solid";
+                    document.getElementById('errorMessage').style.display = 'block';
+                    status = false;
+                } else {
+                    elmTitle.style.borderColor = '';
                 }
             }
         }
@@ -484,66 +482,65 @@
         var firstLang = true;
         var type = document.getElementById('type').value;
 
-        if (langCount(reg) == 0) {
+        if (localeCount() == 0) {
             $J("input[name*=showIn]:first").attr("checked", "checked");
         }
 
-        for (i = 0; i < document.formModifyEvent.elements.length; ++i) {
-            var elm = document.formModifyEvent.elements[i];
+        var localeSelect = document.getElementById("activeLocales");
+        var options = localeSelect && localeSelect.options;
 
-            if (elm.name.match(reg)) {
-                var langId = elm.value;
-                var tab1 = document.getElementById('eventDescTab_' + langId + '_desc');
-                var tab1body = document.getElementById(langId + '_desc');
+        for (i = 0; i < options.length; i++) {
+            var opt = options[i];
 
-                var type1 = document.getElementById(langId + '_typeEvent');
-                var type2 = document.getElementById(langId + '_typeRedirect');
+            var langId = opt.value;
+            var tab1 = document.getElementById('eventDescTab_' + langId + '_desc');
+            var tab1body = document.getElementById(langId + '_desc');
 
-                if (type == 1) {
-                    type1.style.display = 'none';
-                    type2.style.display = 'block';
+            var type1 = document.getElementById(langId + '_typeEvent');
+            var type2 = document.getElementById(langId + '_typeRedirect');
+
+            if (type == 1) {
+                type1.style.display = 'none';
+                type2.style.display = 'block';
+            } else {
+                type1.style.display = 'block';
+                type2.style.display = 'none';
+            }
+
+            if (opt.selected) {
+                tab1.style.display = 'inline';
+                if (firstLang) {
+                    tab1body.style.display = 'block';
+
+                    $J(".language_tab li a").removeClass('active').addClass("inactive");
+                    $J('#eventDescTab_' + langId + '_desc').addClass("active");
+
+                    firstLang = false;
                 } else {
-                    type1.style.display = 'block';
-                    type2.style.display = 'none';
-                }
-
-                if (elm.checked) {
-                    tab1.style.display = 'inline';
-                    if (firstLang) {
-                        tab1body.style.display = 'block';
-
-                        $J(".language_tab li a").removeClass('active').addClass("inactive");
-                        $J('#eventDescTab_' + langId + '_desc').addClass("active");
-
-                        firstLang = false;
-                    } else {
-                        tab1body.style.display = 'none';
-                    }
-                    cx.jQuery('.input_field_'+ langId).show();
-                } else {
-                    tab1.style.display = 'none';
                     tab1body.style.display = 'none';
-                    cx.jQuery('.input_field_'+ langId).hide();
                 }
+                cx.jQuery('.input_field_'+ langId).show();
+            } else {
+                tab1.style.display = 'none';
+                tab1body.style.display = 'none';
+                cx.jQuery('.input_field_'+ langId).hide();
             }
         }
         showOrHideExpandMinimize();
     }
 
-    function langCount(reg)
+    function localeCount()
     {
-        var activeLanguages = 0;
+        var activeLocales = 0;
+        var localeSelect = document.getElementById("activeLocales");
+        var options = localeSelect && localeSelect.options;
 
-        for (x = 0; x < document.formModifyEvent.elements.length; ++x) {
-            var elm = document.formModifyEvent.elements[x];
-            if (elm.name.match(reg)) {
-                if (elm.checked) {
-                    activeLanguages++;
-                }
+        for (i = 0; i < options.length; i++) {
+            if (options[i].selected) {
+                activeLocales++;
             }
         }
-
-        return activeLanguages;
+        return activeLocales;
     }
 
     function moveElement(from, dest, add, remove) {
@@ -730,9 +727,17 @@
         <tr class="row1">
             <td width="180" valign="top">{TXT_CALENDAR_EVENT_SHOW_IN}</td>
             <td>
-                <!-- BEGIN eventShowIn -->
-                <label><input name="showIn[]" id="showIn_{CALENDAR_EVENT_LANG_ID}" value="{CALENDAR_EVENT_LANG_ID}" type="checkbox" {CALENDAR_EVENT_LANG_CHECKED} onchange="langCheck();" />&nbsp;{TXT_CALENDAR_EVENT_LANG_NAME}&nbsp;&nbsp;&nbsp;</label>
-                <!-- END eventShowIn -->
+                <select id="activeLocales" name="showIn[]" onchange="langCheck();" multiple>
+                    <!-- BEGIN eventShowIn -->
+                    <option
+                      id="showIn_{CALENDAR_EVENT_LANG_ID}"
+                      value="{CALENDAR_EVENT_LANG_ID}"
+                      {CALENDAR_EVENT_LANG_CHECKED}
+                    >
+                        {TXT_CALENDAR_EVENT_LANG_NAME}
+                    </option>
+                    <!-- END eventShowIn -->
+                </select>
             </td>
         </tr>
     </table>
