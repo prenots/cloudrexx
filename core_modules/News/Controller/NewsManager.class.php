@@ -628,7 +628,7 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
                     foreach ($news['lang'] as $langId => $langValues) {
                         $langState[$langId] = 'active';
                     }
-                    $langString  = \Html::getLanguageIcons($langState, 'index.php?cmd=News&amp;act=edit&amp;newsId=' . $newsId . '&amp;langId=%1$d');
+                    $langString  = \Html::getLanguageIcons($langState, 'index.php?cmd=News&act=edit&newsId=' . $newsId . '&langId=%1$d');
                     $this->_objTpl->touchBlock('txt_languages_block');
                 } else {
                     $this->_objTpl->hideBlock('txt_languages_block');
