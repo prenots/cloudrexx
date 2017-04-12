@@ -33,7 +33,38 @@
         $J('input[name=newsDate]').datetimepicker();
         $J('input[name=startDate]').datetimepicker(dpOptions);
         $J('input[name=endDate]').datetimepicker(dpOptions);
+
+        var preSelected = cx.jQuery("#activeLocales").val();
+        cx.jQuery("#activeLocales")
+          .chosen({
+              width: "auto",
+              no_results_text: cx.variables.get("TXT_CORE_LOCALE_DOESNT_EXIST", "news")
+          }).focus(function() {
+              // store current selected locales
+              preSelected = cx.jQuery(this).val();
+          }).change(function() {
+              var nowSelected = cx.jQuery(this).val();
+              if (!nowSelected) { // empty not allowed, reset to previous value
+                  cx.jQuery(this).val(preSelected).change().trigger("chosen:updated");
+                  return;
+              }
+              if (preSelected.length < nowSelected.length) {// option added
+                  var changedOption = arrayDiff(nowSelected, preSelected);
+              } else { // option removed
+                  var changedOption = arrayDiff(preSelected, nowSelected);
+              }
+              changedOption = cx.jQuery(this).find("#newsManagerLanguages_" + changedOption[0]);
+              // switch box and tab
+              switchBoxAndTab(changedOption);
+              preSelected = nowSelected;
+          });
     }, true);
+
+    function arrayDiff(A, B) {
+        return A.filter(function (a) {
+            return B.indexOf(a) == -1;
+        });
+    }
 
     function toggleBlock(elementId, toggleId, hide) {
         if (elementId.is(":checked")) {
@@ -305,12 +336,13 @@
         return true;
     }
 
-    function switchBoxAndTab(objElement, strTabId) {
+    function switchBoxAndTab(objElement) {
         if (countActiveLanguages() == 0) {
             //We just "unchecked" the last language, disallow this
-            objElement.checked = true;
+            objElement.selected = true;
         } else {
             //There are more active languages, hide the tab
+            var strTabId = "news_lang_tab_" + objElement.val();
             switchTabVisibility(strTabId);
         }
 
@@ -326,7 +358,7 @@
         } else {
             if ($J('#news_lang_tab_'+selectedLang).hasClass('active')) {
                 var activeLang = [];
-                $J('.langCheckboxes:checked').each(function(i){
+                $J('#activeLocales option:selected').each(function(i){
                     activeLang[i] = $J(this).attr('id');
                 });
                 activeLangId = activeLang[0].split('_')[activeLang[0].split('_').length - 1];
@@ -338,27 +370,37 @@
 
     function countActiveLanguages() {
         var activeLanguages = 0;
-        activeLanguages = $J("input[name*=newsManagerLanguages]:checked").length;
+        activeLanguages = $J("#activeLocales option:selected").length;
         return activeLanguages;
     }
 
     //
 </script>
 <form name="news" method="post" action="index.php?cmd=News&amp;act={NEWS_FORM_ACTION}" onSubmit="newsSwitchLang();SelectAllList(document.news.elements['newsTeaserFramesAsso[]']);SelectAllList(document.news.elements['news_read_access_associated_groups[]']);SelectAllList(document.news.elements['news_modify_access_associated_groups[]']);">
-    <!-- BEGIN news_language_checkboxes -->
+    <!-- BEGIN news_language_select -->
     <table width="100%" cellspacing="0" cellpadding="3" border="0" class="adminlist">
         <tr>
             <th colspan="4">{TXT_LANGUAGE}</th>
         </tr>
         <tr class="row1">
             <td width="10%">{TXT_LANGUAGE}</td>
-            <td width="12%" valign="top">{EDIT_LANGUAGES_1}</td>
-            <td width="12%" valign="top">{EDIT_LANGUAGES_2}</td>
-            <td width="66%" valign="top">{EDIT_LANGUAGES_3}</td>
+            <td width="90%">
+                <select id="activeLocales" name="newsManagerLanguages[]" multiple>
+                    <!-- BEGIN news_language_option -->
+                    <option
+                      id="newsManagerLanguages_{NEWS_LANG_ID}"
+                      value="{NEWS_LANG_ID}"
+                      {NEWS_LANG_SELECTED}
+                    >
+                        {TXT_NEWS_LANG_NAME}
+                    </option>
+                    <!-- END news_language_option -->
+                </select>
+            </td>
         </tr>
     </table>
     <br />
-    <!-- END news_language_checkboxes -->
+    <!-- END news_language_select -->
     <ul id="tabmenu">
         <li><a id="messageTab_news1" class="active" href="javascript:{}" onclick="selectTab('news1')" title="{TXT_NEWS_BASIC_DATA}">{TXT_NEWS_BASIC_DATA}</a></li>
         <li><a id="messageTab_news2" href="javascript:{}" onclick="selectTab('news2')" title="{TXT_NEWS_MORE_OPTIONS}">{TXT_NEWS_MORE_OPTIONS}</a></li>
