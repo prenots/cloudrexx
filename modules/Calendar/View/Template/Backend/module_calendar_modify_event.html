@@ -315,9 +315,18 @@
             }
         });
 
+        var preSelected = cx.jQuery("#activeLocales").val();
         cx.jQuery("#activeLocales").chosen({
             width: "auto",
             no_results_text: cx.variables.get("TXT_CORE_LOCALE_DOESNT_EXIST", "calendar")
+        }).focus(function() {
+            // store current selected locales
+            preSelected = cx.jQuery(this).val();
+        }).change(function() {
+            var nowSelected = cx.jQuery(this).val();
+            if (!nowSelected) { // empty not allowed, reset to previous value
+                cx.jQuery(this).val(preSelected).change().trigger("chosen:updated");
+            }
         });
     });
 
