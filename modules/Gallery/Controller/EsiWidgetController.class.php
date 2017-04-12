@@ -51,63 +51,33 @@ namespace Cx\Modules\Gallery\Controller;
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
 
     /**
-     * Random name for random gallery
-     *
-     * @var string
-     */
-    protected $randomName;
-
-    /**
      * Parses a widget
      *
-     * @param string                     $name     Widget name
-     * @param \Cx\Core\Html\Sigma Widget $template Template
-     * @param string                     $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma Widget             $template Template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
+     *
+     * @return null
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_LANGID;
-
         $this->getComponent('Session')->getSession();
-        $_LANGID = \FWLanguage::getLangIdByIso639_1($locale);
-        $gallery = new GalleryHomeContent();
+
+        $gallery = new GalleryHomeContent($params['lang']);
         if ($name === 'GALLERY_LATEST' && $gallery->checkLatest()) {
             $template->setVariable($name, $gallery->getLastImage());
             return;
         }
 
-        $matches = null;
         if (
-            $name === 'GALLERY_RANDOM' &&
-            $gallery->checkRandom() &&
-            preg_match('/\d+/', $this->picId, $matches)
+            $name !== 'GALLERY_RANDOM' ||
+            empty($params['picId']) ||
+            !$gallery->checkRandom()
         ) {
-            $template->setVariable($name, $gallery->getImageById($matches[0]));
+            return;
         }
-    }
 
-    /**
-     * Returns the content of a widget
-     *
-     * @param array $params JsonAdapter parameters
-     *
-     * @return array Content in an associative array
-     */
-    public function getWidget($params)
-    {
-        $widgetName = '';
-        if (isset($params['get']) && isset($params['get']['name'])) {
-            $widgetName = $params['get']['name'];
-        }
-        if ($widgetName === 'GALLERY_RANDOM') {
-            if (
-                !isset($params['get']) ||
-                !isset($params['get']['picId'])
-            ) {
-                return;
-            }
-            $this->picId = $params['get']['picId'];
-        }
-        return parent::getWidget($params);
+        $template->setVariable($name, $gallery->getImageById($params['picId']));
     }
 }

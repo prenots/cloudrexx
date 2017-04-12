@@ -54,11 +54,12 @@ class GalleryHomeContent extends GalleryLibrary
     /**
      * Constructor php5
      */
-    function __construct() {
-        global $_LANGID;
-
+    function __construct($langId = null)
+    {
+        if ($langId) {
+            $this->_intLangId = $langId;
+        }
         $this->getSettings();
-        $this->_intLangId   = $_LANGID;
         $this->_strWebPath  = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/';
     }
 
