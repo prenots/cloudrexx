@@ -37,7 +37,7 @@
         var preSelected = cx.jQuery("#activeLocales").val();
         cx.jQuery("#activeLocales")
           .chosen({
-              width: "auto",
+              width: "308px",
               no_results_text: cx.variables.get("TXT_CORE_LOCALE_DOESNT_EXIST", "news")
           }).focus(function() {
               // store current selected locales
@@ -383,8 +383,8 @@
             <th colspan="4">{TXT_LANGUAGE}</th>
         </tr>
         <tr class="row1">
-            <td width="10%">{TXT_LANGUAGE}</td>
-            <td width="90%">
+            <td width="12%">{TXT_LANGUAGE}</td>
+            <td width="88%">
                 <select id="activeLocales" name="newsManagerLanguages[]" multiple>
                     <!-- BEGIN news_language_option -->
                     <option
