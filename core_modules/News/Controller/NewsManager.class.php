@@ -894,7 +894,7 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
     */
     function add()
     {
-        global $_ARRAYLANG, $_CONFIG, $objDatabase, $objInit;
+        global $_ARRAYLANG, $_CORELANG, $_CONFIG, $objDatabase, $objInit;
 
         \JS::activate('cx');
 
@@ -902,12 +902,13 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
             \JS::registerJS('lib/javascript/tag-it/js/tag-it.min.js');
             \JS::registerCss('lib/javascript/tag-it/css/tag-it.css');
         }
+        $objCx = \ContrexxJavascript::getInstance();
+        $objCx->setVariable('TXT_CORE_LOCALE_DOESNT_EXIST', $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST'], 'news');
         $newsTagId = 'newsTags';
 
         \FWUser::getUserLiveSearch();
 
         if (!empty($this->arrSettings['use_related_news'])) {
-            $objCx = \ContrexxJavascript::getInstance();
             $objCx->setVariable(
                 'noResultsMsg',
                 $_ARRAYLANG['TXT_NEWS_NOT_FOUND'],
@@ -922,8 +923,17 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
         }
 
         $objFWUser = \FWUser::getFWUserObject();
+        $activeLanguages = array();
+        if (isset($_POST['newsManagerLanguages'])) {
+            // Since newsManagerLanguages are now selected via html select
+            // and not via checkboxes anymore, we must bring them into
+            // compatible form
+            foreach ($_POST['newsManagerLanguages'] as $languageId) {
+                $activeLanguages[$languageId] = 1;
+            }
+        }
         $locales = array(
-            'active'        => !empty($_POST['newsManagerLanguages']) ? $_POST['newsManagerLanguages'] : array(),
+            'active'        => $activeLanguages,
             'title'         => !empty($_POST['newsTitle']) ? $_POST['newsTitle'] : array(),
             'text'          => !empty($_POST['news_text']) ? $_POST['news_text'] : array(),
             'teaser_text'   => !empty($_POST['newsTeaserText']) ? $_POST['newsTeaserText'] : array()
@@ -1102,59 +1112,63 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
             $arrActiveLang            = array(0 => '', 1 => '', 2 => '');
             $strJsTabToDiv      = '';
 
-            foreach($arrLanguages as $intId => $arrLanguage) {
-                if ($arrLanguage['frontend'] == 1) {
-                    $intLanguageId = $arrLanguage['id'];
-                    $boolLanguageIsActive = ($intLanguageId == $objInit->userFrontendLangId) ? true : false;
-
-                    $arrActiveLang[$intLanguageCounter%3] .= '<input id="languagebar_'.$intLanguageId.'" class="langCheckboxes" '.(($arrLanguage['is_default'] == 'true' || isset($_POST['newsManagerLanguages'][$intLanguageId])) ? 'checked="checked"' : '').' type="checkbox" name="newsManagerLanguages['.$intLanguageId.']" value="1" onclick="switchBoxAndTab(this, \'news_lang_tab_'.$intLanguageId.'\');" /><label for="languagebar_'.$intLanguageId.'">'.$arrLanguage['name'].' ['.$arrLanguage['lang'].']</label><br />';
-                    ++$intLanguageCounter;
-                }
-            }
-
             $this->_objTpl->setVariable(array(
                 'TXT_LANGUAGE'              => $_ARRAYLANG['TXT_LANGUAGE'],
-                'EDIT_LANGUAGES_1'          => $arrActiveLang[0],
-                'EDIT_LANGUAGES_2'          => $arrActiveLang[1],
-                'EDIT_LANGUAGES_3'          => $arrActiveLang[2]
             ));
         }
 
         foreach ($arrLanguages as $langId => $arrLanguage) {
-            if ($arrLanguage['frontend'] == 1) {
-                // parse tabs
-                $this->_objTpl->setVariable(array(
-                    'NEWS_LANG_ID'              => $langId,
-                    'NEWS_LANG_DISPLAY_STATUS'  => $arrLanguage['is_default'] == 'true' ? 'active' : 'inactive',
-                    'NEWS_LANG_DISPLAY_STYLE'   => $arrLanguage['is_default'] == 'true' || isset($_POST['newsManagerLanguages'][$langId]) ? 'inline' : 'none',
-                    'NEWS_LANG_NAME'            => contrexx_raw2xhtml($arrLanguage['name'])
-                ));
-                $this->_objTpl->parse('news_lang_list');
-
-                // parse title
-                $this->_objTpl->setVariable(array(
-                    'NEWS_LANG_ID'              => $langId,
-                    'NEWS_TITLE'                => !empty($_POST['newsTitle'][$langId]) ? contrexx_input2xhtml($_POST['newsTitle'][$langId]) : '',
-                    'NEWS_TITLE_DISPLAY'        => $arrLanguage['is_default'] == 'true' ? 'block' : 'none'
-                ));
-                $this->_objTpl->parse('news_title_list');
-
-                // parse teaser text
-                $this->_objTpl->setVariable(array(
-                    'NEWS_LANG_ID'              => $langId,
-                    'NEWS_TEASER_TEXT'          => !empty($_POST['newsTeaserText'][$langId]) ? contrexx_input2xhtml($_POST['newsTeaserText'][$langId]) : '',
-                    'NEWS_TEASER_TEXT_LENGTH'   => !empty($_POST['newsTeaserText'][$langId]) ? strlen(contrexx_input2raw($_POST['newsTeaserText'][$langId])) : 0,
-                    'NEWS_TITLE_DISPLAY'        => $arrLanguage['is_default'] == 'true' ? 'block' : 'none'
-                ));
-                $this->_objTpl->parse('news_teaser_text_list');
-
-                // parse text
-                $this->_objTpl->setVariable(array(
-                    'NEWS_LANG_ID'              => $langId,
-                    'NEWS_TEXT'                 => !empty($_POST['news_text'][$langId]) ? contrexx_input2xhtml($_POST['news_text'][$langId]) : ''
-                ));
-                $this->_objTpl->parse('news_text_list');
+            //parse options
+            if (
+                $arrLanguage['is_default'] ||
+                in_array($langId, $active_lang)
+            ) {
+                $langSelected = 'selected';
+            } else {
+                $langSelected =  '';
             }
+            $this->_objTpl->setVariable(array(
+                'NEWS_LANG_SHORTCUT'    => $arrLanguage['lang'],
+                'NEWS_LANG_ID'          => $langId,
+                'NEWS_LANG_SELECTED'    => $langSelected,
+                'TXT_NEWS_LANG_NAME'    => $arrLanguage['name'],
+            ));
+            $this->_objTpl->parse('news_language_option');
+
+            // parse tabs
+            $this->_objTpl->setVariable(array(
+                'NEWS_LANG_ID'              => $langId,
+                'NEWS_LANG_DISPLAY_STATUS'  => $arrLanguage['is_default'] == 'true' ? 'active' : 'inactive',
+                'NEWS_LANG_DISPLAY_STYLE'   => $arrLanguage['is_default'] == 'true' || isset($_POST['newsManagerLanguages'][$langId]) ? 'inline' : 'none',
+                'NEWS_LANG_NAME'            => contrexx_raw2xhtml($arrLanguage['name'])
+            ));
+            $this->_objTpl->parse('news_lang_list');
+
+            // parse title
+            $this->_objTpl->setVariable(array(
+                'NEWS_LANG_ID'              => $langId,
+                'NEWS_TITLE'                => !empty($_POST['newsTitle'][$langId]) ? contrexx_input2xhtml($_POST['newsTitle'][$langId]) : '',
+                'NEWS_TITLE_DISPLAY'        => $arrLanguage['is_default'] == 'true' ? 'block' : 'none'
+            ));
+            $this->_objTpl->parse('news_title_list');
+
+            // parse teaser text
+            $this->_objTpl->setVariable(array(
+                'NEWS_LANG_ID'              => $langId,
+                'NEWS_TEASER_TEXT'          => !empty($_POST['newsTeaserText'][$langId]) ? contrexx_input2xhtml($_POST['newsTeaserText'][$langId]) : '',
+                'NEWS_TEASER_TEXT_LENGTH'   => !empty($_POST['newsTeaserText'][$langId]) ? strlen(contrexx_input2raw($_POST['newsTeaserText'][$langId])) : 0,
+                'NEWS_TITLE_DISPLAY'        => $arrLanguage['is_default'] == 'true' ? 'block' : 'none'
+            ));
+            $this->_objTpl->parse('news_teaser_text_list');
+
+            // parse text
+            $this->_objTpl->setVariable(array(
+                'NEWS_LANG_ID'              => $langId,
+                'NEWS_TEXT'                 => !empty($_POST['news_text'][$langId]) ? contrexx_input2xhtml($_POST['news_text'][$langId]) : ''
+            ));
+            $this->_objTpl->parse('news_text_list');
+
+            ++$intLanguageCounter;
         }
 
         if ($intLanguageCounter == 1) {
