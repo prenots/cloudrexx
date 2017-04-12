@@ -55,11 +55,14 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma Widget             $template Template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
+     *
+     * @return null
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
         $stats      = $this->cx->getComponent('Stats');
         $objCounter = $stats->getCounterInstance();
@@ -79,23 +82,10 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         if ($name === 'COUNTER') {
-            $template->setVariable($name, $objCounter->getCounterTag($this->currentPageId));
+            $template->setVariable(
+                $name,
+                $objCounter->getCounterTag($params['page']->getId())
+            );
         }
     }
-
-    /**
-    * Returns the content of a widget
-    *
-    * @param array $params JsonAdapter parameters
-    *
-    * @return array Content in an associative array
-    */
-    public function getWidget($params)
-    {
-        if (isset($params['get']) && isset($params['get']['page'])) {
-            $this->currentPageId = $params['get']['page'];
-        }
-        return parent::getWidget($params);
-    }
-
 }
