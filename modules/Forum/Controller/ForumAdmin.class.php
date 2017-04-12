@@ -185,7 +185,7 @@ class ForumAdmin extends ForumLibrary {
      * @global     array
      */
     function showCategoryOverview() {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $_CORELANG, $_CONFIG;
 
         $this->_strPageTitle = $_ARRAYLANG['TXT_FORUM_MENU_CATEGORIES'];
         $this->_objTpl->loadTemplateFile('module_forum_category_overview.html',true,true);
@@ -209,6 +209,7 @@ class ForumAdmin extends ForumLibrary {
             'TXT_SUBMIT_DELETE'            =>    $_ARRAYLANG['TXT_FORUM_CATEGORY_MULTIACTION_DELETE'],
             'TXT_SUBMIT_ACTIVATE'        =>    $_ARRAYLANG['TXT_FORUM_CATEGORY_MULTIACTION_ACTIVATE'],
             'TXT_SUBMIT_DEACTIVATE'        =>    $_ARRAYLANG['TXT_FORUM_CATEGORY_MULTIACTION_DEACTIVATE'],
+            'TXT_CORE_LOCALE_DOESNT_EXIST' => $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST'],
            ));
 
            $arrForums = $this->createForumArray();
@@ -230,7 +231,7 @@ class ForumAdmin extends ForumLibrary {
                             $langState[$intLangId] = 'active';
                         }
                     }
-                $strLanguages = count($this->_arrLanguages) > 1 ? \Html::getLanguageIcons($langState, 'index.php?cmd=Forum&amp;act=category_edit&amp;id=' . $arrValues['id']) : '';
+                $strLanguages = count($this->_arrLanguages) > 1 ? \Html::getLanguageIcons($langState, 'index.php?cmd=Forum&act=category_edit&id=' . $arrValues['id']) : '';
 
                 $this->_objTpl->setVariable(array(
                        'CATEGORY_ROWCLASS'            =>    'row'.($index % 2),
@@ -273,11 +274,9 @@ class ForumAdmin extends ForumLibrary {
            ));
 
            if (count($this->_arrLanguages) >= 1) {
-               $intCounter = 0;
-               $arrLanguages = array();
 
+               $arrLanguages = array();
                foreach ($this->_arrLanguages as $intLangId => $arrValues) {
-                   $arrLanguages[$intCounter%3] .= '<input checked="checked" type="checkbox" name="frmAddCategory_Languages[]" value="'.$intLangId.'" />'.$arrValues['long'].' ['.$arrValues['short'].']<br />';
 
                    $this->_objTpl->setVariable(array(
                        'CATEGORY_ADD_NAME_LANGID'    =>    $intLangId,
@@ -294,14 +293,16 @@ class ForumAdmin extends ForumLibrary {
                    $this->_objTpl->parse('forumNameFields');
                    $this->_objTpl->parse('forumDescFields');
 
-                   ++$intCounter;
+                   $selected = $intLangId == $_CONFIG['defaultLocaleId'] ? 'selected' : '';
+                   //parse options
+                   $this->_objTpl->setVariable(array(
+                       'CATEGORY_LANG_SHORTCUT'    => $arrValues['lang'],
+                       'CATEGORY_LANG_ID'          => $intLangId,
+                       'CATEGORY_LANG_SELECTED'    => $selected,
+                       'TXT_CATEGORY_LANG_NAME'    => $arrValues['long'].' ['.$arrValues['short'].']',
+                   ));
+                   $this->_objTpl->parse('category_language_option');
                }
-
-               $this->_objTpl->setVariable(array(
-                   'CATEGORY_ADD_LANGUAGES_1'    =>    $arrLanguages[0],
-                   'CATEGORY_ADD_LANGUAGES_2'    =>    $arrLanguages[1],
-                   'CATEGORY_ADD_LANGUAGES_3'    =>    $arrLanguages[2]
-               ));
            }
 
      //show "add forum"-form

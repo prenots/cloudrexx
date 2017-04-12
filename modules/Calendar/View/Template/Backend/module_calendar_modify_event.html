@@ -327,6 +327,7 @@
             if (!nowSelected) { // empty not allowed, reset to previous value
                 cx.jQuery(this).val(preSelected).change().trigger("chosen:updated");
             }
+            preSelected = nowSelected;
         });
     });
 

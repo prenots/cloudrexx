@@ -94,6 +94,22 @@ function markCheckboxes(intSelected) {
     }
   }
 }
+cx.ready(function() {
+  var preSelected = cx.jQuery("#activeLocales").val();
+  cx.jQuery("#activeLocales").chosen({
+    width: "30%",
+    no_results_text: "{TXT_CORE_LOCALE_DOESNT_EXIST}"
+  }).focus(function() {
+    // store current selected locales
+    preSelected = cx.jQuery(this).val();
+  }).change(function() {
+    var nowSelected = cx.jQuery(this).val();
+    if (!nowSelected) { // empty not allowed, reset to previous value
+      cx.jQuery(this).val(preSelected).change().trigger("chosen:updated");
+    }
+    preSelected = nowSelected;
+  });
+});
 </script>
 
 <ul id="tabmenu">
@@ -203,9 +219,19 @@ function markCheckboxes(intSelected) {
       </tr>
       <tr class="row1">
         <td width="10%">{TXT_CATEGORY_ADD_CATEGORY_LANGUAGES}</td>
-        <td width="10%" valign="top">{CATEGORY_ADD_LANGUAGES_1}</td>
-        <td width="10%" valign="top">{CATEGORY_ADD_LANGUAGES_2}</td>
-        <td width="70%" valign="top">{CATEGORY_ADD_LANGUAGES_3}</td>
+        <td width="90%">
+          <select id="activeLocales" name="frmAddCategory_Languages[]" multiple>
+            <!-- BEGIN category_language_option -->
+            <option
+              id="newsManagerLanguages_{CATEGORY_LANG_ID}"
+              value="{CATEGORY_LANG_ID}"
+              {CATEGORY_LANG_SELECTED}
+            >
+              {TXT_CATEGORY_LANG_NAME}
+            </option>
+            <!-- END category_language_option -->
+          </select>
+        </td>
       </tr>
       <tr class="row2">
         <td width="10%">{TXT_CATEGORY_STATUS}</td>
