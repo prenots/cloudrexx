@@ -300,8 +300,14 @@ class ForumAdmin extends ForumLibrary {
                        'CATEGORY_LANG_ID'          => $intLangId,
                        'CATEGORY_LANG_SELECTED'    => $selected,
                        'TXT_CATEGORY_LANG_NAME'    => $arrValues['long'].' ['.$arrValues['short'].']',
+                       // parse forum options as well
+                       'FORUM_LANG_SHORTCUT'       => $arrValues['lang'],
+                       'FORUM_LANG_ID'             => $intLangId,
+                       'FORUM_LANG_SELECTED'       => $selected,
+                       'TXT_FORUM_LANG_NAME'       => $arrValues['long'].' ['.$arrValues['short'].']',
                    ));
                    $this->_objTpl->parse('category_language_option');
+                   $this->_objTpl->parse('forum_language_option');
                }
            }
 
@@ -316,7 +322,7 @@ class ForumAdmin extends ForumLibrary {
             'TXT_CATEGORY_ADD_FORUM_BUTTON'        =>    $_ARRAYLANG['TXT_SAVE'],
             'TXT_CATEGORY_STATUS'                =>    $_ARRAYLANG['TXT_CATEGORY_STATUS'],
            ));
-           $this->_objTpl->setVariable('CATEGORY_FORUM_ADD_DROPDOWN',$this->createForumDD('frmAddCategory_ParentId',0,'onchange="markCheckboxes(this.options[this.selectedIndex].value);"', null, false, true));
+           $this->_objTpl->setVariable('CATEGORY_FORUM_ADD_DROPDOWN',$this->createForumDD('frmAddCategory_ParentId',0,'onchange="selectLocales(this.options[this.selectedIndex].value);"', null, false, true));
 
            foreach ($this->_arrTranslations as $intCatId => $arrInner) {
                $strLanguages = '';
