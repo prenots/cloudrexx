@@ -1116,12 +1116,11 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
                 'TXT_LANGUAGE'              => $_ARRAYLANG['TXT_LANGUAGE'],
             ));
         }
-
         foreach ($arrLanguages as $langId => $arrLanguage) {
             //parse options
             if (
                 $arrLanguage['is_default'] ||
-                in_array($langId, $active_lang)
+                isset($activeLanguages[$langId])
             ) {
                 $langSelected = 'selected';
             } else {
@@ -1139,7 +1138,7 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
             $this->_objTpl->setVariable(array(
                 'NEWS_LANG_ID'              => $langId,
                 'NEWS_LANG_DISPLAY_STATUS'  => $arrLanguage['is_default'] == 'true' ? 'active' : 'inactive',
-                'NEWS_LANG_DISPLAY_STYLE'   => $arrLanguage['is_default'] == 'true' || isset($_POST['newsManagerLanguages'][$langId]) ? 'inline' : 'none',
+                'NEWS_LANG_DISPLAY_STYLE'   => $arrLanguage['is_default'] == 'true' || isset($activeLanguages[$langId]) ? 'inline' : 'none',
                 'NEWS_LANG_NAME'            => contrexx_raw2xhtml($arrLanguage['name'])
             ));
             $this->_objTpl->parse('news_lang_list');
@@ -1666,7 +1665,7 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
                 }
 
                 if (isset($_POST['newsManagerLanguages'])) {
-                    $active_lang = array_keys($_POST['newsManagerLanguages']);
+                    $active_lang = $_POST['newsManagerLanguages'];
                 }
 
                 $this->_objTpl->setVariable(array(
