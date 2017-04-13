@@ -56,13 +56,20 @@ class ForumHomeContent extends ForumLibrary {
     /**
      * Constructor php5
      */
-    function __construct($pageContent) {
+    function __construct($pageContent, $langId = null)
+    {
         global $_LANGID;
+
         $this->_pageContent = $pageContent;
-        $this->_objTpl = new \Cx\Core\Html\Sigma('.');
+        $this->_objTpl      = new \Cx\Core\Html\Sigma('.');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
-        $this->_intLangId = $_LANGID;
         $this->_arrSettings = $this->createSettingsArray();
+
+        if ($langId) {
+            $this->_intLangId = $langId;
+        } else {
+            $this->_intLangId = $_LANGID;
+        }
     }
 
     /**

@@ -29,7 +29,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_forum
  * @version     1.0.0
@@ -44,7 +44,7 @@ namespace Cx\Modules\Forum\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_forum
  * @version     1.0.0
@@ -52,33 +52,29 @@ namespace Cx\Modules\Forum\Controller;
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
     /**
-     * currentThemeId
-     *
-     * @var integer
-     */
-    protected $currentThemeId;
-
-    /**
      * Parses a widget
      *
-     * @param string              $name   Widget name
-     * @param \Cx\Core\Html\Sigma Widget  template
-     * @param string              $locale RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template Widget template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
+     *
+     * @return null
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_CONFIG, $_ARRAYLANG, $objInit, $_LANGID;
-
         //Parse Forum latest entries content
-        $_LANGID = \FWLanguage::getLangIdByIso639_1($locale);
-        if ($name == 'FORUM_FILE' && $_CONFIG['forumHomeContent'] == '1') {
-            $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Forum'));
-            $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
-            $theme           = $themeRepository->findById($this->currentThemeId);
-            if (!$theme) {
+        if (
+            $name == 'FORUM_FILE' &&
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'forumHomeContent',
+                'Config'
+            ) == '1'
+        ) {
+            if (!$params['theme']) {
                 return;
             }
-            $filePath   = $theme->getFolderName() . '/forum.html';
+            $filePath   = $params['theme']->getFolderName() . '/forum.html';
             $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getMediaSourceManager()
                 ->getMediaType('themes')
@@ -92,32 +88,27 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             }
 
             $content  = file_get_contents($fileSystem->getFullPath($file));
-            $objForum = new ForumHomeContent($content);
+            $objForum = new ForumHomeContent($content, $params['lang']);
             $template->setVariable(
                 $name,
                 $objForum->getContent()
             );
+            return;
         }
 
         //Parse Forum tagcloud
-        if ($name == 'FORUM_TAG_CLOUD' && !empty($_CONFIG['forumTagContent'])) {
-            $objForumHome = new ForumHomeContent('');
-            $template->setVariable($name, $objForumHome->getHomeTagCloud());
+        if (
+            $name !== 'FORUM_TAG_CLOUD' ||
+            empty(
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'forumTagContent',
+                    'Config'
+                )
+            )
+        ) {
+            return;
         }
-    }
-
-    /**
-     * Returns the content of a widget
-     *
-     * @param array $params JsonAdapter parameters
-     *
-     * @return array Content in an associative array
-     */
-    public function getWidget($params)
-    {
-        if (isset($params['get']) && isset($params['get']['theme'])) {
-            $this->currentThemeId = $params['get']['theme'];
-        }
-        return parent::getWidget($params);
+        $objForumHome = new ForumHomeContent('');
+        $template->setVariable($name, $objForumHome->getHomeTagCloud());
     }
 }
