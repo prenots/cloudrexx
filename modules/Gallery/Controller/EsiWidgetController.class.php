@@ -28,7 +28,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_gallery
  * @version     1.0.0
@@ -43,7 +43,7 @@ namespace Cx\Modules\Gallery\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_gallery
  * @version     1.0.0
