@@ -45,7 +45,7 @@
           }).change(function() {
               var nowSelected = cx.jQuery(this).val();
               if (!nowSelected) { // empty not allowed, reset to previous value
-                  cx.jQuery(this).val(preSelected).change().trigger("chosen:updated");
+                  cx.jQuery(this).val(preSelected).trigger("chosen:updated");
                   return;
               }
               if (preSelected.length < nowSelected.length) {// option added
