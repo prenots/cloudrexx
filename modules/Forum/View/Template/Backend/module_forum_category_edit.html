@@ -24,37 +24,45 @@ function copyText(strType) {
 }
 
 
-function markCheckboxes(intSelected) {
-  strCategories = '';
-  for (var h=0; h < document.forms.length;h++) {
-    for (var i=0; i < document.forms[h].elements.length;i++) {
-      //read out all form-elements with the loop
-      if(document.forms[h].elements[i].name.search('frmUpdateCategory_ParCat_'+intSelected) != -1) {
-        strCategories = document.forms[h].elements[i].value;
-      }
+function selectLocales(intSelected) {
+  var parentCatLocales = cx.jQuery("input[name='frmAddCategory_ParCat_" + intSelected);
+  if (parentCatLocales.length) {
+    categoryLocaleIds = parentCatLocales.val().split(",");
 
-      if (document.forms[h].elements[i].name.search('frmUpdateCategory_Languages') != -1) {
-        document.forms[h].elements[i].disabled = true;
-        document.forms[h].elements[i].checked = false;
-      }
-    }
-  }
+    // first disable and uncheck all options
+    var localeSelect = cx.jQuery("#activeLocalesFrm");
+    var localeOptions = localeSelect.find("option");
+    localeOptions.prop("disabled", true);
+    localeOptions.prop("selected", false);
 
-  if (strCategories != '') {
-    arrTemp = strCategories.split(',');
-    for (var j = 0; j < arrTemp.length; j++) {
-      for (var h=0; h < document.forms.length;h++) {
-        for (var i=0; i < document.forms[h].elements.length;i++) {
-          //read out all form-elements with the loop
-          if(  document.forms[h].elements[i].name.search('frmUpdateCategory_Languages') != -1  && document.forms[h].elements[i].value == arrTemp[j]) {
-            document.forms[h].elements[i].disabled = false;
-            document.forms[h].elements[i].checked = true;
-          }
-        }
-      }
+    // enable and preselect locales off parent category
+    var i;
+    for (i = 0; i < categoryLocaleIds.length; ++i) {
+      var localeOption = cx.jQuery("#forumLanguages_" + categoryLocaleIds[i]);
+      localeOption.prop("disabled", false);
+      localeOption.prop("selected", true);
     }
+    localeSelect.trigger("chosen:updated");
   }
 }
+
+cx.ready(function() {
+
+  var preSelectedFrm = cx.jQuery("#activeLocalesFrm").val();
+  cx.jQuery("#activeLocalesFrm").chosen({
+    width: "30%",
+    no_results_text: "{TXT_CORE_LOCALE_DOESNT_EXIST}"
+  }).focus(function() {
+    // store current selected locales
+    preSelectedFrm = cx.jQuery(this).val();
+  }).change(function() {
+    var nowSelectedFrm = cx.jQuery(this).val();
+    if (!nowSelectedFrm) { // empty not allowed, reset to previous value
+      cx.jQuery(this).val(preSelectedFrm).change().trigger("chosen:updated");
+    }
+    preSelectedFrm = nowSelectedFrm;
+  });
+});
 </script>
 <form name="frmUpdateCategory" method="post" action="?cmd=Forum&amp;act=category_update">
   <input type="hidden" name="frmUpdateCategory_CategoryId" value="{VALUE_CATEGORY_ID}" />
@@ -101,9 +109,20 @@ function markCheckboxes(intSelected) {
     </tr>
     <tr class="row1">
       <td width="10%">{TXT_CATEGORY_EDIT_CATEGORY_LANGUAGES}</td>
-      <td width="10%" valign="top">{CATEGORY_EDIT_LANGUAGES_1}</td>
-      <td width="10%" valign="top">{CATEGORY_EDIT_LANGUAGES_2}</td>
-      <td width="70%" valign="top">{CATEGORY_EDIT_LANGUAGES_3}</td>
+      <td width="90%">
+        <select id="activeLocalesFrm" name="frmUpdateCategory_Languages[]" multiple>
+          <!-- BEGIN forum_language_option -->
+          <option
+            id="forumLanguages_{FORUM_LANG_ID}"
+            value="{FORUM_LANG_ID}"
+            {FORUM_LANG_SELECTED}
+            {FORUM_LANG_DISABLED}
+          >
+            {TXT_FORUM_LANG_NAME}
+          </option>
+          <!-- END forum_language_option -->
+        </select>
+      </td>
     </tr>
   </table>
   <br />

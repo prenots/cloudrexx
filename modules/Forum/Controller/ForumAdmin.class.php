@@ -618,7 +618,7 @@ class ForumAdmin extends ForumLibrary {
 
             } else {
                 //forum
-                $this->_objTpl->setVariable('VALUE_CATEGORY_DD',$this->createForumDD('frmUpdateCategory_ParentId',$intParentId,'onchange="markCheckboxes(this.options[this.selectedIndex].value);"', '', false));
+                $this->_objTpl->setVariable('VALUE_CATEGORY_DD',$this->createForumDD('frmUpdateCategory_ParentId',$intParentId,'onchange="selectLocales(this.options[this.selectedIndex].value);"', '', false));
 
                    foreach ($this->_arrTranslations as $intCatId => $arrInner) {
                        $strLanguages = '';
@@ -639,14 +639,8 @@ class ForumAdmin extends ForumLibrary {
             }
 
                if (count($this->_arrLanguages) > 0) {
-                   $intCounter = 0;
-                   $arrLanguages = array();
 
                    foreach ($this->_arrLanguages as $intLangId => $arrValues) {
-                       $strChecked        = (array_key_exists($intLangId, $this->_arrTranslations[$intCategoryId])) ? 'checked' : '';
-                       $strDisabled     = ($intParentId == 0) ? '' : ((!array_key_exists($intLangId, $this->_arrTranslations[$intParentId])) ? 'disabled="disabled"' : '');
-
-                       $arrLanguages[$intCounter%3] .= '<input type="checkbox" name="frmUpdateCategory_Languages[]" value="'.$intLangId.'" '.$strDisabled.' '.$strChecked.' />'.$arrValues['long'].' ['.$arrValues['short'].']<br />';
 
                        $this->_objTpl->setVariable(array(
                            'CATEGORY_EDIT_NAME_LANGID'    =>    $intLangId,
@@ -659,14 +653,21 @@ class ForumAdmin extends ForumLibrary {
                        $this->_objTpl->parse('categoryNameFields');
                        $this->_objTpl->parse('categoryDescFields');
 
-                       ++$intCounter;
-                   }
+                       // parse options
+                       $selected = (array_key_exists($intLangId, $this->_arrTranslations[$intCategoryId])) ? 'selected' : '';
+                       $disabled = ($intParentId == 0) ? '' : ((!array_key_exists($intLangId, $this->_arrTranslations[$intParentId])) ? 'disabled="disabled"' : '');
 
-                   $this->_objTpl->setVariable(array(
-                       'CATEGORY_EDIT_LANGUAGES_1'    =>    $arrLanguages[0],
-                       'CATEGORY_EDIT_LANGUAGES_2'    =>    $arrLanguages[1],
-                       'CATEGORY_EDIT_LANGUAGES_3'    =>    $arrLanguages[2]
-                   ));
+                       $this->_objTpl->setVariable(array(
+                           // parse forum options as well
+                           'FORUM_LANG_SHORTCUT'       => $arrValues['lang'],
+                           'FORUM_LANG_ID'             => $intLangId,
+                           'FORUM_LANG_SELECTED'       => $selected,
+                           'FORUM_LANG_DISABLED'       => $disabled,
+                           'TXT_FORUM_LANG_NAME'       => $arrValues['long'].' ['.$arrValues['short'].']',
+
+                       ));
+                       $this->_objTpl->parse('forum_language_option');
+                   }
                }
 
 
