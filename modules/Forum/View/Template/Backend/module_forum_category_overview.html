@@ -97,6 +97,7 @@ cx.ready(function() {
   }).change(function() {
     var nowSelected = cx.jQuery(this).val();
     if (!nowSelected) { // empty not allowed, reset to previous value
+      nowSelected = preSelected;
       cx.jQuery(this).val(preSelected).change().trigger("chosen:updated");
     }
     preSelected = nowSelected;
@@ -112,7 +113,8 @@ cx.ready(function() {
   }).change(function() {
     var nowSelectedFrm = cx.jQuery(this).val();
     if (!nowSelectedFrm) { // empty not allowed, reset to previous value
-      cx.jQuery(this).val(preSelectedFrm).change().trigger("chosen:updated");
+      nowSelectedFrm = preSelectedFrm;
+      cx.jQuery(this).val(preSelectedFrm).trigger("chosen:updated");
     }
     preSelectedFrm = nowSelectedFrm;
   });
