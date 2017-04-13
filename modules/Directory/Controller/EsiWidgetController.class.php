@@ -29,7 +29,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_directory
  * @version     1.0.0
@@ -44,7 +44,7 @@ namespace Cx\Modules\Directory\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_directory
  * @version     1.0.0
@@ -52,33 +52,29 @@ namespace Cx\Modules\Directory\Controller;
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
     /**
-     * currentThemeId
-     *
-     * @var integer
-     */
-    protected $currentThemeId;
-
-    /**
      * Parses a widget
-     * @param string $name Widget name
-     * @param \Cx\Core\Html\Sigma Widget template
-     * @param string $locale RFC 3066 locale identifier
+     *
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template Widget template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
+     *
+     * @return null
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_CONFIG, $_CORELANG;
-
         //Parse Directory Homecontent
         if (
             $name == 'DIRECTORY_FILE' &&
-            $_CONFIG['directoryHomeContent'] == '1'
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'directoryHomeContent',
+                'Config'
+            ) == '1'
         ) {
-            $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
-            $theme           = $themeRepository->findById($this->currentThemeId);
-            if (!$theme) {
+            if (!$params['theme']) {
                 return;
             }
-            $filePath   = $theme->getFolderName() . '/directory.html';
+            $filePath   = $params['theme']->getFolderName() . '/directory.html';
             $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getMediaSourceManager()
                 ->getMediaType('themes')
@@ -96,32 +92,30 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $name,
                 DirHomeContent::getObj($content)->getContent()
             );
+            return;
         }
 
         //Parse Latest Directory entries
         $matches = null;
-        if (preg_match('/^directoryLatest_row_(\d{1,2})_(\d{1,2})/', $name, $matches)) {
-            $directory = new Directory('');
-            $template->setVariable(
-                'TXT_DIRECTORY_LATEST',
-                $_CORELANG['TXT_DIRECTORY_LATEST']
-            );
-            $directory->getBlockLatest($template, $matches[1], $matches[2]);
+        if (
+            !preg_match(
+                '/^directoryLatest_row_(\d{1,2})_(\d{1,2})/',
+                $name,
+                $matches
+            )
+        ) {
+            return;
         }
-    }
-
-    /**
-     * Returns the content of a widget
-     *
-     * @param array $params JsonAdapter parameters
-     *
-     * @return array Content in an associative array
-     */
-    public function getWidget($params)
-    {
-        if (isset($params['get']) && isset($params['get']['theme'])) {
-            $this->currentThemeId = $params['get']['theme'];
-        }
-        return parent::getWidget($params);
+        $directory = new Directory('');
+        $coreLang  = \Env::get('init')->getComponentSpecificLanguageData(
+            'Core',
+            true,
+            $params['lang']
+        );
+        $template->setVariable(
+            'TXT_DIRECTORY_LATEST',
+            $coreLang['TXT_DIRECTORY_LATEST']
+        );
+        $directory->getBlockLatest($template, $matches[1], $matches[2]);
     }
 }
