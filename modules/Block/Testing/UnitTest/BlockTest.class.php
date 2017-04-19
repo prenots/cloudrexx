@@ -150,10 +150,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testExistBlockVersion()
     {
-        global $objTemplate;
-        // sets global template object
-        $objTemplate = new \Cx\Core\Html\Sigma();
-
         // creates a new block
         $block = $this->createBlock();
 
@@ -176,10 +172,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testRevertBlockVersion()
     {
-        global $objTemplate;
-        // sets global template object
-        $objTemplate = new \Cx\Core\Html\Sigma();
-
         // creates a new block
         $block = $this->createBlock();
 
@@ -234,10 +226,8 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             'block_save_block' => 'Store',
         );
 
-        // instantiates block manager
-        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
         // calls block manager
-        $blockManager->getPage();
+        $this->callBlockManager();
 
         // gets log entries of block
         $blockLogRepo = static::$cx
@@ -262,10 +252,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testRestoreBlockVersion()
     {
-        global $objTemplate;
-        // sets global template object
-        $objTemplate = new \Cx\Core\Html\Sigma();
-
         // creates a new block
         $block = $this->createBlock();
 
@@ -276,10 +262,8 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             'catId' => $block->getCategory()->getId(),
         );
 
-        // instantiates block manager
-        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
         // calls block manager
-        $blockManager->getPage();
+        $this->callBlockManager();
 
         // gets log entries of block
         $blockLogRepo = static::$cx
@@ -303,10 +287,6 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     private function createBlock()
     {
-        global $objTemplate;
-        // sets global template object
-        $objTemplate = new \Cx\Core\Html\Sigma();
-
         // sets post values for creating a new block
         $_POST = array(
             'act' => 'modify',
@@ -358,10 +338,8 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             'block_save_block' => 'Store',
         );
 
-        // instantiates block manager
-        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
         // calls block manager
-        $blockManager->getPage();
+        $this->callBlockManager();
 
         // gets id of the previously new created block
         $highestBlockId = static::$cx
@@ -385,6 +363,31 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         );
 
         return $block;
+    }
+
+    /**
+     * Calls block manager
+     */
+    private function callBlockManager()
+    {
+        // set template object for block manager
+        $this->setGlobalTemplate();
+        // instantiates block manager
+        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
+        // calls block manager
+        $blockManager->getPage();
+    }
+
+    /**
+     * Sets empty global template object
+     *
+     * @global $objTemplate
+     */
+    private function setGlobalTemplate()
+    {
+        global $objTemplate;
+        // sets global template object
+        $objTemplate = new \Cx\Core\Html\Sigma();
     }
 
     /**
