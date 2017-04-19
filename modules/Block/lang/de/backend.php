@@ -152,3 +152,8 @@ $_ARRAYLANG['TXT_BLOCK_DIRECT_INFO_SHOW_SELECTED_PAGES'] = 'Dieser Inhaltscontai
 $_ARRAYLANG['TXT_BLOCK_MARK_PARSED_BLOCK'] = 'Inhaltscontainer mit HTML-Kommentar umschließen';
 $_ARRAYLANG['TXT_BLOCK_MARK_PARSED_BLOCK_INFO'] = 'Aktivieren Sie diese Option, um die Inhaltscontainer bei der Website-Ausgabe (Frontend) mit einem HTML-Kommentar zu versehen. Ist diese Option aktiv, werden alle Inhaltscontainer mit einem HTML-Kommentar wie folgt umschlossen: <br />
 &lt;!-- start BLOCK_1 --&gt;Inhalt des Containers&lt;!-- end BLOCK_1 --&gt;';
+$_ARRAYLANG['TXT_BLOCK_HISTORY'] = 'Verlauf';
+$_ARRAYLANG['TXT_BLOCK_HISTORY_DATE'] = 'Datum';
+$_ARRAYLANG['TXT_BLOCK_HISTORY_USER'] = 'Benutzer';
+$_ARRAYLANG['TXT_BLOCK_HISTORY_FUNCTION'] = 'Funktion';
+$_ARRAYLANG['TXT_BLOCK_HISTORY_VERSION_LOAD'] = 'Laden';
