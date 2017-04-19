@@ -144,7 +144,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
-     * Verifies that a version/log exists after saving a new block
+     * Verifies that a block version/log exists after saving a new block
      */
     public function testBlockVersionExists()
     {
@@ -160,6 +160,85 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 
         // checks if logs are existing and an instance of doctrine collection
         $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $logs);
+    }
+
+    /**
+     * Verifies that a block version/log can be reverted
+     */
+    public function testBlockVersionRevert()
+    {
+        // creates a new block
+        $block = $this->createNewBlock();
+
+        // sets post values for updating an existing block
+        $_POST = array(
+            'act' => 'modify',
+            'blockId' => $block->getId(),
+            'globalCachedLang' => 'de',
+            'directCachedLang' => 'de',
+            'categoryCachedLang' => 'de',
+            'globalSelectedPagesList' => '16',
+            'directSelectedPagesList' => '454',
+            'categorySelectedPagesList' => '654',
+            'blockFormLanguages' => array(
+                '1' => '1',
+                '2' => '1',
+            ),
+            'blockName' => 'test updated',
+            'blockCat' => '2',
+            'blockFormText_' => array(
+                '1' => 'german test content updated',
+                '2' => 'english test content updated',
+            ),
+            'page' => array(
+                'content' => 'german test content updated',
+            ),
+            'blockRandom4' => '1',
+            'inputStartDate' => '0',
+            'inputEndDate' => '0',
+            'blockGlobal' => '2',
+            'pagesLangGlobal' => array(
+                'de',
+            ),
+            'blockDirect' => '1',
+            'pagesLangDirect' => array(
+                'de',
+            ),
+            'blockCategory' => '1',
+            'pagesLangCategory' => array(
+                'de',
+            ),
+            'wysiwyg_editor' => '1',
+            'targeting_status' => '1',
+            'targeting' => array(
+                'country' => array(
+                    'filter' => 'exclude',
+                    'value' => array(
+                        '81'
+                    ),
+                )
+            ),
+            'block_save_block' => 'Speichern',
+        );
+
+        // instantiates block manager
+        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
+        // calls block manager
+        $blockManager->getPage();
+
+        // gets log entries of block
+        $blockLogRepo = static::$cx
+            ->getDb()
+            ->getEntityManager()
+            ->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs($block);
+        $firstLogEntryVersion = end($logs)->getVersion();
+
+        // gets first version of block
+        $revertedBlock = $blockLogRepo->getBlockVersion($block, $firstLogEntryVersion);
+
+        // checks if block is correctly reverted by asserting its name
+        $this->assertEquals('test', $revertedBlock->getName());
     }
 
     /**
@@ -180,6 +259,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             'directSelectedPagesList' => '454,64,63',
             'categorySelectedPagesList' => '654,670,62',
             'blockFormLanguages' => array(
+                '1' => '1',
+                '2' => '1',
+            ),
+            'blockName' => 'test',
+            'blockCat' => '2',
+            'blockFormText_' => array(
                 '1' => 'german test content',
                 '2' => 'english test content',
             ),
