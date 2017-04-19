@@ -242,6 +242,41 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
+     * Verifies block version/log restoring
+     */
+    public function testBlockVersionRestore()
+    {
+        // creates a new block
+        $block = $this->createNewBlock();
+
+        // sets post values for deleting the created block
+        $_POST = array(
+            'act' => 'del',
+            'blockId' => $block->getId(),
+            'catId' => $block->getCategory()->getId(),
+        );
+
+        // instantiates block manager
+        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
+        // calls block manager
+        $blockManager->getPage();
+
+        // gets log entries of block
+        $blockLogRepo = static::$cx
+            ->getDb()
+            ->getEntityManager()
+            ->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs($block);
+        $firstLogEntryVersion = end($logs)->getVersion();
+
+        // gets first version of block
+        $revertedBlock = $blockLogRepo->getBlockVersion($block, $firstLogEntryVersion);
+
+        // checks if logs are existing and an instance of doctrine collection
+        $this->assertInstanceOf('\Cx\Modules\Block\Model\Entity\Block', $revertedBlock);
+    }
+
+    /**
      * Creates a new block through block manager
      *
      * @return $block \Cx\Modules\Block\Model\Entity\Block
