@@ -1102,7 +1102,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             // sets paging
             $uri = \Html::getRelativeUri();
             // Let all links in this tab point here again
-            \Html::replaceUriParameter($uri, 'active_tab=history');
+            \Html::replaceUriParameter($uri, 'activeTab=history');
 
             // count of all logs
             $count = count($logs);
