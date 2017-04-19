@@ -95,6 +95,22 @@
         cx.jQuery("#blockLanguages li a:visible").first().click();
     });
 
+    var activeTab = getParameterByName('active_tab');
+    selectDataTab('#data_' + activeTab, activeTab);
+
+    /**
+     * Simple function to get every parameter from current window location
+     */
+    function getParameterByName(name) {
+        url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
     function toggleTargetingFilterBlock( show ) {
         if ( show ) {
             cx.jQuery( '#targeting_filter_block' ).show();
@@ -312,23 +328,25 @@
             elm.style.display = 'none';
         }
     }
-    function selectDataTab(ele, tabName) {
-  if(document.getElementById(tabName).style.display != "block")
-  {
-    document.getElementById(tabName).style.display = "block";
-    strClass = document.getElementById(tabName).className;
 
-    arrTags = document.getElementsByTagName("*");
-    for (i=0;i<arrTags.length;i++)
-    {
-      if(arrTags[i].className == strClass && arrTags[i] != document.getElementById(tabName))
-      {
-        arrTags[i].style.display = "none";
-      }
-    }
+    function selectDataTab(ele, tabName) {
+        $J(document).ready(function () {
+            var tab = document.getElementById(tabName);
+            console.log(tab);
+            if (tab && tab.style.display != "block") {
+                tab.style.display = "block";
+                strClass = tab.className;
+
+                arrTags = document.getElementsByTagName("*");
+                for (i = 0; i < arrTags.length; i++) {
+                    if (arrTags[i].className == strClass && arrTags[i] != tab) {
+                        arrTags[i].style.display = "none";
+                    }
+                }
                 $J('#tabmenu li a').removeClass('active');
                 $J(ele).addClass('active');
-  }
+            }
+        });
     }
     // ]]>
 </script>
@@ -854,6 +872,11 @@
                     </td>
                 </tr>
                 <!-- END block_history_version -->
+                <tr>
+                    <td colspan="3">
+                        {BLOCK_HISTORY_PAGING}
+                    </td>
+                </tr>
                 <!-- END block_history -->
 
                 <!-- BEGIN block_history_no_entries -->

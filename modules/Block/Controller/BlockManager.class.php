@@ -726,7 +726,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     private function _showModifyBlock($copy = false)
     {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $_CONFIG;
 
         \JS::activate('cx');
         \JS::activate('ckeditor');
@@ -1055,8 +1055,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         }
 
         // gets log entries of block
+        $offset = \Paging::getPosition();
+        // get settings for limit of entries per page from core settings
+        $limit = $_CONFIG['corePagingLimit'];
+
 //        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-//        $logs = $blockLogRepo->getLogs($block);
+//        $logs = $blockLogRepo->getLogs($block, $offset, $limit);
         // stub logs
         $logs = array(
             array(
@@ -1094,6 +1098,22 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 // parses this entry
                 $this->_objTpl->parse('block_history_version');
             }
+
+            // sets paging
+            $uri = \Html::getRelativeUri();
+            // Let all links in this tab point here again
+            \Html::replaceUriParameter($uri, 'active_tab=history');
+
+            // count of all logs
+            $count = count($logs);
+
+            // sets paging variable in template
+            $this->_objTpl->setVariable(
+                array(
+                    'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $count, $limit),
+                )
+            );
+
             // parses history block
             $this->_objTpl->parse('block_history');
         }
