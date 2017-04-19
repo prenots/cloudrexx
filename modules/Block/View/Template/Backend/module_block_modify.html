@@ -830,12 +830,14 @@
                 <tr>
                     <th colspan="3">{TXT_BLOCK_HISTORY}</th>
                 </tr>
+
+                <!-- BEGIN block_history -->
                 <tr class="row3">
                     <td width="20%">{TXT_BLOCK_HISTORY_DATE}</td>
                     <td width="70%">{TXT_BLOCK_HISTORY_USER}</td>
                     <td width="10%" class="a_right">{TXT_BLOCK_HISTORY_FUNCTION}</td>
                 </tr>
-                <!-- BEGIN block_targeting_history -->
+                <!-- BEGIN block_history_version -->
                 <tr class="row0">
                     <td width="20%">
                         {BLOCK_HISTORY_VERSION_DATE}
@@ -846,27 +848,21 @@
                     <td width="10%" class="a_right">
                         <a class="historyLoad"
                            title="{TXT_BLOCK_HISTORY_VERSION_LOAD}"
-                           href="javascript:loadHistoryVersion({BLOCK_HISTORY_VERSION_BLOCK}, {BLOCK_HISTORY_VERSION_VERSION})">
+                           href="javascript:loadHistoryVersion({BLOCK_ID}, {BLOCK_HISTORY_VERSION_VERSION})">
                             {TXT_BLOCK_HISTORY_VERSION_LOAD}
                         </a>
                     </td>
                 </tr>
-                <!-- END block_targeting_history -->
-                <tr class="row0">
-                    <td width="20%">
-                        13.04.2017 10:02:45
-                    </td>
-                    <td width="70%">
-                        noreply@contrexx.com
-                    </td>
-                    <td width="10%" class="a_right">
-                        <a class="historyLoad"
-                           title="{TXT_BLOCK_HISTORY_VERSION_LOAD}"
-                           href="javascript:loadHistoryVersion({BLOCK_HISTORY_VERSION_BLOCK}, {BLOCK_HISTORY_VERSION_VERSION})">
-                            {TXT_BLOCK_HISTORY_VERSION_LOAD}
-                        </a>
+                <!-- END block_history_version -->
+                <!-- END block_history -->
+
+                <!-- BEGIN block_history_no_entries -->
+                <tr>
+                    <td width="100%">
+                        {TXT_BLOCK_HISTORY_NO_ENTRIES}
                     </td>
                 </tr>
+                <!-- END block_history_no_entries -->
             </tbody>
         </table>
     </div>

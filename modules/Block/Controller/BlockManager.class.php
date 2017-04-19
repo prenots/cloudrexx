@@ -811,6 +811,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             'TXT_BLOCK_HISTORY_USER' => $_ARRAYLANG['TXT_BLOCK_HISTORY_USER'],
             'TXT_BLOCK_HISTORY_FUNCTION' => $_ARRAYLANG['TXT_BLOCK_HISTORY_FUNCTION'],
             'TXT_BLOCK_HISTORY_VERSION_LOAD' => $_ARRAYLANG['TXT_BLOCK_HISTORY_VERSION_LOAD'],
+            'TXT_BLOCK_HISTORY_NO_ENTRIES' => $_ARRAYLANG['TXT_BLOCK_HISTORY_NO_ENTRIES'],
         ));
 
         $targetingStatus = isset($_POST['targeting_status']) ? contrexx_input2int($_POST['targeting_status']) : 0;
@@ -830,6 +831,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         }
 
         $categoryParam = !empty($catId) ? '&catId=' . $catId : '';
+
+        // gets current block by id
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
+
         if (isset($_POST['block_save_block'])) {
             $blockCat = !empty($_POST['blockCat']) ? intval($_POST['blockCat']) : 0;
             $blockContent = isset($_POST['blockFormText_']) ? array_map('contrexx_input2raw', $_POST['blockFormText_']) : array();
@@ -855,10 +862,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockGlobalAssociatedPageIds = isset($_POST['globalSelectedPagesList']) ? array_map('intval', explode(",", $_POST['globalSelectedPagesList'])) : array();
             $blockDirectAssociatedPageIds = isset($_POST['directSelectedPagesList']) ? array_map('intval', explode(",", $_POST['directSelectedPagesList'])) : array();
             $blockCategoryAssociatedPageIds = isset($_POST['categorySelectedPagesList']) ? array_map('intval', explode(",", $_POST['categorySelectedPagesList'])) : array();
-
-            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-            $block = $blockRepo->findOneBy(array('id' => $blockId));
 
             $blockExists = false;
             if ($block) {
@@ -1049,6 +1052,50 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 ));
                 $this->_objTpl->parse('block_targeting_country');
             }
+        }
+
+        // gets log entries of block
+//        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+//        $logs = $blockLogRepo->getLogs($block);
+        // stub logs
+        $logs = array(
+            array(
+                'date' => '19.04.2017 13:37',
+                'user' => 'noreply@contrexx.com',
+                'version' => '1',
+            ),
+            array(
+                'date' => '19.04.2017 13:38',
+                'user' => 'noreply@contrexx.com',
+                'version' => '2',
+            )
+        );
+        if (empty($logs)) {
+            // parses template block if no entries exists
+            $this->_objTpl->touchBlock('block_history_no_entries');
+        } else {
+            // parses each log
+            foreach ($logs as $log) {
+//                $this->_objTpl->setVariable(
+//                    array(
+//                        'BLOCK_HISTORY_VERSION_DATE' => $log->getLoggedAt(),
+//                        'BLOCK_HISTORY_VERSION_USER' => $log->getUsername(),
+//                        'BLOCK_HISTORY_VERSION_VERSION' => $log->getVersion(),
+//                    )
+//                );
+                // sets variables in template
+                $this->_objTpl->setVariable(
+                    array(
+                        'BLOCK_HISTORY_VERSION_DATE' => $log['date'],
+                        'BLOCK_HISTORY_VERSION_USER' => $log['user'],
+                        'BLOCK_HISTORY_VERSION_VERSION' => $log['version'],
+                    )
+                );
+                // parses this entry
+                $this->_objTpl->parse('block_history_version');
+            }
+            // parses history block
+            $this->_objTpl->parse('block_history');
         }
 
         $jsonData = new \Cx\Core\Json\JsonData();
