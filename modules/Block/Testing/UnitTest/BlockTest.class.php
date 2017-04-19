@@ -144,6 +144,106 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
+     * Verifies that a version/log exists after saving a new block
+     */
+    public function testBlockVersionExists()
+    {
+        // creates a new block
+        $block = $this->createNewBlock();
+
+        // gets log entries of block
+        $blockLogRepo = static::$cx
+            ->getDb()
+            ->getEntityManager()
+            ->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs($block);
+
+        // checks if logs are existing and an instance of doctrine collection
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $logs);
+    }
+
+    /**
+     * Creates a new block through block manager
+     *
+     * @return $block \Cx\Modules\Block\Model\Entity\Block
+     */
+    protected function createNewBlock()
+    {
+        // sets post values for creating a new block
+        $_POST = array(
+            'act' => 'modify',
+            'blockId' => '0',
+            'globalCachedLang' => 'de',
+            'directCachedLang' => 'de',
+            'categoryCachedLang' => 'de',
+            'globalSelectedPagesList' => '16,13,65',
+            'directSelectedPagesList' => '454,64,63',
+            'categorySelectedPagesList' => '654,670,62',
+            'blockFormLanguages' => array(
+                '1' => 'german test content',
+                '2' => 'english test content',
+            ),
+            'page' => array(
+                'content' => 'german test content',
+            ),
+            'blockRandom' => '1',
+            'blockRandom3' => '1',
+            'inputStartDate' => '0',
+            'inputEndDate' => '0',
+            'blockGlobal' => '2',
+            'pagesLangGlobal' => array(
+                'de',
+            ),
+            'blockDirect' => '1',
+            'pagesLangDirect' => array(
+                'de',
+            ),
+            'blockCategory' => '1',
+            'pagesLangCategory' => array(
+                'de',
+            ),
+            'targeting_status' => '1',
+            'targeting' => array(
+                'country' => array(
+                    'filter' => 'include',
+                    'value' => array(
+                        '204'
+                    ),
+                )
+            ),
+            'block_save_block' => 'Speichern',
+        );
+
+        // instantiates block manager
+        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
+        // calls block manager
+        $blockManager->getPage();
+
+        // gets id of the previously new created block
+        $highestBlockId = static::$cx
+            ->getDb()
+            ->getEntityManager()
+            ->createQueryBuilder()
+            ->select('MAX(b.id)')
+            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
+            ->getQuery()
+            ->getSingleResult();
+
+        // gets newly created block
+        $blockRepo = static::$cx
+            ->getDb()
+            ->getEntityManager()
+            ->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(
+            array(
+                'id' => $highestBlockId
+            )
+        );
+
+        return $block;
+    }
+
+    /**
      * Get json block controller using repository
      *
      * @return \Cx\Modules\Block\Controller\JsonBlockController
