@@ -144,12 +144,18 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
-     * Verifies that a block version/log exists after saving a new block
+     * Verifies block version creating
+     *
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getLogs
      */
-    public function testBlockVersionExists()
+    public function testExistBlockVersion()
     {
+        global $objTemplate;
+        // sets global template object
+        $objTemplate = new \Cx\Core\Html\Sigma();
+
         // creates a new block
-        $block = $this->createNewBlock();
+        $block = $this->createBlock();
 
         // gets log entries of block
         $blockLogRepo = static::$cx
@@ -163,12 +169,19 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
-     * Verifies that a block version/log can be reverted
+     * Verifies block version reverting
+     *
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getLogs
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getBlockVersion
      */
-    public function testBlockVersionRevert()
+    public function testRevertBlockVersion()
     {
+        global $objTemplate;
+        // sets global template object
+        $objTemplate = new \Cx\Core\Html\Sigma();
+
         // creates a new block
-        $block = $this->createNewBlock();
+        $block = $this->createBlock();
 
         // sets post values for updating an existing block
         $_POST = array(
@@ -218,7 +231,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
                     ),
                 )
             ),
-            'block_save_block' => 'Speichern',
+            'block_save_block' => 'Store',
         );
 
         // instantiates block manager
@@ -242,12 +255,19 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     }
 
     /**
-     * Verifies block version/log restoring
+     * Verifies block version restoring
+     *
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getLogs
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getBlockVersion
      */
-    public function testBlockVersionRestore()
+    public function testRestoreBlockVersion()
     {
+        global $objTemplate;
+        // sets global template object
+        $objTemplate = new \Cx\Core\Html\Sigma();
+
         // creates a new block
-        $block = $this->createNewBlock();
+        $block = $this->createBlock();
 
         // sets post values for deleting the created block
         $_POST = array(
@@ -265,7 +285,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $blockLogRepo = static::$cx
             ->getDb()
             ->getEntityManager()
-            ->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+            ->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
         $logs = $blockLogRepo->getLogs($block);
         $firstLogEntryVersion = end($logs)->getVersion();
 
@@ -281,8 +301,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      *
      * @return $block \Cx\Modules\Block\Model\Entity\Block
      */
-    protected function createNewBlock()
+    private function createBlock()
     {
+        global $objTemplate;
+        // sets global template object
+        $objTemplate = new \Cx\Core\Html\Sigma();
+
         // sets post values for creating a new block
         $_POST = array(
             'act' => 'modify',
@@ -331,7 +355,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
                     ),
                 )
             ),
-            'block_save_block' => 'Speichern',
+            'block_save_block' => 'Store',
         );
 
         // instantiates block manager
@@ -356,7 +380,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             ->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(
             array(
-                'id' => $highestBlockId
+                'id' => $highestBlockId[1]
             )
         );
 
