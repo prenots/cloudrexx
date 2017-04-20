@@ -148,7 +148,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      *
      * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getLogs
      */
-    public function testExistBlockVersion()
+    public function testCreateBlockVersion()
     {
         // creates a new block
         $block = $this->createBlock();
@@ -161,7 +161,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $logs = $blockLogRepo->getLogs($block);
 
         // checks if logs are existing and an instance of doctrine collection
-        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $logs);
+        $this->assertInstanceOf('Cx\Modules\Block\Model\Entity\LogEntry', $logs[0]);
     }
 
     /**
@@ -349,7 +349,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             ->select('MAX(b.id)')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->getQuery()
-            ->getSingleResult();
+            ->getSingleScalarResult();
 
         // gets newly created block
         $blockRepo = static::$cx
@@ -358,7 +358,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             ->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(
             array(
-                'id' => $highestBlockId[1]
+                'id' => $highestBlockId
             )
         );
 
