@@ -595,6 +595,11 @@ CREATE TABLE `contrexx_module_block_blocks` (
   `order` int(1) NOT NULL DEFAULT '0',
   `cat` int(11) unsigned DEFAULT NULL,
   `wysiwyg_editor` int(1) NOT NULL DEFAULT '1',
+  `version_targeting_option` text,
+  `version_rel_lang_content` text,
+  `version_rel_page_global` text,
+  `version_rel_page_category` text,
+  `version_rel_page_direct` text,
   PRIMARY KEY (`id`),
   KEY `module_block_blocks_ibfk_cat_idx` (`cat`),
   CONSTRAINT `module_block_blocks_ibfk_cat` FOREIGN KEY (`cat`) REFERENCES `contrexx_module_block_categories` (`id`)
