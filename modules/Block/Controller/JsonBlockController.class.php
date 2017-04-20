@@ -77,6 +77,19 @@ class NoBlockFoundException extends JsonBlockException
 }
 
 /**
+ * Cx\Modules\Block\Controller\NoBlockFoundException
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Manuel Schenk <manuel.schenk@comvation.com>
+ * @version     1.0.0
+ * @package     cloudrexx
+ * @subpackage  module_block
+ */
+class NoBlockVersionFoundException extends JsonBlockException
+{
+}
+
+/**
  * Cx\Modules\Block\Controller\JsonBlockController
  *
  * JSON Adapter for Block
@@ -133,7 +146,8 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
                 true,
                 array(),
                 array(76)
-            )
+            ),
+            'getBlock',
         );
     }
 
@@ -355,5 +369,75 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $this->messages[] = $_CORELANG['TXT_CORE_SAVED_BLOCK'];
 
         return array('content' => $ls->replace());
+    }
+
+    /**
+     * Gets every block attribute for given block and version
+     *
+     * @param array $params all given params from http request
+     * @throws NotEnoughArgumentsException if not enough arguments are provided
+     * @throws NoBlockFoundException if the requested block can't be found
+     * @throws NoBlockVersionFoundException if the requested block version can't be found
+     * @return array $blockVersion all attributes from block
+     */
+    public function getBlock($params)
+    {
+        // throws exception if not enough arguments are provided
+        if (empty($params['get']['blockId']) || empty($params['get']['version'])) {
+            throw new NotEnoughArgumentsException('not enough arguments');
+        }
+
+        // gets params from request
+        $id = intval($params['get']['id']);
+        $version = intval($params['get']['version']);
+
+        // gets block by id parameter
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $id));
+
+        // throws exception if no block found
+        if (!$block) {
+            throw new NoBlockFoundException('no block found with id: ' . $id);
+        }
+
+        // gets log entry repository
+        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        // gets requested block version
+        $revertedBlock = $blockLogRepo->getBlockVersion($block, $version);
+
+        if (!$revertedBlock) {
+            throw new NoBlockVersionFoundException('no block version found with version: ' . $version);
+        }
+
+        // gets all data from block
+        $blockVersion = array(
+            'id' => $revertedBlock->getId(),
+            'start' => $revertedBlock->getStart(),
+            'end' => $revertedBlock->getEnd(),
+            'name' => $revertedBlock->getName(),
+            'random' => $revertedBlock->getRandom(),
+            'random2' => $revertedBlock->getRandom2(),
+            'random3' => $revertedBlock->getRandom3(),
+            'random4' => $revertedBlock->getRandom4(),
+            'showInCategory' => $revertedBlock->getShowInCategory(),
+            'showInGlobal' => $revertedBlock->getShowInGlobal(),
+            'showInDirect' => $revertedBlock->getShowInDirect(),
+            'active' => $revertedBlock->getActive(),
+            'order' => $revertedBlock->getOrder(),
+            'wysiwygEditor' => $revertedBlock->getWysiwygEditor(),
+            'relLangContents' => $revertedBlock->getRelLangContents(),
+            'relPages' => $revertedBlock->getRelPages(),
+            'targetingOptions' => $revertedBlock->getTargetingOptions(),
+            'category' => $revertedBlock->getCategory(),
+            'versionTargetingOption' => $revertedBlock->getVersionTargetingOption(),
+            'versionRelLangContent' => $revertedBlock->getVersionRelLangContent(),
+            'versionRelPageGlobal' => $revertedBlock->getVersionRelPageGlobal(),
+            'versionRelPageCategory' => $revertedBlock->getVersionRelPageCategory(),
+            'versionRelPageDirect' => $revertedBlock->getVersionRelPageDirect,
+        );
+
+        // return requested block version array
+        return $blockVersion;
     }
 }
