@@ -76,6 +76,31 @@ Cx\Modules\Block\Model\Entity\Block:
       column: wysiwyg_editor
       gedmo:
         - versioned
+    versionTargetingOption:
+      type: text
+      column: version_targeting_option
+      gedmo:
+        - versioned
+    versionRelLangContent:
+      type: text
+      column: version_rel_lang_content
+      gedmo:
+        - versioned
+    versionRelPageGlobal:
+      type: text
+      column: version_rel_page_global
+      gedmo:
+        - versioned
+    versionRelPageCategory:
+      type: text
+      column: version_rel_page_category
+      gedmo:
+        - versioned
+    versionRelPageDirect:
+      type: text
+      column: version_rel_page_direct
+      gedmo:
+        - versioned
   oneToMany:
     targetingOptions:
       targetEntity: TargetingOption

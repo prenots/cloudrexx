@@ -138,6 +138,31 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      */
     protected $category;
 
+    /**
+     * @var string $versionTargetingOption
+     */
+    protected $versionTargetingOption;
+
+    /**
+     * @var string $versionRelLangContent
+     */
+    protected $versionRelLangContent;
+
+    /**
+     * @var string $versionRelPageGlobal
+     */
+    protected $versionRelPageGlobal;
+
+    /**
+     * @var string $versionRelPageCategory
+     */
+    protected $versionRelPageCategory;
+
+    /**
+     * @var string $versionRelPageDirect
+     */
+    protected $versionRelPageDirect;
+
 
     public function __construct()
     {
@@ -543,5 +568,105 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     public function getWidgetContentAttributeName($widgetName)
     {
         return 'content';
+    }
+
+    /**
+     * Set versionTargetingOption
+     *
+     * @param string $versionTargetingOption
+     */
+    public function setVersionTargetingOption($versionTargetingOption)
+    {
+        $this->versionTargetingOption = $versionTargetingOption;
+    }
+
+    /**
+     * Get versionTargetingOption
+     *
+     * @return string $versionTargetingOption
+     */
+    public function getVersionTargetingOption()
+    {
+        return $this->versionTargetingOption;
+    }
+
+    /**
+     * Set versionRelLangContent
+     *
+     * @param string $versionRelLangContent
+     */
+    public function setVersionRelLangContent($versionRelLangContent)
+    {
+        $this->versionRelLangContent = $versionRelLangContent;
+    }
+
+    /**
+     * Get versionRelLangContent
+     *
+     * @return string $versionRelLangContent
+     */
+    public function getVersionRelLangContent()
+    {
+        return $this->versionRelLangContent;
+    }
+
+    /**
+     * Set versionRelPageGlobal
+     *
+     * @param string $versionRelPageGlobal
+     */
+    public function setVersionRelPageGlobal($versionRelPageGlobal)
+    {
+        $this->versionRelPageGlobal = $versionRelPageGlobal;
+    }
+
+    /**
+     * Get versionRelPageGlobal
+     *
+     * @return string $versionRelPageGlobal
+     */
+    public function getVersionRelPageGlobal()
+    {
+        return $this->versionRelPageGlobal;
+    }
+
+    /**
+     * Set versionRelPageCategory
+     *
+     * @param string $versionRelPageCategory
+     */
+    public function setVersionRelPageCategory($versionRelPageCategory)
+    {
+        $this->versionRelPageCategory = $versionRelPageCategory;
+    }
+
+    /**
+     * Get versionRelPageCategory
+     *
+     * @return string $versionRelPageCategory
+     */
+    public function getVersionRelPageCategory()
+    {
+        return $this->versionRelPageCategory;
+    }
+
+    /**
+     * Set versionRelPageDirect
+     *
+     * @param string $versionRelPageDirect
+     */
+    public function setVersionRelPageDirect($versionRelPageDirect)
+    {
+        $this->versionRelPageDirect = $versionRelPageDirect;
+    }
+
+    /**
+     * Get versionRelPageDirect
+     *
+     * @return string $versionRelPageDirect
+     */
+    public function getVersionRelPageDirect()
+    {
+        return $this->versionRelPageDirect;
     }
 }
