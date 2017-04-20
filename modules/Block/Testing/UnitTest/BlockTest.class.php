@@ -175,9 +175,11 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         // creates a new block
         $block = $this->createBlock();
 
-        // sets post values for updating an existing block
-        $_POST = array(
+        // sets request values for updating an existing block
+        $_REQUEST = array(
             'act' => 'modify',
+        );
+        $_POST = array(
             'blockId' => $block->getId(),
             'globalCachedLang' => 'de',
             'directCachedLang' => 'de',
@@ -256,8 +258,10 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $block = $this->createBlock();
 
         // sets post values for deleting the created block
-        $_POST = array(
+        $_REQUEST = array(
             'act' => 'del',
+        );
+        $_POST = array(
             'blockId' => $block->getId(),
             'catId' => $block->getCategory()->getId(),
         );
@@ -285,11 +289,13 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      *
      * @return $block \Cx\Modules\Block\Model\Entity\Block
      */
-    private function createBlock()
+    protected function createBlock()
     {
-        // sets post values for creating a new block
-        $_POST = array(
+        // sets request values for creating a new block
+        $_REQUEST = array(
             'act' => 'modify',
+        );
+        $_POST = array(
             'blockId' => '0',
             'globalCachedLang' => 'de',
             'directCachedLang' => 'de',
@@ -368,7 +374,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     /**
      * Calls block manager
      */
-    private function callBlockManager()
+    protected function callBlockManager()
     {
         // set template object for block manager
         $this->setGlobalTemplate();
@@ -383,7 +389,7 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      *
      * @global $objTemplate
      */
-    private function setGlobalTemplate()
+    protected function setGlobalTemplate()
     {
         global $objTemplate;
         // sets global template object
