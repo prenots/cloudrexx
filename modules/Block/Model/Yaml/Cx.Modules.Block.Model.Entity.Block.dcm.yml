@@ -2,6 +2,9 @@ Cx\Modules\Block\Model\Entity\Block:
   type: entity
   table: module_block_blocks
   repositoryClass: Cx\Modules\Block\Model\Repository\BlockRepository
+  gedmo:
+    loggable:
+      logEntryClass: Cx\Modules\Block\Model\Entity\LogEntry
   indexes:
     module_block_block_ibfk_cat_idx:
       columns: [cat]
@@ -14,39 +17,65 @@ Cx\Modules\Block\Model\Entity\Block:
   fields:
     start:
       type: integer
+      gedmo:
+        - versioned
     end:
       type: integer
+      gedmo:
+        - versioned
     name:
       type: string
       length: 255
+      gedmo:
+        - versioned
     random:
       type: integer
+      gedmo:
+        - versioned
     random2:
       type: integer
       column: random_2
+      gedmo:
+        - versioned
     random3:
       type: integer
       column: random_3
+      gedmo:
+        - versioned
     random4:
       type: integer
       column: random_4
+      gedmo:
+        - versioned
     showInCategory:
       type: integer
       column: category
+      gedmo:
+        - versioned
     showInGlobal:
       type: integer
       column: global
+      gedmo:
+        - versioned
     showInDirect:
       type: integer
       column: direct
+      gedmo:
+        - versioned
     active:
       type: integer
+      gedmo:
+        - versioned
     order:
       type: integer
       column: `order`
+      gedmo:
+        - versioned
     wysiwygEditor:
       type: integer
       column: wysiwyg_editor
+      gedmo:
+        - versioned
   oneToMany:
     targetingOptions:
       targetEntity: TargetingOption

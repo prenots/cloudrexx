@@ -2,6 +2,9 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
   type: entity
   table: module_block_targeting_option
   repositoryClass: Cx\Modules\Block\Model\Repository\TargetingOptionRepository
+  gedmo:
+    loggable:
+      logEntryClass: Cx\Modules\Block\Model\Entity\LogEntry
   id:
     id:
       type: integer
@@ -11,10 +14,16 @@ Cx\Modules\Block\Model\Entity\TargetingOption:
   fields:
     type:
       type: string
+      gedmo:
+        - versioned
     filter:
       type: string
+      gedmo:
+        - versioned
     value:
       type: text
+      gedmo:
+        - versioned
   uniqueConstraints:
     unique_block_type:
       columns: [block, type]

@@ -2,6 +2,9 @@ Cx\Modules\Block\Model\Entity\RelPage:
   type: entity
   table: module_block_rel_pages
   repositoryClass: Cx\Modules\Block\Model\Repository\RelPageRepository
+  gedmo:
+    loggable:
+      logEntryClass: Cx\Modules\Block\Model\Entity\LogEntry
   indexes:
     module_block_rel_page_ibfk_page_id_idx:
       columns: [page_id]
@@ -14,6 +17,8 @@ Cx\Modules\Block\Model\Entity\RelPage:
   fields:
     placeholder:
       type: string
+      gedmo:
+        - versioned
   uniqueConstraints:
     unique_block_page_placeholder:
       columns: [block, page, placeholder]

@@ -1,0 +1,69 @@
+Cx\Modules\Block\Model\Entity\LogEntry:
+  type: entity
+  repositoryClass: Cx\Modules\Block\Model\Repository\BlockLogRepository
+  table: log_entry
+  indexes:
+    log_class_lookup_idx:
+      columns:
+        - object_class
+    log_date_lookup_idx:
+      columns:
+        - logged_at
+    log_user_lookup_idx:
+      columns:
+        - username
+    log_version_lookup_idx:
+      columns:
+        - object_id
+        - object_class
+        - version
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    objectId:
+      type: string
+      length: 32
+      precision: 0
+      scale: 0
+      nullable: true
+      unique: false
+      column: object_id
+    objectClass:
+      type: string
+      length: 255
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      column: object_class
+    data:
+      type: array
+      length: null
+      precision: 0
+      scale: 0
+      nullable: true
+      unique: false
+    username:
+      type: string
+      length: 255
+      precision: 0
+      scale: 0
+      nullable: true
+      unique: false
+    loggedAt:
+      type: datetime
+      column: logged_at
+    version:
+      type: integer
+    action:
+      type: string
+      Length: 8
+  lifecycleCallbacks: {  }

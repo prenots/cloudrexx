@@ -2,6 +2,9 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
   type: entity
   table: module_block_rel_lang_content
   repositoryClass: Cx\Modules\Block\Model\Repository\RelLangContentRepository
+  gedmo:
+    loggable:
+      logEntryClass: Cx\Modules\Block\Model\Entity\LogEntry
   id:
     id:
       type: integer
@@ -11,8 +14,12 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
   fields:
     content:
       type: text
+      gedmo:
+        - versioned
     active:
       type: integer
+      gedmo:
+        - versioned
   uniqueConstraints:
     unique_block_page:
       columns: [block, page]
