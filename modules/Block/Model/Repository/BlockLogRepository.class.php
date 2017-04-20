@@ -37,9 +37,7 @@
 
 namespace Cx\Modules\Block\Model\Repository;
 
-use Doctrine\ORM\EntityManager,
-    Doctrine\ORM\Mapping\ClassMetadata,
-    Gedmo\Loggable\Entity\Repository\LogEntryRepository;
+use Gedmo\Loggable\Entity\Repository\LogEntryRepository;
 
 /**
  * Cx\Modules\Block\Model\Repository\BlockLogRepository
@@ -53,6 +51,49 @@ use Doctrine\ORM\EntityManager,
 class BlockLogRepository extends LogEntryRepository
 {
     /**
-     * Repo
+     * Returns logs for block
+     *
+     * @param $block Cx\Modules\Block\Model\Entity\Block
+     * @param $limit integer
+     * @param $offset integer
+     * @return $logs Doctrine\Common\Collections\Collection
      */
+    public function getLogs($block, $limit = null, $offset = null)
+    {
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $logEntryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
+        // finds logs by given parameters
+        $logs = $logEntryRepo->findBy(
+            array(
+                'objectClass' => 'Cx\Modules\Block\Model\Entity\Block',
+                'objectId' => $block->getId(),
+            ),
+            array(
+                'version' => 'DESC'
+            ),
+            $limit,
+            $offset
+        );
+        // returns found logs
+        return $logs;
+    }
+
+    /**
+     * Returns specific version of a block
+     *
+     * @param $block Cx\Modules\Block\Model\Entity\Block
+     * @param $version integer
+     * @return $revertedBlock Cx\Modules\Block\Model\Entity\Block
+     */
+    public function getBlockVersion($block, $version)
+    {
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        // reverts entity by version
+        $this->revert($block, $version);
+        $revertedBlock = $block;
+        // clears the identity map of the EntityManager to enforce block reloading
+        $em->clear($block);
+        // returns reverted block
+        return $revertedBlock;
+    }
 }

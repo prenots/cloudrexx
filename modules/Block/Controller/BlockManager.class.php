@@ -1059,40 +1059,22 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         // get settings for limit of entries per page from core settings
         $limit = $_CONFIG['corePagingLimit'];
 
-//        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-//        $logs = $blockLogRepo->getLogs($block, $offset, $limit);
-        // stub logs
-        $logs = array(
-            array(
-                'date' => '19.04.2017 13:37',
-                'user' => 'noreply@contrexx.com',
-                'version' => '1',
-            ),
-            array(
-                'date' => '19.04.2017 13:38',
-                'user' => 'noreply@contrexx.com',
-                'version' => '2',
-            )
-        );
+        // gets logs from entity by defined limit and offset
+        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs($block, $limit, $offset);
+
         if (empty($logs)) {
             // parses template block if no entries exists
             $this->_objTpl->touchBlock('block_history_no_entries');
         } else {
             // parses each log
             foreach ($logs as $log) {
-//                $this->_objTpl->setVariable(
-//                    array(
-//                        'BLOCK_HISTORY_VERSION_DATE' => $log->getLoggedAt(),
-//                        'BLOCK_HISTORY_VERSION_USER' => $log->getUsername(),
-//                        'BLOCK_HISTORY_VERSION_VERSION' => $log->getVersion(),
-//                    )
-//                );
                 // sets variables in template
                 $this->_objTpl->setVariable(
                     array(
-                        'BLOCK_HISTORY_VERSION_DATE' => $log['date'],
-                        'BLOCK_HISTORY_VERSION_USER' => $log['user'],
-                        'BLOCK_HISTORY_VERSION_VERSION' => $log['version'],
+                        'BLOCK_HISTORY_VERSION_DATE' => $log->getLoggedAt(),
+                        'BLOCK_HISTORY_VERSION_USER' => $log->getUsername(),
+                        'BLOCK_HISTORY_VERSION_VERSION' => $log->getVersion(),
                     )
                 );
                 // parses this entry
