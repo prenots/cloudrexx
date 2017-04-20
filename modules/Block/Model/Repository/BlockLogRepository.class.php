@@ -79,6 +79,29 @@ class BlockLogRepository extends LogEntryRepository
     }
 
     /**
+     * Returns row count for block
+     *
+     * @param $block Cx\Modules\Block\Model\Entity\Block
+     * @return $count integer
+     */
+    public function getLogCount($block)
+    {
+        // gets row count for given block
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $count = $qb->select('count(le.id)')
+            ->from('\Cx\Modules\Block\Model\Entity\LogEntry', 'le')
+            ->where('le.objectClass = \'Cx\Modules\Block\Model\Entity\Block\'')
+            ->andWhere('le.objectId = :bId')
+            ->setParameter('bId', $block->getId())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // returns row count
+        return intval($count);
+    }
+
+    /**
      * Returns specific version of a block
      *
      * @param $block Cx\Modules\Block\Model\Entity\Block
