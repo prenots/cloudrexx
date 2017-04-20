@@ -949,90 +949,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     }
                 }
 
-                $logEntryRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-
-                $targetingOptions = $block->getTargetingOptions();
-                $targetingOptionVersion = array();
-                foreach ($targetingOptions as $targetingOption) {
-                    $availableRevisions = $logEntryRepo->getLogs($targetingOption);
-                    $version = '1';
-                    if ($availableRevisions) {
-                        $version = $availableRevisions[0]->getVersion();
-                    }
-                    $type = $targetingOption->getType();
-                    $targetingOptionVersion[$type] = $version;
-                }
-
-                $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-                $relPagesCategory = $relPageRepo->findBy(
-                    array(
-                        'block' => $block,
-                        'placeholder' => 'category',
-                    )
-                );
-                $relPageCategoryVersion = array();
-                foreach ($relPagesCategory as $relPage) {
-                    $availableRevisions = $logEntryRepo->getLogs($relPage);
-                    $version = '1';
-                    if ($availableRevisions) {
-                        $version = $availableRevisions[0]->getVersion();
-                    }
-                    $pageId = $relPage->getPage()->getId();
-                    $relPageCategoryVersion[$pageId] = $version;
-                }
-
-                $relPagesDirect = $relPageRepo->findBy(
-                    array(
-                        'block' => $block,
-                        'placeholder' => 'direct',
-                    )
-                );
-                $relPageDirectVersion = array();
-                foreach ($relPagesDirect as $relPage) {
-                    $availableRevisions = $logEntryRepo->getLogs($relPage);
-                    $version = '1';
-                    if ($availableRevisions) {
-                        $version = $availableRevisions[0]->getVersion();
-                    }
-                    $pageId = $relPage->getPage()->getId();
-                    $relPageDirectVersion[$pageId] = $version;
-                }
-
-                $relPagesGlobal = $relPageRepo->findBy(
-                    array(
-                        'block' => $block,
-                        'placeholder' => 'global',
-                    )
-                );
-                $relPageGlobalVersion = array();
-                foreach ($relPagesGlobal as $relPage) {
-                    $availableRevisions = $logEntryRepo->getLogs($relPage);
-                    $version = '1';
-                    if ($availableRevisions) {
-                        $version = $availableRevisions[0]->getVersion();
-                    }
-                    $pageId = $relPage->getPage()->getId();
-                    $relPageGlobalVersion[$pageId] = $version;
-                }
-
-                $relLangContents = $block->getRelLangContents();
-                $relLangContentVersion = array();
-                foreach ($relLangContents as $relLangContent) {
-                    $availableRevisions = $logEntryRepo->getLogs($relLangContent);
-                    $version = '1';
-                    if ($availableRevisions) {
-                        $version = $availableRevisions[0]->getVersion();
-                    }
-                    $langId = $relLangContent->getLocale()->getId();
-                    $relLangContentVersion[$langId] = $version;
-                }
-
-                // sets newest version
-                $block->setVersionTargetingOption(serialize($targetingOptionVersion));
-                $block->setVersionRelPageCategory(serialize($relPageCategoryVersion));
-                $block->setVersionRelPageDirect(serialize($relPageDirectVersion));
-                $block->setVersionRelPageGlobal(serialize($relPageGlobalVersion));
-                $block->setVersionRelLangContent(serialize($relLangContentVersion));
+                // Stores versions
+                $this->storeVersions($block);
 
                 $em->flush();
                 $em->getConnection()->commit();
@@ -1142,53 +1060,56 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             }
         }
 
-        // gets log entries of block
-        $offset = \Paging::getPosition();
-        // get settings for limit of entries per page from core settings
-        $limit = $_CONFIG['corePagingLimit'];
+        // parses block history
+        if ($block) {
+            // gets log entries of block
+            $offset = \Paging::getPosition();
+            // get settings for limit of entries per page from core settings
+            $limit = $_CONFIG['corePagingLimit'];
 
-        // gets logs from entity by defined limit and offset
-        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-        $logs = $blockLogRepo->getLogs($block, $limit, $offset);
+            // gets logs from entity by defined limit and offset
+            $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+            $logs = $blockLogRepo->getLogs($block, $limit, $offset);
 
-        if (empty($logs)) {
-            // parses template block if no entries exists
-            $this->_objTpl->touchBlock('block_history_no_entries');
-        } else {
-            // parses each log
-            foreach ($logs as $log) {
-                // gets information from log
-                $date = $log->getLoggedAt()->format(ASCMS_DATE_FORMAT_DATETIME);
-                $username = json_decode($log->getUsername())->{'name'};
-                // sets variables in template
+            if (empty($logs)) {
+                // parses template block if no entries exists
+                $this->_objTpl->touchBlock('block_history_no_entries');
+            } else {
+                // parses each log
+                foreach ($logs as $log) {
+                    // gets information from log
+                    $date = $log->getLoggedAt()->format(ASCMS_DATE_FORMAT_DATETIME);
+                    $username = json_decode($log->getUsername())->{'name'};
+                    // sets variables in template
+                    $this->_objTpl->setVariable(
+                        array(
+                            'BLOCK_HISTORY_VERSION_DATE' => $date,
+                            'BLOCK_HISTORY_VERSION_USER' => $username,
+                            'BLOCK_HISTORY_VERSION_VERSION' => $log->getVersion(),
+                            'BLOCK_HISTORY_VERSION_OBJECT_ID' => $log->getObjectId(),
+                        )
+                    );
+                    // parses this entry
+                    $this->_objTpl->parse('block_history_version');
+                }
+
+                // sets paging
+                $uri = \Html::getRelativeUri();
+                // Let all links in this tab point here again
+                \Html::replaceUriParameter($uri, 'activeTab=history');
+                // count of logs
+                $logCount = $blockLogRepo->getLogCount($block);
+
+                // sets paging variable in template
                 $this->_objTpl->setVariable(
                     array(
-                        'BLOCK_HISTORY_VERSION_DATE' => $date,
-                        'BLOCK_HISTORY_VERSION_USER' => $username,
-                        'BLOCK_HISTORY_VERSION_VERSION' => $log->getVersion(),
-                        'BLOCK_HISTORY_VERSION_OBJECT_ID' => $log->getObjectId(),
+                        'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $logCount),
                     )
                 );
-                // parses this entry
-                $this->_objTpl->parse('block_history_version');
+
+                // parses history block
+                $this->_objTpl->parse('block_history');
             }
-
-            // sets paging
-            $uri = \Html::getRelativeUri();
-            // Let all links in this tab point here again
-            \Html::replaceUriParameter($uri, 'activeTab=history');
-            // count of logs
-            $logCount = $blockLogRepo->getLogCount($block);
-
-            // sets paging variable in template
-            $this->_objTpl->setVariable(
-                array(
-                    'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $logCount),
-                )
-            );
-
-            // parses history block
-            $this->_objTpl->parse('block_history');
         }
 
         $jsonData = new \Cx\Core\Json\JsonData();
@@ -1284,6 +1205,107 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         } else {
             $this->_objTpl->hideBlock('warning_geoip_disabled');
         }
+    }
+
+    /**
+     * Stores versions for all referencing entities serialised in block
+     *
+     * @param $block \Cx\Modules\Block\Model\Entity\Block
+     */
+    protected function storeVersions($block)
+    {
+        // gets entity manager and repository for the log entry
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        // gets log entry repository
+        $logEntryRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+
+        // collects all relating targeting option entities
+        $targetingOptions = $block->getTargetingOptions();
+        $targetingOptionVersion = array();
+        foreach ($targetingOptions as $targetingOption) {
+            $availableRevisions = $logEntryRepo->getLogs($targetingOption);
+            $version = '1';
+            if ($availableRevisions) {
+                $version = $availableRevisions[0]->getVersion();
+            }
+            $type = $targetingOption->getType();
+            $targetingOptionVersion[$type] = $version;
+        }
+
+        // collects all relating rel page entities with category placeholder
+        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $relPagesCategory = $relPageRepo->findBy(
+            array(
+                'block' => $block,
+                'placeholder' => 'category',
+            )
+        );
+        $relPageCategoryVersion = array();
+        foreach ($relPagesCategory as $relPage) {
+            $availableRevisions = $logEntryRepo->getLogs($relPage);
+            $version = '1';
+            if ($availableRevisions) {
+                $version = $availableRevisions[0]->getVersion();
+            }
+            $pageId = $relPage->getPage()->getId();
+            $relPageCategoryVersion[$pageId] = $version;
+        }
+
+        // collects all relating rel page entities with direct placeholder
+        $relPagesDirect = $relPageRepo->findBy(
+            array(
+                'block' => $block,
+                'placeholder' => 'direct',
+            )
+        );
+        $relPageDirectVersion = array();
+        foreach ($relPagesDirect as $relPage) {
+            $availableRevisions = $logEntryRepo->getLogs($relPage);
+            $version = '1';
+            if ($availableRevisions) {
+                $version = $availableRevisions[0]->getVersion();
+            }
+            $pageId = $relPage->getPage()->getId();
+            $relPageDirectVersion[$pageId] = $version;
+        }
+
+        // collects all relating rel page entities with global placeholder
+        $relPagesGlobal = $relPageRepo->findBy(
+            array(
+                'block' => $block,
+                'placeholder' => 'global',
+            )
+        );
+        $relPageGlobalVersion = array();
+        foreach ($relPagesGlobal as $relPage) {
+            $availableRevisions = $logEntryRepo->getLogs($relPage);
+            $version = '1';
+            if ($availableRevisions) {
+                $version = $availableRevisions[0]->getVersion();
+            }
+            $pageId = $relPage->getPage()->getId();
+            $relPageGlobalVersion[$pageId] = $version;
+        }
+
+        // collects all relating rel lang content entities
+        $relLangContents = $block->getRelLangContents();
+        $relLangContentVersion = array();
+        foreach ($relLangContents as $relLangContent) {
+            $availableRevisions = $logEntryRepo->getLogs($relLangContent);
+            $version = '1';
+            if ($availableRevisions) {
+                $version = $availableRevisions[0]->getVersion();
+            }
+            $langId = $relLangContent->getLocale()->getId();
+            $relLangContentVersion[$langId] = $version;
+        }
+
+        // sets collected versions serialised in block
+        $block->setVersionTargetingOption(serialize($targetingOptionVersion));
+        $block->setVersionRelPageCategory(serialize($relPageCategoryVersion));
+        $block->setVersionRelPageDirect(serialize($relPageDirectVersion));
+        $block->setVersionRelPageGlobal(serialize($relPageGlobalVersion));
+        $block->setVersionRelLangContent(serialize($relLangContentVersion));
     }
 
     /**

@@ -67,6 +67,7 @@ class BlockLogRepository extends LogEntryRepository
             array(
                 'objectClass' => 'Cx\Modules\Block\Model\Entity\Block',
                 'objectId' => $block->getId(),
+                'action' => 'update',
             ),
             array(
                 'version' => 'DESC'
@@ -92,6 +93,7 @@ class BlockLogRepository extends LogEntryRepository
         $count = $qb->select('count(le.id)')
             ->from('\Cx\Modules\Block\Model\Entity\LogEntry', 'le')
             ->where('le.objectClass = \'Cx\Modules\Block\Model\Entity\Block\'')
+            ->andWhere('le.action = \'update\'')
             ->andWhere('le.objectId = :bId')
             ->setParameter('bId', $block->getId())
             ->getQuery()
