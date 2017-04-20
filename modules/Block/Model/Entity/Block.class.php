@@ -561,16 +561,6 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
-     * Returns the name of the attribute which contains content that may contain a widget
-     * @param string $widgetName
-     * @return string Attribute name
-     */
-    public function getWidgetContentAttributeName($widgetName)
-    {
-        return 'content';
-    }
-
-    /**
      * Set versionTargetingOption
      *
      * @param string $versionTargetingOption
@@ -668,5 +658,15 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     public function getVersionRelPageDirect()
     {
         return $this->versionRelPageDirect;
+    }
+
+    /**
+     * Returns the name of the attribute which contains content that may contain a widget
+     * @param string $widgetName
+     * @return string Attribute name
+     */
+    public function getWidgetContentAttributeName($widgetName)
+    {
+        return 'content';
     }
 }
