@@ -117,6 +117,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         echo $data['data']['content'];
                         break;
                     case 'Json':
+                        header('Content-Type: application/json');
                         echo $json->parse($data, true);
                         break;
                     default:
