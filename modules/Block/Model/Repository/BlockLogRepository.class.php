@@ -64,18 +64,14 @@ class BlockLogRepository extends LogEntryRepository
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $logEntryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
+        // sets findBy criteria
         $criteria = array(
             'objectClass' => $entityClass,
             'objectId' => $entityId,
         );
-        // sets requested action
+        // sets requested log action
         if ($action) {
-            array_push(
-                $criteria,
-                array(
-                    'action' => $action
-                )
-            );
+            $criteria['action'] = $action;
         }
         // finds logs by given parameters
         $logs = $logEntryRepo->findBy(
@@ -94,21 +90,27 @@ class BlockLogRepository extends LogEntryRepository
      * Returns row count for given entity
      *
      * @param $entity \Cx\Model\Base\EntityBase
+     * @param $action string
      * @return $count integer
      */
-    public function getLogCount($entity)
+    public function getLogCount($entity, $action)
     {
         // gets row count for given block
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $qb = $em->createQueryBuilder();
-        $count = $qb->select('count(le.id)')
+        $query = $qb->select('count(le.id)')
             ->from('\Cx\Modules\Block\Model\Entity\LogEntry', 'le')
-            ->where('le.objectClass = \'Cx\Modules\Block\Model\Entity\Block\'')
-            ->andWhere('le.action = \'update\'')
-            ->andWhere('le.objectId = :bId')
-            ->setParameter('bId', $entity->getId())
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->where('le.objectClass = \'' . get_class($entity) . '\'')
+            ->andWhere('le.objectId = :eId')
+            ->setParameter('eId', $entity->getId());
+
+        // sets action if provided
+        if ($action) {
+            $query->andWhere('le.action = \'' . $action . '\'');
+        }
+
+        // gets result
+        $count = $query->getQuery()->getSingleScalarResult();
 
         // returns row count
         return intval($count);
