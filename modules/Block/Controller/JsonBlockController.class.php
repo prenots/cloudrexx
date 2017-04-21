@@ -410,6 +410,124 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             throw new NoBlockVersionFoundException('no block version found with version: ' . $version);
         }
 
+        // process targeting option version
+        $versionTargetingOption = unserialize($revertedBlock->getVersionTargetingOption());
+        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
+        $targetingOptionValue = array();
+        foreach ($versionTargetingOption as $id => $version) {
+            $targetingOption = $targetingOptionRepo->findOneBy(
+                array(
+                    'id' => $id,
+                )
+            );
+
+            if ($targetingOption) {
+                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+                $revertedTargetingOption = $blockLogRepo->revertEntity($targetingOption, $version);
+                array_push(
+                    $targetingOptionValue,
+                    array(
+                        'type' => $revertedTargetingOption->getType(),
+                        'filter' => $revertedTargetingOption->getFilter(),
+                        'value' => $revertedTargetingOption->getValue(),
+                    )
+                );
+            }
+        }
+
+        // process rel lang content version
+        $versionRelLangContent = unserialize($revertedBlock->getVersionRelLangContent());
+        $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
+        $relLangContentValue = array();
+        foreach ($versionRelLangContent as $id => $version) {
+            $relLangContent = $relLangContentRepo->findOneBy(
+                array(
+                    'id' => $id,
+                )
+            );
+
+            if ($relLangContent) {
+                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+                $revertedRelLangContent = $blockLogRepo->revertEntity($relLangContent, $version);
+                array_push(
+                    $relLangContentValue,
+                    array(
+                        'content' => $revertedRelLangContent->getContent(),
+                        'locale' => $revertedRelLangContent->getLocale()->getId(),
+                    )
+                );
+            }
+        }
+
+        // process rel page global version
+        $versionRelPageGlobal = unserialize($revertedBlock->getVersionRelPageGlobal());
+        $relPageGlobalRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $relPageGlobalValue = array();
+        foreach ($versionRelPageGlobal as $id => $version) {
+            $relPageGlobal = $relPageGlobalRepo->findOneBy(
+                array(
+                    'id' => $id,
+                )
+            );
+
+            if ($relPageGlobal) {
+                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+                $revertedRelPageGlobal = $blockLogRepo->revertEntity($relPageGlobal, $version);
+                array_push(
+                    $relPageGlobalValue,
+                    array(
+                        'page' => $revertedRelPageGlobal->getPage()->getId(),
+                    )
+                );
+            }
+        }
+
+        // process rel page category version
+        $versionRelPageCategory = unserialize($revertedBlock->getVersionRelPageCategory());
+        $relPageCategoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $relPageCategoryValue = array();
+        foreach ($versionRelPageCategory as $id => $version) {
+            $relPageCategory = $relPageCategoryRepo->findOneBy(
+                array(
+                    'id' => $id,
+                )
+            );
+
+            if ($relPageCategory) {
+                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+                $revertedRelPageCategory = $blockLogRepo->revertEntity($relPageCategory, $version);
+                array_push(
+                    $relPageCategoryValue,
+                    array(
+                        'page' => $revertedRelPageCategory->getPage()->getId(),
+                    )
+                );
+            }
+        }
+
+        // process rel page direct version
+        $versionRelPageDirect = unserialize($revertedBlock->getVersionRelPageDirect());
+        $relPageDirectRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
+        $relPageDirectValue = array();
+        foreach ($versionRelPageDirect as $id => $version) {
+            $relPageDirect = $relPageDirectRepo->findOneBy(
+                array(
+                    'id' => $id,
+                )
+            );
+
+            if ($relPageDirect) {
+                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+                $revertedRelPageDirect = $blockLogRepo->revertEntity($relPageDirect, $version);
+                array_push(
+                    $relPageDirectValue,
+                    array(
+                        'page' => $revertedRelPageDirect->getPage()->getId(),
+                    )
+                );
+            }
+        }
+
         // gets all data from block
         $blockVersion = array(
             'id' => $revertedBlock->getId(),
@@ -426,15 +544,12 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             'active' => $revertedBlock->getActive(),
             'order' => $revertedBlock->getOrder(),
             'wysiwygEditor' => $revertedBlock->getWysiwygEditor(),
-            'relLangContents' => $revertedBlock->getRelLangContents(),
-            'relPages' => $revertedBlock->getRelPages(),
-            'targetingOptions' => $revertedBlock->getTargetingOptions(),
             'category' => $revertedBlock->getCategory(),
-            'versionTargetingOption' => $revertedBlock->getVersionTargetingOption(),
-            'versionRelLangContent' => $revertedBlock->getVersionRelLangContent(),
-            'versionRelPageGlobal' => $revertedBlock->getVersionRelPageGlobal(),
-            'versionRelPageCategory' => $revertedBlock->getVersionRelPageCategory(),
-            'versionRelPageDirect' => $revertedBlock->getVersionRelPageDirect,
+            'targetingOption' => $versionTargetingOption,
+            'relLangContent' => $versionRelLangContent,
+            'relPageGlobal' => $versionRelPageGlobal,
+            'relPageCategory' => $versionRelPageCategory,
+            'relPageDirect' => $versionRelPageDirect,
         );
 
         // return requested block version array
