@@ -383,7 +383,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
     public function getBlock($params)
     {
         // throws exception if not enough arguments are provided
-        if (empty($params['get']['blockId']) || empty($params['get']['version'])) {
+        if (empty($params['get']['id']) || empty($params['get']['version'])) {
             throw new NotEnoughArgumentsException('not enough arguments');
         }
 
@@ -404,10 +404,10 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         // gets log entry repository
         $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
         // gets requested block version
-        $revertedBlock = $blockLogRepo->getBlockVersion($block, $version);
+        $revertedBlock = $blockLogRepo->revertEntity($block, $version);
 
         if (!$revertedBlock) {
-            throw new NoBlockVersionFoundException('no block version found with version: ' . $version);
+            throw new NoBlockVersionFoundException('no block found under version: ' . $version);
         }
 
         // process targeting option version
@@ -544,12 +544,12 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             'active' => $revertedBlock->getActive(),
             'order' => $revertedBlock->getOrder(),
             'wysiwygEditor' => $revertedBlock->getWysiwygEditor(),
-            'category' => $revertedBlock->getCategory(),
-            'targetingOption' => $versionTargetingOption,
-            'relLangContent' => $versionRelLangContent,
-            'relPageGlobal' => $versionRelPageGlobal,
-            'relPageCategory' => $versionRelPageCategory,
-            'relPageDirect' => $versionRelPageDirect,
+            'category' => $revertedBlock->getCategory()->getId(),
+            'targetingOption' => $targetingOptionValue,
+            'relLangContent' => $relLangContentValue,
+            'relPageGlobal' => $relPageGlobalValue,
+            'relPageCategory' => $relPageCategoryValue,
+            'relPageDirect' => $relPageDirectValue,
         );
 
         // return requested block version array

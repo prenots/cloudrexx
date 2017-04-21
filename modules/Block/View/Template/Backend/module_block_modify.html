@@ -332,7 +332,6 @@
     function selectDataTab(ele, tabName) {
         $J(document).ready(function () {
             var tab = document.getElementById(tabName);
-            console.log(tab);
             if (tab && tab.style.display != "block") {
                 tab.style.display = "block";
                 strClass = tab.className;
@@ -349,6 +348,114 @@
         });
     }
     // ]]>
+
+    cx.ready(function () {
+
+        /**
+         * Gets provided history version
+         *
+         * @param id integer
+         * @param version integer
+         */
+        cx.loadHistoryVersion = function(id, version) {
+            cx.ajax(
+                    'Block',
+                    'getBlock',
+                    {
+                        data: {
+                            id: id,
+                            version: version
+                        },
+                        beforeSend: function () {},
+                        success: function (data) {
+                            cx.applyHistoryVersion(data.data);
+                        }
+                    }
+            );
+        };
+
+        /**
+         * Applies given data to the block modify form
+         *
+         * @param data object
+         */
+        cx.applyHistoryVersion = function(data) {
+            // gets form
+            var form = cx.jQuery('form[name=blockFormModifyBlock]');
+
+            // gets input fields
+            var start = form.find('input[name=inputStartDate]');
+            var end = form.find('input[name=inputEndDate]');
+            var name = form.find('input[name=blockName]');
+            var random = form.find('input[name=blockRandom]');
+            var random2 = form.find('input[name=blockRandom2]');
+            var random3 = form.find('input[name=blockRandom3]');
+            var random4 = form.find('input[name=blockRandom4]');
+            var showInGlobal = form.find('input[id=blockGlobal' + data.showInGlobal + ']');
+            var showInCategory = form.find('input[id=blockCategory' + data.showInCategory + ']');
+            var showInDirect = form.find('input[id=blockDirect' + data.showInDirect + ']');
+            var wysiwygEditor = form.find('input[name=wysiwyg_editor]');
+            var category = form.find('select[name=blockCat]');
+            var relPageGlobal = form.find('#globalPageSelector');
+            var relPageCategory = form.find('#categoryPageSelector');
+            var relPageDirect = form.find('#directPageSelector');
+            var targetingOption = form.find('#targeting');
+
+            // sets simple input fields
+            start.attr('value', data.start);
+            end.attr('value', data.end);
+            name.attr('value', data.name);
+            data.random == 1 ? random.prop('checked', true) : random.prop('checked', false);
+            data.random2 == 1 ? random2.prop('checked', true) : random2.prop('checked', false);
+            data.random3 == 1 ? random3.prop('checked', true) : random3.prop('checked', false);
+            data.random4 == 1 ? random4.prop('checked', true) : random4.prop('checked', false);
+            showInGlobal.prop('checked', true);
+            showInCategory.prop('checked', true);
+            showInDirect.prop('checked', true);
+            data.wysiwygEditor == 1 ? wysiwygEditor.prop('checked', true) : wysiwygEditor.prop('checked', false);
+            category.find('option[value=' + data.category + ']').prop('selected', true);
+
+            // sets global pages
+            relPageGlobal.forEach(function(element) {
+                relPageGlobal.find('#globalNotSelectedPages option[value=' + element + ']').prop('selected', true);
+            });
+            moveSelectedPages(
+                relPageGlobal.find('#globalNotSelectedPages'),
+                relPageGlobal.find('#globalSelectedPages'),
+                relPageGlobal.find('input[name=addpages]')[0],
+                relPageGlobal.find('input[name=removepages]')[0]
+            );
+
+            // sets category pages
+            relPageCategory.forEach(function(element) {
+                relPageGlobal.find('#categoryPageSelector option[value=' + element + ']').prop('selected', true);
+            });
+            moveSelectedPages(
+                relPageGlobal.find('#categoryNotSelectedPages'),
+                relPageGlobal.find('#categorySelectedPages'),
+                relPageGlobal.find('input[name=addpages]')[0],
+                relPageGlobal.find('input[name=removepages]')[0]
+            );
+
+            // sets direct pages
+            relPageDirect.forEach(function(value) {
+                relPageGlobal.find('#directNotSelectedPages option[value=' + value + ']').prop('selected', true);
+            });
+            moveSelectedPages(
+                relPageGlobal.find('#directNotSelectedPages'),
+                relPageGlobal.find('#directSelectedPages'),
+                relPageGlobal.find('input[name=addpages]')[0],
+                relPageGlobal.find('input[name=removepages]')[0]
+            );
+
+            // sets content in wysiwyg editor
+            data.relLangContent.forEach(function(language) {
+                form.find('input[blockFormText_' + language.locale + ']').attr('value', language.content);
+            });
+            form.find()
+        };
+
+    });
 </script>
 <script type="text/javascript">
     //adds the datetimepicker to the date fields
@@ -866,7 +973,8 @@
                     <td width="10%" class="a_right">
                         <a class="historyLoad"
                            title="{TXT_BLOCK_HISTORY_VERSION_LOAD}"
-                           href="javascript:loadHistoryVersion({BLOCK_HISTORY_VERSION_OBJECT_ID}, {BLOCK_HISTORY_VERSION_VERSION})">
+                           href="#"
+                           onclick="cx.loadHistoryVersion({BLOCK_HISTORY_VERSION_OBJECT_ID}, {BLOCK_HISTORY_VERSION_VERSION})">
                             {TXT_BLOCK_HISTORY_VERSION_LOAD}
                         </a>
                     </td>
