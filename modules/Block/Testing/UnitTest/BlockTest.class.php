@@ -50,12 +50,17 @@ namespace Cx\Modules\Block\Testing\UnitTest;
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
+class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
 {
     /**
      * Id of existing Block needed for testing
      */
     const EXISTING_BLOCK_ID = 29;
+
+    /**
+     * Id of existing Category needed for testing
+     */
+    const EXISTING_CATEGORY_ID = 2;
 
     /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
@@ -150,17 +155,36 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      */
     public function testCreateBlockVersion()
     {
-        // creates a new block
-        $block = $this->createBlock();
+        // gets Entity Manager
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        // creates new block
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
+
+        $block->setName('test');
+        $block->setCategory($category);
+        $block->setStart(0);
+        $block->setEnd(0);
+        $block->setRandom(0);
+        $block->setRandom2(0);
+        $block->setRandom3(0);
+        $block->setRandom4(0);
+        $block->setWysiwygEditor(1);
+        $block->setShowInGlobal(0);
+        $block->setShowInDirect(0);
+        $block->setShowInCategory(0);
+        $block->setActive(1);
+        $block->setOrder(0);
+        $em->persist($block);
+        $em->flush();
 
         // gets log entries of block
-        $blockLogRepo = static::$cx
-            ->getDb()
-            ->getEntityManager()
-            ->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-        $logs = $blockLogRepo->getLogs($block);
+        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs(get_class($block), $block->getId());
 
-        // checks if logs are existing and an instance of doctrine collection
+        // checks if first log in array is a LogEntry
         $this->assertInstanceOf('Cx\Modules\Block\Model\Entity\LogEntry', $logs[0]);
     }
 
@@ -168,79 +192,45 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      * Verifies block version reverting
      *
      * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getLogs
-     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getBlockVersion
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::revertEntity
      */
     public function testRevertBlockVersion()
     {
-        // creates a new block
-        $block = $this->createBlock();
+        // gets Entity Manager
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        // sets request values for updating an existing block
-        $_REQUEST = array(
-            'act' => 'modify',
-        );
-        $_POST = array(
-            'blockId' => $block->getId(),
-            'globalCachedLang' => 'de',
-            'directCachedLang' => 'de',
-            'categoryCachedLang' => 'de',
-            'globalSelectedPagesList' => '16',
-            'directSelectedPagesList' => '454',
-            'categorySelectedPagesList' => '654',
-            'blockFormLanguages' => array(
-                '1' => '1',
-                '2' => '1',
-            ),
-            'blockName' => 'test updated',
-            'blockCat' => '2',
-            'blockFormText_' => array(
-                '1' => 'german test content updated',
-                '2' => 'english test content updated',
-            ),
-            'page' => array(
-                'content' => 'german test content updated',
-            ),
-            'blockRandom4' => '1',
-            'inputStartDate' => '0',
-            'inputEndDate' => '0',
-            'blockGlobal' => '2',
-            'pagesLangGlobal' => array(
-                'de',
-            ),
-            'blockDirect' => '1',
-            'pagesLangDirect' => array(
-                'de',
-            ),
-            'blockCategory' => '1',
-            'pagesLangCategory' => array(
-                'de',
-            ),
-            'wysiwyg_editor' => '1',
-            'targeting_status' => '1',
-            'targeting' => array(
-                'country' => array(
-                    'filter' => 'exclude',
-                    'value' => array(
-                        '81'
-                    ),
-                )
-            ),
-            'block_save_block' => 'Store',
-        );
+        // creates new block
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
 
-        // calls block manager
-        $this->callBlockManager();
+        $block->setName('test');
+        $block->setCategory($category);
+        $block->setStart(0);
+        $block->setEnd(0);
+        $block->setRandom(0);
+        $block->setRandom2(0);
+        $block->setRandom3(0);
+        $block->setRandom4(0);
+        $block->setWysiwygEditor(1);
+        $block->setShowInGlobal(0);
+        $block->setShowInDirect(0);
+        $block->setShowInCategory(0);
+        $block->setActive(1);
+        $block->setOrder(0);
+        $em->persist($block);
+        $em->flush();
+
+        // updates block
+        $block->setName('test updated');
+        $em->flush();
 
         // gets log entries of block
-        $blockLogRepo = static::$cx
-            ->getDb()
-            ->getEntityManager()
-            ->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-        $logs = $blockLogRepo->getLogs($block);
-        $firstLogEntryVersion = end($logs)->getVersion();
+        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs(get_class($block), $block->getId());
 
         // gets first version of block
-        $revertedBlock = $blockLogRepo->getBlockVersion($block, $firstLogEntryVersion);
+        $revertedBlock = $blockLogRepo->revertEntity($block, end($logs)->getVersion());
 
         // checks if block is correctly reverted by asserting its name
         $this->assertEquals('test', $revertedBlock->getName());
@@ -250,150 +240,55 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
      * Verifies block version restoring
      *
      * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getLogs
-     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::getBlockVersion
+     * @covers \Cx\Modules\Block\Model\Repository\BlockLogRepository::revertEntity
      */
     public function testRestoreBlockVersion()
     {
-        // creates a new block
-        $block = $this->createBlock();
+        // gets Entity Manager
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        // sets post values for deleting the created block
-        $_REQUEST = array(
-            'act' => 'del',
-        );
-        $_POST = array(
-            'blockId' => $block->getId(),
-            'catId' => $block->getCategory()->getId(),
-        );
+        // creates new block
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
+        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
+        $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
 
-        // calls block manager
-        $this->callBlockManager();
+        $block->setName('test');
+        $block->setCategory($category);
+        $block->setStart(0);
+        $block->setEnd(0);
+        $block->setRandom(0);
+        $block->setRandom2(0);
+        $block->setRandom3(0);
+        $block->setRandom4(0);
+        $block->setWysiwygEditor(1);
+        $block->setShowInGlobal(0);
+        $block->setShowInDirect(0);
+        $block->setShowInCategory(0);
+        $block->setActive(1);
+        $block->setOrder(0);
+        $em->persist($block);
+        $em->flush();
+        // gets id for restoring
+        $id = $block->getId();
+
+        // removes block
+        $em->remove($block);
+        $em->flush();
 
         // gets log entries of block
-        $blockLogRepo = static::$cx
-            ->getDb()
-            ->getEntityManager()
-            ->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
-        $logs = $blockLogRepo->getLogs($block);
-        $firstLogEntryVersion = end($logs)->getVersion();
+        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+        $logs = $blockLogRepo->getLogs(get_class($block), $id);
 
         // gets first version of block
-        $revertedBlock = $blockLogRepo->getBlockVersion($block, $firstLogEntryVersion);
+        $block->setId($id);
+        $revertedBlock = $blockLogRepo->revertEntity($block, $logs[1]->getVersion());
 
-        // checks if logs are existing and an instance of doctrine collection
-        $this->assertInstanceOf('\Cx\Modules\Block\Model\Entity\Block', $revertedBlock);
-    }
+        // restores reverted block
+        $em->persist($revertedBlock);
+        $em->flush();
 
-    /**
-     * Creates a new block through block manager
-     *
-     * @return $block \Cx\Modules\Block\Model\Entity\Block
-     */
-    protected function createBlock()
-    {
-        // sets request values for creating a new block
-        $_REQUEST = array(
-            'act' => 'modify',
-        );
-        $_POST = array(
-            'blockId' => '0',
-            'globalCachedLang' => 'de',
-            'directCachedLang' => 'de',
-            'categoryCachedLang' => 'de',
-            'globalSelectedPagesList' => '16,13,65',
-            'directSelectedPagesList' => '454,64,63',
-            'categorySelectedPagesList' => '654,670,62',
-            'blockFormLanguages' => array(
-                '1' => '1',
-                '2' => '1',
-            ),
-            'blockName' => 'test',
-            'blockCat' => '2',
-            'blockFormText_' => array(
-                '1' => 'german test content',
-                '2' => 'english test content',
-            ),
-            'page' => array(
-                'content' => 'german test content',
-            ),
-            'blockRandom' => '1',
-            'blockRandom3' => '1',
-            'inputStartDate' => '0',
-            'inputEndDate' => '0',
-            'blockGlobal' => '2',
-            'pagesLangGlobal' => array(
-                'de',
-            ),
-            'blockDirect' => '1',
-            'pagesLangDirect' => array(
-                'de',
-            ),
-            'blockCategory' => '1',
-            'pagesLangCategory' => array(
-                'de',
-            ),
-            'targeting_status' => '1',
-            'targeting' => array(
-                'country' => array(
-                    'filter' => 'include',
-                    'value' => array(
-                        '204'
-                    ),
-                )
-            ),
-            'block_save_block' => 'Store',
-        );
-
-        // calls block manager
-        $this->callBlockManager();
-
-        // gets id of the previously new created block
-        $highestBlockId = static::$cx
-            ->getDb()
-            ->getEntityManager()
-            ->createQueryBuilder()
-            ->select('MAX(b.id)')
-            ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        // gets newly created block
-        $blockRepo = static::$cx
-            ->getDb()
-            ->getEntityManager()
-            ->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(
-            array(
-                'id' => $highestBlockId
-            )
-        );
-
-        return $block;
-    }
-
-    /**
-     * Calls block manager
-     */
-    protected function callBlockManager()
-    {
-        // set template object for block manager
-        $this->setGlobalTemplate();
-        // instantiates block manager
-        $blockManager = new \Cx\Modules\Block\Controller\BlockManager();
-        // calls block manager
-        $blockManager->getPage();
-    }
-
-    /**
-     * Sets empty global template object
-     *
-     * @global $objTemplate
-     */
-    protected function setGlobalTemplate()
-    {
-        global $objTemplate;
-        // sets global template object
-        $objTemplate = new \Cx\Core\Html\Sigma();
+        // checks if block is correctly reverted by asserting its name
+        $this->assertEquals('test', $revertedBlock->getName());
     }
 
     /**

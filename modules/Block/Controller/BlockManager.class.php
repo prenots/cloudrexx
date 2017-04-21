@@ -1069,7 +1069,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
             // gets logs from entity by defined limit and offset
             $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-            $logs = $blockLogRepo->getLogs($block, $limit, $offset);
+            $logs = $blockLogRepo->getLogs(get_class($block), $block->getId(), 'update', $limit, $offset);
 
             if (empty($logs)) {
                 // parses template block if no entries exists
@@ -1223,7 +1223,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $targetingOptions = $block->getTargetingOptions();
         $targetingOptionVersion = array();
         foreach ($targetingOptions as $targetingOption) {
-            $availableRevisions = $blockLogRepo->getLogs($targetingOption);
+            $availableRevisions = $blockLogRepo->getLogs(get_class($targetingOption), $targetingOption->getId(), 'update');
             $version = '1';
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();
@@ -1242,7 +1242,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         );
         $relPageCategoryVersion = array();
         foreach ($relPagesCategory as $relPage) {
-            $availableRevisions = $blockLogRepo->getLogs($relPage);
+            $availableRevisions = $blockLogRepo->getLogs(get_class($relPage), $relPage->getId(), 'update');
             $version = '1';
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();
@@ -1260,7 +1260,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         );
         $relPageDirectVersion = array();
         foreach ($relPagesDirect as $relPage) {
-            $availableRevisions = $blockLogRepo->getLogs($relPage);
+            $availableRevisions = $blockLogRepo->getLogs(get_class($relPage), $relPage->getId(), 'update');
             $version = '1';
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();
@@ -1278,7 +1278,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         );
         $relPageGlobalVersion = array();
         foreach ($relPagesGlobal as $relPage) {
-            $availableRevisions = $blockLogRepo->getLogs($relPage);
+            $availableRevisions = $blockLogRepo->getLogs(get_class($relPage), $relPage->getId(), 'update');
             $version = '1';
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();
@@ -1291,7 +1291,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $relLangContents = $block->getRelLangContents();
         $relLangContentVersion = array();
         foreach ($relLangContents as $relLangContent) {
-            $availableRevisions = $blockLogRepo->getLogs($relLangContent);
+            $availableRevisions = $blockLogRepo->getLogs(get_class($relLangContent), $relLangContent->getId(), 'update');
             $version = '1';
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();

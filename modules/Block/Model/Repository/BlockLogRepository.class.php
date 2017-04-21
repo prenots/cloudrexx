@@ -51,24 +51,35 @@ use Gedmo\Loggable\Entity\Repository\LogEntryRepository;
 class BlockLogRepository extends LogEntryRepository
 {
     /**
-     * Returns logs for block
+     * Returns logs
      *
-     * @param $block Cx\Modules\Block\Model\Entity\Block
+     * @param $entityClass string
+     * @param $entityId integer
+     * @param $action string
      * @param $limit integer
      * @param $offset integer
-     * @return $logs Doctrine\Common\Collections\Collection
+     * @return $logs array
      */
-    public function getLogs($block, $limit = null, $offset = null)
+    public function getLogs($entityClass, $entityId, $action, $limit = null, $offset = null)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $logEntryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
+        $criteria = array(
+            'objectClass' => $entityClass,
+            'objectId' => $entityId,
+        );
+        // sets requested action
+        if ($action) {
+            array_push(
+                $criteria,
+                array(
+                    'action' => $action
+                )
+            );
+        }
         // finds logs by given parameters
         $logs = $logEntryRepo->findBy(
-            array(
-                'objectClass' => 'Cx\Modules\Block\Model\Entity\Block',
-                'objectId' => $block->getId(),
-                'action' => 'update',
-            ),
+            $criteria,
             array(
                 'version' => 'DESC'
             ),
@@ -80,12 +91,12 @@ class BlockLogRepository extends LogEntryRepository
     }
 
     /**
-     * Returns row count for block
+     * Returns row count for given entity
      *
-     * @param $block Cx\Modules\Block\Model\Entity\Block
+     * @param $entity \Cx\Model\Base\EntityBase
      * @return $count integer
      */
-    public function getLogCount($block)
+    public function getLogCount($entity)
     {
         // gets row count for given block
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
@@ -95,7 +106,7 @@ class BlockLogRepository extends LogEntryRepository
             ->where('le.objectClass = \'Cx\Modules\Block\Model\Entity\Block\'')
             ->andWhere('le.action = \'update\'')
             ->andWhere('le.objectId = :bId')
-            ->setParameter('bId', $block->getId())
+            ->setParameter('bId', $entity->getId())
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -104,21 +115,21 @@ class BlockLogRepository extends LogEntryRepository
     }
 
     /**
-     * Returns specific version of a block
+     * Reverts given entity
      *
-     * @param $block Cx\Modules\Block\Model\Entity\Block
+     * @param $entity \Cx\Model\Base\EntityBase
      * @param $version integer
-     * @return $revertedBlock Cx\Modules\Block\Model\Entity\Block
+     * @return $revertedEntity \Cx\Model\Base\EntityBase reverted doctrine entity
      */
-    public function getBlockVersion($block, $version)
+    public function revertEntity($entity, $version)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         // reverts entity by version
-        $this->revert($block, $version);
-        $revertedBlock = $block;
-        // clears the identity map of the EntityManager to enforce block reloading
-        $em->clear($block);
-        // returns reverted block
-        return $revertedBlock;
+        $this->revert($entity, $version);
+        $revertedEntity = $entity;
+        // clears the identity map of the EntityManager to enforce entity reloading
+        $em->clear($entity);
+        // returns reverted entity
+        return $revertedEntity;
     }
 }
