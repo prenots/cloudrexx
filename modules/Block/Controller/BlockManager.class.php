@@ -841,8 +841,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockCat = !empty($_POST['blockCat']) ? intval($_POST['blockCat']) : 0;
             $blockContent = isset($_POST['blockFormText_']) ? array_map('contrexx_input2raw', $_POST['blockFormText_']) : array();
             $blockName = !empty($_POST['blockName']) ? contrexx_input2raw($_POST['blockName']) : $_ARRAYLANG['TXT_BLOCK_NO_NAME'];
-            $blockStart = strtotime($_POST['inputStartDate']);
-            $blockEnd = strtotime($_POST['inputEndDate']);
+            $blockStart = !empty(strtotime($_POST['inputStartDate'])) ? contrexx_input2raw(strtotime($_POST['inputStartDate'])): 0;
+            $blockEnd = !empty(strtotime($_POST['inputEndDate'])) ? contrexx_input2raw(strtotime($_POST['inputEndDate'])): 0;
             $blockRandom = !empty($_POST['blockRandom']) ? intval($_POST['blockRandom']) : 0;
             $blockRandom2 = !empty($_POST['blockRandom2']) ? intval($_POST['blockRandom2']) : 0;
             $blockRandom3 = !empty($_POST['blockRandom3']) ? intval($_POST['blockRandom3']) : 0;
@@ -1103,7 +1103,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 // sets paging variable in template
                 $this->_objTpl->setVariable(
                     array(
-                        'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $logCount),
+                        'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $logCount, $limit),
                     )
                 );
 
@@ -1214,91 +1214,39 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     protected function storeVersions($block)
     {
-        // gets entity manager and repository for the log entry
+        // gets entity manager and repository for rel page entry
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         // gets log entry repository
-        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-
-        // collects all relating targeting option entities
-        $targetingOptions = $block->getTargetingOptions();
-        $targetingOptionVersion = array();
-        foreach ($targetingOptions as $targetingOption) {
-            $availableRevisions = $blockLogRepo->getLogs(get_class($targetingOption), $targetingOption->getId(), 'update');
-            $version = '1';
-            if ($availableRevisions) {
-                $version = $availableRevisions[0]->getVersion();
-            }
-            $type = $targetingOption->getType();
-            $targetingOptionVersion[$type] = $version;
-        }
-
-        // collects all relating rel page entities with category placeholder
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-        $relPagesCategory = $relPageRepo->findBy(
-            array(
-                'block' => $block,
-                'placeholder' => 'category',
-            )
-        );
-        $relPageCategoryVersion = array();
-        foreach ($relPagesCategory as $relPage) {
-            $availableRevisions = $blockLogRepo->getLogs(get_class($relPage), $relPage->getId(), 'update');
-            $version = '1';
-            if ($availableRevisions) {
-                $version = $availableRevisions[0]->getVersion();
-            }
-            $pageId = $relPage->getPage()->getId();
-            $relPageCategoryVersion[$pageId] = $version;
-        }
 
-        // collects all relating rel page entities with direct placeholder
+        // gets block related entities
+        $targetingOptions = $block->getTargetingOptions();
+        $relLangContents = $block->getRelLangContents();
         $relPagesDirect = $relPageRepo->findBy(
             array(
                 'block' => $block,
                 'placeholder' => 'direct',
             )
         );
-        $relPageDirectVersion = array();
-        foreach ($relPagesDirect as $relPage) {
-            $availableRevisions = $blockLogRepo->getLogs(get_class($relPage), $relPage->getId(), 'update');
-            $version = '1';
-            if ($availableRevisions) {
-                $version = $availableRevisions[0]->getVersion();
-            }
-            $pageId = $relPage->getPage()->getId();
-            $relPageDirectVersion[$pageId] = $version;
-        }
-
-        // collects all relating rel page entities with global placeholder
+        $relPagesCategory = $relPageRepo->findBy(
+            array(
+                'block' => $block,
+                'placeholder' => 'category',
+            )
+        );
         $relPagesGlobal = $relPageRepo->findBy(
             array(
                 'block' => $block,
                 'placeholder' => 'global',
             )
         );
-        $relPageGlobalVersion = array();
-        foreach ($relPagesGlobal as $relPage) {
-            $availableRevisions = $blockLogRepo->getLogs(get_class($relPage), $relPage->getId(), 'update');
-            $version = '1';
-            if ($availableRevisions) {
-                $version = $availableRevisions[0]->getVersion();
-            }
-            $pageId = $relPage->getPage()->getId();
-            $relPageGlobalVersion[$pageId] = $version;
-        }
 
-        // collects all relating rel lang content entities
-        $relLangContents = $block->getRelLangContents();
-        $relLangContentVersion = array();
-        foreach ($relLangContents as $relLangContent) {
-            $availableRevisions = $blockLogRepo->getLogs(get_class($relLangContent), $relLangContent->getId(), 'update');
-            $version = '1';
-            if ($availableRevisions) {
-                $version = $availableRevisions[0]->getVersion();
-            }
-            $langId = $relLangContent->getLocale()->getId();
-            $relLangContentVersion[$langId] = $version;
-        }
+        // gets version from block related entities
+        $targetingOptionVersion = $this->getVersion($targetingOptions);
+        $relPageDirectVersion = $this->getVersion($relPagesDirect);
+        $relPageCategoryVersion = $this->getVersion($relPagesCategory);
+        $relPageGlobalVersion = $this->getVersion($relPagesGlobal);
+        $relLangContentVersion = $this->getVersion($relLangContents);
 
         // sets collected versions serialised in block
         $block->setVersionTargetingOption(serialize($targetingOptionVersion));
@@ -1306,6 +1254,35 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $block->setVersionRelPageDirect(serialize($relPageDirectVersion));
         $block->setVersionRelPageGlobal(serialize($relPageGlobalVersion));
         $block->setVersionRelLangContent(serialize($relLangContentVersion));
+    }
+
+    /**
+     * Get and returns current versions from block related entities
+     *
+     * @param $entries array
+     * @return $entriesVersion array
+     */
+    protected function getVersion($entries)
+    {
+        // gets entity manager and repository for the log entry
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        // gets log entry repository
+        $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+
+        // gets latest versions from provided entities
+        $entriesVersion = array();
+        foreach ($entries as $entry) {
+            $id = $entry->getId();
+            $availableRevisions = $blockLogRepo->getLogs(get_class($entry), $id, 'update');
+            $version = 1;
+            if ($availableRevisions) {
+                $version = $availableRevisions[0]->getVersion();
+            }
+            $entriesVersion[$id] = $version;
+        }
+
+        // returns versions from provided entities
+        return $entriesVersion;
     }
 
     /**
