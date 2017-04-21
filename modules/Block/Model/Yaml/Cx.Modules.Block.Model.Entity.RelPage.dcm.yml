@@ -34,6 +34,8 @@ Cx\Modules\Block\Model\Entity\RelPage:
         referencedColumnName: id
     page:
       type: integer
+      gedmo:
+        - versioned
       column: page_id
       targetEntity: Cx\Core\ContentManager\Model\Entity\Page
       inversedBy: relPage

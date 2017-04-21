@@ -35,6 +35,8 @@ Cx\Modules\Block\Model\Entity\RelLangContent:
         referencedColumnName: id
     locale:
       type: integer
+      gedmo:
+        - versioned
       column: lang_id
       targetEntity: Cx\Core\Locale\Model\Entity\Locale
       inversedBy: relLangContent
