@@ -841,8 +841,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockCat = !empty($_POST['blockCat']) ? intval($_POST['blockCat']) : 0;
             $blockContent = isset($_POST['blockFormText_']) ? array_map('contrexx_input2raw', $_POST['blockFormText_']) : array();
             $blockName = !empty($_POST['blockName']) ? contrexx_input2raw($_POST['blockName']) : $_ARRAYLANG['TXT_BLOCK_NO_NAME'];
-            $blockStart = !empty(strtotime($_POST['inputStartDate'])) ? contrexx_input2raw(strtotime($_POST['inputStartDate'])): 0;
-            $blockEnd = !empty(strtotime($_POST['inputEndDate'])) ? contrexx_input2raw(strtotime($_POST['inputEndDate'])): 0;
+            $blockStart = !empty(strtotime($_POST['inputStartDate'])) ? contrexx_input2raw(strtotime($_POST['inputStartDate'])) : 0;
+            $blockEnd = !empty(strtotime($_POST['inputEndDate'])) ? contrexx_input2raw(strtotime($_POST['inputEndDate'])) : 0;
             $blockRandom = !empty($_POST['blockRandom']) ? intval($_POST['blockRandom']) : 0;
             $blockRandom2 = !empty($_POST['blockRandom2']) ? intval($_POST['blockRandom2']) : 0;
             $blockRandom3 = !empty($_POST['blockRandom3']) ? intval($_POST['blockRandom3']) : 0;
@@ -1062,12 +1062,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         // parses block history
         if ($block) {
-            // gets log entries of block
+            // gets current paging position
             $offset = \Paging::getPosition();
-            // get settings for limit of entries per page from core settings
+            // gets settings for limit of entries per page from core settings
             $limit = $_CONFIG['corePagingLimit'];
 
-            // gets logs from entity by defined limit and offset
+            // gets logs from block entity
             $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
             $logs = $blockLogRepo->getLogs(get_class($block), $block->getId(), 'update', $limit, $offset);
 
@@ -1210,11 +1210,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     /**
      * Stores versions for all referencing entities serialised in block
      *
-     * @param $block \Cx\Modules\Block\Model\Entity\Block
+     * @param $block \Cx\Modules\Block\Model\Entity\Block block to store referencing version of entities
      */
     protected function storeVersions($block)
     {
-        // gets entity manager and repository for rel page entry
+        // gets entity manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         // gets log entry repository
         $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
@@ -1241,7 +1241,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             )
         );
 
-        // gets version from block related entities
+        // gets current version from block related entities
         $targetingOptionVersion = $this->getVersion($targetingOptions);
         $relPageDirectVersion = $this->getVersion($relPagesDirect);
         $relPageCategoryVersion = $this->getVersion($relPagesCategory);
@@ -1257,32 +1257,33 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     }
 
     /**
-     * Get and returns current versions from block related entities
+     * Gets and returns current versions from block related entities
      *
-     * @param $entries array
-     * @return $entriesVersion array
+     * @param $entities array block related entities
+     * @return $entitiesVersion array current versions of provided entities stored by its id
      */
-    protected function getVersion($entries)
+    protected function getVersion($entities)
     {
-        // gets entity manager and repository for the log entry
+        // gets entity manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         // gets log entry repository
         $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
 
         // gets latest versions from provided entities
-        $entriesVersion = array();
-        foreach ($entries as $entry) {
-            $id = $entry->getId();
-            $availableRevisions = $blockLogRepo->getLogs(get_class($entry), $id, 'update');
+        $entitiesVersion = array();
+        foreach ($entities as $entity) {
+            $id = $entity->getId();
+            $availableRevisions = $blockLogRepo->getLogs(get_class($entity), $id, 'update');
             $version = 1;
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();
             }
-            $entriesVersion[$id] = $version;
+            // stores version in array by id
+            $entitiesVersion[$id] = $version;
         }
 
         // returns versions from provided entities
-        return $entriesVersion;
+        return $entitiesVersion;
     }
 
     /**

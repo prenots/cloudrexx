@@ -158,11 +158,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
         // gets Entity Manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        // creates new block
-        $block = new \Cx\Modules\Block\Model\Entity\Block();
+        // gets existing category
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
 
+        // creates new block
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
         $block->setName('test');
         $block->setCategory($category);
         $block->setStart(0);
@@ -199,11 +200,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
         // gets Entity Manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        // creates new block
-        $block = new \Cx\Modules\Block\Model\Entity\Block();
+        // gets existing category
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
 
+        // creates new block
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
         $block->setName('test');
         $block->setCategory($category);
         $block->setStart(0);
@@ -247,11 +249,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
         // gets Entity Manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
-        // creates new block
-        $block = new \Cx\Modules\Block\Model\Entity\Block();
+        // gets existing category
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
 
+        // creates new block
+        $block = new \Cx\Modules\Block\Model\Entity\Block();
         $block->setName('test');
         $block->setCategory($category);
         $block->setStart(0);

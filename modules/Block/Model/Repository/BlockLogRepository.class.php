@@ -53,14 +53,14 @@ class BlockLogRepository extends LogEntryRepository
     /**
      * Returns logs
      *
-     * @param $entityClass string
-     * @param $entityId integer
-     * @param $action string
-     * @param $limit integer
-     * @param $offset integer
-     * @return $logs array
+     * @param $entityClass string class of logged entity
+     * @param $entityId integer id of logged entity
+     * @param $action string specific performed action that created the log entry
+     * @param $limit integer limitation of returned results
+     * @param $offset integer $offset of returned results
+     * @return $logs array containing \Cx\Modules\Block\Model\Entity\LogEntry entities
      */
-    public function getLogs($entityClass, $entityId, $action, $limit = null, $offset = null)
+    public function getLogs($entityClass, $entityId, $action = '', $limit = null, $offset = null)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $logEntryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
@@ -70,7 +70,7 @@ class BlockLogRepository extends LogEntryRepository
             'objectId' => $entityId,
         );
         // sets requested log action
-        if ($action) {
+        if (!empty($action)) {
             $criteria['action'] = $action;
         }
         // finds logs by given parameters
@@ -87,15 +87,15 @@ class BlockLogRepository extends LogEntryRepository
     }
 
     /**
-     * Returns row count for given entity
+     * Returns logs count for given entity
      *
      * @param $entity \Cx\Model\Base\EntityBase
-     * @param $action string
-     * @return $count integer
+     * @param $action string specific performed action that created the log entry
+     * @return $count integer count of all found entries
      */
-    public function getLogCount($entity, $action)
+    public function getLogCount($entity, $action = '')
     {
-        // gets row count for given block
+        // gets logs count for given entity
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $qb = $em->createQueryBuilder();
         $query = $qb->select('count(le.id)')
@@ -105,23 +105,23 @@ class BlockLogRepository extends LogEntryRepository
             ->setParameter('eId', $entity->getId());
 
         // sets action if provided
-        if ($action) {
+        if (!empty($action)) {
             $query->andWhere('le.action = \'' . $action . '\'');
         }
 
         // gets result
         $count = $query->getQuery()->getSingleScalarResult();
 
-        // returns row count
+        // returns logs count
         return intval($count);
     }
 
     /**
-     * Reverts given entity
+     * Reverts provided entity
      *
-     * @param $entity \Cx\Model\Base\EntityBase
-     * @param $version integer
-     * @return $revertedEntity \Cx\Model\Base\EntityBase reverted doctrine entity
+     * @param $entity \Cx\Model\Base\EntityBase entity to revert
+     * @param $version integer wanted entity version
+     * @return $revertedEntity \Cx\Model\Base\EntityBase reverted entity
      */
     public function revertEntity($entity, $version)
     {

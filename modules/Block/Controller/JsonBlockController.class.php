@@ -410,125 +410,69 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             throw new NoBlockVersionFoundException('no block found under version: ' . $version);
         }
 
-        // process targeting option version
-        $versionTargetingOption = unserialize($revertedBlock->getVersionTargetingOption());
-        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
-        $targetingOptionValue = array();
-        foreach ($versionTargetingOption as $id => $version) {
-            $targetingOption = $targetingOptionRepo->findOneBy(
-                array(
-                    'id' => $id,
-                )
-            );
+        // get targeting option version
+        $targetingOptionValue = $this->getVersionValue(
+            '\Cx\Modules\Block\Model\Entity\TargetingOption',
+            $revertedBlock->getVersionTargetingOption(),
+            array(
+                'type',
+                'filter',
+                'value',
+            ),
+            array()
+        );
 
-            if ($targetingOption) {
-                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-                $revertedTargetingOption = $blockLogRepo->revertEntity($targetingOption, $version);
-                array_push(
-                    $targetingOptionValue,
-                    array(
-                        'type' => $revertedTargetingOption->getType(),
-                        'filter' => $revertedTargetingOption->getFilter(),
-                        'value' => $revertedTargetingOption->getValue(),
-                    )
-                );
-            }
-        }
+        // get rel lang content version
+        $relLangContentValue = $this->getVersionValue(
+            '\Cx\Modules\Block\Model\Entity\RelLangContent',
+            $revertedBlock->getVersionRelLangContent(),
+            array(
+                'content',
+                'locale',
+            ),
+            array(
+                'locale',
+            )
+        );
 
-        // process rel lang content version
-        $versionRelLangContent = unserialize($revertedBlock->getVersionRelLangContent());
-        $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
-        $relLangContentValue = array();
-        foreach ($versionRelLangContent as $id => $version) {
-            $relLangContent = $relLangContentRepo->findOneBy(
-                array(
-                    'id' => $id,
-                )
-            );
+        // get rel page global version
+        $relPageGlobalValue = $this->getVersionValue(
+            '\Cx\Modules\Block\Model\Entity\RelPage',
+            $revertedBlock->getVersionRelPageGlobal(),
+            array(
+                'page',
+            ),
+            array(
+                'page',
+            )
+        );
 
-            if ($relLangContent) {
-                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-                $revertedRelLangContent = $blockLogRepo->revertEntity($relLangContent, $version);
-                array_push(
-                    $relLangContentValue,
-                    array(
-                        'content' => $revertedRelLangContent->getContent(),
-                        'locale' => $revertedRelLangContent->getLocale()->getId(),
-                    )
-                );
-            }
-        }
+        // get rel page category version
+        $relPageCategoryValue = $this->getVersionValue(
+            '\Cx\Modules\Block\Model\Entity\RelPage',
+            $revertedBlock->getVersionRelPageCategory(),
+            array(
+                'page',
+            ),
+            array(
+                'page',
+            )
+        );
 
-        // process rel page global version
-        $versionRelPageGlobal = unserialize($revertedBlock->getVersionRelPageGlobal());
-        $relPageGlobalRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-        $relPageGlobalValue = array();
-        foreach ($versionRelPageGlobal as $id => $version) {
-            $relPageGlobal = $relPageGlobalRepo->findOneBy(
-                array(
-                    'id' => $id,
-                )
-            );
-
-            if ($relPageGlobal) {
-                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-                $revertedRelPageGlobal = $blockLogRepo->revertEntity($relPageGlobal, $version);
-                array_push(
-                    $relPageGlobalValue,
-                    array(
-                        'page' => $revertedRelPageGlobal->getPage()->getId(),
-                    )
-                );
-            }
-        }
-
-        // process rel page category version
-        $versionRelPageCategory = unserialize($revertedBlock->getVersionRelPageCategory());
-        $relPageCategoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-        $relPageCategoryValue = array();
-        foreach ($versionRelPageCategory as $id => $version) {
-            $relPageCategory = $relPageCategoryRepo->findOneBy(
-                array(
-                    'id' => $id,
-                )
-            );
-
-            if ($relPageCategory) {
-                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-                $revertedRelPageCategory = $blockLogRepo->revertEntity($relPageCategory, $version);
-                array_push(
-                    $relPageCategoryValue,
-                    array(
-                        'page' => $revertedRelPageCategory->getPage()->getId(),
-                    )
-                );
-            }
-        }
-
-        // process rel page direct version
-        $versionRelPageDirect = unserialize($revertedBlock->getVersionRelPageDirect());
-        $relPageDirectRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-        $relPageDirectValue = array();
-        foreach ($versionRelPageDirect as $id => $version) {
-            $relPageDirect = $relPageDirectRepo->findOneBy(
-                array(
-                    'id' => $id,
-                )
-            );
-
-            if ($relPageDirect) {
-                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-                $revertedRelPageDirect = $blockLogRepo->revertEntity($relPageDirect, $version);
-                array_push(
-                    $relPageDirectValue,
-                    array(
-                        'page' => $revertedRelPageDirect->getPage()->getId(),
-                    )
-                );
-            }
-        }
+        // get rel page direct version
+        $relPageDirectValue = $this->getVersionValue(
+            '\Cx\Modules\Block\Model\Entity\RelPage',
+            $revertedBlock->getVersionRelPageDirect(),
+            array(
+                'page',
+            ),
+            array(
+                'page',
+            )
+        );
 
         // gets all data from block
+        $revertedBlockCategory = $revertedBlock->getCategory();
         $blockVersion = array(
             'id' => $revertedBlock->getId(),
             'start' => $revertedBlock->getStart(),
@@ -544,7 +488,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             'active' => $revertedBlock->getActive(),
             'order' => $revertedBlock->getOrder(),
             'wysiwygEditor' => $revertedBlock->getWysiwygEditor(),
-            'category' => $revertedBlock->getCategory()->getId(),
+            'category' => $revertedBlockCategory ? $revertedBlockCategory->getId() : 0,
             'targetingOption' => $targetingOptionValue,
             'relLangContent' => $relLangContentValue,
             'relPageGlobal' => $relPageGlobalValue,
@@ -554,5 +498,64 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         // return requested block version array
         return $blockVersion;
+    }
+
+    /**
+     * Processes and returns value of related block entities stored in block
+     *
+     * @param $className string full qualified class name to get repo
+     * @param $data array serialized data
+     * @param $attributes array wanted attributes of entity
+     * @param $idAttributes array wanted attributes to get an ID on
+     * @return $entityValue array processed entity value
+     */
+    protected function getVersionValue($className, $data, $attributes, $idAttributes)
+    {
+        // get entity manager
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        // unserializes data
+        $unserializedData = unserialize($data);
+
+        // gets repository
+        $entityRepo = $em->getRepository($className);
+
+        $entityValue = array();
+        foreach ($unserializedData as $id => $version) {
+            // find entity by id
+            $entity = $entityRepo->findOneBy(
+                array(
+                    'id' => $id,
+                )
+            );
+
+            if ($entity) {
+                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+                // reverts found entity on given version
+                $revertedEntity = $blockLogRepo->revertEntity($entity, $version);
+
+                // gets value for wanted attributes
+                $attributesValue = array();
+                foreach ($attributes as $attribute) {
+                    if (!in_array($attribute, $idAttributes)) {
+                        $attributesValue[$attribute] = $revertedEntity->{'get' . ucfirst($attribute)}();
+                    } else {
+                        // gets id on wanted attributes
+                        $relatedEntity = $revertedEntity->{'get' . ucfirst($attribute)}();
+                        if ($relatedEntity) {
+                            $attributesValue[$attribute] = $relatedEntity->getId();
+                        }
+                    }
+                }
+                // push value to entity value array
+                array_push(
+                    $entityValue,
+                    $attributesValue
+                );
+            }
+        }
+
+        // returns value of the provided entity
+        return $entityValue;
     }
 }

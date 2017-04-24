@@ -95,13 +95,17 @@
         cx.jQuery("#blockLanguages li a:visible").first().click();
     });
 
-    var activeTab = getParameterByName('activeTab');
+    // gets activeTab value from url
+    var activeTab = getUrlParameter('activeTab');
+    // sets active tab
     selectDataTab('#data_' + activeTab, activeTab);
 
     /**
      * Simple function to get every parameter from current window location
+     *
+     * @param name string wanted parameter name
      */
-    function getParameterByName(name) {
+    function getUrlParameter(name) {
         url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
@@ -349,15 +353,14 @@
     }
     // ]]>
 
-    cx.ready(function () {
-
-        /**
-         * Gets provided history version
-         *
-         * @param id integer
-         * @param version integer
-         */
-        cx.loadHistoryVersion = function(id, version) {
+    /**
+     * Gets provided history version
+     *
+     * @param id integer wanted block id
+     * @param version integer wanted block version
+     */
+    function loadHistoryVersion(id, version) {
+        cx.ready(function () {
             cx.ajax(
                     'Block',
                     'getBlock',
@@ -366,95 +369,316 @@
                             id: id,
                             version: version
                         },
-                        beforeSend: function () {},
+                        beforeSend: function () {
+                        },
                         success: function (data) {
-                            cx.applyHistoryVersion(data.data);
+                            // applies data to form
+                            applyHistoryVersion(data.data);
+                            // switches to first tab
+                            cx.jQuery('ul#tabmenu > li:first-child > a').click();
                         }
                     }
             );
-        };
+        });
+    }
 
-        /**
-         * Applies given data to the block modify form
-         *
-         * @param data object
-         */
-        cx.applyHistoryVersion = function(data) {
-            // gets form
-            var form = cx.jQuery('form[name=blockFormModifyBlock]');
+    /**
+     * Applies given data to the block modify form
+     *
+     * @param data object returned data from AJAX call
+     */
+    function applyHistoryVersion(data) {
+        // sets data on elements
+        setStart(data.start);
+        setEnd(data.end);
+        setName(data.name);
+        setRandom(data.random);
+        setRandom2(data.random2);
+        setRandom3(data.random3);
+        setRandom4(data.random4);
+        setShowInGlobal(data.showInGlobal);
+        setShowInCategory(data.showInCategory);
+        setShowInDirect(data.showInDirect);
+        setWysiwygEditor(data.wysiwygEditor);
+        setCategory(data.category);
+        setTargetingOption(data.targetingOption);
+        setRelLangContent(data.relLangContent);
+        setRelPageGlobal(data.relPageGlobal);
+        setRelPageCategory(data.relPageCategory);
+        setRelPageDirect(data.relPageDirect);
+    }
 
-            // gets input fields
-            var start = form.find('input[name=inputStartDate]');
-            var end = form.find('input[name=inputEndDate]');
-            var name = form.find('input[name=blockName]');
-            var random = form.find('input[name=blockRandom]');
-            var random2 = form.find('input[name=blockRandom2]');
-            var random3 = form.find('input[name=blockRandom3]');
-            var random4 = form.find('input[name=blockRandom4]');
-            var showInGlobal = form.find('input[id=blockGlobal' + data.showInGlobal + ']');
-            var showInCategory = form.find('input[id=blockCategory' + data.showInCategory + ']');
-            var showInDirect = form.find('input[id=blockDirect' + data.showInDirect + ']');
-            var wysiwygEditor = form.find('input[name=wysiwyg_editor]');
-            var category = form.find('select[name=blockCat]');
-            var relPageGlobal = form.find('#globalPageSelector');
-            var relPageCategory = form.find('#categoryPageSelector');
-            var relPageDirect = form.find('#directPageSelector');
-            var targetingOption = form.find('#targeting');
+    /**
+     * Sets start input field on modify form
+     *
+     * @param start integer
+     */
+    function setStart(start) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=inputStartDate]');
+        // sets new data on element
+        element.attr('value', start);
+    }
 
-            // sets simple input fields
-            start.attr('value', data.start);
-            end.attr('value', data.end);
-            name.attr('value', data.name);
-            data.random == 1 ? random.prop('checked', true) : random.prop('checked', false);
-            data.random2 == 1 ? random2.prop('checked', true) : random2.prop('checked', false);
-            data.random3 == 1 ? random3.prop('checked', true) : random3.prop('checked', false);
-            data.random4 == 1 ? random4.prop('checked', true) : random4.prop('checked', false);
-            showInGlobal.prop('checked', true);
-            showInCategory.prop('checked', true);
-            showInDirect.prop('checked', true);
-            data.wysiwygEditor == 1 ? wysiwygEditor.prop('checked', true) : wysiwygEditor.prop('checked', false);
-            category.find('option[value=' + data.category + ']').prop('selected', true);
+    /**
+     * Sets end input field on modify form
+     *
+     * @param end integer
+     */
+    function setEnd(end) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=inputEndDate]');
+        // sets new data on element
+        element.attr('value', end);
+    }
 
-            // sets global pages
-            relPageGlobal.forEach(function(element) {
-                relPageGlobal.find('#globalNotSelectedPages option[value=' + element + ']').prop('selected', true);
-            });
-            moveSelectedPages(
-                relPageGlobal.find('#globalNotSelectedPages'),
-                relPageGlobal.find('#globalSelectedPages'),
-                relPageGlobal.find('input[name=addpages]')[0],
-                relPageGlobal.find('input[name=removepages]')[0]
-            );
+    /**
+     * Sets name input field on modify form
+     *
+     * @param name string
+     */
+    function setName(name) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=blockName]');
+        // sets new data on element
+        element.attr('value', name);
+    }
 
-            // sets category pages
-            relPageCategory.forEach(function(element) {
-                relPageGlobal.find('#categoryPageSelector option[value=' + element + ']').prop('selected', true);
-            });
-            moveSelectedPages(
-                relPageGlobal.find('#categoryNotSelectedPages'),
-                relPageGlobal.find('#categorySelectedPages'),
-                relPageGlobal.find('input[name=addpages]')[0],
-                relPageGlobal.find('input[name=removepages]')[0]
-            );
+    /**
+     * Sets random input field on modify form
+     *
+     * @param random integer
+     */
+    function setRandom(random) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=blockRandom]');
+        // sets new data on element
+        random == 1 ? element.prop('checked', true) : element.prop('checked', false);
+    }
 
-            // sets direct pages
-            relPageDirect.forEach(function(value) {
-                relPageGlobal.find('#directNotSelectedPages option[value=' + value + ']').prop('selected', true);
-            });
-            moveSelectedPages(
-                relPageGlobal.find('#directNotSelectedPages'),
-                relPageGlobal.find('#directSelectedPages'),
-                relPageGlobal.find('input[name=addpages]')[0],
-                relPageGlobal.find('input[name=removepages]')[0]
-            );
+    /**
+     * Sets random2 input field on modify form
+     *
+     * @param random2 integer
+     */
+    function setRandom2(random2) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=blockRandom2]');
+        // sets new data on element
+        random2 == 1 ? element.prop('checked', true) : element.prop('checked', false);
+    }
 
-            // sets content in wysiwyg editor
-            data.relLangContent.forEach(function(language) {
-                form.find('input[blockFormText_' + language.locale + ']').attr('value', language.content);
-            });
-        };
+    /**
+     * Sets random3 input field on modify form
+     *
+     * @param random3 integer
+     */
+    function setRandom3(random3) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=blockRandom3]');
+        // sets new data on element
+        random3 == 1 ? element.prop('checked', true) : element.prop('checked', false);
+    }
 
-    });
+    /**
+     * Sets random4 input field on modify form
+     *
+     * @param random4 integer
+     */
+    function setRandom4(random4) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=blockRandom4]');
+        // sets new data on element
+        random4 == 1 ? element.prop('checked', true) : element.prop('checked', false);
+    }
+
+    /**
+     * Sets showInGlobal input field on modify form
+     *
+     * @param showInGlobal integer
+     */
+    function setShowInGlobal(showInGlobal) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[id=blockGlobal' + showInGlobal + ']');
+        // sets new data on element
+        element.prop('checked', true);
+    }
+
+    /**
+     * Sets showInCategory input field on modify form
+     *
+     * @param showInCategory integer
+     */
+    function setShowInCategory(showInCategory) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[id=blockCategory' + showInCategory + ']');
+        // sets new data on element
+        element.prop('checked', true);
+    }
+
+    /**
+     * Sets showInDirect input field on modify form
+     *
+     * @param showInDirect integer
+     */
+    function setShowInDirect(showInDirect) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[id=blockDirect' + showInDirect + ']');
+        // sets new data on element
+        element.prop('checked', true);
+    }
+
+    /**
+     * Sets wysiwygEditor input field on modify form
+     *
+     * @param wysiwygEditor integer
+     */
+    function setWysiwygEditor(wysiwygEditor) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=wysiwyg_editor]');
+        // sets new data on element
+        wysiwygEditor == 1 ? element.prop('checked', true) : element.prop('checked', false);
+    }
+
+    /**
+     * Sets category input field on modify form
+     *
+     * @param category integer
+     */
+    function setCategory(category) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('input[name=blockCat]');
+        // sets new data on element
+        element.find('option[value=' + category + ']').prop('selected', true);
+    }
+
+    /**
+     * Sets targeting option on modify form
+     *
+     * @param targetingOption array
+     */
+    function setTargetingOption(targetingOption) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('#targeting');
+        // sets new data on element
+    }
+
+    /**
+     * Sets content by languages on modify form
+     *
+     * @param relLangContent array
+     */
+    function setRelLangContent(relLangContent) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // sets new data on element
+        relLangContent.forEach(function (language) {
+            // gets element
+            var element = form.find('input[blockFormText_' + language.locale + ']');
+            element.attr('value', language.content);
+        });
+    }
+
+    /**
+     * Sets global page relation on modify form
+     *
+     * @param relPageGlobal array
+     */
+    function setRelPageGlobal(relPageGlobal) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('#globalPageSelector');
+        // clear existing selection
+        element.find('#globalNotSelectedPages option').prop('selected', false);
+        // sets new data on element
+        relPageGlobal.forEach(function (page) {
+            element.find('#globalNotSelectedPages option[value=' + page + ']').prop('selected', true);
+        });
+        // apply new selection
+        moveSelectedPages(
+                element.find('#globalNotSelectedPages'),
+                element.find('#globalSelectedPages'),
+                element.find('input[name=addpages]')[0],
+                element.find('input[name=removepages]')[0]
+        );
+    }
+
+    /**
+     * Sets category page relation on modify form
+     *
+     * @param relPageCategory array
+     */
+    function setRelPageCategory(relPageCategory) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('#categoryPageSelector');
+        // clear existing selection
+        element.find('#categoryNotSelectedPages option').prop('selected', false);
+        // sets new data on element
+        relPageCategory.forEach(function (page) {
+            element.find('#categoryNotSelectedPages option[value=' + page + ']').prop('selected', true);
+        });
+        // apply new selection
+        moveSelectedPages(
+                element.find('#categoryNotSelectedPages'),
+                element.find('#categorySelectedPages'),
+                element.find('input[name=addpages]')[0],
+                element.find('input[name=removepages]')[0]
+        );
+    }
+
+    /**
+     * Sets direct page relation on modify form
+     *
+     * @param relPageDirect array
+     */
+    function setRelPageDirect(relPageDirect) {
+        // gets form
+        var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets element
+        var element = form.find('#directPageSelector');
+        // clear existing selection
+        element.find('#directNotSelectedPages option').prop('selected', false);
+        // sets new data on element
+        relPageDirect.forEach(function (page) {
+            element.find('#directNotSelectedPages option[value=' + page + ']').prop('selected', true);
+        });
+        // apply new selection
+        moveSelectedPages(
+                element.find('#directNotSelectedPages'),
+                element.find('#directSelectedPages'),
+                element.find('input[name=addpages]')[0],
+                element.find('input[name=removepages]')[0]
+        );
+    }
 </script>
 <script type="text/javascript">
     //adds the datetimepicker to the date fields
@@ -973,7 +1197,7 @@
                         <a class="historyLoad"
                            title="{TXT_BLOCK_HISTORY_VERSION_LOAD}"
                            href="#"
-                           onclick="cx.loadHistoryVersion({BLOCK_HISTORY_VERSION_OBJECT_ID}, {BLOCK_HISTORY_VERSION_VERSION})">
+                           onclick="loadHistoryVersion({BLOCK_HISTORY_VERSION_OBJECT_ID}, {BLOCK_HISTORY_VERSION_VERSION})">
                             {TXT_BLOCK_HISTORY_VERSION_LOAD}
                         </a>
                     </td>
