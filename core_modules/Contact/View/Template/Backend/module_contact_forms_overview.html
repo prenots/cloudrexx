@@ -17,18 +17,34 @@ function confirmDeleteForm(id, content)
 //-->
 </script>
 <style type="text/css">
-    .view {
-        position: relative;
-        top: 4px;
-        margin: 0 0 0 3px;
-    }
-    .view img {
-        border: 0;
-    }
-    .lang {
-        float: left;
-        margin: 0 12px 0 0;
-    }
+  .contact-locales .language-icons .language-icon a {
+    display: block;
+    float: left;
+    border-sizing: border-box;
+  }
+  .contact-locales .language-icons .language-icon a:nth-last-child(3) {
+    width: 48%;
+    width: calc(50% - 1px);
+    border-right: 1px solid #ffffff;
+  }
+
+  .contact-locales .language-icons .language-icon {
+    position: relative;
+    padding: 0;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .contact-locales .language-icons .language-icon a.view {
+    width: 25%;
+    height: 30px;
+    line-height: 30px;
+    background: #ffffff;
+  }
+
+  a.view img {
+    margin-top: 7px;
+  }
 </style>
 
 <form action="index.php?cmd=Contact&amp;act=forms&amp;tpl=edit&amp;formId=0" method="post">
@@ -49,7 +65,7 @@ function confirmDeleteForm(id, content)
         <tr class="{CONTACT_FORM_ROW_CLASS}">
           <td>{CONTACT_FORM_ID}</td>
           <td>{CONTACT_FORM_NAME} {CONTACT_CRM_IMG}</td>
-          <td>{CONTACT_FORM_LANGUAGES}</td>
+          <td class="contact-locales">{CONTACT_FORM_LANGUAGES}</td>
           <td>{CONTACT_FORM_LAST_ENTRY}</td>
           <td>{CONTACT_FORM_NUMBER_OF_ENTRIES}</td>
           <td style="text-align:right; white-space:nowrap;">
