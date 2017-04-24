@@ -811,10 +811,14 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
      */
     function _modifyForm($copy = false)
     {
-        global $_ARRAYLANG, $_CONFIG, $objDatabase;
+        global $_ARRAYLANG, $_CORELANG, $_CONFIG, $objDatabase;
 
         \JS::activate('cx');
-
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_CORE_LOCALE_DOESNT_EXIST',
+            $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST'],
+            'contact'
+        );
         if ($copy) {
             $this->initContactForms();
         }
@@ -873,16 +877,20 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                     $boolLanguageIsActive = $langId == FRONTEND_LANG_ID;
                 }
 
-                $arrLanguages[$intLanguageCounter%3] .= '<input id="languagebar_'.$langId.'" '.(($boolLanguageIsActive) ? 'checked="checked"' : '').' type="checkbox" name="contactFormLanguages['.$langId.']" value="1" onclick="switchBoxAndTab(this, \'addFrom_'.$langId.'\');" /><label for="languagebar_'.$langId.'">'.contrexx_raw2xhtml($arrLanguage['name']).' ['.$arrLanguage['lang'].']</label><br />';
+                //parse options
+                $langSelected = $boolLanguageIsActive ? 'selected' : '';
+                $this->_objTpl->setVariable(array(
+                    'CONTACT_LANG_ID' => $langId,
+                    'CONTACT_LANG_SELECTED' => $langSelected,
+                    'TXT_CONTACT_LANG_NAME' => $arrLanguage['name'],
+                ));
+                $this->_objTpl->parse('contact_language_option');
+
                 $strJsTabToDiv .= 'arrTabToDiv["addFrom_'.$langId.'"] = "langTab_'.$langId.'";'."\n";
-                ++$intLanguageCounter;
             }
 
             $this->_objTpl->setVariable(array(
                 'TXT_CONTACT_LANGUAGE'      => $_ARRAYLANG['TXT_CONTACT_LANGUAGE'],
-                'EDIT_LANGUAGES_1'          => $arrLanguages[0],
-                'EDIT_LANGUAGES_2'          => $arrLanguages[1],
-                'EDIT_LANGUAGES_3'          => $arrLanguages[2],
                 'EDIT_JS_TAB_TO_DIV'        => $strJsTabToDiv
             ));
         }
@@ -1299,6 +1307,17 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             $useEmailOfSender = !empty($_POST['contactFormUseEmailOfSender']) ? 1 : 0;
             $sendHtmlMail   = !empty($_POST['contactFormHtmlMail']) ? 1 : 0;
             $sendAttachment = !empty($_POST['contactFormSendAttachment']) ? 1 : 0;
+
+            $activeLanguages = array();
+            if (isset($_POST['contactFormLanguages'])) {
+                // Since contactFormLanguages are now selected via html select
+                // and not via checkboxes anymore, we must bring them into
+                // compatible form
+                foreach ($_POST['contactFormLanguages'] as $languageId) {
+                    $activeLanguages[$languageId] = 1;
+                }
+                $_POST['contactFormLanguages'] = $activeLanguages;
+            }
 
             // do the fields
             $fields = $this->_getFormFieldsFromPost();
