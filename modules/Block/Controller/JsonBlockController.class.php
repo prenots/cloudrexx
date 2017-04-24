@@ -472,11 +472,13 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         );
 
         // gets all data from block
+        $start = $revertedBlock->getStart();
+        $end = $revertedBlock->getEnd();
         $revertedBlockCategory = $revertedBlock->getCategory();
         $blockVersion = array(
             'id' => $revertedBlock->getId(),
-            'start' => $revertedBlock->getStart(),
-            'end' => $revertedBlock->getEnd(),
+            'start' => !empty($start) ? strftime('%Y-%m-%d %H:%M', $start) : $start,
+            'end' => !empty($end) ? strftime('%Y-%m-%d %H:%M', $end) : $end,
             'name' => $revertedBlock->getName(),
             'random' => $revertedBlock->getRandom(),
             'random2' => $revertedBlock->getRandom2(),

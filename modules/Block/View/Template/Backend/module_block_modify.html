@@ -104,6 +104,7 @@
      * Simple function to get every parameter from current window location
      *
      * @param name string wanted parameter name
+     * @return string wanted parameter value
      */
     function getUrlParameter(name) {
         url = window.location.href;
@@ -369,8 +370,6 @@
                             id: id,
                             version: version
                         },
-                        beforeSend: function () {
-                        },
                         success: function (data) {
                             // applies data to form
                             applyHistoryVersion(data.data);
@@ -402,7 +401,7 @@
         setWysiwygEditor(data.wysiwygEditor);
         setCategory(data.category);
         setTargetingOption(data.targetingOption);
-        setRelLangContent(data.relLangContent);
+        setRelLangContent(data.relLangContent, data.wysiwygEditor);
         setRelPageGlobal(data.relPageGlobal);
         setRelPageCategory(data.relPageCategory);
         setRelPageDirect(data.relPageDirect);
@@ -515,6 +514,11 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
+        if (showInGlobal == 0 || showInGlobal == 1) {
+            showOrHide('globalPageSelector', '0');
+        } else {
+            showOrHide('globalPageSelector', '1');
+        }
         var element = form.find('input[id=blockGlobal' + showInGlobal + ']');
         // sets new data on element
         element.prop('checked', true);
@@ -529,6 +533,12 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
+        if (showInCategory == 0) {
+            showOrHide('categoryPageSelector', '0');
+        } else {
+            showOrHide('categoryPageSelector', '1');
+        }
+        showInCategory++;
         var element = form.find('input[id=blockCategory' + showInCategory + ']');
         // sets new data on element
         element.prop('checked', true);
@@ -543,6 +553,12 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
+        if (showInDirect == 0) {
+            showOrHide('directPageSelector', '0');
+        } else {
+            showOrHide('directPageSelector', '1');
+        }
+        showInDirect++;
         var element = form.find('input[id=blockDirect' + showInDirect + ']');
         // sets new data on element
         element.prop('checked', true);
@@ -571,7 +587,7 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
-        var element = form.find('input[name=blockCat]');
+        var element = form.find('select[name=blockCat]');
         // sets new data on element
         element.find('option[value=' + category + ']').prop('selected', true);
     }
@@ -584,25 +600,64 @@
     function setTargetingOption(targetingOption) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
-        // gets element
-        var element = form.find('#targeting');
         // sets new data on element
+        if (targetingOption) {
+            // shows targeting filter block
+            form.find('input[name=targeting_status][value=1]').prop('checked', true);
+            toggleTargetingFilterBlock(true);
+            // gets element
+            var element = form.find('#targeting_filter_block select:first-child');
+            // iterates through targeting options
+            targetingOption.forEach(function (option) {
+                if (option.type == 'country') {
+                    if (option.filter == 'include') {
+                        // selects include option in select
+                        element.find('option[value=include]').prop('selected', true);
+                    } else {
+                        // selects exclude option in select
+                        element.find('option[value=exclude]').prop('selected', true);
+                    }
+
+                    // removes selected countries
+                    form.find('#selectedCoutries > li.tagit-choice').remove();
+                    var values = JSON.parse(option.value);
+                    values.forEach(function (value) {
+                        // adds countries from log
+                        cx.jQuery('#selectedCoutries').tagit('createTag', value);
+                    });
+                }
+            });
+        } else {
+            // hides targeting filter block
+            toggleTargetingFilterBlock(false);
+            form.find('input[name=targeting_status][value=0]').prop('checked', true);
+        }
     }
 
     /**
-     * Sets content by languages on modify form
+     * Sets content by languages
      *
      * @param relLangContent array
+     * @param wysiwygEditor integer
      */
-    function setRelLangContent(relLangContent) {
+    function setRelLangContent(relLangContent, wysiwygEditor) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // sets new data on element
-        relLangContent.forEach(function (language) {
+        relLangContent.forEach(function (rel) {
             // gets element
-            var element = form.find('input[blockFormText_' + language.locale + ']');
-            element.attr('value', language.content);
+            var element = form.find('input#blockFormText_' + rel.locale);
+            // sets new data on element
+            element.attr('value', rel.content);
         });
+        // apply on editor
+        var activeLangId = form.find('ul.blockLang a.active').attr('id').split('_')[2];
+        var value = form.find('#blockFormText_' + activeLangId).val();
+        if (wysiwygEditor == 1) {
+            CKEDITOR.instances.ckeditor.setData(value);
+        } else {
+            form.find('#ckeditor').val(value);
+        }
     }
 
     /**
@@ -618,15 +673,15 @@
         // clear existing selection
         element.find('#globalNotSelectedPages option').prop('selected', false);
         // sets new data on element
-        relPageGlobal.forEach(function (page) {
-            element.find('#globalNotSelectedPages option[value=' + page + ']').prop('selected', true);
+        relPageGlobal.forEach(function (rel) {
+            element.find('#globalNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
         });
         // apply new selection
         moveSelectedPages(
-                element.find('#globalNotSelectedPages'),
-                element.find('#globalSelectedPages'),
-                element.find('input[name=addpages]')[0],
-                element.find('input[name=removepages]')[0]
+            document.getElementById('globalNotSelectedPages'),
+            document.getElementById('globalSelectedPages'),
+            document.getElementsByName('addpages')[0],
+            document.getElementsByName('removepages')[0]
         );
     }
 
@@ -643,15 +698,15 @@
         // clear existing selection
         element.find('#categoryNotSelectedPages option').prop('selected', false);
         // sets new data on element
-        relPageCategory.forEach(function (page) {
-            element.find('#categoryNotSelectedPages option[value=' + page + ']').prop('selected', true);
+        relPageCategory.forEach(function (rel) {
+            element.find('#categoryNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
         });
         // apply new selection
         moveSelectedPages(
-                element.find('#categoryNotSelectedPages'),
-                element.find('#categorySelectedPages'),
-                element.find('input[name=addpages]')[0],
-                element.find('input[name=removepages]')[0]
+            document.getElementById('categoryNotSelectedPages'),
+            document.getElementById('categorySelectedPages'),
+            document.getElementsByName('addpages')[0],
+            document.getElementsByName('removepages')[0]
         );
     }
 
@@ -668,15 +723,15 @@
         // clear existing selection
         element.find('#directNotSelectedPages option').prop('selected', false);
         // sets new data on element
-        relPageDirect.forEach(function (page) {
-            element.find('#directNotSelectedPages option[value=' + page + ']').prop('selected', true);
+        relPageDirect.forEach(function (rel) {
+            element.find('#directNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
         });
         // apply new selection
         moveSelectedPages(
-                element.find('#directNotSelectedPages'),
-                element.find('#directSelectedPages'),
-                element.find('input[name=addpages]')[0],
-                element.find('input[name=removepages]')[0]
+            document.getElementById('directNotSelectedPages'),
+            document.getElementById('directSelectedPages'),
+            document.getElementsByName('addpages')[0],
+            document.getElementsByName('removepages')[0]
         );
     }
 </script>
