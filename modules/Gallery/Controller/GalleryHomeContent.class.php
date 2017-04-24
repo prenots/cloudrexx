@@ -52,9 +52,11 @@ class GalleryHomeContent extends GalleryLibrary
     public $_strWebPath;
 
     /**
-     * Constructor php5
+     * Initialize the settings, webpath and language.
+     *
+     * @param integer $langId Language id
      */
-    function __construct($langId = null)
+    function __construct($langId = 0)
     {
         if ($langId) {
             $this->_intLangId = $langId;
