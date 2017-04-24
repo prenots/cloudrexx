@@ -55,12 +55,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
     /**
      * Id of existing Block needed for testing
      */
-    const EXISTING_BLOCK_ID = 29;
+    protected const EXISTING_BLOCK_ID = 29;
 
     /**
      * Id of existing Category needed for testing
      */
-    const EXISTING_CATEGORY_ID = 2;
+    protected const EXISTING_CATEGORY_ID = 2;
 
     /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
@@ -158,6 +158,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
         // gets Entity Manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
+        // starts transaction
+        $em->getConnection()->beginTransaction();
+
         // gets existing category
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
         $category = $categoryRepo->findOneBy(array('id' => $this::EXISTING_CATEGORY_ID));
@@ -187,6 +190,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
 
         // checks if first log in array is a LogEntry
         $this->assertInstanceOf('Cx\Modules\Block\Model\Entity\LogEntry', $logs[0]);
+
+        // rollback DB changes
+        $em->getConnection()->rollback();
     }
 
     /**
@@ -199,6 +205,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
     {
         // gets Entity Manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        // starts transaction
+        $em->getConnection()->beginTransaction();
 
         // gets existing category
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
@@ -236,6 +245,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
 
         // checks if block is correctly reverted by asserting its name
         $this->assertEquals('test', $revertedBlock->getName());
+
+        // rollback DB changes
+        $em->getConnection()->rollback();
     }
 
     /**
@@ -248,6 +260,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
     {
         // gets Entity Manager
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        // starts transaction
+        $em->getConnection()->beginTransaction();
 
         // gets existing category
         $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
@@ -292,6 +307,9 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
 
         // checks if block is correctly reverted by asserting its name
         $this->assertEquals('test', $revertedBlock->getName());
+
+        // rollback DB changes
+        $em->getConnection()->rollback();
     }
 
     /**
