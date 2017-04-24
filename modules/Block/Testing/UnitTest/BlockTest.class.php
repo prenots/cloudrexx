@@ -55,12 +55,12 @@ class BlockTest extends \Cx\Core\Test\Model\Entity\ContrexxTestCase
     /**
      * Id of existing Block needed for testing
      */
-    protected const EXISTING_BLOCK_ID = 29;
+    const EXISTING_BLOCK_ID = 29;
 
     /**
      * Id of existing Category needed for testing
      */
-    protected const EXISTING_CATEGORY_ID = 2;
+    const EXISTING_CATEGORY_ID = 2;
 
     /**
      * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
