@@ -841,8 +841,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockCat = !empty($_POST['blockCat']) ? intval($_POST['blockCat']) : 0;
             $blockContent = isset($_POST['blockFormText_']) ? array_map('contrexx_input2raw', $_POST['blockFormText_']) : array();
             $blockName = !empty($_POST['blockName']) ? contrexx_input2raw($_POST['blockName']) : $_ARRAYLANG['TXT_BLOCK_NO_NAME'];
-            $blockStart = !empty(strtotime($_POST['inputStartDate'])) ? contrexx_input2raw(strtotime($_POST['inputStartDate'])) : 0;
-            $blockEnd = !empty(strtotime($_POST['inputEndDate'])) ? contrexx_input2raw(strtotime($_POST['inputEndDate'])) : 0;
+            $blockStart = !empty(strtotime($_POST['inputStartDate'])) ? contrexx_input2raw(strtotime($_POST['inputStartDate'])): 0;
+            $blockEnd = !empty(strtotime($_POST['inputEndDate'])) ? contrexx_input2raw(strtotime($_POST['inputEndDate'])): 0;
             $blockRandom = !empty($_POST['blockRandom']) ? intval($_POST['blockRandom']) : 0;
             $blockRandom2 = !empty($_POST['blockRandom2']) ? intval($_POST['blockRandom2']) : 0;
             $blockRandom3 = !empty($_POST['blockRandom3']) ? intval($_POST['blockRandom3']) : 0;
@@ -892,6 +892,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     $blockLangActive
                 );
 
+                // flushes all block relating entities
+                $em->flush();
+
                 if (!$blockExists) {
                     $block = new \Cx\Modules\Block\Model\Entity\Block();
                 }
@@ -923,29 +926,26 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                     $block->setOrder($order + 1);
 
                     $em->persist($block);
+                }
 
-                    // sets block on new targeting options
-                    if ($targetingOptionsWithoutBlock) {
-                        foreach ($targetingOptionsWithoutBlock as $targetingOption) {
-                            $targetingOption->setBlock($block);
-                            $em->flush($targetingOption);
-                        }
+                // sets block on new targeting options
+                if ($targetingOptionsWithoutBlock) {
+                    foreach ($targetingOptionsWithoutBlock as $targetingOption) {
+                        $targetingOption->setBlock($block);
                     }
+                }
 
-                    // sets block on new page relations
-                    if ($relPagesWithoutBlock) {
-                        foreach ($relPagesWithoutBlock as $relPage) {
-                            $relPage->setBlock($block);
-                            $em->flush($relPage);
-                        }
+                // sets block on new page relations
+                if ($relPagesWithoutBlock) {
+                    foreach ($relPagesWithoutBlock as $relPage) {
+                        $relPage->setBlock($block);
                     }
+                }
 
-                    // sets block on new language content relations
-                    if ($relLangContentsWithoutBlock) {
-                        foreach ($relLangContentsWithoutBlock as $relLangContent) {
-                            $relLangContent->setBlock($block);
-                            $em->flush($relLangContent);
-                        }
+                // sets block on new language content relations
+                if ($relLangContentsWithoutBlock) {
+                    foreach ($relLangContentsWithoutBlock as $relLangContent) {
+                        $relLangContent->setBlock($block);
                     }
                 }
 
@@ -1273,13 +1273,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $entitiesVersion = array();
         foreach ($entities as $entity) {
             $id = $entity->getId();
-            $availableRevisions = $blockLogRepo->getLogs(get_class($entity), $id, 'update');
-            $version = 1;
+            $availableRevisions = $blockLogRepo->getLogs(get_class($entity), $id);
             if ($availableRevisions) {
                 $version = $availableRevisions[0]->getVersion();
+                // stores version in array by id
+                $entitiesVersion[$id] = $version;
             }
-            // stores version in array by id
-            $entitiesVersion[$id] = $version;
         }
 
         // returns versions from provided entities
