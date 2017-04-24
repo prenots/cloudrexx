@@ -1610,7 +1610,7 @@ a.cke_dialog_ui_button_ok:hover {
 }
 
 .language-icons .language-icon a {
-    display: block;
+    display: inline-block;
     color: white;
 }
 

@@ -609,27 +609,80 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 $pages = $this->em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->getFromModuleCmdByLang('Contact', $formId);
                 $lang = array();
                 $activeLanguages = \FWLanguage::getActiveFrontendLanguages();
+                $functionEls = array();
                 foreach ($arrForm['lang'] as $langId => $value) {
                     if (!array_key_exists($langId, $activeLanguages)) {
                         continue;
                     }
                     $links = '';
                     if (isset($pages[$langId])) {
-                        $previewURL = '../'.\FWLanguage::getLanguageCodeById($langId).$pages[$langId]->getPath();
-                        $links = \FWLanguage::getLanguageCodeById($langId).
-                                '<a title="'.$_CORELANG['TXT_CORE_EDIT_PAGE_LAYOUT'].'" href="index.php?cmd=ContentManager&page='.$pages[$langId]->getId().'&tab=content" class="view">'.
-                                    '<img src="../core/Core/View/Media/icons/green_arrow_down.png" />'.
-                                '</a>'.
-                                '<a title="'.$_CORELANG['TXT_CORE_SHOW_FRONTEND_VIEW'].'" target="_blank" href="'.$previewURL.'" class="view">'.
-                                    '<img src="../core/Core/View/Media/icons/blue_arrow_up.png" />'.
-                                '</a>';
+                        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+                        $link->setAttributes(array(
+                            'target' => '_blank',
+                            'class' => 'view',
+                        ));
+                        $icon = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+
+                        // preview link
+                        $previewLink = clone $link;
+                        $previewURL = '../'.
+                            \FWLanguage::getLanguageCodeById($langId).
+                            $pages[$langId]->getPath();
+                        $previewLink->setAttributes(array(
+                            'title' => $_CORELANG['TXT_CORE_SHOW_FRONTEND_VIEW'],
+                            'href' => $previewURL
+                        ));
+                        $previewIcon = clone $icon;
+                        $previewIcon->setAttribute(
+                            'src',
+                            '../core/Core/View/Media/icons/blue_arrow_up.png'
+                        );
+                        $previewLink->addChild($previewIcon);
+
+                        // edit link
+                        $editLink = clone $link;
+                        $editURL = 'index.php?cmd=ContentManager&page='.
+                            $pages[$langId]->getId().
+                            '&tab=content';
+                        $editLink->setAttributes(array(
+                            'title' => $_CORELANG['TXT_CORE_EDIT_PAGE_LAYOUT'],
+                            'href' => $editURL
+                        ));
+                        $editIcon = clone $icon;
+                        $editIcon->setAttribute(
+                            'src',
+                            '../core/Core/View/Media/icons/green_arrow_down.png'
+                        );
+                        $editLink->addChild($editIcon);
+
+                        $functionEls[$langId] = array($previewLink, $editLink);
+                        $links = \FWLanguage::getLanguageCodeById($langId) .
+                            $editLink->render() .
+                            $previewLink->render();
                     } else {
                         $links = \FWLanguage::getLanguageCodeById($langId);
                     }
                     $lang[] = '<span class="lang">'.$links.'</span>';
                 }
-
-                $langString = implode($lang);
+                $langStates = array();
+                $langDropdown = '';
+                // for more than 4 locales load dropdown
+                if (count($activeLanguages) > 4) {
+                    $editLink =
+                        'index.php?cmd=Contact&act=forms&tpl=edit&formId='.
+                        $formId;
+                    foreach ($activeLanguages as $langId => $langArray) {
+                        if (array_key_exists($langId, $arrForm['lang'])) {
+                            $langStates[$langId] = 'active';
+                        } else {
+                            $langStates[$langId] = 'inactive';
+                        }
+                    }
+                    $langDropdown = \Html::getLanguageIcons(
+                        $langStates, $editLink, $functionEls
+                    );
+                }
+                $langString = empty($langDropdown) ? implode($lang) : $langDropdown;
 
                 $formName = contrexx_raw2xhtml($arrForm['lang'][$selectedInterfaceLanguage]['name']);
                 $useCrm   = !empty($arrForm['saveDataInCRM']) ? "&nbsp;&nbsp;<img style='margin-top: 2px;' src='../core/Core/View/Media/navigation_level_1_189.png' class='tooltip-trigger' alt='crm' /><span class='tooltip-message'>".$_ARRAYLANG['TXT_CONTACT_FORM_USED_IN_CRM']."</span>" : '';

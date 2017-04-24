@@ -2809,11 +2809,17 @@ function cloneElement(id)
      * For $link, supply a hyperlink, that may contain %1$d and %2$s which will be
      * replaced with the language ID and code.
      *
-     * @param   array   $languageStates Language states to get icons for
-     * @param   string  $link           Hyperlink for language icons
-     * @return  string                  The HTML code for the elements
+     * @param   array           $languageStates Language states to get icons for
+     * @param   string          $link           Hyperlink for language icons
+     * @param   HtmlElement[]   $functionEls    An array containing html
+     *                                          elements which will be
+     *                                          appended to the language icons
+     *                                          (lang id as key, el as value)
+     * @return  string                          The HTML code for the elements
      */
-    public static function getLanguageIcons(&$languageStates, $link) {
+    public static function getLanguageIcons(
+        &$languageStates, $link, $functionEls=array()
+    ) {
         $em = \Env::get('cx')->getDb()->getEntityManager();
         // resolve second to first form
         foreach ($languageStates as $langId=>$state) {
@@ -2836,7 +2842,9 @@ function cloneElement(id)
         $locales = $localeRepo->findAll();
         if (count($locales) > 4) {
             // show dropdown
-            return static::getLocaleDropdown($locales, $languageStates, $link);
+            return static::getLocaleDropdown(
+                $locales, $languageStates, $link, $functionEls
+            );
         }
         // parse icons
         $content = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
@@ -2896,11 +2904,17 @@ function cloneElement(id)
     /**
      * Builds the locale dropdown
      *
-     * @param   array   $locales          The locales
-     * @param   array   $languageStates   The language states
-     * @param   string  $link             The link
+     * @param   array           $locales          The locales
+     * @param   array           $languageStates   The language states
+     * @param   string          $link             The link
+     * @param   HtmlElement[]   $functionEls      An array containing html
+     *                                            elements which will be
+     *                                            appended to the language icons
+     *                                            (lang id as key, el as value)
      */
-    public static function getLocaleDropdown($locales, $languageStates, $link) {
+    public static function getLocaleDropdown(
+        $locales, $languageStates, $link, $functionEls=array()
+    ) {
         global $_ARRAYLANG;
 
         // register js
@@ -2943,6 +2957,11 @@ function cloneElement(id)
                 false,
                 'li'
             );
+            if (isset($functionEls[$locale->getId()])) {
+                foreach ($functionEls[$locale->getId()] as $functionEl) {
+                    $languageIcon->addChild($functionEl);
+                }
+            }
             // ad li to dropdown
             $dropdown->addChild($languageIcon);
         }
