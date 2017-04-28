@@ -283,7 +283,7 @@ class MemberDir extends MemberDirLibrary
                 if ($objResult) {
                     $rowid = 1;
                     while (!$objResult->EOF) {
-                        $fieldnames = $this->getFieldData($dirid);
+                        $fieldnames = $this->getFieldData($objResult->fields['dirid']);
                         for ($i=1; $i<17; $i++) {
                             $placeholder = $this->getPlaceholderName($fieldnames[$i]['name']);
                             $replace[$placeholder] = $objResult->fields["$i"];
