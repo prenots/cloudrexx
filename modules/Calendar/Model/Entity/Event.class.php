@@ -38,6 +38,159 @@ namespace Cx\Modules\Calendar\Model\Entity;
 /**
  * Event
  *
+ * @SWG\Definition(definition="Event", type= "object")
+ * @SWG\Get(
+ *     path="/calendar-event",
+ *     tags={"events"},
+ *     summary="Lists events",
+ *     @SWG\Parameter(
+ *         name="order",
+ *         in="query",
+ *         type="string",
+ *         required=false,
+ *         description="Order of an Event"
+ *     )
+ *     @SWG\Parameter(
+ *         name="filter",
+ *         in="query",
+ *         type="string",
+ *         required=false,
+ *         description="filter by Event"
+ *     )
+ *     @SWG\Parameter(
+ *         name="limit",
+ *         in="query",
+ *         type="integer",
+ *         format="int32",
+ *         required=false,
+ *         description="maximum number of results to return"
+ *     )
+ *     @SWG\Response(
+ *         response=200,
+ *         description="A list of all events",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="array",
+ *                         @SWG\Items(ref="#/definitions/Event")
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Get(
+ *     path="/calendar-event/{id}",
+ *     tags={"event"},
+ *     summary="Fetch a event",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the event"
+ *     )
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Event description",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/Event"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Post(
+ *     path="/calendar-event",
+ *     tags={"event"},
+ *     summary="Create a new Event",
+ *     @SWG\Parameter(
+ *         name="event",
+ *         in="body",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/Event")
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Event added",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/Event"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Put(
+ *     path="/calendar-event/{id}",
+ *     tags={"event"},
+ *     summary="Update a Event",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the event"
+ *     )
+ *     @SWG\Parameter(
+ *         name="event",
+ *         in="body",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/Event")
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Event updated",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/Event"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Delete(
+ *     path="/calendar-event/{id}",
+ *     tags={"event"},
+ *     summary="Delete a Event",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the event"
+ *     )
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Event deleted",
+ *         @SWG\Schema(
+ *             ref="#/definitions/apiResponse"
+ *         )
+ *     )
+ * )
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -45,376 +198,547 @@ namespace Cx\Modules\Calendar\Model\Entity;
 */
 class Event extends \Cx\Model\Base\EntityBase {
     /**
+     * @SWG\Property(
+     *     type="integer",
+     *     format="int64",
+     *     description="Unique identifier representing a specific event"
+     * )
+     *
      * @var integer $id
      */
     protected $id;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $type
      */
     protected $type;
 
     /**
+     * @SWG\Property(format="date-time")
+     *
      * @var datetime $startDate
      */
     protected $startDate;
 
     /**
+     * @SWG\Property(format="date-time")
+     *
      * @var datetime $endDate
      */
     protected $endDate;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $useCustomDateDisplay
      */
     protected $useCustomDateDisplay;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showStartDateList
      */
     protected $showStartDateList;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showEndDateList
      */
     protected $showEndDateList;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showStartTimeList
      */
     protected $showStartTimeList;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showEndTimeList
      */
     protected $showEndTimeList;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showTimeTypeList
      */
     protected $showTimeTypeList;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showStartDateDetail
      */
     protected $showStartDateDetail;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showEndDateDetail
      */
     protected $showEndDateDetail;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showStartTimeDetail
      */
     protected $showStartTimeDetail;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showEndTimeDetail
      */
     protected $showEndTimeDetail;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $showTimeTypeDetail
      */
     protected $showTimeTypeDetail;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $google
      */
     protected $google;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $access
      */
     protected $access;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $priority
      */
     protected $priority;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $price
      */
     protected $price;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $link
      */
     protected $link;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $pic
      */
     protected $pic;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $attach
      */
     protected $attach;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $placeMediadirId
      */
     protected $placeMediadirId;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $showIn
      */
     protected $showIn;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $invitedGroups
      */
     protected $invitedGroups;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var text $invitedMails
      */
     protected $invitedMails;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $invitationSent
      */
     protected $invitationSent;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $invitationEmailTemplate
      */
     protected $invitationEmailTemplate;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $registration
      */
     protected $registration;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $registrationNum
      */
     protected $registrationNum;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $registrationNotification
      */
     protected $registrationNotification;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $emailTemplate
      */
     protected $emailTemplate;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var boolean $ticketSales
      */
     protected $ticketSales;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var text $numSeating
      */
     protected $numSeating;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var smallint $seriesStatus
      */
     protected $seriesStatus;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesType
      */
     protected $seriesType;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternCount
      */
     protected $seriesPatternCount;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $seriesPatternWeekday
      */
     protected $seriesPatternWeekday;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternDay
      */
     protected $seriesPatternDay;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternWeek
      */
     protected $seriesPatternWeek;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternMonth
      */
     protected $seriesPatternMonth;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternType
      */
     protected $seriesPatternType;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternDouranceType
      */
     protected $seriesPatternDouranceType;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternEnd
      */
     protected $seriesPatternEnd;
 
     /**
+     * @SWG\Property(format="date-time")
+     *
      * @var datetime $seriesPatternEndDate
      */
     protected $seriesPatternEndDate;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $seriesPatternBegin
      */
     protected $seriesPatternBegin = 0;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var text $seriesPatternExceptions
      */
     protected $seriesPatternExceptions;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $status
      */
     protected $status;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $confirmed
      */
     protected $confirmed;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $showDetailView
      */
     protected $showDetailView;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $author
      */
     protected $author;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $allDay
      */
     protected $allDay;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $locationType
      */
     protected $locationType;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $placeId
      */
     protected $placeId;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeStreet
      */
     protected $placeStreet;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeWebsite
      */
     protected $placeWebsite;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeZip
      */
     protected $placeZip;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeLink
      */
     protected $placeLink;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placePhone
      */
     protected $placePhone;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeMap
      */
     protected $placeMap;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $hostType
      */
     protected $hostType;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgName
      */
     protected $orgName;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgStreet
      */
     protected $orgStreet;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgWebsite
      */
     protected $orgWebsite;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgZip
      */
     protected $orgZip;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgLink
      */
     protected $orgLink;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgPhone
      */
     protected $orgPhone;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgEmail
      */
     protected $orgEmail;
 
     /**
+     * @SWG\Property(type="integer" format="int32")
+     *
      * @var integer $hostMediadirId
      */
     protected $hostMediadirId;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $registrationExternalLink
      */
     protected $registrationExternalLink;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var boolean $registrationExternalFullyBooked
      */
     protected $registrationExternalFullyBooked;
 
     /**
+     * @SWG\Property(
+     *     property="data",
+     *     type="array",
+     *     @SWG\Items(
+     *         ref="#/definitions/EventField"
+     *     )
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\EventField
      */
     protected $eventFields;
 
     /**
+     * @SWG\Property(
+     *     type="array",
+     *     @SWG\Items(
+     *         ref="#/definitions/Registration"
+     *     )
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\Registration
      */
     protected $registrations;
 
     /**
+     * @SWG\Property(
+     *     type="object",
+     *     ref="#/definitions/Category"
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\Category
      */
     protected $category;
 
     /**
+     * @SWG\Property(
+     *     type="object",
+     *     ref="#/definitions/RegistrationForm"
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\RegistrationForm
      */
     protected $registrationForm;

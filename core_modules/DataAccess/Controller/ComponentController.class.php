@@ -38,7 +38,41 @@ namespace Cx\Core_Modules\DataAccess\Controller;
 
 /**
  * Main controller for DataAccess
- * 
+ *
+ * @SWG\Swagger(
+ *     @SWG\Info(
+ *         version="1.0.0",
+ *         title="Swagger Cloudrexx",
+ *         description="Cloudrexx RESTful API",
+ *         @SWG\Contact(
+ *             name="Cloudrexx API Support",
+ *             url="http://www.cloudrexx.com/support",
+ *             email="info@cloudrexx.com"
+ *         ),
+ *         @SWG\License(name="CLOUDREXX")
+ *     ),
+ *     host="www.cloudrexx.com",
+ *     basePath="/api",
+ *     schemes={"http", "https"}
+ *     produces={"application/json"},
+ *     @SWG\Definition(
+ *         definition="apiResponse",
+ *         required={"status", "message"},
+ *         @SWG\Property(
+ *             property="status",
+ *             type="string",(ok|error)
+ *         ),
+ *         @SWG\Property(
+ *             property="meta",
+ *             type="array",
+ *         ),
+ *         @SWG\Property(
+ *             property="message",
+ *             type="string",(text message)
+ *         ),
+ *     )
+ * )
+ *
  * @copyright   Cloudrexx AG
  * @author Michael Ritter <michael.ritter@cloudrexx.com>
  * @package cloudrexx
