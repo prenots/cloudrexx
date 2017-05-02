@@ -38,6 +38,8 @@ namespace Cx\Modules\Calendar\Model\Entity;
 /**
  * RegistrationFormFieldValue
  *
+ * @SWG\Definition(definition="RegistrationFormFieldValue", type= "object")
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -45,26 +47,42 @@ namespace Cx\Modules\Calendar\Model\Entity;
 */
 class RegistrationFormFieldValue extends \Cx\Model\Base\EntityBase {
     /**
+     * @SWG\Property(type="integer", format="int64")
+     *
      * @var integer $regId
      */
     protected $regId;
 
     /**
+     * @SWG\Property(type="integer", format="int64")
+     *
      * @var integer $fieldId
      */
     protected $fieldId;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var text $value
      */
     protected $value;
 
     /**
+     * @SWG\Property(
+     *     type="object",
+     *     ref="#/definitions/Registration"
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\Registration
      */
     protected $registration;
 
     /**
+     * @SWG\Property(
+     *     type="object",
+     *     ref="#/definitions/RegistrationFormField"
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\RegistrationFormField
      */
     protected $registrationFormField;

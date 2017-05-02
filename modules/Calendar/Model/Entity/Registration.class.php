@@ -38,6 +38,159 @@ namespace Cx\Modules\Calendar\Model\Entity;
 /**
  * Registration
  *
+ * @SWG\Definition(definition="Registration", type= "object")
+ * @SWG\Get(
+ *     path="/calendar-registration",
+ *     tags={"registrations"},
+ *     summary="Lists Registrations",
+ *     @SWG\Parameter(
+ *         name="order",
+ *         in="query",
+ *         type="string",
+ *         required=false,
+ *         description="Order of a Registration"
+ *     ),
+ *     @SWG\Parameter(
+ *         name="filter",
+ *         in="query",
+ *         type="string",
+ *         required=false,
+ *         description="filter by Registration"
+ *     ),
+ *     @SWG\Parameter(
+ *         name="limit",
+ *         in="query",
+ *         type="integer",
+ *         format="int32",
+ *         required=false,
+ *         description="maximum number of results to return"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="A list of all registration",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="array",
+ *                         @SWG\Items(ref="#/definitions/Registration")
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Get(
+ *     path="/calendar-registration/{id}",
+ *     tags={"registration"},
+ *     summary="Fetch a registration",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the registration"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration description",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/Registration"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Post(
+ *     path="/calendar-registration",
+ *     tags={"registration"},
+ *     summary="Create a new Registration",
+ *     @SWG\Parameter(
+ *         name="registration",
+ *         in="body",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/Registration")
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration added",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/Registration"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Put(
+ *     path="/calendar-registration/{id}",
+ *     tags={"registration"},
+ *     summary="Update a Registration",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the registration"
+ *     ),
+ *     @SWG\Parameter(
+ *         name="registration",
+ *         in="body",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/Registration")
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration updated",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/Registration"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Delete(
+ *     path="/calendar-registration/{id}",
+ *     tags={"registration"},
+ *     summary="Delete a Registration",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the registration"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration deleted",
+ *         @SWG\Schema(
+ *             ref="#/definitions/apiResponse"
+ *         )
+ *     )
+ * )
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -45,66 +198,102 @@ namespace Cx\Modules\Calendar\Model\Entity;
 */
 class Registration extends \Cx\Model\Base\EntityBase {
     /**
+     * @SWG\Property(
+     *     type="integer",
+     *     format="int64",
+     *     description="Unique identifier representing a specific registration"
+     * )
+     *
      * @var integer $id
      */
     protected $id;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $date
      */
     protected $date;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $hostName
      */
     protected $hostName;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $ipAddress
      */
     protected $ipAddress;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $type
      */
     protected $type;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $key
      */
     protected $key;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $userId
      */
     protected $userId;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $langId
      */
     protected $langId;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $export
      */
     protected $export;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $paymentMethod
      */
     protected $paymentMethod;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $paid
      */
     protected $paid;
 
     /**
+     * @SWG\Property(
+     *     type="array",
+     *     @SWG\Items(ref="#/definitions/RegistrationFormFieldValue")
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\RegistrationFormFieldValue
      */
     protected $registrationFormFieldValues;
 
     /**
+     * @SWG\Property(
+     *     type="object",
+     *     ref="#/definitions/Event"
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\Event
      */
     protected $event;

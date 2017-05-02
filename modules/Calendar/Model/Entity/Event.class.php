@@ -49,14 +49,14 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *         type="string",
  *         required=false,
  *         description="Order of an Event"
- *     )
+ *     ),
  *     @SWG\Parameter(
  *         name="filter",
  *         in="query",
  *         type="string",
  *         required=false,
  *         description="filter by Event"
- *     )
+ *     ),
  *     @SWG\Parameter(
  *         name="limit",
  *         in="query",
@@ -64,7 +64,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *         format="int32",
  *         required=false,
  *         description="maximum number of results to return"
- *     )
+ *     ),
  *     @SWG\Response(
  *         response=200,
  *         description="A list of all events",
@@ -92,7 +92,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *         type="string",
  *         required=true,
  *         description="ID of the event"
- *     )
+ *     ),
  *     @SWG\Response(
  *         response=200,
  *         description="Event description",
@@ -147,7 +147,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *         type="string",
  *         required=true,
  *         description="ID of the event"
- *     )
+ *     ),
  *     @SWG\Parameter(
  *         name="event",
  *         in="body",
@@ -181,7 +181,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *         type="string",
  *         required=true,
  *         description="ID of the event"
- *     )
+ *     ),
  *     @SWG\Response(
  *         response=200,
  *         description="Event deleted",
@@ -209,7 +209,7 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $id;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $type
      */
@@ -237,98 +237,98 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $useCustomDateDisplay;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showStartDateList
      */
     protected $showStartDateList;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showEndDateList
      */
     protected $showEndDateList;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showStartTimeList
      */
     protected $showStartTimeList;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showEndTimeList
      */
     protected $showEndTimeList;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showTimeTypeList
      */
     protected $showTimeTypeList;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showStartDateDetail
      */
     protected $showStartDateDetail;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showEndDateDetail
      */
     protected $showEndDateDetail;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showStartTimeDetail
      */
     protected $showStartTimeDetail;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showEndTimeDetail
      */
     protected $showEndTimeDetail;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $showTimeTypeDetail
      */
     protected $showTimeTypeDetail;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $google
      */
     protected $google;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $access
      */
     protected $access;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $priority
      */
     protected $priority;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $price
      */
@@ -356,7 +356,7 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $attach;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $placeMediadirId
      */
@@ -384,21 +384,24 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $invitedMails;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $invitationSent
      */
     protected $invitationSent;
 
     /**
-     * @SWG\Property(type="string")
+     * @SWG\Property(
+     *     type="array",
+     *     @SWG\Items(ref="#/definitions/Mail")
+     * )
      *
      * @var string $invitationEmailTemplate
      */
     protected $invitationEmailTemplate;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $registration
      */
@@ -419,7 +422,10 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $registrationNotification;
 
     /**
-     * @SWG\Property(type="string")
+     * @SWG\Property(
+     *     type="array",
+     *     @SWG\Items(ref="#/definitions/Mail")
+     * )
      *
      * @var string $emailTemplate
      */
@@ -440,21 +446,21 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $numSeating;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var smallint $seriesStatus
      */
     protected $seriesStatus;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesType
      */
     protected $seriesType;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternCount
      */
@@ -468,42 +474,42 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $seriesPatternWeekday;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternDay
      */
     protected $seriesPatternDay;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternWeek
      */
     protected $seriesPatternWeek;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternMonth
      */
     protected $seriesPatternMonth;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternType
      */
     protected $seriesPatternType;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternDouranceType
      */
     protected $seriesPatternDouranceType;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternEnd
      */
@@ -517,7 +523,7 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $seriesPatternEndDate;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $seriesPatternBegin
      */
@@ -573,7 +579,7 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $locationType;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $placeId
      */
@@ -678,7 +684,7 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $orgEmail;
 
     /**
-     * @SWG\Property(type="integer" format="int32")
+     * @SWG\Property(type="integer", format="int32")
      *
      * @var integer $hostMediadirId
      */

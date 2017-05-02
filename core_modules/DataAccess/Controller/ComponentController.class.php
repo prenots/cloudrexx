@@ -53,22 +53,22 @@ namespace Cx\Core_Modules\DataAccess\Controller;
  *     ),
  *     host="www.cloudrexx.com",
  *     basePath="/api",
- *     schemes={"http", "https"}
+ *     schemes={"http", "https"},
  *     produces={"application/json"},
  *     @SWG\Definition(
  *         definition="apiResponse",
  *         required={"status", "message"},
  *         @SWG\Property(
  *             property="status",
- *             type="string",(ok|error)
+ *             type="string"
  *         ),
  *         @SWG\Property(
  *             property="meta",
- *             type="array",
+ *             type="array"
  *         ),
  *         @SWG\Property(
  *             property="message",
- *             type="string",(text message)
+ *             type="string"
  *         ),
  *     )
  * )

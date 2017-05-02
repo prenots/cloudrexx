@@ -38,6 +38,159 @@ namespace Cx\Modules\Calendar\Model\Entity;
 /**
  * RegistrationForm
  *
+ * @SWG\Definition(definition="RegistrationForm", type= "object")
+ * @SWG\Get(
+ *     path="/calendar-registration-form",
+ *     tags={"registrationForm"},
+ *     summary="Lists Registration Forms",
+ *     @SWG\Parameter(
+ *         name="order",
+ *         in="query",
+ *         type="string",
+ *         required=false,
+ *         description="Order of Registration form"
+ *     ),
+ *     @SWG\Parameter(
+ *         name="filter",
+ *         in="query",
+ *         type="string",
+ *         required=false,
+ *         description="filter by Registration form"
+ *     ),
+ *     @SWG\Parameter(
+ *         name="limit",
+ *         in="query",
+ *         type="integer",
+ *         format="int32",
+ *         required=false,
+ *         description="maximum number of results to return"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="A list of all registration form",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="array",
+ *                         @SWG\Items(ref="#/definitions/RegistrationForm")
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Get(
+ *     path="/calendar-registration-form/{id}",
+ *     tags={"registration form"},
+ *     summary="Fetch a registration form",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the registration form"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration form description",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/RegistrationForm"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Post(
+ *     path="/calendar-registration-form",
+ *     tags={"registration form"},
+ *     summary="Create a new Registration form",
+ *     @SWG\Parameter(
+ *         name="registrationForm",
+ *         in="body",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/RegistrationForm")
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration form added",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/RegistrationForm"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Put(
+ *     path="/calendar-registration-form/{id}",
+ *     tags={"registrationForm"},
+ *     summary="Update a Registration form",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the registration form"
+ *     ),
+ *     @SWG\Parameter(
+ *         name="registrationForm",
+ *         in="body",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/RegistrationForm")
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration form updated",
+ *         @SWG\Schema(
+ *             allof={
+ *                 @SWG\Schema(ref="#/definitions/apiResponse"),
+ *                 @SWG\Schema(
+ *                     @SWG\Property(
+ *                         property="data",
+ *                         type="object",
+ *                         ref="#/definitions/RegistrationForm"
+ *                     )
+ *                 )
+ *             }
+ *         )
+ *     )
+ * )
+ * @SWG\Delete(
+ *     path="/calendar-registration-form/{id}",
+ *     tags={"registrationForm"},
+ *     summary="Delete a Registration form",
+ *     @SWG\Parameter(
+ *         name="id",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         description="ID of the registration form"
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Registration form deleted",
+ *         @SWG\Schema(
+ *             ref="#/definitions/apiResponse"
+ *         )
+ *     )
+ * )
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -45,31 +198,53 @@ namespace Cx\Modules\Calendar\Model\Entity;
 */
 class RegistrationForm extends \Cx\Model\Base\EntityBase {
     /**
+     * @SWG\Property(
+     *     type="integer",
+     *     format="int64",
+     *     description="Unique identifier representing a specific registration"
+     * )
+     *
      * @var integer $id
      */
     protected $id;
 
     /**
+     * @SWG\Property(type="boolean")
+     *
      * @var integer $status
      */
     protected $status;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $order
      */
     protected $order;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $title
      */
     protected $title;
 
     /**
+     * @SWG\Property(
+     *     type="array",
+     *     @SWG\Items(ref="#/definitions/Event")
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\Event
      */
     protected $events;
 
     /**
+     * @SWG\Property(
+     *     type="array",
+     *     @SWG\Items(ref="#/definitions/RegistrationFormField")
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\RegistrationFormField
      */
     protected $registrationFormFields;

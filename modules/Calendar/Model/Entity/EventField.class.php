@@ -38,6 +38,8 @@ namespace Cx\Modules\Calendar\Model\Entity;
 /**
  * EventField
  *
+ * @SWG\Definition(definition="EventField", type= "object")
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -45,66 +47,95 @@ namespace Cx\Modules\Calendar\Model\Entity;
 */
 class EventField extends \Cx\Model\Base\EntityBase {
     /**
+     * @SWG\Property(type="integer", format="int64")
+     *
      * @var integer $eventId
      */
     protected $eventId;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $title
      */
     protected $title;
 
     /**
+     * @SWG\Property(type="integer", format="int32")
+     *
      * @var integer $langId
      */
     protected $langId;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var text $teaser
      */
     protected $teaser;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var text $description
      */
     protected $description;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $redirect
      */
     protected $redirect;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $place
      */
     protected $place;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeCity
      */
     protected $placeCity;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $placeCountry
      */
     protected $placeCountry;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgName
      */
     protected $orgName;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgCity
      */
     protected $orgCity;
 
     /**
+     * @SWG\Property(type="string")
+     *
      * @var string $orgCountry
      */
     protected $orgCountry;
 
     /**
+     * @SWG\Property(
+     *     type="object",
+     *     ref="#/definitions/Event"
+     * )
+     *
      * @var Cx\Modules\Calendar\Model\Entity\Event
      */
     protected $event;
