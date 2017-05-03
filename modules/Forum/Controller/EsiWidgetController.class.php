@@ -106,7 +106,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         ) {
             return;
         }
-        $objForumHome = new ForumHomeContent('');
+        $objForumHome = new ForumHomeContent('', $params['lang']);
         $template->setVariable($name, $objForumHome->getHomeTagCloud());
     }
 }
