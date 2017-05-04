@@ -72,13 +72,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Load your component.
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
-     */
-    public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {}
-
-    /**
      * Do something after system initialization
      *
      * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
@@ -108,6 +101,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $widgetName
             );
             $widget->setEsiVariable(
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_PAGE |
                 \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME|
                 \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
             );

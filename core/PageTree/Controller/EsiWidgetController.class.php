@@ -93,7 +93,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         $matches = null;
-        if (preg_match('/^((?:SUB)?NAVBAR)(\d{0,2})_FILE$/', $name, $matches)) {
+        if (preg_match('/^((?:SUB)?NAVBAR)(\d?)_FILE$/', $name, $matches)) {
             $content = $this->getFileContent(
                 $theme,
                 strtolower($matches[1]) . $matches[2] . '.html'
