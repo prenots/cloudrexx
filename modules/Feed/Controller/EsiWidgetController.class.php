@@ -55,25 +55,35 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template Widget template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_CONFIG, $objInit, $_LANGID, $_CORELANG;
+        global $_CORELANG;
 
         // Set NewsML messages
         $matches = null;
         if (
             !preg_match('/^NEWSML_([0-9A-Z_-]+)/', $name, $matches) ||
-            $_CONFIG['feedNewsMLStatus'] != '1'
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'feedNewsMLStatus',
+                'Config'
+            ) != '1'
         ) {
             return;
         }
 
-        $_LANGID    = \FWLanguage::getLangIdByIso639_1($locale);
-        $_CORELANG  = array_merge($_CORELANG, $objInit->loadLanguageData());
+        $_CORELANG  = array_merge(
+            $_CORELANG,
+            \Env::get('init')->getComponentSpecificLanguageData(
+                'Core',
+                true,
+                $params['lang']
+            )
+        );
         $objNewsML  = new NewsML();
         $code       = '{' . $name . '}';
         $objNewsML->setNews(array($matches[1]), $code);
