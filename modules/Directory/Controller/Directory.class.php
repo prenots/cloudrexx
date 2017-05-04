@@ -2107,7 +2107,7 @@ $this->arrRows[2] = '';
             $parts = explode(
                 "\n",
                 wordwrap(
-                    contrexx_raw2xhtml($objResult->fields['description']),
+                    $objResult->fields['description'],
                     60,
                     "\n"
                 )

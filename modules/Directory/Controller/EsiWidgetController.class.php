@@ -72,6 +72,9 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             if (!$params['theme']) {
                 return;
             }
+            global $_LANGID;
+
+            $_LANGID    = $params['lang'];
             $filePath   = $params['theme']->getFolderName() . '/directory.html';
             $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getMediaSourceManager()
