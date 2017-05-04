@@ -59,24 +59,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      * @param \Cx\Core\Html\Sigma $template Widget template
      * @param string              $locale   RFC 3066 locale identifier
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_ARRAYLANG;
-
-        if ($name !== 'voting_result') {
-            return;
-        }
-
-        //The global $_ARRAYLANG is required in the method Voting::setVotingResult()
-        $langId     = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG = array_merge(
-            $_ARRAYLANG,
-            \Env::get('init')->getComponentSpecificLanguageData(
-                'Voting',
-                true,
-                $langId
-            )
-        );
         $voting = new Voting();
         $voting->setVotingResult($template);
     }
