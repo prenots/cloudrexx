@@ -51,13 +51,14 @@ namespace Cx\Modules\Voting\Controller;
  */
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
-    
+
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template WidgetTemplate
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
     public function parseWidget($name, $template, $response, $params)
     {
