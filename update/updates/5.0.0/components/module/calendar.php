@@ -524,14 +524,14 @@ function _calendarUpdate()
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             // add missing section
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_calendar_settings_section` (`id`, `parent`, `order`, `name`, `title`) VALUES (19,1,4,'location_host','TXT_CALENDAR_EVENT_LOCATION')");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_calendar_settings_section` (`id`, `parent`, `order`, `name`, `title`) VALUES (19,1,4,'location_host','TXT_CALENDAR_EVENT_LOCATION')");
 
             // add missing settings
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES ('65','5','frontendPastEvents','TXT_CALENDAR_FRONTEND_PAST_EVENTS','0','','5','TXT_CALENDAR_FRONTEND_PAST_EVENTS_DAY,TXT_CALENDAR_FRONTEND_PAST_EVENTS_END','',15)");
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (62,19,'placeDataForm','',0,'',5,'','getPlaceDataDorpdown',8)");
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (20,19,'placeData','TXT_CALENDAR_PLACE_DATA',1,'TXT_CALENDAR_PLACE_DATA_STATUS_INFO',3,'TXT_CALENDAR_PLACE_DATA_DEFAULT,TXT_CALENDAR_PLACE_DATA_FROM_MEDIADIR,TXT_CALENDAR_PLACE_DATA_FROM_BOTH','',7)");
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (63,19,'placeDataHost','TXT_CALENDAR_PLACE_DATA_HOST',1,'TXT_CALENDAR_PLACE_DATA_STATUS_INFO',3,'TXT_CALENDAR_PLACE_DATA_DEFAULT,TXT_CALENDAR_PLACE_DATA_FROM_MEDIADIR,TXT_CALENDAR_PLACE_DATA_FROM_BOTH','',9)");
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (64,19,'placeDataHostForm','',0,'',5,'','getPlaceDataDorpdown',10)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES ('65','5','frontendPastEvents','TXT_CALENDAR_FRONTEND_PAST_EVENTS','0','','5','TXT_CALENDAR_FRONTEND_PAST_EVENTS_DAY,TXT_CALENDAR_FRONTEND_PAST_EVENTS_END','',15)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (62,19,'placeDataForm','',0,'',5,'','getPlaceDataDorpdown',8)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (20,19,'placeData','TXT_CALENDAR_PLACE_DATA',1,'TXT_CALENDAR_PLACE_DATA_STATUS_INFO',3,'TXT_CALENDAR_PLACE_DATA_DEFAULT,TXT_CALENDAR_PLACE_DATA_FROM_MEDIADIR,TXT_CALENDAR_PLACE_DATA_FROM_BOTH','',7)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (63,19,'placeDataHost','TXT_CALENDAR_PLACE_DATA_HOST',1,'TXT_CALENDAR_PLACE_DATA_STATUS_INFO',3,'TXT_CALENDAR_PLACE_DATA_DEFAULT,TXT_CALENDAR_PLACE_DATA_FROM_MEDIADIR,TXT_CALENDAR_PLACE_DATA_FROM_BOTH','',9)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_calendar_settings` (`id`, `section_id`, `name`, `title`, `value`, `info`, `type`, `options`, `special`, `order`) VALUES (64,19,'placeDataHostForm','',0,'',5,'','getPlaceDataDorpdown',10)");
 
             // fix setting order
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_calendar_settings` SET `order`= 8 WHERE `name` = 'showStartTimeDetail' AND `section_id` = 17");

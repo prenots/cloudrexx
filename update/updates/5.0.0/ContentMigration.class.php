@@ -106,6 +106,9 @@ class ContentMigration
                     return true;
                 }
 
+                // fix broken log entries
+                \Cx\Lib\UpdateUtil::sql("UPDATE `" . DBPREFIX . "content_navigation_history` SET `activestatus` = '0' WHERE `activestatus` != '1'");
+
                 \Cx\Lib\UpdateUtil::drop_table(DBPREFIX . 'content_page');
                 \Cx\Lib\UpdateUtil::drop_table(DBPREFIX . 'content_node');
                 \Cx\Lib\UpdateUtil::drop_table(DBPREFIX . 'log_entry');
@@ -579,9 +582,9 @@ class ContentMigration
 
     function _setPageRecords($objResult, $node, $page)
     {
-        $title         = html_entity_decode($objResult->fields['catname'], ENT_QUOTES, CONTREXX_CHARSET);
+        $title         = substr(html_entity_decode($objResult->fields['catname'], ENT_QUOTES, CONTREXX_CHARSET), 0, 255);
         $contentTitle  = !empty($objResult->fields['title']) ? html_entity_decode($objResult->fields['title'], ENT_QUOTES, CONTREXX_CHARSET) : $title;
-        $metaTitle     = html_entity_decode($objResult->fields['metatitle'], ENT_QUOTES, CONTREXX_CHARSET);
+        $metaTitle     = substr(html_entity_decode($objResult->fields['metatitle'], ENT_QUOTES, CONTREXX_CHARSET), 0, 255);
         $metaDesc      = html_entity_decode($objResult->fields['metadesc'], ENT_QUOTES, CONTREXX_CHARSET);
         $metaKeys      = html_entity_decode($objResult->fields['metakeys'], ENT_QUOTES, CONTREXX_CHARSET);
         $customContent = isset($objResult->fields['custom_content']) ? $objResult->fields['custom_content'] : '';
@@ -598,8 +601,8 @@ class ContentMigration
         $page->setMetakeys($metaKeys);
         $page->setCustomContent($customContent);
         $page->setContent($objResult->fields['content']);
-        $page->setCssName($objResult->fields['css_name']);
-        $page->setMetarobots($objResult->fields['metarobots']);
+        $page->setCssName(substr($objResult->fields['css_name'], 0, 255));
+        $page->setMetarobots(substr($objResult->fields['metarobots'], 0, 255));
         $page->setDisplay($objResult->fields['displaystatus'] === 'on' ? 1 : 0);
         $page->setActive($objResult->fields['activestatus']);
         $page->setSourceMode($objResult->fields['expertmode'] == 'y');
@@ -609,7 +612,7 @@ class ContentMigration
         $page->setProtection($objResult->fields['protected']);
         $page->setFrontendAccessId($objResult->fields['frontend_access_id']);
         $page->setBackendAccessId($objResult->fields['backend_access_id']);
-        $page->setTarget($objResult->fields['redirect']);
+        $page->setTarget(substr($objResult->fields['redirect'], 0, 255));
 
         $updatedAt = new \DateTime();
         $updatedAt->setTimestamp($objResult->fields['changelog']);
