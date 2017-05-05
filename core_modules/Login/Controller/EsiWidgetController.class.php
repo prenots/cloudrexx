@@ -55,22 +55,21 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template WidgetTemplate
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        $langId = \FWLanguage::getLangIdByIso639_1($locale);
-
         if ($name === 'LOGIN_URL') {
             $coreLang = \Env::get('init')->getComponentSpecificLanguageData(
                 'Core',
                 true,
-                $langId
+                $params['lang']
             );
             $link = \Html::getLink(
-                \Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', $langId),
+                \Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', $params['lang']),
                 $coreLang['TXT_FRONTEND_EDITING_LOGIN'],
                 null,
                 ' class="start-frontend-editing" '
@@ -84,7 +83,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $name,
                 \Cx\Core\Routing\Url::fromDocumentRoot(
                     array('section' => 'logout'),
-                    $langId
+                    $params['lang']
                 )
             );
         }
