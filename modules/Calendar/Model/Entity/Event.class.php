@@ -68,18 +68,181 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="A list of all events",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="array",
- *                         @SWG\Items(ref="#/definitions/Event")
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Events listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Events" : {
+ *               {
+ *                 "id" : "100",
+ *                 "type" : 1,
+ *                 "startDate" : 1493813018,
+ *                 "endDate" : 1493986940,
+ *                 "useCustomDateDisplay" : 1,
+ *                 "showStartDateList" : 1,
+ *                 "showEndDateList" : 1,
+ *                 "showStartTimeList" : 1,
+ *                 "showEndTimeList" : 1,
+ *                 "showTimeTypeList" : 1,
+ *                 "showStartDateDetail" : 1,
+ *                 "showEndDateDetail" : 1,
+ *                 "showStartTimeDetail" : 1,
+ *                 "showEndTimeDetail" : 1,
+ *                 "showTimeTypeDetail" : 1,
+ *                 "google" : 0,
+ *                 "access" : 0,
+ *                 "priority" : 3,
+ *                 "price" : 0,
+ *                 "link" : "<site link>",
+ *                 "pic" : "<picture path>",
+ *                 "attach" : "<attachment path>",
+ *                 "placeMediadirId" : 0,
+ *                 "showIn" : "1,2",
+ *                 "invitedGroups" : "2, 3",
+ *                 "invitedMails" : "test@test.com, test1@test.com",
+ *                 "invitationSent" : 1,
+ *                 "invitationEmailTemplate" : {
+ *                   "id" : "103",
+ *                   "title" : "Invitation",
+ *                   "contentText" : "<Text mail content>",
+ *                   "contentHtml" : "<Html mail content>",
+ *                   "recipients" : "test@test.com, test1@test.com",
+ *                   "langId" : 2,
+ *                   "actionId" : 2,
+ *                   "isDefault" : 0,
+ *                   "status" : 1
+ *                 },
+ *                 "registration" : 1,
+ *                 "registrationNum" : 250,
+ *                 "registrationNotification" : "info@example.com",
+ *                 "emailTemplate" : {
+ *                   "id" : "104",
+ *                   "title" : "Invitation",
+ *                   "contentText" : "<Text mail content>",
+ *                   "contentHtml" : "<Html mail content>",
+ *                   "recipients" : "test@test.com, test1@test.com",
+ *                   "langId" : 2,
+ *                   "actionId" : 2,
+ *                   "isDefault" : 0,
+ *                   "status" : 1
+ *                 },
+ *                 "ticketSales" : 1,
+ *                 "numSeating" : 100,
+ *                 "seriesStatus" : 1,
+ *                 "seriesType" : 1,
+ *                 "seriesPatternCount" : 0,
+ *                 "seriesPatternWeekday" : 0,
+ *                 "seriesPatternDay" : 0,
+ *                 "seriesPatternWeek" : 0,
+ *                 "seriesPatternMonth" : 0,
+ *                 "seriesPatternType" : 0,
+ *                 "seriesPatternDouranceType" : 0,
+ *                 "seriesPatternEnd" : 0,
+ *                 "seriesPatternEndDate" : 1494679963,
+ *                 "seriesPatternBegin" : 0,
+ *                 "seriesPatternExceptions" : "",
+ *                 "status" : 1,
+ *                 "confirmed" : 0,
+ *                 "showDetailView" : 1,
+ *                 "author" : "1",
+ *                 "allDay" : 0,
+ *                 "locationType" : 1,
+ *                 "placeId" : 0,
+ *                 "placeStreet" : "",
+ *                 "placeZip" : "",
+ *                 "placeWebsite" : "",
+ *                 "placeLink" : "",
+ *                 "placePhone" : "",
+ *                 "placeMap" : "",
+ *                 "hostType" : 1,
+ *                 "orgStreet" : "",
+ *                 "orgZip" : "",
+ *                 "orgWebsite" : "",
+ *                 "orgLink" : "",
+ *                 "orgPhone" : "",
+ *                 "orgEmail" : "",
+ *                 "hostMediadirId" : 0,
+ *                 "registrationExternalLink" : "",
+ *                 "registrationExternalFullyBooked" : 0,
+ *                 "eventFields" : {{
+ *                   "eventId" : 100,
+ *                   "title" : "Contrexx Software feiert 10. Jubiläum",
+ *                   "langId" : 1,
+ *                   "teaser" : "Contrexx celebrates 10 years of success! Since 10 ...",
+ *                   "description" : "Contrexx celebrates 10 years of success! Since 10 ...",
+ *                   "redirect" : "",
+ *                   "place" : "",
+ *                   "placeCity" : "",
+ *                   "placeCountry" : "",
+ *                   "orgName" : "",
+ *                   "orgCity" : "",
+ *                   "orgCountry" : "",
+ *                 }},
+ *                 "registrations" : {{
+ *                   "id" : "200",
+ *                   "date" : "1493813018",
+ *                   "hostName" : "www.example.com",
+ *                   "ipAddress" : "192.165.3.87",
+ *                   "type" : 1,
+ *                   "key" : "478roF24hkH248854429F1",
+ *                   "userId" : 2,
+ *                   "langId" : 1,
+ *                   "export" : 1311860736,
+ *                   "paymentMethod" : 2,
+ *                   "paid" : 1,
+ *                   "registrationFormFieldValues" : {{
+ *                     "regId" : 200,
+ *                     "fieldId" : 1,
+ *                     "value" : "Dear Mr."
+ *                   },
+ *                   {
+ *                     "regId" : 200,
+ *                     "fieldId" : 2,
+ *                     "value" : "David warner"
+ *                   }}
+ *                 }},
+ *                 "category" : {
+ *                   "id" : "101",
+ *                   "pos" : 2,
+ *                   "status" : 1,
+ *                   "categoryNames" : {
+ *                     { "catId" : 101, "name" : "Andere", "langId" : 1},
+ *                     { "catId" : 101, "name" : "Others", "langId" : 2},
+ *                   }
+ *                 },
+ *                 "registrationForm" : {
+ *                   "id" : "1",
+ *                   "status" : 1,
+ *                   "order" : 5,
+ *                   "title" : "Standardformular",
+ *                   "registrationFormFields" : {{
+ *                     "id" : 1,
+ *                     "type" : "Saluation",
+ *                     "required" : 1,
+ *                     "order" : 2,
+ *                     "affiliation" : "form",
+ *                     "registrationFormFieldNames" : {{
+ *                       "fieldId" : 1,
+ *                       "formId" : 1,
+ *                       "langId" : 2,
+ *                       "name" : "Salutation",
+ *                       "default" : "Dear Ms.,Dear Mr."
+ *                     }},
+ *                     "registrationFormFieldValues" : {{
+ *                       "regId" : 1,
+ *                       "fieldId" : 1,
+ *                       "value" : "Dear Ms."
+ *                     }}
+ *                   }}
+ *                 }
+ *               }
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Get(
@@ -96,18 +259,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Event description",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Event"
- *                     )
- *                 )
- *             }
- *         )
+ *         @SWG\Schema(ref="#/definitions/apiResponse")
  *     )
  * )
  * @SWG\Post(
@@ -123,18 +275,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Event added",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Event"
- *                     )
- *                 )
- *             }
- *         )
+ *         @SWG\Schema(ref="#/definitions/apiResponse")
  *     )
  * )
  * @SWG\Put(
@@ -157,18 +298,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Event updated",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Event"
- *                     )
- *                 )
- *             }
- *         )
+ *         @SWG\Schema(ref="#/definitions/apiResponse")
  *     )
  * )
  * @SWG\Delete(
@@ -731,7 +861,6 @@ class Event extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/Category"
      * )
      *
@@ -741,7 +870,6 @@ class Event extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/RegistrationForm"
      * )
      *

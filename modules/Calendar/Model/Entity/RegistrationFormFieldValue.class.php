@@ -69,7 +69,6 @@ class RegistrationFormFieldValue extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/Registration"
      * )
      *
@@ -79,7 +78,6 @@ class RegistrationFormFieldValue extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/RegistrationFormField"
      * )
      *

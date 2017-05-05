@@ -68,18 +68,38 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="A list of all categories",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="array",
- *                         @SWG\Items(ref="#/definitions/Category")
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Categories listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Categories": {
+ *                 {
+ *                   "id" : "100",
+ *                   "pos" : 1,
+ *                   "status" : 1,
+ *                   "categoryNames" : {
+ *                     { "catId" : 100, "name" : "Veranstaltungen", "langId" : 1},
+ *                     { "catId" : 100, "name" : "Events", "langId" : 2},
+ *                   },
+ *                   "events" : {}
+ *                 },
+ *                 {
+ *                   "id" : "101",
+ *                   "pos" : 2,
+ *                   "status" : 1,
+ *                   "categoryNames" : {
+ *                     { "catId" : 101, "name" : "Andere", "langId" : 1},
+ *                     { "catId" : 101, "name" : "Others", "langId" : 2},
+ *                   },
+ *                   "events" : {}
+ *                 }
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Get(
@@ -96,18 +116,26 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Category description",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Category"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Category listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Category" : {
+ *                 "id" : "100",
+ *                 "pos" : 1,
+ *                 "status" : 1,
+ *                 "categoryNames" : {
+ *                   { "catId" : 100, "name" : "Veranstaltungen", "langId" : 1},
+ *                   { "catId" : 100, "name" : "Events", "langId" : 2},
+ *                 },
+ *                 "events" : {}
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Post(
@@ -123,18 +151,26 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Category added",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Category"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Category added successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Category" : {
+ *                 "id" : "102",
+ *                 "pos" : 1,
+ *                 "status" : 1,
+ *                 "categoryNames" : {
+ *                   { "catId" : 100, "name" : "Veranstaltungen", "langId" : 1},
+ *                   { "catId" : 100, "name" : "Events", "langId" : 2},
+ *                 },
+ *                 "events" : {}
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Put(
@@ -157,18 +193,26 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Category updated",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Category"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Category updated successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Category" : {
+ *                 "id" : "102",
+ *                 "pos" : 3,
+ *                 "status" : 0,
+ *                 "categoryNames" : {
+ *                   { "catId" : 100, "name" : "Veranstaltungen", "langId" : 1},
+ *                   { "catId" : 100, "name" : "Events", "langId" : 2},
+ *                 },
+ *                 "events" : {}
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Delete(

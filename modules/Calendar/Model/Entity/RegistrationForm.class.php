@@ -68,18 +68,51 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="A list of all registration form",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="array",
- *                         @SWG\Items(ref="#/definitions/RegistrationForm")
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration forms listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "RegistrationForms" : {
+ *                 {
+ *                   "id" : "1",
+ *                   "status" : 1,
+ *                   "order" : 5,
+ *                   "title" : "Standardformular",
+ *                   "events" : {},
+ *                   "registrationFormFields" : {
+ *                     {
+ *                       "id" : 1,
+ *                       "type" : "Saluation",
+ *                       "required" : 1,
+ *                       "order" : 2,
+ *                       "affiliation" : "form",
+ *                       "registrationFormFieldNames" : {
+ *                         {
+ *                           "fieldId" : 1,
+ *                           "formId" : 1,
+ *                           "langId" : 2,
+ *                           "name" : "Salutation",
+ *                           "default" : "Dear Ms.,Dear Mr."
+ *                         }
+ *                       },
+ *                       "registrationFormFieldValues" : {
+ *                         {
+ *                           "regId" : 1,
+ *                           "fieldId" : 1,
+ *                           "value" : "Dear Ms.",
+ *                           "registration" : {}
+ *                         }
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Get(
@@ -96,18 +129,74 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Registration form description",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/RegistrationForm"
- *                     )
- *                 )
- *             }
- *         )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration form listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "RegistrationForm" : {
+ *                 "id" : "1",
+ *                 "status" : 1,
+ *                 "order" : 5,
+ *                 "title" : "Standardformular",
+ *                 "events" : {},
+ *                 "registrationFormFields" : {
+ *                   {
+ *                     "id" : 1,
+ *                     "type" : "Saluation",
+ *                     "required" : 1,
+ *                     "order" : 2,
+ *                     "affiliation" : "form",
+ *                     "registrationFormFieldNames" : {
+ *                       {
+ *                         "fieldId" : 1,
+ *                         "formId" : 1,
+ *                         "langId" : 2,
+ *                         "name" : "Salutation",
+ *                         "default" : "Dear Ms.,Dear Mr."
+ *                       }
+ *                     },
+ *                     "registrationFormFieldValues" : {
+ *                       {
+ *                         "regId" : 1,
+ *                         "fieldId" : 1,
+ *                         "value" : "Dear Ms.",
+ *                         "registration" : {
+ *                           "id" : "200",
+ *                           "date" : "1493813018",
+ *                           "hostName" : "www.example.com",
+ *                           "ipAddress" : "192.165.3.87",
+ *                           "type" : 1,
+ *                           "key" : "478roF24hkH248854429F1",
+ *                           "userId" : 2,
+ *                           "langId" : 1,
+ *                           "export" : 1311860736,
+ *                           "paymentMethod" : 2,
+ *                           "paid" : 1,
+ *                           "registrationFormFieldValues" : {
+ *                             {
+ *                               "regId" : 200,
+ *                               "fieldId" : 1,
+ *                               "value" : "Dear Mr."
+ *                             },
+ *                             {
+ *                               "regId" : 200,
+ *                               "fieldId" : 2,
+ *                               "value" : "David warner"
+ *                             }
+ *                           },
+ *                           "event" : {}
+ *                         }
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             },
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Post(
@@ -123,18 +212,74 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Registration form added",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/RegistrationForm"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration form added successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "RegistrationForm" : {
+ *                 "id" : "1",
+ *                 "status" : 1,
+ *                 "order" : 3,
+ *                 "title" : "new Standardformular",
+ *                 "events" : {},
+ *                 "registrationFormFields" : {
+ *                   {
+ *                     "id" : 2,
+ *                     "type" : "firstname",
+ *                     "required" : 1,
+ *                     "order" : 3,
+ *                     "affiliation" : "form",
+ *                     "registrationFormFieldNames" : {
+ *                       {
+ *                         "fieldId" : 2,
+ *                         "formId" : 2,
+ *                         "langId" : 2,
+ *                         "name" : "firstname",
+ *                         "default" : ""
+ *                       }
+ *                     },
+ *                     "registrationFormFieldValues" : {
+ *                       {
+ *                         "regId" : 2,
+ *                         "fieldId" : 2,
+ *                         "value" : "David",
+ *                         "registration" : {
+ *                           "id" : "200",
+ *                           "date" : "1493813018",
+ *                           "hostName" : "www.example.com",
+ *                           "ipAddress" : "192.165.3.87",
+ *                           "type" : 1,
+ *                           "key" : "478roF24hkH248854429F1",
+ *                           "userId" : 2,
+ *                           "langId" : 1,
+ *                           "export" : 1311860736,
+ *                           "paymentMethod" : 2,
+ *                           "paid" : 1,
+ *                           "registrationFormFieldValues" : {
+ *                             {
+ *                               "regId" : 200,
+ *                               "fieldId" : 1,
+ *                               "value" : "Dear Mr."
+ *                             },
+ *                             {
+ *                               "regId" : 200,
+ *                               "fieldId" : 2,
+ *                               "value" : "David warner"
+ *                             }
+ *                           },
+ *                           "event" : {}
+ *                         }
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Put(
@@ -157,18 +302,74 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Registration form updated",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/RegistrationForm"
- *                     )
- *                 )
- *             }
- *         )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration form added successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "RegistrationForm" : {
+ *                 "id" : "2",
+ *                 "status" : 1,
+ *                 "order" : 6,
+ *                 "title" : "new Standardformular",
+ *                 "events" : {},
+ *                 "registrationFormFields" : {
+ *                   {
+ *                     "id" : 2,
+ *                     "type" : "firstname",
+ *                     "required" : 1,
+ *                     "order" : 6,
+ *                     "affiliation" : "form",
+ *                     "registrationFormFieldNames" : {
+ *                       {
+ *                         "fieldId" : 2,
+ *                         "formId" : 2,
+ *                         "langId" : 2,
+ *                         "name" : "firstname",
+ *                         "default" : ""
+ *                       }
+ *                     },
+ *                     "registrationFormFieldValues" : {
+ *                       {
+ *                         "regId" : 2,
+ *                         "fieldId" : 2,
+ *                         "value" : "David warner",
+ *                         "registration" : {
+ *                           "id" : "200",
+ *                           "date" : "1493813018",
+ *                           "hostName" : "www.example.com",
+ *                           "ipAddress" : "192.165.3.87",
+ *                           "type" : 1,
+ *                           "key" : "478roF24hkH248854429F1",
+ *                           "userId" : 2,
+ *                           "langId" : 1,
+ *                           "export" : 1311860736,
+ *                           "paymentMethod" : 2,
+ *                           "paid" : 1,
+ *                           "registrationFormFieldValues" : {
+ *                             {
+ *                               "regId" : 200,
+ *                               "fieldId" : 1,
+ *                               "value" : "Dear Mr."
+ *                             },
+ *                             {
+ *                               "regId" : 200,
+ *                               "fieldId" : 2,
+ *                               "value" : "David warner"
+ *                             }
+ *                           },
+ *                           "event" : {}
+ *                         }
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             },
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Delete(

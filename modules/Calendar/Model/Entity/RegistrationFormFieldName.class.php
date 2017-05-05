@@ -83,7 +83,6 @@ class RegistrationFormFieldName extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/RegistrationFormField"
      * )
      *

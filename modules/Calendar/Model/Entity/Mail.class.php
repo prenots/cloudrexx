@@ -68,18 +68,29 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="A list of all mail",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="array",
- *                         @SWG\Items(ref="#/definitions/Mail")
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Mails listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Mails" : {
+ *                 {
+ *                   "id" : "102",
+ *                   "title" : "Notification of new appointment",
+ *                   "contentText" : "<Text mail content>",
+ *                   "contentHtml" : "<Html mail content>",
+ *                   "recipients" : "test@test.com, test1@test.com",
+ *                   "langId" : 1,
+ *                   "actionId" : 2,
+ *                   "isDefault" : 0,
+ *                   "status" : 1
+ *                 }
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Get(
@@ -96,18 +107,27 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Mail description",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Mail"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Mail listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Mail" : {
+ *                 "id" : "104",
+ *                 "title" : "Alert Subscribe / Unsubscribe",
+ *                 "contentText" : "<Text mail content>",
+ *                 "contentHtml" : "<Html mail content>",
+ *                 "recipients" : "test@test.com, test1@test.com",
+ *                 "langId" : 1,
+ *                 "actionId" : 2,
+ *                 "isDefault" : 0,
+ *                 "status" : 1
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Post(
@@ -123,18 +143,27 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Mail added",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Mail"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Mail added successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Mail" : {
+ *                 "id" : "103",
+ *                 "title" : "Invitation",
+ *                 "contentText" : "<Text mail content>",
+ *                 "contentHtml" : "<Html mail content>",
+ *                 "recipients" : "test@test.com, test1@test.com",
+ *                 "langId" : 1,
+ *                 "actionId" : 2,
+ *                 "isDefault" : 1,
+ *                 "status" : 1
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Put(
@@ -157,18 +186,27 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Mail updated",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Mail"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Mail updated successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Mail" : {
+ *                 "id" : "103",
+ *                 "title" : "Invitation",
+ *                 "contentText" : "<Text mail content>",
+ *                 "contentHtml" : "<Html mail content>",
+ *                 "recipients" : "test@test.com, test1@test.com",
+ *                 "langId" : 2,
+ *                 "actionId" : 2,
+ *                 "isDefault" : 0,
+ *                 "status" : 1
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Delete(

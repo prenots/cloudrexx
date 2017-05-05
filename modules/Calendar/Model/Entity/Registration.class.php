@@ -68,18 +68,44 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="A list of all registration",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="array",
- *                         @SWG\Items(ref="#/definitions/Registration")
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registrations listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Registrations" : {
+ *                 {
+ *                   "id" : "200",
+ *                   "date" : "1493813018",
+ *                   "hostName" : "www.example.com",
+ *                   "ipAddress" : "192.165.3.87",
+ *                   "type" : 1,
+ *                   "key" : "478roF24hkH248854429F1",
+ *                   "userId" : 2,
+ *                   "langId" : 1,
+ *                   "export" : 1311860736,
+ *                   "paymentMethod" : 2,
+ *                   "paid" : 1,
+ *                   "registrationFormFieldValues" : {
+ *                     {
+ *                       "regId" : 200,
+ *                       "fieldId" : 1,
+ *                       "value" : "Dear Mr."
+ *                     },
+ *                     {
+ *                       "regId" : 200,
+ *                       "fieldId" : 2,
+ *                       "value" : "David warner"
+ *                     }
+ *                   },
+ *                   "event" : {}
+ *                 }
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Get(
@@ -96,18 +122,42 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Registration description",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Registration"
- *                     )
- *                 )
- *             }
- *         )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration listed successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Registration" : {
+ *                 "id" : "200",
+ *                 "date" : "1493813018",
+ *                 "hostName" : "www.example.com",
+ *                 "ipAddress" : "192.165.3.87",
+ *                 "type" : 1,
+ *                 "key" : "478roF24hkH248854429F1",
+ *                 "userId" : 2,
+ *                 "langId" : 1,
+ *                 "export" : 1311860736,
+ *                 "paymentMethod" : 2,
+ *                 "paid" : 1,
+ *                 "registrationFormFieldValues" : {
+ *                   {
+ *                     "regId" : 200,
+ *                     "fieldId" : 1,
+ *                     "value" : "Dear Mr."
+ *                   },
+ *                   {
+ *                     "regId" : 200,
+ *                     "fieldId" : 2,
+ *                     "value" : "David warner"
+ *                   }
+ *                 },
+ *                 "event" : {}
+ *               }
+ *             },
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Post(
@@ -123,18 +173,42 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Registration added",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Registration"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration added successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Registration" : {
+ *                 "id" : "201",
+ *                 "date" : "1493813018",
+ *                 "hostName" : "www.example1.com",
+ *                 "ipAddress" : "192.165.3.88",
+ *                 "type" : 1,
+ *                 "key" : "478roF24hkH248854429F2",
+ *                 "userId" : 3,
+ *                 "langId" : 2,
+ *                 "export" : 1311860736,
+ *                 "paymentMethod" : 2,
+ *                 "paid" : 0,
+ *                 "registrationFormFieldValues" : {
+ *                   {
+ *                     "regId" : 201,
+ *                     "fieldId" : 1,
+ *                     "value" : "Dear Mr."
+ *                   },
+ *                   {
+ *                     "regId" : 201,
+ *                     "fieldId" : 2,
+ *                     "value" : "David warner"
+ *                   }
+ *                 },
+ *                 "event" : {}
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Put(
@@ -157,18 +231,42 @@ namespace Cx\Modules\Calendar\Model\Entity;
  *     @SWG\Response(
  *         response=200,
  *         description="Registration updated",
- *         @SWG\Schema(
- *             allof={
- *                 @SWG\Schema(ref="#/definitions/apiResponse"),
- *                 @SWG\Schema(
- *                     @SWG\Property(
- *                         property="data",
- *                         type="object",
- *                         ref="#/definitions/Registration"
- *                     )
- *                 )
+ *         @SWG\Schema(ref="#/definitions/apiResponse"),
+ *         examples={
+ *           "application/json": {
+ *             "status" : "success",
+ *             "message" : "Registration updated successfully",
+ *             "meta" : {},
+ *             "data" : {
+ *               "Registration" : {
+ *                 "id" : "201",
+ *                 "date" : "1493813018",
+ *                 "hostName" : "www.example1.com",
+ *                 "ipAddress" : "192.165.3.88",
+ *                 "type" : 1,
+ *                 "key" : "478roF24hkH248854429F2",
+ *                 "userId" : 3,
+ *                 "langId" : 2,
+ *                 "export" : 1311860736,
+ *                 "paymentMethod" : 2,
+ *                 "paid" : 0,
+ *                 "registrationFormFieldValues" : {
+ *                   {
+ *                     "regId" : 201,
+ *                     "fieldId" : 1,
+ *                     "value" : "Dear Ms."
+ *                   },
+ *                   {
+ *                     "regId" : 201,
+ *                     "fieldId" : 2,
+ *                     "value" : "David Letchi"
+ *                   }
+ *                 },
+ *                 "event" : {}
+ *               }
  *             }
- *         )
+ *           }
+ *         }
  *     )
  * )
  * @SWG\Delete(
@@ -290,7 +388,6 @@ class Registration extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/Event"
      * )
      *

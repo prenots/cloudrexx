@@ -64,11 +64,16 @@ namespace Cx\Core_Modules\DataAccess\Controller;
  *         ),
  *         @SWG\Property(
  *             property="meta",
- *             type="array"
+ *             type="array",
+ *             @SWG\Items()
  *         ),
  *         @SWG\Property(
  *             property="message",
  *             type="string"
+ *         ),
+ *         @SWG\Property(
+ *             property="data",
+ *             type="object"
  *         ),
  *     )
  * )

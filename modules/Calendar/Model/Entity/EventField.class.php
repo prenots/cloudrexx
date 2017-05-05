@@ -132,7 +132,6 @@ class EventField extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/Event"
      * )
      *

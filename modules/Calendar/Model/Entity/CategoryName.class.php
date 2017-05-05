@@ -38,7 +38,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
 /**
  * CategoryName
  *
- * @SWG\Definition(definition="Category", type= "object")
+ * @SWG\Definition(definition="CategoryName", type= "object")
  *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
@@ -69,7 +69,6 @@ class CategoryName extends \Cx\Model\Base\EntityBase {
 
     /**
      * @SWG\Property(
-     *     type="object",
      *     ref="#/definitions/Category"
      * )
      *
