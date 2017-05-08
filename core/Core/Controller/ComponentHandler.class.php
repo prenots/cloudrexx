@@ -218,10 +218,18 @@ class ComponentHandler {
 
     /**
      * Calls hook scripts to adjust response object (this is newer than legacy)
-     * @param \Cx\Core\Routing\Model\Entity\Response $response Current response
+     *
+     * @param string                                 $componentName Component name
+     * @param \Cx\Core\Routing\Model\Entity\Response $response      Current response
      */
-    public function callAdjustResponseHooks($response) {
-        $this->systemComponentRepo->callAdjustResponseHooks($response);
+    public function callAdjustResponseHooks($componentName, $response)
+    {
+        $component = $this->systemComponentRepo->findOneBy(
+            array('name' => $componentName)
+        );
+        if ($component) {
+            $component->adjustResponse($response);
+        }
     }
 
     /**
