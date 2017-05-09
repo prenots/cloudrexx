@@ -1776,13 +1776,9 @@ namespace Cx\Core\Core\Controller {
          * @todo Remove usage of globals
          */
         protected function postResolve() {
-            global $plainSection;
             $this->getResponse()->setPage($this->getPage());
             $this->ch->callPostResolveHooks();
-            $this->ch->callAdjustResponseHooks(
-                $plainSection,
-                $this->getResponse()
-            );
+            $this->ch->callAdjustResponseHooks($this->getResponse());
         }
 
         /**

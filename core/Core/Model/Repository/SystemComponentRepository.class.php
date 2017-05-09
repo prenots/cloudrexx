@@ -304,6 +304,24 @@ class SystemComponentRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * Call hook script of all SystemComponents after post-resolving
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Current response
+     */
+    public function callAdjustResponseHooks($response)
+    {
+        $page = $response->getPage();
+        if (!$page || \FWValidator::isEmpty($page->getModule())) {
+            return;
+        }
+
+        $component = $this->findOneBy(array('name' => $page->getModule()));
+        if (!$component) {
+            return;
+        }
+        $component->adjustResponse($response);
+    }
+
+    /**
      * Call hook script of all SystemComponents after resolving
      */
     public function callPostResolveHooks() {
