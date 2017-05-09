@@ -29,7 +29,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_data
  * @version     1.0.0
@@ -44,7 +44,7 @@ namespace Cx\Modules\Data\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_data
  * @version     1.0.0
@@ -55,11 +55,12 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     /**
      * Parses a widget
      *
-     * @param string              $name   Widget name
-     * @param \Cx\Core\Html\Sigma Widget  template
-     * @param string              $locale RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template WidgetTemplate
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
-    public function parseWidget($name, $template, $locale) 
+    public function parseWidget($name, $template, $response, $params)
     {
         global $_LANGID;
 
@@ -71,7 +72,11 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        $_LANGID    = \FWLanguage::getLangIdByIso639_1($locale);
+        /**
+         * The global $_LANGID is used in the DataBlocks::getCategory() and
+         * DataBlocks::getDetail() methods.
+         */
+        $_LANGID    = $params['lang'];
         $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
         $template->setVariable($name, $dataBlocks->getData('{' . $name . '}'));
     }

@@ -1385,9 +1385,10 @@ class DataLibrary
      */
     public function getDataPlaceholderNames()
     {
-        global $objDatabase;
-
-        $query = 'SELECT `placeholder` FROM `' . DBPREFIX . 'module_data_placeholders`';
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        $query       =
+            'SELECT `placeholder`
+                FROM `' . DBPREFIX . 'module_data_placeholders`';
         $dataPlaceholders = $objDatabase->Execute($query);
         if (!$dataPlaceholders || $dataPlaceholders->RecordCount() == 0) {
             return false;
