@@ -52,45 +52,24 @@ namespace Cx\Modules\MediaDir\Controller;
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
     /**
-     * currentThemeId
-     *
-     * @var integer
-     */
-    protected $currentThemeId;
-
-    /**
-     * category ID
-     *
-     * @var integer
-     */
-    protected $catId;
-
-    /**
-     * level ID
-     *
-     * @var integer
-     */
-    protected $levelId;
-
-    /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template Widget template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
         global $_ARRAYLANG;
 
         //The global $_ARRAYLANG is required by the method MediaDirectoryEntry::getEntries()
-        $langId     = \FWLanguage::getLangIdByIso639_1($locale);
         $_ARRAYLANG = array_merge(
             $_ARRAYLANG,
             \Env::get('init')->getComponentSpecificLanguageData(
                 'MediaDir',
                 true,
-                $langId
+                $params['lang']
             )
         );
 
@@ -110,7 +89,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         $coreLang = \Env::get('init')->getComponentSpecificLanguageData(
             'Core',
             true,
-            $langId
+            $params['lang']
         );
         $mediadir = new MediaDirectory('', 'MediaDir');
         $matches  = null;
@@ -162,7 +141,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
 
         // Show MediaDir nav tree
         if ($name === 'mediadirNavtree') {
-            $mediadir->getNavtree($this->catId, $this->levelId, $template);
+            $mediadir->getNavtree($params['cid'], $params['lid'], $template);
             return;
         }
 
@@ -178,13 +157,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         // fetch mediadir object data
         $objMediadirForm = new \Cx\Modules\MediaDir\Controller\MediaDirectoryForm(null, 'MediaDir');
         $objMediadirCategory = new MediaDirectoryCategory(null, null, 0, 'MediaDir');
-        $objMediadirLevel = new MediaDirectoryLevel(null, null, 1, 'MediaDir');
+        $objMediadirLevel    = new MediaDirectoryLevel(null, null, 1, 'MediaDir');
 
         // put all object data into one array
         $objects = array(
-            'form' => array_keys($objMediadirForm->getForms()),
+            'form'     => array_keys($objMediadirForm->getForms()),
             'category' => array_keys($objMediadirCategory->arrCategories),
-            'level' => array_keys($objMediadirLevel->arrLevels),
+            'level'    => array_keys($objMediadirLevel->arrLevels),
         );
 
         // check for form specific entry listing
@@ -250,28 +229,5 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         return $filter;
-    }
-
-    /**
-     * Returns the content of a widget
-     *
-     * @param array $params JsonAdapter parameters
-     *
-     * @return array Content in an associative array
-     */
-    public function getWidget($params)
-    {
-        if (isset($params['get'])) {
-            if (isset($params['get']['theme'])) {
-                $this->currentThemeId = $params['get']['theme'];
-            }
-            if (isset($params['get']['cid'])) {
-                $this->catId = $params['get']['cid'];
-            }
-            if (isset($params['get']['lid'])) {
-                $this->levelId = $params['get']['lid'];
-            }
-        }
-        return parent::getWidget($params);
     }
 }

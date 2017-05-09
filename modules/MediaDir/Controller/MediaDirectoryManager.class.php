@@ -908,6 +908,8 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
                     UPDATE `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_forms`
                         SET `active` = ' . $intState . '
                     WHERE `id` = ' . $intId;
+                $changedEntities = static::ENTITY_CHANGE_ENTRY | static::ENTITY_CHANGE_FORM;
+                $clearCache = true;
                 break;
             case 'mask':
                 $query = '
@@ -1152,6 +1154,11 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
                     SET active = '".$intState."'
                     WHERE id = ".$intId;
         $objDatabase->Execute($query);
+        //The cache will be cleared for the following widgets:
+        //'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+        //The reason is, MediaDir levels are listed.
+        //The remaining widgets which do not show levels are not cleared.
+        $this->clearEsiCache(static::ENTITY_CHANGE_LEVEL);
 
         die();
     }

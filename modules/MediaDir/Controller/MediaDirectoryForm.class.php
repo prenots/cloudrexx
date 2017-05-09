@@ -642,7 +642,15 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
 
 
 
-    function saveOrder($arrData) {
+    /**
+     * Save the MediaDir Form order
+     *
+     * @param array $arrData form data
+     *
+     * @return boolean
+     */
+    function saveOrder($arrData)
+    {
         global $objDatabase;
 
         foreach($arrData['formsOrder'] as $intFormId => $intFormOrder) {
@@ -653,6 +661,14 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
             }
         }
 
+        //The cache will be cleared for the following widgets:
+        //'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        //The reason is, in these widgets, MediaDir entries are listed based on the form.
+        //The remaining widgets which do not list MediaDir entries are not cleared.
+        $this->clearEsiCache(
+            static::ENTITY_CHANGE_ENTRY |
+            static::ENTITY_CHANGE_FORM
+        );
         return true;
     }
 }
