@@ -47,6 +47,11 @@ use Cx\Modules\MediaDir\Model\Event\MediaDirEventListener;
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
     /**
+     * @var \Cx\Core\ContentManager\Model\Entity\Page Canonical page
+     */
+    protected $canonicalPage = null;
+
+    /**
      * Returns all Controller class names for this component (except this)
      *
      * Be sure to return all your controller classes if you add your own
@@ -351,9 +356,26 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
+    /**
+     * Sets the canonical page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $canonicalPage Canonical page
+     */
     protected function setCanonicalPage($canonicalPage) {
+        $this->canonicalPage = $canonicalPage;
+    }
+    
+    /**
+     * Do something with a Response object
+     * You may do page alterations here (like changing the metatitle)
+     * You may do response alterations here (like set headers)
+     * PLEASE MAKE SURE THIS METHOD IS MOCKABLE. IT MAY ONLY INTERACT WITH
+     * resolve() HOOK.
+     *
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object to adjust
+     */
+    public function adjustResponse(\Cx\Core\Routing\Model\Entity\Response $response) {
         $canonicalUrlArguments = array('eid', 'cid', 'lid', 'preview', 'pos');
-        if (in_array('eid', array_keys($this->cx->getRequest()->getUrl()->getParamArray()))) {
+        if (in_array('eid', array_keys($response->getRequest()->getUrl()->getParamArray()))) {
             $canonicalUrlArguments = array_filter($canonicalUrlArguments, function($key) {return !in_array($key, array('cid', 'lid'));});
         }
 
@@ -364,14 +386,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             \ARRAY_FILTER_USE_KEY
         );*/
 
-        foreach ($this->cx->getRequest()->getUrl()->getParamArray() as $key => $value) {
+        foreach ($response->getRequest()->getUrl()->getParamArray() as $key => $value) {
             if (!in_array($key, $canonicalUrlArguments)) {
                 continue;
             }
             $params[$key] = $value;
         }
 
-        $canonicalUrl = \Cx\Core\Routing\Url::fromPage($canonicalPage, $params);
-        header('Link: <' . $canonicalUrl->toString() . '>; rel="canonical"');
+        $canonicalUrl = \Cx\Core\Routing\Url::fromPage($this->canonicalPage, $params);
+        $response->setHeader(
+            'Link',
+            '<' . $canonicalUrl->toString() . '>; rel="canonical"'
+        );
     }
 }
