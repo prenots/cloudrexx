@@ -251,7 +251,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         // database query to get the html content of a block by block id and
         // language id
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $em = $this->cx->getDb()->getEntityManager();
 
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $block = $blockRepo->findOneBy(array('id' => $id));
@@ -272,8 +272,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         $content = $relLangContent->getContent();
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $cx->parseGlobalPlaceholders($content);
+        $this->cx->parseGlobalPlaceholders($content);
         $template = new \Cx\Core\Html\Sigma();
         $template->setTemplate($content);
         $this->getComponent('Widget')->parseWidgets(
@@ -292,8 +291,8 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         \LinkGenerator::parseTemplate($content);
         $ls = new \LinkSanitizer(
-            $cx,
-            $cx->getCodeBaseOffsetPath() . \Env::get('virtualLanguageDirectory') . '/',
+            $this->cx,
+            $this->cx->getCodeBaseOffsetPath() . \Env::get('virtualLanguageDirectory') . '/',
             $content
         );
         return array('content' => $ls->replace());
@@ -330,7 +329,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $content = $params['post']['content'];
 
         // query to update content in database
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $em = $this->cx->getDb()->getEntityManager();
         $localeRepo = $em->getRepository('\Cx\Core\Locale\Model\Entity\Locale');
         $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
         $relLangContentRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelLangContent');
@@ -346,10 +345,9 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         \LinkGenerator::parseTemplate($content);
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $ls = new \LinkSanitizer(
-            $cx,
-            $cx->getCodeBaseOffsetPath() . \Env::get('virtualLanguageDirectory') . '/',
+            $this->cx,
+            $this->cx->getCodeBaseOffsetPath() . \Env::get('virtualLanguageDirectory') . '/',
             $content
         );
         $this->messages[] = $_CORELANG['TXT_CORE_SAVED_BLOCK'];
