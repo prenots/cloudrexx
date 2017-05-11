@@ -1098,12 +1098,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 // Let all links in this tab point here again
                 \Html::replaceUriParameter($uri, 'activeTab=history');
                 // count of logs
-                $logCount = $blockLogRepo->getLogCount($block);
+                $logCount = $blockLogRepo->getLogCount($block, 'update');
 
                 // sets paging variable in template
                 $this->_objTpl->setVariable(
                     array(
-                        'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $logCount, $limit),
+                        'BLOCK_HISTORY_PAGING' => \Paging::get($uri, '', $logCount, $limit, true),
                     )
                 );
 
