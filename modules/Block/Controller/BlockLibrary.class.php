@@ -378,20 +378,23 @@ class BlockLibrary
      */
     public function checkTargetingOptions($blockId)
     {
-        $targeting = $this->loadTargetingSettings($blockId);
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
+        $targetingOptions = $block->getTargetingOptions();
 
-        if (empty($targeting)) {
+        if (empty($targetingOptions)) {
             return true;
         }
 
-        foreach ($targeting as $targetingType => $targetingSetting) {
-            switch ($targetingType) {
+        foreach ($targetingOptions as $targetingOption) {
+            switch ($targetingOption->getType()) {
                 case 'country':
-                    if (!$this->checkTargetingCountry($targetingSetting['filter'], $targetingSetting['value'])) {
+                    if (!$this->checkTargetingCountry($targetingOption->getFilter(), $targetingOption->getValue())) {
                         return false;
                     }
                     break;
-                default :
+                default:
                     break;
             }
         }
@@ -429,35 +432,6 @@ class BlockLibrary
         } else {
             return !$isCountryExists;
         }
-    }
-
-    /**
-     * Load Targeting settings
-     *
-     * @param integer $blockId Content block id
-     *
-     * @return array Settings array
-     */
-    public function loadTargetingSettings($blockId)
-    {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
-        $targetingOptions = $block->getTargetingOptions();
-
-        if (!$targetingOptions) {
-            return array();
-        }
-
-        $targetingArr = array();
-        foreach ($targetingOptions as $targetingOption) {
-            $targetingArr[$targetingOption->getType()] = array(
-                'filter' => $targetingOption->getFilter(),
-                'value' => json_decode($targetingOption->getValue())
-            );
-        }
-
-        return $targetingArr;
     }
 
     /**
