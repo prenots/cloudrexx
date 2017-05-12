@@ -151,17 +151,10 @@ class CalendarManager extends CalendarLibrary
             \Permission::checkAccess(180, 'static');
 
             $objEvent = new \Cx\Modules\Calendar\Controller\CalendarEvent(intval($_GET['switch_status']));
-            if (isset($_GET['switch_status_lang'])) {
-                $switchStatus = $objEvent->switchLocaleStatus(
-                    intval($_GET['switch_status_lang'])
-                );
-            } else {
-                $switchStatus = $objEvent->switchStatus();
-            }
-            if($switchStatus) {
+            if($objEvent->switchStatus()) {
                 $this->okMessage = $_ARRAYLANG['TXT_CALENDAR_EVENT_SUCCESSFULLY_EDITED'];
             } else {
-                 $this->errMessage = $_ARRAYLANG['TXT_CALENDAR_EVENT_CORRUPT_EDITED'];
+                $this->errMessage = $_ARRAYLANG['TXT_CALENDAR_EVENT_CORRUPT_EDITED'];
             }
         }
 

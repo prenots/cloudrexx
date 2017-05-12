@@ -2884,7 +2884,7 @@ function cloneElement(id)
             $langCode . ' ' . $state
         );
         // add state switch to dropdown
-        if (!empty($stateLink)) {
+        if ($wrapper == 'li') {
             $stateSwitch = static::getSwitchStateLink($state, $stateLink, $languageId);
             $content->addChild($stateSwitch);
         }
@@ -2980,9 +2980,14 @@ function cloneElement(id)
      * @param string $link The link which is called to switch the state
      * @param string $stateLink Hyperlink to switch language state
      */
-    public static function getSwitchStateLink($state, $link, $langId) {
-        $link = $link . '&switch_status_lang=' . $langId;
+    public static function getSwitchStateLink($state, $link='', $langId) {
         $stateLink = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        if (empty($link)) {
+            $link = 'javascript:void(0)';
+            $stateLink->setAttribute('class', 'no-click');
+        } else {
+            $link = $link . '&switch_status_lang=' . $langId;
+        }
         $stateLink->setAttribute('href', $link);
 
         $led = $state == 'inactive' ? 'red' : 'green';
