@@ -782,8 +782,6 @@ class BlockLibrary
      * @access private
      * @param integer $id
      * @param string &$code
-     * @global ADONewConnection
-     * @global integer
      */
     function _setBlockGlobal(&$code, $page)
     {
@@ -802,7 +800,7 @@ class BlockLibrary
         $result1 = $qb1->select('
                 b.id AS id,
                 rlc.content AS content,
-                b.order AS order1
+                b.order
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
@@ -815,7 +813,7 @@ class BlockLibrary
             ->andWhere('rp.placeholder = \'global\'')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->orderBy('order1')
+            ->orderBy('b.order')
             ->setParameters(array(
                 'locale' => $locale,
                 'page' => $page,
@@ -828,7 +826,7 @@ class BlockLibrary
         $result2 = $qb2->select('
                 b.id AS id,
                 rlc.content AS content,
-                b.order AS order2
+                b.order
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
@@ -838,7 +836,7 @@ class BlockLibrary
             ->andWhere('b.active = 1')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->orderBy('order2')
+            ->orderBy('b.order')
             ->setParameters(array(
                 'locale' => $locale,
                 'now' => $now,
@@ -846,7 +844,8 @@ class BlockLibrary
             ->getQuery()
             ->getResult();
 
-        $blocks = array_merge($result1, $result2);
+        $blocks = array_unique(array_merge($result1, $result2));
+        usort($blocks, 'cmpByOrder');
 
         $this->replaceBlocks(
             $this->blockNamePrefix . 'GLOBAL',
@@ -855,6 +854,21 @@ class BlockLibrary
             $code,
             $separator
         );
+    }
+
+    /**
+     * Compares two arrays by order attribute
+     *
+     * @param array $a
+     * @param array $b
+     * @return int relative position
+     */
+    function cmpByOrder($a, $b)
+    {
+        if ($a['order'] == $b['order']) {
+            return 0;
+        }
+        return ($a['order'] < $b['order']) ? -1 : 1;
     }
 
     /**
