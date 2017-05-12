@@ -788,10 +788,10 @@ class BlockLibrary
     function _setBlockGlobal(&$code, $page)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
 
         // fetch separator
-        $separator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'))->getValue();
+        \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+        $separator = \Cx\Core\Setting\Controller\Setting::getValue('blockGlobalSeperator', 'Block');
 
         $now = time();
 
@@ -1000,9 +1000,9 @@ class BlockLibrary
             $content = implode($separator, $contentList);
         }
 
-        $settingRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\Setting');
-        $markParsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
-        if (!empty($markParsedBlock->getValue())) {
+        \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+        $markParsedBlock = \Cx\Core\Setting\Controller\Setting::getValue('markParsedBlock', 'Block');
+        if (!empty($markParsedBlock)) {
             $content = "<!-- start $placeholderName -->$content<!-- end $placeholderName -->";
         }
 

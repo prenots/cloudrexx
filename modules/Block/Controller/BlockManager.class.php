@@ -1503,10 +1503,45 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
         if (isset($_POST['saveSettings']) && !empty($_POST['blockSettings'])) {
-            $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
-            foreach ($_POST['blockSettings'] as $setName => $setValue) {
-                $setting = $settingRepo->findOneBy(array('name' => $setName));
-                $setting->setValue($setValue);
+            try {
+                // block setting group
+                \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+
+                if (!\Cx\Core\Setting\Controller\Setting::isDefined('blockGlobalSeperator')) {
+                    \Cx\Core\Setting\Controller\Setting::add(
+                        'blockGlobalSeperator',
+                        $_POST['blockSettings']['blockGlobalSeperator'],
+                        1,
+                        \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                        '',
+                        'setting'
+                    );
+                } else {
+                    \Cx\Core\Setting\Controller\Setting::set(
+                        'blockGlobalSeperator',
+                        $_POST['blockSettings']['blockGlobalSeperator']
+                    );
+                    \Cx\Core\Setting\Controller\Setting::update('blockGlobalSeperator');
+                }
+
+                if (!\Cx\Core\Setting\Controller\Setting::isDefined('markParsedBlock')) {
+                    \Cx\Core\Setting\Controller\Setting::add(
+                        'markParsedBlock',
+                        $_POST['blockSettings']['markParsedBlock'],
+                        2,
+                        \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX,
+                        '0',
+                        'setting'
+                    );
+                } else {
+                    \Cx\Core\Setting\Controller\Setting::set(
+                        'markParsedBlock',
+                        $_POST['blockSettings']['markParsedBlock']
+                    );
+                    \Cx\Core\Setting\Controller\Setting::update('markParsedBlock');
+                }
+            } catch (\Exception $e) {
+                \DBG::msg($e->getMessage());
             }
 
             $em->flush();
@@ -1532,9 +1567,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             'TXT_BLOCK_SAVE' => $_ARRAYLANG['TXT_BLOCK_SAVE'],
         ));
 
-        $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
-        $seperator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'));
-        $parsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
+        \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+        $seperator = \Cx\Core\Setting\Controller\Setting::getValue('blockGlobalSeperator', 'Block');
+        $parsedBlock = \Cx\Core\Setting\Controller\Setting::getValue('markParsedBlock', 'Block');
         $this->_objTpl->setVariable(array(
             'BLOCK_GLOBAL_SEPERATOR' => isset($seperator) ? contrexx_raw2xhtml($seperator) : '',
             'BLOCK_MARK_PARSED_BLOCK' => !empty($parsedBlock) ? 'checked="checked"' : '',

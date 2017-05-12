@@ -633,12 +633,6 @@ CREATE TABLE `contrexx_module_block_rel_pages` (
   CONSTRAINT `module_block_rel_page_ibfk_block_id` FOREIGN KEY (`block_id`) REFERENCES `contrexx_module_block_blocks` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `module_block_rel_page_ibfk_page_id` FOREIGN KEY (`page_id`) REFERENCES `contrexx_content_page` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
-CREATE TABLE `contrexx_module_block_settings` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL DEFAULT '',
-  `value` varchar(100) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_block_targeting_option` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `block_id` int(11) unsigned DEFAULT NULL,
