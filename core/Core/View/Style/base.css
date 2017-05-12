@@ -1631,6 +1631,30 @@ a.cke_dialog_ui_button_ok:hover {
 .language-icons .language-icon.inexistent {
     background-color: #AAAAAA;
 }
+.language-icons.dropdown .language-icon:hover a,
+.language-icons.dropdown .language-icon:focus a,
+.language-icons.dropdown .language-icon:active a {
+    cursor: pointer;
+    color: #757575;
+}
+.language-icons.dropdown .language-icon {
+    background-color: #fff;
+    text-transform: none;
+    text-align: left;
+}
+.language-icons.dropdown .language-icon a {
+    color: #444;
+    font-size: 12px;
+    display: inline-block;
+    float: none;
+    padding-right: 5px;
+    vertical-align: top;
+}
+.language-icons.dropdown .language-icon a:last-child {
+    height: 17px;
+    line-height: 17px;
+    padding-right: 0;
+}
 .language-icons.dropdown {
     background: url(../../../ContentManager/View/Media/ActionPlus.png) no-repeat left center;
     padding: 0 0 0 16px;
@@ -1638,6 +1662,7 @@ a.cke_dialog_ui_button_ok:hover {
     line-height: 22px;
     font-size: 11px;
     position: relative;
+    white-space: nowrap;
 }
 
 .language-icons.dropdown:hover,
@@ -1667,7 +1692,7 @@ a.cke_dialog_ui_button_ok:hover {
 
 .language-icons-expanded,
 .language-icons-expanded ul {
-    width: 100%;
+    min-width: 100%;
 }
 
 .language-icons-expanded ul {
@@ -1675,7 +1700,7 @@ a.cke_dialog_ui_button_ok:hover {
     background: #ffffff;
     border:  1px solid #d3d3d3;
     margin: 0;
-    padding: 0;
+    padding: 12px 15px;
     -moz-box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);
     -o-box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);
     -webkit-box-shadow: 2px 4px 5px rgba(153,153,153,0.5),-2px 4px 5px rgba(153,153,153,0.5);

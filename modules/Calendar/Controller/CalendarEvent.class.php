@@ -1847,6 +1847,39 @@ class CalendarEvent extends CalendarLibrary
     }
 
     /**
+     * Activate/deactivate an event's specific locale
+     *
+     * @param int $localeId The locale's id
+     * @return bool true on success, false otherwise
+     */
+    public function switchLocaleStatus($localeId) {
+        global $objDatabase;
+
+        $locales = explode(',', $this->showIn);
+        if (in_array($localeId, $locales)) {
+            $locales = array_diff(
+                $locales,
+                array($localeId)
+            );
+        } else {
+            $locales[] = $localeId;
+        }
+        $this->showIn = implode(',', $locales);
+
+        $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_event AS event
+                     SET event.show_in = '".$this->showIn."'
+                   WHERE event.id = '".intval($this->id)."'";
+
+        $objResult = $objDatabase->Execute($query);
+
+        if ($objResult !== false) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * confirm event
      *
      * @return boolean true if event confirmed, false otherwise

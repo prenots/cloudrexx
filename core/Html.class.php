@@ -2811,9 +2811,10 @@ function cloneElement(id)
      *
      * @param   array   $languageStates Language states to get icons for
      * @param   string  $link           Hyperlink for language icons
+     * @param   string  $stateLink      Hyperlink to switch language state
      * @return  string                  The HTML code for the elements
      */
-    public static function getLanguageIcons(&$languageStates, $link) {
+    public static function getLanguageIcons(&$languageStates, $link, $stateLink = '') {
         $em = \Env::get('cx')->getDb()->getEntityManager();
         // resolve second to first form
         foreach ($languageStates as $langId=>$state) {
@@ -2836,7 +2837,7 @@ function cloneElement(id)
         $locales = $localeRepo->findAll();
         if (count($locales) > 4) {
             // show dropdown
-            return static::getLocaleDropdown($locales, $languageStates, $link);
+            return static::getLocaleDropdown($locales, $languageStates, $link, $stateLink);
         }
         // parse icons
         $content = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
@@ -2865,20 +2866,28 @@ function cloneElement(id)
      * @param   int     $localeId     Language ID
      * @param   string  $state          One of active,inactive,inexistent
      * @param   string  $languageLabel  (optional) Label for the icon, default is uppercase language code
+     * @param   string  $stateLink      Hyperlink to switch language state
      * @return  string                  The HTML code for the elements
      */
     public static function getLanguageIcon(
-        $languageId, $state, $link, $languageLabel = '', $rendered = true, $wrapper = 'div'
+        $languageId, $state, $link, $languageLabel = '', $rendered = true,
+        $wrapper = 'div', $stateLink = ''
     ) {
+        $langCode = \FWLanguage::getLanguageCodeById($languageId);
         if (empty($languageLabel)) {
-            $languageLabel = strtoupper(\FWLanguage::getLanguageCodeById($languageId));
+            $languageLabel = strtoupper($langCode);
         }
         $content = new \Cx\Core\Html\Model\Entity\HtmlElement($wrapper);
         $content->setAttribute(
             'class',
             'language-icon ' .
-            \FWLanguage::getLanguageCodeById($languageId) . ' ' . $state
+            $langCode . ' ' . $state
         );
+        // add state switch to dropdown
+        if (!empty($stateLink)) {
+            $stateSwitch = static::getSwitchStateLink($state, $stateLink, $languageId);
+            $content->addChild($stateSwitch);
+        }
         // link
         $linkEl = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
         $linkEl->setAttribute('href', $link);
@@ -2899,8 +2908,12 @@ function cloneElement(id)
      * @param   array   $locales          The locales
      * @param   array   $languageStates   The language states
      * @param   string  $link             The link
+     * @param   string  $stateLink        Hyperlink to switch language state
+     * @return  string  The rendered locale dropdown
      */
-    public static function getLocaleDropdown($locales, $languageStates, $link) {
+    public static function getLocaleDropdown(
+        $locales, $languageStates, $link, $stateLink = ''
+    ) {
         global $_ARRAYLANG;
 
         // register js
@@ -2932,6 +2945,7 @@ function cloneElement(id)
             } else {
                 $state = 'inactive';
             }
+
             // parse link
             $parsedLink = sprintf($link, $locale->getId(), $locale->getShortForm());
             // build li
@@ -2939,9 +2953,10 @@ function cloneElement(id)
                 $locale->getId(),
                 $state,
                 $parsedLink,
-                $locale->getShortForm(),
+                $locale->getLabel(),
                 false,
-                'li'
+                'li',
+                $stateLink
             );
             // ad li to dropdown
             $dropdown->addChild($languageIcon);
@@ -2957,5 +2972,30 @@ function cloneElement(id)
         $arrow->setAttribute('class', 'arrow');
         $languageIcons->addChild($arrow);
         return $languageIcons->render();
+    }
+
+    /**
+     * Builds the switch state link
+     * @param string $state The state (defines the icon)
+     * @param string $link The link which is called to switch the state
+     * @param string $stateLink Hyperlink to switch language state
+     */
+    public static function getSwitchStateLink($state, $link, $langId) {
+        $link = $link . '&switch_status_lang=' . $langId;
+        $stateLink = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $stateLink->setAttribute('href', $link);
+
+        $led = $state == 'inactive' ? 'red' : 'green';
+        $stateIcon = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+        $stateIcon->setAttributes(
+            array(
+                'src'   => '../core/Core/View/Media/icons/led_' . $led . '.gif',
+                'alt'   => $state,
+                'title' => $state
+            )
+        );
+
+        $stateLink->addChild($stateIcon);
+        return $stateLink;
     }
 }
