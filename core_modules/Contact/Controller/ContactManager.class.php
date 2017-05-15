@@ -655,7 +655,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                         );
                         $editLink->addChild($editIcon);
 
-                        $functionEls[$langId] = array($previewLink, $editLink);
+                        $functionEls[$langId] = array($editLink, $previewLink);
                         $links = \FWLanguage::getLanguageCodeById($langId) .
                             $editLink->render() .
                             $previewLink->render();
