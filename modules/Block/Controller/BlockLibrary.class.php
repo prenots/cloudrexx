@@ -233,33 +233,38 @@ class BlockLibrary
 
         $relPagesWithoutBlock = array();
         foreach ($blockAssociatedPageIds as $pageId) {
-            if ($pageId > 0) {
-                $page = $pageRepo->findOneBy(array('id' => $pageId));
-
-                if ($block) {
-                    $relPage = $relPageRepo->findOneBy(
-                        array(
-                            'block' => $block,
-                            'page' => $page,
-                            'placeholder' => $placeholder,
-                        )
-                    );
-                    if ($relPage) {
-                        continue;
-                    }
-                }
-
-                $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
-                $relPage->setPage($page);
-                $relPage->setPlaceholder($placeholder);
-                if ($block) {
-                    $relPage->setBlock($block);
-                } else {
-                    array_push($relPagesWithoutBlock, $relPage);
-                }
-
-                $em->persist($relPage);
+            if (!$pageId > 0) {
+                continue;
             }
+
+            $page = $pageRepo->findOneBy(array('id' => $pageId));
+            if (!$page) {
+                continue;
+            }
+
+            if ($block) {
+                $relPage = $relPageRepo->findOneBy(
+                    array(
+                        'block' => $block,
+                        'page' => $page,
+                        'placeholder' => $placeholder,
+                    )
+                );
+                if ($relPage) {
+                    continue;
+                }
+            }
+
+            $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
+            $relPage->setPage($page);
+            $relPage->setPlaceholder($placeholder);
+            if ($block) {
+                $relPage->setBlock($block);
+            } else {
+                array_push($relPagesWithoutBlock, $relPage);
+            }
+
+            $em->persist($relPage);
         }
 
         if ($block) {
