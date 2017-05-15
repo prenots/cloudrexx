@@ -2813,7 +2813,7 @@ function cloneElement(id)
      * @param   string  $link           Hyperlink for language icons
      * @param   HtmlElement[]   $functionEls    An array containing html
      *                                          elements which will be
-     *                                          appended to the language icons
+     *                                          prepended to the language icons
      *                                          (lang id as key, el as value)
      * @param   string  $stateLink      Hyperlink to switch language state
      * @return  string                  The HTML code for the elements
@@ -2874,12 +2874,16 @@ function cloneElement(id)
      * @param   int     $localeId     Language ID
      * @param   string  $state          One of active,inactive,inexistent
      * @param   string  $languageLabel  (optional) Label for the icon, default is uppercase language code
+     * @param   HtmlElement[]   $functionEls    An array containing html
+     *                                          elements which will be
+     *                                          prepended to the language icons
+     *                                          (lang id as key, el as value)
      * @param   string  $stateLink      Hyperlink to switch language state
      * @return  string                  The HTML code for the elements
      */
     public static function getLanguageIcon(
         $languageId, $state, $link, $languageLabel = '', $rendered = true,
-        $wrapper = 'div', $stateLink = ''
+        $wrapper = 'div', $functionEls = array(), $stateLink = ''
     ) {
         $langCode = \FWLanguage::getLanguageCodeById($languageId);
         if (empty($languageLabel)) {
@@ -2888,13 +2892,18 @@ function cloneElement(id)
         $content = new \Cx\Core\Html\Model\Entity\HtmlElement($wrapper);
         $content->setAttribute(
             'class',
-            'language-icon ' .
-            $langCode . ' ' . $state
+            'language-icon ' . $langCode . ' ' . $state
         );
         // add state switch to dropdown
         if ($wrapper == 'li') {
             $stateSwitch = static::getSwitchStateLink($state, $stateLink, $languageId);
             $content->addChild($stateSwitch);
+        }
+        // add function elements
+        if (isset($functionEls[$languageId])) {
+            foreach ($functionEls[$languageId] as $functionEl) {
+                $content->addChild($functionEl);
+            }
         }
         // link
         $linkEl = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
@@ -2967,13 +2976,9 @@ function cloneElement(id)
                 $locale->getLabel(),
                 false,
                 'li',
+                $functionEls,
                 $stateLink
             );
-            if (isset($functionEls[$locale->getId()])) {
-                foreach ($functionEls[$locale->getId()] as $functionEl) {
-                    $languageIcon->addChild($functionEl);
-                }
-            }
             // ad li to dropdown
             $dropdown->addChild($languageIcon);
         }
