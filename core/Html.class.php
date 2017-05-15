@@ -2841,7 +2841,9 @@ function cloneElement(id)
 
         $localeRepo = $em->getRepository('Cx\Core\Locale\Model\Entity\Locale');
         $locales = $localeRepo->findAll();
-        if (count($locales) > 4) {
+        if (
+            count($locales) > \Cx\Core\Locale\Model\Entity\Locale::VIEW_COMPATIBLE_LOCALE_AMOUNT
+        ) {
             // show dropdown
             return static::getLocaleDropdown(
                 $locales, $languageStates, $link, $functionEls, $stateLink
