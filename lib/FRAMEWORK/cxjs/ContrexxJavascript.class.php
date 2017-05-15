@@ -94,6 +94,7 @@ class ContrexxJavascript {
                 'cadminPath' => \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteBackendPath() . '/',
                 'mode' => $objInit->mode,
                 'language' => $langCode,
+                'viewCompatibleLocaleAmount' => \Cx\Core\Locale\Model\Entity\Locale::VIEW_COMPATIBLE_LOCALE_AMOUNT,
                 'csrf' => \Cx\Core\Csrf\Controller\Csrf::code(),
                 'charReplaceList' => \Cx\Core\LanguageManager\Controller\ComponentController::$REPLACEMENT_CHARLIST,
                 'themeId'   => \Env::get('init')->getCurrentThemeId(),

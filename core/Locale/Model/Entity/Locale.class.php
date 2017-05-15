@@ -48,6 +48,14 @@ namespace Cx\Core\Locale\Model\Entity;
  */
 class Locale extends \Cx\Model\Base\EntityBase {
     /**
+     * Amount of locales which can be displayed (as tags/tabs) in backend
+     * without breaking the view (overflowing column/breaking line)
+     *
+     * @var integer
+     */
+    const VIEW_COMPATIBLE_LOCALE_AMOUNT = 5;
+
+    /**
      * @var integer $id
      */
     protected $id;

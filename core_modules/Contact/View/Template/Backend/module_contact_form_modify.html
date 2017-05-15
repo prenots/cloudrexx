@@ -12,6 +12,12 @@
 
     cx.jQuery(document).ready(function() {
         var userLocaleSelect = cx.jQuery("select[name='userFrontendLangId']");
+        // hide tabs for installations with more than 5 locales
+        if (
+          userLocaleSelect.find("option").size() > cx.variables.get("viewCompatibleLocaleAmount")
+        ) {
+            cx.jQuery("#contentLanguages").hide();
+        }
         // remove onchange event
         userLocaleSelect.removeAttr("onchange");
         // handle change event
