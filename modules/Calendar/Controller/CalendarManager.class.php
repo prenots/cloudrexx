@@ -154,7 +154,7 @@ class CalendarManager extends CalendarLibrary
             if($objEvent->switchStatus()) {
                 $this->okMessage = $_ARRAYLANG['TXT_CALENDAR_EVENT_SUCCESSFULLY_EDITED'];
             } else {
-                 $this->errMessage = $_ARRAYLANG['TXT_CALENDAR_EVENT_CORRUPT_EDITED'];
+                $this->errMessage = $_ARRAYLANG['TXT_CALENDAR_EVENT_CORRUPT_EDITED'];
             }
         }
 

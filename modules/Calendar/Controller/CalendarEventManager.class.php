@@ -1145,7 +1145,8 @@ class CalendarEventManager extends CalendarLibrary
                             $langState[$langKey] = 'active';
                         }
                     }
-                    $languages = \Html::getLanguageIcons($langState, 'index.php?cmd=Calendar&act=modify_event&id=' . $objEvent->id . '&langId=%1$d'.($type == 'confirm' ? "&confirm=1" : ""));
+                    $link = 'index.php?cmd=Calendar&act=modify_event&id=' . $objEvent->id . '&langId=%1$d'.($type == 'confirm' ? "&confirm=1" : "");
+                    $languages = \Html::getLanguageIcons($langState, $link);
 
                     if($type == 'confirm' && $objTpl->blockExists('txt_languages_block_confirm_list')) {
                         $objTpl->touchBlock('txt_languages_block_confirm_list');
