@@ -53,7 +53,7 @@ class Locale extends \Cx\Model\Base\EntityBase {
      *
      * @var integer
      */
-    const VIEW_COMPATIBLE_LOCALE_AMOUNT = 5;
+    const VIEW_COMPATIBLE_LOCALE_AMOUNT = 4;
 
     /**
      * @var integer $id
