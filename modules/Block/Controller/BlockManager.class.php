@@ -276,7 +276,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      * @global array
      * @see blockLibrary::getBlocks(), blockLibrary::blockNamePrefix
      */
@@ -1290,7 +1289,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _delBlock()
     {
@@ -1365,7 +1363,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _activateBlock()
     {
@@ -1399,7 +1396,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _deactivateBlock()
     {
@@ -1433,7 +1429,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _globalBlock()
     {
@@ -1457,7 +1452,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      * change the status from a block
      *
      * @access private
-     * @global ADONewConnection
      */
     function _globalBlockOff()
     {
@@ -1483,7 +1477,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      * @access private
      * @global array
      * @global array
-     * @global ADONewConnection
      */
     function _showSettings()
     {

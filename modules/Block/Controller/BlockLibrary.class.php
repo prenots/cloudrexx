@@ -137,7 +137,6 @@ class BlockLibrary
      * Get all blocks
      *
      * @access private
-     * @global ADONewConnection
      * @see array blockLibrary::_arrBlocks
      * @return array Array with block ids
      */
@@ -441,7 +440,6 @@ class BlockLibrary
      *
      * @access private
      * @param integer $id
-     * @global ADONewConnection
      * @return mixed content on success, false on failure
      */
     function _getBlock($id)
@@ -632,7 +630,6 @@ class BlockLibrary
      * @param object $block
      * @param string &$code
      * @param object $page
-     * @global ADONewConnection
      * @global integer
      */
     function _setBlock($block, &$code, $page)
@@ -694,7 +691,6 @@ class BlockLibrary
      * @param integer $id Category ID
      * @param string &$code
      * @param int $pageId
-     * @global ADONewConnection
      * @global integer
      */
     function _setCategoryBlock($category, &$code, $page)
@@ -853,7 +849,6 @@ class BlockLibrary
      * @access private
      * @param integer $id
      * @param string &$code
-     * @global ADONewConnection
      * @global integer
      */
     function _setBlockRandom(&$code, $id, $page)
@@ -1212,7 +1207,6 @@ class BlockLibrary
      * @param bool force refresh from DB
      * @see blockManager::_parseCategories for parse example
      * @see blockLibrary::_getCategoriesDropdown for parse example
-     * @global ADONewConnection
      * @global array
      * @return array all available categories
      */
