@@ -1614,6 +1614,21 @@ a.cke_dialog_ui_button_ok:hover {
     color: white;
 }
 
+a.view {
+    position: relative;
+    top: 4px;
+    margin: 0 0 0 3px;
+}
+
+span.lang {
+    margin: 0 12px 0 0;
+}
+
+.language-icons-expanded a.view {
+    position: static;
+    margin: 0;
+}
+
 .language-icons .language-icon a:hover,
 .language-icons .language-icon a:active,
 .language-icons .language-icon a:focus {
