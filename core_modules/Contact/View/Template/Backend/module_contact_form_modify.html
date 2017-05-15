@@ -10,6 +10,20 @@
     {EDIT_JS_TAB_TO_DIV}
     {FALL_BACK_LANGUAGES}
 
+    cx.jQuery(document).ready(function() {
+        var userLocaleSelect = cx.jQuery("select[name='userFrontendLangId']");
+        // remove onchange event
+        userLocaleSelect.removeAttr("onchange");
+        // handle change event
+        userLocaleSelect.change(function(e) {
+            var localeId = cx.jQuery(this).val();
+            var tab = document.getElementById("addFrom_" + localeId);
+            langTab(tab, localeId);
+        });
+        // synch with multiple select
+        synchLocaleSelects(cx.jQuery("#activeLocales").val());
+    });
+
     function switchBoxAndTab(objElement) {
         if (countActiveLanguages() == 0) {
             //We just "unchecked" the last language, disallow this
@@ -539,6 +553,7 @@
         $J('.tabmenu li a').removeClass('active').addClass('inactive');
         $J(ele).removeClass('inactive').addClass('active');
         swapHeaderLangName();
+        $J("select[name='userFrontendLangId'").val(id).trigger("chosen:updated");
     }
 
     function updateCKeditorContent(CurrentLangId){
@@ -729,6 +744,8 @@
             // switch box and tab
             switchBoxAndTab(changedOption);
             preSelected = nowSelected;
+
+            synchLocaleSelects(cx.jQuery(this).val());
         });
 
     });
@@ -737,6 +754,23 @@
         return A.filter(function (a) {
             return B.indexOf(a) == -1;
         });
+    }
+
+    /**
+     * Synchs single locale select with multiple
+     * (disables not selected options)
+     *
+     * @param selectedLocales
+     */
+    function synchLocaleSelects(selectedLocales) {
+        // first disable all
+        cx.jQuery("select[name='userFrontendLangId'] option").prop("disabled", true);
+
+        var i;
+        for (i=0; i < selectedLocales.length; i++) {
+            cx.jQuery("select[name='userFrontendLangId'] option[value='" + selectedLocales[i] + "']").prop("disabled", false);
+        }
+        cx.jQuery("select[name='userFrontendLangId']").trigger("chosen:updated");
     }
 
     function showOrHideCrmCustomerGroups()

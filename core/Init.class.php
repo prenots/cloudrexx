@@ -1080,6 +1080,9 @@ class InitCMS
             return '';
         }
 
+        $allowedEditActions = array(
+            'Contact' => 'forms',
+        );
         $action = CONTREXX_DIRECTORY_INDEX;
         $command = isset($_REQUEST['cmd']) ? contrexx_input2raw($_REQUEST['cmd']) : '';
         switch ($command) {
@@ -1110,6 +1113,13 @@ class InitCMS
             break;
             // TODO: Add your case here if variant 1 is enabled, too
             //case 'foobar':
+            case 'Contact':
+                if (
+                    !isset($allowedEditActions[$command]) ||
+                    $allowedEditActions[$command] != $_GET['act']
+                ) {
+                    return '';
+                }
             case 'DocSys':
             case 'Recommend':
             case 'Jobs':
