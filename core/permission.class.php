@@ -130,6 +130,12 @@ class Permission
      */
     public static function createNewDynamicAccessId()
     {
+        // remember currently loaded Setting section/group
+        $settingSection = \Cx\Core\Setting\Controller\Setting::getCurrentSection();
+        $settingEngine = \Cx\Core\Setting\Controller\Setting::getCurrentEngine();
+        $settingGroup = \Cx\Core\Setting\Controller\Setting::getCurrentGroup();
+
+        // actual algorithm to create the new dynamic access id
         \Cx\Core\Setting\Controller\Setting::init('Config', 'core','Yaml');
         if (!\Cx\Core\Setting\Controller\Setting::isDefined('lastAccessId')) {
             $newAccessId = 1;
@@ -138,6 +144,9 @@ class Permission
             $newAccessId = \Cx\Core\Setting\Controller\Setting::getValue('lastAccessId', 'Config') + 1;
             \Cx\Core\Setting\Controller\Setting::set('lastAccessId', $newAccessId);
             if (!\Cx\Core\Setting\Controller\Setting::update('lastAccessId')) {
+                // restore previously loaded Setting data
+                \Cx\Core\Setting\Controller\Setting::setEngineType($settingSection, $settingEngine, $settingGroup);
+
                 return false;
             }
         }
@@ -145,8 +154,14 @@ class Permission
         // verify that the update was successful
         \Cx\Core\Setting\Controller\Setting::init('Config', 'core','Yaml');
         if (\Cx\Core\Setting\Controller\Setting::getValue('lastAccessId','Config') != $newAccessId) {
+            // restore previously loaded Setting data
+            \Cx\Core\Setting\Controller\Setting::setEngineType($settingSection, $settingEngine, $settingGroup);
+
             return false;
         }
+
+        // restore previously loaded Setting data
+        \Cx\Core\Setting\Controller\Setting::setEngineType($settingSection, $settingEngine, $settingGroup);
 
         return $newAccessId;
     }
