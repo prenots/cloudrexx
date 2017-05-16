@@ -122,11 +122,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     {
         //Get Directory Homecontent
         $params = array();
-        if (isset($_GET['lid'])) {
-            $params['lid'] = contrexx_input2raw($_GET['lid']);
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
+        if (isset($requestParams['lid'])) {
+            $params['lid'] = $requestParams['lid'];
         }
-        if (isset($_GET['cid'])) {
-            $params['cid'] = contrexx_input2raw($_GET['cid']);
+        if (isset($requestParams['cid'])) {
+            $params['cid'] = $requestParams['cid'];
         }
         $widgetController = $this->getComponent('Widget');
         $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
