@@ -682,7 +682,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     */
     private function _showModifyBlock($copy = false)
     {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $_CORELANG;
 
         \JS::activate('cx');
         \JS::activate('ckeditor');
@@ -790,7 +790,13 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockRandom3           = !empty($_POST['blockRandom3']) ? intval($_POST['blockRandom3']) : 0;
             $blockRandom4           = !empty($_POST['blockRandom4']) ? intval($_POST['blockRandom4']) : 0;
             $blockWysiwygEditor     = isset($_POST['wysiwyg_editor']) ? 1 : 0;
-            $blockLangActive        = isset($_POST['blockFormLanguages']) ? array_map('intval', $_POST['blockFormLanguages']) : array();
+            // active locales
+            $blockLangActive        = array();
+            if (isset($_POST['blockFormLanguages'])) {
+                foreach ($_POST['blockFormLanguages'] as $localeId) {
+                    $blockLangActive[$localeId] = 1;
+                }
+            }
 
             // placeholder configurations
             // global block
@@ -936,6 +942,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         $objJs->setVariable('ckeditorconfigpath', substr(\Env::get('ClassLoader')->getFilePath(ASCMS_CORE_PATH.'/Wysiwyg/ckeditor.config.js.php'), strlen(ASCMS_DOCUMENT_ROOT)+1), 'block');
 
+        $objJs->setVariable(
+            'TXT_CORE_LOCALE_DOESNT_EXIST',
+            $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST'],
+            'block'
+        );
+
         $arrActiveSystemFrontendLanguages = \FWLanguage::getActiveFrontendLanguages();
         $this->parseLanguageOptionsByPlaceholder($arrActiveSystemFrontendLanguages, 'global');
         $this->parseLanguageOptionsByPlaceholder($arrActiveSystemFrontendLanguages, 'direct');
@@ -949,16 +961,21 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             foreach($arrActiveSystemFrontendLanguages as $langId => $arrLanguage) {
                 $boolLanguageIsActive = $blockId == 0 && $intLanguageCounter == 0 ? true : ((isset($blockLangActive[$langId]) && $blockLangActive[$langId] == 1) ? true : false);
 
-                $arrLanguages[$intLanguageCounter%3] .= '<input id="languagebar_'.$langId.'" '.(($boolLanguageIsActive) ? 'checked="checked"' : '').' type="checkbox" name="blockFormLanguages['.$langId.']" value="1" onclick="switchBoxAndTab(this, \'lang_blockContent_'.$langId.'\');" /><label for="languagebar_'.$langId.'">'.contrexx_raw2xhtml($arrLanguage['name']).' ['.$arrLanguage['lang'].']</label><br />';
+                // parse options
+                $langSelected = $boolLanguageIsActive ? 'selected' : '';
+                $this->_objTpl->setVariable(array(
+                    'BLOCK_LANG_ID' => $langId,
+                    'BLOCK_LANG_SELECTED' => $langSelected,
+                    'TXT_BLOCK_LANG_NAME' => $arrLanguage['name'],
+                ));
+                $this->_objTpl->parse('block_language_option');
+
                 $strJsTabToDiv .= 'arrTabToDiv["lang_blockContent_'.$langId.'"] = "langTab_'.$langId.'";'."\n";
                 ++$intLanguageCounter;
             }
 
             $this->_objTpl->setVariable(array(
                 'TXT_BLOCK_LANGUAGE'      => $_ARRAYLANG['TXT_BLOCK_LANGUAGE'],
-                'EDIT_LANGUAGES_1'        => $arrLanguages[0],
-                'EDIT_LANGUAGES_2'        => $arrLanguages[1],
-                'EDIT_LANGUAGES_3'        => $arrLanguages[2],
                 'EDIT_JS_TAB_TO_DIV'      => $strJsTabToDiv
             ));
         }
