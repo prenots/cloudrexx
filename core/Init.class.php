@@ -1082,6 +1082,7 @@ class InitCMS
 
         $allowedEditActions = array(
             'Contact' => 'forms',
+            'Block'   => 'modify'
         );
         $action = CONTREXX_DIRECTORY_INDEX;
         $command = isset($_REQUEST['cmd']) ? contrexx_input2raw($_REQUEST['cmd']) : '';
@@ -1111,8 +1112,7 @@ class InitCMS
                 $action = '';
                 // The dropdown is built below
             break;
-            // TODO: Add your case here if variant 1 is enabled, too
-            //case 'foobar':
+            case 'Block':
             case 'Contact':
                 if (
                     !isset($allowedEditActions[$command]) ||
@@ -1120,6 +1120,9 @@ class InitCMS
                 ) {
                     return '';
                 }
+                break;
+            // TODO: Add your case here if variant 1 is enabled, too
+            //case 'foobar':
             case 'DocSys':
             case 'Recommend':
             case 'Jobs':
