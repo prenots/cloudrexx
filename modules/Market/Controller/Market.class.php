@@ -1803,10 +1803,9 @@ class Market extends MarketLibrary
      *
      * @param \Cx\Core\Html\Sigma $template template object
      */
-    function getBlockLatest(\Cx\Core\Html\Sigma $template)
+    public function getBlockLatest(\Cx\Core\Html\Sigma $template)
     {
-        global $objDatabase;
-
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
         //get latest
         $query = "SELECT `id`,
                          `title`,
@@ -1816,13 +1815,17 @@ class Market extends MarketLibrary
                     WHERE `status` = '1' ORDER BY id DESC LIMIT 5";
 
         $objResult = $objDatabase->Execute($query);
-        if (!$objResult || $objResult->RecordCount() == 0 ) {
+        if (!$objResult || $objResult->RecordCount() == 0) {
             return;
         }
+
         while (!$objResult->EOF) {
             $template->setVariable(array(
                 'MARKET_DATE'    =>
-                    date('d.m.Y', contrexx_raw2xhtml($objResult->fields['enddate'])),
+                    date(
+                        'd.m.Y',
+                        contrexx_raw2xhtml($objResult->fields['enddate'])
+                    ),
                 'MARKET_TITLE'   => contrexx_raw2xhtml($objResult->fields['title']),
                 'MARKET_ID'      => contrexx_raw2xhtml($objResult->fields['id']),
                 'MARKET_CATID'   => contrexx_raw2xhtml($objResult->fields['catid'])

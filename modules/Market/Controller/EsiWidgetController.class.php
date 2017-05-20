@@ -29,7 +29,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_market
  * @version     1.0.0
@@ -44,31 +44,34 @@ namespace Cx\Modules\Market\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_market
  * @version     1.0.0
  */
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
-    
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template WidgetTemplate
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_LANGID, $_CORELANG;
-
         if ($name !== 'marketLatest') {
             return;
         }
 
-        $market     = new Market();
-        $template->setVariable('TXT_MARKET_LATEST', $_CORELANG['TXT_MARKET_LATEST']);
+        $corelang = \Env::get('init')->getComponentSpecificLanguageData(
+            'Core',
+            true,
+            $params['lang']
+        );
+        $market   = new Market();
+        $template->setVariable('TXT_MARKET_LATEST', $corelang['TXT_MARKET_LATEST']);
         $market->getBlockLatest($template);
     }
 }
