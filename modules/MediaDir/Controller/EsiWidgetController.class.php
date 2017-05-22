@@ -63,16 +63,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         global $_ARRAYLANG;
 
-        //The global $_ARRAYLANG is required by the method MediaDirectoryEntry::getEntries()
-        $_ARRAYLANG = array_merge(
-            $_ARRAYLANG,
-            \Env::get('init')->getComponentSpecificLanguageData(
-                'MediaDir',
-                true,
-                $params['lang']
-            )
-        );
-
         // Show Level/Category Navbar or Show Latest Entries
         if ($name === 'MEDIADIR_NAVBAR' || $name === 'MEDIADIR_LATEST') {
             $mediaDirPlaceholders = new MediaDirectoryPlaceholders('MediaDir');
