@@ -118,7 +118,7 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
         // resolve widget template
         $widgetContent = '';
         $widget = $this->getComponent('Widget')->getWidget($params['get']['name']);
-        if (!$widget->hasContent()) {
+        if ($widget->getType() != \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_BLOCK) {
             $widgetContent = '{' . $params['get']['name'] . '}';
         } else {
             $widgetTemplate = $this->getComponent('Widget')->getWidgetContent(
