@@ -42,4 +42,4 @@ $_ARRAYLANG['TXT_CANCEL'] = "Cancellare";
 $_ARRAYLANG['TXT_AGB_MODULE_DESCRIPTION'] = "Termini e condizioni";
 $_ARRAYLANG['TXT_ACCESS_MALE'] = "Uomo";
 $_ARRAYLANG['TXT_CORE_CAPTCHA'] = "Codice di sicurezza";
-$_ARRAYLANG['TXT_CORE_CAPTCHA_ENTER_THE_LETTERS_BELOW'] = "Digitare i numeri e le lettere dell immagine sottostante.";
+$_ARRAYLANG['TXT_CORE_CAPTCHA_ENTER_THE_LETTERS_BELOW'] = "Digitare i numeri e le lettere dell'immagine sottostante.";
