@@ -1400,7 +1400,8 @@ namespace Cx\Core\Core\Controller {
             \Env::set('db', $objDatabase);
 
             $em = $this->db->getEntityManager();
-            \Env::set('pageguard', new \PageGuard($this->db->getAdoDb()));
+            $pageGuard = new \PageGuard($this->db->getAdoDb());
+            \Env::set('pageguard', $pageGuard);
 
             \DBG::set_adodb_debug_mode();
 
@@ -2021,6 +2022,7 @@ namespace Cx\Core\Core\Controller {
             $this->template->setVariable(array(
                 'GLOBAL_TITLE'                   => $_CONFIG['coreGlobalPageTitle'],
                 'DOMAIN_URL'                     => $_CONFIG['domainUrl'],
+                'CONTENT_TEXT'                   => $this->resolvedPage->getContent(),
                 'LOGOUT_URL'                     => contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'logout')),
                 'PAGE_URL'                       => htmlspecialchars(\Env::get('init')->getPageUri()),
                 'PAGE_URL_ENCODED'               => urlencode(\Env::get('init')->getPageUri()->toString()),
