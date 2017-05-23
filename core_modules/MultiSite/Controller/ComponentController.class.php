@@ -3427,17 +3427,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $data['reload'] = $reload;
         
         if ($status) {
-            return $json->json(array(
-                        'status' => 'success',
-                        'data'   => $data
-            ));
+            return $json->json(new \Cx\Lib\Net\Model\Entity\Response(array(
+                'status' => 'success',
+                'data'   => $data,
+            )));
         }
 
         if (!$status) {
-            return $json->json(array(
-                        'status'  => 'error',
-                        'message' => $message
-            ));
+            return $json->json(new \Cx\Lib\Net\Model\Entity\Response(array(
+                'status'  => 'error',
+                'message' => $message,
+            )));
         }
     }
     
