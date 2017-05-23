@@ -61,8 +61,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $response, $params)
     {
-        global $_ARRAYLANG;
-
         // Show Level/Category Navbar or Show Latest Entries
         if ($name === 'MEDIADIR_NAVBAR' || $name === 'MEDIADIR_LATEST') {
             $mediaDirPlaceholders = new MediaDirectoryPlaceholders('MediaDir');
@@ -90,9 +88,14 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $matches
             )
         ) {
+            $arrlang = \Env::get('init')->getComponentSpecificLanguageData(
+                'MediaDir',
+                true,
+                $params['lang']
+            );
             $template->setVariable(
                 'TXT_MEDIADIR_LATEST',
-                $_ARRAYLANG['TXT_DIRECTORY_LATEST']
+                $arrlang['TXT_DIRECTORY_LATEST']
             );
             $mediadir->getHeadlines($template, $matches[1], $matches[2], $coreLang);
             return;
