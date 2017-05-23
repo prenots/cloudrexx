@@ -220,7 +220,7 @@ class Website extends \Cx\Model\Base\EntityBase {
         }
 
         $this->secretKey = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::generateSecretKey();
-        self::validateName($this->name);
+        $this->validate();
         $this->codeBase = \Cx\Core\Setting\Controller\Setting::getValue('defaultCodeBase','MultiSite');
         $this->setFqdn();
         $this->setBaseDn();
@@ -817,18 +817,17 @@ class Website extends \Cx\Model\Base\EntityBase {
             'log'         => \DBG::getMemoryLogs(),
         );
     }
-    
+
     /**
-     * To validate the website name
-     *
-     * @param string $name website name
-     * @return null
+     * Validate website entity.
+     * Checks if the name of the website is valid and unique.
      */
-    public static function validateName($name) {
+    public function validate()
+    {
         global $_ARRAYLANG;
 
         \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::loadLanguageData();
-        $websiteName = $name;
+        $websiteName = $this->getName();
 
         // verify that name is not a blocked word
         $unavailablePrefixesValue = explode(',',\Cx\Core\Setting\Controller\Setting::getValue('unavailablePrefixes','MultiSite'));
@@ -848,7 +847,8 @@ class Website extends \Cx\Model\Base\EntityBase {
         }
 
         // existing website
-        if (\Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website')->findOneBy(array('name' => $websiteName))) {
+        $website = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website')->findOneBy(array('name' => $websiteName));
+        if ($website && $website != $this) {
             throw new WebsiteException(sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_ALREADY_EXISTS'], "<strong>$websiteName</strong>"));
         }
     }
