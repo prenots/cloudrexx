@@ -196,20 +196,31 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
             return '';
         }
 
+        $pictureLink = \Cx\Core\Routing\Url::fromModuleAndCmd(
+            $this->getSystemComponent()->getName(),
+            '',
+            '',
+            array(
+                'cid' => $objResult->fields['cat_id'],
+            )
+        );
         $picNr = $objResult->fields['picNr'];
-        $imageLinkTarget = CONTREXX_DIRECTORY_INDEX.'?section=Gallery&amp;cid='.$objResult->fields['cat_id'].($picNr >= $paging ? '&amp;pos='.(floor($picNr/$paging)*$paging) : '');
-        $imageTitle = contrexx_raw2xhtml($objResult->fields['name']);
-        $imageWebPath = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/' . $objResult->fields['path'];
+        if ($picNr >= $paging) {
+            $pos = floor($picNr / $paging) * $paging;
+            $pictureLink->setParam('pos', $pos);
+        }
+        $pictureTitle = contrexx_raw2xhtml($objResult->fields['name']);
+        $pictureWebPath = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/' . $objResult->fields['path'];
 
         $pictureTemplate = new \Cx\Core\Html\Sigma(
             $this->getDirectory() . '/View/Template/Frontend'
         );
         $pictureTemplate->loadTemplateFile('Picture.html');
         $pictureTemplate->setVariable(array(
-            'PICTURE_LINK' => $imageLinkTarget,
-            'PICTURE_ALT_TEXT' => $imageTitle,
-            'PICTURE_TITLE' => $imageTitle,
-            'PICTURE_SOURCE' => $imageWebPath,
+            'PICTURE_LINK' => $pictureLink,
+            'PICTURE_ALT_TEXT' => $pictureTitle,
+            'PICTURE_TITLE' => $pictureTitle,
+            'PICTURE_SOURCE' => $pictureWebPath,
         ));
         return $pictureTemplate->get();
     }
