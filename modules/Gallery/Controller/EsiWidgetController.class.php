@@ -57,9 +57,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
      * @param \Cx\Core\Html\Sigma Widget $template Template
      * @param string                     $locale   RFC 3066 locale identifier
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $locale, $params = array())
     {
-        $this->getComponent('Session')->getSession();
         $gallery             = new GalleryHomeContent();
         $gallery->_intLangId = \FWLanguage::getLangIdByIso639_1($locale);
         if ($name === 'GALLERY_LATEST' && $gallery->checkLatest()) {
@@ -69,7 +68,10 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
         if ($name != 'gallery_image' || !$gallery->checkRandom()) {
             return;
         }
-        return $this->getImageTag(current($params));
+        $template->setVariable(
+            $name,
+            $this->getImageTag($params['id'], $params['lang'])
+        );
     }
 
     /**
@@ -91,7 +93,11 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
             $esiInfos[] = array(
                 $this->getName(),
                 'getWidget',
-                array('name' => $widget->getName(), 'id' => $imageId),
+                array(
+                    'name' => 'gallery_image',
+                    'id' => $imageId,
+                    'lang' => $params['get']['lang'],
+                ),
             );
         }
         return $esiInfos;
@@ -147,6 +153,15 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
     protected function getImageTag($id, $languageId) {
         $objResult = $this->cx->getDb()->getAdoDb()->Execute('
             SELECT
+                `value`
+            FROM
+                `' . DBPREFIX . 'module_gallery_settings`
+            WHERE
+                `name` = "paging"
+        ');
+        $paging = $objResult->fields['value'];
+        $objResult = $this->cx->getDb()->getAdoDb()->Execute('
+            SELECT
                 `picture`.`id`,
                 `picture`.`path`,
                 `category`.`id` AS `cat_id`,
@@ -155,7 +170,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
                     SELECT
                         COUNT(*)
                     FROM
-                        `' . DBPREFIX . 'contrexx_module_gallery_pictures` AS `pic_count`
+                        `' . DBPREFIX . 'module_gallery_pictures` AS `pic_count`
                     WHERE `pic_count`.`id` <= `picture`.`id`
                 ) AS `picNr`
             FROM
@@ -172,7 +187,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
                 `category`.`status` = "1" AND
                 `picture`.`validated` = "1" AND
                 `picture`.`status` = "1" AND
-                `language`.`lang_id` = ' . contrexx_raw2db($languageId) . ' AND
+                `language`.`lang_id` = ' . contrexx_raw2db($languageId) . '
                 ' . $this->getCategoryPermissionSqlPart() . ' AND
                 `picture`.`id` = ' . contrexx_raw2db($id) . '
         ');
@@ -185,7 +200,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
         $picNr = $objResult->fields['picNr'];
         $imageLinkTarget = CONTREXX_DIRECTORY_INDEX.'?section=Gallery&amp;cid='.$objResult->fields['cat_id'].($picNr >= $paging ? '&amp;pos='.(floor($picNr/$paging)*$paging) : '');
         $imageTitle = contrexx_raw2xhtml($objResult->fields['name']);
-        $imageWebPath = $this->_strWebPath.$objResult->fields['path'];
+        $imageWebPath = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/' . $objResult->fields['path'];
         $strReturn = '
             <a href="' . $imageLinkTarget . '" target="_self">
                 <img alt="' . $imageTitle . '" title="' . $imageTitle . '" src="' . $imageWebPath . '" />
