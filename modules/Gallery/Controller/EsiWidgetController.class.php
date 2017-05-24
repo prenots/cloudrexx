@@ -196,17 +196,22 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
             return '';
         }
 
-        // TODO: This should be moved to a Sigma template
         $picNr = $objResult->fields['picNr'];
         $imageLinkTarget = CONTREXX_DIRECTORY_INDEX.'?section=Gallery&amp;cid='.$objResult->fields['cat_id'].($picNr >= $paging ? '&amp;pos='.(floor($picNr/$paging)*$paging) : '');
         $imageTitle = contrexx_raw2xhtml($objResult->fields['name']);
         $imageWebPath = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/' . $objResult->fields['path'];
-        $strReturn = '
-            <a href="' . $imageLinkTarget . '" target="_self">
-                <img alt="' . $imageTitle . '" title="' . $imageTitle . '" src="' . $imageWebPath . '" />
-            </a>
-        ';
-        return $strReturn;
+
+        $pictureTemplate = new \Cx\Core\Html\Sigma(
+            $this->getDirectory() . '/View/Template/Frontend'
+        );
+        $pictureTemplate->loadTemplateFile('Picture.html');
+        $pictureTemplate->setVariable(array(
+            'PICTURE_LINK' => $imageLinkTarget,
+            'PICTURE_ALT_TEXT' => $imageTitle,
+            'PICTURE_TITLE' => $imageTitle,
+            'PICTURE_SOURCE' => $imageWebPath,
+        ));
+        return $pictureTemplate->get();
     }
 
     /**
