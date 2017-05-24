@@ -40,7 +40,7 @@ global $_DBCONFIG, $_PATHCONFIG, $_FTPCONFIG, $_CONFIG;
 * Set installation status
 * -------------------------------------------------------------------------
 */
-define('CONTREXX_INSTALLED', true);
+define('CONTREXX_INSTALLED', false);
 
 /**
 * -------------------------------------------------------------------------
@@ -48,9 +48,9 @@ define('CONTREXX_INSTALLED', true);
 * -------------------------------------------------------------------------
 */
 $_DBCONFIG['host'] = 'localhost'; // This is normally set to localhost
-$_DBCONFIG['database'] = 'clx_dev_env_master'; // Database name
+$_DBCONFIG['database'] = 'dev'; // Database name
 $_DBCONFIG['tablePrefix'] = 'contrexx_'; // Database table prefix
-$_DBCONFIG['user'] = 'dev'; // Database username
+$_DBCONFIG['user'] = 'root'; // Database username
 $_DBCONFIG['password'] = ''; // Database password
 $_DBCONFIG['dbType'] = 'mysql';    // Database type (e.g. mysql,postgres ..)
 $_DBCONFIG['charset'] = 'utf8'; // Charset (default, latin1, utf8, ..)
