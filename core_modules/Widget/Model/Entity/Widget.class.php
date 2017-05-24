@@ -83,7 +83,10 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
      * @param string $name Name of this widget
      * @param string $type (optional) Whether this widget represents a template placeholder, block or callback, default: placeholder
      */
-    public function __construct($component, $name, $type = static::TYPE_PLACEHOLDER) {
+    public function __construct($component, $name, $type = '') {
+        if (empty($type)) {
+            $type = static::TYPE_PLACEHOLDER;
+        }
         $this->component = $component;
         $this->name = $name;
         $this->type = $type;
@@ -156,15 +159,30 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
      * @param array $excludedWidgets (optiona) List of widget names that shall not be parsed
      */
     public function parse($template, $response, $targetComponent, $targetEntity, $targetId, $arguments = array(), $excludedWidgets = array()) {
+        // Disable parsing of widgets in backend pending furtzer notice
+        // See CLX-1674
+        if ($this->cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
+            return;
+        }
+
         switch ($this->getType()) {
             case static::TYPE_CALLBACK:
             case static::TYPE_PLACEHOLDER:
                 if (!$template->placeholderExists($this->getName())) {
                     return;
                 }
+                $content = $this->internalParse(
+                    $template,
+                    $response,
+                    $targetComponent,
+                    $targetEntity,
+                    $targetId,
+                    $arguments
+                );
+                \LinkGenerator::parseTemplate($content);
                 $template->setVariable(
                     $this->getName(),
-                    $this->internalParse($template, $response, $targetComponent, $targetEntity, $targetId, $arguments)
+                    $content
                 );
                 break;
             case static::TYPE_BLOCK:
