@@ -206,6 +206,17 @@ class Counter
                     }
                 }
             }
+            $counterInstance = $this->cx->getComponent('Stats')->getCounterInstance();
+            echo '
+                function setVisitorCount() {
+                    var el = document.getElementById("visitorCount");
+                    if (!el) {
+                        return;
+                    } 
+                    el.textContent = "' . $counterInstance->getVisitorNumber() . '";
+                }
+                setVisitorCount();
+            ';
         }
     }
 

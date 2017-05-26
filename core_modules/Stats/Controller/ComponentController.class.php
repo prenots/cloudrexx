@@ -129,10 +129,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $params['section'] = contrexx_input2raw($_GET['section']);
         }
 
+        $widget = new \Cx\Core_Modules\Widget\Model\Entity\FinalStringWidget(
+            $this,
+            'VISITOR_NUMBER',
+            '<div id="visitorCount"></div>'
+        );
+        $widgetController->registerWidget($widget);
+
         foreach (
             array(
                 'ONLINE_USERS',
-                'VISITOR_NUMBER',
                 'COUNTER',
                 'GOOGLE_ANALYTICS'
             ) as $widgetName

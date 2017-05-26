@@ -74,11 +74,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        if ($name === 'VISITOR_NUMBER') {
-            $template->setVariable($name, $objCounter->getVisitorNumber());
-            return;
-        }
-
         if ($name === 'COUNTER') {
             $template->setVariable(
                 $name,
