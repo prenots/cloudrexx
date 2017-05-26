@@ -318,7 +318,7 @@ class StatsLibrary
         $cx->getEvents()->triggerEvent(
             'clearEsiCache',
             array('Widget',
-                array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                array('ONLINE_USERS', 'COUNTER')
             )
         );
         // remove outdated request entries
@@ -379,7 +379,7 @@ class StatsLibrary
             $cx->getEvents()->triggerEvent(
                 'clearEsiCache',
                 array('Widget',
-                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                    array('ONLINE_USERS', 'COUNTER')
                 )
             );
         }
@@ -1223,7 +1223,7 @@ class StatsLibrary
             $cx->getEvents()->triggerEvent(
                 'clearEsiCache',
                 array('Widget',
-                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                    array('ONLINE_USERS', 'COUNTER')
                 )
             );
         }
@@ -1252,7 +1252,7 @@ class StatsLibrary
                                 $cx->getEvents()->triggerEvent(
                                     'clearEsiCache',
                                     array('Widget',
-                                        array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                                        array('ONLINE_USERS', 'COUNTER')
                                     )
                                 );
                                 break;
@@ -1270,7 +1270,7 @@ class StatsLibrary
                             $cx->getEvents()->triggerEvent(
                                 'clearEsiCache',
                                 array('Widget',
-                                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                                    array('ONLINE_USERS', 'COUNTER')
                                 )
                             );
                         } else {

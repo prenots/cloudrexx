@@ -487,7 +487,7 @@ class Counter
             $cx->getEvents()->triggerEvent(
                 'clearEsiCache',
                 array('Widget',
-                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                    array('ONLINE_USERS', 'COUNTER')
                 )
             );
         } else {
@@ -516,7 +516,7 @@ class Counter
             $cx->getEvents()->triggerEvent(
                 'clearEsiCache',
                 array('Widget',
-                    array('ONLINE_USERS', 'VISITOR_NUMBER', 'COUNTER')
+                    array('ONLINE_USERS', 'COUNTER')
                 )
             );
         }
