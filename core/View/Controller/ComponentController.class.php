@@ -80,13 +80,25 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function postInit(\Cx\Core\Core\Controller\Cx $cx) {
         $widgetController = $this->getComponent('Widget');
         $widgetNames = array(
-            'STANDARD_URL',
-            'MOBILE_URL',
-            'PRINT_URL',
-            'PDF_URL',
-            'APP_URL',
+            // URLs
+            'STANDARD_URL' => 0,
+            'MOBILE_URL' => 0,
+            'PRINT_URL' => 0,
+            'PDF_URL' => 0,
+            'APP_URL' => 0,
+            // JS includes
+            'FACEBOOK_LIKE_IFRAME' => 0,
+            'GOOGLE_PLUSONE' => 0,
+            'TWITTER_SHARE' => 0,
+            'XING_SHARE' => 0,
+            'JAVASCRIPT_LIGHTBOX' => 0,
+            'JAVASCRIPT_MOBILE_DETECTOR' => 0,
+            // Theme files
+            'SIDEBAR_FILE' => \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME,
+            'JAVASCRIPT_FILE' => \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME,
+            'BUILDIN_STYLE_FILE' => \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME,
         );
-        foreach ($widgetNames as $widgetName) {
+        foreach ($widgetNames as $widgetName=>$esiVariables) {
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $widgetName,
@@ -97,7 +109,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     'ref' => '$(HTTP_REFERER)',
                 )
             );
-            $widget->setEsiVariable(0);
+            $widget->setEsiVariable($esiVariables);
             $widgetController->registerWidget(
                 $widget
             );

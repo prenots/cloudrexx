@@ -2049,39 +2049,6 @@ namespace Cx\Core\Core\Controller {
                 'MODULE_INDEX'                   => MODULE_INDEX,
                 'LOGIN_URL'                      => '<a href="' . contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'Login')) . '" class="start-frontend-editing">' . $_CORELANG['TXT_FRONTEND_EDITING_LOGIN'] . '</a>',
                 'GOOGLE_MAPS_API_KEY'            => isset($_CONFIG['googleMapsAPIKey']) ? contrexx_raw2xhtml($_CONFIG['googleMapsAPIKey']) : '',
-                'FACEBOOK_LIKE_IFRAME'           => '<div id="fb-root"></div>
-                                                    <script type="text/javascript">
-                                                        (function(d, s, id) {
-                                                            var js, fjs = d.getElementsByTagName(s)[0];
-                                                            if (d.getElementById(id)) return;
-                                                            js = d.createElement(s); js.id = id;
-                                                            js.src = "//connect.facebook.net/'.\FWLanguage::getLanguageCodeById(LANG_ID).'_'.strtoupper(\FWLanguage::getLanguageCodeById(LANG_ID)).'/all.js#xfbml=1";
-                                                            fjs.parentNode.insertBefore(js, fjs);
-                                                        }(document, \'script\', \'facebook-jssdk\'));
-                                                    </script>
-                                                    <div class="fb-like" data-href="'.ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].contrexx_raw2xhtml(\Env::get('init')->getCurrentPageUri()).'" data-send="false" data-layout="button_count" data-show-faces="false" data-font="segoe ui"></div>',
-                'GOOGLE_PLUSONE'                 => '<div class="g-plusone" data-href="'.ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].contrexx_raw2xhtml(\Env::get('init')->getCurrentPageUri()).'"></div>
-                                                    <script type="text/javascript">
-                                                        window.___gcfg = {lang: \''.\FWLanguage::getLanguageCodeById(LANG_ID).'\'};
-
-                                                        (function() {
-                                                            var po = document.createElement(\'script\'); po.type = \'text/javascript\'; po.async = true;
-                                                            po.src = \'https://apis.google.com/js/plusone.js\';
-                                                            var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(po, s);
-                                                        })();
-                                                    </script>',
-                'TWITTER_SHARE'                  => '<a href="https://twitter.com/share" class="twitter-share-button"
-                                                    data-url="'.ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].contrexx_raw2xhtml(\Env::get('init')->getCurrentPageUri()).'" data-lang="'.\FWLanguage::getLanguageCodeById(LANG_ID).'">Twittern</a>
-                                                    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>',
-                'XING_SHARE'                     => '<div data-type="XING/Share" data-counter="right" data-lang="'.\FWLanguage::getLanguageCodeById(LANG_ID).'"></div>
-                                                    <script>
-                                                        ;(function (d, s) {
-                                                            var x = d.createElement(s),
-                                                                s = d.getElementsByTagName(s)[0];
-                                                            x.src = "https://www.xing-share.com/js/external/share.js";
-                                                            s.parentNode.insertBefore(x, s);
-                                                        })(document, "script");
-                                                    </script>',
                 'GOOGLE_ANALYTICS'               => '<script type="text/javascript">
                                                         var _gaq = _gaq || [];
                                                         _gaq.push([\'_setAccount\', \''.(isset($_CONFIG['googleAnalyticsTrackingId']) ? contrexx_raw2xhtml($_CONFIG['googleAnalyticsTrackingId']) : '').'\']);
@@ -2122,19 +2089,11 @@ namespace Cx\Core\Core\Controller {
                 $this->parseGlobalPlaceholders($themesPages['sidebar']);
 
                 $this->template->setVariable(array(
-                    'SIDEBAR_FILE' => $themesPages['sidebar'],
-                    'JAVASCRIPT_FILE' => $themesPages['javascript'],
-                    'BUILDIN_STYLE_FILE' => $themesPages['buildin_style'],
                     'DATE_YEAR' => date('Y'),
                     'DATE_MONTH' => date('m'),
                     'DATE_DAY' => date('d'),
                     'DATE_TIME' => date('H:i'),
                     'BUILDIN_STYLE_FILE' => $themesPages['buildin_style'],
-                    'JAVASCRIPT_LIGHTBOX' =>
-                        '<script type="text/javascript" src="lib/lightbox/javascript/mootools.js"></script>
-                        <script type="text/javascript" src="lib/lightbox/javascript/slimbox.js"></script>',
-                    'JAVASCRIPT_MOBILE_DETECTOR' =>
-                        '<script type="text/javascript" src="lib/mobiledetector.js"></script>',
                 ));
 
                 if (!empty($moduleStyleFile))

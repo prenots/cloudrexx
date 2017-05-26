@@ -79,6 +79,35 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                     contrexx_raw2xhtml($url)
                 );
                 break;
+            case 'FACEBOOK_LIKE_IFRAME':
+            case 'GOOGLE_PLUSONE':
+            case 'TWITTER_SHARE':
+            case 'XING_SHARE':
+            case 'JAVASCRIPT_LIGHTBOX':
+            case 'JAVASCRIPT_MOBILE_DETECTOR':
+                $filename = $name;
+                $widgetTemplate = new \Cx\Core\Html\Sigma($this->getDirectory());
+                $widgetTemplate->loadTemplateFile(
+                    '/View/Template/Frontend/' . $filename . '.html'
+                );
+                $widgetTemplate->setVariable(array(
+                    'LANG_CODE' => $params['lang'],
+                    'LANG_CODE_UPPERCASE' => strtoupper($params['lang']),
+                    'CURRENT_PAGE_URL' => $params['ref'],
+                ));
+                $template->setVariable($name, $widgetTemplate->get());
+                break;
+            case 'SIDEBAR_FILE':
+            case 'JAVASCRIPT_FILE':
+            case 'BUILDIN_STYLE_FILE':
+                $filename = strtolower(substr($name, 0, -5));
+                $filename = $params['theme']->getFilePath($filename);
+                if (empty($filename)) {
+                    return;
+                }
+                $fileContents = file_get_contents($filename);
+                $template->setVariable($name, $fileContents);
+                break;
         }
     }
 }
