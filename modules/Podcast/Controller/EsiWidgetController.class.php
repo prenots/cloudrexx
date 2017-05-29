@@ -75,8 +75,10 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $response, $params)
     {
-        // If the setting option 'podcastHomeContent' is deactived then
-        // do not parse the placeholder PODCAST_FILE.
+        /*
+         * If the setting option 'podcastHomeContent' is deactived then
+         * do not parse the placeholder PODCAST_FILE.
+         */
         if (
             !\Cx\Core\Setting\Controller\Setting::getValue(
                 'podcastHomeContent',
