@@ -132,10 +132,19 @@ class YamlSettingEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventL
                 case 'podcastHomeContent':
                     if ($value !== $_CONFIG[$objSetting->getName()]) {
                         // drop esi cache
-                        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                        $cx->getEvents()->triggerEvent(
+                        $this->cx->getEvents()->triggerEvent(
                             'clearEsiCache',
                             array('Widget', 'PODCAST_FILE')
+                        );
+                    }
+                    break;
+                    
+                case 'defaultMetaimage':
+                    if ($value != $_CONFIG[$objSetting->getName()]) {
+                        // drop esi/ssi cache
+                        $this->cx->getEvents()->triggerEvent(
+                            'clearEsiCache',
+                            array('Widget', 'METAIMAGE')
                         );
                     }
                     break;
