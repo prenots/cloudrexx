@@ -140,7 +140,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             )
         ) {
             $catId = 0;
-            if (!empty($catMatches[1])) {
+            if (isset($catMatches[1]) && !empty($catMatches[1])) {
                 $catId = $catMatches[1];
             }
             Shop::view_product_overview(null, $catId, $template);
