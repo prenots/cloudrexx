@@ -51,46 +51,24 @@ namespace Cx\Modules\Shop\Controller;
  */
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
-    /**
-     * currentThemeId
-     *
-     * @var integer
-     */
-    protected $currentThemeId;
-
-    /**
-     * current page ID
-     *
-     * @var integer
-     */
-    protected $currentPageId;
 
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template Widget template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
+     * @param array                                  $params   Get parameters
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_ARRAYLANG;
-
-        $langId    = \FWLanguage::getLangIdByIso639_1($locale);
-        //The global $_ARRAYLANG is required by the method Shop::view_product_overview()
-        $arrayLang = array_merge(
-            $_ARRAYLANG,
-            \Env::get('init')->getComponentSpecificLanguageData(
-                'Shop',
-                true,
-                $langId
-            )
+        $arrayLang = \Env::get('init')->getComponentSpecificLanguageData(
+            'Shop',
+            true,
+            $params['lang']
         );
 
-        $pageRepo    = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Core\ContentManager\Model\Entity\Page'
-        );
-        $page        = $pageRepo->find($this->currentPageId);
+        $page        = $params['page'];
         $shopConfig  = \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
         $showShopNav = \Cx\Core\Setting\Controller\Setting::getValue(
             'shopnavbar_on_all_pages',
@@ -126,14 +104,12 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             preg_match('/^SHOPNAVBAR(\d{0,1})_FILE$/', $name, $matches) &&
             $showShopNav
         ) {
-            $themeRepository = new \Cx\Core\View\Model\Repository\ThemeRepository();
-            $theme           = $themeRepository->findById($this->currentThemeId);
-            if (!$theme) {
+            if (!$params['theme']) {
                 return;
             }
 
             $content = $this->getFileContent(
-                $theme,
+                $params['theme'],
                 'shopnavbar' . $matches[1] . '.html'
             );
             if (!$content) {
@@ -156,45 +132,19 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
 
         $catMatches = null;
         if (
-            !$shopConfig ||
-            !preg_match(
+            $shopConfig &&
+            preg_match(
                 '/^' .  Shop::block_shop_products . '(?:_category_(\d+))?$/',
                 $name,
                 $catMatches
             )
         ) {
-            return;
-        }
-
-        $_ARRAYLANG = array_merge(
-            $arrayLang,
-            \Env::get('init')->getComponentSpecificLanguageData(
-                'core',
-                true,
-                $langId
-            )
-        );
-        Shop::view_product_overview(null, $catMatches[1], $template);
-    }
-
-    /**
-     * Returns the content of a widget
-     *
-     * @param array $params JsonAdapter parameters
-     *
-     * @return array Content in an associative array
-     */
-    public function getWidget($params)
-    {
-        if (isset($params['get'])) {
-            if (isset($params['get']['theme'])) {
-                $this->currentThemeId = $params['get']['theme'];
+            $catId = 0;
+            if (!empty($catMatches[1])) {
+                $catId = $catMatches[1];
             }
-            if (isset($params['get']['page'])) {
-                $this->currentPageId = $params['get']['page'];
-            }
+            Shop::view_product_overview(null, $catId, $template);
         }
-        return parent::getWidget($params);
     }
 
     /**
