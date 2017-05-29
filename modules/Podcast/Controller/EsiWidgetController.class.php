@@ -29,7 +29,7 @@
  * Class EsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_podcast
  * @version     1.0.0
@@ -44,7 +44,7 @@ namespace Cx\Modules\Podcast\Controller;
  * - Register it as a Controller in your ComponentController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_podcast
  * @version     1.0.0
@@ -68,14 +68,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     /**
      * Parses a widget
      *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * @param string                                 $name     Widget name
+     * @param \Cx\Core\Html\Sigma                    $template Widget Template
+     * @param \Cx\Core\Routing\Model\Entity\Response $response Current response
+     * @param array                                  $params   Array of params
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
-        global $_ARRAYLANG;
-
         // If the setting option 'podcastHomeContent' is deactived then
         // do not parse the placeholder PODCAST_FILE.
         if (
@@ -94,18 +93,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        $langId      = \FWLanguage::getLangIdByIso639_1($locale);
-        $_ARRAYLANG  = array_merge(
-            $_ARRAYLANG,
-            \Env::get('init')->getComponentSpecificLanguageData(
-                'Podcast',
-                true,
-                $langId
-            )
-        );
-
         $podcast = new PodcastHomeContent($content);
-        $podcast->_langId = $langId;
+        $podcast->_langId = $params['lang'];
         $template->setVariable($name, $podcast->getContent());
     }
 
