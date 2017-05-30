@@ -769,9 +769,6 @@ die("Failed to update the Cart!");
             unset($_SESSION['shop']);
             self::$objCustomer = null;
         }
-        //clear cache
-        $shopLib = new ShopLibrary();
-        $shopLib->clearEsiCache();
     }
 
 

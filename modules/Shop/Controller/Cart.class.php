@@ -390,9 +390,6 @@ class Cart
             }
         }
         $_SESSION['shop']['cart']['items'] = $products;
-        //clear cache
-        $shopLib = new ShopLibrary();
-        $shopLib->clearEsiCache();
 //DBG::log("Cart::add_product(): New options: ".var_export($products[$cart_id]['options'], true));
 //DBG::log("Cart::add_product(): Leaving");
     }
@@ -436,11 +433,6 @@ class Cart
                 $clearCache = true;
 //DBG::log("Cart::update_quantity(): Cart ID $cartId quantity: {$_SESSION['shop']['cart']['items'][$cartId]['quantity']}");
             }
-        }
-        if ($clearCache) {
-            //clear cache
-            $shopLib = new ShopLibrary();
-            $shopLib->clearEsiCache();
         }
     }
 
