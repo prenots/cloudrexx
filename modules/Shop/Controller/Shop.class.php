@@ -595,70 +595,78 @@ die("Failed to get Customer for ID $customer_id");
      */
     static function setJsCart(\Cx\Core\Html\Sigma $template, $arrayLang = array())
     {
-        $template->setCurrentBlock('shopJsCart');
-        // Set all language entries and replace formats
-        $template->setGlobalVariable($arrayLang);
-        if ($template->blockExists('shopJsCartProducts')) {
-            $template->parse('shopJsCartProducts');
-            $divProduct = $template->get('shopJsCartProducts');
-            $template->replaceBlock(
-                'shopJsCartProducts',
-                '[[SHOP_JS_CART_PRODUCTS]]'
-            );
-        }
-        $template->touchBlock('shopJsCart');
-        $template->parse('shopJsCart');
-        $divCart   = $template->get('shopJsCart');
-        $variables = array(
-            'shop/cart' => array(
-                'TXT_SHOP_CART_IS_LOADING'     => $arrayLang['TXT_SHOP_CART_IS_LOADING'],
-                'TXT_SHOP_COULD_NOT_LOAD_CART' => $arrayLang['TXT_SHOP_COULD_NOT_LOAD_CART'],
-                'TXT_EMPTY_SHOPPING_CART'      => $arrayLang['TXT_EMPTY_SHOPPING_CART'],
-                'url'                          => \Cx\Core\Routing\URL::fromModuleAndCmd(
-                    'Shop' . MODULE_INDEX,
-                    'cart',
-                    FRONTEND_LANG_ID,
-                    array('remoteJs' => 'addProduct')
-                )->toString()
-            ),
-            'shop' => array(
-                'TXT_SHOP_PRODUCT_ADDED_TO_CART'  => $arrayLang['TXT_SHOP_PRODUCT_ADDED_TO_CART'],
-                'TXT_SHOP_CONFIRM_DELETE_PRODUCT' => $arrayLang['TXT_SHOP_CONFIRM_DELETE_PRODUCT'],
-                'TXT_MAKE_DECISION_FOR_OPTIONS'   => $arrayLang['TXT_MAKE_DECISION_FOR_OPTIONS']
-            )
-        );
+        $objTemplate = $template;
+        //global $_ARRAYLANG;
+        $_ARRAYLANG = $arrayLang;
 
-        $js = '';
-        foreach($variables as $scope => $variables) {
-            $js .= 'cx.variables.set(';
-            $js .= json_encode($variables);
-            $js .= ",'$scope');\n";
+        if (!\Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop')) return;
+        $match = null;
+        $div_cart = $div_product = '';
+//\DBG::log("Shop::setJsCart(): Section $index");
+        if (!$objTemplate->blockExists('shopJsCart')) {
+            return;
         }
-        $js .= 'cartTpl = \'' .
-            preg_replace(
-                array('/\'/', '/[\n\r]/', '/\//'),
-                array('\\\'', '\n', '\\/'),
-                $divCart
-            ) . '\';' . 'cartProductsTpl = \'' .
-            preg_replace(
-                array('/\'/', '/[\n\r]/', '/\//'),
-                array('\\\'', '\n', '\\/'),
-                $divProduct
-            ) . '\';';
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $jsScript = <<<JSSCRIPT
-            <script type="text/javascript">
-            /* <![CDATA[ */
-                $js
-            /* ]]> */
-            </script>
-            <script type="text/javascript" src="{$cx->getModuleFolderName()}/Shop/View/Script/cart.js"></script>
-            <script type="text/javascript" src="{$cx->getModuleFolderName()}/Shop/View/Script/shop.js"></script>
-JSSCRIPT;
-        $template->replaceBlock(
-            'shopJsCart',
-            $arrayLang['TXT_SHOP_CART_IS_LOADING'] . $jsScript
+//\DBG::log("Shop::setJsCart(): In themespage $index: {$themesPages[$index]}");
+        $objTemplate->setCurrentBlock('shopJsCart');
+        // Set all language entries and replace formats
+        $objTemplate->setGlobalVariable($_ARRAYLANG);
+        $objTemplate->touchBlock('shopJsCart');
+        $objTemplate->touchBlock('shopJsCartTotal');
+        $objTemplate->parse('shopJsCart');
+        $objTemplate->touchBlock('shopJsCartProducts');
+        $div_cart = $objTemplate->get('shopJsCart');
+        if ($objTemplate->blockExists('shopJsCartProducts')) {
+            $objTemplate->parse('shopJsCartProducts');
+            $div_product = $objTemplate->get('shopJsCartProducts');
+        }
+        //\DBG::log("Shop::setJsCart(): Got P
+        $match = array();
+        preg_match(
+            '#^([\n\r]?[^<]*<.*id=["\']shopJsCart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
+            $div_cart,
+            $match
         );
+        $objTemplate->replaceBlock(
+            'shopJsCart',
+            '
+                ' . $match[1] . '
+                ' . $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'] . '
+                
+                <script type="text/javascript">
+                    cx.variables.set(
+                        {
+                            "TXT_SHOP_PRODUCT_ADDED_TO_CART": "' . $_ARRAYLANG["TXT_SHOP_PRODUCT_ADDED_TO_CART"] . '",
+                            "TXT_SHOP_CONFIRM_DELETE_PRODUCT": "' . $_ARRAYLANG["TXT_SHOP_CONFIRM_DELETE_PRODUCT"] . '",
+                            "TXT_MAKE_DECISION_FOR_OPTIONS": "' . $_ARRAYLANG["TXT_MAKE_DECISION_FOR_OPTIONS"] . '",
+                            "url": "' . (String)\Cx\Core\Routing\URL::fromModuleAndCMd("Shop".MODULE_INDEX, "cart", FRONTEND_LANG_ID, array("remoteJs" => "addProduct")) . '"
+                        },
+                        "shop"
+                    );
+                    cx.variables.set(
+                        {
+                            "TXT_SHOP_CART_IS_LOADING": "' . $_ARRAYLANG["TXT_SHOP_CART_IS_LOADING"] . '",
+                            "TXT_SHOP_COULD_NOT_LOAD_CART": "' . $_ARRAYLANG["TXT_SHOP_COULD_NOT_LOAD_CART"] . '",
+                            "TXT_EMPTY_SHOPPING_CART": "' . $_ARRAYLANG["TXT_EMPTY_SHOPPING_CART"] . '",
+                            "url": "' . (String)\Cx\Core\Routing\URL::fromModuleAndCMd("Shop".MODULE_INDEX, "cart", FRONTEND_LANG_ID, array("remoteJs" => "addProduct")) . '"
+                        },
+                        "shop/cart"
+                    );
+
+                    cartTpl = "' . preg_replace(
+                      array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
+                      array('\\\'', '\n', '\\/', '[', ']'),
+                      $div_cart) . '".replace(/\[/g, "{").replace(/\]/g, "}");
+                    cartProductsTpl = "' . preg_replace(
+                      array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
+                      array('\\\'', '\n', '\\/', '[', ']'),
+                      $div_product) . '".replace(/\[/g, "{").replace(/\]/g, "}");
+                </script>
+                <script type="text/javascript" src= "' . substr(\Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() . '/Shop/View/Script/shop.js', 1) . '"></script>
+                <script type="text/javascript" src= "' . substr(\Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() . '/Shop/View/Script/cart.js', 1) . '"></script>
+                ' . $match[4] . '
+            '
+        );
+        $objTemplate->touchBlock('shopJsCart');
     }
 
 

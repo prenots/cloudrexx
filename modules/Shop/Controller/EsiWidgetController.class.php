@@ -90,7 +90,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 )
             )
         ) {
-            $template->setTemplate($template->getUnparsedBlock($name), false, false);
             Shop::setJsCart($template, $arrayLang);
             return;
         }
