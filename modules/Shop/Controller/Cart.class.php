@@ -411,16 +411,14 @@ class Cart
      */
     static function update_quantity()
     {
-        if (empty($_REQUEST['quantity']) || !is_array($_REQUEST['quantity'])) {
+      if (   empty($_REQUEST['quantity'])
+          || !is_array($_REQUEST['quantity'])) {
 //DBG::log("Cart::update_quantity(): No Quantities array");
-            return;
+              return;
         }
 //DBG::log("Cart::update_quantity(): Quantities: ".var_export($_REQUEST['quantity'], true));
         // Update quantity to cart
-        if (empty($_SESSION['shop']['cart']['items'])) {
-            return;
-        }
-        $clearCache = false;
+        if (empty($_SESSION['shop']['cart']['items'])) return;
         foreach (array_keys($_SESSION['shop']['cart']['items']->toArray()) as $cartId) {
             // Remove Products
             if (isset($_REQUEST['quantity'][$cartId])) {
@@ -430,7 +428,6 @@ class Cart
                     $_SESSION['shop']['cart']['items'][$cartId]['quantity'] =
                         intval($_REQUEST['quantity'][$cartId]);
                 }
-                $clearCache = true;
 //DBG::log("Cart::update_quantity(): Cart ID $cartId quantity: {$_SESSION['shop']['cart']['items'][$cartId]['quantity']}");
             }
         }
