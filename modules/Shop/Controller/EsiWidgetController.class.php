@@ -62,12 +62,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $response, $params)
     {
-        $arrayLang = \Env::get('init')->getComponentSpecificLanguageData(
-            'Shop',
-            true,
-            $params['lang']
-        );
-
         $page        = $params['page'];
         $shopConfig  = \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
         $showShopNav = \Cx\Core\Setting\Controller\Setting::getValue(
@@ -90,7 +84,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 )
             )
         ) {
-            Shop::setJsCart($template, $arrayLang);
+            Shop::setJsCart($template);
             return;
         }
 
@@ -111,8 +105,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $template,
                 $params['theme']->getFilePath(
                     $params['theme']->getFolderName() . '/shopnavbar' . $matches[1] . '.html'
-                ),
-                $arrayLang
+                )
             );
             return;
         }

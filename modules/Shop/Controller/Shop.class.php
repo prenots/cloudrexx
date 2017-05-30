@@ -386,12 +386,13 @@ die("Failed to get Customer for ID $customer_id");
      *
      * @param \Cx\Core\Html\Sigma $template  Template object
      * @param string $filename Path to shop navbar file
-     * @param array  $arrayLang array of language variables
      */
-    static function getNavbar($template, $filename, $arrayLang = array())
+    static function getNavbar($template, $filename)
     {
+        global $_ARRAYLANG;
+
         $template->loadTemplateFile($filename);
-        $template->setGlobalVariable($arrayLang);
+        $template->setGlobalVariable($_ARRAYLANG);
         $loginInfo = $loginStatus = $redirect = '';
 //\DBG::log("Shop::getNavbar(): Customer: ".(self::$objCustomer ? "Logged in" : "nada"));
         if (self::$objCustomer) {
@@ -399,18 +400,18 @@ die("Failed to get Customer for ID $customer_id");
                 $loginInfo = self::$objCustomer->company().'<br />';
             } else {
                 $loginInfo =
-                    $arrayLang['TXT_SHOP_'.
+                    $_ARRAYLANG['TXT_SHOP_'.
                         strtoupper(self::$objCustomer->gender())].' '.
                     self::$objCustomer->lastname().'<br />';
             }
-            $loginStatus = $arrayLang['TXT_LOGGED_IN_AS'];
+            $loginStatus = $_ARRAYLANG['TXT_LOGGED_IN_AS'];
             // Show link to change the password
             if ($template->blockExists('shop_changepass')) {
                 $template->touchBlock('shop_changepass');
             }
         } else {
             // Show login form if the customer is not logged in already.
-            $loginStatus = $arrayLang['TXT_LOGGED_IN_AS_SHOP_GUEST'];
+            $loginStatus = $_ARRAYLANG['TXT_LOGGED_IN_AS_SHOP_GUEST'];
             // $redirect contains something like "section=Shop&cmd=details&productId=1"
             if (isset($_REQUEST['redirect'])) {
                 $redirect = $_REQUEST['redirect'];
@@ -591,13 +592,11 @@ die("Failed to get Customer for ID $customer_id");
      * extended settings!
      *
      * @param \Cx\Core\Html\Sigma $template  template object
-     * @param array               $arrayLang array of langauge variables
      */
-    static function setJsCart(\Cx\Core\Html\Sigma $template, $arrayLang = array())
+    static function setJsCart(\Cx\Core\Html\Sigma $template)
     {
         $objTemplate = $template;
-        //global $_ARRAYLANG;
-        $_ARRAYLANG = $arrayLang;
+        global $_ARRAYLANG;
 
         if (!\Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop')) return;
         $match = null;
