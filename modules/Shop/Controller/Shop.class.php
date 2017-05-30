@@ -595,77 +595,70 @@ die("Failed to get Customer for ID $customer_id");
      */
     static function setJsCart(\Cx\Core\Html\Sigma $template)
     {
-        $objTemplate = $template;
         global $_ARRAYLANG;
 
-        if (!\Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop')) return;
-        $match = null;
-        $div_cart = $div_product = '';
-//\DBG::log("Shop::setJsCart(): Section $index");
-        if (!$objTemplate->blockExists('shopJsCart')) {
+        if (!\Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop')) {
             return;
         }
-//\DBG::log("Shop::setJsCart(): In themespage $index: {$themesPages[$index]}");
-        $objTemplate->setCurrentBlock('shopJsCart');
-        // Set all language entries and replace formats
-        $objTemplate->setGlobalVariable($_ARRAYLANG);
-        $objTemplate->touchBlock('shopJsCart');
-        $objTemplate->touchBlock('shopJsCartTotal');
-        $objTemplate->parse('shopJsCart');
-        $objTemplate->touchBlock('shopJsCartProducts');
-        $div_cart = $objTemplate->get('shopJsCart');
-        if ($objTemplate->blockExists('shopJsCartProducts')) {
-            $objTemplate->parse('shopJsCartProducts');
-            $div_product = $objTemplate->get('shopJsCartProducts');
+        if (!$template->blockExists('shopJsCart')) {
+            return;
         }
-        //\DBG::log("Shop::setJsCart(): Got P
+
+        $div_cart = '';
+        $div_product = '';
+        //$template->setCurrentBlock('shopJsCart');
+        $template->setGlobalVariable($_ARRAYLANG);
+
+        // Prepare template for "extraction"
+        $template->touchBlock('shopJsCart');
+        $template->touchBlock('shopJsCartTotal');
+        $template->parse('shopJsCart');
+        $template->touchBlock('shopJsCartProducts');
+        $div_cart = $template->get('shopJsCart');
+        if ($template->blockExists('shopJsCartProducts')) {
+            $template->parse('shopJsCartProducts');
+            $div_product = $template->get('shopJsCartProducts');
+        }
+
+        // Keep the surrounding element if it has id "shopJsCart"
         $match = array();
         preg_match(
             '#^([\n\r]?[^<]*<.*id=["\']shopJsCart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
             $div_cart,
             $match
         );
-        $objTemplate->replaceBlock(
-            'shopJsCart',
-            '
-                ' . $match[1] . '
-                ' . $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'] . '
-                
-                <script type="text/javascript">
-                    cx.variables.set(
-                        {
-                            "TXT_SHOP_PRODUCT_ADDED_TO_CART": "' . $_ARRAYLANG["TXT_SHOP_PRODUCT_ADDED_TO_CART"] . '",
-                            "TXT_SHOP_CONFIRM_DELETE_PRODUCT": "' . $_ARRAYLANG["TXT_SHOP_CONFIRM_DELETE_PRODUCT"] . '",
-                            "TXT_MAKE_DECISION_FOR_OPTIONS": "' . $_ARRAYLANG["TXT_MAKE_DECISION_FOR_OPTIONS"] . '",
-                            "url": "' . (String)\Cx\Core\Routing\URL::fromModuleAndCMd("Shop".MODULE_INDEX, "cart", FRONTEND_LANG_ID, array("remoteJs" => "addProduct")) . '"
-                        },
-                        "shop"
-                    );
-                    cx.variables.set(
-                        {
-                            "TXT_SHOP_CART_IS_LOADING": "' . $_ARRAYLANG["TXT_SHOP_CART_IS_LOADING"] . '",
-                            "TXT_SHOP_COULD_NOT_LOAD_CART": "' . $_ARRAYLANG["TXT_SHOP_COULD_NOT_LOAD_CART"] . '",
-                            "TXT_EMPTY_SHOPPING_CART": "' . $_ARRAYLANG["TXT_EMPTY_SHOPPING_CART"] . '",
-                            "url": "' . (String)\Cx\Core\Routing\URL::fromModuleAndCMd("Shop".MODULE_INDEX, "cart", FRONTEND_LANG_ID, array("remoteJs" => "addProduct")) . '"
-                        },
-                        "shop/cart"
-                    );
 
-                    cartTpl = "' . preg_replace(
-                      array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
-                      array('\\\'', '\n', '\\/', '[', ']'),
-                      $div_cart) . '".replace(/\[/g, "{").replace(/\]/g, "}");
-                    cartProductsTpl = "' . preg_replace(
-                      array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
-                      array('\\\'', '\n', '\\/', '[', ']'),
-                      $div_product) . '".replace(/\[/g, "{").replace(/\]/g, "}");
-                </script>
-                <script type="text/javascript" src= "' . substr(\Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() . '/Shop/View/Script/shop.js', 1) . '"></script>
-                <script type="text/javascript" src= "' . substr(\Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() . '/Shop/View/Script/cart.js', 1) . '"></script>
-                ' . $match[4] . '
-            '
-        );
-        $objTemplate->touchBlock('shopJsCart');
+        // add original template as JS template and replace it by our JS code
+        $template->setRoot(ASCMS_MODULE_PATH . '/Shop/View/Template/Frontend');
+        $template->replaceBlockFile('shopJsCart', 'JsCart.html');
+        $template->setVariable($_ARRAYLANG);
+        $template->setVariable(array(
+            'SURROUNDING_ELEMENT_START' => $match[1],
+            'SURROUNDING_ELEMENT_END' => $match[4],
+            'SHOP_CART_ADD_PRODUCT_URL' => (string) \Cx\Core\Routing\URL::fromModuleAndCmd(
+                'Shop' . MODULE_INDEX,
+                'cart',
+                FRONTEND_LANG_ID,
+                array(
+                    'remoteJs' => 'addProduct',
+                )
+            ),
+            'ESCAPED_CART_TEMPLATE' => preg_replace(
+                array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
+                array('\\\'', '\n', '\\/', '[', ']'),
+                $div_cart
+            ),
+            'ESCAPED_PRODUCT_TEMPLATE' => preg_replace(
+                array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
+                array('\\\'', '\n', '\\/', '[', ']'),
+                $div_product
+            ),
+            'COMPONENT_WEB_PATH' => substr(
+                \Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName(),
+                1
+            ),
+        ));
+        $template->touchBlock('shopJsCart');
     }
 
 
