@@ -108,25 +108,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 return;
             }
 
-            $content = $this->getFileContent(
-                $params['theme'],
-                'shopnavbar' . $matches[1] . '.html'
+            $navContent = Shop::getNavbar(
+                $template,
+                $params['theme']->getFilePath(
+                    $params['theme']->getFolderName() . '/shopnavbar' . $matches[1] . '.html'
+                ),
+                $arrayLang
             );
-            if (!$content) {
-                return;
-            }
-
-            $navContent = Shop::getNavbar($content, $arrayLang);
-            $pattern    = '@(<ul\s*id=["\']shopJsCart["\'][^>]*>)([\n\r].*)(</ul>)@s';
-            $matches    = null;
-            if (preg_match($pattern, $content, $matches)) {
-                $navContent = preg_replace(
-                    $pattern,
-                    $matches[1] . $matches[2] . $matches[3],
-                    $navContent
-                );
-            }
-            $template->setTemplate($navContent, false, false);
             return;
         }
 

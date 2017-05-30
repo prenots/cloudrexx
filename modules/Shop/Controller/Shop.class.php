@@ -380,24 +380,18 @@ die("Failed to get Customer for ID $customer_id");
     }
 
     /**
-     * Sets up the Shop Navbar content and returns it as a string
+     * Sets up the Shop Navbar content
      *
      * Note that {@see init()} must have been called before.
-     * The content is created once and stored statically.
-     * Repeated calls will always return the same string, unless either
-     * a non-empty template is given, or $use_cache is set to false.
      *
-     * @param string $template  template content
+     * @param \Cx\Core\Html\Sigma $template  Template object
+     * @param string $filename Path to shop navbar file
      * @param array  $arrayLang array of language variables
-     *
-     * @return string The Shop Navbar content
      */
-    static function getNavbar($template = null, $arrayLang = array())
+    static function getNavbar($template, $filename, $arrayLang = array())
     {
-        $objTpl = new \Cx\Core\Html\Sigma('.');
-        $objTpl->setErrorHandling(PEAR_ERROR_DIE);
-        $objTpl->setTemplate($template);
-        $objTpl->setGlobalVariable($arrayLang);
+        $template->loadTemplateFile($filename);
+        $template->setGlobalVariable($arrayLang);
         $loginInfo = $loginStatus = $redirect = '';
 //\DBG::log("Shop::getNavbar(): Customer: ".(self::$objCustomer ? "Logged in" : "nada"));
         if (self::$objCustomer) {
@@ -411,8 +405,8 @@ die("Failed to get Customer for ID $customer_id");
             }
             $loginStatus = $arrayLang['TXT_LOGGED_IN_AS'];
             // Show link to change the password
-            if ($objTpl->blockExists('shop_changepass')) {
-                $objTpl->touchBlock('shop_changepass');
+            if ($template->blockExists('shop_changepass')) {
+                $template->touchBlock('shop_changepass');
             }
         } else {
             // Show login form if the customer is not logged in already.
@@ -424,21 +418,21 @@ die("Failed to get Customer for ID $customer_id");
                 $queryString = $_SERVER['QUERY_STRING'];
                 $redirect = base64_encode(preg_replace('/\&?act\=\w*/', '', $queryString));
             }
-            $objTpl->setVariable(
+            $template->setVariable(
                 'SHOP_LOGIN_ACTION',
                 \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'login').
                 '?redirect='.$redirect);
         }
-        $objTpl->setVariable(array(
+        $template->setVariable(array(
             'SHOP_LOGIN_STATUS' => $loginStatus,
             'SHOP_LOGIN_INFO' => $loginInfo,
         ));
         // Currencies
         if (self::$show_currency_navbar
-         && $objTpl->blockExists('shopCurrencies')) {
+         && $template->blockExists('shopCurrencies')) {
             $curNavbar = Currency::getCurrencyNavbar();
             if (!empty($curNavbar)) {
-                $objTpl->setVariable('SHOP_CURRENCIES', $curNavbar);
+                $template->setVariable('SHOP_CURRENCIES', $curNavbar);
             }
         }
 
@@ -483,20 +477,16 @@ die("Failed to get Customer for ID $customer_id");
         }
 
         // parse shopNavbar and/or shop_breadcrumb
-        if ($objTpl->blockExists('shopNavbar') || $objTpl->blockExists('shop_breadcrumb')) {
-            self::parseBreadcrumb($objTpl, $selectedCatId, $objProduct);
+        if ($template->blockExists('shopNavbar') || $template->blockExists('shop_breadcrumb')) {
+            self::parseBreadcrumb($template, $selectedCatId, $objProduct);
         }
 
         // Only show the cart info when the JS cart is not active!
         if (!self::$use_js_cart) {
-            $objTpl->setVariable(array(
+            $template->setVariable(array(
                 'SHOP_CART_INFO' => self::cart_info(),
             ));
         }
-//        if ($objTpl->blockExists('shopJsCart')) {
-//            $objTpl->touchBlock('shopJsCart');
-//        }
-        return $objTpl->get();
     }
 
 
