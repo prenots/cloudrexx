@@ -77,27 +77,25 @@ class Navigation
     }
 
 
-    public function getSubnavigation($templateContent, $license, $boolShop=false)
+    public function getSubnavigation($templateContent, $license)
     {
-        return $this->parseNavigation($templateContent, $license, $boolShop, true);
+        return $this->parseNavigation($templateContent, $license, true);
     }
 
 
-    public function getNavigation($templateContent, $license, $boolShop=false)
+    public function getNavigation($templateContent, $license)
     {
-        return $this->parseNavigation($templateContent, $license, $boolShop, false);
+        return $this->parseNavigation($templateContent, $license, false);
     }
 
     /**
-     * This is just a wrapper for \Cx\Core\PageTree\ classes and Shop::getNavbar()
+     * This is just a wrapper for \Cx\Core\PageTree\ classes
      * @param   string  $templateContent
-     * @param   boolean $boolShop         If true, parse the shop navigation
-     *                                    into {SHOPNAVBAR_FILE}
      * @param   \Cx\Core\ContentManager\Model\Entity\Page requestedPage
      * @access  private
      * @return mixed parsed navigation
      */
-    private function parseNavigation($templateContent, $license, $boolShop=false, $parseSubnavigation=false)
+    private function parseNavigation($templateContent, $license, $parseSubnavigation=false)
     {
         // only proceed if a navigation template had been set
         if (empty($templateContent)) {
@@ -108,13 +106,6 @@ class Navigation
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
         $this->_objTpl->setTemplate($templateContent);
-
-        if ($boolShop) {
-            $themesPages = \Env::get('init')->getTemplates($this->page);
-            $this->_objTpl->setVariable('SHOPNAVBAR_FILE', \Cx\Modules\Shop\Controller\Shop::getNavbar($themesPages['shopnavbar']));
-            $this->_objTpl->setVariable('SHOPNAVBAR2_FILE', \Cx\Modules\Shop\Controller\Shop::getNavbar($themesPages['shopnavbar2']));
-            $this->_objTpl->setVariable('SHOPNAVBAR3_FILE', \Cx\Modules\Shop\Controller\Shop::getNavbar($themesPages['shopnavbar3']));
-        }
 
         $rootNode = null;
         if ($parseSubnavigation) {

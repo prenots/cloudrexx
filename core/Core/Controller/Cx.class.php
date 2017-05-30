@@ -2021,7 +2021,6 @@ namespace Cx\Core\Core\Controller {
             }
 
             // set global template variables
-            $boolShop = \Cx\Modules\Shop\Controller\Shop::isInitialized();
             $objNavbar = new \Navigation($this->resolvedPage->getId(), $this->resolvedPage);
             $this->template->setVariable(array(
                 'GLOBAL_TITLE'                   => $_CONFIG['coreGlobalPageTitle'],
@@ -2034,12 +2033,12 @@ namespace Cx\Core\Core\Controller {
                 'DATE'                           => showFormattedDate(),
                 'TIME'                           => date('H:i', time()),
                 'NAVTREE'                        => $objNavbar->getTrail(),
-                'SUBNAVBAR_FILE'                 => $objNavbar->getSubnavigation($themesPages['subnavbar'], $this->license, $boolShop),
-                'SUBNAVBAR2_FILE'                => $objNavbar->getSubnavigation($themesPages['subnavbar2'], $this->license, $boolShop),
-                'SUBNAVBAR3_FILE'                => $objNavbar->getSubnavigation($themesPages['subnavbar3'], $this->license, $boolShop),
-                'NAVBAR_FILE'                    => $objNavbar->getNavigation($themesPages['navbar'], $this->license, $boolShop),
-                'NAVBAR2_FILE'                   => $objNavbar->getNavigation($themesPages['navbar2'], $this->license, $boolShop),
-                'NAVBAR3_FILE'                   => $objNavbar->getNavigation($themesPages['navbar3'], $this->license, $boolShop),
+                'SUBNAVBAR_FILE'                 => $objNavbar->getSubnavigation($themesPages['subnavbar'], $this->license),
+                'SUBNAVBAR2_FILE'                => $objNavbar->getSubnavigation($themesPages['subnavbar2'], $this->license),
+                'SUBNAVBAR3_FILE'                => $objNavbar->getSubnavigation($themesPages['subnavbar3'], $this->license),
+                'NAVBAR_FILE'                    => $objNavbar->getNavigation($themesPages['navbar'], $this->license),
+                'NAVBAR2_FILE'                   => $objNavbar->getNavigation($themesPages['navbar2'], $this->license),
+                'NAVBAR3_FILE'                   => $objNavbar->getNavigation($themesPages['navbar3'], $this->license),
                 'ONLINE_USERS'                   => $objCounter ? $objCounter->getOnlineUsers() : '',
                 'VISITOR_NUMBER'                 => $objCounter ? $objCounter->getVisitorNumber() : '',
                 'COUNTER'                        => $objCounter ? $objCounter->getCounterTag() : '',
