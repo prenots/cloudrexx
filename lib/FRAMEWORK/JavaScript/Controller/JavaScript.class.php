@@ -839,11 +839,11 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
                 }
             }
             if (!empty($lazyLoadingFiles)) {
-                JS::activate('cx');
+                $this->activate('cx');
             }
 
             // set cx.variables with lazy loading file paths
-            ContrexxJavascript::getInstance()->setVariable('lazyLoadingFiles', $lazyLoadingFiles, 'contrexx');
+            \ContrexxJavascript::getInstance()->setVariable('lazyLoadingFiles', $lazyLoadingFiles, 'contrexx');
 
             // Note the "reverse" here.  Dependencies are at the end of the
             // array, and must be loaded first!
@@ -872,7 +872,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
                 // Special case cloudrexx-API: fetch specialcode if activated
                 if ($name == 'cx') {
                     $jsScripts[] = $this->makeSpecialCode(
-                        array(ContrexxJavascript::getInstance()->initJs()));
+                        array(\ContrexxJavascript::getInstance()->initJs()));
                 }
             }
         }
@@ -1019,27 +1019,27 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
     /**
      * Finds all <script>-Tags in the passed HTML content, strips them out
      * and puts them in the internal JAVASCRIPT placeholder store.
-     * You can then retreive them all-in-one with JS::getCode().
+     * You can then retreive them all-in-one with $this->getCode().
      * @param string $content - Reference to the HTML content. Note that it
      *                          WILL be modified in-place.
      */
     public function findJavascripts(&$content)
     {
-        JS::grabComments($content);
+        $this->grabComments($content);
         $content = preg_replace_callback('/<script .*?src=(?:"|\')([^"\']*)(?:"|\').*?\/?>(?:<\/script>)?/i', array('JS', 'registerFromRegex'), $content);
-        JS::restoreComments($content);
+        $this->restoreComments($content);
     }
 
     /**
      * Finds all <link>-Tags in the passed HTML content, strips them out
      * and puts them in the internal CSS placeholder store.
-     * You can then retreive them all-in-one with JS::getCode().
+     * You can then retreive them all-in-one with $this->getCode().
      * @param string $content - Reference to the HTML content. Note that it
      *                          WILL be modified in-place.
      */
     public function findCSS(&$content)
     {
-        JS::grabComments($content);
+        $this->grabComments($content);
         //deactivate error handling for not well formed html
         libxml_use_internal_errors(true);
         $css = array();
@@ -1049,10 +1049,10 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
         foreach($dom->getElementsByTagName('link') as $element) {
             if(preg_match('/\.css(\?.*)?$/', $element->getAttribute('href'))) {
                 $css[] = $element->getAttribute('href');
-                JS::registerCSS($element->getAttribute('href'));
+                $this->registerCSS($element->getAttribute('href'));
             }
         }
-        JS::restoreComments($content);
+        $this->restoreComments($content);
         return $css;
     }
 
@@ -1084,7 +1084,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
 
 
     /**
-     * Restores all grabbed comments (@see JS::grabComments()) and
+     * Restores all grabbed comments (@see $this->grabComments()) and
      * puts them back in the given content. Modifies the given HTML in-place.
      * @param string $content
      */
@@ -1098,7 +1098,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
 
 
     /**
-     * Internal helper for replacing comments. @see JS::grabComments()
+     * Internal helper for replacing comments. @see $this->grabComments()
      */
     protected function _storeComment($re)
     {
