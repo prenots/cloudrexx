@@ -32,11 +32,11 @@
  * @author      Michael Ritter <michael.ritter@cloudrexx.com>
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @package     cloudrexx
- * @subpackage  lib_javascript
+ * @subpackage  core_javascript
  * @todo        Edit PHP DocBlocks!
  */
 
-namespace Cx\Lib\JavaScript\Controller;
+namespace Cx\Core\JavaScript\Controller;
 
 /**
  * Javascript
@@ -45,7 +45,7 @@ namespace Cx\Lib\JavaScript\Controller;
  * @author      Michael Ritter <michael.ritter@cloudrexx.com>
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @package     cloudrexx
- * @subpackage  lib_javascript
+ * @subpackage  core_javascript
  * @todo        Edit PHP DocBlocks!
  */
 class JavaScript
