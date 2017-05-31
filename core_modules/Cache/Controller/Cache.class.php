@@ -385,7 +385,14 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                 },
             ),
             'Podcast',
-            'Shop',
+            function($cx, $page) {
+                $urlParams = $cx->getRequest()->getUrl()->getParamArray();
+                return (
+                    $page->getModule() == 'Shop' &&
+                    isset($urlParams['act']) &&
+                    $urlParams['act'] == 'destroy'
+                );
+            },
             'Survey',
             'U2u',
             'Voting',
