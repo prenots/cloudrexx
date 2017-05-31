@@ -878,30 +878,51 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
 
         $intId = intval($_GET['id']);
         $intState = intval($_GET['state']);
-
+        $changedEntities = static::ENTITY_CHANGE_CATEGORY;
+        $clearCache      = false;
         switch ($_GET['type']){
             case 'category':
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_categories SET active = '".$intState."' WHERE id = ".$intId;
+                $clearCache = true;
                 break;
             case 'level':
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_levels SET active = '".$intState."' WHERE id = ".$intId;
+                $clearCache = true;
                 break;
             case 'mail_template':
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_mails SET active = '".$intState."' WHERE id = ".$intId;
                 break;
             case 'form_template':
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_forms SET active = '".$intState."' WHERE id = ".$intId;
+                $changedEntities = static::ENTITY_CHANGE_ENTRY | static::ENTITY_CHANGE_FORM;
+                $clearCache = true;
                 break;
             case 'mask':
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_masks SET active = '".$intState."' WHERE id = ".$intId;
                 break;
             case 'entry':
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_entries SET active = '".$intState."' WHERE id = ".$intId;
+                $changedEntities = static::ENTITY_CHANGE_ENTRY | static::ENTITY_CHANGE_FORM;
+                $clearCache = true;
                 break;
         }
 
-        $objDatabase->Execute($query);
+        if (!$objDatabase->Execute($query) || !$clearCache) {
+            die();
+        }
 
+        /*
+        If the type is 'category' or 'level'
+        then clear cache only for the following widgets 'MEDIADIR_NAVBAR' and 'mediadirNavtree'.
+        the reason is, these widgets, list category and level entries based on their status and
+        in remaining widgets, listing category/level entries not based on their status, so the cache is not cleared.
+        
+        If the type is 'entry' then clear cache for the following widgets:
+        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList', 'mediadirLatest_form_{\d}_{\d}'.
+        The reason is, these widgets are listing MediaDir entries based on its status.
+        The widgets 'MEDIADIR_NAVBAR' and 'mediadirNavtree' are not cleared because it does not list MediaDir entries.
+        */
+        $this->clearEsiCache($changedEntities);
         die();
     }
 
@@ -1601,4 +1622,3 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
         $this->_objTpl->parse('settings_content');
     }
 }
-?>

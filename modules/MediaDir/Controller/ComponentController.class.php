@@ -52,13 +52,25 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     protected $canonicalPage = null;
 
-    public function getControllerClasses() {
+    /**
+     * {@inheritDoc}
+     */
+    public function getControllerClasses()
+    {
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
-        return array();
+        return array('EsiWidget');
     }
 
-     /**
+    /**
+     * {@inheritDoc}
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
      * Load your component.
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
@@ -103,145 +115,124 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
     }
-    /**
-     * Do something before content is loaded from DB
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
-     */
-    public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $objMadiadirPlaceholders, $page_template, $themesPages;
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $objMadiadirPlaceholders = new MediaDirectoryPlaceholders($this->getName());
-                // Level/Category Navbar
-                if (preg_match('/{MEDIADIR_NAVBAR}/', \Env::get('cx')->getPage()->getContent())) {
-                    \Env::get('cx')->getPage()->setContent(str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), \Env::get('cx')->getPage()->getContent()));
-                }
-                if (preg_match('/{MEDIADIR_NAVBAR}/', $page_template)) {
-                    $page_template = str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), $page_template);
-                }
-                if (preg_match('/{MEDIADIR_NAVBAR}/', $themesPages['index'])) {
-                    $themesPages['index'] = str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), $themesPages['index']);
-                }
-                if (preg_match('/{MEDIADIR_NAVBAR}/', $themesPages['sidebar'])) {
-                    $themesPages['sidebar'] = str_replace('{MEDIADIR_NAVBAR}', $objMadiadirPlaceholders->getNavigationPlacholder(), $themesPages['sidebar']);
-                }
-                // Latest Entries
-                if (preg_match('/{MEDIADIR_LATEST}/', \Env::get('cx')->getPage()->getContent())) {
-                    \Env::get('cx')->getPage()->setContent(str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), \Env::get('cx')->getPage()->getContent()));
-                }
-                if (preg_match('/{MEDIADIR_LATEST}/', $page_template)) {
-                    $page_template = str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), $page_template);
-                }
-                if (preg_match('/{MEDIADIR_LATEST}/', $themesPages['index'])) {
-                    $themesPages['index'] = str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), $themesPages['index']);
-                }
-                if (preg_match('/{MEDIADIR_LATEST}/', $themesPages['sidebar'])) {
-                    $themesPages['sidebar'] = str_replace('{MEDIADIR_LATEST}', $objMadiadirPlaceholders->getLatestPlacholder(), $themesPages['sidebar']);
-                }
-
-                break;
-
-            default:
-                break;
-        }
-    }
 
     /**
      * Do something after content is loaded from DB
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
      */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $mediadirCheck, $objTemplate, $_CORELANG, $objInit;
+    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
+    {
+        global $objTemplate;
 
-        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
+        // TODO: Move this functionality to the method adjustResponse()
+        if (
+            $this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND ||
+            !$objTemplate->blockExists('mediadirNavtree')
+        ) {
             return;
         }
 
-        $mediadirCheck = array();
-        for ($i = 1; $i <= 10; ++$i) {
-            if ($objTemplate->blockExists('mediadirLatest_row_'.$i)){
-                array_push($mediadirCheck, $i);
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
+        if (isset($requestParams['cid'])) {
+            $categoryId = contrexx_input2int($requestParams['cid']);
+        }
+        if (isset($requestParams['lid'])) {
+            $levelId = contrexx_input2int($requestParams['lid']);
+        }
+        $objMediadir = new MediaDirectory('', $this->getName());
+        $objMediadir->setMetaTitle($categoryId, $levelId);
+        if ($objMediadir->getMetaTitle() != '') {
+            $page->setMetatitle($page->getTitle() . $objMediadir->getMetaTitle());
+        }
+    }
+
+    /**
+     * Do something after system initialization
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * This event must be registered in the postInit-Hook definition
+     * file config/postInitHooks.yml.
+     *
+     * @param \Cx\Core\Core\Controller\Cx $cx The instance of \Cx\Core\Core\Controller\Cx
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $params        = array();
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
+        if (isset($requestParams['lid'])) {
+            $params['lid'] = $requestParams['lid'];
+        }
+        if (isset($requestParams['cid'])) {
+            $params['cid'] = $requestParams['cid'];
+        }
+
+        /*
+        Parse widgets for Placeholders and Template Blocks
+        placeholders: Show Level/Category Navbar and Latest Entries
+        template blocks:
+        mediadirLatest, mediadirList, mediadirNavtree
+        mediadirLatest_row_1_1 to mediadirLatest_row_10_10
+        */
+        $mediaDirLib = new MediaDirectoryLibrary('.', $this->getName());
+        $widgetNames = $mediaDirLib->getWidgetNamesAffectedByEntityChange();
+        $this->parseWidgets($widgetNames, $params);
+    }
+
+    /**
+     * Parse widgets
+     *
+     * @param array $widgetNames          array of widget names
+     * @param array $additionalParameters array of additional parameters
+     */
+    protected function parseWidgets($widgetNames, $additionalParameters)
+    {
+        if (empty($widgetNames)) {
+            return;
+        }
+
+        $widgetController = $this->getComponent('Widget');
+        foreach ($widgetNames as $widgetName) {
+            //Use additional params if the widget name is
+            //either 'mediadirNavtree' or 'MEDIADIR_NAVBAR'
+            $parameter = array();
+            if (
+                in_array(
+                    $widgetName,
+                    array('mediadirNavtree', 'MEDIADIR_NAVBAR')
+                )
+            ) {
+                $parameter = $additionalParameters;
             }
-        }
-        if ($mediadirCheck || $objTemplate->blockExists('mediadirLatest') || $objTemplate->blockExists('mediadirList') || $objTemplate->blockExists('mediadirNavtree')) {
-            $objInit->loadLanguageData('MediaDir');
 
-            $objMediadir = new MediaDirectory('', $this->getName());
-            $objTemplate->setVariable('TXT_MEDIADIR_LATEST', $_CORELANG['TXT_DIRECTORY_LATEST']);
-        }
-        if ($mediadirCheck) {
-            $objMediadir->getHeadlines($mediadirCheck);
-        }
-        if ($objTemplate->blockExists('mediadirLatest')){
-            $objMediadirForms = new MediaDirectoryForm(null, 'MediaDir');
-            $foundOne = false;
-            foreach ($objMediadirForms->getForms() as $key => $arrForm) {
-                if ($objTemplate->blockExists('mediadirLatest_form_'.$arrForm['formCmd'])) {
-                    $objMediadir->getLatestEntries($key, 'mediadirLatest_form_'.$arrForm['formCmd']);
-                    $foundOne = true;
-                }
+            //Identify if the current widget is Template block or Placeholder
+            $isBlock = true;
+            if (
+                in_array(
+                    $widgetName,
+                    array('MEDIADIR_NAVBAR', 'MEDIADIR_LATEST')
+                )
+            ) {
+                $isBlock = false;
             }
-            //for the backward compatibility
-            if(!$foundOne) {
-                $objMediadir->getLatestEntries();
-            }
-        }
 
-        // Parse entries of specific form, category and/or level.   
-        // Entries are listed in custom set order
-        if ($objTemplate->blockExists('mediadirList')) {
-            // hold information if a specific block has been parsed
-            $foundOne = false;
-
-            // fetch mediadir object data
-            $objMediadirForm = new MediaDirectoryForm(null, $this->getName());
-            $objMediadirCategory = new MediaDirectoryCategory(null, null, 0, $this->getName());
-            $objMediadirLevel = new MediaDirectoryLevel(null, null, 1, $this->getName());
-
-            // put all object data into one array
-            $objects = array(
-                'form' => array_keys($objMediadirForm->getForms()),
-                'category' => array_keys($objMediadirCategory->arrCategories),
-                'level' => array_keys($objMediadirLevel->arrLevels),
+            //Create and Register the widget in Widget Component
+            $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                $this,
+                $widgetName,
+                $isBlock,
+                '',
+                '',
+                $parameter
             );
-
-            // check for form specific entry listing
-            foreach ($objects as $objectType => $arrObjectList) {
-                foreach ($arrObjectList as $objectId) {
-                    // the specific block to parse. I.e.:
-                    //    mediadirList_form_3
-                    //    mediadirList_category_4
-                    //    mediadirList_level_5
-                    $block = 'mediadirList_'.$objectType.'_'.$objectId;
-                    if ($objTemplate->blockExists($block)) {
-                        $config = MediaDirectoryLibrary::fetchMediaDirListConfigFromTemplate($block, $objTemplate);
-                        $config['filter'][$objectType] = $objectId;
-                        $objMediadir->parseEntries($objTemplate, $block, $config);
-                        $foundOne = true;
-                    }
-                }
+            if (!$isBlock) {
+                $widget->setEsiVariable(
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+                );
             }
-
-            // fallback, no specific block has been parsed
-            // -> parse all entries now (use template block mediadirList)
-            if(!$foundOne) {
-                $objMediadir->parseEntries($objTemplate);
-            }
-        }
-        if ($objTemplate->blockExists('mediadirNavtree')) {
-            $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
-            if (isset($requestParams['cid'])) {
-                $categoryId = intval($requestParams['cid']);
-            }
-            if (isset($requestParams['lid'])) {
-                $levelId = intval($requestParams['lid']);
-            }
-            $objMediadir->getNavtree($categoryId, $levelId, $objTemplate);
-            if ($objMediadir->getMetaTitle() != '') {
-                $page->setMetatitle($page->getTitle() . $objMediadir->getMetaTitle());
-            }
+            $widgetController->registerWidget($widget);
         }
     }
 

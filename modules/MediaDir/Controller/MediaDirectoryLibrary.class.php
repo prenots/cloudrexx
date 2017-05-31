@@ -107,6 +107,31 @@ class MediaDirectoryLibrary
     protected static $currentFetchedEntryDataObject = null;
 
     /**
+     * @const integer value for MediaDir Entry change
+     */
+    const ENTITY_CHANGE_ENTRY    = 1;
+
+    /**
+     * @const integer value for MediaDir Category change
+     */
+    const ENTITY_CHANGE_CATEGORY = 2;
+
+    /**
+     * @const integer value for MediaDir Level change
+     */
+    const ENTITY_CHANGE_LEVEL    = 4;
+
+    /**
+     * @const integer value for MediaDir Form change
+     */
+    const ENTITY_CHANGE_FORM     = 8;
+
+    /**
+     * @const integer value for all MediaDir changes
+     */
+    const ENTITY_CHANGE_ALL      = 15;
+
+    /**
      * Constructor
      */
     function __construct($tplPath, $name)
@@ -1448,5 +1473,83 @@ EOF;
         }
 
         return $config;
+    }
+
+    /**
+     * Clear ESI cache
+     *
+     * @param integer $changedEntities changed entities
+     */
+    public function clearEsiCache($changedEntities = self::ENTITY_CHANGE_ALL)
+    {
+        $widgetNames = $this->getWidgetNamesAffectedByEntityChange($changedEntities);
+        $cx          = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent('clearEsiCache', array('Widget', $widgetNames));
+    }
+
+    /**
+     * Return the names of widgets that are affected by a certain entity change
+     *
+     * @param integer $changedEntities changed entities
+     *
+     * @return array
+     */
+    public function getWidgetNamesAffectedByEntityChange(
+        $changedEntities = self::ENTITY_CHANGE_ALL
+    ) {
+        $widgetsAffectedByEntityChange = array(
+            'MEDIADIR_NAVBAR' => array(
+                static::ENTITY_CHANGE_CATEGORY,
+                static::ENTITY_CHANGE_LEVEL
+            ),
+            'MEDIADIR_LATEST' => array(
+                static::ENTITY_CHANGE_ENTRY
+            ),
+            'mediadirLatest' => array(
+                static::ENTITY_CHANGE_FORM
+            ),
+            'mediadirList' => array(
+                static::ENTITY_CHANGE_FORM
+            ),
+            'mediadirNavtree' => array(
+                static::ENTITY_CHANGE_CATEGORY,
+                static::ENTITY_CHANGE_LEVEL
+            ),
+            'mediadirLatestRow' => array(
+                static::ENTITY_CHANGE_ENTRY
+            )
+        );
+
+        // Use function to get the MediaDir latest row widget names
+        $mediaDirLatestRowBlockNames = function() {
+            $blocks = array();
+            foreach (range(1, 10) as $row) {
+                foreach (range(1, $row) as $row1) {
+                    $blocks[] =  'mediadirLatest_row_' . $row1 . '_' . $row;
+                }
+            }
+            return $blocks;
+        };
+
+        // Return names of widgets that are affected by changes in $changedEntities
+        $widgetNames = array();
+        foreach ($widgetsAffectedByEntityChange as $widgetName => $entities) {
+            foreach ($entities as $entity) {
+                if (!($changedEntities & $entity)) {
+                    continue ;
+                }
+                if ($widgetName !== 'mediadirLatestRow') {
+                    $widgetNames[] = $widgetName;
+                    break;
+                }
+                $widgetNames = array_merge(
+                    $widgetNames,
+                    $mediaDirLatestRowBlockNames()
+                );
+                break;
+            }
+        }
+
+        return $widgetNames;
     }
 }

@@ -445,6 +445,16 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
                 }
 
                 if($objInsertNames !== false && $objCreateCatSelectors !== false && $objCreateLevelSelectors !== false) {
+                    /*
+                    The cache will be cleared for the following widgets:
+                    'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+                    The reason is, in these widgets, MediaDir entries are listed based on the form.
+                    The remaining widgets which do not list MediaDir entries are not cleared.
+                    */
+                    $this->clearEsiCache(
+                        static::ENTITY_CHANGE_ENTRY |
+                        static::ENTITY_CHANGE_FORM
+                    );
                     return true;
                 } else {
                     return false;
@@ -489,6 +499,16 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
                 $objInsertNames = $this->updateFormLocale($arrName, $arrDescription, $intId);
 
                 if($objInsertNames !== false) {
+                    /*
+                    The cache will be cleared for the following widgets:
+                    'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+                    The reason is, in these widgets, MediaDir entries are listed based on the form.
+                    The remaining widgets which do not list MediaDir entries are not cleared.
+                    */
+                    $this->clearEsiCache(
+                        static::ENTITY_CHANGE_ENTRY |
+                        static::ENTITY_CHANGE_FORM
+                    );
                     return true;
                 } else {
                     return false;
@@ -596,6 +616,16 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
                                                         `id`='".intval($intFormId)."'
                                                     ");
 
+        /*
+        The cache will be cleared for the following widgets:
+        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        The reason is, in these widgets, MediaDir entries are listed based on the form.
+        The remaining widgets which do not list MediaDir entries are not cleared.
+        */
+        $this->clearEsiCache(
+            static::ENTITY_CHANGE_ENTRY |
+            static::ENTITY_CHANGE_FORM
+        );
         return true;
     }
 
@@ -612,7 +642,16 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
             }
         }
 
+        /*
+        The cache will be cleared for the following widgets:
+        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        The reason is, in these widgets, MediaDir entries are listed based on the form.
+        The remaining widgets which do not list MediaDir entries are not cleared.
+        */
+        $this->clearEsiCache(
+            static::ENTITY_CHANGE_ENTRY |
+            static::ENTITY_CHANGE_FORM
+        );
         return true;
     }
 }
-?>
