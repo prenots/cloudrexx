@@ -46,17 +46,17 @@ class JS
 {
     /**
      * The main instance of the JavaScript class
-     * @var \Cx\Lib\JavaScript\Controller\JavaScript
+     * @var \Cx\Core\JavaScript\Controller\JavaScript
      */
     protected static $instance = null;
     
     /**
      * Returns the main instance of the JavaScript class
-     * @return \Cx\Lib\JavaScript\Controller\JavaScript
+     * @return \Cx\Core\JavaScript\Controller\JavaScript
      */
     public static function getInstance() {
         if (!static::$instance) {
-            static::$instance = new \Cx\Lib\JavaScript\Controller\JavaScript();
+            static::$instance = new \Cx\Core\JavaScript\Controller\JavaScript();
         }
         return static::$instance;
     }
