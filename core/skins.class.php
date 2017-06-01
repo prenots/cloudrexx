@@ -1108,6 +1108,8 @@ class skins
         try {
             $objFile = new \Cx\Lib\FileSystem\File($this->path.$themes.'/'.$themesPage);
             $objFile->write($pageContent);
+
+            header('X-XSS-Protection: 0');
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::msg($e->getMessage());
         }
