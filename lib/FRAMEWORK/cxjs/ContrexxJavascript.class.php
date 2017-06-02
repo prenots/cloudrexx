@@ -60,18 +60,47 @@ require_once ASCMS_FRAMEWORK_PATH.'/cxjs/ContrexxJavascriptI18n.class.php';
  * @todo this can be cached
  */
 class ContrexxJavascript {
-    //singleton functionality: instance
-    static private $instance = null;
-    //singleton functionality: instance getter
     /**
-     * @return \ContrexxJavascript Singleton instance
+     * "Multiton" pattern instances
+     * The last instance is used
+     * @var array
      */
-    static public function getInstance()
+    protected static $instances = array();
+    
+    /**
+     * Returns the current instance
+     *
+     * @param boolean $forceNew
+     * @return \ContrexxJavascript Current instance
+     */
+    public static function getInstance($forceNew = false)
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new self;
+        if (!count(static::$instances) || $forceNew) {
+            static::$instances[] = new static();
         }
-        return self::$instance;
+        return end(static::$instances);
+    }
+
+    /**
+     * Adds a new instance to the stack. This instance will be used as current
+     * instance.
+     *
+     * @param \ContrexxJavascript $instance (optional) If left empty a new instance will be created
+     */
+    public static function push($instance = null) {
+        if ($instance) {
+            static::$instances[] = $instance;
+            return;
+        }
+        static::getInstance(true);
+    }
+
+    /**
+     * Drops the current instance from the stack and returns it
+     * @return \ContrexxJavascript
+     */
+    public static function pop() {
+        return array_pop(static::$instances);
     }
 
     private function __construct()
@@ -168,6 +197,9 @@ class ContrexxJavascript {
      * generates all javascript needed to configure the cx-object
      */
     public function initJs() {
+        if (!count($this->variables)) {
+            return '';
+        }
         $js = $this->constructJs();
         $js .= $this->variableConfigJs();
         $js .= 'cx.internal.setCxInitialized();';
