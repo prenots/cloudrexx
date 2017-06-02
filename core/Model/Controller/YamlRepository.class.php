@@ -358,26 +358,38 @@ class YamlRepository {
 
     /**
      * Validate the entity to comply with any unique-key constraints
-     * @param   YamlEntity The entity to validate
+     * 
+     * @param object $entity YamlEntity The entity to validate
+     * 
+     * @return null
+     * @throws YamlRepositoryException
      */
     protected function validate($entity) {
+        
+        if (empty($this->entityUniqueKeys)) {
+            return;
+        }
+        
+        $criteria = array();
         foreach ($this->entityUniqueKeys as $uniqueKey) {
             $value = call_user_func(array($entity, "get".ucfirst($uniqueKey)));
-            $matchedEntities = $this->findBy(array($uniqueKey => $value));
-
-            // if no other entities use the same uniqueKey then we're good
-            if (!count($matchedEntities)) {
-                continue;
-            }
-            if (count($matchedEntities) == 1) {
-                // it's fine in case the entity with the same uniqueKey is actually the entity we are validating
-                if ($this->getIdentifierOfEntity(current($matchedEntities)) == $this->getIdentifierOfEntity($entity)) {
-                    continue;
-                }
-            }
-
-            throw new YamlRepositoryException("Attribute $uniqueKey ($value) of entity #{$this->getIdentifierOfEntity($entity)} must be unique!");
+            $criteria[$uniqueKey] = $value;
         }
+
+        $matchedEntities = $this->findBy($criteria);
+        // if no other entities use the same uniqueKey then we're good
+        if (!count($matchedEntities)) {
+            return;
+        }
+        
+        if (count($matchedEntities) == 1) {
+            // it's fine in case the entity with the same uniqueKey is actually the entity we are validating
+            if ($this->getIdentifierOfEntity(current($matchedEntities)) == $this->getIdentifierOfEntity($entity)) {
+                return;
+            }
+        }
+
+        throw new YamlRepositoryException("Attribute $uniqueKey ($value) of entity #{$this->getIdentifierOfEntity($entity)} must be unique!");
     }
 
     /**

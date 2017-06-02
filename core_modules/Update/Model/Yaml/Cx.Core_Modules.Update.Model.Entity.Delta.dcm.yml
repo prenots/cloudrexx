@@ -7,6 +7,8 @@ Cx\Core_Modules\Update\Model\Entity\Delta:
       generator:
         strategy: AUTO
   fields:
+    component:
+      type: string
     codeBaseId:
       type: integer
     rollback:

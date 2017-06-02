@@ -2,4 +2,5 @@ meta:
   auto_increment: 0
   identifier: id
   unique_keys:
+    - component
     - codeBaseId
