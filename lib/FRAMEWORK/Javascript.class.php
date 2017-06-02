@@ -48,17 +48,42 @@ class JS
      * The main instance of the JavaScript class
      * @var \Cx\Core\JavaScript\Controller\JavaScript
      */
-    protected static $instance = null;
+    protected static $instances = array();
     
     /**
-     * Returns the main instance of the JavaScript class
+     * Returns the current instance
+     *
+     * @param boolean $forceNew
+     * @return \Cx\Core\JavaScript\Controller\JavaScript Current instance
+     */
+    public static function getInstance($forceNew = false)
+    {
+        if (!count(static::$instances) || $forceNew) {
+            static::$instances[] = new \Cx\Core\JavaScript\Controller\JavaScript();
+        }
+        return end(static::$instances);
+    }
+
+    /**
+     * Adds a new instance to the stack. This instance will be used as current
+     * instance.
+     *
+     * @param \Cx\Core\JavaScript\Controller\JavaScript $instance (optional) If left empty a new instance will be created
+     */
+    public static function push($instance = null) {
+        if ($instance) {
+            static::$instances[] = $instance;
+            return;
+        }
+        static::getInstance(true);
+    }
+
+    /**
+     * Drops the current instance from the stack and returns it
      * @return \Cx\Core\JavaScript\Controller\JavaScript
      */
-    public static function getInstance() {
-        if (!static::$instance) {
-            static::$instance = new \Cx\Core\JavaScript\Controller\JavaScript();
-        }
-        return static::$instance;
+    public static function pop() {
+        return array_pop(static::$instances);
     }
     
     /**
