@@ -235,7 +235,6 @@ class JsonPage implements JsonAdapter {
                 // We are translating the page.
                 $node = $this->nodeRepo->find($nodeId);
                 $page = $node->translatePage(true, \FWLanguage::getLanguageIdByCode($lang));
-                $page->setNodeIdShadowed($node->getId());
                 $page->setEditingStatus('');
 
                 $newPage = true;
@@ -287,7 +286,6 @@ class JsonPage implements JsonAdapter {
                 $page = new \Cx\Core\ContentManager\Model\Entity\Page();
                 $page->setNode($node);
                 $node->addPage($page);
-                $page->setNodeIdShadowed($node->getId());
                 $page->setLang(\FWLanguage::getLanguageIdByCode($lang));
                 $page->setUpdatedBy(
                     \FWUser::getFWUserObject()->objUser->getUsername()

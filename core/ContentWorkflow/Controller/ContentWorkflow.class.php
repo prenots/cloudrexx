@@ -459,7 +459,6 @@ class ContentWorkflow extends \Module {
     private function restorePage($node, $page, $logs) {
         // Save the restored page
         $page->setNode($node);
-        $page->setNodeIdShadowed($node->getId());
         $this->em->persist($page);
         $this->em->flush();
         $pageId = $page->getId();

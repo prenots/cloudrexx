@@ -460,7 +460,6 @@ class ComponentManager
     private function createPage($parentNode, $lang, $title, $type, $module, $cmd, $display, $sourceMode, $content) {
         $page = new \Cx\Core\ContentManager\Model\Entity\Page();
         $page->setNode($parentNode);
-        $page->setNodeIdShadowed($parentNode->getId());
         $page->setLang($lang);
         $page->setTitle($title);
         $page->setType($type);

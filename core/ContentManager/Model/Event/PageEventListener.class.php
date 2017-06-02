@@ -69,6 +69,10 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
     protected $lastPreUpdateChangeset;
 
     public function prePersist($eventArgs) {
+        // Make sure node ID shadowed is set correctly
+        $eventArgs->getEntity()->setNodeIdShadowed(
+            $eventArgs->getEntity()->getNode()->getId()
+        );
         $this->setUpdatedByCurrentlyLoggedInUser($eventArgs);
         $this->fixAutoIncrement();
     }
@@ -78,6 +82,10 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
      * @param \Doctrine\ORM\Event\PreUpdateEventArgs $eventArgs
      */
     public function preUpdate($eventArgs) {
+        // Make sure node ID shadowed is set correctly
+        $eventArgs->getEntity()->setNodeIdShadowed(
+            $eventArgs->getEntity()->getNode()->getId()
+        );
         $this->setUpdatedByCurrentlyLoggedInUser($eventArgs);
         $this->lastPreUpdateChangeset = $eventArgs->getEntityChangeSet();
     }
@@ -100,6 +108,10 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
     }
 
     public function preRemove($eventArgs) {
+        // Make sure node ID shadowed is set correctly
+        $eventArgs->getEntity()->setNodeIdShadowed(
+            $eventArgs->getEntity()->getNode()->getId()
+        );
         $em      = $eventArgs->getEntityManager();
         $uow     = $em->getUnitOfWork();
         $entity  = $eventArgs->getEntity();
