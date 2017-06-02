@@ -1043,7 +1043,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
         //deactivate error handling for not well formed html
         libxml_use_internal_errors(true);
         $css = array();
-        $dom = new domDocument;
+        $dom = new \DomDocument;
         $dom->loadHTML($content);
         libxml_clear_errors();
         foreach($dom->getElementsByTagName('link') as $element) {
@@ -1079,7 +1079,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
      */
     protected function grabComments(&$content)
     {
-        $content = preg_replace_callback('#<!--.*?-->#ms', array('JS', '_storeComment'), $content);
+        $content = preg_replace_callback('#<!--.*?-->#ms', array($this, '_storeComment'), $content);
     }
 
 
