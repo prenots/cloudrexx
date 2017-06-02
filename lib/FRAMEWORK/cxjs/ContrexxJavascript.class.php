@@ -73,10 +73,10 @@ class ContrexxJavascript {
      * @param boolean $forceNew
      * @return \ContrexxJavascript Current instance
      */
-    public static function getInstance($forceNew = false)
+    public static function getInstance($forceNew = false, $parseForMainTemplate = true)
     {
         if (!count(static::$instances) || $forceNew) {
-            static::$instances[] = new static();
+            static::$instances[] = new static($parseForMainTemplate);
         }
         return end(static::$instances);
     }
@@ -87,12 +87,12 @@ class ContrexxJavascript {
      *
      * @param \ContrexxJavascript $instance (optional) If left empty a new instance will be created
      */
-    public static function push($instance = null) {
+    public static function push($instance = null, $parseForMainTemplate = true) {
         if ($instance) {
             static::$instances[] = $instance;
             return;
         }
-        static::getInstance(true);
+        static::getInstance(true, $parseForMainTemplate);
     }
 
     /**
@@ -103,9 +103,13 @@ class ContrexxJavascript {
         return array_pop(static::$instances);
     }
 
-    private function __construct()
+    private function __construct($parseForMainTemplate = true)
     {
         global $objInit;
+
+        if (!$parseForMainTemplate) {
+            return;
+        }
 
         $backOrFrontend = $objInit->mode;
 // TODO: Unused
