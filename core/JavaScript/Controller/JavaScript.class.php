@@ -811,7 +811,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
      * @access public
      * @return string
      */
-    public function getCode()
+    public function getCode($parseForMainTemplate = true)
     {
         $cssfiles = array();
 // TODO: Unused
@@ -886,11 +886,13 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
         $jsScripts[] = $this->makeJSFiles($this->templateJS);
 
         // no conflict for normal jquery version which has been included in template or by theme dependency
-        $jsScripts[] = $this->makeSpecialCode('if (typeof jQuery != "undefined") { jQuery.noConflict(); }');
+        if ($parseForMainTemplate) {
+            $jsScripts[] = $this->makeSpecialCode('if (typeof jQuery != "undefined") { jQuery.noConflict(); }');
+        }
         $retstring .= $this->makeCSSFiles($cssfiles);
         $retstring .= $this->makeCSSFiles($this->customCSS);
         // Add javscript files
-        $retstring .= implode(' ', $jsScripts);
+        $retstring .= trim(implode(' ', $jsScripts));
         $retstring .= $this->makeJSFiles($this->customJS);
         $retstring .= $this->makeSpecialCode($this->customCode);
         return $retstring;
