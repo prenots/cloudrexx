@@ -890,8 +890,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                                     $objUser = new \Cx\Core_Modules\MultiSite\Model\Entity\User();
                                     $objUser->assignRandomUserId();
                                     $objUser->setProfile(array(
-                                        'firstname' => array(0 => $arrData['userProfile']->getFirstname()),
-                                        'lastname'  => array(0 => $arrData['userProfile']->getLastname()),
+                                        'firstname' => array(0 => $arrData['userProfile']['firstname']),
+                                        'lastname'  => array(0 => $arrData['userProfile']['lastname']),
                                     ));
                                     return \FWUser::getParsedUserTitle($objUser);
                                 },
@@ -969,22 +969,27 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 );
             //display the admin users using viewgenerator
             if($websiteAdminUsers){
-                $view = new \Cx\Core\Html\Controller\ViewGenerator($websiteAdminUsers, array(
-                    'functions' => array(
-                        'add' => false,
-                        'edit' => false,
-                        'delete' => false,
-                        'sorting' => false,
-                        'baseUrl' => '',
-                        'actions' => function($rowData) {
-                            if ($rowData['email'] != \FWUser::getFWUserObject()->objUser->getEmail()) {
-                                return '<a class="entypo-tools" data-user_id= "' . $rowData['id'] . '" data-page= "Edit"></a>  '
-                                        . '<a class="entypo-trash" data-user_id= "' . $rowData['id'] . '" data-page= "Delete"></a>';
-                            }
-                        },
-                    ),
-                    'fields' => $showOverview
-                ));
+                $view = new \Cx\Core\Html\Controller\ViewGenerator(
+                    $websiteAdminUsers,
+                    array(
+                        'array' => array(
+                            'functions' => array(
+                                'add' => false,
+                                'edit' => false,
+                                'delete' => false,
+                                'sorting' => false,
+                                'baseUrl' => '',
+                                'actions' => function($rowData) {
+                                    if ($rowData['email'] != \FWUser::getFWUserObject()->objUser->getEmail()) {
+                                        return '<a class="entypo-tools" data-user_id= "' . $rowData['id'] . '" data-page= "Edit"></a>  '
+                                                . '<a class="entypo-trash" data-user_id= "' . $rowData['id'] . '" data-page= "Delete"></a>';
+                                    }
+                                },
+                            ),
+                            'fields' => $showOverview,
+                        ),
+                    )
+                );
                 $objTemplate->setVariable('ADMIN_USERS', $view->render());
             }
         }

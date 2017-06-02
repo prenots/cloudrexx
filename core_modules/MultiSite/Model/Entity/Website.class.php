@@ -1976,9 +1976,12 @@ throw new WebsiteException('implement secret-key algorithm first!');
                 }
                 
                 $objDataSet         = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($arr);
-                $objEntityInterface = new \Cx\Core_Modules\Listing\Model\Entity\EntityInterface();
-                $objEntityInterface->setEntityClass('Cx\Core\User\Model\Entity\User');
-                $adminUsers = $objDataSet->export($objEntityInterface);
+                $users = $objDataSet->toArray();
+                if ($objDataSet->size() == 1) {
+                    $users = array($users);
+                }
+                
+                $adminUsers = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($users);
                 return $adminUsers;
             }
         } catch (\Cx\Core_Modules\MultiSite\Controller\MultiSiteJsonException $e) {
