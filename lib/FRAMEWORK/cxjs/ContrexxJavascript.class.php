@@ -168,6 +168,9 @@ class ContrexxJavascript {
      * generates all javascript needed to configure the cx-object
      */
     public function initJs() {
+        if (!count($this->variables)) {
+            return '';
+        }
         $js = $this->constructJs();
         $js .= $this->variableConfigJs();
         $js .= 'cx.internal.setCxInitialized();';
