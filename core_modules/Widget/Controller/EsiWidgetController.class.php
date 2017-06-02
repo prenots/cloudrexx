@@ -161,7 +161,7 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
 
         // JS parsing
         \JS::push();
-        \ContrexxJavascript::push();
+        \ContrexxJavascript::push(null, false);
 
         $this->parseWidget(
             $params['get']['name'],
@@ -179,8 +179,11 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
 
         // JS parsing
         $js = \JS::pop();
+        $jsVariables = \ContrexxJavascript::pop()->initJs();
+        if (!empty($jsVariables)) {
+            $js->registerCode($jsVariables);
+        }
         $jsCode = $js->getCode(false);
-        \ContrexxJavascript::pop();
 
         $_GET = $backupGetParams;
         $_REQUEST = $backupRequestParams;

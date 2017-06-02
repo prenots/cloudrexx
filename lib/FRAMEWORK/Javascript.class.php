@@ -96,4 +96,32 @@ class JS
     public static function __callStatic($name, $arguments) {
         return call_user_func_array(array(static::getInstance(), $name), $arguments);
     }
+
+    /**
+     * This wrapper is necessary since __callStatic() cannot handle "by reference"
+     */
+    public static function findJavascripts(&$content) {
+        return static::getInstance()->findJavascripts($content);
+    }
+
+    /**
+     * This wrapper is necessary since __callStatic() cannot handle "by reference"
+     */
+    public static function findCss(&$content) {
+        return static::getInstance()->findCss($content);
+    }
+
+    /**
+     * This wrapper is necessary since __callStatic() cannot handle "by reference"
+     */
+    public static function grabComments(&$content) {
+        return static::getInstance()->grabComments($content);
+    }
+
+    /**
+     * This wrapper is necessary since __callStatic() cannot handle "by reference"
+     */
+    public static function restoreComments(&$content) {
+        return static::getInstance()->restoreComments($content);
+    }
 }
