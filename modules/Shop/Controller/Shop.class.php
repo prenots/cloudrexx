@@ -627,6 +627,7 @@ die("Failed to get Customer for ID $customer_id");
             $div_cart,
             $match
         );
+        $div_cart = $match[2];
 
         // add original template as JS template and replace it by our JS code
         $template->setRoot(ASCMS_MODULE_PATH . '/Shop/View/Template/Frontend');
@@ -635,30 +636,66 @@ die("Failed to get Customer for ID $customer_id");
         $template->setVariable(array(
             'SURROUNDING_ELEMENT_START' => $match[1],
             'SURROUNDING_ELEMENT_END' => $match[4],
-            'SHOP_CART_ADD_PRODUCT_URL' => (string) \Cx\Core\Routing\URL::fromModuleAndCmd(
-                'Shop' . MODULE_INDEX,
-                'cart',
-                FRONTEND_LANG_ID,
-                array(
-                    'remoteJs' => 'addProduct',
-                )
-            ),
-            'ESCAPED_CART_TEMPLATE' => preg_replace(
-                array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
-                array('\\\'', '\n', '\\/', '[', ']'),
-                $div_cart
-            ),
-            'ESCAPED_PRODUCT_TEMPLATE' => preg_replace(
-                array('/"/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
-                array('\\\'', '\n', '\\/', '[', ']'),
-                $div_product
-            ),
-            'COMPONENT_WEB_PATH' => substr(
-                \Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName(),
-                1
-            ),
         ));
         $template->touchBlock('shopJsCart');
+        
+        // JS vars for scope shop
+        \ContrexxJavascript::getInstance()->setVariable(
+            array(
+                'TXT_SHOP_PRODUCT_ADDED_TO_CART' => $_ARRAYLANG['TXT_SHOP_PRODUCT_ADDED_TO_CART'],
+                'TXT_SHOP_CONFIRM_DELETE_PRODUCT' => $_ARRAYLANG['TXT_SHOP_CONFIRM_DELETE_PRODUCT'],
+                'TXT_MAKE_DECISION_FOR_OPTIONS' => $_ARRAYLANG['TXT_MAKE_DECISION_FOR_OPTIONS'],
+                'url' => (string) \Cx\Core\Routing\URL::fromModuleAndCmd(
+                    'Shop' . MODULE_INDEX,
+                    'cart',
+                    FRONTEND_LANG_ID,
+                    array('remoteJs' => 'addProduct')
+                ),
+            ),
+            'shop'
+        );
+
+        // JS vars for scope shop/cart
+        \ContrexxJavascript::getInstance()->setVariable(
+            array(
+                'TXT_SHOP_CART_IS_LOADING' => $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'],
+                'TXT_SHOP_COULD_NOT_LOAD_CART' => $_ARRAYLANG['TXT_SHOP_COULD_NOT_LOAD_CART'],
+                'TXT_EMPTY_SHOPPING_CART' => $_ARRAYLANG['TXT_EMPTY_SHOPPING_CART'],
+                'url' => (string) \Cx\Core\Routing\URL::fromModuleAndCmd(
+                    'Shop' . MODULE_INDEX,
+                    'cart',
+                    FRONTEND_LANG_ID,
+                    array('remoteJs' => 'addProduct')
+                ),
+            ),
+            'shop/cart'
+        );
+        \JS::registerJS(
+            substr(
+                \Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() .
+                    '/Shop/View/Script/shop.js',
+                1
+            )
+        );
+        \JS::registerJS(
+            substr(
+                \Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() .
+                    '/Shop/View/Script/cart.js',
+                1
+            )
+        );
+        \JS::registerCode('
+            cartTpl = \'' . preg_replace(
+                array('/\'/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
+                array('\\\'', '\n', '\\/', '[', ']'),
+                $div_cart
+            ).'\'.replace(/\[/g, "{").replace(/\]/g, "}");
+            cartProductsTpl = \'' . preg_replace(
+                array('/\'/', '/[\n\r]/', '/\//', '/\[\[/', '/\]\]/'),
+                array('\\\'', '\n', '\\/', '[', ']'),
+                $div_product
+            ).'\'.replace(/\[/g, "{").replace(/\]/g, "}");
+        ');
     }
 
 

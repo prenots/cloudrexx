@@ -1,29 +1,3 @@
 {SURROUNDING_ELEMENT_START}
 {TXT_SHOP_CART_IS_LOADING}
-
-<script type="text/javascript">
-    cx.variables.set(
-        {
-            "TXT_SHOP_PRODUCT_ADDED_TO_CART": "{TXT_SHOP_PRODUCT_ADDED_TO_CART}",
-            "TXT_SHOP_CONFIRM_DELETE_PRODUCT": "{TXT_SHOP_CONFIRM_DELETE_PRODUCT}",
-            "TXT_MAKE_DECISION_FOR_OPTIONS": "{TXT_MAKE_DECISION_FOR_OPTIONS}",
-            "url": "{SHOP_CART_ADD_PRODUCT_URL}"
-        },
-        "shop"
-    );
-    cx.variables.set(
-        {
-            "TXT_SHOP_CART_IS_LOADING": "{TXT_SHOP_CART_IS_LOADING}",
-            "TXT_SHOP_COULD_NOT_LOAD_CART": "{TXT_SHOP_COULD_NOT_LOAD_CART}",
-            "TXT_EMPTY_SHOPPING_CART": "{TXT_EMPTY_SHOPPING_CART}",
-            "url": "{SHOP_CART_ADD_PRODUCT_URL}"
-        },
-        "shop/cart"
-    );
-
-    cartTpl = "{ESCAPED_CART_TEMPLATE}".replace(/\[/g, "{").replace(/\]/g, "}");
-    cartProductsTpl = "{ESCAPED_PRODUCT_TEMPLATE}".replace(/\[/g, "{").replace(/\]/g, "}");
-</script>
-<script type="text/javascript" src= "{COMPONENT_WEB_PATH}/Shop/View/Script/shop.js"></script>
-<script type="text/javascript" src= "{COMPONENT_WEB_PATH}/Shop/View/Script/cart.js"></script>
 {SURROUNDING_ELEMENT_END}
