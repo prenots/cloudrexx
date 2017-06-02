@@ -158,15 +158,26 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             array($params['get']['name'])
         );
         $params = $this->objectifyParams($params);
+
+        // JS parsing
+        \JS::push();
+        \ContrexxJavascript::push();
+
         $this->parseWidget(
             $params['get']['name'],
             $widgetTemplate,
             $params['response'],
             $params['get']
         );
+
+        // JS parsing
+        $js = \JS::pop();
+        $jsCode = $js->getCode(false);
+        \ContrexxJavascript::pop();
+
         $_GET = $backupGetParams;
         $_REQUEST = $backupRequestParams;
-        $content = $widgetTemplate->get();
+        $content = $widgetTemplate->get() . $jsCode;
 
         $content = preg_replace('/\\[\\[([A-Z0-9_-]+)\\]\\]/', '{\\1}', $content);
         \LinkGenerator::parseTemplate($content);
