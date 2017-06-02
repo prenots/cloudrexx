@@ -820,7 +820,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
         $lazyLoadingFiles = array();
         $retstring  = '';
         $jsScripts = array();
-        if (count($this->active) > 0) {
+        if (count($this->active) > 0 && $parseForMainTemplate) {
             // check for lazy dependencies, if there are lazy dependencies, activate cx
             // cx provides the lazy loading mechanism
             // this should be here because the cx variable have to be set before cx is initialized
@@ -879,14 +879,14 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
 
         $jsScripts[] = $this->makeJSFiles($this->customJS);
 
-        // if jquery is activated, do a noConflict
-        if (array_search('jquery', $this->active) !== false) {
-            $jsScripts[] = $this->makeSpecialCode('if (typeof jQuery != "undefined") { jQuery.noConflict(); }');
-        }
-        $jsScripts[] = $this->makeJSFiles($this->templateJS);
-
-        // no conflict for normal jquery version which has been included in template or by theme dependency
         if ($parseForMainTemplate) {
+            // if jquery is activated, do a noConflict
+            if (array_search('jquery', $this->active) !== false) {
+                $jsScripts[] = $this->makeSpecialCode('if (typeof jQuery != "undefined") { jQuery.noConflict(); }');
+            }
+            $jsScripts[] = $this->makeJSFiles($this->templateJS);
+
+            // no conflict for normal jquery version which has been included in template or by theme dependency
             $jsScripts[] = $this->makeSpecialCode('if (typeof jQuery != "undefined") { jQuery.noConflict(); }');
         }
         $retstring .= $this->makeCSSFiles($cssfiles);
