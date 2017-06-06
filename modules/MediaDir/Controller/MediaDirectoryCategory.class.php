@@ -632,12 +632,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 }
 
                 if ($objInsertNames !== false) {
-                    /*
-                    The cache will be cleared for the following widgets:
-                    'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
-                    The reason is, MediaDir categories are listed in these widgets.
-                    The remaining widgets which do not show categories are not cleared.
-                    */
+                    // The cache will be cleared for the following widgets:
+                    // 'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+                    // The reason is, MediaDir categories are listed in these widgets.
+                    // The remaining widgets which do not show categories are not cleared.
                     $this->clearEsiCache(
                         static::ENTITY_CHANGE_CATEGORY |
                         static::ENTITY_CHANGE_FORM
@@ -695,12 +693,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                     }
 
                     if($objInsertNames !== false) {
-                        /*
-                        The cache will be cleared for the following widgets:
-                        'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
-                        The reason is, MediaDir categories are listed in these widgets.
-                        The remaining widgets which do not show categories are not cleared.
-                        */
+                        // The cache will be cleared for the following widgets:
+                        // 'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+                        // The reason is, MediaDir categories are listed in these widgets.
+                        // The remaining widgets which do not show categories are not cleared.
                         $this->clearEsiCache(
                             static::ENTITY_CHANGE_CATEGORY |
                             static::ENTITY_CHANGE_FORM
@@ -741,12 +737,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         $objDeleteCategoryRS = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE category_id='$intCategoryId'");
 
         if ($objDeleteCategoryRS !== false) {
-            /*
-            The cache will be cleared for the following widgets:
-            'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
-            The reason is, MediaDir categories are listed in these widgets.
-            The remaining widgets which do not show categories are not cleared.
-            */
+            // The cache will be cleared for the following widgets:
+            // 'MEDIADIR_NAVBAR', 'mediadirNavtree', 'mediadirLatest' and 'mediadirList'.
+            // The reason is, MediaDir categories are listed in these widgets.
+            // The remaining widgets which do not show categories are not cleared.
             $this->clearEsiCache(
                 static::ENTITY_CHANGE_CATEGORY | static::ENTITY_CHANGE_FORM
             );
@@ -822,12 +816,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
             }
         }
 
-        /*
-        The cache will be cleared for the following widgets:
-        'MEDIADIR_NAVBAR' and 'mediadirNavtree'.
-        The reason is, MediaDir categories are listed based on the `order` field value.
-        The remaining widgets which do not show categories are not cleared.
-        */
+        // The cache will be cleared for the following widgets:
+        // 'MEDIADIR_NAVBAR' and 'mediadirNavtree'.
+        // The reason is, MediaDir categories are listed based on the `order` field value.
+        // The remaining widgets which do not show categories are not cleared.
         $this->clearEsiCache(static::ENTITY_CHANGE_CATEGORY);
         return true;
     }

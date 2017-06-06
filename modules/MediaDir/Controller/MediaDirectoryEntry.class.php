@@ -1138,12 +1138,10 @@ JSCODE;
                 }
                 $objEntries->MoveNext();
             }
-            /*
-            The cache will be cleared for the following widgets:
-            'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-            The reason is, MediaDir entries details are listed in these widgets.
-            The remaining widgets which do not list MediaDir entries are not cleared.
-            */
+            // The cache will be cleared for the following widgets:
+            // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+            // The reason is, MediaDir entries details are listed in these widgets.
+            // The remaining widgets which do not list MediaDir entries are not cleared.
             $this->clearEsiCache(
                 static::ENTITY_CHANGE_ENTRY |
                 static::ENTITY_CHANGE_FORM
@@ -1292,12 +1290,10 @@ JSCODE;
             $objDeleteCategories = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories WHERE entry_id='".$intId."'");
             $objDeleteLevels = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_levels WHERE entry_id='".$intId."'");
         }
-        /*
-        The cache will be cleared for the following widgets:
-        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-        The reason is, MediaDir entries details are listed in these widgets.
-        The remaining widgets which do not list MediaDir entries are not cleared.
-        */
+        // The cache will be cleared for the following widgets:
+        // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        // The reason is, MediaDir entries details are listed in these widgets.
+        // The remaining widgets which do not list MediaDir entries are not cleared.
         $this->clearEsiCache(
             static::ENTITY_CHANGE_ENTRY |
             static::ENTITY_CHANGE_FORM
@@ -1541,12 +1537,10 @@ JSCODE;
             return false;
         }
 
-        /*
-        The cache will be cleared for the following widgets:
-        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-        The reason is, MediaDir entries are listed in these widgets.
-        The remaining widgets which do not list MediaDir entries are not cleared.
-        */
+        // The cache will be cleared for the following widgets:
+        // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        // The reason is, MediaDir entries are listed in these widgets.
+        // The remaining widgets which do not list MediaDir entries are not cleared.
         $this->clearEsiCache(
             static::ENTITY_CHANGE_ENTRY |
             static::ENTITY_CHANGE_FORM
@@ -1572,12 +1566,10 @@ JSCODE;
         ");
 
         if($objConfirmEntry !== false) {
-            /*
-            The cache will be cleared for the following widgets:
-            'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-            The reason is, above widgets will list the MediaDir entries based on the status.
-            The remaining widgets which do not list MediaDir entries are not cleared.
-            */
+            // The cache will be cleared for the following widgets:
+            // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+            // The reason is, above widgets will list the MediaDir entries based on the status.
+            // The remaining widgets which do not list MediaDir entries are not cleared.
             $this->clearEsiCache(
                 static::ENTITY_CHANGE_ENTRY |
                 static::ENTITY_CHANGE_FORM
@@ -1631,12 +1623,10 @@ JSCODE;
                                                     id='".intval($intEntryId)."'
                                                ");
             if ($objResult) {
-                /*
-                The cache will be cleared for the following widgets:
-                'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-                The reason is, above widgets will list entries including the 'hits' details.
-                The remaining widgets which do not list MediaDir entries are not cleared.
-                */
+                // The cache will be cleared for the following widgets:
+                // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+                // The reason is, above widgets will list entries including the 'hits' details.
+                // The remaining widgets which do not list MediaDir entries are not cleared.
                 $this->clearEsiCache(
                     static::ENTITY_CHANGE_ENTRY |
                     static::ENTITY_CHANGE_FORM
@@ -1800,12 +1790,10 @@ JSCODE;
             }
         }
 
-        /*
-        The cache will be cleared for the following widgets:
-        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-        The reason is, in these widgets, MediaDir entries are listed based on the 'order' field value.
-        The remaining widgets which do not list MediaDir entries are not cleared.
-        */
+        // The cache will be cleared for the following widgets:
+        // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        // The reason is, in these widgets, MediaDir entries are listed based on the 'order' field value.
+        // The remaining widgets which do not list MediaDir entries are not cleared.
         $this->clearEsiCache(
             static::ENTITY_CHANGE_ENTRY |
             static::ENTITY_CHANGE_FORM
@@ -1819,12 +1807,10 @@ JSCODE;
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_entries SET duration_notification='".intval($bolStatus)."' WHERE id='".intval($intEntryId)."'");
-        /*
-        The cache will be cleared for the following widgets:
-        'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
-        The reason is, in these widgets, MediaDir entries are listed.
-        The remaining widgets which do not list MediaDir entries are not cleared.
-        */
+        // The cache will be cleared for the following widgets:
+        // 'MEDIADIR_LATEST', 'mediadirLatest', 'mediadirList' and 'mediadirLatest_form_{\d}_{\d}'
+        // The reason is, in these widgets, MediaDir entries are listed.
+        // The remaining widgets which do not list MediaDir entries are not cleared.
         $this->clearEsiCache(
             static::ENTITY_CHANGE_ENTRY |
             static::ENTITY_CHANGE_FORM

@@ -135,10 +135,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        /*
-        Parse entries of specific form, category and/or level.
-        Entries are listed in custom set order
-        */
+        // Parse entries of specific form, category and/or level.
+        // Entries are listed in custom set order
         if ($name === 'mediadirList') {
             // hold information if a specific block has been parsed
             $foundOne = false;
@@ -158,12 +156,10 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             // check for form specific entry listing
             foreach ($objects as $objectType => $arrObjectList) {
                 foreach ($arrObjectList as $objectId) {
-                    /*
-                    the specific block to parse. I.e.:
-                     mediadirList_form_3
-                     mediadirList_category_4
-                     mediadirList_level_5
-                    */
+                    // the specific block to parse. I.e.:
+                    // mediadirList_form_3
+                    // mediadirList_category_4
+                    // mediadirList_level_5
                     $block = 'mediadirList_'.$objectType.'_'.$objectId;
                     if (!$template->blockExists($block)) {
                         continue;
@@ -178,10 +174,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 }
             }
 
-            /*
-            fallback, no specific block has been parsed
-            -> parse all entries now (use template block mediadirList)
-            */
+            // fallback, no specific block has been parsed
+            // -> parse all entries now (use template block mediadirList)
             if (!$foundOne) {
                 $mediadir->parseEntries($template);
             }

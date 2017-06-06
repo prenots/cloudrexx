@@ -168,13 +168,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $params['cid'] = $requestParams['cid'];
         }
 
-        /*
-        Parse widgets for Placeholders and Template Blocks
-        placeholders: Show Level/Category Navbar and Latest Entries
-        template blocks:
-        mediadirLatest, mediadirList, mediadirNavtree
-        mediadirLatest_row_1_1 to mediadirLatest_row_10_10
-        */
+        // Parse widgets for Placeholders and Template Blocks
+        // placeholders: Show Level/Category Navbar and Latest Entries
+        // template blocks:
+        // mediadirLatest, mediadirList, mediadirNavtree
+        // mediadirLatest_row_1_1 to mediadirLatest_row_10_10
         $mediaDirLib = new MediaDirectoryLibrary('.', $this->getName());
         $widgetNames = $mediaDirLib->getWidgetNamesAffectedByEntityChange();
         $this->parseWidgets($widgetNames, $params);
@@ -194,8 +192,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $widgetController = $this->getComponent('Widget');
         foreach ($widgetNames as $widgetName) {
-            //Use additional params if the widget name is
-            //either 'mediadirNavtree' or 'MEDIADIR_NAVBAR'
+            // Use additional params if the widget name is
+            // either 'mediadirNavtree' or 'MEDIADIR_NAVBAR'
             $parameter = array();
             if (
                 in_array(
@@ -206,7 +204,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $parameter = $additionalParameters;
             }
 
-            //Identify if the current widget is Template block or Placeholder
+            // Identify if the current widget is Template block or Placeholder
             $isBlock = true;
             if (
                 in_array(
@@ -217,7 +215,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $isBlock = false;
             }
 
-            //Create and Register the widget in Widget Component
+            // Create and Register the widget in Widget Component
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $widgetName,

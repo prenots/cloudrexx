@@ -1671,12 +1671,10 @@ EOF;
         if ($newActiveLanguage != $oldActiveLanguage) {
             $this->updateFormsAndEntries();
         }
-        /*
-        The cache will be cleared for the following widgets:
-        'MEDIADIR_NAVBAR', 'MEDIADIR_LATEST', 'mediadirNavtree',
-        'mediadirLatest' and 'mediadirList'.
-        The reason is, MediaDir Config setting values are used in those widgets.
-        */
+        // The cache will be cleared for the following widgets:
+        // 'MEDIADIR_NAVBAR', 'MEDIADIR_LATEST', 'mediadirNavtree',
+        // 'mediadirLatest' and 'mediadirList'.
+        // The reason is, MediaDir Config setting values are used in those widgets.
         $this->clearEsiCache();
         return true;
     }
