@@ -742,11 +742,11 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
                 $codeBasePath = \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBasePath();
                 $websitePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath();
             } else {
-                $codeBasePath = \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseDocumentRootPath();
-                $websitePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath();
+                $codeBasePath = \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseDocumentRootPath().'/';
+                $websitePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/';
             }
-            if (   !file_exists(\Env::get('ClassLoader')->getFilePath(($codeBasePath.'/').$fileName))
-                && !file_exists(\Env::get('ClassLoader')->getFilePath(($websitePath.'/').$fileName))
+            if (   !file_exists(\Env::get('ClassLoader')->getFilePath(($codeBasePath).$fileName))
+                && !file_exists(\Env::get('ClassLoader')->getFilePath(($websitePath).$fileName))
             ) {
                 $this->error .= "The file ".$fileName." doesn't exist\n";
                 return false;
@@ -1013,8 +1013,9 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
             }
         }
         //only register the js if we didn't activate the alternative
-        if(!$alternativeFound)
+        if (!$alternativeFound) {
             $this->registerJS($script, true);
+        }
     }
 
 
