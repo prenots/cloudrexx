@@ -66,7 +66,9 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      * @var \Symfony\Component\Console\Application | array()
      */
     protected $cli = array();
-    
+
+    protected $isMultiSiteEnv = false;
+
     /**
      * Trigger the update process
      * 
@@ -159,7 +161,7 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
                 $objYaml = new \Symfony\Component\Yaml\Yaml();
             }
             $file    = new \Cx\Lib\FileSystem\File($componentPath . '/meta.yml');
-            $content = $objYaml->load($file->getData());
+            $content = $objYaml->parse($file->getData());
             if (    isset($content['DlcInfo']) 
                 &&  isset($content['DlcInfo']['version'])
                 &&  !empty($content['DlcInfo']['version'])
@@ -247,10 +249,23 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      */
     public function applyDelta() 
     {
-        //set the website as Offline mode
-        \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
-        \Cx\Core\Setting\Controller\Setting::set('websiteState', \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_OFFLINE);
-        \Cx\Core\Setting\Controller\Setting::update('websiteState');
+        if ($this->isMultiSiteEnv) {
+	        //set the website as Offline mode
+	        \Cx\Core\Setting\Controller\Setting::init(
+                'MultiSite',
+                '',
+                'FileSystem'
+            );
+	        \Cx\Core\Setting\Controller\Setting::set(
+                'websiteState',
+                \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_OFFLINE
+            );
+	        \Cx\Core\Setting\Controller\Setting::update('websiteState');
+        } else {
+            // Set the system status to off mode
+            \Cx\Core\Setting\Controller\Setting::set('systemStatus', 'off');
+            \Cx\Core\Setting\Controller\Setting::update('systemStatus');
+        }
 
         //Read the current and new CodeBase versions and component list from the yml file
         $yamlFile = $this->cx->getWebsiteTempPath() . '/Update/'. $this->pendingCodeBaseChangesYml;
@@ -299,10 +314,23 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
             \Cx\Lib\FileSystem\FileSystem::delete_folder($tmpUpdateFolderPath, true);
         }
 
-        //set the website back to Online mode
-        \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
-        \Cx\Core\Setting\Controller\Setting::set('websiteState', \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE);
-        \Cx\Core\Setting\Controller\Setting::update('websiteState');
+        if ($this->isMultiSiteEnv) {
+	        //set the website back to Online mode
+	        \Cx\Core\Setting\Controller\Setting::init(
+                'MultiSite',
+                '',
+                'FileSystem'
+            );
+	        \Cx\Core\Setting\Controller\Setting::set(
+                'websiteState',
+                \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE
+            );
+            \Cx\Core\Setting\Controller\Setting::update('websiteState');
+        } else {
+            // Set the system status to on mode
+            \Cx\Core\Setting\Controller\Setting::set('systemStatus', 'on');
+            \Cx\Core\Setting\Controller\Setting::update('systemStatus');
+        }
     }
 
     /**
@@ -349,9 +377,11 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
         
         //If it is website update process, then rollback the codebase changes
         //(settings.php, configuration.php and website codebase in manager and service)
-        if (    $params['isWebsiteUpdate'] 
-            &&  !empty($params['oldCodeBase']) 
-            &&  !empty($params['latestCodeBase'])
+        if (
+            $this->isMultiSiteEnv &&
+            $params['isWebsiteUpdate'] &&
+            !empty($params['oldCodeBase']) &&
+            !empty($params['latestCodeBase'])
         ) {
             //Register YamlSettingEventListener
             \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener();
@@ -389,13 +419,50 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
             rsort($rollBackDeltas);
             foreach ($rollBackDeltas as $rollBackDelta) {
                 if (!$rollBackDelta->applyNext()) {
-                    $websiteName = \Cx\Core\Setting\Controller\Setting::getValue('websiteName', 'MultiSite');
-                    $params = array('websiteName' => $websiteName, 'emailTemplateKey' => 'notification_update_error_email');
-                    \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('sendUpdateNotification', $params);
+                    $this->sendUpdateErrorNotification($component);
                     break 2;
                 }
             }
         }
+    }
+
+    /**
+     * Send the update error notification mail
+     *
+     * @param string $componentName Name of the component
+     */
+    public function sendUpdateErrorNotification($componentName)
+    {
+        if ($this->isMultiSiteEnv) {
+            $websiteName = \Cx\Core\Setting\Controller\Setting::getValue(
+                'websiteName',
+                'MultiSite'
+            );
+            $params = array(
+                'websiteName' => $websiteName,
+                'emailTemplateKey' => 'notification_update_error_email'
+            );
+            \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer(
+                'sendUpdateNotification',
+                $params
+            );
+            return;
+        }
+
+        $adminEmail = \Cx\Core\Setting\Controller\Setting::getValue(
+            'coreAdminEmail',
+            'Config'
+        );
+        $arrValues = array(
+            'section'      => 'MultiSite',
+            'lang_id'      => 1,
+            'key'          => 'notification_update_error_email',
+            'to'           => $adminEmail,
+            'substitution' => array(
+                'COMPONENT_NAME' => $componentName
+            )
+        );
+        \Cx\Core\MailTemplate\Controller\MailTemplate::send($arrValues);
     }
 
     /**
@@ -547,7 +614,7 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
         }
         $objFile = new \Cx\Lib\FileSystem\File($file);
         $yaml = new \Symfony\Component\Yaml\Yaml();
-        return $yaml->load($objFile->getData());
+        return $yaml->parse($objFile->getData());
     }
 
     /**
@@ -605,5 +672,15 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
         }
         sort($componentList);
         return $componentList;
+    }
+
+    /**
+     * Set its MultiSite environment or not
+     *
+     * @param boolean $isMultiSiteEnv
+     */
+    public function setIsMultiSiteEnv($isMultiSiteEnv)
+    {
+        $this->isMultiSiteEnv = $isMultiSiteEnv;
     }
 }

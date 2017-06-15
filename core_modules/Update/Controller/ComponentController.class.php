@@ -58,32 +58,129 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getCommandsForCommandMode()
+    {
+        return array('update', 'up');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCommandDescription($command, $short = false)
+    {
+        if ($command == 'update') {
+            return 'Update framework';
+        }
+        if ($command == 'up') {
+            return 'Shortcut alias for `up`';
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function executeCommand($command, $arguments, $dataArguments = array())
+    {
+        if ($command == 'update' || $command == 'up') {
+            if (count($arguments) !== 2) {
+                echo "Command {$command} have invalid arguments.\r\n Use
+                    {$command} [({component name} {version number})] \r\r\n
+                    Eg:- {$command} Crm 5.0.0";
+                return;
+            }
+            $this->triggerComponentUpdate(ucfirst($arguments[0]), $arguments[1]);
+            return;
+        }
+    }
+
+    /**
+     * Trigger update for Component
+     *
+     * @param string $componentName   Name of the component
+     * @param string $codeBaseVersion Version number
+     */
+    protected function triggerComponentUpdate($componentName, $codeBaseVersion)
+    {
+        //Check the component have a meta.yml if not exists, add as new
+        $component = $this->getComponent($componentName);
+        if (!$component) {
+            echo "Your component is not valid. Please correct this in before you proceed. \r\n\r\n";
+            return;
+        }
+        if (!file_exists($component->getDirectory() . '/meta.yml')) {
+            $reflectionComponent =
+                new \Cx\Core\Core\Model\Entity\ReflectionComponent(
+                    $component->getSystemComponent()
+                );
+            $reflectionComponent->writeMetaDataToFile(
+                $component->getDirectory() . '/meta.yml'
+            );
+        }
+
+        $objYaml = new \Symfony\Component\Yaml\Yaml();
+        $file    = new \Cx\Lib\FileSystem\File(
+            $component->getDirectory() . '/meta.yml'
+        );
+        $content = $objYaml->parse($file->getData());
+        if (
+            isset($content['DlcInfo']) &&
+            isset($content['DlcInfo']['version']) &&
+            !empty($content['DlcInfo']['version'])
+        ) {
+            $oldCodeBaseVerison = $content['DlcInfo']['version'];
+        }
+        $params = array(
+            'oldCodeBaseId'    => $oldCodeBaseVerison,
+            'latestCodeBaseId' => $codeBaseVersion,
+            'components'       => array($componentName)
+        );
+        try {
+            $updateController = $this->getController('Update');
+            $updateController->triggerUpdate($params);
+
+            echo "Successfully triggered the update process. \r\n\r\n";
+            return;
+        } catch (\Exception $e) {
+            \DBG::dump($e->getMessage());
+            echo "Failed to trigger the update process. \r\n\r\n";
+            return;
+        }
+    }
+
+    /**
      * postInit
      *
      * @param \Cx\Core\Core\Controller\Cx $cx
-     *
-     * @return null
      */
     public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
-        $componentController = $this->getComponent('MultiSite');
-        if (!$componentController) {
-            return;
-        }
-
-        \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'config', 'FileSystem');
-        if (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite') != \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_WEBSITE) {
-            return;
-        }
-
-        $updateFile = $cx->getWebsiteTempPath() . '/Update/' . \Cx\Core_Modules\Update\Model\Repository\DeltaRepository::PENDING_DB_UPDATES_YML;
+        $updateFile = $cx->getWebsiteTempPath() . '/Update/' .
+            \Cx\Core_Modules\Update\Model\Repository\DeltaRepository::PENDING_DB_UPDATES_YML;
         if (!file_exists($updateFile)) {
             return;
         }
 
-        $componentController->setCustomerPanelDomainAsMainDomain();
+        $updateController    = $this->getController('Update');
+        $componentController = $this->getComponent('MultiSite');
+        if ($componentController) {
+            \Cx\Core\Setting\Controller\Setting::init(
+                'MultiSite',
+                'config',
+                'FileSystem'
+            );
+	        $mode = \Cx\Core\Setting\Controller\Setting::getValue(
+                'mode',
+                'MultiSite'
+            );
+	        if ($mode != \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_WEBSITE) {
+	            return;
+	        }
+	        $componentController->setCustomerPanelDomainAsMainDomain();
+            $updateController->setIsMultiSiteEnv(true);
+        }
 
-        $updateController = $this->getController('Update');
         $updateController->applyDelta();
     }
 
