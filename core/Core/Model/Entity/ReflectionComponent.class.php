@@ -1073,7 +1073,7 @@ class ReflectionComponent {
         //Load the content from the file path
         $objYaml = new \Symfony\Component\Yaml\Yaml();
         $file    = new \Cx\Lib\FileSystem\File($filePath);
-        $content = $objYaml->load($file->getData());
+        $content = $objYaml->parse($file->getData());
         
         //Update the meta data
         foreach ($content['DlcInfo'] as $optionName => $optionValue) {
