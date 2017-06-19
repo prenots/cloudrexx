@@ -99,9 +99,4 @@ EOT
             }
         }
     }
-
-    public function getHelperSet()
-    {
-    	return $this->getApplication()->getHelperSet();
-    }
 }

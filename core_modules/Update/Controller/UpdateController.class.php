@@ -67,6 +67,11 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      */
     protected $cli = array();
 
+    /**
+     * true if the current environment is MultiSite otherwise false
+     *
+     * @var boolean
+     */
     protected $isMultiSiteEnv = false;
 
     /**
@@ -244,8 +249,6 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
      *
      * This loads the serialized Delta and calls applyNext() on it
      * until returns false.
-     *
-     * @return null
      */
     public function applyDelta() 
     {
@@ -540,7 +543,7 @@ class UpdateController extends \Cx\Core\Core\Model\Entity\Controller {
         $this->cli[$component]->addCommands(array(
             // Migrations Commands
             $this->getDoctrineMigrationCommand('\Cx\Core_Modules\Update\Model\Entity\MigrationsDiffDoctrineCommand', $configuration),
-            $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\ExecuteCommand', $configuration),
+            $this->getDoctrineMigrationCommand('\Cx\Core_Modules\Update\Model\Entity\MigrationsExecuteCommand', $configuration),
             $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\GenerateCommand', $configuration),
             $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\MigrateCommand', $configuration),
             $this->getDoctrineMigrationCommand('\Doctrine\DBAL\Migrations\Tools\Console\Command\StatusCommand', $configuration),
