@@ -36,11 +36,6 @@
  */
 
 /**
- * @ignore
- */
-include_once ASCMS_FRAMEWORK_PATH.'/Captcha/Captcha.interface.php';
-
-/**
  * FWCaptcha
  *
  * @copyright   CONTREXX CMS - COMVATION AG
@@ -53,31 +48,19 @@ class FWCaptcha {
 
     private function __construct($config)
     {
-        global $sessionObj;
-        if (!isset($sessionObj)) $sessionObj = \cmsSession::getInstance();
+        global $_CONFIG, $sessionObj;
 
-// TODO: move to basic configuration screen (/cadmin/index.php?cmd=settings)
-        $captchaConfig = array(
-            'reCAPTCHA' => array(
-                'domains' => array(
-                    'localhost' => array(
-                        'public_key'    => '6LeiusgSAAAAACPI2stz_Qh2fVC1reRUxJuqzf7h',
-                        'private_key'    => '6LeiusgSAAAAAABv3CW65svwgRMqFfTiC5NTOzOh',
-                    ),
-                ),
-            ),
-        );
-        $config['coreCaptchaLib'] = '';
-        $config['coreCaptchaLibConfig'] = json_encode($captchaConfig);
+        if (!isset($sessionObj) || !is_object($sessionObj)) $sessionObj = \cmsSession::getInstance();
 
-        switch ($config['coreCaptchaLib']) {
-            case 'reCAPTCHA':
-                $this->objCaptcha = new \Cx\Lib\Captcha\reCAPTCHA($config);
+        $captchaMethod = $_CONFIG['captchaMethod'];
+        switch ($captchaMethod) {
+            case 'reCaptcha':
+                $this->objCaptcha = new \Cx\Core_Modules\Captcha\Controller\ReCaptcha();
                 break;
 
-            case 'contrexx':
+            case 'contrexxCaptcha':
             default:
-                $this->objCaptcha = new \Cx\Lib\Captcha\ContrexxCaptcha($config);
+                $this->objCaptcha = new \Cx\Core_Modules\Captcha\Controller\ContrexxCaptcha($config);
                 break;
         }
     }
@@ -92,7 +75,7 @@ class FWCaptcha {
         static $objCaptcha = null;
 
         if (!isset($objCaptcha)) {
-            $objCaptcha = new FWCaptcha(Env::get('config'));
+            $objCaptcha = new self(\Env::get('config'));
         }
 
         return $objCaptcha;

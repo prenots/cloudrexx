@@ -379,6 +379,15 @@ class settingsManager
             'SETTINGS_FORCE_DOMAIN_URL_OFF'              => ($arrSettings['forceDomainUrl'] == 'off') ? 'checked="checked"' : '',
         ));
         
+        $scriptPath = ASCMS_PATH_OFFSET . ASCMS_CORE_FOLDER . '/Config/View/Script/Backend.js';
+        \JS::registerJS(substr($scriptPath, 1));
+        $objTemplate->setVariable(array(
+            'SETTING_CAPTCHA_CONTREXX'        => $arrSettings['captchaMethod'] == 'contrexxCaptcha' ? 'selected="selected"' : '',
+            'SETTING_CAPTCHA_RECAPTCHA'       => $arrSettings['captchaMethod'] == 'reCaptcha' ? 'selected="selected"' : '',
+            'SETTING_RECAPTCHA_SITE_KEY'      => contrexx_raw2xhtml($arrSettings['recaptchaSiteKey']),
+            'SETTING_RECAPTCHA_SECRET_KEY'    => contrexx_raw2xhtml($arrSettings['recaptchaSecretKey']),
+        ));
+        
         $this->setDebuggingVariables($objTemplate);
     }
 
@@ -513,6 +522,22 @@ class settingsManager
             $objDatabase->Execute(' UPDATE `'.DBPREFIX.'settings`
                                     SET `setvalue` = "'.contrexx_input2db($value).'"
                                     WHERE `setid` = '.intval($id));
+        }
+
+        if (isset($_POST['captchaMethod'])) {
+            $objDatabase->Execute(' UPDATE `'.DBPREFIX.'settings`
+                                    SET `setvalue` = "'.contrexx_input2db($_POST['captchaMethod']).'"
+                                    WHERE `setname` = "captchaMethod"');
+        }
+        if (isset($_POST['recaptchaSiteKey'])) {
+            $objDatabase->Execute(' UPDATE `'.DBPREFIX.'settings`
+                                    SET `setvalue` = "'.contrexx_input2db($_POST['recaptchaSiteKey']).'"
+                                    WHERE `setname` = "recaptchaSiteKey"');
+        }
+        if (isset($_POST['recaptchaSecretKey'])) {
+            $objDatabase->Execute(' UPDATE `'.DBPREFIX.'settings`
+                                    SET `setvalue` = "'.contrexx_input2db($_POST['recaptchaSecretKey']).'"
+                                    WHERE `setname` = "recaptchaSecretKey"');
         }
         
         if (isset($_POST['debugging'])) {

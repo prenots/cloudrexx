@@ -258,6 +258,7 @@ class LoginManager {
             $this->objTemplate->setVariable(array(
                 'TXT_LOGIN_SECURITY_CODE'   => $_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'],
                 'CAPTCHA_CODE'              => FWCaptcha::getInstance()->getCode(3),
+                'CAPTCHA_VALIDATION_CODE'   => FWCaptcha::getInstance()->getJSValidationFn(),
             ));
             $this->objTemplate->parse('captcha');
         } else {
