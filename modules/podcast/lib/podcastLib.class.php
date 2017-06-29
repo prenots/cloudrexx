@@ -1120,7 +1120,7 @@ EOF;
                         } else {
                             $objCache = new CacheManager();
                         }
-                        $objCache->deleteAllFiles();
+                        $objCache->_deleteAllFiles();
                         $this->_createRSS();
                         return $this->_media();
                     } else {
@@ -1135,7 +1135,7 @@ EOF;
                         } else {
                             $objCache = new CacheManager();
                         }
-                        $objCache->deleteAllFiles();
+                        $objCache->_deleteAllFiles();
                         $this->_createRSS();
 
                         if($_REQUEST['section'] != 'podcast'){
