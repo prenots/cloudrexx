@@ -671,7 +671,13 @@
         // gets element
         var element = form.find('#globalPageSelector');
         // clear existing selection
-        element.find('#globalNotSelectedPages option').prop('selected', false);
+        element.find('#globalSelectedPages option').prop('selected', true);
+        moveSelectedPages(
+            document.getElementById('globalSelectedPages'),
+            document.getElementById('globalNotSelectedPages'),
+            document.getElementsByName('addpages')[0],
+            document.getElementsByName('removepages')[0]
+        );
         // sets new data on element
         relPageGlobal.forEach(function (rel) {
             element.find('#globalNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
@@ -696,7 +702,13 @@
         // gets element
         var element = form.find('#categoryPageSelector');
         // clear existing selection
-        element.find('#categoryNotSelectedPages option').prop('selected', false);
+        element.find('#categorySelectedPages option').prop('selected', true);
+        moveSelectedPages(
+            document.getElementById('categorySelectedPages'),
+            document.getElementById('categoryNotSelectedPages'),
+            document.getElementsByName('addpages')[0],
+            document.getElementsByName('removepages')[0]
+        );
         // sets new data on element
         relPageCategory.forEach(function (rel) {
             element.find('#categoryNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
@@ -721,7 +733,13 @@
         // gets element
         var element = form.find('#directPageSelector');
         // clear existing selection
-        element.find('#directNotSelectedPages option').prop('selected', false);
+        element.find('#directSelectedPages option').prop('selected', true);
+        moveSelectedPages(
+            document.getElementById('directSelectedPages'),
+            document.getElementById('directNotSelectedPages'),
+            document.getElementsByName('addpages')[0],
+            document.getElementsByName('removepages')[0]
+        );
         // sets new data on element
         relPageDirect.forEach(function (rel) {
             element.find('#directNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
