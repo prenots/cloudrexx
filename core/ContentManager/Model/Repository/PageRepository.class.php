@@ -91,7 +91,7 @@ class PageRepository extends EntityRepository {
      */
     public function findAll()
     {
-        return $this->findBy(array(), null, null, null, true);
+        return $this->findBy(array(), true);
     }
 
     public function find($id, $lockMode = 0, $lockVersion = NULL, $useResultCache = true) {

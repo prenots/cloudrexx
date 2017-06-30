@@ -178,14 +178,12 @@ class Navigation
 
 
     /**
-     * Get frontend language navigation
-     *
-     * @param Cx\Core\ContentManager\Model\Entity\Page $page                page object
-     * @param boolean                                  $langNameContraction If true, display short lang name
-     *
+     * getFrontendLangNavigation()
+     * @param \Cx\Core\Routing\Url $pageUrl
+     * @param boolean $langNameContraction
      * @return string
      */
-    public function getFrontendLangNavigation($page, $langNameContraction = false)
+    public function getFrontendLangNavigation($page, $pageUrl, $langNameContraction = false)
     {
         $activeLanguages = \FWLanguage::getActiveFrontendLanguages();
         $node = $page->getNode();
@@ -193,26 +191,16 @@ class Navigation
         $langNavigation = array();
         foreach ($activeLanguages as $langId => $langData) {
             $targetPage = $node->getPage($langId);
-            if (!$targetPage || !$targetPage->isActive()) {
-                continue;
-            }
-            $name = $langData['name'];
-            if ($langNameContraction) {
-                $name = strtoupper($langData['lang']);
-            }
+            if ($targetPage && $targetPage->isActive()) {
+                $url = clone $pageUrl;
+                $url->setLangDir($langData['lang']);
+                $url->setPath(substr($targetPage->getPath(), 1));
 
-            $class = $langData['lang'];
-            if ($langId == FRONTEND_LANG_ID) {
-                $class = $langData['lang'] . ' active';
-            }
+                $name  = contrexx_raw2xhtml($langNameContraction ? strtoupper($langData['lang']) : $langData['name']);
+                $class = $langId == FRONTEND_LANG_ID ? $langData['lang'].' active' : $langData['lang'];
 
-            $nodePlaceholder  = \Cx\Core\Routing\NodePlaceholder::fromPage($targetPage);
-            $langNavigation[] = \Html::getLink(
-                $nodePlaceholder . '$(QUERY_STRING)',
-                contrexx_raw2xhtml($name),
-                null,
-                'class="' . $class . '" title="' . contrexx_raw2xhtml($name) . '" '
-            );
+                $langNavigation[] = '<a class="'.$class.'" href="'.$url.'" title="'.$name.'">'.$name.'</a>';
+            }
         }
 
         return implode('', $langNavigation);
@@ -220,26 +208,30 @@ class Navigation
 
 
     /**
-     * Get language link by lang ID
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page   page object
-     * @param integer                                   $langId language ID
-     *
-     * @return string
+     * Sets the language placeholders in the provided template
+     * @param \Cx\Core\Routing\Url $pageUrl
+     * @param \Cx\Core\Html\Sigma $objTemplate
      */
-    public function getLanguageLinkById(
-        \Cx\Core\ContentManager\Model\Entity\Page $page,
-        $langId
-    ) {
-        if (empty($langId)) {
-            return;
-        }
+    public function setLanguagePlaceholders($page, $pageUrl, $objTemplate)
+    {
+        $activeLanguages = \FWLanguage::getActiveFrontendLanguages();
+        $node = $page->getNode();
 
-        $node       = $page->getNode();
-        $targetPage = $node->getPage($langId);
-        if (!$targetPage || !$targetPage->isActive()) {
-            return \Cx\Core\Routing\Url::fromModuleAndCmd('Error', '', $langId);
+        $placeholders = array();
+        foreach ($activeLanguages as $langId => $langData) {
+            $url = clone $pageUrl;
+            $url->setLangDir($langData['lang']);
+
+            if (($targetPage = $node->getPage($langId)) && $targetPage->isActive()) {
+                $url->setPath(substr($targetPage->getPath(), 1));
+                $link = $url->__toString();
+            } else {
+                $link = $url->fromModuleAndCmd('Error', '', $langId);
+            }
+            $placeholders['LANG_CHANGE_'.strtoupper($langData['lang'])] = $link;
+            $placeholders['LANG_SELECTED_'.strtoupper($langData['lang'])] = '';
         }
-        return \Cx\Core\Routing\NodePlaceholder::fromPage($targetPage) . '$(QUERY_STRING)';
+        $placeholders['LANG_SELECTED_'.strtoupper($pageUrl->getLangDir())] = 'selected';
+        $objTemplate->setVariable($placeholders);
     }
 }

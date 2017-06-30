@@ -81,7 +81,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\Controller
 
         // activate ckeditor
         \JS::activate('ckeditor');
-        \JS::activate('js-cookie');
+        \JS::activate('jquery-cookie');
 
         // load language data
         $_ARRAYLANG = $objInit->loadLanguageData('FrontendEditing');

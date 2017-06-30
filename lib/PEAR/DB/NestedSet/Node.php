@@ -30,9 +30,6 @@
 
 class DB_NestedSet_Node {
     // {{{ constructor
-    public function __construct($data) {
-        $this->DB_NestedSet_Node($data);
-    }
     /**
     * Constructor
     */

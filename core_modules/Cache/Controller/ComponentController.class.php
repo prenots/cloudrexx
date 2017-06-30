@@ -96,7 +96,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
             return;
         }
-        $this->cache->startContrexxCaching($this->cx);
+        $this->cache->startContrexxCaching();
     }
 
     /**
@@ -180,8 +180,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Wrapper to drop all cached ESI/SSI elements
      */
-    public function clearSsiCache($urlPattern = '') {
-        $this->cache->clearSsiCache($urlPattern);
+    public function clearSsiCache() {
+        $this->cache->clearSsiCache();
     }
 
     /**
@@ -262,22 +262,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Returns the validated file search parts of the URL
      * @param string $url URL to parse
-     * @param string $originalUrl URL of the page that ESI is parsed for
      * @return array <fileNamePrefix>=><parsedValue> type array
      */
-    public function getCacheFileNameSearchPartsFromUrl($urlPattern, $originalUrl) {
-        return $this->cache->getCacheFileNameSearchPartsFromUrl($urlPattern, $originalUrl);
+    public function getCacheFileNameSearchPartsFromUrl($urlPattern) {
+        return $this->cache->getCacheFileNameSearchPartsFromUrl($urlPattern);
     }
 
     /**
      * Gets the local cache file name for an URL
      * @param string $url URL to get file name for
-     * @param string $originalUrl URL of the page that ESI is parsed for
-     * @param boolean $withCacheInfoPart (optional) Adds info part (default true)
-     * @return string File name (without path)
+     * @return string File name
      */
-    public function getCacheFileNameFromUrl($url, $originalUrl, $withCacheInfoPart = true) {
-        return $this->cache->getCacheFileNameFromUrl($url, $originalUrl, $withCacheInfoPart);
+    public function getCacheFileNameFromUrl($urlPattern, $withCacheInfoPart = true) {
+        return $this->cache->getCacheFileNameFromUrl($urlPattern, $withCacheInfoPart);
     }
 
     /**
@@ -296,9 +293,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param string $endcode Current response
      */
     public function writeCacheFileForRequest($page, $headers, $endcode) {
-        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
-            return;
-        }
         $this->cache->writeCacheFileForRequest($page, $headers, $endcode);
     }
 
@@ -451,15 +445,5 @@ Cache clear all';
                 break;
         }
         echo 'Cache cleared' . "\n";
-    }
-
-    /**
-     * Forces page cache to be stored per user
-     */
-    public function forceUserbasedPageCache() {
-        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
-            return;
-        }
-        $this->cache->forceUserbasedPageCache();
     }
 }

@@ -58,11 +58,6 @@ class Locale extends \Cx\Model\Base\EntityBase {
     protected $label;
 
     /**
-     * @var integer
-     */
-    protected $orderNo;
-
-    /**
      * @var \Cx\Core\Locale\Model\Entity\Locale
      */
     protected $locales;
@@ -131,26 +126,6 @@ class Locale extends \Cx\Model\Base\EntityBase {
     public function getLabel()
     {
         return $this->label;
-    }
-
-    /**
-     * Set order no
-     *
-     * @param integer $orderNo
-     */
-    public function setOrderNo($orderNo)
-    {
-        $this->orderNo = $orderNo;
-    }
-
-    /**
-     * Get order no
-     *
-     * @return integer $orderNo
-     */
-    public function getOrderNo()
-    {
-        return $this->orderNo;
     }
 
     /**

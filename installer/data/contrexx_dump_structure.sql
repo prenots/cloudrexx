@@ -246,7 +246,7 @@ CREATE TABLE `contrexx_core_country` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_core_country_country` (
-  `alpha2` char(2) NOT NULL,
+  `alpha2` char(2) NOT NULL COLLATE utf8_unicode_ci,
   `alpha3` char(3) NOT NULL DEFAULT '',
   `ord` int(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`alpha2`),
@@ -270,24 +270,23 @@ CREATE TABLE `contrexx_core_data_source` (
 ) ENGINE = InnoDB;
 CREATE TABLE `contrexx_core_locale_backend` (
   `id` int AUTO_INCREMENT NOT NULL,
-  `iso_1` char(2) NOT NULL,
+  `iso_1` char(2) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `contrexx_core_locale_backend_ibfk_iso_1` FOREIGN KEY (`iso_1`) REFERENCES `contrexx_core_locale_language` (`iso_1`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_locale_language` (
-  `iso_1` char(2) NOT NULL,
-  `iso_3` char(3) DEFAULT NULL,
+  `iso_1` char(2) COLLATE utf8_unicode_ci NOT NULL,
+  `iso_3` char(3) COLLATE utf8_unicode_ci DEFAULT NULL,
   `source` tinyint(1) NOT NULL,
   PRIMARY KEY (`iso_1`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_locale_locale` (
   `id` int AUTO_INCREMENT NOT NULL,
-  `iso_1` char(2) NOT NULL,
-  `label` varchar(255) DEFAULT NULL,
-  `country` char(2) DEFAULT NULL,
-  `fallback` int DEFAULT NULL,
-  `source_language` char(2) NOT NULL,
-  `order_no` int(11) COLLATE utf8_unicode_ci NOT NULL,
+  `iso_1` char(2) COLLATE utf8_unicode_ci NOT NULL,
+  `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `country` char(2) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `fallback` int COLLATE utf8_unicode_ci DEFAULT NULL,
+  `source_language` char(2) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `iso_1` (`iso_1`, `country`),
   CONSTRAINT `contrexx_core_locale_locale_ibfk_country` FOREIGN KEY (`country`) REFERENCES `contrexx_core_country_country` (`alpha2`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -397,62 +396,26 @@ CREATE TABLE `contrexx_core_module_linkmanager_link` (
   `brokenLinkText` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+CREATE TABLE `contrexx_core_module_sync_id_mapping` (
+  `id` int(11) AUTO_INCREMENT NOT NULL,
+  `foreign_host` varchar(255) NOT NULL,
+  `entity_type` varchar(255) NOT NULL,
+  `foreign_id` int(11) NOT NULL,
+  `local_id` int(11) NOT NULL,
+  PRIMARY KEY(`id`)
+) ENGINE = InnoDB;
 CREATE TABLE `contrexx_core_module_sync` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) AUTO_INCREMENT NOT NULL,
   `data_access_id` int(11) DEFAULT NULL,
   `to_uri` varchar(255) NOT NULL,
   `api_key` varchar(32) NOT NULL,
   `active` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`),
   KEY `data_access_id` (`data_access_id`),
+  PRIMARY KEY(`id`),
   CONSTRAINT `contrexx_core_module_sync_ibfk_data_access_id` FOREIGN KEY (`data_access_id`) REFERENCES `contrexx_core_module_data_access` (`id`)
-) ENGINE=InnoDB;
-CREATE TABLE `contrexx_core_module_sync_change` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sync_id` int(11) NOT NULL,
-  `origin_sync_id` int(11) NOT NULL,
-  `event_type` char(6) NOT NULL,
-  `condition` char(7) NOT NULL,
-  `entity_index_data` text NOT NULL,
-  `origin_entity_index_data` text NOT NULL,
-  `contents` longtext NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-CREATE TABLE `contrexx_core_module_sync_change_host` (
-  `change_id` int(11) NOT NULL,
-  `host_id` int(11) NOT NULL,
-  PRIMARY KEY (`change_id`,`host_id`)
-) ENGINE=InnoDB;
-CREATE TABLE `contrexx_core_module_sync_host` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `host` varchar(255) NOT NULL,
-  `active` tinyint(1) NOT NULL,
-  `api_key` varchar(32) NOT NULL,
-  `api_version` int(11) NOT NULL,
-  `url_template` varchar(255) NOT NULL,
-  `state` int(1) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `host_UNIQUE` (`host`)
-) ENGINE=InnoDB;
-CREATE TABLE `contrexx_core_module_sync_host_entity` (
-  `sync_id` int(11) NOT NULL,
-  `host_id` int(11) NOT NULL,
-  `entity_id` varchar(255) NOT NULL,
-  PRIMARY KEY (`sync_id`,`host_id`,`entity_id`),
-  KEY `host_id` (`host_id`),
-  CONSTRAINT `contrexx_core_module_sync_host_entity_ibfk_sync_id` FOREIGN KEY (`sync_id`) REFERENCES `contrexx_core_module_sync` (`id`),
-  CONSTRAINT `contrexx_core_module_sync_host_entity_ibfk_host_id` FOREIGN KEY (`host_id`) REFERENCES `contrexx_core_module_sync_host` (`id`)
-) ENGINE=InnoDB;
-CREATE TABLE `contrexx_core_module_sync_id_mapping` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `foreign_host` varchar(255) NOT NULL,
-  `entity_type` varchar(255) NOT NULL,
-  `foreign_id` varchar(255) NOT NULL,
-  `local_id` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
+) ENGINE = InnoDB;
 CREATE TABLE `contrexx_core_module_sync_relation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) AUTO_INCREMENT NOT NULL,
   `parent_id` int(11) DEFAULT NULL,
   `related_sync_id` int(11) NOT NULL,
   `foreign_data_access_id` int(11) NOT NULL,
@@ -462,13 +425,31 @@ CREATE TABLE `contrexx_core_module_sync_relation` (
   `local_field_name` varchar(50) NOT NULL,
   `do_sync` tinyint(1) NOT NULL,
   `default_entity_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `related_sync_id` (`related_sync_id`),
-  KEY `contrexx_core_module_sync_relation_ibfk_foreign_data_access_id` (`foreign_data_access_id`),
+  PRIMARY KEY(`id`),
   CONSTRAINT `contrexx_core_module_sync_relation_ibfk_foreign_data_access_id` FOREIGN KEY (`foreign_data_access_id`) REFERENCES `contrexx_core_module_data_access` (`id`),
   CONSTRAINT `contrexx_core_module_sync_relation_ibfk_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `contrexx_core_module_sync_relation` (`id`),
   CONSTRAINT `contrexx_core_module_sync_relation_ibfk_related_sync_id` FOREIGN KEY (`related_sync_id`) REFERENCES `contrexx_core_module_sync` (`id`)
+) ENGINE = InnoDB;
+CREATE TABLE `contrexx_core_module_sync_host` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host` varchar(255) NOT NULL,
+  `active` tinyint(1) NOT NULL,
+  `api_key` varchar(32) NOT NULL,
+  `api_version` int(11) NOT NULL,
+  `url_template` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `host_UNIQUE` (`host`)
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_core_module_sync_host_entity` (
+  `sync_id` int(11) NOT NULL,
+  `host_id` int(11) NOT NULL,
+  `entity_id` varchar(255) NOT NULL,
+  KEY `host_id` (`host_id`),
+  PRIMARY KEY (`sync_id`,`host_id`,`entity_id`),
+  CONSTRAINT `contrexx_core_module_sync_host_entity_ibfk_sync_id` FOREIGN KEY (`sync_id`) REFERENCES `contrexx_core_module_sync` (`id`),
+  CONSTRAINT `contrexx_core_module_sync_host_entity_ibfk_host_id` FOREIGN KEY (`host_id`) REFERENCES `contrexx_core_module_sync_host` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_rewrite_rule` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -499,8 +480,8 @@ CREATE TABLE `contrexx_core_text` (
 ) ENGINE=MyISAM;
 CREATE TABLE `contrexx_core_view_frontend` (
   `language` int NOT NULL,
-  `theme` int(2) unsigned NOT NULL,
-  `channel` enum('default','mobile','print','pdf','app') NOT NULL,
+  `theme` int(2) unsigned DEFAULT NULL,
+  `channel` enum('default','mobile','print','pdf','app') COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`language`,`theme`,`channel`),
   CONSTRAINT `contrexx_core_view_frontend_ibfk_locale` FOREIGN KEY (`language`) REFERENCES `contrexx_core_locale_locale` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `contrexx_core_view_frontend_ibfk_theme` FOREIGN KEY (`theme`) REFERENCES `contrexx_skins` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -802,7 +783,6 @@ CREATE TABLE `contrexx_module_calendar_event` (
   `series_pattern_end_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `series_pattern_begin` int(11) NOT NULL DEFAULT '0',
   `series_pattern_exceptions` longtext NOT NULL,
-  `series_additional_recurrences` longtext NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `confirmed` tinyint(1) NOT NULL DEFAULT '1',
   `show_detail_view` tinyint(1) NOT NULL DEFAULT '1',
@@ -3680,7 +3660,7 @@ CREATE TABLE `contrexx_stats_requests` (
   `sid` varchar(32) NOT NULL DEFAULT '',
   `pageTitle` varchar(250) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `pageId` (`pageId`)
+  UNIQUE KEY `unique` (`page`)
 ) ENGINE=MyISAM;
 CREATE TABLE `contrexx_stats_requests_summary` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

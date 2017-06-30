@@ -82,15 +82,4 @@ class WidgetEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListen
             }
         }
     }
-
-    /**
-     * OnEvent
-     *
-     * @param string $eventName event name
-     * @param array  $eventArgs event arguments
-     */
-    public function onEvent($eventName, array $eventArgs)
-    {
-        $this->$eventName($eventArgs);
-    }
 }

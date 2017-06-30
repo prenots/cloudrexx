@@ -170,21 +170,7 @@ class DoctrineRepository extends DataSource {
 
         $em->persist($entity);
         $em->flush();
-        return $this->getEntityIndexData($entity);
-    }
-    
-    /**
-     * @todo: This method should be elsewhere
-     */
-    protected function getEntityIndexData($entity) {
-        $em = $this->cx->getDb()->getEntityManager();
-        $entityClassName = get_class($entity);
-        $entityMetaData = $em->getClassMetadata($entityClassName);
-        $entityIndexData = array();
-        foreach ($entityMetaData->getIdentifierFieldNames() as $field) {
-            $entityIndexData[$field] = $entityMetaData->getFieldValue($entity, $field);
-        }
-        return $entityIndexData;
+        return $entityClassMetadata->getSingleIdReflectionProperty()->getValue($entity);
     }
 
     /**
@@ -252,12 +238,12 @@ class DoctrineRepository extends DataSource {
     protected function setEntityData($entity, $data) {
         $em = $this->cx->getDb()->getEntityManager();
         $entityClassMetadata = $em->getClassMetadata(get_class($entity));
-        $primaryKeyNames = $entityClassMetadata->getIdentifierFieldNames(); //get primary key name
+        $primaryKeyName = $entityClassMetadata->getSingleIdentifierFieldName(); //get primary key name
         $entityColumnNames = $entityClassMetadata->getColumnNames(); //get the names of all fields
 
         foreach($entityColumnNames as $column) {
             $name = $entityClassMetadata->getFieldName($column);
-            if (/*in_array($name, $primaryKeyNames) ||*/ !isset($data[$name])) {
+            if ($name == $primaryKeyName || !isset($data[$name])) {
                 continue;
             }
 
@@ -274,28 +260,6 @@ class DoctrineRepository extends DataSource {
             $fieldSetMethodName = 'set'.preg_replace('/_([a-z])/', '\1', ucfirst($name));
             // set the value as property of the current object, so it is ready to be stored in the database
             $entity->$fieldSetMethodName($data[$name]);
-        }
-        
-        $associationMappings = $entityClassMetadata->getAssociationMappings();
-        $classMethods = get_class_methods($entity);
-        foreach ($associationMappings as $field => $associationMapping) {
-            if (   $entityClassMetadata->isSingleValuedAssociation($field)
-                && in_array('set'.ucfirst($field), $classMethods)
-            ) {
-                $foreignId = $data[$field];
-                if (is_array($foreignId)) {
-                    $foreignId = current($foreignId);
-                }
-                $targetRepo = $em->getRepository($associationMapping['targetEntity']);
-                $targetEntity = $targetRepo->findOneBy(array(
-                    $associationMapping['joinColumns'][0]['referencedColumnName'] => $foreignId,
-                ));
-                if (!$targetEntity) {
-                    throw new \Exception('Entity not found (' . $associationMapping['targetEntity'] . ' with ID ' . $foreignId . ')');
-                }
-                $setMethod = 'set'.ucfirst($field);
-                $entity->$setMethod($targetEntity);
-            }
         }
     }
 }

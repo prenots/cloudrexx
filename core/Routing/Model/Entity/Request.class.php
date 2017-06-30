@@ -62,21 +62,14 @@ class Request {
     protected $url;
 
     /**
-     * Request headers
-     * @var array Key=>value type array
-     */
-    protected $headers = array();
-
-    /**
      * Constructor to initialize the $httpRequestMethod and $url
      *
      * @param String $method
      * @param Object $resolvedUrl
      */
-    public function __construct($method, \Cx\Core\Routing\Url $resolvedUrl, $headers = array()) {
+    public function __construct($method, \Cx\Core\Routing\Url $resolvedUrl) {
         $this->httpRequestMethod = strtolower($method);
-        $this->url = $resolvedUrl;
-        $this->headers = $headers;
+        $this->url               = $resolvedUrl;
     }
 
     /**
@@ -88,15 +81,6 @@ class Request {
         return $this->httpRequestMethod;
     }
 
-    /**
-     * Get the httpRequest method
-     * 
-     * @param String $method
-     */
-    public function setHttpRequestMethod($method) {
-        $this->httpRequestMethod = $method;
-    }
-    
     /**
      * Get the resolved url object
      *
@@ -164,14 +148,6 @@ class Request {
             throw new \Exception('Cookie not set');
         }
         return $_COOKIE[$name];
-    }
-
-    /**
-     * Returns the headers
-     * @return array Key=>value type list of headers
-     */
-    public function getHeaders() {
-        return $this->headers;
     }
 
     /**

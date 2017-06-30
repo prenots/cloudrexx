@@ -48,6 +48,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     protected $internalTimezone;
 
     /**
+     * @var \DateTimeZone User's timezone
+     */
+    protected $userTimezone;
+
+    /**
      * Returns the controller class names for this component
      * @return array List of controller names
      */
@@ -57,17 +62,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     /**
      * Sets the user's and the database timezone
-     * Please note that there's also the user's timezone. Since the user could
-     * change (login/logout) during the request, we get it on demand.
+     * @param \Cx\Core\Routing\Url $request Request URL
      */
-    public function postComponentLoad() {
-        global $_CONFIG;
-
+    public function preResolve(\Cx\Core\Routing\Url $request) {
         $databaseTimezoneString = $this->cx->getDb()->getDb()->getTimezone();
         $this->databaseTimezone = new \DateTimeZone($databaseTimezoneString);
 
-        $internalTimezoneString = $_CONFIG['timezone'];
+        $internalTimezoneString = \Cx\Core\Setting\Controller\Setting::getValue('timezone', 'Config');
         $this->internalTimezone = new \DateTimeZone($internalTimezoneString);
+
+        $this->userTimezone = \FWUser::getFWUserObject()->objUser->getTimezone();
     }
 
     /**
@@ -86,7 +90,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return \DateTime DateTime in user's timezone
      */
     public function intern2user(\DateTime $datetime, $user = null) {
-        $userTimezone = \FWUser::getFWUserObject()->objUser->getTimezone();
+        $userTimezone = $this->userTimezone;
         if ($user) {
             $userTimezone = $user->getTimezone();
         }
@@ -137,7 +141,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return \DateTime DateTime object in user's timezone
      */
     public function createDateTimeForUser($time, $user = null) {
-        $userTimezone = \FWUser::getFWUserObject()->objUser->getTimezone();
+        $userTimezone = $this->userTimezone;
         if ($user) {
             $userTimezone = $user->getTimezone();
         }

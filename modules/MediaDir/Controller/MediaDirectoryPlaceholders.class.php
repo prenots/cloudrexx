@@ -61,22 +61,14 @@ class MediaDirectoryPlaceholders extends MediaDirectoryLibrary
     {
         $this->strPlaceholder = null;
 
-        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
-
         if($this->arrSettings['settingsShowLevels'] == 1) {
             $objLevels = new MediaDirectoryLevel(null, null, 0, $this->moduleName);
-	        $intLevelId = null;
-            if (isset($requestParams['lid'])) {
-                $intLevelId = intval($requestParams['lid']);
-            }
+            $intLevelId = isset($_GET['lid']) ? intval($_GET['lid']) : null;
 
             $this->strPlaceholder = $objLevels->listLevels($this->_objTpl, 6, $intLevelId);
         } else {
             $objCategories = new MediaDirectoryCategory(null, null, 0, $this->moduleName);
-            $intCategoryId = null;
-            if (isset($requestParams['cid'])) {
-                $intCategoryId = intval($requestParams['cid']);
-            }
+            $intCategoryId = isset($_GET['cid']) ? intval($_GET['cid']) : null;
 
             $this->strPlaceholder = $objCategories->listCategories($this->_objTpl, 6, $intCategoryId, null, null, null, 1);
         }
@@ -88,22 +80,19 @@ class MediaDirectoryPlaceholders extends MediaDirectoryLibrary
     {
         $this->strPlaceholder = null;
 
-        //If the settings option 'List latest entries in webdesign template' is deactivated
-        //then do not parse the latest entries
-        if (!$this->arrSettings['showLatestEntriesInWebdesignTmpl']) {
-            return;
-        }
-        $intLimitEnd = intval($this->arrSettings['settingsLatestNumHeadlines']);
+        $intLimitEnd = intval($this->arrSettings['settingsLatestNumOverview']);
 
         $objEntries = new MediaDirectoryEntry($this->moduleName);
         $objEntries->getEntries(null,null,null,null,true,null,1,null,$intLimitEnd);
 
         foreach($objEntries->arrEntries as $intEntryId => $arrEntry) {
-            try {
-                $strDetailUrl = $objEntries->getDetailUrlOfEntry($arrEntry, true);
-            } catch (MediaDirectoryEntryException $e) {
-                $strDetailUrl = '#';
+            if($objEntries->checkPageCmd('detail'.intval($arrEntry['entryFormId']))) {
+                $strDetailCmd = 'detail'.intval($arrEntry['entryFormId']);
+            } else {
+                $strDetailCmd = 'detail';
             }
+
+            $strDetailUrl = 'index.php?section='.$this->moduleName.'&amp;cmd='.$strDetailCmd.'&amp;eid='.$arrEntry['entryId'];
 
             $this->strPlaceholder .= '<li><a href="'.$strDetailUrl.'">'.$arrEntry['entryFields'][0].'</a></li>';
         }

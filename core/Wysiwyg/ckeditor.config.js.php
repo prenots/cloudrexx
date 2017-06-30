@@ -68,7 +68,6 @@ if(!cx.variables.get('css', 'wysiwyg')) {
 }
 
 CKEDITOR.scriptLoader.load( '<?php echo $cx->getCodeBaseCoreModuleWebPath().'/MediaBrowser/View/Script/MediaBrowserCkeditorPlugin.js'   ?>' );
-CKEDITOR.scriptLoader.load( '<?php echo $cx->getCodeBaseCoreWebPath().'/Wysiwyg/View/Script/ImagePasteCkeditorPlugin.js'; ?>' );
 CKEDITOR.editorConfig = function( config )
 {
     config.skin = 'moono';

@@ -426,18 +426,10 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
 
         $template = new \Cx\Core\Html\Sigma();
         $template->loadTemplateFile($indexFile);
-        $template->addBlock(
-            'CONTENT_FILE',
-            'content_file',
-            file_get_contents($contentFile)
-        );
-        if ($template->placeholderExists('SIDEBAR_FILE')) {
-            $template->addBlock(
-                'SIDEBAR_FILE',
-                'sidebar_file',
-                file_get_contents($sidebarFile)
-            );
-        }
+        $template->setVariable(array(
+            'CONTENT_FILE' => file_get_contents($contentFile),
+            'SIDEBAR_FILE' => file_get_contents($sidebarFile),
+        ));
 
         return $template;
     }

@@ -64,14 +64,9 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
 
     function getForms($intFormId=null)
     {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $objInit;
+        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID, $objInit;
 
         $arrForms = array();
-
-        // LANG_ID is set to backend or frontend interface language.
-        // If LANG_ID is not yet set, then we've been requested from
-        // the frontend and the resolver did already set FRONTEND_LANG_ID
-        $langId = defined('LANG_ID') && LANG_ID ? LANG_ID : FRONTEND_LANG_ID;
 
         if(!empty($intFormId)) {
             $whereFormId = "form.id='".$intFormId."' AND";
@@ -98,7 +93,7 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
             WHERE
                 ($whereFormId form_names.form_id=form.id)
             AND
-                (form_names.lang_id='".$langId."')
+                (form_names.lang_id='".$_LANGID."')
             ORDER BY
                 `order` ASC
             ");

@@ -561,8 +561,7 @@ class CalendarRegistrationManager extends CalendarLibrary
             if ($eventManager->_addToEventList($objEvent)) {
                 $eventManager->eventList[] = $objEvent;
             }
-            $additionalRecurrences = $objEvent->seriesData['seriesAdditionalRecurrences'];
-            $eventManager->_setNextSeriesElement($objEvent, $additionalRecurrences);
+            $eventManager->_setNextSeriesElement($objEvent);
 
             $regEventDateField = '<select style="width: 208px;" class="calendarSelect" name="registrationEventDate">';
             foreach ($eventManager->eventList as $event) {

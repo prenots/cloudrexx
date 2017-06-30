@@ -656,15 +656,10 @@ class User extends User_Profile
     }
 
 
-    /**
-     * Returns an array containing the ids of the user's associated groups
-     * @param boolean $activeOnly Wether to load only the active groups or all
-     * @return array
-     */
-    public function getAssociatedGroupIds($activeOnly=false)
+    public function getAssociatedGroupIds()
     {
         if (!isset($this->arrGroups)) {
-            $this->arrGroups = $this->loadGroups($activeOnly);
+            $this->arrGroups = $this->loadGroups();
         }
         return $this->arrGroups;
     }
@@ -736,15 +731,45 @@ class User extends User_Profile
         $arrConditions = array();
         $arrSearchConditions = array();
         $tblCoreAttributes = false;
+        $tblCustomAttributes = false;
         $tblGroup = false;
         $groupTables = false;
 
-        // SQL JOIN statements used for each custom attribute
-        $customAttributeJoins = array();
-
         // parse filter
         if (isset($arrFilter) && is_array($arrFilter)) {
-            $arrConditions = $this->parseFilterConditions($arrFilter, $tblCoreAttributes, $tblGroup, $customAttributeJoins, $groupTables);
+            if (count($arrAccountConditions = $this->parseAccountFilterConditions($arrFilter))) {
+                $arrConditions[] = implode(' AND ', $arrAccountConditions);
+            }
+            if (count($arrCoreAttributeConditions = $this->parseCoreAttributeFilterConditions($arrFilter))) {
+                $arrConditions[] = implode(' AND ', $arrCoreAttributeConditions);
+                $tblCoreAttributes = true;
+            }
+            if (count($arrCustomAttributeConditions = $this->parseCustomAttributeFilterConditions($arrFilter))) {
+                $groupTables = true;
+                $arrConditions[] = implode(' AND ', $arrCustomAttributeConditions);
+                $tblCustomAttributes = true;
+            }
+
+            if (in_array('group_id', array_keys($arrFilter)) && !empty($arrFilter['group_id'])) {
+                $arrGroupConditions = array();
+                if ($arrFilter['group_id'] == 'groupless') {
+                    $arrGroupConditions[] = 'tblG.`group_id` IS NULL';
+                } else if (is_array($arrFilter['group_id'])) {
+                    foreach ($arrFilter['group_id'] as $groupId) {
+                        $arrGroupConditions[] = 'tblG.`group_id` = '.intval($groupId);
+                    }
+                    $groupTables = true;
+                } else {
+                    $arrGroupConditions[] = 'tblG.`group_id` = '.intval($arrFilter['group_id']);
+                }
+                $arrConditions[] = '('.implode(' OR ', $arrGroupConditions).')';
+
+                if (!FWUser::getFWUserObject()->isBackendMode()) {
+                    $arrConditions[] = "tblGF.`is_active` = 1 AND tblGF.`type` = 'frontend'";
+                }
+
+                $tblGroup = true;
+            }
         }
 
         // parse search
@@ -759,6 +784,7 @@ class User extends User_Profile
             if (count($arrCustomAttributeConditions = $this->parseAttributeSearchConditions($search, false))) {
                 $groupTables = true;
                 $arrSearchConditions[] = implode(' OR ', $arrCustomAttributeConditions);
+                $tblCustomAttributes = true;
             }
             if (count($arrSearchConditions)) {
                 $arrConditions[] = implode(' OR ', $arrSearchConditions);
@@ -769,6 +795,9 @@ class User extends User_Profile
         if (!empty($tblCoreAttributes)) {
             $arrTables[] = 'core';
         }
+        if (!empty($tblCustomAttributes)) {
+            $arrTables[] = 'custom';
+        }
         if ($tblGroup) {
             $arrTables[] = 'group';
         }
@@ -776,8 +805,7 @@ class User extends User_Profile
         return array(
             'tables'        => $arrTables,
             'conditions'    => $arrConditions,
-            'group_tables'  => $groupTables,
-            'joins'         => $customAttributeJoins,
+            'group_tables'  => $groupTables
         );
     }
 
@@ -948,7 +976,7 @@ class User extends User_Profile
      * <pre class="brush: php">
      * $filter = array(
      *      'lastname' => array(
-     *          array(
+     * array(
      *              '>'  => 'a',
      *              '<'  => 'e%'
      *              '!=' => 'd%'
@@ -961,7 +989,7 @@ class User extends User_Profile
      * <br>
      * <h5>Fetch all active users that have been signed in within the last hour</h5>
      * <pre class="brush: php">
-     * $filter = array(
+     * array(
      *      'is_active' => 1,
      *      'last_auth' => array(
      *          '>' => time()-3600
@@ -1162,6 +1190,7 @@ class User extends User_Profile
             .(count($arrSelectCoreExpressions) ? ', tblP.`'.implode('`, tblP.`', $arrSelectCoreExpressions).'`' : '')
             .'FROM `'.DBPREFIX.'access_users` AS tblU'
             .(count($arrSelectCoreExpressions) || $arrQuery['tables']['core'] ? ' INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id` = tblU.`id`' : '')
+            .($arrQuery['tables']['custom'] ? ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id` = tblU.`id`' : '')
             .($arrQuery['tables']['group']
                 ? (isset($filter['group_id']) && $filter['group_id'] == 'groupless'
                     ? ' LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id` = tblU.`id`'
@@ -1207,89 +1236,22 @@ class User extends User_Profile
     }
 
 
-    /**
-     * Parse and translate an array of filter rules into SQL statements to be
-     * used for filtering users.
-     *
-     * @param   array   $filter A nested array defining filter rules
-     * @param   boolean $tblCoreAttributes  Will be set to TRUE if the supplied
-     *                                      filter arguments $filter will need
-     *                                      a join to the core-attribute-table
-     * @param   boolean $tblGroup   Will be set to TRUE if the supplied filter
-     *                              arguments $filter will need a join to the
-     *                              user-group-table
-     * @param   array   $customAttributeJoins   Will be filled with SQL JOIN
-     *                                          statements to be used for
-     *                                          filtering the custom attributes
-     * @param   boolean $groupTables Will be set to TRUE if the SQL statement
-     *                               should be grouped (GROUP BY)
-     * @return  array   List of SQL statements to be used as WHERE arguments
-     */
-    protected function parseFilterConditions($filter, &$tblCoreAttributes, &$tblGroup, &$customAttributeJoins, &$groupTables)
+    /*private function parseFilterConditions($filter)
     {
         $arrConditions = array();
 
-        // check if $filter is constructed by an OR or AND condition
-        if (count($filter) == 1 && in_array(strtoupper(key($filter)), array('OR', 'AND'))) {
-            // first key of $filter defines the join method (either OR or AND)
-            $joinMethod = strtoupper(key($filter));
-
-            // arguments that shall be joined by $joinMethod
-            $filterArguments = current($filter);
-
-            // parse filter arguments (generate SQL statements)
-            foreach ($filterArguments as $argument) {
-                $filterConditions = $this->parseFilterConditions($argument, $tblCoreAttributes, $tblGroup, $customAttributeJoins, $groupTables);
-                $arrConditions[] = implode(' AND ', $filterConditions);
-            }
-
-            // join generated SQL statements by $joinMethod 
-            return array('(' . implode(' ) ' . $joinMethod . ' ( ', $arrConditions) . ')');
-        }
-
-        // proceed with below code as listed key-value pairs in $filter are
-        // simple attribute filters to be joind by AND
-
-        // filter by user attributes (if set)
         if (count($arrAccountConditions = $this->parseAccountFilterConditions($filter))) {
             $arrConditions[] = implode(' AND ', $arrAccountConditions);
         }
         if (count($arrCoreAttributeConditions = $this->parseCoreAttributeFilterConditions($filter))) {
             $arrConditions[] = implode(' AND ', $arrCoreAttributeConditions);
-            $tblCoreAttributes = true;
         }
         if (count($arrCustomAttributeConditions = $this->parseCustomAttributeFilterConditions($filter))) {
-            $groupTables = true;
             $arrConditions[] = implode(' AND ', $arrCustomAttributeConditions);
-            foreach (array_keys($arrCustomAttributeConditions) as $customAttributeTable) {
-                $customAttributeJoins[] = ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS ' . $customAttributeTable . ' ON ' . $customAttributeTable . '.`user_id` = tblU.`id` ';
-            }
-        }
-
-        // filter by user group membership (if set)
-        if (in_array('group_id', array_keys($filter)) && !empty($filter['group_id'])) {
-            $arrGroupConditions = array();
-            if ($filter['group_id'] == 'groupless') {
-                $arrGroupConditions[] = 'tblG.`group_id` IS NULL';
-            } else if (is_array($filter['group_id'])) {
-                foreach ($filter['group_id'] as $groupId) {
-                    $arrGroupConditions[] = 'tblG.`group_id` = '.intval($groupId);
-                }
-                $groupTables = true;
-            } else {
-                $arrGroupConditions[] = 'tblG.`group_id` = '.intval($filter['group_id']);
-            }
-            $arrConditions[] = '('.implode(' OR ', $arrGroupConditions).')';
-
-            if (!FWUser::getFWUserObject()->isBackendMode()) {
-                $arrConditions[] = "tblGF.`is_active` = 1 AND tblGF.`type` = 'frontend'";
-            }
-
-            $tblGroup = true;
         }
 
         return $arrConditions;
-    }
+    }*/
 
 
     /*private function parseSearchConditions($search)
@@ -1356,6 +1318,7 @@ class User extends User_Profile
         $arrCustomJoins = array();
         $arrCustomSelection = array();
         $joinCoreTbl = false;
+        $joinCustomTbl = false;
         $joinGroupTbl = false;
         $arrUserIds = array();
         $arrSortExpressions = array();
@@ -1366,6 +1329,9 @@ class User extends User_Profile
                 if (in_array('core', $sqlCondition['tables'])) {
                     $joinCoreTbl = true;
                 }
+                if (in_array('custom', $sqlCondition['tables'])) {
+                    $joinCustomTbl = true;
+                }
                 if (in_array('group', $sqlCondition['tables'])) {
                     $joinGroupTbl = true;
                 }
@@ -1375,9 +1341,6 @@ class User extends User_Profile
             }
             if (!empty($sqlCondition['group_tables'])) {
                 $groupTables = true;
-            }
-            if (isset($sqlCondition['joins']) ) {
-                $arrCustomJoins = $sqlCondition['joins'];
             }
         }
         if (is_array($arrSort)) {
@@ -1411,6 +1374,7 @@ class User extends User_Profile
             SELECT SQL_CALC_FOUND_ROWS DISTINCT tblU.`id`
               FROM `'.DBPREFIX.'access_users` AS tblU'.
             ($joinCoreTbl ? ' INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id`=tblU.`id`' : '').
+            ($joinCustomTbl ? ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id`=tblU.`id`' : '').
             ($joinGroupTbl
                 ? ($groupless
                     ? ' LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id`=tblU.`id`'
@@ -1443,6 +1407,7 @@ class User extends User_Profile
         return array(
             'tables' => array(
                 'core'      => $joinCoreTbl,
+                'custom'    => $joinCustomTbl,
                 'group'     => $joinGroupTbl
             ),
             'joins'         => $arrCustomJoins,
@@ -1576,55 +1541,53 @@ class User extends User_Profile
              * $attribute is the account attribute like 'email' or 'username'
              * $condition is either a simple condition (integer or string) or an condition matrix (array)
              */
-            if (!isset($this->arrAttributes[$attribute])) {
-                continue;
-            }
+            if (isset($this->arrAttributes[$attribute])) {
+                $arrComparisonOperators = array(
+                    'int'       => array('=','<','>'),
+                    'string'    => array('!=','<','>', 'REGEXP')
+                );
+                $arrDefaultComparisonOperator = array(
+                    'int'       => '=',
+                    'string'    => 'LIKE'
+                );
+                $arrEscapeFunction = array(
+                    'int'       => 'intval',
+                    'string'    => 'addslashes'
+                );
 
-            $arrComparisonOperators = array(
-                'int'       => array('=','<','>'),
-                'string'    => array('!=','<','>', 'REGEXP')
-            );
-            $arrDefaultComparisonOperator = array(
-                'int'       => '=',
-                'string'    => 'LIKE'
-            );
-            $arrEscapeFunction = array(
-                'int'       => 'intval',
-                'string'    => 'addslashes'
-            );
-
-            if (is_array($condition)) {
-                $arrRestrictions = array();
-                foreach ($condition as $operator => $restriction) {
-                    /**
-                     * $operator is either a comparison operator ( =, LIKE, <, >) if $restriction is an array or if $restriction is just an integer or a string then its an index which would be useless
-                     * $restriction is either a integer or a string or an array which represents a restriction matrix
-                     */
-                    if (is_array($restriction)) {
-                        $arrConditionRestriction = array();
-                        foreach ($restriction as $restrictionOperator => $restrictionValue) {
-                            /**
-                             * $restrictionOperator is a comparison operator ( =, <, >)
-                             * $restrictionValue represents the condition
-                             */
-                            $arrConditionRestriction[] = "tblU.`{$attribute}` ".(
-                                in_array($restrictionOperator, $arrComparisonOperators[$this->arrAttributes[$attribute]], true) ?
-                                    $restrictionOperator
+                if (is_array($condition)) {
+                    $arrRestrictions = array();
+                    foreach ($condition as $operator => $restriction) {
+                        /**
+                         * $operator is either a comparison operator ( =, LIKE, <, >) if $restriction is an array or if $restriction is just an integer or a string then its an index which would be useless
+                         * $restriction is either a integer or a string or an array which represents a restriction matrix
+                         */
+                        if (is_array($restriction)) {
+                            $arrConditionRestriction = array();
+                            foreach ($restriction as $restrictionOperator => $restrictionValue) {
+                                /**
+                                 * $restrictionOperator is a comparison operator ( =, <, >)
+                                 * $restrictionValue represents the condition
+                                 */
+                                $arrConditionRestriction[] = "tblU.`{$attribute}` ".(
+                                    in_array($restrictionOperator, $arrComparisonOperators[$this->arrAttributes[$attribute]], true) ?
+                                        $restrictionOperator
+                                    :   $arrDefaultComparisonOperator[$this->arrAttributes[$attribute]]
+                                )." '".$arrEscapeFunction[$this->arrAttributes[$attribute]]($restrictionValue)."'";
+                            }
+                            $arrRestrictions[] = implode(' AND ', $arrConditionRestriction);
+                        } else {
+                            $arrRestrictions[] = "tblU.`{$attribute}` ".(
+                                in_array($operator, $arrComparisonOperators[$this->arrAttributes[$attribute]], true) ?
+                                    $operator
                                 :   $arrDefaultComparisonOperator[$this->arrAttributes[$attribute]]
-                            )." '".$arrEscapeFunction[$this->arrAttributes[$attribute]]($restrictionValue)."'";
+                            )." '".$arrEscapeFunction[$this->arrAttributes[$attribute]]($restriction)."'";
                         }
-                        $arrRestrictions[] = implode(' AND ', $arrConditionRestriction);
-                    } else {
-                        $arrRestrictions[] = "tblU.`{$attribute}` ".(
-                            in_array($operator, $arrComparisonOperators[$this->arrAttributes[$attribute]], true) ?
-                                $operator
-                            :   $arrDefaultComparisonOperator[$this->arrAttributes[$attribute]]
-                        )." '".$arrEscapeFunction[$this->arrAttributes[$attribute]]($restriction)."'";
                     }
+                    $arrConditions[] = '(('.implode(') OR (', $arrRestrictions).'))';
+                } else {
+                    $arrConditions[] = "(tblU.`".$attribute."` ".$arrDefaultComparisonOperator[$this->arrAttributes[$attribute]]." '".$arrEscapeFunction[$this->arrAttributes[$attribute]]($condition)."')";
                 }
-                $arrConditions[] = '(('.implode(') OR (', $arrRestrictions).'))';
-            } else {
-                $arrConditions[] = "(tblU.`".$attribute."` ".$arrDefaultComparisonOperator[$this->arrAttributes[$attribute]]." '".$arrEscapeFunction[$this->arrAttributes[$attribute]]($condition)."')";
             }
         }
 
@@ -1788,41 +1751,10 @@ class User extends User_Profile
             // only trigger postUpdate event in case an actual change on the user object has been flushed to the database
             if ($userChangeStatus) {
                 \Env::get('cx')->getEvents()->triggerEvent('model/postUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
-
-                // Clear cache
-                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                $cx->getEvents()->triggerEvent(
-                    'clearEsiCache',
-                    array(
-                        'Widget',
-                        array(
-                            'access_currently_online_member_list',
-                            'access_last_active_member_list',
-                            'access_latest_registered_member_list',
-                            'access_birthday_member_list',
-                        ),
-                    )
-                );
             }
         } else {
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
-
-            // Clear cache
-            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getEvents()->triggerEvent(
-                'clearEsiCache',
-                array(
-                    'Widget',
-                    array(
-                        'access_currently_online_member_list',
-                        'access_last_active_member_list',
-                        'access_latest_registered_member_list',
-                        'access_birthday_member_list',
-                    ),
-                )
-            );
         }
-
 
         return true;
     }
@@ -2406,18 +2338,6 @@ class User extends User_Profile
     public function registerSuccessfulLogin()
     {
         global $objDatabase;
-        
-        $this->updateLastAuthTime();
-        
-        // drop user specific ESI cache:
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $esiFiles = glob($cx->getWebsiteTempPath() . '/cache/*u' . session_id() . '*');
-        foreach ($esiFiles as $esiFile) {
-            try {
-                $file = new \Cx\Lib\FileSystem\File($esiFile);
-                $file->delete();
-            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {}
-        }
 
         return $objDatabase->Execute("
             UPDATE `".DBPREFIX."access_users`

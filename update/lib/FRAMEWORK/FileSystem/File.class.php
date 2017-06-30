@@ -122,11 +122,6 @@ class File implements FileInterface
     {
         return $this->accessMode;
     }
-    
-    public function forceAccessMode($mode)
-    {
-        $this->accessMode = $mode;
-    }
 
     public function getData()
     {

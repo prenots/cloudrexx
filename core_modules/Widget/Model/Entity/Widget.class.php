@@ -110,58 +110,27 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
      * @param array $excludedWidgets List of widget names that shall not be parsed
      */
     public function parse($template, $response, $targetComponent, $targetEntity, $targetId, $excludedWidgets = array()) {
-        // Disable parsing of widgets in backend pending furtzer notice
-        // See CLX-1674
-        if ($this->cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
-            return;
-        }
-
         if (!$this->hasContent()) {
             if (!$template->placeholderExists($this->getName())) {
                 return;
             }
-            $content = $this->internalParse(
-                $template,
-                $response,
-                $targetComponent,
-                $targetEntity,
-                $targetId
-            );
-            \LinkGenerator::parseTemplate($content);
             $template->setVariable(
                 $this->getName(),
-                $content
+                $this->internalParse($template, $response, $targetComponent, $targetEntity, $targetId)
             );
         } else {
             if (!$template->blockExists($this->getName())) {
                 return;
             }
-            // get widget template
-            $widgetHtml = $template->getUnparsedBlock($this->getName());
-            \LinkGenerator::parseTemplate($widgetHtml);
-            $widgetTemplate = new \Cx\Core_Modules\Widget\Model\Entity\Sigma();
-            $widgetTemplate->setTemplate($widgetHtml);
-
-            // parse this widget
-            $this->internalParse($widgetTemplate, $response, $targetComponent, $targetEntity, $targetId);
-
+            $this->internalParse($template, $response, $targetComponent, $targetEntity, $targetId);
             // recurse:
             $excludedWidgets[] = $this->getName();
             $this->getSystemComponentController()->parseWidgets(
-                $widgetTemplate,
+                $template,
                 $targetComponent,
                 $targetEntity,
                 $targetId,
                 $excludedWidgets
-            );
-
-            // parse blocktemplate in main template
-            $parsedContent = $widgetTemplate->get();
-            $template->replaceBlock(
-                $this->getName(),
-                $parsedContent,
-                false,
-                true
             );
         }
     }

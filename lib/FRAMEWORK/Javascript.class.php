@@ -221,10 +221,11 @@ cx.jQuery(document).ready(function(){
             ),
             'dependencies' => array('jquery'),
         ),
-        'js-cookie' => array(
+        'jquery-cookie' => array(
             'jsfiles'       => array(
-                'lib/javascript/js-cookie.min.js',
+                'lib/javascript/jquery/cookie/jquery.cookie.js',
             ),
+            'dependencies' => array('jquery'),
         ),
         // Required by HTML::getDatepicker() (modules/shop)!
         // (Though other versions will do just as well)
@@ -310,7 +311,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
                 'lib/javascript/jquery/jstree/jquery.jstree.js',
                 'lib/javascript/jquery/hotkeys/jquery.hotkeys.js',
             ),
-            'dependencies' => array('jquery', 'js-cookie'),
+            'dependencies' => array('jquery', 'jquery-cookie'),
         ),
         'ace' => array(
             'jsfiles'  => array(

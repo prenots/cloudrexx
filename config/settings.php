@@ -75,8 +75,6 @@ $_CONFIG['xmlSitemapStatus']          = "on";
 $_CONFIG['captchaMethod']             = "contrexxCaptcha";
 $_CONFIG['recaptchaSiteKey']          = "";
 $_CONFIG['recaptchaSecretKey']        = "";
-$_CONFIG['defaultLocaleId']           = 1;
-$_CONFIG['defaultLanguageId']         = 1;
 
 /**
 * -------------------------------------------------------------------------

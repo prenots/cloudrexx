@@ -289,10 +289,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 ),
                             ),
                         ),
-                        'orderNo' => array(
-                            'showOverview' => false,
-                            'showDetail' => false,
-                        ),
                         'country' => array(
                             'header' => $_ARRAYLANG['TXT_CORE_LOCALE_FIELD_COUNTRY'],
                         ),
@@ -393,14 +389,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'delete' => true,
                         'actions' => function($rowData) {
                             global $_ARRAYLANG;
-                            // parse copy/link functionality only for locales with fallback
-                            if (!$rowData['fallback']) {
-                                return '';
-                            }
                             // add copy link
                             $copyLink = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
                             $copyAttrs = array(
-                                'class' => 'copyLink',
                                 'href' => 'javascript:copyPages(\'' . $rowData['id'] . '\')',
                                 'title' => $_ARRAYLANG['TXT_CORE_LOCALE_ACTION_COPY']
                             );
@@ -416,7 +407,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             // add linking link
                             $linkLink = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
                             $linkAttrs = array(
-                                'class' => 'linkLink',
                                 'href' => 'javascript:linkPages(\'' . $rowData['id'] . '\')',
                                 'title' => $_ARRAYLANG['TXT_CORE_LOCALE_ACTION_LINK']
                             );
@@ -431,16 +421,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $linkLink->addChild($linkImg);
                             return $copyLink . $linkLink;
                         },
-                        'sorting'   => true,
-                        'sortBy' => array(
-                            'field' => array('orderNo' => SORT_ASC),
-                        ),
+                        'sorting' => true,
                         'paging' => false,
                         'filtering' => false,
                     ),
                     'order' => array(
                         'overview' => array(
-                            'orderNo',
                             'id',
                             'label',
                             'iso1',
