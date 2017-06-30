@@ -276,7 +276,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      * @global array
      * @see blockLibrary::getBlocks(), blockLibrary::blockNamePrefix
      */
@@ -373,15 +372,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 ? $this->getSelectedPages($blockId, 'direct', $objContentTree, $pageRepo)
                 : '';
 
-            $targeting = $this->loadTargetingSettings($blockId);
+            $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+            $block = $blockRepo->findOneBy(array('id' => $blockId));
+            $targetingOptions = $block->getTargetingOptions();
+
             $targetingClass = '';
             $targetingInfo = '';
-            if (!empty($targeting)) {
-                $targetingClass = 'active';
+            if (!empty($targetingOptions)) {
+                $targetingOption = $targetingOptions[0];
                 $arrSelectedCountries = array();
-                if (!empty($targeting['country']) && !empty($targeting['country']['value'])) {
-                    $targetingInfo = $targeting['country']['filter'] == 'include' ? $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_INCLUDE'] : $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_EXCLUDE'];
-                    foreach ($targeting['country']['value'] as $countryId) {
+                if (!empty($targetingOption) && $targetingOption->getType() == 'country' && !empty($targetingOption->getValue())) {
+                    $targetingClass = 'active';
+                    $targetingInfo = $targetingOption->getFilter() == 'include' ? $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_INCLUDE'] : $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_EXCLUDE'];
+                    foreach (json_decode($targetingOption->getValue()) as $countryId) {
                         $countryName = \Cx\Core\Country\Controller\Country::getNameById($countryId);
                         if (!empty($countryName)) {
                             $arrSelectedCountries[] = '<li>' . contrexx_raw2xhtml($countryName) . '</li>';
@@ -406,7 +409,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 'BLOCK_RANDOM_3_INFO' => $random3Info,
                 'BLOCK_RANDOM_4_INFO' => $random4Info,
                 'BLOCK_TARGETING_CLASS' => $targetingClass,
-                'BLOCK_TARGETING_INFO' => !empty($targeting)
+                'BLOCK_TARGETING_INFO' => !empty($targetingOptions)
                     ? $targetingInfo
                     : $_ARRAYLANG['TXT_BLOCK_LOCATION_BASED_DISPLAY_INFO'],
                 'BLOCK_GLOBAL_CLASS' => $globalClass,
@@ -989,8 +992,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockDirectAssociatedPageIds = $this->_getAssociatedPageIds($blockId, 'direct');
             $blockCategoryAssociatedPageIds = $this->_getAssociatedPageIds($blockId, 'category');
 
-            $targeting = $this->loadTargetingSettings($blockId);
-            if (!empty($targeting)) {
+            $targetingOptions = $block->getTargetingOptions();
+            if (!empty($targetingOptions)) {
                 $targetingStatus = 1;
             }
         }
@@ -1001,6 +1004,14 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         if ($copy) {
             $blockId = 0;
         }
+
+        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
+        $countryTargetingOption = $targetingOptionRepo->findOneBy(
+            array(
+                'type' => 'country',
+                'block' => $block,
+            )
+        );
 
         $this->_objTpl->setVariable(array(
             'BLOCK_ID' => $blockId,
@@ -1040,14 +1051,15 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             // Targeting
             'BLOCK_TARGETING_ALL_USERS' => $targetingStatus == 0 ? 'checked="checked"' : '',
             'BLOCK_TARGETING_VISITOR_CONDITION_BELOW' => $targetingStatus == 1 ? 'checked="checked"' : '',
-            'BLOCK_TARGETING_COUNTRY_INCLUDE' => !empty($targeting['country']) && $targeting['country']['filter'] == 'include'
+            'BLOCK_TARGETING_COUNTRY_INCLUDE' => !empty($countryTargetingOption) && $countryTargetingOption->getFilter() == 'include'
                 ? 'selected="selected"' : '',
-            'BLOCK_TARGETING_COUNTRY_EXCLUDE' => !empty($targeting['country']) && $targeting['country']['filter'] == 'exclude'
+            'BLOCK_TARGETING_COUNTRY_EXCLUDE' => !empty($countryTargetingOption) && $countryTargetingOption->getFilter() == 'exclude'
                 ? 'selected="selected"' : '',
         ));
 
-        if (!empty($targeting['country']) && !empty($targeting['country']['value'])) {
-            foreach ($targeting['country']['value'] as $countryId) {
+        if (!empty($countryTargetingOption) && !empty($countryTargetingOption->getValue())) {
+            $countries = json_decode($countryTargetingOption->getValue());
+            foreach ($countries as $countryId) {
                 $countryName = \Cx\Core\Country\Controller\Country::getNameById($countryId);
                 if (empty($countryName)) {
                     continue;
@@ -1295,85 +1307,59 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     public function storeTargetingSettings($block, $targetingStatus, $targeting = array())
     {
+        if (!$block) {
+            return array();
+        }
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
+
         $targetingOptionsWithoutBlock = array();
         foreach ($this->availableTargeting as $targetingType) {
+            $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
+            if (!empty($targetingArr)) {
+                $targetingOptions = null;
+                $targetingOptions = $targetingOptionRepo->findBy(array(
+                    'block' => $block,
+                    'type' => $targetingType,
+                ));
+
+                $valueString = json_encode($targetingArr['value']);
+
+                if ($targetingOptions) {
+                    foreach ($targetingOptions as $targetingOption) {
+                        $targetingOption->setFilter($targetingArr['filter']);
+                        $targetingOption->setValue($valueString);
+                    }
+                } else {
+                    $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
+                    $targetingOption->setFilter($targetingArr['filter']);
+                    $targetingOption->setType($targetingType);
+                    $targetingOption->setValue($valueString);
+                    if ($block) {
+                        $targetingOption->setBlock($block);
+                    } else {
+                        array_push($targetingOptionsWithoutBlock, $targetingOption);
+                    }
+                    $em->persist($targetingOption);
+                }
+            }
+
             if (!$targetingStatus) {
-                if ($block) {
-                    $this->removeTargetingSetting($block, $targetingType);
+                $targetingOption = $targetingOptionRepo->findOneBy(
+                    array(
+                        'block' => $block,
+                        'type' => $targetingType
+                    )
+                );
+
+                if ($targetingOption) {
+                    $em->remove($targetingOption);
                 }
                 continue;
             }
-            $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
-            if (!empty($targetingArr)) {
-                $targetingOptionsWithoutBlock = array_merge(
-                    $targetingOptionsWithoutBlock,
-                    $this->storeTargetingSetting($block, $targetingArr['filter'], $targetingType, $targetingArr['value'])
-                );
-            }
         }
         return $targetingOptionsWithoutBlock;
-    }
-
-    /**
-     * Store the targeting setting in to database
-     *
-     * @param object $block \Cx\Modules\Block\Model\Entity\Block
-     * @param string $filter Targeting filter type (include/exclude)
-     * @param string $type Targeting type (country)
-     * @param array $arrayValues Target selected option values
-     * @return array $targetingOptionsWithoutBlock Collection of \Cx\Modules\Block\Model\Entity\TargetingOption without block
-     */
-    public function storeTargetingSetting($block, $filter, $type, $arrayValues = array())
-    {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $targetingOptions = null;
-        if ($block) {
-            $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
-            $targetingOptions = $targetingOptionRepo->findBy(array(
-                'block' => $block,
-                'type' => $type,
-            ));
-        }
-
-        $valueString = json_encode($arrayValues);
-        $targetingOptionsWithoutBlock = array();
-
-        if ($targetingOptions) {
-            foreach ($targetingOptions as $targetingOption) {
-                $targetingOption->setFilter($filter);
-                $targetingOption->setValue($valueString);
-            }
-        } else {
-            $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
-            $targetingOption->setFilter($filter);
-            $targetingOption->setType($type);
-            $targetingOption->setValue($valueString);
-            if ($block) {
-                $targetingOption->setBlock($block);
-            } else {
-                array_push($targetingOptionsWithoutBlock, $targetingOption);
-            }
-            $em->persist($targetingOption);
-        }
-
-        return $targetingOptionsWithoutBlock;
-    }
-
-    /**
-     * Remove the targeting settings from database
-     *
-     * @param object $block \Cx\Modules\Block\Model\Entity\Block
-     * @param string $type Targeting type (country)
-     */
-    public function removeTargetingSetting($block, $type)
-    {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
-        $targetingOption = $targetingOptionRepo->findOneBy(array('block' => $block, 'type' => $type));
-
-        if ($targetingOption) {
-            $em->remove($targetingOption);
-        }
     }
 
     /**
@@ -1445,7 +1431,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _delBlock()
     {
@@ -1520,7 +1505,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _activateBlock()
     {
@@ -1554,7 +1538,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _deactivateBlock()
     {
@@ -1588,7 +1571,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      *
      * @access private
      * @global array
-     * @global ADONewConnection
      */
     function _globalBlock()
     {
@@ -1612,7 +1594,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      * change the status from a block
      *
      * @access private
-     * @global ADONewConnection
      */
     function _globalBlockOff()
     {
@@ -1638,7 +1619,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      * @access private
      * @global array
      * @global array
-     * @global ADONewConnection
      */
     function _showSettings()
     {
@@ -1647,10 +1627,45 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
         if (isset($_POST['saveSettings']) && !empty($_POST['blockSettings'])) {
-            $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
-            foreach ($_POST['blockSettings'] as $setName => $setValue) {
-                $setting = $settingRepo->findOneBy(array('name' => $setName));
-                $setting->setValue($setValue);
+            try {
+                // block setting group
+                \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+
+                if (!\Cx\Core\Setting\Controller\Setting::isDefined('blockGlobalSeperator')) {
+                    \Cx\Core\Setting\Controller\Setting::add(
+                        'blockGlobalSeperator',
+                        $_POST['blockSettings']['blockGlobalSeperator'],
+                        1,
+                        \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                        '',
+                        'setting'
+                    );
+                } else {
+                    \Cx\Core\Setting\Controller\Setting::set(
+                        'blockGlobalSeperator',
+                        $_POST['blockSettings']['blockGlobalSeperator']
+                    );
+                    \Cx\Core\Setting\Controller\Setting::update('blockGlobalSeperator');
+                }
+
+                if (!\Cx\Core\Setting\Controller\Setting::isDefined('markParsedBlock')) {
+                    \Cx\Core\Setting\Controller\Setting::add(
+                        'markParsedBlock',
+                        $_POST['blockSettings']['markParsedBlock'],
+                        2,
+                        \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX,
+                        '0',
+                        'setting'
+                    );
+                } else {
+                    \Cx\Core\Setting\Controller\Setting::set(
+                        'markParsedBlock',
+                        $_POST['blockSettings']['markParsedBlock']
+                    );
+                    \Cx\Core\Setting\Controller\Setting::update('markParsedBlock');
+                }
+            } catch (\Exception $e) {
+                \DBG::msg($e->getMessage());
             }
 
             $em->flush();
@@ -1676,9 +1691,9 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             'TXT_BLOCK_SAVE' => $_ARRAYLANG['TXT_BLOCK_SAVE'],
         ));
 
-        $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
-        $seperator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'));
-        $parsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
+        \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+        $seperator = \Cx\Core\Setting\Controller\Setting::getValue('blockGlobalSeperator', 'Block');
+        $parsedBlock = \Cx\Core\Setting\Controller\Setting::getValue('markParsedBlock', 'Block');
         $this->_objTpl->setVariable(array(
             'BLOCK_GLOBAL_SEPERATOR' => isset($seperator) ? contrexx_raw2xhtml($seperator) : '',
             'BLOCK_MARK_PARSED_BLOCK' => !empty($parsedBlock) ? 'checked="checked"' : '',

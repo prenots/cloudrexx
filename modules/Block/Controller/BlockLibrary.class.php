@@ -137,7 +137,6 @@ class BlockLibrary
      * Get all blocks
      *
      * @access private
-     * @global ADONewConnection
      * @see array blockLibrary::_arrBlocks
      * @return array Array with block ids
      */
@@ -234,33 +233,38 @@ class BlockLibrary
 
         $relPagesWithoutBlock = array();
         foreach ($blockAssociatedPageIds as $pageId) {
-            if ($pageId > 0) {
-                $page = $pageRepo->findOneBy(array('id' => $pageId));
-
-                if ($block) {
-                    $relPage = $relPageRepo->findOneBy(
-                        array(
-                            'block' => $block,
-                            'page' => $page,
-                            'placeholder' => $placeholder,
-                        )
-                    );
-                    if ($relPage) {
-                        continue;
-                    }
-                }
-
-                $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
-                $relPage->setPage($page);
-                $relPage->setPlaceholder($placeholder);
-                if ($block) {
-                    $relPage->setBlock($block);
-                } else {
-                    array_push($relPagesWithoutBlock, $relPage);
-                }
-
-                $em->persist($relPage);
+            if (!$pageId > 0) {
+                continue;
             }
+
+            $page = $pageRepo->findOneBy(array('id' => $pageId));
+            if (!$page) {
+                continue;
+            }
+
+            if ($block) {
+                $relPage = $relPageRepo->findOneBy(
+                    array(
+                        'block' => $block,
+                        'page' => $page,
+                        'placeholder' => $placeholder,
+                    )
+                );
+                if ($relPage) {
+                    continue;
+                }
+            }
+
+            $relPage = new \Cx\Modules\Block\Model\Entity\RelPage();
+            $relPage->setPage($page);
+            $relPage->setPlaceholder($placeholder);
+            if ($block) {
+                $relPage->setBlock($block);
+            } else {
+                array_push($relPagesWithoutBlock, $relPage);
+            }
+
+            $em->persist($relPage);
         }
 
         if ($block) {
@@ -378,20 +382,23 @@ class BlockLibrary
      */
     public function checkTargetingOptions($blockId)
     {
-        $targeting = $this->loadTargetingSettings($blockId);
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
+        $block = $blockRepo->findOneBy(array('id' => $blockId));
+        $targetingOptions = $block->getTargetingOptions();
 
-        if (empty($targeting)) {
+        if (empty($targetingOptions)) {
             return true;
         }
 
-        foreach ($targeting as $targetingType => $targetingSetting) {
-            switch ($targetingType) {
+        foreach ($targetingOptions as $targetingOption) {
+            switch ($targetingOption->getType()) {
                 case 'country':
-                    if (!$this->checkTargetingCountry($targetingSetting['filter'], $targetingSetting['value'])) {
+                    if (!$this->checkTargetingCountry($targetingOption->getFilter(), $targetingOption->getValue())) {
                         return false;
                     }
                     break;
-                default :
+                default:
                     break;
             }
         }
@@ -432,42 +439,12 @@ class BlockLibrary
     }
 
     /**
-     * Load Targeting settings
-     *
-     * @param integer $blockId Content block id
-     *
-     * @return array Settings array
-     */
-    public function loadTargetingSettings($blockId)
-    {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $blockRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Block');
-        $block = $blockRepo->findOneBy(array('id' => $blockId));
-        $targetingOptions = $block->getTargetingOptions();
-
-        if (!$targetingOptions) {
-            return array();
-        }
-
-        $targetingArr = array();
-        foreach ($targetingOptions as $targetingOption) {
-            $targetingArr[$targetingOption->getType()] = array(
-                'filter' => $targetingOption->getFilter(),
-                'value' => json_decode($targetingOption->getValue())
-            );
-        }
-
-        return $targetingArr;
-    }
-
-    /**
      * Get block
      *
      * Return a block
      *
      * @access private
      * @param integer $id
-     * @global ADONewConnection
      * @return mixed content on success, false on failure
      */
     function _getBlock($id)
@@ -658,7 +635,6 @@ class BlockLibrary
      * @param object $block
      * @param string &$code
      * @param object $page
-     * @global ADONewConnection
      * @global integer
      */
     function _setBlock($block, &$code, $page)
@@ -720,7 +696,6 @@ class BlockLibrary
      * @param integer $id Category ID
      * @param string &$code
      * @param int $pageId
-     * @global ADONewConnection
      * @global integer
      */
     function _setCategoryBlock($category, &$code, $page)
@@ -782,16 +757,14 @@ class BlockLibrary
      * @access private
      * @param integer $id
      * @param string &$code
-     * @global ADONewConnection
-     * @global integer
      */
     function _setBlockGlobal(&$code, $page)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $settingRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Setting');
 
         // fetch separator
-        $separator = $settingRepo->findOneBy(array('name' => 'blockGlobalSeperator'))->getValue();
+        \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+        $separator = \Cx\Core\Setting\Controller\Setting::getValue('blockGlobalSeperator', 'Block');
 
         $now = time();
 
@@ -802,7 +775,7 @@ class BlockLibrary
         $result1 = $qb1->select('
                 b.id AS id,
                 rlc.content AS content,
-                b.order AS order1
+                b.order
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
@@ -815,7 +788,7 @@ class BlockLibrary
             ->andWhere('rp.placeholder = \'global\'')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->orderBy('order1')
+            ->orderBy('b.order')
             ->setParameters(array(
                 'locale' => $locale,
                 'page' => $page,
@@ -828,7 +801,7 @@ class BlockLibrary
         $result2 = $qb2->select('
                 b.id AS id,
                 rlc.content AS content,
-                b.order AS order2
+                b.order
             ')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
@@ -838,7 +811,7 @@ class BlockLibrary
             ->andWhere('b.active = 1')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
-            ->orderBy('order2')
+            ->orderBy('b.order')
             ->setParameters(array(
                 'locale' => $locale,
                 'now' => $now,
@@ -846,7 +819,8 @@ class BlockLibrary
             ->getQuery()
             ->getResult();
 
-        $blocks = array_merge($result1, $result2);
+        $blocks = array_unique(array_merge($result1, $result2));
+        usort($blocks, 'cmpByOrder');
 
         $this->replaceBlocks(
             $this->blockNamePrefix . 'GLOBAL',
@@ -858,6 +832,21 @@ class BlockLibrary
     }
 
     /**
+     * Compares two arrays by order attribute
+     *
+     * @param array $a
+     * @param array $b
+     * @return int relative position
+     */
+    function cmpByOrder($a, $b)
+    {
+        if ($a['order'] == $b['order']) {
+            return 0;
+        }
+        return ($a['order'] < $b['order']) ? -1 : 1;
+    }
+
+    /**
      * Set block Random
      *
      * Parse the block with the id $id
@@ -865,7 +854,6 @@ class BlockLibrary
      * @access private
      * @param integer $id
      * @param string &$code
-     * @global ADONewConnection
      * @global integer
      */
     function _setBlockRandom(&$code, $id, $page)
@@ -1000,9 +988,9 @@ class BlockLibrary
             $content = implode($separator, $contentList);
         }
 
-        $settingRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\Setting');
-        $markParsedBlock = $settingRepo->findOneBy(array('name' => 'markParsedBlock'));
-        if (!empty($markParsedBlock->getValue())) {
+        \Cx\Core\Setting\Controller\Setting::init('Block', 'setting');
+        $markParsedBlock = \Cx\Core\Setting\Controller\Setting::getValue('markParsedBlock', 'Block');
+        if (!empty($markParsedBlock)) {
             $content = "<!-- start $placeholderName -->$content<!-- end $placeholderName -->";
         }
 
@@ -1224,7 +1212,6 @@ class BlockLibrary
      * @param bool force refresh from DB
      * @see blockManager::_parseCategories for parse example
      * @see blockLibrary::_getCategoriesDropdown for parse example
-     * @global ADONewConnection
      * @global array
      * @return array all available categories
      */
