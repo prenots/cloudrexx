@@ -381,7 +381,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
     public function getBlock($params)
     {
         // throws exception if not enough arguments are provided
-        if (empty($params['get']['id']) || empty($params['get']['version'])) {
+        if (empty($params['get']['id']) || empty($params['get']['version']) || empty($params['get']['lang'])) {
             throw new NotEnoughArgumentsException('not enough arguments');
         }
 
@@ -419,6 +419,11 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
             ),
             array()
         );
+        $countries = json_decode($targetingOptionValue[0]['value']);
+        $targetingOptionValue[0]['value'] = array();
+        foreach ($countries as $key => $countryId) {
+            $targetingOptionValue[0]['value'][$countryId] = \Cx\Core\Country\Controller\Country::getNameById($countryId);
+        }
 
         // get rel lang content version
         $relLangContentValue = $this->getVersionValue(

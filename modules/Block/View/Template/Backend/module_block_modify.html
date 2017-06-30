@@ -13,10 +13,10 @@
             selectedCountries = [],
             availableCountries = [],
             uiSelectedCountry = null;
-        cx.jQuery( '#selectedCoutries li' ).each(function( i ) {
+        cx.jQuery( '#selectedCountries li' ).each(function( i ) {
             selectedCountries.push( cx.jQuery( this ).data( 'id' ) );
         });
-        cx.jQuery( '#selectedCoutries' ).tagit({
+        cx.jQuery( '#selectedCountries' ).tagit({
             autocomplete: ({
                 source: function( request, response ) {
                     var term = request.term;
@@ -40,7 +40,7 @@
                 },
                 select: function( event, ui ) {
                     uiSelectedCountry = parseInt( ui.item.id );
-                    cx.jQuery( '#selectedCoutries' ).tagit( 'createTag', ui.item.value );
+                    cx.jQuery( '#selectedCountries' ).tagit( 'createTag', ui.item.value );
                     return false;
                 }
             }),
@@ -48,7 +48,7 @@
                 //Always return true during initialization
                 if ( ui.duringInitialization ) {
                     // always add the first li, so set the data-id into the tag list
-                    var processLi = cx.jQuery( '#selectedCoutries li' ).eq(0);
+                    var processLi = cx.jQuery( '#selectedCountries li' ).eq(0);
                     ui.tag.find( 'input.tagit-hidden-field' ).attr( 'data-id',  processLi.data( 'id' ) );
                     return true;
                 }
@@ -362,13 +362,15 @@
      */
     function loadHistoryVersion(id, version) {
         cx.ready(function () {
+            var lang = cx.variables.get('language');
             cx.ajax(
                     'Block',
                     'getBlock',
                     {
                         data: {
                             id: id,
-                            version: version
+                            version: version,
+                            lang: lang
                         },
                         success: function (data) {
                             // applies data to form
@@ -609,8 +611,8 @@
             var element = form.find('#targeting_filter_block select:first-child');
             // iterates through targeting options
             targetingOption.forEach(function (option) {
-                if (option.type == 'country') {
-                    if (option.filter == 'include') {
+                if (option.type === 'country') {
+                    if (option.filter === 'include') {
                         // selects include option in select
                         element.find('option[value=include]').prop('selected', true);
                     } else {
@@ -619,11 +621,10 @@
                     }
 
                     // removes selected countries
-                    form.find('#selectedCoutries > li.tagit-choice').remove();
-                    var values = JSON.parse(option.value);
-                    values.forEach(function (value) {
+                    form.find('#selectedCountries').tagit('removeAll');
+                    Object.keys(option.value).forEach(function (key) {
                         // adds countries from log
-                        cx.jQuery('#selectedCoutries').tagit('createTag', value);
+                        cx.jQuery('#selectedCountries').tagit('createTag', option.value[key], null, true);
                     });
                 }
             });
@@ -1231,7 +1232,7 @@
                                         </select>
                                     </td>
                                     <td class="no-border">
-                                        <ul id="selectedCoutries">
+                                        <ul id="selectedCountries">
                                             <!-- BEGIN block_targeting_country -->
                                             <li data-id="{BLOCK_TARGET_COUNTRY_ID}">{BLOCK_TARGET_COUNTRY_NAME}</li>
                                             <!-- END block_targeting_country -->
