@@ -292,6 +292,16 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 $block->setOrder(intval($value));
             }
             $em->flush();
+            // I guess this does not work in this case, but since
+            // the current implementation of block cache will be replaced
+            // in CLX-1547 we just try:
+            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+                'Block',
+                'getBlockContent',
+                array(
+                    'block' => $blockId,
+                )
+            );
         }
 
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_BLOCKS'];
@@ -1081,6 +1091,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         $objJs->setVariable('ckeditorconfigpath', substr(\Env::get('ClassLoader')->getFilePath(ASCMS_CORE_PATH . '/Wysiwyg/ckeditor.config.js.php'), strlen(ASCMS_DOCUMENT_ROOT) + 1), 'block');
 
+        // manually set Wysiwyg variables as the Ckeditor will be
+        // loaded manually through JavaScript (and not properly through the
+        // component interface)
+        $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader();
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        $mediaSource        = current($mediaSourceManager->getMediaTypes());
+        $mediaSourceDir     = $mediaSource->getDirectory();
+        $objJs->setVariable(array(
+            'ckeditorUploaderId'   => $uploader->getId(),
+            'ckeditorUploaderPath' => $mediaSourceDir[1] . '/'
+        ), 'wysiwyg');
+
         $arrActiveSystemFrontendLanguages = \FWLanguage::getActiveFrontendLanguages();
         $this->parseLanguageOptionsByPlaceholder($arrActiveSystemFrontendLanguages, 'global');
         $this->parseLanguageOptionsByPlaceholder($arrActiveSystemFrontendLanguages, 'direct');
@@ -1374,12 +1397,26 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             foreach ($arrStatusBlocks as $blockId) {
                 $block = $blockRepo->findOneBy(array('id' => $blockId));
                 $block->setActive(1);
+                \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+                    'Block',
+                    'getBlockContent',
+                    array(
+                        'block' => $blockId,
+                    )
+                );
             }
         } else {
             if (isset($_GET['blockId'])) {
                 $blockId = $_GET['blockId'];
                 $block = $blockRepo->findOneBy(array('id' => $blockId));
                 $block->setActive(1);
+                \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+                    'Block',
+                    'getBlockContent',
+                    array(
+                        'block' => $blockId,
+                    )
+                );
             }
         }
 
@@ -1407,13 +1444,25 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             foreach ($arrStatusBlocks as $blockId) {
                 $block = $blockRepo->findOneBy(array('id' => $blockId));
                 $block->setActive(0);
+                \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+                    'Block',
+                    'getBlockContent',
+                    array(
+                        'block' => $blockId,
+                    )
+                );
             }
-        } else {
-            if (isset($_GET['blockId'])) {
-                $blockId = $_GET['blockId'];
-                $block = $blockRepo->findOneBy(array('id' => $blockId));
-                $block->setActive(0);
-            }
+        } else if (isset($_GET['blockId'])) {
+            $blockId = $_GET['blockId'];
+            $block = $blockRepo->findOneBy(array('id' => $blockId));
+            $block->setActive(0);
+            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCachePage(
+                'Block',
+                'getBlockContent',
+                array(
+                    'block' => $blockId,
+                )
+            );
         }
 
         $em->flush();
