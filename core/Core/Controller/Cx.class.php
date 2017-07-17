@@ -1738,6 +1738,22 @@ namespace Cx\Core\Core\Controller {
                     $this->resolvedPage->setVirtual(true);
                 } else {
                     $this->resolvedPage = $this->resolver->resolve();
+
+                    // TODO: Woraround for Newsletter browser-view
+                    //       We have to manually create a virtual page,
+                    //       as the section displayInBrowser does not have
+                    //       a physical application page.
+                    //       Important: we have to call Resolver::resolve()
+                    //       above, to properly initialize the requested locale.
+                    if (empty($this->resolvedPage) &&
+                        isset($_GET['section']) &&
+                        $_GET['section'] == 'Newsletter' &&
+                        isset($_GET['cmd']) &&
+                        $_GET['cmd'] == 'displayInBrowser'
+                    ) {
+                        $this->resolvedPage = new \Cx\Core\ContentManager\Model\Entity\Page();
+                        $this->resolvedPage->setVirtual(true);
+                    }
                 }
 
             } else {
