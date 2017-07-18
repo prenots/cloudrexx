@@ -1091,7 +1091,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
             // gets logs from block entity
             $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-            $logs = $blockLogRepo->getLogs(get_class($block), $block->getId(), 'update', $limit, $offset);
+            $logs = $blockLogRepo->getLogs(get_class($block), $block->getId(), $limit, $offset);
 
             if (empty($logs)) {
                 // parses template block if no entries exists
@@ -1120,7 +1120,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 // Let all links in this tab point here again
                 \Html::replaceUriParameter($uri, 'activeTab=history');
                 // count of logs
-                $logCount = $blockLogRepo->getLogCount($block, 'update');
+                $logCount = $blockLogRepo->getLogCount($block);
 
                 // sets paging variable in template
                 $this->_objTpl->setVariable(

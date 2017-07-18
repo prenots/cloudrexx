@@ -55,12 +55,11 @@ class BlockLogRepository extends LogEntryRepository
      *
      * @param $entityClass string class of logged entity
      * @param $entityId integer id of logged entity
-     * @param $action string specific performed action that created the log entry
      * @param $limit integer limitation of returned results
      * @param $offset integer $offset of returned results
      * @return $logs array containing \Cx\Modules\Block\Model\Entity\LogEntry entities
      */
-    public function getLogs($entityClass, $entityId, $action = '', $limit = null, $offset = null)
+    public function getLogs($entityClass, $entityId, $limit = null, $offset = null)
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $logEntryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\LogEntry');
@@ -69,10 +68,6 @@ class BlockLogRepository extends LogEntryRepository
             'objectClass' => $entityClass,
             'objectId' => $entityId,
         );
-        // sets requested log action
-        if (!empty($action)) {
-            $criteria['action'] = $action;
-        }
         // finds logs by given parameters
         $logs = $logEntryRepo->findBy(
             $criteria,
@@ -90,10 +85,9 @@ class BlockLogRepository extends LogEntryRepository
      * Returns logs count for given entity
      *
      * @param $entity \Cx\Model\Base\EntityBase
-     * @param $action string specific performed action that created the log entry
      * @return $count integer count of all found entries
      */
-    public function getLogCount($entity, $action = '')
+    public function getLogCount($entity)
     {
         // gets logs count for given entity
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
@@ -103,11 +97,6 @@ class BlockLogRepository extends LogEntryRepository
             ->where('le.objectClass = \'' . get_class($entity) . '\'')
             ->andWhere('le.objectId = :eId')
             ->setParameter('eId', $entity->getId());
-
-        // sets action if provided
-        if (!empty($action)) {
-            $query->andWhere('le.action = \'' . $action . '\'');
-        }
 
         // gets result
         $count = $query->getQuery()->getSingleScalarResult();
