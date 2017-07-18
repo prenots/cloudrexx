@@ -1132,6 +1132,10 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 // parses history block
                 $this->_objTpl->parse('block_history');
             }
+
+            // parses history tabmenu and tab
+            $this->_objTpl->touchBlock('block_tabmenu_history');
+            $this->_objTpl->touchBlock('block_tab_history');
         }
 
         $jsonData = new \Cx\Core\Json\JsonData();

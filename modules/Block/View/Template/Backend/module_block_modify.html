@@ -971,7 +971,9 @@
         <li><a class="active" href="javascript:{}" id="data_{TXT_BLOCK_BASIC_DATA}" onclick="selectDataTab(this, '{TXT_BLOCK_BASIC_DATA}')" title="{TXT_BLOCK_BASIC_DATA}">{TXT_BLOCK_BASIC_DATA}</a></li>
         <li><a href="javascript:{}" id="data_{TXT_BLOCK_ADDITIONAL_OPTIONS}" onclick="selectDataTab(this, '{TXT_BLOCK_ADDITIONAL_OPTIONS}')" title="{TXT_BLOCK_ADDITIONAL_OPTIONS}">{TXT_BLOCK_ADDITIONAL_OPTIONS}</a></li>
         <li><a href="javascript:{}" id="data_targeting" onclick="selectDataTab(this, 'targeting')" title="{TXT_BLOCK_TARGETING}">{TXT_BLOCK_TARGETING}</a></li>
+        <!-- BEGIN block_tabmenu_history -->
         <li><a href="javascript:{}" id="data_history" onclick="selectDataTab(this, 'history')" title="{TXT_BLOCK_HISTORY}">{TXT_BLOCK_HISTORY}</a></li>
+        <!-- END block_tabmenu_history -->
     </ul>
     <div id="{TXT_BLOCK_BASIC_DATA}" class="data">
         <table cellspacing="0" cellpadding="3" width="100%" border="0" class="adminlist" summary="block list">
@@ -1246,6 +1248,7 @@
             </tbody>
         </table>
     </div>
+    <!-- BEGIN block_tab_history -->
     <div id="history" class="data" style="display:none;">
         <table cellspacing="0" cellpadding="3" width="100%" border="0" class="adminlist">
             <tbody>
@@ -1294,6 +1297,7 @@
             </tbody>
         </table>
     </div>
+    <!-- END block_tab_history -->
 <br />
 <input type="submit" name="block_save_block" value="{TXT_BLOCK_SAVE}" />
 </form>
