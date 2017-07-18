@@ -1,6 +1,10 @@
 <!-- START module_block_modify.html -->
 <script type="text/javascript">
     $J(document).ready(function() {
+        // disables actions of latest version (always first in table)
+        var availableVersion = cx.jQuery('#history tr.history-version:first').data('version');
+        disableActions(availableVersion);
+
         $J('#wysiwyg_editor').change(function() {
             updateContent(0, true);
             switchEditor();
@@ -94,6 +98,17 @@
             });
         cx.jQuery("#blockLanguages li a:visible").first().click();
     });
+
+    /**
+     * Disables the actions on the provided version and enables all others
+     *
+     * @param version integer version to disable
+     * @return void
+     */
+    function disableActions(version) {
+        cx.jQuery('#history tr.history-version .actions a').css('display', 'inline-block');
+        cx.jQuery('#history tr.history-version[data-version="' + version + '"] .actions a').css('display', 'none');
+    }
 
     // gets activeTab value from url
     var activeTab = getUrlParameter('activeTab');
@@ -377,6 +392,8 @@
                             applyHistoryVersion(data.data);
                             // switches to first tab
                             cx.jQuery('ul#tabmenu > li:first-child > a').click();
+                            // disables actions of current version
+                            disableActions(version)
                         }
                     }
             );
@@ -1263,14 +1280,14 @@
                     <td width="10%" class="a_right">{TXT_BLOCK_HISTORY_FUNCTION}</td>
                 </tr>
                 <!-- BEGIN block_history_version -->
-                <tr class="row0">
+                <tr class="row0 history-version" data-version="{BLOCK_HISTORY_VERSION_VERSION}">
                     <td width="20%">
                         {BLOCK_HISTORY_VERSION_DATE}
                     </td>
                     <td width="70%">
                         {BLOCK_HISTORY_VERSION_USER}
                     </td>
-                    <td width="10%" class="a_right">
+                    <td width="10%" class="a_right actions">
                         <a class="historyLoad"
                            title="{TXT_BLOCK_HISTORY_VERSION_LOAD}"
                            href="#"
