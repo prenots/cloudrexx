@@ -1562,18 +1562,44 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     );
                 }
             }
-            
-            if (   in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_SERVICE, ComponentController::MODE_HYBRID))
-                && $websiteController == 'plesk'
+
+            if (
+                in_array(
+                    $mode,
+                    array(
+                        ComponentController::MODE_MANAGER,
+                        ComponentController::MODE_SERVICE,
+                        ComponentController::MODE_HYBRID
+                    )
+                )
             ) {
-                \Cx\Core\Setting\Controller\Setting::setEngineType('MultiSite', 'FileSystem', 'plesk');
-                \Cx\Core\Setting\Controller\Setting::show(
-                    $objTemplate,
-                    'index.php?cmd=MultiSite&act=settings',
-                    $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
-                    'Plesk',
-                    'TXT_CORE_MODULE_MULTISITE_'
-                );
+                if ($websiteController == 'plesk') {
+                    \Cx\Core\Setting\Controller\Setting::setEngineType(
+                        'MultiSite',
+                        'FileSystem',
+                        'plesk'
+                    );
+                    \Cx\Core\Setting\Controller\Setting::show(
+                        $objTemplate,
+                        'index.php?cmd=MultiSite&act=settings',
+                        $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
+                        'Plesk',
+                        'TXT_CORE_MODULE_MULTISITE_'
+                    );
+                } else if ($websiteController == 'aws') {
+                    \Cx\Core\Setting\Controller\Setting::setEngineType(
+                        'MultiSite',
+                        'FileSystem',
+                        'aws'
+                    );
+                    \Cx\Core\Setting\Controller\Setting::show(
+                        $objTemplate,
+                        'index.php?cmd=MultiSite&act=settings',
+                        $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
+                        'Aws',
+                        'TXT_CORE_MODULE_MULTISITE_'
+                    );
+                }
             }
 
             if ($isModeWebsite) {
