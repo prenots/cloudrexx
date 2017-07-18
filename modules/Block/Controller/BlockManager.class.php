@@ -1003,7 +1003,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $blockCategoryAssociatedPageIds = $this->_getAssociatedPageIds($blockId, 'category');
 
             $targetingOptions = $block->getTargetingOptions();
-            if (!empty($targetingOptions)) {
+            if (!$targetingOptions->isEmpty()) {
                 $targetingStatus = 1;
             }
         }
