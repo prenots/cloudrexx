@@ -388,7 +388,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
             $targetingClass = '';
             $targetingInfo = '';
-            if (!empty($targetingOptions)) {
+            if (!$targetingOptions->isEmpty()) {
                 $targetingOption = $targetingOptions[0];
                 $arrSelectedCountries = array();
                 if (!empty($targetingOption) && $targetingOption->getType() == 'country' && !empty($targetingOption->getValue())) {
@@ -1344,20 +1344,18 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         $targetingOptionsWithoutBlock = array();
         foreach ($this->availableTargeting as $targetingType) {
             $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
-            if (!empty($targetingArr)) {
-                $targetingOptions = null;
-                $targetingOptions = $targetingOptionRepo->findBy(array(
-                    'block' => $block,
-                    'type' => $targetingType,
-                ));
 
+            $targetingOption = $targetingOptionRepo->findOneBy(array(
+                'block' => $block,
+                'type' => $targetingType,
+            ));
+
+            if (!empty($targetingArr)) {
                 $valueString = json_encode($targetingArr['value']);
 
-                if ($targetingOptions) {
-                    foreach ($targetingOptions as $targetingOption) {
-                        $targetingOption->setFilter($targetingArr['filter']);
-                        $targetingOption->setValue($valueString);
-                    }
+                if ($targetingOption) {
+                    $targetingOption->setFilter($targetingArr['filter']);
+                    $targetingOption->setValue($valueString);
                 } else {
                     $targetingOption = new \Cx\Modules\Block\Model\Entity\TargetingOption();
                     $targetingOption->setFilter($targetingArr['filter']);
@@ -1373,13 +1371,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             }
 
             if (!$targetingStatus) {
-                $targetingOption = $targetingOptionRepo->findOneBy(
-                    array(
-                        'block' => $block,
-                        'type' => $targetingType
-                    )
-                );
-
                 if ($targetingOption) {
                     $em->remove($targetingOption);
                 }
