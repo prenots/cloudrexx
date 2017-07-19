@@ -661,17 +661,40 @@
     function setRelLangContent(relLangContent, wysiwygEditor) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
-        // sets new data on element
+        // gets language bar checkboxes
+        var checkboxes = form.find('input[id^=languagebar_]');
+        // evaluates IDs of the activated checkboxes
+        var activeCheckboxes = [];
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                activeCheckboxes.push(parseInt(checkboxes[i].id.slice(-1)));
+            }
+        }
+        // sets empty string on content element
+        form.find('input[id^=blockFormText_]').attr('value', '');
+        // sets new data and activates languages
         relLangContent.forEach(function (rel) {
-            // gets element
-            var element = form.find('input#blockFormText_' + rel.locale);
+            var index = activeCheckboxes.indexOf(rel.locale);
+            if (index >= 0) {
+                activeCheckboxes.splice(index, 1);
+            } else {
+                form.find('input[id=languagebar_' + rel.locale + ']').click();
+            }
             // sets new data on element
-            element.attr('value', rel.content);
+            form.find('input[id=blockFormText_' + rel.locale + ']').attr('value', rel.content);
         });
+        // activates language in the bar
+        for (var i = 0; i < activeCheckboxes.length; i++) {
+            form.find('input[id=languagebar_' + activeCheckboxes[i] + ']').click();
+        }
         // apply on editor
-        var activeLangId = form.find('ul.blockLang a.active').attr('id').split('_')[2];
-        var value = form.find('#blockFormText_' + activeLangId).val();
-        if (wysiwygEditor == 1) {
+        var lang = form.find('ul.blockLang a.active:first');
+        if (lang.length < 1) {
+            lang = form.find('ul.blockLang a:first');
+        }
+        var langId = lang.attr('id').slice(-1);
+        var value = form.find('#blockFormText_' + langId).val();
+        if (wysiwygEditor === 1) {
             CKEDITOR.instances.ckeditor.setData(value);
         } else {
             form.find('#ckeditor').val(value);
