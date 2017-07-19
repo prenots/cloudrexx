@@ -162,11 +162,6 @@ class CategoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $blockLibrary = $this->getBlockLibrary();
         $return = $blockLibrary->_deleteCategory(2);
         $this->assertTrue($return);
-
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $categoryRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\Category');
-        $category = $categoryRepo->findOneBy(array('id' => 2));
-        $this->assertNull($category);
     }
 
     /**
