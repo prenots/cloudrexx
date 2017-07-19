@@ -2261,7 +2261,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public static function getAwsRegionList()
     {
-        return implode(',', AwsController::$regions);
+        $regionList = array();
+        foreach (AwsController::getRegions() as $regionValue => $regionLabel) {
+            $regionList[] = $regionValue . ':' . $regionLabel;
+        }
+        return implode(',', $regionList);
     }
 
     /**

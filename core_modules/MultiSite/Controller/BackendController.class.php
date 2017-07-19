@@ -1571,35 +1571,21 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ComponentController::MODE_SERVICE,
                         ComponentController::MODE_HYBRID
                     )
-                )
+                ) &&
+                in_array($websiteController, array('plesk', 'aws'))
             ) {
-                if ($websiteController == 'plesk') {
-                    \Cx\Core\Setting\Controller\Setting::setEngineType(
-                        'MultiSite',
-                        'FileSystem',
-                        'plesk'
-                    );
-                    \Cx\Core\Setting\Controller\Setting::show(
-                        $objTemplate,
-                        'index.php?cmd=MultiSite&act=settings',
-                        $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
-                        'Plesk',
-                        'TXT_CORE_MODULE_MULTISITE_'
-                    );
-                } else if ($websiteController == 'aws') {
-                    \Cx\Core\Setting\Controller\Setting::setEngineType(
-                        'MultiSite',
-                        'FileSystem',
-                        'aws'
-                    );
-                    \Cx\Core\Setting\Controller\Setting::show(
-                        $objTemplate,
-                        'index.php?cmd=MultiSite&act=settings',
-                        $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
-                        'Aws',
-                        'TXT_CORE_MODULE_MULTISITE_'
-                    );
-                }
+                \Cx\Core\Setting\Controller\Setting::setEngineType(
+                    'MultiSite',
+                    'FileSystem',
+                    $websiteController
+                );
+                \Cx\Core\Setting\Controller\Setting::show(
+                    $objTemplate,
+                    'index.php?cmd=MultiSite&act=settings',
+                    $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
+                    ucfirst($websiteController),
+                    'TXT_CORE_MODULE_MULTISITE_'
+                );
             }
 
             if ($isModeWebsite) {
