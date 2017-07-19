@@ -1196,7 +1196,6 @@ class BlockLibrary
         }
         $em->remove($category);
 
-        $em->flush();
         return true;
     }
 

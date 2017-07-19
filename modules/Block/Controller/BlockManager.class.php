@@ -532,9 +532,11 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $_ARRAYLANG;
 
-        if ($this->_deleteCategory($_REQUEST['id'])) {
+        try {
+            $this->_deleteCategory($_REQUEST['id']);
+            \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager()->flush();
             $this->_strOkMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_OK'];
-        } else {
+        } catch (\Exception $e) {
             $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_ERROR'];
         }
     }
@@ -622,18 +624,16 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
     {
         global $_ARRAYLANG;
 
-        $success = true;
         switch ($strAction) {
             case 'delete':
-                foreach ($_REQUEST['selectedCategoryId'] as $intEntryId) {
-                    if (!$this->_deleteCategory($intEntryId)) {
-                        $success = false;
+                try {
+                    foreach ($_REQUEST['selectedCategoryId'] as $intEntryId) {
+                        $this->_deleteCategory($intEntryId);
                     }
-                }
-                if (!$success) {
-                    $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_ERROR'];
-                } else {
+                    \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager()->flush();
                     $this->_strOkMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_OK'];
+                } catch (\Exception $e) {
+                    $this->_strErrMessage = $_ARRAYLANG['TXT_BLOCK_CATEGORIES_DELETE_ERROR'];
                 }
                 break;
             default:
