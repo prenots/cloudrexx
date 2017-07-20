@@ -661,31 +661,22 @@
     function setRelLangContent(relLangContent, wysiwygEditor) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
-        // gets language bar checkboxes
-        var checkboxes = form.find('input[id^=languagebar_]');
-        // evaluates IDs of the activated checkboxes
-        var activeCheckboxes = [];
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                activeCheckboxes.push(parseInt(checkboxes[i].id.slice(-1)));
-            }
-        }
         // sets empty string on content element
         form.find('input[id^=blockFormText_]').attr('value', '');
-        // sets new data and activates languages
-        relLangContent.forEach(function (rel) {
-            var index = activeCheckboxes.indexOf(rel.locale);
-            if (index >= 0) {
-                activeCheckboxes.splice(index, 1);
-            } else {
-                form.find('input[id=languagebar_' + rel.locale + ']').click();
+        // gets language bar checkboxes
+        var checkboxes = form.find('input[id^=languagebar_]');
+        // unchecks all checked checkboxes
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                checkboxes[i].click();
             }
+        }
+        // sets new data and activates languages
+        for (i = 0; i < relLangContent.length; i++) {
             // sets new data on element
-            form.find('input[id=blockFormText_' + rel.locale + ']').attr('value', rel.content);
-        });
-        // activates language in the bar
-        for (var i = 0; i < activeCheckboxes.length; i++) {
-            form.find('input[id=languagebar_' + activeCheckboxes[i] + ']').click();
+            form.find('input#blockFormText_' + relLangContent[i].locale).attr('value', relLangContent[i].content);
+            // activates language
+            form.find('input#languagebar_' + relLangContent[i].locale)[0].click();
         }
         // apply on editor
         var lang = form.find('ul.blockLang a.active:first');
