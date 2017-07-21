@@ -173,7 +173,7 @@ class AwsController implements DnsController {
     protected function getRoute53Client()
     {
         try {
-            $client = new \Aws\Route53\Route53Client(array(
+            return new \Aws\Route53\Route53Client(array(
                 'version'     => $this->version,
                 'region'      => $this->region,
                 'credentials' => array(
@@ -181,9 +181,8 @@ class AwsController implements DnsController {
                     'secret' => $this->credentialsSecret
                 )
             ));
-            return $client;
         } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception('Error in creating AWS S3 Client.');
+            throw new AwsRoute53Exception('Error in creating AWS Route53 Client.');
         }
     }
 
@@ -200,8 +199,8 @@ class AwsController implements DnsController {
      */
     public function addDnsRecord($type = 'A', $host, $value, $zone, $zoneId)
     {
+        $client = $this->getRoute53Client();
         try {
-            $client = $this->getRoute53Client();
             return $this->manipulateDnsRecord(
                 $client,
                 'CREATE',
@@ -237,8 +236,8 @@ class AwsController implements DnsController {
         $zoneId,
         $recordId
     ) {
+        $client = $this->getRoute53Client();
         try {
-            $client = $this->getRoute53Client();
             return $this->manipulateDnsRecord(
                 $client,
                 'UPSERT',
@@ -260,11 +259,12 @@ class AwsController implements DnsController {
      * @param string  $type     DNS-Record type
      * @param string  $host     DNS-Record host
      * @param integer $recordId DNS record ID
-     *
-     * @return integer
      */
     public function removeDnsRecord($type, $host, $recordId)
     {
+        if (empty($this->webspaceId)) {
+            return;
+        }
         $client = $this->getRoute53Client();
         try {
             $dnsRecords = array();
@@ -279,10 +279,10 @@ class AwsController implements DnsController {
                 $dnsRecords
             );
             if (!isset($dnsRecords[$host])) {
-                return 0;
+                return;
             }
             $dnsRecord = $dnsRecords[$host];
-            return $this->manipulateDnsRecord(
+            $this->manipulateDnsRecord(
                 $client,
                 'DELETE',
                 $dnsRecord['type'],
@@ -367,6 +367,10 @@ class AwsController implements DnsController {
      */
     public function getDnsRecords()
     {
+        if (empty($this->webspaceId)) {
+            return array();
+        }
+
         $client = $this->getRoute53Client();
         try {
             $dnsRecords = array();
@@ -396,7 +400,7 @@ class AwsController implements DnsController {
         try {
             $result = $client->listResourceRecordSets($options);
             if ($result && isset($result['ResourceRecordSets'])) {
-                foreach($result['ResourceRecordSets'] as $recordSet) {
+                foreach ($result['ResourceRecordSets'] as $recordSet) {
                     $dnsRecords[$recordSet['Name']] = array(
                         'name'  => $recordSet['Name'],
                         'value' => $recordSet['ResourceRecords'][0]['Value'],
