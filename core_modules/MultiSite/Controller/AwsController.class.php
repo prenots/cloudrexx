@@ -399,27 +399,29 @@ class AwsController implements DnsController {
     {
         try {
             $result = $client->listResourceRecordSets($options);
-            if ($result && isset($result['ResourceRecordSets'])) {
-                foreach ($result['ResourceRecordSets'] as $recordSet) {
-                    $dnsRecords[$recordSet['Name']] = array(
-                        'name'  => $recordSet['Name'],
-                        'value' => $recordSet['ResourceRecords'][0]['Value'],
-                        'ttl'   => $recordSet['TTL'],
-                        'type'  => $recordSet['Type']
-                    );
-                }
-                if ($result['IsTruncated']) {
-                    $this->fetchDnsRecords(
-                        $client,
-                        array(
-                            'HostedZoneId'    => $this->webspaceId,
-                            'StartRecordName' => $result['NextRecordName'],
-                            'StartRecordType' => $result['NextRecordType']
-                        ),
-                        $dnsRecords
-                    );
-                }
+            if (!isset($result['ResourceRecordSets'])) {
+                return;
             }
+            foreach ($result['ResourceRecordSets'] as $recordSet) {
+                $dnsRecords[$recordSet['Name']] = array(
+                    'name'  => $recordSet['Name'],
+                    'value' => $recordSet['ResourceRecords'][0]['Value'],
+                    'ttl'   => $recordSet['TTL'],
+                    'type'  => $recordSet['Type']
+                );
+            }
+            if (!$result['IsTruncated']) {
+                return;
+            }
+            $this->fetchDnsRecords(
+                $client,
+                array(
+                    'HostedZoneId'    => $this->webspaceId,
+                    'StartRecordName' => $result['NextRecordName'],
+                    'StartRecordType' => $result['NextRecordType']
+                ),
+                $dnsRecords
+            );
         } catch (\Aws\Exception\AwsException $e) {
             throw new AwsRoute53Exception($e->getMesssage());
         }
