@@ -381,7 +381,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
     public function getBlock($params)
     {
         // throws exception if not enough arguments are provided
-        if (empty($params['get']['id']) || empty($params['get']['version'])) {
+        if (empty($params['get']['id']) || empty($params['get']['version']) || empty($params['get']['lang'])) {
             throw new NotEnoughArgumentsException('not enough arguments');
         }
 
@@ -534,30 +534,34 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
                 )
             );
 
-            if ($entity) {
-                $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
-                // reverts found entity on given version
-                $revertedEntity = $blockLogRepo->revertEntity($entity, $version);
+            // simulates entity if provided one was deleted
+            if (!$entity) {
+                $entity = new $className();
+                $entity->setId($id);
+            }
 
-                // gets value for wanted attributes
-                $attributesValue = array();
-                foreach ($attributes as $attribute) {
-                    if (!in_array($attribute, $idAttributes)) {
-                        $attributesValue[$attribute] = $revertedEntity->{'get' . ucfirst($attribute)}();
-                    } else {
-                        // gets id on wanted attributes
-                        $relatedEntity = $revertedEntity->{'get' . ucfirst($attribute)}();
-                        if ($relatedEntity) {
-                            $attributesValue[$attribute] = $relatedEntity->getId();
-                        }
+            $blockLogRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\LogEntry');
+            // reverts found entity on given version
+            $revertedEntity = $blockLogRepo->revertEntity($entity, $version);
+
+            // gets value for wanted attributes
+            $attributesValue = array();
+            foreach ($attributes as $attribute) {
+                if (!in_array($attribute, $idAttributes)) {
+                    $attributesValue[$attribute] = $revertedEntity->{'get' . ucfirst($attribute)}();
+                } else {
+                    // gets id on wanted attributes
+                    $relatedEntity = $revertedEntity->{'get' . ucfirst($attribute)}();
+                    if ($relatedEntity) {
+                        $attributesValue[$attribute] = $relatedEntity->getId();
                     }
                 }
-                // push value to entity value array
-                array_push(
-                    $entityValue,
-                    $attributesValue
-                );
             }
+            // push value to entity value array
+            array_push(
+                $entityValue,
+                $attributesValue
+            );
         }
 
         // returns value of the provided entity

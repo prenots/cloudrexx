@@ -389,15 +389,16 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             $targetingClass = '';
             $targetingInfo = '';
             if (!$targetingOptions->isEmpty()) {
-                $targetingOption = $targetingOptions[0];
                 $arrSelectedCountries = array();
-                if (!empty($targetingOption) && $targetingOption->getType() == 'country' && !empty($targetingOption->getValue())) {
-                    $targetingClass = 'active';
-                    $targetingInfo = $targetingOption->getFilter() == 'include' ? $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_INCLUDE'] : $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_EXCLUDE'];
-                    foreach (json_decode($targetingOption->getValue()) as $countryId) {
-                        $countryName = \Cx\Core\Country\Controller\Country::getNameById($countryId);
-                        if (!empty($countryName)) {
-                            $arrSelectedCountries[] = '<li>' . contrexx_raw2xhtml($countryName) . '</li>';
+                foreach ($targetingOptions as $targetingOption) {
+                    if (!empty($targetingOption) && $targetingOption->getType() == 'country' && !empty($targetingOption->getValue())) {
+                        $targetingClass = 'active';
+                        $targetingInfo = $targetingOption->getFilter() == 'include' ? $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_INCLUDE'] : $_ARRAYLANG['TXT_BLOCK_TARGETING_INFO_EXCLUDE'];
+                        foreach (json_decode($targetingOption->getValue()) as $countryId) {
+                            $countryName = \Cx\Core\Country\Controller\Country::getNameById($countryId);
+                            if (!empty($countryName)) {
+                                $arrSelectedCountries[] = '<li>' . contrexx_raw2xhtml($countryName) . '</li>';
+                            }
                         }
                     }
                 }
@@ -1326,10 +1327,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     public function storeTargetingSettings($block, $targetingStatus, $targeting = array())
     {
-        if (!$block) {
-            return array();
-        }
-
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $targetingOptionRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\TargetingOption');
 
@@ -1337,10 +1334,13 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
         foreach ($this->availableTargeting as $targetingType) {
             $targetingArr = isset($targeting[$targetingType]) ? $targeting[$targetingType] : array();
 
-            $targetingOption = $targetingOptionRepo->findOneBy(array(
-                'block' => $block,
-                'type' => $targetingType,
-            ));
+            $targetingOption = null;
+            if ($block) {
+                $targetingOption = $targetingOptionRepo->findOneBy(array(
+                    'block' => $block,
+                    'type' => $targetingType,
+                ));
+            }
 
             if (!empty($targetingArr)) {
                 $valueString = json_encode($targetingArr['value']);

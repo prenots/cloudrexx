@@ -376,6 +376,7 @@
      * @param version integer wanted block version
      */
     function loadHistoryVersion(id, version) {
+        var lang = cx.variables.get('language');
         cx.ready(function () {
             cx.ajax(
                 'Block',
@@ -383,7 +384,8 @@
                 {
                     data: {
                         id: id,
-                        version: version
+                        version: version,
+                        lang: lang
                     },
                     success: function (data) {
                         // applies data to form
@@ -618,7 +620,11 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // sets new data on element
-        if (targetingOption) {
+        if (Object.prototype.toString.call(targetingOption[0].value) === '[object Array]') {
+            // hides targeting filter block
+            toggleTargetingFilterBlock(false);
+            form.find('input[name=targeting_status][value=0]').prop('checked', true);
+        } else {
             // shows targeting filter block
             form.find('input[name=targeting_status][value=1]').prop('checked', true);
             toggleTargetingFilterBlock(true);
@@ -643,10 +649,6 @@
                     });
                 }
             });
-        } else {
-            // hides targeting filter block
-            toggleTargetingFilterBlock(false);
-            form.find('input[name=targeting_status][value=0]').prop('checked', true);
         }
     }
 

@@ -162,6 +162,7 @@ class TargetingOption extends \Cx\Model\Base\EntityBase
     public function setBlock(\Cx\Modules\Block\Model\Entity\Block $block)
     {
         $this->block = $block;
+        $block->addTargetingOption($this);
     }
 
     /**
