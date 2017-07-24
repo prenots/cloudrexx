@@ -1253,32 +1253,24 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
      */
     protected function storeVersions($block)
     {
-        // gets entity manager
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        // gets log entry repository
-        $relPageRepo = $em->getRepository('\Cx\Modules\Block\Model\Entity\RelPage');
-
         // gets block related entities
         $targetingOptions = $block->getTargetingOptions();
         $relLangContents = $block->getRelLangContents();
-        $relPagesDirect = $relPageRepo->findBy(
-            array(
-                'block' => $block,
-                'placeholder' => 'direct',
-            )
-        );
-        $relPagesCategory = $relPageRepo->findBy(
-            array(
-                'block' => $block,
-                'placeholder' => 'category',
-            )
-        );
-        $relPagesGlobal = $relPageRepo->findBy(
-            array(
-                'block' => $block,
-                'placeholder' => 'global',
-            )
-        );
+        $relPages = $block->getRelPages();
+
+        $relPagesDirect = [];
+        $relPagesCategory = [];
+        $relPagesGlobal = [];
+        foreach ($relPages as $relPage) {
+            $placeholder = $relPage->getPlaceholder();
+            if ($placeholder == 'direct') {
+                array_push($relPagesDirect, $relPage);
+            } elseif ($placeholder == 'category') {
+                array_push($relPagesCategory, $relPage);
+            } elseif ($placeholder == 'global') {
+                array_push($relPagesGlobal, $relPage);
+            }
+        }
 
         // gets current version from block related entities
         $targetingOptionVersion = $this->getVersion($targetingOptions);

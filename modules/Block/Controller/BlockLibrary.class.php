@@ -303,7 +303,9 @@ class BlockLibrary
 
         $relLangContentsWithoutBlock = array();
         foreach ($arrContent as $langId => $content) {
-
+            if (empty($content)) {
+                continue;
+            }
             $content = preg_replace('/\[\[([A-Z0-9_-]+)\]\]/', '{\\1}', $content);
             $locale = $localeRepo->findOneBy(array('id' => $langId));
 
@@ -340,7 +342,7 @@ class BlockLibrary
             $relLangContents = $block->getRelLangContents();
             if ($relLangContents) {
                 foreach ($relLangContents as $relLangContent) {
-                    if (!in_array($relLangContent->getLocale()->getId(), array_keys($arrLangActive))) {
+                    if (!$arrLangActive[$relLangContent->getLocale()->getId()]) {
                         $em->remove($relLangContent);
                     }
                 }

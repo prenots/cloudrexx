@@ -377,25 +377,23 @@
      */
     function loadHistoryVersion(id, version) {
         cx.ready(function () {
-            var lang = cx.variables.get('language');
             cx.ajax(
-                    'Block',
-                    'getBlock',
-                    {
-                        data: {
-                            id: id,
-                            version: version,
-                            lang: lang
-                        },
-                        success: function (data) {
-                            // applies data to form
-                            applyHistoryVersion(data.data);
-                            // switches to first tab
-                            cx.jQuery('ul#tabmenu > li:first-child > a').click();
-                            // disables actions of current version
-                            disableActions(version)
-                        }
+                'Block',
+                'getBlock',
+                {
+                    data: {
+                        id: id,
+                        version: version
+                    },
+                    success: function (data) {
+                        // applies data to form
+                        applyHistoryVersion(data.data);
+                        // switches to first tab
+                        cx.jQuery('ul#tabmenu > li:first-child > a').click();
+                        // disables actions of current version
+                        disableActions(version)
                     }
+                }
             );
         });
     }
@@ -533,7 +531,7 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
-        if (showInGlobal == 0 || showInGlobal == 1) {
+        if (showInGlobal === 0 || showInGlobal === 1) {
             showOrHide('globalPageSelector', '0');
         } else {
             showOrHide('globalPageSelector', '1');
@@ -552,7 +550,7 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
-        if (showInCategory == 0) {
+        if (showInCategory === 0) {
             showOrHide('categoryPageSelector', '0');
         } else {
             showOrHide('categoryPageSelector', '1');
@@ -572,7 +570,7 @@
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // gets element
-        if (showInDirect == 0) {
+        if (showInDirect === 0) {
             showOrHide('directPageSelector', '0');
         } else {
             showOrHide('directPageSelector', '1');
@@ -594,7 +592,7 @@
         // gets element
         var element = form.find('input[name=wysiwyg_editor]');
         // sets new data on element
-        wysiwygEditor == 1 ? element.prop('checked', true) : element.prop('checked', false);
+        wysiwygEditor === 1 ? element.prop('checked', true) : element.prop('checked', false);
     }
 
     /**
@@ -663,23 +661,31 @@
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
         // sets empty string on content element
         form.find('input[id^=blockFormText_]').attr('value', '');
-        // gets language bar checkboxes
+        // sets new data and activates languages
+        var activatedCheckboxes = [];
+        for (var i = 0; i < relLangContent.length; i++) {
+            // sets new data on element
+            form.find('input#blockFormText_' + relLangContent[i].locale).attr('value', relLangContent[i].content);
+            // processes checkboxes
+            activatedCheckboxes.push(relLangContent[i].locale);
+            var checkbox = form.find('input#languagebar_' + relLangContent[i].locale)[0];
+            if (!checkbox.checked) {
+                checkbox.click();
+            }
+        }
+        // deactivates languages
         var checkboxes = form.find('input[id^=languagebar_]');
-        // unchecks all checked checkboxes
         for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
+            if (!checkboxes[i].checked) {
+                continue;
+            }
+            var index = activatedCheckboxes.indexOf(parseInt(checkboxes[i].id.slice(-1)));
+            if (index < 0) {
                 checkboxes[i].click();
             }
         }
-        // sets new data and activates languages
-        for (i = 0; i < relLangContent.length; i++) {
-            // sets new data on element
-            form.find('input#blockFormText_' + relLangContent[i].locale).attr('value', relLangContent[i].content);
-            // activates language
-            form.find('input#languagebar_' + relLangContent[i].locale)[0].click();
-        }
         // apply on editor
-        var lang = form.find('ul.blockLang a.active:first');
+        var lang = form.find('ul.blockLang a.active');
         if (lang.length < 1) {
             lang = form.find('ul.blockLang a:first');
         }
@@ -700,27 +706,39 @@
     function setRelPageGlobal(relPageGlobal) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets languages
+        var languages = form.find('span[id^=globalChangePageTitlesTo_]');
         // gets element
         var element = form.find('#globalPageSelector');
-        // clear existing selection
-        element.find('#globalSelectedPages option').prop('selected', true);
-        moveSelectedPages(
-            document.getElementById('globalSelectedPages'),
-            document.getElementById('globalNotSelectedPages'),
-            document.getElementsByName('addpages')[0],
-            document.getElementsByName('removepages')[0]
-        );
-        // sets new data on element
-        relPageGlobal.forEach(function (rel) {
-            element.find('#globalNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
-        });
-        // apply new selection
-        moveSelectedPages(
-            document.getElementById('globalNotSelectedPages'),
-            document.getElementById('globalSelectedPages'),
-            document.getElementsByName('addpages')[0],
-            document.getElementsByName('removepages')[0]
-        );
+
+        for (var i = 0; i < languages.length; i++) {
+            // set language
+            cx.jQuery(languages[i]).find('> input[type=radio]').prop('checked', true);
+            // clear existing selection
+            element.find('#globalSelectedPages option').prop('selected', true);
+            moveSelectedPages(
+                document.getElementById('globalSelectedPages'),
+                document.getElementById('globalNotSelectedPages'),
+                document.getElementsByName('addpages')[0],
+                document.getElementsByName('removepages')[0]
+            );
+            // sets new data on element
+            for (var j = 0; j < relPageGlobal.length; j++) {
+                var option = element.find('#globalNotSelectedPages option[value=' + relPageGlobal[j].page + ']');
+                if (option) {
+                    option.prop('selected', true);
+                }
+            }
+            // apply new selection
+            moveSelectedPages(
+                document.getElementById('globalNotSelectedPages'),
+                document.getElementById('globalSelectedPages'),
+                document.getElementsByName('addpages')[0],
+                document.getElementsByName('removepages')[0]
+            );
+        }
+        // selects first language by default
+        cx.jQuery(languages[0]).find('> input[type=radio]').prop('checked', true);
     }
 
     /**
@@ -731,27 +749,39 @@
     function setRelPageCategory(relPageCategory) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets languages
+        var languages = form.find('span[id^=categoryChangePageTitlesTo_]');
         // gets element
         var element = form.find('#categoryPageSelector');
-        // clear existing selection
-        element.find('#categorySelectedPages option').prop('selected', true);
-        moveSelectedPages(
-            document.getElementById('categorySelectedPages'),
-            document.getElementById('categoryNotSelectedPages'),
-            document.getElementsByName('addpages')[0],
-            document.getElementsByName('removepages')[0]
-        );
-        // sets new data on element
-        relPageCategory.forEach(function (rel) {
-            element.find('#categoryNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
-        });
-        // apply new selection
-        moveSelectedPages(
-            document.getElementById('categoryNotSelectedPages'),
-            document.getElementById('categorySelectedPages'),
-            document.getElementsByName('addpages')[0],
-            document.getElementsByName('removepages')[0]
-        );
+
+        for (var i = 0; i < languages.length; i++) {
+            // set language
+            cx.jQuery(languages[i]).find('> input[type=radio]').prop('checked', true);
+            // clear existing selection
+            element.find('#categorySelectedPages option').prop('selected', true);
+            moveSelectedPages(
+                document.getElementById('categorySelectedPages'),
+                document.getElementById('categoryNotSelectedPages'),
+                document.getElementsByName('addpages')[0],
+                document.getElementsByName('removepages')[0]
+            );
+            // sets new data on element
+            for (var j = 0; j < relPageCategory.length; j++) {
+                var option = element.find('#categoryNotSelectedPages option[value=' + relPageCategory[j].page + ']');
+                if (option) {
+                    option.prop('selected', true);
+                }
+            }
+            // apply new selection
+            moveSelectedPages(
+                document.getElementById('categoryNotSelectedPages'),
+                document.getElementById('categorySelectedPages'),
+                document.getElementsByName('addpages')[0],
+                document.getElementsByName('removepages')[0]
+            );
+        }
+        // selects first language by default
+        cx.jQuery(languages[0]).find('> input[type=radio]').prop('checked', true);
     }
 
     /**
@@ -762,27 +792,39 @@
     function setRelPageDirect(relPageDirect) {
         // gets form
         var form = cx.jQuery('form[name=blockFormModifyBlock]');
+        // gets languages
+        var languages = form.find('span[id^=directChangePageTitlesTo_]');
         // gets element
         var element = form.find('#directPageSelector');
-        // clear existing selection
-        element.find('#directSelectedPages option').prop('selected', true);
-        moveSelectedPages(
-            document.getElementById('directSelectedPages'),
-            document.getElementById('directNotSelectedPages'),
-            document.getElementsByName('addpages')[0],
-            document.getElementsByName('removepages')[0]
-        );
-        // sets new data on element
-        relPageDirect.forEach(function (rel) {
-            element.find('#directNotSelectedPages option[value=' + rel.page + ']').prop('selected', true);
-        });
-        // apply new selection
-        moveSelectedPages(
-            document.getElementById('directNotSelectedPages'),
-            document.getElementById('directSelectedPages'),
-            document.getElementsByName('addpages')[0],
-            document.getElementsByName('removepages')[0]
-        );
+
+        for (var i = 0; i < languages.length; i++) {
+            // set language
+            cx.jQuery(languages[i]).find('> input[type=radio]').prop('checked', true);
+            // clear existing selection
+            element.find('#directSelectedPages option').prop('selected', true);
+            moveSelectedPages(
+                document.getElementById('directSelectedPages'),
+                document.getElementById('directNotSelectedPages'),
+                document.getElementsByName('addpages')[0],
+                document.getElementsByName('removepages')[0]
+            );
+            // sets new data on element
+            for (var j = 0; j < relPageDirect.length; j++) {
+                var option = element.find('#directNotSelectedPages option[value=' + relPageDirect[j].page + ']');
+                if (option) {
+                    option.prop('selected', true);
+                }
+            }
+            // apply new selection
+            moveSelectedPages(
+                document.getElementById('directNotSelectedPages'),
+                document.getElementById('directSelectedPages'),
+                document.getElementsByName('addpages')[0],
+                document.getElementsByName('removepages')[0]
+            );
+        }
+        // selects first language by default
+        cx.jQuery(languages[0]).find('> input[type=radio]').prop('checked', true);
     }
 </script>
 <script type="text/javascript">

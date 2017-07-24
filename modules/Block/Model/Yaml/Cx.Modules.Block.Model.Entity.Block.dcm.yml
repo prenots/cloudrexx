@@ -113,7 +113,7 @@ Cx\Modules\Block\Model\Entity\Block:
       mappedBy: block
       joinColumn:
         name: id
-        referencedColumnName: lang_id
+        referencedColumnName: block_id
     relPages:
       targetEntity: RelPage
       mappedBy: block
