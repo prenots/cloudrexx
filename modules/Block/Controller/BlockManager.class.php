@@ -1342,7 +1342,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 ));
             }
 
-            if (!empty($targetingArr)) {
+            if (!empty($targetingArr['value'])) {
                 $valueString = json_encode($targetingArr['value']);
 
                 if ($targetingOption) {
