@@ -646,6 +646,8 @@
                     Object.keys(option.value).forEach(function (key) {
                         // adds countries from log
                         cx.jQuery('#selectedCountries').tagit('createTag', option.value[key], null, true);
+                        // adds id as data-attribute
+                        form.find('#selectedCountries li.tagit-choice:last input.tagit-hidden-field').attr('data-id', key);
                     });
                 }
             });
