@@ -151,7 +151,11 @@
                 CKEDITOR.replace('page[content]', config);
             }
 
-            activeLangId = $J('ul.blockLang a.active').attr('id').split('_')[2];
+            var lang = cx.jQuery('ul.blockLang a.active');
+            if (lang && lang.length < 1) {
+                lang = cx.jQuery('ul.blockLang a:first');
+            }
+            activeLangId = lang.attr('id').slice(-1);
             CKEDITOR.instances.ckeditor.setData($J('#blockFormText_'+activeLangId).val());
         } else {
             if (typeof(CKEDITOR.instances.ckeditor) !== 'undefined') {
@@ -163,7 +167,11 @@
                 }
             }
 
-            activeLangId = $J('ul.blockLang a.active').attr('id').split('_')[2];
+            var lang = cx.jQuery('ul.blockLang a.active');
+            if (lang && lang.length < 1) {
+                lang = cx.jQuery('ul.blockLang a:first');
+            }
+            activeLangId = lang.attr('id').slice(-1);
             $J('#ckeditor').val($J('#blockFormText_'+activeLangId).val());
         }
     }
@@ -407,23 +415,20 @@
      */
     function applyHistoryVersion(data) {
         // sets data on elements
-        setStart(data.start);
-        setEnd(data.end);
-        setName(data.name);
-        setRandom(data.random);
-        setRandom2(data.random2);
-        setRandom3(data.random3);
-        setRandom4(data.random4);
-        setShowInGlobal(data.showInGlobal);
-        setShowInCategory(data.showInCategory);
-        setShowInDirect(data.showInDirect);
-        setWysiwygEditor(data.wysiwygEditor);
-        setCategory(data.category);
-        setTargetingOption(data.targetingOption);
-        setRelLangContent(data.relLangContent, data.wysiwygEditor);
-        setRelPageGlobal(data.relPageGlobal);
-        setRelPageCategory(data.relPageCategory);
-        setRelPageDirect(data.relPageDirect);
+        for (var key in data) {
+            // skip loop if the property is from prototype or property not wanted for this action
+            if (
+                !data.hasOwnProperty(key) ||
+                key === 'id' ||
+                key === 'active' ||
+                key === 'order'
+            ) {
+                continue;
+            }
+
+            // sets value for each key
+            window['set' + key.charAt(0).toUpperCase() + key.slice(1)](data[key]);
+        }
     }
 
     /**
@@ -690,7 +695,7 @@
         }
         // apply on editor
         var lang = form.find('ul.blockLang a.active');
-        if (lang.length < 1) {
+        if (lang && lang.length < 1) {
             lang = form.find('ul.blockLang a:first');
         }
         var langId = lang.attr('id').slice(-1);
