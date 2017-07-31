@@ -1,6 +1,27 @@
 <!-- START module_block_modify.html -->
 <script type="text/javascript">
-    $J(document).ready(function() {
+    $J(document).ready(function () {
+        // activates language if none is
+        var checkboxActive = false;
+        var checkboxes = $J('input[id^=languagebar_]');
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                checkboxActive = true;
+            }
+        }
+        if (!checkboxActive) {
+            var lang = cx.variables.get('language');
+            var langId = $J('label[for^=languagebar_]:contains([' + lang + '])').attr('for').slice(-1);
+            var checkbox = $J('input#languagebar_' + langId)[0];
+            var tab = $J('a#lang_blockContent_' + langId)[0];
+            if (!checkbox.checked) {
+                checkbox.click();
+                setTimeout(function () {
+                    tab.click();
+                }, 100);
+            }
+        }
+
         // disables actions of latest version (always first in table)
         var availableVersion = cx.jQuery('#history tr.history-version:first').data('version');
         disableActions(availableVersion);
@@ -258,7 +279,11 @@
     }
     var firstRun = true;
     function updateContent(newActiveLangId, invertChecked) {
-        oldActiveLangId = $J('ul.blockLang a.active').attr('id').split('_')[2];
+        var lang = cx.jQuery('ul.blockLang a.active');
+        if (lang && lang.length < 1) {
+            lang = cx.jQuery('ul.blockLang a:first');
+        }
+        oldActiveLangId = lang.attr('id').slice(-1);
         wysiwygStatus = invertChecked ? !$J('#wysiwyg_editor').prop('checked') : $J('#wysiwyg_editor').prop('checked');
 
         if (wysiwygStatus) {
@@ -297,7 +322,11 @@
         disableButtons(from, dest, add, remove);
     }
     function onSubmit() {
-        activeLangId = $J('ul.blockLang a.active').attr('id').split('_')[2];
+        var lang = cx.jQuery('ul.blockLang a.active');
+        if (lang && lang.length < 1) {
+            lang = cx.jQuery('ul.blockLang a:first');
+        }
+        activeLangId = lang.attr('id').slice(-1);
 
         if ($J('#wysiwyg_editor').prop('checked')) {
             $J('#blockFormText_'+activeLangId).val(CKEDITOR.instances.ckeditor.getData());
