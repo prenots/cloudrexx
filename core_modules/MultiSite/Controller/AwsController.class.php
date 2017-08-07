@@ -182,7 +182,11 @@ class AwsController implements DnsController {
                 )
             ));
         } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception('Error in creating AWS Route53 Client.');
+            throw new AwsRoute53Exception(
+                'Error in creating AWS Route53 Client.',
+                '',
+                $e->getMessage()
+            );
         }
     }
 
@@ -212,7 +216,11 @@ class AwsController implements DnsController {
                 $this->timeToLive
             );
         } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception('Error in adding DNS Record.');
+            throw new AwsRoute53Exception(
+                'Error in adding DNS Record.',
+                '',
+                $e->getMessage()
+            );
         }
     }
 
@@ -249,7 +257,11 @@ class AwsController implements DnsController {
                 $this->timeToLive
             );
         } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception('Error in updating DNS Record.');
+            throw new AwsRoute53Exception(
+                'Error in updating DNS Record.',
+                '',
+                $e->getMessage()
+            );
         }
     }
 
@@ -293,7 +305,11 @@ class AwsController implements DnsController {
                 $dnsRecord['ttl']
             );
         } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception('Error in deleting DNS Record.');
+            throw new AwsRoute53Exception(
+                'Error in deleting DNS Record.',
+                '',
+                $e->getMessage()
+            );
         }
     }
 
@@ -355,7 +371,7 @@ class AwsController implements DnsController {
             ));
             return 0;
         } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception($e->getMesssage());
+            throw new AwsRoute53Exception($e->getMessage());
         }
     }
 
@@ -381,7 +397,11 @@ class AwsController implements DnsController {
             );
             return $dnsRecords;
         } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception('Error in getting DNS Record.');
+            throw new AwsRoute53Exception(
+                'Error in getting DNS Record.',
+                '',
+                $e->getMessage()
+            );
         }
     }
 
@@ -423,7 +443,7 @@ class AwsController implements DnsController {
                 $dnsRecords
             );
         } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception($e->getMesssage());
+            throw new AwsRoute53Exception($e->getMessage());
         }
     }
 }
