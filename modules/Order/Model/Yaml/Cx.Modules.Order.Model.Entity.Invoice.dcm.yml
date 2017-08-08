@@ -18,8 +18,6 @@ Cx\Modules\Order\Model\Entity\Invoice:
     payments:
       targetEntity: Cx\Modules\Order\Model\Entity\Payment
       mappedBy: invoice
-
-  oneToMany: # inverse side
     invoiceItems:
       targetEntity: Cx\Modules\Order\Model\Entity\InvoiceItem
       mappedBy: invoice
