@@ -90,6 +90,13 @@ class AwsController implements DnsController {
     protected $webspaceId;
 
     /**
+     * Instance of a Route53Client
+     *
+     * @var static
+     */
+    protected static $clientInstance;
+
+    /**
      * Constructor
      *
      * @param string $credentialsKey    AWS access key ID
@@ -173,14 +180,18 @@ class AwsController implements DnsController {
     protected function getRoute53Client()
     {
         try {
-            return new \Aws\Route53\Route53Client(array(
-                'version'     => $this->version,
-                'region'      => $this->region,
-                'credentials' => array(
-                    'key'    => $this->credentialsKey,
-                    'secret' => $this->credentialsSecret
-                )
-            ));
+            if (!isset(static::$clientInstance)) {
+                static::$clientInstance = new \Aws\Route53\Route53Client(array(
+                    'version'     => $this->version,
+                    'region'      => $this->region,
+                    'credentials' => array(
+                        'key'    => $this->credentialsKey,
+                        'secret' => $this->credentialsSecret
+                    )
+                ));
+            }
+
+            return static::$clientInstance;
         } catch (\Aws\Exception\AwsException $e) {
             throw new AwsRoute53Exception(
                 'Error in creating AWS Route53 Client.',
