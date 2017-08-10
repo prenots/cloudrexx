@@ -14,14 +14,20 @@ Cx\Modules\Calendar\Model\Entity\Event:
   fields:
     type:
       type: integer
+      options:
+        default: 0
     startDate:
       type: datetime
       nullable: true
       column: startdate
+      options:
+        default: '0000-00-00 00:00:00'
     endDate:
       type: datetime
       nullable: true
       column: enddate
+      options:
+        default: '0000-00-00 00:00:00'
     useCustomDateDisplay:
       type: boolean
       column: use_custom_date_display
@@ -49,16 +55,24 @@ Cx\Modules\Calendar\Model\Entity\Event:
       type: integer
     access:
       type: integer
+      options:
+        default: 0
     priority:
       type: integer
+      options:
+        default: 3
     price:
       type: integer
+      options:
+        default: 0
     link:
       type: string
       length: 255
     pic:
       type: string
       length: 255
+      options:
+        default: ''
     attach:
       type: string
       length: 255
@@ -92,6 +106,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
       column: invitation_email_template
     registration:
       type: integer
+      options:
+        default: 0
     registrationNum:
       type: string
       length: 45
@@ -109,18 +125,31 @@ Cx\Modules\Calendar\Model\Entity\Event:
     ticketSales:
       type: boolean
       column: ticket_sales
+      options:
+        default: 0
     numSeating:
       type: text
       column: num_seating
     seriesStatus:
-      type: smallint
+      type: boolean
       column: series_status
+      options:
+        default: 0
+    independentSeries:
+      type: boolean
+      column: independent_series
+      options:
+        default: 1
     seriesType:
       type: integer
       column: series_type
+      options:
+        default: 0
     seriesPatternCount:
       type: integer
       column: series_pattern_count
+      options:
+        default: 0
     seriesPatternWeekday:
       type: string
       length: 7
@@ -128,27 +157,43 @@ Cx\Modules\Calendar\Model\Entity\Event:
     seriesPatternDay:
       type: integer
       column: series_pattern_day
+      options:
+        default: 0
     seriesPatternWeek:
       type: integer
       column: series_pattern_week
+      options:
+        default: 0
     seriesPatternMonth:
       type: integer
       column: series_pattern_month
+      options:
+        default: 0
     seriesPatternType:
       type: integer
       column: series_pattern_type
+      options:
+        default: 0
     seriesPatternDouranceType:
       type: integer
       column: series_pattern_dourance_type
+      options:
+        default: 0
     seriesPatternEnd:
       type: integer
       column: series_pattern_end
+      options:
+        default: 0
     seriesPatternEndDate:
       type: datetime
       column: series_pattern_end_date
+      options:
+        default: '0000-00-00 00:00:00'
     seriesPatternBegin:
       type: integer
       column: series_pattern_begin
+      options:
+        default: 0
     seriesPatternExceptions:
       type: text
       column: series_pattern_exceptions
@@ -157,20 +202,30 @@ Cx\Modules\Calendar\Model\Entity\Event:
       column: series_additional_recurrences
     status:
       type: boolean
+      options:
+        default: 1
     confirmed:
       type: boolean
+      options:
+        default: 1
     showDetailView:
       type: boolean
       column: show_detail_view
+      options:
+        default: 1
     author:
       type: string
       length: 255
     allDay:
       type: boolean
       column: all_day
+      options:
+        default: 0
     locationType:
       type: boolean
       column: location_type
+      options:
+        default: 1
     placeId:
       type: integer
       column: place_id
@@ -188,6 +243,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
       type: string
       length: 255
       column: place_website
+      options:
+        default: ''
     placeLink:
       type: string
       length: 255
@@ -196,6 +253,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
       type: string
       length: 20
       column: place_phone
+      options:
+        default: ''
     placeMap:
       type: string
       length: 255
@@ -203,6 +262,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
     hostType:
       type: boolean
       column: host_type
+      options:
+        default: 1
     orgStreet:
       type: string
       length: 255
@@ -215,6 +276,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
       type: string
       length: 255
       column: org_website
+      options:
+        default: ''
     orgLink:
       type: string
       length: 255
@@ -223,6 +286,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
       type: string
       length: 20
       column: org_phone
+      options:
+        default: ''
     orgEmail:
       type: string
       length: 255
@@ -236,6 +301,8 @@ Cx\Modules\Calendar\Model\Entity\Event:
     registrationExternalFullyBooked:
       type: boolean
       column: registration_external_fully_booked
+      options:
+        default: 0
   oneToMany:
     eventFields:
       targetEntity: Cx\Modules\Calendar\Model\Entity\EventField
@@ -255,9 +322,11 @@ Cx\Modules\Calendar\Model\Entity\Event:
       joinColumn:
         name: catid
         referencedColumnName: id
+        nullable: true
     registrationForm:
       targetEntity: Cx\Modules\Calendar\Model\Entity\RegistrationForm
       inversedBy: events
       joinColumn:
         name: registration_form
         referencedColumnName: id
+        nullable: true

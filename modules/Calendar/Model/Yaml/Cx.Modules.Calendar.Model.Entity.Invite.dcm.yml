@@ -11,8 +11,10 @@ Cx\Modules\Calendar\Model\Entity\Invite:
         strategy: AUTO
   fields:
     timestamp:
-      type: integer
+      type: bigint
       column: date
+      options:
+        unsigned: true
     inviteeType:
       type: string
       length: 255
@@ -24,6 +26,7 @@ Cx\Modules\Calendar\Model\Entity\Invite:
       type: string
       length: 255
       column: email
+      nullable: true
     token:
       type: string
       length: 32
@@ -39,3 +42,4 @@ Cx\Modules\Calendar\Model\Entity\Invite:
       joinColumn:
         name: event_id
         referencedColumnName: id
+        nullable: false

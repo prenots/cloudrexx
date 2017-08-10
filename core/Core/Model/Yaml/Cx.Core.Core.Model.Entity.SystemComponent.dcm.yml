@@ -13,4 +13,4 @@ Cx\Core\Core\Model\Entity\SystemComponent:
       length: 100
     type:
       type: string
-      length: 12
+      columnDefinition: ENUM('core', 'core_module', 'module')

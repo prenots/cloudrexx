@@ -1,6 +1,9 @@
 Cx\Modules\Crm\Model\Entity\Currency:
   type: entity
   table: module_crm_currency
+  indexes:
+    contrexx_module_crm_currency_name:
+      columns: [ name ]
 
   id:
     id:
@@ -14,9 +17,13 @@ Cx\Modules\Crm\Model\Entity\Currency:
       length: 400
     active:
       type: boolean
+      options:
+        default: 1
     pos:
       type: integer
       length: 5
+      options:
+        default: 0
     hourly_rate:
       type: text
     default_currency:

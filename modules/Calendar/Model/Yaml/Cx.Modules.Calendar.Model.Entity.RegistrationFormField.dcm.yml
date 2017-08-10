@@ -36,3 +36,4 @@ Cx\Modules\Calendar\Model\Entity\RegistrationFormField:
       joinColumn:
         name: form
         referencedColumnName: id
+        nullable: false

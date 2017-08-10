@@ -7,12 +7,20 @@ Cx\Core_Modules\Access\Model\Entity\AccessId:
       type: integer
       generator:
         strategy: AUTO
+      options:
+        unsigned: true
     entity_class_name:
       type: string
-      nullable: true
+      length: 100
+      nullable: false
+      options:
+        fixed: true
     entity_class_id:
       type: string
-      nullable: true
+      length: 100
+      nullable: false
+      options:
+        fixed: true
   oneToMany:
     contrexxAccessUserAttribute:
       targetEntity: Cx\Core\User\Model\Entity\UserAttribute

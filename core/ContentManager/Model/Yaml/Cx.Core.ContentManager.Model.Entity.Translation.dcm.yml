@@ -7,6 +7,8 @@ Cx\Core\ContentManager\Model\Entity\Translation:
       type: integer
       generator:
         strategy: AUTO
+      options:
+        unsigned: true
 # Maybe "identity" could be used, as in some examples?
 #        strategy: IDENTITY
 # Won't work without proper field declarations!
@@ -27,6 +29,7 @@ Cx\Core\ContentManager\Model\Entity\Translation:
       column: foreign_key
       type: string
       length: 64
+      nullable: true
     content:
       type: text
       nullable: true
@@ -36,6 +39,11 @@ Cx\Core\ContentManager\Model\Entity\Translation:
         - locale
         - object_class
         - foreign_key
+    content_lookup_idx:
+      columns:
+        - content
+        - object_class
+        - field
   uniqueConstraints:
     lookup_unique_idx:
       columns:

@@ -1,19 +1,37 @@
 SET FOREIGN_KEY_CHECKS = 0;
-CREATE TABLE `contrexx_access_group_dynamic_ids` (
-  `access_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `group_id` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`access_id`,`group_id`)
-) ENGINE=MyISAM;
-CREATE TABLE `contrexx_access_group_static_ids` (
-  `access_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `group_id` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`access_id`,`group_id`)
-) ENGINE=MyISAM;
 CREATE TABLE `contrexx_access_id` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `entity_class_name` char(100) NOT NULL,
   `entity_class_id` char(100) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_access_user_groups` (
+  `group_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(100) NOT NULL DEFAULT '',
+  `group_description` varchar(255) NOT NULL DEFAULT '',
+  `is_active` tinyint(4) NOT NULL DEFAULT '1',
+  `type` enum('frontend','backend') NOT NULL DEFAULT 'frontend',
+  `homepage` varchar(255) NOT NULL DEFAULT '',
+  `toolbar` int(6) DEFAULT NULL,
+  PRIMARY KEY (`group_id`)
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_access_group_dynamic_ids` (
+  `access_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `group_id` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`access_id`,`group_id`),
+  KEY `access_id` (`access_id`),
+  KEY `group_id` (`group_id`),
+  CONSTRAINT `access_group_dynamic_ids_ibfk_access_id` FOREIGN KEY (`access_id`) REFERENCES `contrexx_access_id` (`id`),
+  CONSTRAINT `access_group_dynamic_ids_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_access_group_static_ids` (
+  `access_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `group_id` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`access_id`,`group_id`),
+  KEY `access_id` (`access_id`),
+  KEY `group_id` (`group_id`),
+  CONSTRAINT `access_group_static_ids_ibfk_access_id` FOREIGN KEY (`access_id`) REFERENCES `contrexx_access_id` (`id`),
+  CONSTRAINT `access_group_static_ids_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_rel_user_group` (
   `user_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -60,16 +78,6 @@ CREATE TABLE `contrexx_access_user_core_attribute` (
   `access_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-CREATE TABLE `contrexx_access_user_groups` (
-  `group_id` int(6) unsigned NOT NULL AUTO_INCREMENT,
-  `group_name` varchar(100) NOT NULL DEFAULT '',
-  `group_description` varchar(255) NOT NULL DEFAULT '',
-  `is_active` tinyint(4) NOT NULL DEFAULT '1',
-  `type` enum('frontend','backend') NOT NULL DEFAULT 'frontend',
-  `homepage` varchar(255) NOT NULL DEFAULT '',
-  `toolbar` int(6) DEFAULT NULL,
-  PRIMARY KEY (`group_id`)
-) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_access_user_mail` (
   `type` enum('reg_confirm','reset_pw','user_activated','user_deactivated','new_user','user_account_invitation') NOT NULL DEFAULT 'reg_confirm',
   `lang_id` tinyint(2) unsigned NOT NULL DEFAULT '0',
@@ -263,11 +271,11 @@ CREATE TABLE `contrexx_core_data_source` (
 ) ENGINE = InnoDB;
 CREATE TABLE `contrexx_core_modules_access_permission` (
   `id` int(11) AUTO_INCREMENT NOT NULL,
-  `allowed_protocols` longtext NOT NULL,
-  `allowed_methods` longtext NOT NULL,
+  `allowed_protocols` longtext NOT NULL COMMENT '(DC2Type:array)',
+  `allowed_methods` longtext NOT NULL COMMENT '(DC2Type:array)',
   `requires_login` tinyint(1) DEFAULT NULL,
-  `valid_user_groups` longtext DEFAULT NULL,
-  `valid_access_ids` longtext DEFAULT NULL,
+  `valid_user_groups` longtext DEFAULT NULL COMMENT '(DC2Type:array)',
+  `valid_access_ids` longtext DEFAULT NULL COMMENT '(DC2Type:array)',
   PRIMARY KEY(`id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `contrexx_core_module_data_access` (
@@ -692,10 +700,12 @@ CREATE TABLE `contrexx_module_calendar_category` (
 ) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_module_calendar_category_name` (
   `cat_id` int(11) NOT NULL,
-  `lang_id` int(11) DEFAULT NULL,
+  `lang_id` int(11) NOT NULL,
   `name` varchar(225) DEFAULT NULL,
-  KEY `fk_contrexx_module_calendar_category_names_contrexx_module_ca1` (`cat_id`)
-) ENGINE=MyISAM;
+  PRIMARY KEY (`cat_id`, `lang_id`),
+  UNIQUE KEY `cat_id` (`cat_id`),
+  CONSTRAINT `calendar_category_name_ibfk_cat_id` FOREIGN KEY (`cat_id`) REFERENCES `contrexx_module_calendar_category` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` int(11) NOT NULL DEFAULT '0',
@@ -720,7 +730,7 @@ CREATE TABLE `contrexx_module_calendar_event` (
   `pic` varchar(255) NOT NULL DEFAULT '',
   `attach` varchar(255) NOT NULL,
   `place_mediadir_id` int(11) NOT NULL,
-  `catid` int(11) NOT NULL DEFAULT '0',
+  `catid` int(11) DEFAULT NULL,
   `show_in` varchar(255) NOT NULL,
   `invited_groups` varchar(255) DEFAULT NULL,
   `invited_crm_groups` varchar(255) DEFAULT NULL,
@@ -728,7 +738,7 @@ CREATE TABLE `contrexx_module_calendar_event` (
   `invitation_sent` int(1) NOT NULL,
   `invitation_email_template` varchar(255) NOT NULL,
   `registration` int(1) NOT NULL DEFAULT '0',
-  `registration_form` int(11) NOT NULL,
+  `registration_form` int(11) DEFAULT NULL,
   `registration_num` varchar(45) DEFAULT NULL,
   `registration_notification` varchar(1024) DEFAULT NULL,
   `email_template` varchar(255) NOT NULL,
@@ -773,11 +783,14 @@ CREATE TABLE `contrexx_module_calendar_event` (
   `org_email` varchar(255) NOT NULL,
   `host_mediadir_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_contrexx_module_calendar_notes_contrexx_module_calendar_ca1` (`catid`)
-) ENGINE=MyISAM ;
+  KEY `registration_form` (`registration_form`),
+  KEY `catid` (`catid`),
+  CONSTRAINT `calendar_event_ibfk_catid` FOREIGN KEY (`catid`) REFERENCES `contrexx_module_calendar_category` (`id`),
+  CONSTRAINT `calendar_event_ibfk_registration_form` FOREIGN KEY (`registration_form`) REFERENCES `contrexx_module_calendar_registration_form` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_event_field` (
   `event_id` int(11) NOT NULL DEFAULT '0',
-  `lang_id` varchar(225) DEFAULT NULL,
+  `lang_id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `teaser` text DEFAULT NULL,
   `description` mediumtext,
@@ -788,10 +801,12 @@ CREATE TABLE `contrexx_module_calendar_event_field` (
   `org_name` varchar(255) NOT NULL,
   `org_city` varchar(255) NOT NULL,
   `org_country` varchar(255) NOT NULL,
+  PRIMARY KEY (`event_id`, `lang_id`),
   KEY `lang_field` (`title`),
-  KEY `fk_contrexx_module_calendar_note_field_contrexx_module_calend1` (`event_id`),
-  FULLTEXT KEY `eventIndex` (`title`,`teaser`,`description`)
-) ENGINE=MyISAM;
+  KEY `event_id` (`event_id`),
+  FULLTEXT KEY `eventIndex` (`title`,`teaser`,`description`),
+  CONSTRAINT `calendar_event_field_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_invite` (
   `id` int NOT NULL AUTO_INCREMENT,
   `event_id` int(11) NOT NULL,
@@ -800,7 +815,9 @@ CREATE TABLE `contrexx_module_calendar_invite` (
   `invitee_id` int(11) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `token` varchar(32) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `event_id` (`event_id`),
+  CONSTRAINT `calendar_invite_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_calendar_host` (
   `id` int(1) NOT NULL AUTO_INCREMENT,
@@ -839,8 +856,12 @@ CREATE TABLE `contrexx_module_calendar_registration` (
   `export` int(11) NOT NULL,
   `payment_method` int(11) NOT NULL,
   `paid` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+  PRIMARY KEY (`id`),
+  KEY `event_id` (`event_id`),
+  UNIQUE KEY `invite_id` (`invite_id`),
+  CONSTRAINT `calendar_registration_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`),
+  CONSTRAINT `calendar_registration_ibfk_invite_id` FOREIGN KEY (`invite_id`) REFERENCES `contrexx_module_calendar_invite` (`id`)
+) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_calendar_registration_form` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` int(11) NOT NULL,
@@ -855,20 +876,30 @@ CREATE TABLE `contrexx_module_calendar_registration_form_field` (
   `required` int(1) NOT NULL,
   `order` int(3) NOT NULL,
   `affiliation` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `form` (`form`),
+  CONSTRAINT `calendar_registration_form_field_ibfk_form` FOREIGN KEY (`form`) REFERENCES `contrexx_module_calendar_registration_form` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_registration_form_field_name` (
   `field_id` int(7) NOT NULL,
   `form_id` int(11) NOT NULL,
   `lang_id` int(1) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `default` mediumtext NOT NULL
-) ENGINE=MyISAM;
+  `default` mediumtext NOT NULL,
+  PRIMARY KEY (`field_id`, `form_id`, `lang_id`),
+  KEY `field_id` (`field_id`),
+  CONSTRAINT `calendar_registration_field_name_ibfk_field_id` FOREIGN KEY (`field_id`) REFERENCES `contrexx_module_calendar_registration_form_field` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_registration_form_field_value` (
   `reg_id` int(7) NOT NULL,
   `field_id` int(7) NOT NULL,
-  `value` mediumtext NOT NULL
-) ENGINE=MyISAM;
+  `value` mediumtext NOT NULL,
+  PRIMARY KEY (`reg_id`, `field_id`),
+  KEY `reg_id` (`reg_id`),
+  KEY `field_id` (`field_id`),
+  CONSTRAINT `calendar_registration_form_field_value_ibfk_reg_id` FOREIGN KEY (`reg_id`) REFERENCES `contrexx_module_calendar_registration` (`id`),
+  CONSTRAINT `calendar_registration_form_field_value_ibfk_field_id` FOREIGN KEY (`field_id`) REFERENCES `contrexx_module_calendar_registration_form_field` (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_rel_event_host` (
   `host_id` int(11) NOT NULL,
   `event_id` int(11) NOT NULL
@@ -964,7 +995,7 @@ CREATE TABLE `contrexx_module_contact_form` (
   `use_email_of_sender` tinyint(1) NOT NULL DEFAULT '0',
   `html_mail` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `send_attachment` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `crm_customer_groups` text,
+  `crm_customer_groups` text COMMENT '(DC2Type:array)',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_module_contact_form_data` (
@@ -1082,7 +1113,7 @@ CREATE TABLE `contrexx_module_crm_contacts` (
 CREATE TABLE `contrexx_module_crm_currency` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(400) NOT NULL,
-  `active` int(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
   `pos` int(5) NOT NULL DEFAULT '0',
   `hourly_rate` text NOT NULL,
   `default_currency` tinyint(1) NOT NULL,
@@ -3718,7 +3749,8 @@ CREATE TABLE `contrexx_translations` (
   `content` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `lookup_unique_idx` (`locale`,`object_class`,`foreign_key`,`field`),
-  KEY `content_lookup_idx` (`content`(255), `object_class`, `field`)
+  KEY `content_lookup_idx` (`content`(255), `object_class`, `field`),
+  KEY `translations_lookup_idx` (`locale`, `object_class`, `foreign_key`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_voting_additionaldata` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

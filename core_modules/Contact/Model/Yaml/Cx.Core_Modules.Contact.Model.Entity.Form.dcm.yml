@@ -5,6 +5,10 @@ Cx\Core_Modules\Contact\Model\Entity\Form:
   id:
     id:
       type: integer
+      length: 10
+      nullable: false
+      options:
+        unsigned: true
       generator:
         strategy: AUTO
   fields:
@@ -12,27 +16,49 @@ Cx\Core_Modules\Contact\Model\Entity\Form:
       type: text
     showForm:
       type: boolean
+      options:
+        unsigned: true
+        default: '0'
     useCaptcha:
       type: boolean
       column: use_captcha
+      options:
+        unsigned: true
+        default: 1
     useCustomStyle:
       type: boolean
       column: use_custom_style
+      options:
+        unsigned: true
+        default: '0'
     saveDataInCrm:
       type: boolean
       column: save_data_in_crm
+      options:
+        default: 0
     sendCopy:
       type: boolean
       column: send_copy
+      options:
+        default: 0
     useEmailOfSender:
       type: boolean
       column: use_email_of_sender
+      options:
+        default: '0'
     htmlMail:
       type: boolean
       column: html_mail
+      options:
+        unsigned: true
+        default: 1
     sendAttachment:
       type: boolean
       column: send_attachment
+      options:
+        unsigned: true
+        default: '0'
     crmCustomerGroups:
       type: array
       column: crm_customer_groups
+      nullable: true

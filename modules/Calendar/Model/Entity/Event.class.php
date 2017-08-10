@@ -225,6 +225,11 @@ class Event extends \Cx\Model\Base\EntityBase {
     protected $seriesStatus;
 
     /**
+     * @var boolean $independentSeries
+     */
+    protected $independentSeries;
+
+    /**
      * @var integer $seriesType
      */
     protected $seriesType;
@@ -1182,6 +1187,26 @@ class Event extends \Cx\Model\Base\EntityBase {
     public function getSeriesStatus()
     {
         return $this->seriesStatus;
+    }
+
+    /**
+     * Set independentSeries
+     *
+     * @param boolean $independentSeries
+     */
+    public function setIndependentSeries($independentSeries)
+    {
+        $this->independentSeries = $independentSeries;
+    }
+
+    /**
+     * Get independentSeries
+     *
+     * @return boolean $independentSeries
+     */
+    public function getIndependentSeries()
+    {
+        return $this->independentSeries;
     }
 
     /**
