@@ -18,7 +18,7 @@ Cx\Core_Modules\SysLog\Model\Entity\Log:
       type: string
 
     data:
-      type: string
+      type: text
 
     logger:
       type: string

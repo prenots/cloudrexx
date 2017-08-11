@@ -41,19 +41,19 @@ Cx\Modules\Pim\Model\Entity\Product:
       type: integer
       column: cancellation_quantifier
     noteEntity:
-      type: string
+      type: text
       column: note_entity
     noteRenewal:
-      type: string
+      type: text
       column: note_renewal
     noteUpgrade:
-      type: string
+      type: text
       column: note_upgrade
     noteExpiration:
-      type: string
+      type: text
       column: note_expiration
     notePrice:
-      type: string
+      type: text
       column: note_price
   
   oneToMany: # inverse side

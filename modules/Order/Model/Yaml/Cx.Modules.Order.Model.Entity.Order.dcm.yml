@@ -13,6 +13,8 @@ Cx\Modules\Order\Model\Entity\Order:
     contactId:
       type: integer
       column: contact_id
+      options:
+        unsigned: true
 
   oneToMany: # inverse side
     subscriptions:
@@ -28,3 +30,4 @@ Cx\Modules\Order\Model\Entity\Order:
       joinColumn:
         name: currency_id
         referencedColumnName: id
+        nullable: false

@@ -13,6 +13,7 @@ Cx\Core\ContentManager\Model\Entity\Page:
   fields:
     nodeIdShadowed:
       type: integer
+      nullable: true
       gedmo:
         - versioned
 
@@ -33,13 +34,16 @@ Cx\Core\ContentManager\Model\Entity\Page:
         - versioned
 
     updatedAt:
-      type: datetime    
+      type: datetime
+      nullable: true
       gedmo:
         - versioned
         
     updatedBy:
       type: string
       length: 40
+      options:
+        fixed: true
       gedmo:
         - versioned
 
@@ -77,6 +81,8 @@ Cx\Core\ContentManager\Model\Entity\Page:
         - versioned
     sourceMode:
       type: boolean
+      options:
+        default: 0
       gedmo:
         - versioned
 
@@ -88,7 +94,8 @@ Cx\Core\ContentManager\Model\Entity\Page:
         - versioned
         
     useCustomContentForAllChannels:
-      type: integer      
+      type: integer
+      nullable: true
       gedmo:
         - versioned
     
@@ -100,7 +107,8 @@ Cx\Core\ContentManager\Model\Entity\Page:
         - versioned
         
     useCustomApplicationTemplateForAllChannels:
-      type: integer      
+      type: boolean
+      nullable: true
       gedmo:
         - versioned
     
@@ -125,7 +133,8 @@ Cx\Core\ContentManager\Model\Entity\Page:
         - versioned
     
     useSkinForAllChannels:
-      type: integer      
+      type: integer
+      nullable: true
       gedmo:
         - versioned
 
@@ -222,9 +231,11 @@ Cx\Core\ContentManager\Model\Entity\Page:
         - versioned
     
     cmd:
-      nullable: true
+      nullable: false
       type: string
       length: 50
+      options:
+        default: ''
       gedmo:
         - versioned
 
@@ -236,7 +247,20 @@ Cx\Core\ContentManager\Model\Entity\Page:
         name: node_id
         referencedColumnName: id
         cascade: [remove]
+        onDelete: 'SET NULL'
+        onUpdate: 'NO ACTION'
 
   lifecycleCallbacks:
       prePersist: [ validate ]
       onFlush: [ validate ]
+
+  indexes:
+    content_page_node_idx:
+      columns:
+        - node_id
+
+  uniqueConstraints:
+    content_page_node_unique_idx:
+      columns:
+        - node_id
+        - lang

@@ -2,33 +2,36 @@ Cx\Core_Modules\LinkManager\Model\Entity\Link:
   type: entity
   table: core_module_linkmanager_link
   repositoryClass: Cx\Core_Modules\LinkManager\Model\Repository\LinkRepository
-  id: 
+  id:
     id:
       type: integer
       generator:
         strategy: AUTO
   fields:
     lang:
-      type: integer
+      type: boolean
     requestedPath:
-      type: string
+      type: text
     refererPath:
-      type: string
+      type: text
+      nullable: true
     leadPath:
-      type: string
+      type: text
+      nullable: true
     linkStatusCode:
       type: integer
+      nullable: true
     entryTitle:
       type: string
       length: 255
     moduleName:
       nullable: true
       type: string
-      length: 255
+      length: 100
     moduleAction:
       nullable: true
       type: string
-      length: 255
+      length: 100
     moduleParams:
       nullable: true
       type: string
@@ -45,7 +48,8 @@ Cx\Core_Modules\LinkManager\Model\Entity\Link:
       type: integer
     requestedLinkType:
       type: string
-      length: 255
+      length: 25
+      nullable: true
     brokenLinkText:
       type: string
       length: 255

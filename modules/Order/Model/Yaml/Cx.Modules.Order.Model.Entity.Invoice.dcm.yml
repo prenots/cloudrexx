@@ -30,3 +30,5 @@ Cx\Modules\Order\Model\Entity\Invoice:
         name: order_id
         referencedColumnName: id
         cascade: [remove]
+        onDelete: 'SET NULL'
+        onUpdate: 'NO ACTION'

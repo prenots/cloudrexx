@@ -12,16 +12,20 @@ Cx\Modules\Order\Model\Entity\Subscription:
   fields:
     subscriptionDate:
       type: datetime
-      column: subscription_date 
+      column: subscription_date
+      nullable: true
     expirationDate:
       type: datetime
       column: expiration_date
+      nullable: true
     productEntityId:
       type: integer
       column: product_entity_id
+      nullable: true
     paymentAmount:
       type: decimal
       column: payment_amount
+      scale: 2
     paymentState:
       type: string
       length: 12
@@ -30,9 +34,13 @@ Cx\Modules\Order\Model\Entity\Subscription:
       type: string
       length: 5
       column: renewal_unit
+      nullable: true
     renewalQuantifier:
       type: integer
       column: renewal_quantifier
+      nullable: true
+      options:
+        unsigned: true
     renewalDate:
       type: datetime
       column: renewal_date
@@ -43,15 +51,18 @@ Cx\Modules\Order\Model\Entity\Subscription:
       nullable: true
     description:
       type: string
+      nullable: true
     state:
       type: string
       length: 12
+      nullable: true
     terminationDate:
       type: datetime
       column: termination_date
       nullable: true
     note:
-      type: string
+      type: text
+      nullable: true
       
   manyToOne: # owning side
     order:
@@ -59,9 +70,11 @@ Cx\Modules\Order\Model\Entity\Subscription:
       inversedBy: subscriptions
       joinColumn:
         name: order_id
-        nullable: false
+        nullable: true
         referencedColumnName: id
         cascade: [remove]
+        onDelete: 'SET NULL'
+        onUpdate: 'NO ACTION'
     product:
       targetEntity: Cx\Modules\Pim\Model\Entity\Product
       inversedBy: subscriptions
@@ -69,4 +82,5 @@ Cx\Modules\Order\Model\Entity\Subscription:
         name: product_id
         referencedColumnName: id
         cascade: [remove]
-
+        onDelete: 'SET NULL'
+        onUpdate: 'NO ACTION'

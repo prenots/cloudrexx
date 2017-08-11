@@ -2,18 +2,22 @@ Cx\Core_Modules\LinkManager\Model\Entity\Crawler:
   type: entity
   table: core_module_linkmanager_crawler
   repositoryClass: Cx\Core_Modules\LinkManager\Model\Repository\CrawlerRepository
-  id: 
+  id:
     id:
       type: integer
       generator:
         strategy: AUTO
   fields:
     lang:
-      type: integer
+      type: boolean
     startTime:
       type: datetime
+      options:
+        default: '0000-00-00 00:00:00'
     endTime:
       type: datetime
+      options:
+        default: '0000-00-00 00:00:00'
     totalLinks:
       type: integer
     totalBrokenLinks:

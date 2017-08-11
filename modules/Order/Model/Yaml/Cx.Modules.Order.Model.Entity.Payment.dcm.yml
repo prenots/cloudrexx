@@ -19,6 +19,7 @@ Cx\Modules\Order\Model\Entity\Payment:
       column: transaction_reference
     handler:
       type: string
+      length: 12
     transactionData:
       type: array
       column: transaction_data
@@ -31,3 +32,5 @@ Cx\Modules\Order\Model\Entity\Payment:
         name: invoice_id
         referencedColumnName: id
         cascade: [remove]
+        onDelete: 'SET NULL'
+        onUPDATE: 'NO ACTION'

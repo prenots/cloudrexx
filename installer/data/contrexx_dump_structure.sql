@@ -16,8 +16,8 @@ CREATE TABLE `contrexx_access_user_groups` (
   PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_group_dynamic_ids` (
-  `access_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `group_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `access_id` int(11) unsigned NOT NULL,
+  `group_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`access_id`,`group_id`),
   KEY `access_id` (`access_id`),
   KEY `group_id` (`group_id`),
@@ -25,8 +25,8 @@ CREATE TABLE `contrexx_access_group_dynamic_ids` (
   CONSTRAINT `access_group_dynamic_ids_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_group_static_ids` (
-  `access_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `group_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `access_id` int(11) unsigned NOT NULL,
+  `group_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`access_id`,`group_id`),
   KEY `access_id` (`access_id`),
   KEY `group_id` (`group_id`),
@@ -34,9 +34,13 @@ CREATE TABLE `contrexx_access_group_static_ids` (
   CONSTRAINT `access_group_static_ids_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_rel_user_group` (
-  `user_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `group_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`user_id`,`group_id`)
+  `user_id` int(5) unsigned NOT NULL,
+  `group_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`user_id`,`group_id`),
+  KEY `user_id` (`user_id`),
+  KEY `group_id` (`group_id`),
+  CONSTRAINT `access_rel_user_group_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`),
+  CONSTRAINT `access_rel_user_group_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_settings` (
   `key` varchar(32) NOT NULL DEFAULT '',
@@ -59,7 +63,9 @@ CREATE TABLE `contrexx_access_user_attribute_name` (
   `attribute_id` int(10) unsigned NOT NULL DEFAULT '0',
   `lang_id` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`attribute_id`,`lang_id`)
+  PRIMARY KEY (`attribute_id`,`lang_id`),
+  KEY `attribute_id` (`attribute_id`),
+  CONSTRAINT `access_user_attribute_name_ibfk_attribute_id` FOREIGN KEY (`attribute_id`) REFERENCES `contrexx_access_user_attribute` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_attribute_value` (
   `attribute_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -556,13 +562,14 @@ CREATE TABLE `contrexx_log_entry` (
   `version` int(11) NOT NULL,
   `object_id` varchar(32) DEFAULT NULL,
   `object_class` varchar(255) NOT NULL,
-  `data` longtext,
+  `data` longtext COMMENT '(DC2Type:array)',
   `username` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `log_class_unique_version_idx` (`version`,`object_id`,`object_class`),
   KEY `log_class_lookup_idx` (`object_class`),
   KEY `log_date_lookup_idx` (`logged_at`),
-  KEY `log_user_lookup_idx` (`username`)
+  KEY `log_user_lookup_idx` (`username`),
+  KEY `log_all_lookup_idx` (`version`,`object_id`,`object_class`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_block_blocks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3000,7 +3007,7 @@ CREATE TABLE `contrexx_module_order_payment` (
   `transaction_reference` varchar(255) NOT NULL,
   `invoice_id` int(11) DEFAULT NULL,
   `handler` varchar(12) NOT NULL,
-  `transaction_data` longtext NOT NULL,
+  `transaction_data` longtext NOT NULL COMMENT '(DC2Type:array)',
   PRIMARY KEY (`id`),
   KEY `invoice_id` (`invoice_id`),
   CONSTRAINT `contrexx_module_order_payment_ibfk_2` FOREIGN KEY (`invoice_id`) REFERENCES `contrexx_module_order_invoice` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
@@ -3043,7 +3050,7 @@ CREATE TABLE `contrexx_module_pim_product` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `entity_class` varchar(255) NOT NULL,
-  `entity_attributes` text NOT NULL,
+  `entity_attributes` text NOT NULL COMMENT '(DC2Type:array)',
   `renewable` tinyint(1) NOT NULL,
   `expirable` tinyint(1) NOT NULL,
   `upgradable` tinyint(1) NOT NULL,

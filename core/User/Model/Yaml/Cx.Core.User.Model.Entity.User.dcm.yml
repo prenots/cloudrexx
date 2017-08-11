@@ -6,15 +6,17 @@ Cx\Core\User\Model\Entity\User:
       id: true
       type: integer
       length: 11
-      unsigned: true
+      options:
+        unsigned: true
       generator:
         strategy: AUTO
     isAdmin:
-      type: integer
-      length: 1
+      type: boolean
       nullable: false
-      unsigned: true
       column: is_admin
+      options:
+        default: 0
+        unsigned: true
     username:
       type: string
       length: 255
@@ -32,40 +34,54 @@ Cx\Core\User\Model\Entity\User:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
       column: auth_token_timeout
+      options:
+        default: 0
+        unsigned: true
     regdate:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
+      options:
+        default: 0
+        unsigned: true
     expiration:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
+      options:
+        default: 0
+        unsigned: true
     validity:
       type: integer
       length: 10
       nullable: false
-      unsigned: true
+      options:
+        default: 0
+        unsigned: true
     lastAuth:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
       column: last_auth
+      options:
+        default: 0
+        unsigned: true
     lastAuthStatus:
       type: integer
       length: 1
       nullable: false
       column: last_auth_status
+      options:
+        default: 1
     lastActivity:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
       column: last_activity
+      options:
+        unsigned: true
+        default: 0
     email:
       type: string
       length: 255
@@ -74,52 +90,73 @@ Cx\Core\User\Model\Entity\User:
       type: string
       nullable: false
       column: email_access
+      options:
+        default: 'nobody'
     frontendLangId:
       type: integer
       length: 2
       nullable: false
       unsigned: true
       column: frontend_lang_id
+      options:
+        unsigned: true
+        default: 0
     backendLangId:
       type: integer
       length: 2
       nullable: false
-      unsigned: true
       column: backend_lang_id
+      options:
+        unsigned: true
+        default: 0
     active:
-      type: integer
+      type: boolean
       length: 1
       nullable: false
+      options:
+        default: 0
     verified:
-      type: integer
+      type: boolean
       length: 1
       nullable: false
-      unsigned: true
+      options:
+        unsigned: true
+        default: 1
     primaryGroup:
       type: integer
       length: 6
       nullable: false
-      unsigned: true
       column: primary_group
+      options:
+        unsigned: true
+        default: 0
     profileAccess:
       type: string
       nullable: false
       column: profile_access
+      options:
+        default: 'members_only'
     restoreKey:
       type: string
       length: 32
       nullable: false
       column: restore_key
+      options:
+        default: 0
     restoreKeyTime:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
       column: restore_key_time
+      options:
+        unsigned: true
+        default: 0
     u2uActive:
       type: string
       nullable: false
       column: u2u_active
+      options:
+        default: '1'
   indexes:
     username:
       columns: [username]
@@ -137,7 +174,13 @@ Cx\Core\User\Model\Entity\User:
           user_id:
             referencedColumnName: id
             nullable: false
+            options:
+              default: 0
+              unsigned: true
         inverseJoinColumns:
           group_id:
             referencedColumnName: group_id
             nullable: false
+            options:
+              default: 0
+              unsigned: true

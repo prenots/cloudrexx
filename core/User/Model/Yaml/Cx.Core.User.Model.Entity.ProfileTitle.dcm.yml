@@ -6,19 +6,24 @@ Cx\Core\User\Model\Entity\ProfileTitle:
       id: true
       type: integer
       length: 11
-      unsigned: true
+      options:
+        unsigned: true
       generator:
         strategy: AUTO
     title:
       type: string
       length: 255
       nullable: false
+      options:
+        default: ''
     orderId:
       type: integer
       length: 10
       nullable: false
-      unsigned: true
       column: order_id
+      options:
+        unsigned: true
+        default: 0
   uniqueConstraints:
     title:
       columns: [title]

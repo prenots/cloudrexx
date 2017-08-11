@@ -63,6 +63,11 @@ class Group extends \Cx\Model\Base\EntityBase {
     private $homepage;
 
     /**
+     * @var integer $toolbar
+     */
+    protected $toolbar;
+
+    /**
      * @var Cx\Core\User\Model\Entity\User
      */
     private $user;
@@ -192,6 +197,26 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function getHomepage()
     {
         return $this->homepage;
+    }
+
+    /**
+     * Set toolbar
+     *
+     * @param integer $toolbar
+     */
+    public function setToolbar($toolbar)
+    {
+        $this->toolbar = $toolbar;
+    }
+
+    /**
+     * Get toolbar
+     *
+     * @return integer $toolbar
+     */
+    public function getToolbar()
+    {
+        return $this->toolbar;
     }
 
     /**
