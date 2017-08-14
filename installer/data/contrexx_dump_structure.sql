@@ -115,7 +115,7 @@ CREATE TABLE `contrexx_access_user_network` (
 CREATE TABLE `contrexx_access_user_profile` (
   `user_id` int(5) unsigned NOT NULL,
   `gender` enum('gender_undefined','gender_female','gender_male') NOT NULL DEFAULT 'gender_undefined',
-  `title` int(10) unsigned NOT NULL,
+  `title` int(10) unsigned DEFAULT NULL,
   `firstname` varchar(255) NOT NULL DEFAULT '',
   `lastname` varchar(255) NOT NULL DEFAULT '',
   `company` varchar(255) NOT NULL DEFAULT '',
@@ -726,7 +726,7 @@ CREATE TABLE `contrexx_module_calendar_category` (
   `pos` int(5) DEFAULT NULL,
   `status` int(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_category_name` (
   `cat_id` int(11) NOT NULL,
   `lang_id` int(11) NOT NULL,
@@ -896,7 +896,7 @@ CREATE TABLE `contrexx_module_calendar_registration_form` (
   `order` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM ;
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_registration_form_field` (
   `id` int(7) NOT NULL AUTO_INCREMENT,
   `form` int(11) NOT NULL,
