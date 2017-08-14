@@ -19,9 +19,6 @@ Cx\Modules\Calendar\Model\Entity\RegistrationFormField:
     affiliation:
       type: string
       length: 45
-  uniqueConstraints:
-    form:
-      columns: [ form ]
   oneToMany:
     registrationFormFieldNames:
       targetEntity: Cx\Modules\Calendar\Model\Entity\RegistrationFormFieldName

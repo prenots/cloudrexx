@@ -9,20 +9,30 @@ Cx\Core\User\Model\Entity\CoreAttribute:
     mandatory:
       type: string
       nullable: false
+      columnDefinition: ENUM('0', '1')
+      options:
+        default: '0'
     sortType:
       type: string
       nullable: false
       column: sort_type
+      columnDefinition: ENUM('asc','desc','custom')
+      options:
+        default: 'asc'
     orderId:
       type: integer
       length: 10
       nullable: false
-      unsigned: true
       column: order_id
+      options:
+        unsigned: true
+        default: 0
     accessSpecial:
       type: string
       nullable: false
       column: access_special
+      options:
+        default: ''
   manyToOne:
     accessId:
       targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
@@ -30,3 +40,4 @@ Cx\Core\User\Model\Entity\CoreAttribute:
       joinColumns:
         access_id:
           referencedColumnName: id
+          nullable: false

@@ -25,4 +25,3 @@ Cx\Modules\Calendar\Model\Entity\CategoryName:
       joinColumn:
         name: cat_id
         referencedColumnName: id
-        unique: true

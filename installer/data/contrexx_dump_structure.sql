@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE `contrexx_access_id` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
   `entity_class_name` char(100) NOT NULL,
   `entity_class_id` char(100) NOT NULL,
   PRIMARY KEY (`id`)
@@ -56,8 +56,12 @@ CREATE TABLE `contrexx_access_user_attribute` (
   `sort_type` enum('asc','desc','custom') NOT NULL DEFAULT 'asc',
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
-  `access_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `access_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parent_id` (`parent_id`),
+  KEY `access_id` (`access_id`),
+  CONSTRAINT `access_user_attribute_ibfk_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `contrexx_access_user_attribute` (`id`),
+  CONSTRAINT `access_user_attribute_ibfk_access_id` FOREIGN KEY (`access_id`) REFERENCES `contrexx_access_id` (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_access_user_attribute_name` (
   `attribute_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -68,21 +72,27 @@ CREATE TABLE `contrexx_access_user_attribute_name` (
   CONSTRAINT `access_user_attribute_name_ibfk_attribute_id` FOREIGN KEY (`attribute_id`) REFERENCES `contrexx_access_user_attribute` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_attribute_value` (
-  `attribute_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `user_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `attribute_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
   `history_id` int(10) unsigned NOT NULL DEFAULT '0',
   `value` text NOT NULL,
   PRIMARY KEY (`attribute_id`,`user_id`,`history_id`),
-  FULLTEXT KEY `value` (`value`)
-) ENGINE=MyISAM;
+  FULLTEXT KEY `value` (`value`),
+  KEY `attribute_id` (`attribute_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `access_user_attribute_value_ibfk_attribute_id` FOREIGN KEY (`attribute_id`) REFERENCES `contrexx_access_user_attribute` (`id`),
+  CONSTRAINT `access_user_attribute_value_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_user_profile` (`user_id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_core_attribute` (
   `id` varchar(25) NOT NULL,
   `mandatory` enum('0','1') NOT NULL DEFAULT '0',
   `sort_type` enum('asc','desc','custom') NOT NULL DEFAULT 'asc',
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
-  `access_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `access_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `access_id` (`access_id`),
+  CONSTRAINT `access_user_core_attribute_ibfk_access_id` FOREIGN KEY (`access_id`) REFERENCES `contrexx_access_id` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_mail` (
   `type` enum('reg_confirm','reset_pw','user_activated','user_deactivated','new_user','user_account_invitation') NOT NULL DEFAULT 'reg_confirm',
@@ -103,9 +113,9 @@ CREATE TABLE `contrexx_access_user_network` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_profile` (
-  `user_id` int(5) unsigned NOT NULL DEFAULT '0',
+  `user_id` int(5) unsigned NOT NULL,
   `gender` enum('gender_undefined','gender_female','gender_male') NOT NULL DEFAULT 'gender_undefined',
-  `title` int(10) unsigned NOT NULL DEFAULT '0',
+  `title` int(10) unsigned NOT NULL,
   `firstname` varchar(255) NOT NULL DEFAULT '',
   `lastname` varchar(255) NOT NULL DEFAULT '',
   `company` varchar(255) NOT NULL DEFAULT '',
@@ -124,7 +134,11 @@ CREATE TABLE `contrexx_access_user_profile` (
   `signature` text,
   `picture` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`user_id`),
-  KEY `profile` (`firstname`(100),`lastname`(100),`company`(50))
+  KEY `profile` (`firstname`(100),`lastname`(100),`company`(50)),
+  KEY `user_id` (`user_id`),
+  KEY `title` (`title`),
+  CONSTRAINT `access_user_profile_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`),
+  CONSTRAINT `access_user_profile_ibfk_title` FOREIGN KEY (`title`) REFERENCES `contrexx_access_user_title` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_title` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -290,9 +304,9 @@ CREATE TABLE `contrexx_core_module_data_access` (
   `write_permission` int(11) DEFAULT NULL,
   `data_source_id` int(11) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
-  `field_list` longtext NOT NULL,
-  `access_condition` longtext NOT NULL,
-  `allowed_output_methods` longtext NOT NULL,
+  `field_list` longtext NOT NULL COMMENT '(DC2Type:array)',
+  `access_condition` longtext NOT NULL COMMENT '(DC2Type:array)',
+  `allowed_output_methods` longtext NOT NULL COMMENT '(DC2Type:array)',
   PRIMARY KEY(`id`),
   UNIQUE KEY `name` (`name`),
   KEY `read_permission` (`read_permission`),
@@ -393,15 +407,23 @@ CREATE TABLE `contrexx_core_module_sync_change` (
   `origin_sync_id` int(11) NOT NULL,
   `event_type` char(6) NOT NULL,
   `condition` char(7) NOT NULL,
-  `entity_index_data` text NOT NULL,
-  `origin_entity_index_data` text NOT NULL,
-  `contents` longtext NOT NULL,
-  PRIMARY KEY (`id`)
+  `entity_index_data` text NOT NULL COMMENT '(DC2Type:array)',
+  `origin_entity_index_data` text NOT NULL COMMENT '(DC2Type:array)',
+  `contents` longtext NOT NULL COMMENT '(DC2Type:array)',
+  PRIMARY KEY (`id`),
+  KEY `sync_id` (`sync_id`),
+  KEY `origin_sync_id` (`origin_sync_id`),
+  CONSTRAINT `core_module_sync_change_ibfk_sync_id` FOREIGN KEY (`sync_id`) REFERENCES `contrexx_core_module_sync` (`id`),
+  CONSTRAINT `core_module_sync_change_ibfk_origin_sync_id` FOREIGN KEY (`origin_sync_id`) REFERENCES `contrexx_core_module_sync` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_sync_change_host` (
   `change_id` int(11) NOT NULL,
   `host_id` int(11) NOT NULL,
-  PRIMARY KEY (`change_id`,`host_id`)
+  PRIMARY KEY (`change_id`,`host_id`),
+  KEY `change_id` (`change_id`),
+  KEY `host_id` (`host_id`),
+  CONSTRAINT `sync_change_host_ibfk_change_id` FOREIGN KEY (`change_id`) REFERENCES `contrexx_core_module_sync_change` (`id`),
+  CONSTRAINT `sync_change_host_ibfk_origin_host_id` FOREIGN KEY (`host_id`) REFERENCES `contrexx_core_module_sync_host` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_sync_host` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -427,8 +449,8 @@ CREATE TABLE `contrexx_core_module_sync_id_mapping` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `foreign_host` varchar(255) NOT NULL,
   `entity_type` varchar(255) NOT NULL,
-  `foreign_id` varchar(255) NOT NULL,
-  `local_id` varchar(255) NOT NULL,
+  `foreign_id` varchar(255) NOT NULL COMMENT '(DC2Type:array)',
+  `local_id` varchar(255) NOT NULL COMMENT '(DC2Type:array)',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_sync_relation` (
@@ -710,7 +732,6 @@ CREATE TABLE `contrexx_module_calendar_category_name` (
   `lang_id` int(11) NOT NULL,
   `name` varchar(225) DEFAULT NULL,
   PRIMARY KEY (`cat_id`, `lang_id`),
-  UNIQUE KEY `cat_id` (`cat_id`),
   CONSTRAINT `calendar_category_name_ibfk_cat_id` FOREIGN KEY (`cat_id`) REFERENCES `contrexx_module_calendar_category` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_event` (
@@ -884,7 +905,7 @@ CREATE TABLE `contrexx_module_calendar_registration_form_field` (
   `order` int(3) NOT NULL,
   `affiliation` varchar(45) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `form` (`form`),
+  KEY `form` (`form`),
   CONSTRAINT `calendar_registration_form_field_ibfk_form` FOREIGN KEY (`form`) REFERENCES `contrexx_module_calendar_registration_form` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_registration_form_field_name` (
