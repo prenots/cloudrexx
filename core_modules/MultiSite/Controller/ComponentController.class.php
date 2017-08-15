@@ -2223,6 +2223,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),
                     \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite')
                 );
+                $hostingController->setTimeToLive(
+                    \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite')
+                );
+                $hostingController->setWebspaceId(
+                    \Cx\Core\Setting\Controller\Setting::getValue('hostedZoneId', 'MultiSite')
+                );
                 break;
 
             default:
@@ -2634,6 +2640,42 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             ) {
                 throw new MultiSiteException(
                     'Failed to add Setting entry for AWS version'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'timeToLive',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'timeToLive',
+                    '60',
+                    5,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS resource record cache time to live (TTL)'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'hostedZoneId',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'hostedZoneId',
+                    '',
+                    6,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS Hosted Zone ID'
                 );
             }
 
