@@ -6,11 +6,13 @@ clone:
 pipelines:
   default:
     - step:
-        script:
-          - mysql -uroot < echo "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
-          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
-          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
-          - ./cx wb test 2>&1
+      script:
+        - mysql -uroot < echo "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
+        - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
+        - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
+        - ./cx wb test 2>&1
+      services:
+        - database
 definitions:
   services:
     database:
