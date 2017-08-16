@@ -7,9 +7,7 @@ pipelines:
   default:
     - step:
         script:
-          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
-          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
-          - ./cx wb test 2>&1
+          - ls
         services:
           - database
 definitions:
