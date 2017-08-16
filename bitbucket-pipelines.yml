@@ -1,13 +1,25 @@
-image: linode/lamp
+image: cloudrexx/web:PHP7.0
+
+clone:
+  depth: 1 # only clone the last commit
 
 pipelines:
   default:
     - step:
         script:
-          - curl "https://www.cloudrexx.com/de/index.php?section=downloads&cmd=7&download=519" > setup.sh
-    - step:
-        script:
-          - printf 'example_user\nAdmin2015\nexampleDB\n1' | ./meta/setup.sh -b=$BITBUCKET_BRANCH
+          - mysql -uroot < echo "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
+          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
+          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
     - step:
         script:
           - ./cx wb test 2>&1
+        services:
+          - database
+definitions:
+  services:
+    database:
+      image: mariadb
+      environment:
+        MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        MYSQL_ROOT_PASSWORD=
+        MYSQL_DATABASE=dev
