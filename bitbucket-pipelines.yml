@@ -1,11 +1,9 @@
-image: cloudrexx/web:PHP7.0
-
 clone:
   depth: 1 # only clone the last commit
-
 pipelines:
   default:
     - step:
+        image: cloudrexx/web:PHP7.0
         script:
           - mysql -uroot < echo "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
           - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
