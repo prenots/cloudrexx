@@ -8,8 +8,6 @@ pipelines:
     - step:
         script:
           - ls
-        services:
-          - database
 definitions:
   services:
     database:
