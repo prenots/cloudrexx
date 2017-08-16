@@ -10,8 +10,6 @@ pipelines:
           - mysql -uroot < echo "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
           - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
           - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
-    - step:
-        script:
           - ./cx wb test 2>&1
         services:
           - database
