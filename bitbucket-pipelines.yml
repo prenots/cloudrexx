@@ -3,7 +3,7 @@ clone:
 pipelines:
   default:
     - step:
-        image: cloudrexx/web:PHP7.0
+        image: php:7.0-apache
         script:
           - ls
         services:
@@ -16,4 +16,3 @@ definitions:
         MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         MYSQL_ROOT_PASSWORD: ''
         MYSQL_DATABASE: 'dev'
-        volumes: ./installer/data:/docker-entrypoint-initdb.d
