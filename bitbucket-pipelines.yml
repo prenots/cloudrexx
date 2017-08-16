@@ -19,3 +19,4 @@ definitions:
         MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         MYSQL_ROOT_PASSWORD: ''
         MYSQL_DATABASE: 'dev'
+        volumes: ./installer/data:/docker-entrypoint-initdb.d
