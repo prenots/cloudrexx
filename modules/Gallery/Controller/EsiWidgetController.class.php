@@ -51,16 +51,13 @@ namespace Cx\Modules\Gallery\Controller;
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWidgetController {
 
     /**
-     * Parses a widget
-     *
-     * @param string                     $name     Widget name
-     * @param \Cx\Core\Html\Sigma Widget $template Template
-     * @param string                     $locale   RFC 3066 locale identifier
+     * {@inheritdoc}
      */
-    public function parseWidget($name, $template, $locale, $params = array())
+    public function parseWidget($name, $template, $response, $params)
     {
         $gallery             = new GalleryHomeContent();
-        $gallery->_intLangId = \FWLanguage::getLangIdByIso639_1($locale);
+        $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
+        $gallery->_intLangId = $langId;
         if ($name === 'GALLERY_LATEST' && $gallery->checkLatest()) {
             $template->setVariable($name, $gallery->getLastImage());
             return;
@@ -70,7 +67,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
         }
         $template->setVariable(
             $name,
-            $this->getImageTag($params['id'], $params['lang'])
+            $this->getImageTag($params['id'], $langId)
         );
     }
 
@@ -83,7 +80,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
         }
 
         // fetch all images
-        $langId = \FWLanguage::getLanguageIdByCode($params['get']['lang']);
+        $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $imageIds = $this->getRandomizableImageIds($langId);
 
         // foreach image, get ESI infos:
@@ -96,7 +93,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWi
                 array(
                     'name' => 'gallery_image',
                     'id' => $imageId,
-                    'lang' => $params['get']['lang'],
+                    'lang' => $params['locale'],
                 ),
             );
         }
