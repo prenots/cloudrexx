@@ -5678,7 +5678,7 @@ function MultiAction() {
             $linkIds = array();
 
             $matches = NULL;
-            if (preg_match_all("/<a([^>]+)>(.*?)<\/a>/is", $htmlContent, $matches)) {
+            if (preg_match_all("/<a((?:(?!href=[\"']mailto)[^>])+)>(.*?)<\/a>/is", $htmlContent, $matches)) {
                 $tagCount = count($matches[0]);
                 $fullKey = 0;
                 $attrKey = 1;
