@@ -53,20 +53,16 @@ namespace Cx\Modules\Newsletter\Controller;
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
     
     /**
-     * Parses a widget
-     *
-     * @param string              $name     Widget name
-     * @param \Cx\Core\Html\Sigma $template Widget template
-     * @param string              $locale   RFC 3066 locale identifier
+     * {@inheritDoc}
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
         global $_ARRAYLANG;
         if ($name !== 'NEWSLETTER_BLOCK') {
             return;
         }
         $newsletter = new NewsletterLib();
-        $langId    = \FWLanguage::getLangIdByIso639_1($locale);
+        $langId    = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $_ARRAYLANG = array_merge(
             $_ARRAYLANG,
             \Env::get('init')->getComponentSpecificLanguageData(
