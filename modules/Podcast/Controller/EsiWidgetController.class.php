@@ -96,7 +96,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         $podcast = new PodcastHomeContent($content);
-        $podcast->_langId = $params['lang'];
+        $podcast->_langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $template->setVariable($name, $podcast->getContent());
     }
 
