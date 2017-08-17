@@ -74,7 +74,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             }
             global $_LANGID;
 
-            $_LANGID    = $params['lang'];
+            $_LANGID = \FWLanguage::getLangIdByIso639_1($params['locale']);
             $filePath   = $params['theme']->getFolderName() . '/directory.html';
             $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
                 ->getMediaSourceManager()
@@ -108,10 +108,11 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
         $directory = new Directory('');
+        $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $coreLang  = \Env::get('init')->getComponentSpecificLanguageData(
             'Core',
             true,
-            $params['lang']
+            $langId
         );
         $template->setVariable(
             'TXT_DIRECTORY_LATEST',
