@@ -86,7 +86,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             }
 
             $content  = file_get_contents($fileSystem->getFullPath($file));
-            $objForum = new ForumHomeContent($content, $params['lang']);
+            $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
+            $objForum = new ForumHomeContent($content, $langId);
             $template->setVariable(
                 $name,
                 $objForum->getContent()
@@ -106,7 +107,8 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         ) {
             return;
         }
-        $objForumHome = new ForumHomeContent('', $params['lang']);
+        $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
+        $objForumHome = new ForumHomeContent('', $langId);
         $template->setVariable($name, $objForumHome->getHomeTagCloud());
     }
 }
