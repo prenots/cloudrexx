@@ -1275,7 +1275,7 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
                 $error = array(
                     'slug' => array($lang['TXT_CORE_CANNOT_USE_AS_ALIAS'])
                 );
-                throw new \Cx\Model\Base\ValidationException($error);
+                throw new Cx\Core\Model\Model\Entity\ValidationException($error);
             }
         }
         //workaround, this method is regenerated each time

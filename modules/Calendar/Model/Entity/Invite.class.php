@@ -43,7 +43,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  * @package     cloudrexx
  * @subpackage  module_calendar
 */
-class Invite extends \Cx\Model\Base\EntityBase {
+class Invite extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

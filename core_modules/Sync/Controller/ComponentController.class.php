@@ -486,7 +486,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param string $eventType One of "post", "put", "delete"
      * @param string $entityClassName Classname of the entity to update
      * @param array $entityIndexData Field=>value-type array with primary key data
-     * @param \Cx\Model\Base\EntityBase $entity Changed entity
+     * @param \Cx\Core\Model\Model\Entity\EntityBase $entity Changed entity
      * @todo: Push relations first
      * @todo: This does not spool yet, instead it writes changes instantly
      */

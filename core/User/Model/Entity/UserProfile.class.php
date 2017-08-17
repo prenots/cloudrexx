@@ -31,7 +31,7 @@ namespace Cx\Core\User\Model\Entity;
 /**
  * Cx\Core\User\Model\Entity\UserProfile
  */
-class UserProfile extends \Cx\Model\Base\EntityBase {
+class UserProfile extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $userId
      */

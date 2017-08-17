@@ -46,7 +46,7 @@ namespace Cx\Core_Modules\Pdf\Model\Entity;
  * @subpackage  coremodule_pdf
  * @version     1.0.0
  */
-class PdfTemplate extends \Cx\Model\Base\EntityBase {
+class PdfTemplate extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

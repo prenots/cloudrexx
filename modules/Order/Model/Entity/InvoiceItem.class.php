@@ -44,7 +44,7 @@ namespace Cx\Modules\Order\Model\Entity;
  * @package     cloudrexx
  * @subpackage  module_order
  */
-class InvoiceItem extends \Cx\Model\Base\EntityBase {
+class InvoiceItem extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      *
      * @var integer $id

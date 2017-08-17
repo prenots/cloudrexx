@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\DataAccess\Model\Entity;
  * @package     cloudrexx
  * @subpackage  coremodule_dataaccess
  */
-class DataAccessApiKey extends \Cx\Model\Base\EntityBase {
+class DataAccessApiKey extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer id
      */

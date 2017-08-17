@@ -31,7 +31,7 @@ namespace Cx\Modules\Crm\Model\Entity;
 /**
  * Cx\Modules\Crm\Model\Entity\Currency
  */
-class Currency extends \Cx\Model\Base\EntityBase {
+class Currency extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

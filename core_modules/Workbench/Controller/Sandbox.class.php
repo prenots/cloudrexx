@@ -124,7 +124,7 @@ class Sandbox {
             'noncx' => array(),
         );
         foreach (get_declared_classes() as $entity) {
-            if (!is_subclass_of($entity, '\\Cx\\Model\\Base\\EntityBase')) {
+            if (!is_subclass_of($entity, '\\Cx\\Core\\Model\\Model\\Entity\\EntityBase')) {
                 continue;
             }
             $parts = explode('\\', $entity);

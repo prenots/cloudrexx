@@ -45,7 +45,7 @@ namespace Cx\Core_Modules\DataAccess\Model\Entity;
  * @subpackage  coremodule_dataaccess
  */
 
-class ApiKey extends \Cx\Model\Base\EntityBase {
+class ApiKey extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

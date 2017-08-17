@@ -43,7 +43,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  * @package     cloudrexx
  * @subpackage  module_calendar
 */
-class EventField extends \Cx\Model\Base\EntityBase {
+class EventField extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $eventId
      */

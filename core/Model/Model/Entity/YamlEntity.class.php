@@ -58,6 +58,6 @@ class YamlEntityException extends \Exception {};
  * @package     cloudrexx
  * @subpackage  core_model
  */
-class YamlEntity extends \Cx\Model\Base\EntityBase {
+class YamlEntity extends \Cx\Core\Model\Model\Entity\EntityBase {
 
 }

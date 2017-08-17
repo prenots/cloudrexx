@@ -246,7 +246,7 @@ class DoctrineRepository extends DataSource {
     /**
      * Sets data for an entity
      * @todo Check relations
-     * @param \Cx\Model\Base\EntityBase $entity Entity to set data
+     * @param \Cx\Core\Model\Model\Entity\EntityBase $entity Entity to set data
      * @param array $data Field=>$value-type array
      */
     protected function setEntityData($entity, $data) {

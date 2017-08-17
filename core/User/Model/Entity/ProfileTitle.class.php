@@ -31,7 +31,7 @@ namespace Cx\Core\User\Model\Entity;
 /**
  * Cx\Core\User\Model\Entity\ProfileTitle
  */
-class ProfileTitle extends \Cx\Model\Base\EntityBase {
+class ProfileTitle extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

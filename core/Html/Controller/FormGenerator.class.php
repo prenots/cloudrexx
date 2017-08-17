@@ -112,8 +112,8 @@ class FormGenerator {
             }
 
             if (is_object($value)) {
-                if ($value instanceof \Cx\Model\Base\EntityBase) {
-                    $type = 'Cx\Model\Base\EntityBase';
+                if ($value instanceof \Cx\Core\Model\Model\Entity\EntityBase) {
+                    $type = 'Cx\Core\Model\Model\Entity\EntityBase';
                 } elseif ($value instanceof \Doctrine\Common\Collections\Collection) {
                     continue;
                 } else {
@@ -289,7 +289,7 @@ class FormGenerator {
                 $inputNumber->setAttribute('type', 'number');
                 return $inputNumber;
                 break;
-            case 'Cx\Model\Base\EntityBase':
+            case 'Cx\Core\Model\Model\Entity\EntityBase':
                 $associatedClass = get_class($value);
                 \JS::registerJS('core/Html/View/Script/Backend.js');
                 \ContrexxJavascript::getInstance()->setVariable(

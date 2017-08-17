@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\Sync\Model\Entity;
  * @package     cloudrexx
  * @subpackage  coremodule_sync
  */
-class Spooler extends \Cx\Model\Base\EntityBase
+class Spooler extends \Cx\Core\Model\Model\Entity\EntityBase
 {
     protected $spool = array();
     

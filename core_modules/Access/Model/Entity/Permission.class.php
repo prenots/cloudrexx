@@ -56,7 +56,7 @@ class PermissionException extends \Exception {}
  * @subpackage  core_access
  */
 
-class Permission extends \Cx\Model\Base\EntityBase {
+class Permission extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * Id
      *

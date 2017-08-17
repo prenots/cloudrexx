@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\Sync\Model\Entity;
  * @package     cloudrexx
  * @subpackage  coremodule_sync
  */
-class Changeset extends \Cx\Model\Base\EntityBase
+class Changeset extends \Cx\Core\Model\Model\Entity\EntityBase
 {
     protected $calculatedEntities = array();
     

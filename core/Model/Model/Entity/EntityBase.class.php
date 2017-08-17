@@ -34,7 +34,7 @@
  * @subpackage  model_base
  */
 
-namespace Cx\Model\Base;
+namespace Cx\Core\Model\Model\Entity;
 
 /**
  * Thrown by @link EntityBase::validate() if validation errors occur.

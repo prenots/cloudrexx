@@ -50,7 +50,7 @@ namespace Cx\Core\Locale\Model\Entity;
  * @subpackage  core_locale
  * @version     5.0.0
  */
-class Backend extends \Cx\Model\Base\EntityBase {
+class Backend extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

@@ -40,7 +40,7 @@ namespace Cx\Core\Wysiwyg\Model\Entity;
 /**
  * Cx\Core\Wysiwyg\Model\Entity\WysiwygTemplate
  */
-class WysiwygTemplate extends \Cx\Model\Base\EntityBase {
+class WysiwygTemplate extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */
