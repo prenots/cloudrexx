@@ -76,12 +76,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
+        $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $_CORELANG  = array_merge(
             $_CORELANG,
             \Env::get('init')->getComponentSpecificLanguageData(
                 'Core',
                 true,
-                $params['lang']
+                $langId
             )
         );
         $objNewsML  = new NewsML();
