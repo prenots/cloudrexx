@@ -76,7 +76,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
          * The global $_LANGID is used in the DataBlocks::getCategory() and
          * DataBlocks::getDetail() methods.
          */
-        $_LANGID    = $params['lang'];
+        $_LANGID = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $dataBlocks = new \Cx\Modules\Data\Controller\DataBlocks();
         $template->setVariable($name, $dataBlocks->getData('{' . $name . '}'));
     }
