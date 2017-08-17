@@ -1306,7 +1306,7 @@ EOF;
             }
 
             $column = $categoryNr % 3;
-            $arrCatLangIds = &$this->_getLangIdsOfCategory($categoryId);
+            $arrCatLangIds = $this->_getLangIdsOfCategory($categoryId);
             array_walk($arrCatLangIds, create_function('&$cat, $k, $arrLanguages', '$cat = $arrLanguages[$cat]["lang"];'), $arrLanguages);
             $arrCategory['title'] .= ' ('.implode(', ', $arrCatLangIds).')';
 
