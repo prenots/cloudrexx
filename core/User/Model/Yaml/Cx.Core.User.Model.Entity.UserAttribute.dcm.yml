@@ -63,7 +63,7 @@ Cx\Core\User\Model\Entity\UserAttribute:
       joinColumns:
         access_id:
           referencedColumnName: id
-          nullable: false
+          nullable: true
   manyToMany:
     userProfile:
       targetEntity: Cx\Core\User\Model\Entity\UserProfile

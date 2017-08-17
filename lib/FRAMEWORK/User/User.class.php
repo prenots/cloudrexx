@@ -545,17 +545,34 @@ class User extends User_Profile
         if ($deleteOwnAccount || $this->id != $objFWUser->objUser->getId()) {
             if (!$this->isLastAdmin()) {
                 \Env::get('cx')->getEvents()->triggerEvent('model/preRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
-                if ($objDatabase->Execute(
-                'DELETE tblU, tblP, tblG, tblA, tblN
-                FROM `'.DBPREFIX.'access_users` AS tblU
-                INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id` = tblU.`id`
-                LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id` = tblU.`id`
-                LEFT JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id` = tblU.`id`
-                LEFT JOIN `'.DBPREFIX.'access_user_network` AS tblN ON tblN.`user_id` = tblU.`id`
-                WHERE tblU.`id` = '.$this->id) !== false
-            ) {
-                \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
-                return true;
+                if (
+                    $objDatabase->Execute('
+                        DELETE tblG, tblV, tblN FROM `'. DBPREFIX . 'access_users` as tblU
+                            LEFT JOIN `' . DBPREFIX . 'access_user_network` as tblN
+                                ON tblU.id = tblN.user_id
+                            LEFT JOIN `' . DBPREFIX . 'access_user_attribute_value` as tblV
+                                ON tblU.id = tblV.user_id
+                            LEFT JOIN `' . DBPREFIX . 'access_rel_user_group` as tblG
+                                ON tblU.id = tblG.user_id
+                            WHERE tblU.id = ' . $this->id
+                    ) !== false &&
+                    $objDatabase->Execute('
+                        DELETE tblP, tblU FROM `' . DBPREFIX . 'access_users` as tblU
+                            LEFT JOIN `' . DBPREFIX . 'access_user_profile` as tblP
+                                ON tblU.id = tblP.user_id
+                            WHERE tblU.id = '. $this->id
+                    ) !== false
+                ) {
+                    \Env::get('cx')->getEvents()->triggerEvent(
+                        'model/postRemove',
+                        array(
+                            new \Doctrine\ORM\Event\LifecycleEventArgs(
+                                $this,
+                                \Env::get('em')
+                            )
+                        )
+                    );
+                    return true;
                 } else {
                     $this->error_msg[] = sprintf($_CORELANG['TXT_ACCESS_USER_DELETE_FAILED'], $this->username);
                 }

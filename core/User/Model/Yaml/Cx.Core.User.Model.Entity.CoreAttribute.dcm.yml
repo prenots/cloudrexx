@@ -40,4 +40,4 @@ Cx\Core\User\Model\Entity\CoreAttribute:
       joinColumns:
         access_id:
           referencedColumnName: id
-          nullable: false
+          nullable: true

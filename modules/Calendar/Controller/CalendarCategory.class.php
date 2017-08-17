@@ -398,35 +398,30 @@ class CalendarCategory extends CalendarLibrary
                 'relations' => array('oneToMany' => 'getCategoryNames')
             ), true
         );
-
-        $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_category
-                        WHERE id = '".intval($this->id)."'";
+        $categoryNames = $category->getCategoryNames();
+        foreach ($categoryNames as $categoryName) {
+            //Trigger preRemove event for CategoryName Entity
+            $this->triggerEvent('model/preRemove', $categoryName);
+        }
+        $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_category_name
+                        WHERE cat_id = '".intval($this->id)."'";
 
         $objResult = $objDatabase->Execute($query);
-
         if ($objResult !== false) {
-            $categoryNames = $category->getCategoryNames();
             foreach ($categoryNames as $categoryName) {
-                //Trigger preRemove event for CategoryName Entity
-                $this->triggerEvent('model/preRemove', $categoryName);
+                //Trigger postRemove event for CategoryName Entity
+                $this->triggerEvent('model/postRemove', $categoryName);
             }
-            $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_category_name
-                            WHERE cat_id = '".intval($this->id)."'";
-            
+            $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_category
+                            WHERE id = '".intval($this->id)."'";
             $objResult = $objDatabase->Execute($query);
-            
             if ($objResult !== false) {
-                foreach ($categoryNames as $categoryName) {
-                    //Trigger postRemove event for CategoryName Entity
-                    $this->triggerEvent('model/postRemove', $categoryName);
-                }
                 //Trigger postRemove event for Category Entity
                 $this->triggerEvent('model/postRemove', $category);
                 $this->triggerEvent('model/postFlush');
                 $query = "UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_host
                              SET cat_id = '0'          
                            WHERE cat_id = '".intval($this->id)."'";
-                
                 $objResult = $objDatabase->Execute($query);
                 if ($objResult !== false) {
                     // Clear Cache

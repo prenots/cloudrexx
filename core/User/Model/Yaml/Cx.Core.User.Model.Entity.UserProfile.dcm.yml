@@ -125,6 +125,7 @@ Cx\Core\User\Model\Entity\UserProfile:
         user_id:
           referencedColumnName: id
           unique: true
+          onDelete: 'CASCADE'
   manyToOne:
     userTitle:
       targetEntity: Cx\Core\User\Model\Entity\ProfileTitle

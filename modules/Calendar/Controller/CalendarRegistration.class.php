@@ -670,65 +670,62 @@ class CalendarRegistration extends CalendarLibrary
     {
         global $objDatabase; 
 
-        if (!empty($regId)) {
-            $registration = $this->getRegistrationEntity($regId);
-            //Trigger preRemove event for Registration Entity
+        if (empty($regId)) {
+            return false;
+        }
+        $registration = $this->getRegistrationEntity($regId);
+        //Trigger preRemove event for Registration Entity
+        $this->triggerEvent(
+            'model/preRemove', $registration,
+            array(
+                'relations' => array(
+                    'oneToMany' => 'getRegistrationFormFieldValues',
+                    'manyToOne' => 'getEvent'
+                ),
+                'joinEntityRelations' => array(
+                    'getRegistrationFormFieldValues' => array(
+                        'manyToOne' => array(
+                            'getRegistration', 'getRegistrationFormField'
+                        )
+                    )
+                )
+            ), true
+        );
+        $formFieldValueEntities = $registration->getRegistrationFormFieldValues();
+        foreach ($formFieldValueEntities as $formFieldValueEntity) {
+            //Trigger preRemove event for RegistrationFormFieldValue Entity
             $this->triggerEvent(
-                'model/preRemove', $registration,
+                'model/preRemove',
+                $formFieldValueEntity,
                 array(
                     'relations' => array(
-                        'oneToMany' => 'getRegistrationFormFieldValues',
-                        'manyToOne' => 'getEvent'
-                    ),
-                    'joinEntityRelations' => array(
-                        'getRegistrationFormFieldValues' => array(
-                            'manyToOne' => array(
-                                'getRegistration', 'getRegistrationFormField'
-                            )
+                        'manyToOne' => array(
+                            'getRegistration', 'getRegistrationFormField'
                         )
                     )
                 ), true
             );
+        }
+        $query = '
+                DELETE FROM `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration_form_field_value`
+                WHERE `reg_id` = '.intval($regId)
+                            ;
+        $objResult = $objDatabase->Execute($query);
 
+        if ($objResult !== false) {
+            foreach ($formFieldValueEntities as $formFieldValueEntity) {
+                //Trigger postRemove event for RegistrationFormFieldValue Entity
+                $this->triggerEvent('model/postRemove', $formFieldValueEntity);
+            }
             $query = '
                 DELETE FROM `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration`
                 WHERE `id` = '.intval($regId);
             $objResult = $objDatabase->Execute($query);
-            
             if ($objResult !== false) {
-                $formFieldValueEntities = $registration->getRegistrationFormFieldValues();
-                foreach ($formFieldValueEntities as $formFieldValueEntity) {
-                    //Trigger preRemove event for RegistrationFormFieldValue Entity
-                    $this->triggerEvent(
-                        'model/preRemove',
-                        $formFieldValueEntity,
-                        array(
-                            'relations' => array(
-                                'manyToOne' => array(
-                                    'getRegistration', 'getRegistrationFormField'
-                                )
-                            )
-                        ), true
-                    );
-                }
-                $query = '
-                    DELETE FROM `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration_form_field_value`
-                    WHERE `reg_id` = '.intval($regId)
-                ;
-                $objResult = $objDatabase->Execute($query);
-                
-                if ($objResult !== false) {
-                    foreach ($formFieldValueEntities as $formFieldValueEntity) {
-                        //Trigger postRemove event for RegistrationFormFieldValue Entity
-                        $this->triggerEvent('model/postRemove', $formFieldValueEntity);
-                    }
-                    //Trigger postRemove event for Registration Entity
-                    $this->triggerEvent('model/postRemove', $registration);
-                    $this->triggerEvent('model/postFlush');
-                    return true;
-                } else {
-                    return false;
-                }
+                //Trigger postRemove event for Registration Entity
+                $this->triggerEvent('model/postRemove', $registration);
+                $this->triggerEvent('model/postFlush');
+                return true;
             } else {
                 return false;
             }
@@ -762,7 +759,8 @@ class CalendarRegistration extends CalendarLibrary
                 array(
                     'relations' => array(
                         'oneToMany' => 'getRegistrationFormFieldValues',
-                        'manyToOne' => 'getEvent'
+                        'manyToOne' => 'getEvent',
+                        'oneToOne'  => 'getInvite'
                     ),
                     'joinEntityRelations' => array(
                         'getRegistrationFormFieldValues' => array(

@@ -1,20 +1,4 @@
 SET FOREIGN_KEY_CHECKS = 0;
-CREATE TABLE `contrexx_access_id` (
-  `id` int(11) unsigned NOT NULL,
-  `entity_class_name` char(100) NOT NULL,
-  `entity_class_id` char(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-CREATE TABLE `contrexx_access_user_groups` (
-  `group_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `group_name` varchar(100) NOT NULL DEFAULT '',
-  `group_description` varchar(255) NOT NULL DEFAULT '',
-  `is_active` tinyint(4) NOT NULL DEFAULT '1',
-  `type` enum('frontend','backend') NOT NULL DEFAULT 'frontend',
-  `homepage` varchar(255) NOT NULL DEFAULT '',
-  `toolbar` int(6) DEFAULT NULL,
-  PRIMARY KEY (`group_id`)
-) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_group_dynamic_ids` (
   `access_id` int(11) unsigned NOT NULL,
   `group_id` int(11) unsigned NOT NULL,
@@ -33,14 +17,20 @@ CREATE TABLE `contrexx_access_group_static_ids` (
   CONSTRAINT `access_group_static_ids_ibfk_access_id` FOREIGN KEY (`access_id`) REFERENCES `contrexx_access_id` (`id`),
   CONSTRAINT `access_group_static_ids_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
 ) ENGINE=InnoDB;
+CREATE TABLE `contrexx_access_id` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `entity_class_name` char(100) NOT NULL,
+  `entity_class_id` char(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_rel_user_group` (
   `user_id` int(5) unsigned NOT NULL,
   `group_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`user_id`,`group_id`),
   KEY `user_id` (`user_id`),
   KEY `group_id` (`group_id`),
-  CONSTRAINT `access_rel_user_group_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`),
-  CONSTRAINT `access_rel_user_group_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`)
+  CONSTRAINT `access_rel_user_group_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `access_rel_user_group_ibfk_group_id` FOREIGN KEY (`group_id`) REFERENCES `contrexx_access_user_groups` (`group_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_settings` (
   `key` varchar(32) NOT NULL DEFAULT '',
@@ -56,7 +46,7 @@ CREATE TABLE `contrexx_access_user_attribute` (
   `sort_type` enum('asc','desc','custom') NOT NULL DEFAULT 'asc',
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
-  `access_id` int(10) unsigned NOT NULL,
+  `access_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `access_id` (`access_id`),
@@ -89,10 +79,20 @@ CREATE TABLE `contrexx_access_user_core_attribute` (
   `sort_type` enum('asc','desc','custom') NOT NULL DEFAULT 'asc',
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
-  `access_id` int(10) unsigned NOT NULL,
+  `access_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `access_id` (`access_id`),
   CONSTRAINT `access_user_core_attribute_ibfk_access_id` FOREIGN KEY (`access_id`) REFERENCES `contrexx_access_id` (`id`)
+) ENGINE=InnoDB;
+CREATE TABLE `contrexx_access_user_groups` (
+  `group_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(100) NOT NULL DEFAULT '',
+  `group_description` varchar(255) NOT NULL DEFAULT '',
+  `is_active` tinyint(4) NOT NULL DEFAULT '1',
+  `type` enum('frontend','backend') NOT NULL DEFAULT 'frontend',
+  `homepage` varchar(255) NOT NULL DEFAULT '',
+  `toolbar` int(6) DEFAULT NULL,
+  PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_mail` (
   `type` enum('reg_confirm','reset_pw','user_activated','user_deactivated','new_user','user_account_invitation') NOT NULL DEFAULT 'reg_confirm',
@@ -137,7 +137,7 @@ CREATE TABLE `contrexx_access_user_profile` (
   KEY `profile` (`firstname`(100),`lastname`(100),`company`(50)),
   KEY `user_id` (`user_id`),
   KEY `title` (`title`),
-  CONSTRAINT `access_user_profile_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`),
+  CONSTRAINT `access_user_profile_ibfk_user_id` FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `access_user_profile_ibfk_title` FOREIGN KEY (`title`) REFERENCES `contrexx_access_user_title` (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_title` (
@@ -837,7 +837,7 @@ CREATE TABLE `contrexx_module_calendar_event_field` (
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_invite` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `event_id` int(11) NOT NULL,
+  `event_id` int(11) DEFAULT NULL,
   `date` bigint unsigned NOT NULL,
   `invitee_type` enum('-', 'AccessUser','CrmContact') NOT NULL,
   `invitee_id` int(11) NOT NULL,
@@ -845,7 +845,7 @@ CREATE TABLE `contrexx_module_calendar_invite` (
   `token` varchar(32) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `event_id` (`event_id`),
-  CONSTRAINT `calendar_invite_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`)
+  CONSTRAINT `calendar_invite_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_calendar_host` (
   `id` int(1) NOT NULL AUTO_INCREMENT,
@@ -872,13 +872,13 @@ CREATE TABLE `contrexx_module_calendar_mail` (
 ) ENGINE=MyISAM ;
 CREATE TABLE `contrexx_module_calendar_registration` (
   `id` int(7) NOT NULL AUTO_INCREMENT,
-  `event_id` int(11) NOT NULL,
+  `event_id` int(11) DEFAULT NULL,
   `date` int(15) NOT NULL,
   `submission_date` timestamp NULL DEFAULT '0000-00-00 00:00:00',
   `host_name` varchar(255) NOT NULL,
   `ip_address` varchar(15) NOT NULL,
   `type` int(1) NOT NULL,
-  `invite_id` int NULL DEFAULT NULL,
+  `invite_id` int DEFAULT NULL,
   `user_id` int(7) NOT NULL,
   `lang_id` int(11) NOT NULL,
   `export` int(11) NOT NULL,
@@ -887,7 +887,7 @@ CREATE TABLE `contrexx_module_calendar_registration` (
   PRIMARY KEY (`id`),
   KEY `event_id` (`event_id`),
   UNIQUE KEY `invite_id` (`invite_id`),
-  CONSTRAINT `calendar_registration_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`),
+  CONSTRAINT `calendar_registration_ibfk_event_id` FOREIGN KEY (`event_id`) REFERENCES `contrexx_module_calendar_event` (`id`) ON DELETE SET NULL,
   CONSTRAINT `calendar_registration_ibfk_invite_id` FOREIGN KEY (`invite_id`) REFERENCES `contrexx_module_calendar_invite` (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_calendar_registration_form` (
@@ -916,7 +916,7 @@ CREATE TABLE `contrexx_module_calendar_registration_form_field_name` (
   `default` mediumtext NOT NULL,
   PRIMARY KEY (`field_id`, `form_id`, `lang_id`),
   KEY `field_id` (`field_id`),
-  CONSTRAINT `calendar_registration_field_name_ibfk_field_id` FOREIGN KEY (`field_id`) REFERENCES `contrexx_module_calendar_registration_form_field` (`id`)
+  CONSTRAINT `calendar_registration_field_name_ibfk_field_id` FOREIGN KEY (`field_id`) REFERENCES `contrexx_module_calendar_registration_form_field` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_calendar_registration_form_field_value` (
   `reg_id` int(7) NOT NULL,

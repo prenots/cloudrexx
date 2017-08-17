@@ -62,4 +62,5 @@ Cx\Modules\Calendar\Model\Entity\Registration:
       joinColumn:
         name: event_id
         referencedColumnName: id
-        nullable: false
+        nullable: true
+        onDelete: 'SET NULL'

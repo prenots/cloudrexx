@@ -716,21 +716,36 @@ class CalendarForm extends CalendarLibrary
                 )
             ), true
         );
-        $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_registration_form
-                        WHERE id = '".intval($this->id)."'";
-
+        $query = '
+            DELETE
+                fn.*, ff.*
+            FROM
+                `'. DBPREFIX .'module_'. $this->moduleTablePrefix .'_registration_form_field_name` AS fn,
+                `'. DBPREFIX .'module_'. $this->moduleTablePrefix .'_registration_form_field` AS ff
+            WHERE
+                fn.`form_id` = '. contrexx_input2int($this->id) .'
+            AND
+                ff.`form` ='. contrexx_input2int($this->id) .'
+        ';
         $objResult = $objDatabase->Execute($query);
-
         if ($objResult !== false) {
-            //Trigger postRemove event for Form Entity
-            $this->triggerEvent('model/postRemove', $form);
-            $this->triggerEvent('model/postFlush');
-            return true;
+            $query = 'DELETE FROM `' . DBPREFIX . 'module_' . $this->moduleTablePrefix . '_registration_form`
+                            WHERE id = "' . contrexx_input2int($this->id) .'"';
+
+            $objResult = $objDatabase->Execute($query);
+            if ($objResult !== false) {
+                //Trigger postRemove event for Form Entity
+                $this->triggerEvent('model/postRemove', $form);
+                $this->triggerEvent('model/postFlush');
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
-    }   
-    
+    }
+
     /**
      * Switch status of the form     
      * 

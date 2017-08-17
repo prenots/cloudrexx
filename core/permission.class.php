@@ -148,6 +148,19 @@ class Permission
             return false;
         }
 
+        //While creating a new AccessId, we have to make a new entry in the Database table `contrexx_access_id`
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        if (
+            !$objDatabase->Execute(
+                'INSERT IGNORE INTO `' . DBPREFIX . 'access_id`
+                    SET `id` = ' . $newAccessId. ',
+                        `entity_class_name` = "",
+                        `entity_class_id` = ""'
+            )
+        ) {
+            return false;
+        }
+
         return $newAccessId;
     }
 

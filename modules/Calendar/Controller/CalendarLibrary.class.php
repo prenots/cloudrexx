@@ -974,6 +974,8 @@ EOF;
                 );
             }
             $this->em->detach($entity->$methodName());
+        } else if ($relation == 'oneToOne') {
+            $this->em->detach($entity->$methodName());
         }
     }
 

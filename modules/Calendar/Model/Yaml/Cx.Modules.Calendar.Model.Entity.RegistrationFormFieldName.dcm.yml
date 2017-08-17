@@ -27,3 +27,4 @@ Cx\Modules\Calendar\Model\Entity\RegistrationFormFieldName:
       joinColumn:
         name: field_id
         referencedColumnName: id
+        onDelete: 'CASCADE'

@@ -630,12 +630,16 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
         );
         if ($objResult) {
             while (!$objResult->EOF) {
+                $parentId = 0;
+                if (isset($objResult->fields['parent_id'])) {
+                    $parentId = $objResult->fields['parent_id'];
+                }
                 $this->arrAttributes[$objResult->fields['id']]['type'] = $objResult->fields['type'] == 'textarea' ? 'text' : $objResult->fields['type'];
                 $this->arrAttributes[$objResult->fields['id']]['multiline'] = $objResult->fields['type'] == 'textarea' ? true : false;
                 $this->arrAttributes[$objResult->fields['id']]['sort_type'] = $objResult->fields['sort_type'];
                 $this->arrAttributes[$objResult->fields['id']]['order_id'] = $objResult->fields['order_id'];
                 $this->arrAttributes[$objResult->fields['id']]['mandatory'] = $objResult->fields['mandatory'];
-                $this->arrAttributes[$objResult->fields['id']]['parent_id'] = $objResult->fields['parent_id'];
+                $this->arrAttributes[$objResult->fields['id']]['parent_id'] = $parentId;
                 $this->arrAttributes[$objResult->fields['id']]['access_special'] = $objResult->fields['access_special'];
                 $this->arrAttributes[$objResult->fields['id']]['access_id'] = $objResult->fields['access_id'];
                 $this->arrAttributes[$objResult->fields['id']]['modifiable'] = array('type', 'sort_order', 'mandatory', 'parent_id', 'access', 'children');
@@ -898,6 +902,11 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     }
 
 
+    /**
+     * Store Custom Attributes
+     *
+     * @return boolean
+     */
     function storeCustomAttribute()
     {
         global $objDatabase;
@@ -905,21 +914,31 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
         $type =
             ($this->arrTypes[$this->type]['multiline'] && $this->multiline
               ? 'textarea' : $this->type);
-        if ($this->id) {
-            return (boolean)$objDatabase->Execute("
-                UPDATE `".DBPREFIX."access_user_attribute`
-                   SET `type`='$type', `sort_type`='$this->sort_type',
-                       `order_id`=$this->order_id,
-                       `mandatory`='$this->mandatory',
-                       `parent_id`=$this->parent_id
-                 WHERE `id`=$this->id");
+        if (empty($this->parent_id)) {
+            $parentId = 'NULL';
+        } else {
+            $parentId = $this->parent_id;
         }
-        if (!$objDatabase->Execute("
-            INSERT INTO `".DBPREFIX."access_user_attribute` (
-              `type`, `sort_type`, `order_id`, `mandatory`, `parent_id`
-            ) VALUES (
-              '$type', '$this->sort_type', $this->order_id, '$this->mandatory',
-              $this->parent_id)")) {
+        if ($this->id) {
+            return (boolean)$objDatabase->Execute('
+                UPDATE `' . DBPREFIX . 'access_user_attribute`
+                   SET `type`      = "' . $type . '",
+                       `sort_type` = "' . $this->sort_type . '",
+                       `order_id`  = ' . $this->order_id . ',
+                       `mandatory` = "' . $this->mandatory . '",
+                       `parent_id` = ' . $parentId . '
+                 WHERE `id` = ' . $this->id);
+        }
+        if (
+            !$objDatabase->Execute('
+                INSERT INTO `' . DBPREFIX . 'access_user_attribute`
+                    SET `type`      = "' . $type . '",
+                        `sort_type` = "' . $this->sort_type . '",
+                        `order_id`  = ' . $this->order_id . ',
+                        `mandatory` = "' . $this->mandatory . '",
+                        `parent_id` = ' . $parentId
+            )
+        ) {
             return false;
         }
         $this->id = $objDatabase->Insert_ID();
@@ -1074,9 +1093,22 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
             return $status;
         }
         // remove protection
-        if ($objDatabase->Execute("UPDATE `".DBPREFIX."access_user_".($this->isCoreAttribute($this->id) ? 'core_' : '')."attribute` SET `access_special` = '', `access_id` = 0 WHERE `id` = '".$this->id."'") !== false &&
+        $attributeTable = DBPREFIX . 'access_user_attribute';
+        if ($this->isCoreAttribute($this->id)) {
+            $attributeTable = DBPREFIX . 'access_user_core_attribute';
+        }
+        if (
+            $objDatabase->Execute(
+                'UPDATE `' . $attributeTable . '`
+                    SET `access_special` = "",
+                        `access_id` = NULL
+                    WHERE `id` = "' . $this->id .'"'
+            ) !== false &&
             !isset($this->arrAttributes[$this->id]['access_id']) ||
-            $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_group_dynamic_ids` WHERE `access_id` = '.$this->arrAttributes[$this->id]['access_id']) !== false
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'access_group_dynamic_ids`
+                    WHERE `access_id` = ' . $this->arrAttributes[$this->id]['access_id']
+            ) !== false
         ) {
             return true;
         }
@@ -1117,13 +1149,10 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     {
         global $objDatabase, $_ARRAYLANG;
 
-        switch ($this->parent_id) {
-            case 'title':
-                $affectedTable = DBPREFIX.'access_user_title';
-                break;
-            default:
-                $affectedTable = DBPREFIX.'access_user_attribute';
-                break;
+        if ($this->parent_id === 'title') {
+            $affectedTable = DBPREFIX.'access_user_title';
+        } else {
+            $affectedTable = DBPREFIX.'access_user_attribute';
         }
         $pattern = array();
         if ($objDatabase->Execute('DELETE FROM `'.$affectedTable.'` WHERE `id` = '.($this->parent_id == 'title' && preg_match('#([0-9]+)#', $attributeId, $pattern) ? $pattern[0] : $attributeId)) !== false) {

@@ -1881,34 +1881,30 @@ class CalendarEvent extends CalendarLibrary
             array('relations' => array('oneToMany' => 'getEventFields')), true
         );
 
-        $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_event
-                   WHERE id = '".intval($this->id)."'";
-
-        $objResult = $objDatabase->Execute($query);
-
-        if ($objResult !== false) {
-            $eventFieldEntities = $event->getEventFields();
-            foreach ($eventFieldEntities as $eventFieldEntity)  {
-                //Trigger preRemove event for EventField Entity
-                $this->triggerEvent('model/preRemove', $eventFieldEntity);
-            }
-            $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_event_field
+        $eventFieldEntities = $event->getEventFields();
+        foreach ($eventFieldEntities as $eventFieldEntity)  {
+            //Trigger preRemove event for EventField Entity
+            $this->triggerEvent('model/preRemove', $eventFieldEntity);
+        }
+        $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_event_field
                             WHERE event_id = '".intval($this->id)."'";
-
+        $objResult = $objDatabase->Execute($query);
+        if ($objResult !== false) {
+            foreach ($eventFieldEntities as $eventFieldEntity)  {
+                //Trigger postRemove event for EventField Entity
+                $this->triggerEvent('model/postRemove', $eventFieldEntity);
+            }
+            $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_event
+                       WHERE id = '".intval($this->id)."'";
             $objResult = $objDatabase->Execute($query);
             if ($objResult !== false) {
-                foreach ($eventFieldEntities as $eventFieldEntity)  {
-                    //Trigger postRemove event for EventField Entity
-                    $this->triggerEvent('model/postRemove', $eventFieldEntity);
-                }
                 //Trigger postRemove event for Event Entity
                 $this->triggerEvent('model/postRemove', $event);
                 $query = "DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_event_host
                                 WHERE event_id = '".intval($this->id)."'";
-
                 $objResult = $objDatabase->Execute($query);
                 $this->triggerEvent('model/postFlush');
-                if ($objResult !== false) {
+                            if ($objResult !== false) {
                     //Clear cache
                     $this->triggerEvent('clearEsiCache');
                     return true;

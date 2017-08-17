@@ -419,8 +419,8 @@ class UserGroup
             $arrCurrentIds = $this->{'load'.$type.'Permissions'}();
             $ids = 'arr'.$type.'Permissions';
             if (!is_array($this->$ids)) continue;
-            $arrAddedRightIds = array_diff($this->$ids, $arrCurrentIds);
-            $arrRemovedRightIds = array_diff($arrCurrentIds, $this->$ids);
+            $arrAddedRightIds = array_unique(array_diff($this->$ids, $arrCurrentIds));
+            $arrRemovedRightIds = array_unique(array_diff($arrCurrentIds, $this->$ids));
             $table = DBPREFIX.'access_group_'.strtolower($type).'_ids';
             foreach ($arrRemovedRightIds as $rightId) {
                 if (!$objDatabase->Execute('DELETE FROM `'.$table.'` WHERE `access_id`='.$rightId.' AND `group_id`='.$this->id)) {
@@ -456,7 +456,24 @@ class UserGroup
     {
         global $objDatabase, $_CORELANG;
 
-        if ($objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_rel_user_group` WHERE `group_id` = '.$this->id) !== false && $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_user_groups` WHERE `group_id` = '.$this->id) !== false) {
+        if (
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'access_group_dynamic_ids`
+                    WHERE `group_id` = ' . $this->id
+            ) !== false &&
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'access_group_static_ids`
+                    WHERE `group_id` = ' . $this->id
+            ) !== false &&
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'access_rel_user_group`
+                    WHERE `group_id` = ' . $this->id
+            ) !== false &&
+            $objDatabase->Execute(
+                'DELETE FROM `' . DBPREFIX . 'access_user_groups`
+                    WHERE `group_id` = ' . $this->id
+            ) !== false
+        ) {
             return true;
         } else {
             $this->error_msg = sprintf($_CORELANG['TXT_ACCESS_GROUP_DELETE_FAILED'], $this->name);
