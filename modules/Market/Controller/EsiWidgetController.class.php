@@ -65,10 +65,11 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
+        $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
         $corelang = \Env::get('init')->getComponentSpecificLanguageData(
             'Core',
             true,
-            $params['lang']
+            $langId
         );
         $market   = new Market();
         $template->setVariable('TXT_MARKET_LATEST', $corelang['TXT_MARKET_LATEST']);
