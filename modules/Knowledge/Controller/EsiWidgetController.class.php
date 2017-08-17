@@ -52,19 +52,16 @@ namespace Cx\Modules\Knowledge\Controller;
 
 class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
     /**
-     * Parses a widget
-     * @param string $name Widget name
-     * @param \Cx\Core\Html\Sigma Widget template
-     * @param string $locale RFC 3066 locale identifier
+     * {@inheritDoc}
      */
-    public function parseWidget($name, $template, $locale)
+    public function parseWidget($name, $template, $response, $params)
     {
         global $_LANGID;
 
 
         // The global $_LANGID is required in the getTagCloud(), getMostRead(),
         // getBestRated() methods
-        $_LANGID = \FWLanguage::getLangIdByIso639_1($locale);
+        $_LANGID = \FWLanguage::getLangIdByIso639_1($params['locale']);
 
         // get knowledge content
         $knowledgeInterface = new KnowledgeInterface();
