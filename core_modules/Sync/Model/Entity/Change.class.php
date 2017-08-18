@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\Sync\Model\Entity;
  * @package     cloudrexx
  * @subpackage  coremodule_sync
  */
-class Change extends \Cx\Model\Base\EntityBase {
+class Change extends \Cx\Core\Model\Model\Entity\EntityBase {
     
     /**
      * @var int
@@ -87,7 +87,7 @@ class Change extends \Cx\Model\Base\EntityBase {
     protected $originEntityIndexData;
     
     /**
-     * @var \Cx\Model\Base\EntityBase
+     * @var \Cx\Core\Model\Model\Entity\EntityBase
      */
     protected $entity = null;
     
@@ -103,7 +103,7 @@ class Change extends \Cx\Model\Base\EntityBase {
      * @param array $entityIndexData Related entity's index data
      * @param \Cx\Core_Modules\Sync\Model\Entity\Sync $originSync Origin sync object
      * @param string $originEntityIndexData Origin entity's index data
-     * @param array|\Cx\Model\Base\EntityBase $entityOrContents Related entity or Field=>value type array of contents
+     * @param array|\Cx\Core\Model\Model\Entity\EntityBase $entityOrContents Related entity or Field=>value type array of contents
      */
     public function __construct($sync, $eventType, $condition, $entityIndexData, $originSync, $originEntityIndexData, $entityOrContents) {
         $this->sync = $sync;
@@ -257,7 +257,7 @@ class Change extends \Cx\Model\Base\EntityBase {
     
     /**
      * Sets related entity
-     * @param \Cx\Model\Base\EntityBase $entity New entity
+     * @param \Cx\Core\Model\Model\Entity\EntityBase $entity New entity
      */
     public function setEntity($entity) {
         $this->entity = $entity;
@@ -265,7 +265,7 @@ class Change extends \Cx\Model\Base\EntityBase {
     
     /**
      * Gets related entity
-     * @return \Cx\Model\Base\EntityBase Related entity
+     * @return \Cx\Core\Model\Model\Entity\EntityBase Related entity
      */
     public function getEntity() {
         return $this->entity;

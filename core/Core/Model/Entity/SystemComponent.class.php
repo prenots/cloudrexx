@@ -57,7 +57,7 @@ class SystemComponentException extends \Exception {}
  * @subpackage  core
  * @version     3.1.0
  */
-class SystemComponent extends \Cx\Model\Base\EntityBase
+class SystemComponent extends \Cx\Core\Model\Model\Entity\EntityBase
 {
     const TYPE_CORE = 'core';
     const TYPE_CORE_MODULE = 'core_module';
@@ -259,7 +259,7 @@ $msMeta = microtime(true) - $ms;
             reset($m->reflFields);
             $className = current($m->reflFields);
             $className = $className->class;
-            if (!is_subclass_of($className, 'Cx\Model\Base\EntityBase')) {
+            if (!is_subclass_of($className, 'Cx\Core\Model\Model\Entity\EntityBase')) {
                 continue;
             }
             if (strpos($className, $this->getNamespace()) !== 0) {

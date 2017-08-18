@@ -181,7 +181,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param string $componentName Parse target component name
      * @param string $entityName Parse target entity name
      * @param string $entityId Parse target entity id
-     * @return \Cx\Model\Base\EntityBase Parse target entity
+     * @return \Cx\Core\Model\Model\Entity\EntityBase Parse target entity
      */
     protected function getParseTarget($componentName, $entityName, $entityId) {
         if (!isset($this->cache)) {

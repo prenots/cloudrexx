@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\SysLog\Model\Entity;
  * @subpackage   coremodule_syslog
  * @version      5.0.0
  */
-class Log extends \Cx\Model\Base\EntityBase {
+class Log extends \Cx\Core\Model\Model\Entity\EntityBase {
 
     /**
      * Information message used for debugging only

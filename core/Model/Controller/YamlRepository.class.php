@@ -135,10 +135,10 @@ class YamlRepository {
 
     /**
      * Tells wheter an entity is managed by this repo or not
-     * @param \Cx\Model\Base\EntityBase $entity Entity to test
+     * @param \Cx\Core\Model\Model\Entity\EntityBase $entity Entity to test
      * @return boolean True if given entity is managed by this repo, false otherwise
      */
-    public function isManaged(\Cx\Model\Base\EntityBase $entity) {
+    public function isManaged(\Cx\Core\Model\Model\Entity\EntityBase $entity) {
         return in_array($entity, $this->entities);
     }
 

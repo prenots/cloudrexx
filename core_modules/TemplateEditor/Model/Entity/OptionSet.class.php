@@ -56,7 +56,7 @@ class ThemeOptionNotFoundException extends \Exception
  * @package     contrexx
  * @subpackage  core_module_templateeditor
  */
-class OptionSet extends \Cx\Model\Base\EntityBase implements YamlSerializable
+class OptionSet extends \Cx\Core\Model\Model\Entity\EntityBase implements YamlSerializable
 {
 
     /**

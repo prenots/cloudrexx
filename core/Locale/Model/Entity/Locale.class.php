@@ -46,7 +46,7 @@ namespace Cx\Core\Locale\Model\Entity;
  * @subpackage  core_locale
  * @version     5.0.0
  */
-class Locale extends \Cx\Model\Base\EntityBase {
+class Locale extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

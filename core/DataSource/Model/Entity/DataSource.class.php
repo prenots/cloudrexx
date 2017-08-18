@@ -45,7 +45,7 @@ namespace Cx\Core\DataSource\Model\Entity;
  * @subpackage  core_datasource
  */
 
-abstract class DataSource extends \Cx\Model\Base\EntityBase {
+abstract class DataSource extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

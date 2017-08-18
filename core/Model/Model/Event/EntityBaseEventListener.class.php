@@ -85,7 +85,7 @@ class EntityBaseEventListener implements \Cx\Core\Event\Model\Entity\EventListen
      */
     protected function checkEntities($entities) {
         foreach ($entities AS $entity) {
-            if (!is_a($entity, '\Cx\Model\Base\EntityBase')) {
+            if (!is_a($entity, '\Cx\Core\Model\Model\Entity\EntityBase')) {
                 continue;
             }
             $entity->validate();

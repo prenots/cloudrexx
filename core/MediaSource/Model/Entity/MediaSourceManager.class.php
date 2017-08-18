@@ -38,7 +38,7 @@
 namespace Cx\Core\MediaSource\Model\Entity;
 
 use Cx\Core\Core\Controller\Cx;
-use Cx\Model\Base\EntityBase;
+use Cx\Core\Model\Model\Entity\EntityBase;
 
 /**
  * Class MediaSourceManagerException

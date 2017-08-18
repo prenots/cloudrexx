@@ -46,7 +46,7 @@ class InvoiceException extends \Exception {}
  * @package     cloudrexx
  * @subpackage  module_order
  */
-class Invoice extends \Cx\Model\Base\EntityBase {
+class Invoice extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      *
      * @var integer $id

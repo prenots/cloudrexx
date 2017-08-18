@@ -51,7 +51,7 @@ class OptionValueNotValidException extends \Exception
  * @package     contrexx
  * @subpackage  core_module_templateeditor
  */
-abstract class Option extends \Cx\Model\Base\EntityBase
+abstract class Option extends \Cx\Core\Model\Model\Entity\EntityBase
     implements YamlSerializable
 {
 

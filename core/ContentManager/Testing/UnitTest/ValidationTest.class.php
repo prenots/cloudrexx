@@ -51,7 +51,7 @@ namespace Cx\Core\ContentManager\Testing\UnitTest;
 class ValidationTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 {
     /**
-     * @expectedException \Cx\Model\Base\ValidationException
+     * @expectedException Cx\Core\Model\Model\Entity\ValidationException
      */
     public function testValidationException() {
 

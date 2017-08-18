@@ -34,7 +34,7 @@
 namespace Cx\Core\MediaSource\Model\Entity;
 
 
-use Cx\Model\Base\EntityBase;
+use Cx\Core\Model\Model\Entity\EntityBase;
 
 class LocalFileSystem extends EntityBase implements FileSystem
 {

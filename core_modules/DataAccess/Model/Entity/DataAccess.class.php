@@ -45,7 +45,7 @@ namespace Cx\Core_Modules\DataAccess\Model\Entity;
  * @subpackage  coremodule_dataaccess
  */
 
-class DataAccess extends \Cx\Model\Base\EntityBase {
+class DataAccess extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */

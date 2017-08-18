@@ -42,7 +42,7 @@ namespace Cx\Core_Modules\Widget\Model\Entity;
  * @package cloudrexx
  * @subpackage coremodules_widget
  */
-abstract class Widget extends \Cx\Model\Base\EntityBase {
+abstract class Widget extends \Cx\Core\Model\Model\Entity\EntityBase {
 
     /**
      * Component which registered this widget

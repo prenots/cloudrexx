@@ -31,7 +31,7 @@ namespace Cx\Modules\Pim\Model\Entity;
 /**
  * Cx\Modules\Pim\Model\Entity\Price
  */
-class Price extends \Cx\Model\Base\EntityBase {
+class Price extends \Cx\Core\Model\Model\Entity\EntityBase {
     /**
      * @var integer $id
      */
