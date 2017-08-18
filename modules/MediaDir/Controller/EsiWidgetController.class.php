@@ -63,7 +63,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
     {
         // Show Level/Category Navbar or Show Latest Entries
         if ($name === 'MEDIADIR_NAVBAR' || $name === 'MEDIADIR_LATEST') {
-            $mediaDirPlaceholders = new MediaDirectoryPlaceholders('MediaDir');
+            $mediaDirPlaceholders = new MediaDirectoryPlaceholders($this->getSystemComponentController()->getName());
             if ($name === 'MEDIADIR_NAVBAR') {
                 $content = $mediaDirPlaceholders->getNavigationPlacholder();
             } else {
@@ -74,7 +74,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         }
 
         // Show Latest MediaDir entries
-        $mediadir = new MediaDirectory('', 'MediaDir');
+        $mediadir = new MediaDirectory('', $this->getSystemComponentController()->getName());
         $matches  = array();
         if (
             preg_match(
@@ -89,7 +89,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $params['lang']
             );
             $arrlang = \Env::get('init')->getComponentSpecificLanguageData(
-                'MediaDir',
+                $this->getSystemComponentController()->getName(),
                 true,
                 $params['lang']
             );
@@ -103,7 +103,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
 
         // Show the Latest MediaDir entries or show latest entries based on the MediaDir Form
         if ($name === 'mediadirLatest') {
-            $mediadirForms = new MediaDirectoryForm(null, 'MediaDir');
+            $mediadirForms = new MediaDirectoryForm(null, $this->getSystemComponentController()->getName());
             $foundOne      = false;
             foreach ($mediadirForms->getForms() as $key => $arrForm) {
                 if (
@@ -142,9 +142,9 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             $foundOne = false;
 
             // fetch mediadir object data
-            $objMediadirForm     = new MediaDirectoryForm(null, 'MediaDir');
-            $objMediadirCategory = new MediaDirectoryCategory(null, null, 0, 'MediaDir');
-            $objMediadirLevel    = new MediaDirectoryLevel(null, null, 1, 'MediaDir');
+            $objMediadirForm     = new MediaDirectoryForm(null, $this->getSystemComponentController()->getName());
+            $objMediadirCategory = new MediaDirectoryCategory(null, null, 0, $this->getSystemComponentController()->getName());
+            $objMediadirLevel    = new MediaDirectoryLevel(null, null, 1, $this->getSystemComponentController()->getName());
 
             // put all object data into one array
             $objects = array(
