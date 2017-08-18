@@ -25,7 +25,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace DoctrineExtension;
+namespace Cx\Core\Model\Model\Event;
 use \Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 
 class TablePrefixListener

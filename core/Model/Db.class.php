@@ -386,7 +386,7 @@ namespace Cx\Core\Model {
             $config->setMetadataDriverImpl($chainDriverImpl);
 
             //table prefix
-            $prefixListener = new \DoctrineExtension\TablePrefixListener($this->db->getTablePrefix());
+            $prefixListener = new \Cx\Core\Model\Model\Event\TablePrefixListener($this->db->getTablePrefix());
             $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, $prefixListener);
 
             $config->setSqlLogger(new \Cx\Lib\DBG\DoctrineSQLLogger());
