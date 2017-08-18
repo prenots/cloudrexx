@@ -84,3 +84,8 @@ $_ARRAYLANG['TXT_NO'] = 'No';
 $_ARRAYLANG['TXT_CORE_LOCALE_LABEL_LANG_REMOVAL'] = 'Confirm language data removal';
 $_ARRAYLANG['TXT_CORE_LOCALE_LANG_REMOVAL_CONTENT'] = 'Remove all language related data of the deactivated language from all applications.';
 $_ARRAYLANG['TXT_CORE_LOCALE_SAVE'] = 'Apply changes';
+
+// Temporarily disable backend /MRi, see ComponentController::load()
+$_ARRAYLANG['TXT_CORE_LOCALE_DISABLED_TITLE'] = 'Section is getting revised';
+$_ARRAYLANG['TXT_CORE_LOCALE_DISABLED_TEXT'] = 'This section is currently getting revised. Please try again later.';
+$_ARRAYLANG['TXT_CORE_LOCALE_DISABLED_SUPPORT'] = 'For urgent concerns please contact our <a href="https://support.cloudrexx.com/" target="_blank">Support</a>.';

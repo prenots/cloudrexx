@@ -86,4 +86,42 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function getControllersAccessableByJson() {
         return array('JsonLocaleController');
     }
+
+    /**
+     * Temporarily disable backend to allow Locale rollback
+     * Simply remove this method to re-enable
+     * @author Michael Ritter <michael.ritter@cloudrexx.com>
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page
+     */
+    public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
+        global $_ARRAYLANG;
+
+        // get our template
+        $actTemplate = new \Cx\Core\Html\Sigma($this->getDirectory(false) . '/View/Template/Backend');
+        $actTemplate->loadTemplateFile('disabled.html');
+        $actTemplate->setVariable($_ARRAYLANG);
+        $page->setContent($actTemplate->get());
+
+        // backend subnav
+        $navigation = new \Cx\Core\Html\Sigma(\Env::get('cx')->getCodeBaseCorePath() . '/Core/View/Template/Backend');
+        $navigation->loadTemplateFile('Navigation.html');
+        $actTxtKey = 'TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName() . '_DISABLED_TITLE');
+        $navigation->touchBlock('tab_active');
+        $navigation->setVariable(array(
+            'HREF' => 'index.php?cmd=' . $this->getName(),
+            'TITLE' => $_ARRAYLANG[$actTxtKey],
+        ));
+        $navigation->parse($blockName . '_entry');
+
+        // bring it together
+        $cachedRoot = $this->cx->getTemplate()->getRoot();
+        $this->cx->getTemplate()->setRoot(\Env::get('cx')->getCodeBaseCorePath() . '/Core/View/Template/Backend');
+        $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'ContentMaster.html');
+        $this->cx->getTemplate()->setRoot($cachedRoot);
+        $this->cx->getTemplate()->setVariable(array(
+            'CONTENT_NAVIGATION' => $navigation->get(),
+            'ADMIN_CONTENT' => $page->getContent(),
+            'CONTENT_TITLE' => $_ARRAYLANG['TXT_' . strtoupper($this->getType()) . '_' . strtoupper($this->getName())],
+        ));
+    }
 }
