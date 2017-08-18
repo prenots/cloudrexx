@@ -46,7 +46,7 @@ class ProductException extends \Exception {};
  * @package     cloudrexx
  * @subpackage  module_pim
  */
-class Product extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Product extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */

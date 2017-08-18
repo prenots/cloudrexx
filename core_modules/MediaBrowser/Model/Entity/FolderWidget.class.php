@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\MediaBrowser\Model\Entity;
  * @package     cloudrexx
  * @subpackage  coremodule_mediabrowser
  */
-class FolderWidget extends \Cx\Core\Model\Model\Entity\EntityBase
+class FolderWidget extends \Cx\Model\Base\EntityBase
 {
     /**
      * mediabrowser mode - view only

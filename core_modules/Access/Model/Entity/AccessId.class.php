@@ -31,7 +31,7 @@ namespace Cx\Core_Modules\Access\Model\Entity;
 /**
  * Cx\Core_Modules\Access\Model\Entity\AccessId
  */
-class AccessId extends \Cx\Core\Model\Model\Entity\EntityBase {
+class AccessId extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */

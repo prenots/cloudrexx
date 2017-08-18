@@ -143,7 +143,7 @@ class DataSet implements \Iterator {
 
     protected function convertObject($object, &$key) {
         $data = array();
-        if ($object instanceof \Cx\Core\Model\Model\Entity\EntityBase) {
+        if ($object instanceof \Cx\Model\Base\EntityBase) {
             $em = \Env::get('em');
             $identifiers = $em->getClassMetadata(get_class($object))->getIdentifierValues($object);
             if (is_array($identifiers)) {

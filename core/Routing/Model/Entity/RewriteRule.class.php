@@ -44,7 +44,7 @@ namespace Cx\Core\Routing\Model\Entity;
  * @package     cloudrexx
  * @subpackage  core_routing
  */
-class RewriteRule extends \Cx\Core\Model\Model\Entity\EntityBase
+class RewriteRule extends \Cx\Model\Base\EntityBase
 {
     const REDIRECTION_TYPE_INTERN = 'intern';
     const REDIRECTION_TYPE_301 = 301;

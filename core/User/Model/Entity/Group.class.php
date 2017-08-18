@@ -31,7 +31,7 @@ namespace Cx\Core\User\Model\Entity;
 /**
  * Cx\Core\User\Model\Entity\Group
  */
-class Group extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Group extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $groupId
      */

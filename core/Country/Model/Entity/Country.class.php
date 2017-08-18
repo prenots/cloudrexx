@@ -46,7 +46,7 @@ namespace Cx\Core\Country\Model\Entity;
  * @subpackage  core_locale
  * @version     5.0.0
  */
-class Country extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Country extends \Cx\Model\Base\EntityBase {
     /**
      * @var string $alpha2
      */

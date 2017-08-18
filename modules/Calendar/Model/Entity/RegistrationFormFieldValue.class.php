@@ -43,7 +43,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  * @package     cloudrexx
  * @subpackage  module_calendar
 */
-class RegistrationFormFieldValue extends \Cx\Core\Model\Model\Entity\EntityBase {
+class RegistrationFormFieldValue extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $regId
      */

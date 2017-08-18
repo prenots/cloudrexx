@@ -46,7 +46,7 @@ class JobException extends \Exception {}
  * @package     cloudrexx
  * @subpackage  coremodule_cron
  */
-class Job extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Job extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */

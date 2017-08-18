@@ -50,7 +50,7 @@ namespace Cx\Core\View\Model\Entity;
  * @subpackage  core_view
  * @version     5.0.0
  */
-class Frontend extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Frontend extends \Cx\Model\Base\EntityBase {
     /**
      * @var string $language
      */

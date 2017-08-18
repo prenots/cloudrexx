@@ -43,7 +43,7 @@ namespace Cx\Modules\Calendar\Model\Entity;
  * @package     cloudrexx
  * @subpackage  module_calendar
 */
-class Registration extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Registration extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */

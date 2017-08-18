@@ -40,7 +40,7 @@ namespace Cx\Core_Modules\Uploader\Model\Entity;
 use Cx\Core\Core\Controller\Cx;
 use Cx\Core\Html\Sigma;
 use Cx\Lib\FileSystem\File;
-use Cx\Core\Model\Model\Entity\EntityBase;
+use Cx\Model\Base\EntityBase;
 
 /**
  * Class Uploader

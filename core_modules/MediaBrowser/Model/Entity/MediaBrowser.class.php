@@ -36,7 +36,7 @@
 namespace Cx\Core_Modules\MediaBrowser\Model\Entity;
 
 use Cx\Core\Html\Sigma;
-use Cx\Core\Model\Model\Entity\EntityBase;
+use Cx\Model\Base\EntityBase;
 
 /**
  * Class MediaBrowserException

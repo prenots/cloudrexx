@@ -926,7 +926,7 @@ class ViewGenerator {
             }
             $entityRepository->flush();
             $showSuccessMessage = true;
-        } else if ($entity instanceof \Cx\Core\Model\Model\Entity\EntityBase) {
+        } else if ($entity instanceof \Cx\Model\Base\EntityBase) {
             /* We try to store the prepared em. This may fail if (for example) we have a one to many association which
                can not be null but was not set in the post request. This cases should be caught here. */
             try{

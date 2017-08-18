@@ -31,7 +31,7 @@ namespace Cx\Core\User\Model\Entity;
 /**
  * Cx\Core\User\Model\Entity\CoreAttribute
  */
-class CoreAttribute extends \Cx\Core\Model\Model\Entity\EntityBase {
+class CoreAttribute extends \Cx\Model\Base\EntityBase {
     /**
      * @var string $id
      */

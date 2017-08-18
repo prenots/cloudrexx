@@ -54,7 +54,7 @@ class NodeException extends \Exception {}
  * @package     cloudrexx
  * @subpackage  core_contentmanager
  */
-class Node extends \Cx\Core\Model\Model\Entity\EntityBase implements \Serializable
+class Node extends \Cx\Model\Base\EntityBase implements \Serializable
 {
     /**
      * @var integer $id

@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\Sync\Model\Entity;
  * @package     cloudrexx
  * @subpackage  coremodule_sync
  */
-class HostEntity extends \Cx\Core\Model\Model\Entity\EntityBase
+class HostEntity extends \Cx\Model\Base\EntityBase
 {
     /**
      * @var string $entityId

@@ -44,7 +44,7 @@ namespace Cx\Core_Modules\DataAccess\Model\Entity;
  * @package cloudrexx
  * @subpackage core_modules_dataaccess
  */
-class ApiResponse extends \Cx\Core\Model\Model\Entity\EntityBase implements \JsonSerializable {
+class ApiResponse extends \Cx\Model\Base\EntityBase implements \JsonSerializable {
 
     /**
      * @var string Error status

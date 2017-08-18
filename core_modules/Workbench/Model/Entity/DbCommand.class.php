@@ -288,7 +288,7 @@ class DbCommand extends Command {
                     return $retVal;
                 }
                 // add extends statement for base entity
-                $contents = preg_replace($regex, '$1 extends \\Cx\\Core\\Model\\Model\\Entity\\EntityBase {', $contents);
+                $contents = preg_replace($regex, '$1 extends \\Cx\\Model\\Base\\EntityBase {', $contents);
                 file_put_contents($destinationFile, $contents);
             }
         }

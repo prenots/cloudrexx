@@ -60,7 +60,7 @@ class WysiwygException extends \Exception {}
  * @subpackage  core_wysiwyg
  */
 
-class Wysiwyg extends \Cx\Core\Model\Model\Entity\EntityBase
+class Wysiwyg extends \Cx\Model\Base\EntityBase
 {
     /**
      * options for the different types of wysiwyg editors

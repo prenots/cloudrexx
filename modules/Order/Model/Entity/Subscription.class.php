@@ -46,7 +46,7 @@ class SubscriptionException extends \Exception {}
  * @package     cloudrexx
  * @subpackage  module_order
  */
-class Subscription extends \Cx\Core\Model\Model\Entity\EntityBase {
+class Subscription extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer $id
      */
@@ -221,7 +221,7 @@ class Subscription extends \Cx\Core\Model\Model\Entity\EntityBase {
     public function setProductEntity($productEntity) {
         $this->productEntity = $productEntity;
         $this->productEntityId = null;
-        if ($productEntity instanceof \Cx\Core\Model\Model\Entity\EntityBase) {
+        if ($productEntity instanceof \Cx\Model\Base\EntityBase) {
             $entityIdKey = \Env::get('em')->getClassMetadata(get_class($productEntity))->getSingleIdentifierFieldName();
             $this->productEntityId = $productEntity->{'get'.ucfirst($entityIdKey)}();
         }

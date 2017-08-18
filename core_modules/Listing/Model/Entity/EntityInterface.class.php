@@ -170,7 +170,7 @@ class EntityInterface implements Exportable, Importable
         $resultArr = array();
         foreach ($data as $object) {
 
-            if (!is_object($object) && !$object instanceof \Cx\Core\Model\Model\Entity\EntityBase) {
+            if (!is_object($object) && !$object instanceof \Cx\Model\Base\EntityBase) {
                 return;
             }
 
