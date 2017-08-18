@@ -62,7 +62,7 @@ class ModelEventListener implements EventListener {
         if (
             $em instanceof \Doctrine\ORM\Event\LifecycleEventArgs &&
             get_class($em->getEntity()) != $this->entityClass &&
-            get_class($em->getEntity()) != 'Cx\\Model\\Proxies\\' .
+            get_class($em->getEntity()) != 'Cx\\Core\\Model\\Model\\Entity\Proxy\\' .
                 \Doctrine\Common\Persistence\Proxy::MARKER . '\\' . $this->entityClass
             // Important: the above two get_class() conditions could also be replace by the following:
             // !($eventArgs->getEntity() instanceof $this->entityClass)
@@ -100,7 +100,7 @@ class ModelEventListener implements EventListener {
                 $entityClasses += array_unique(array_map('get_class', $uow->$method()));
             }
             $entityClasses = array_unique($entityClasses);
-            $proxyClass = 'Cx\\Model\\Proxies\\' .
+            $proxyClass = 'Cx\\Core\\Model\\Model\\Entity\\Proxy\\' .
                 \Doctrine\Common\Persistence\Proxy::MARKER . '\\' . $this->entityClass;
             if (
                 !in_array($this->entityClass, $entityClasses) &&

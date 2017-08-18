@@ -300,7 +300,7 @@ namespace Cx\Core\Model {
             $config->setQueryCacheImpl($this->cacheDriver);
 
             $config->setProxyDir(ASCMS_MODEL_PROXIES_PATH);
-            $config->setProxyNamespace('Cx\Model\Proxies');
+            $config->setProxyNamespace('Cx\Core\Model\Model\Entity\Proxy');
 
             /**
              * This should be set to true if workbench is present and active.

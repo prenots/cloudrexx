@@ -154,10 +154,10 @@ define('ASCMS_ECARD_SEND_ECARDS_WEB_PATH',  ASCMS_MEDIA_WEB_PATH.'/Ecard/send_ec
 define('ASCMS_ECARD_THUMBNAIL_PATH',        ASCMS_MEDIA_PATH.'/Ecard/thumbnails');
 define('ASCMS_ECARD_THUMBNAIL_WEB_PATH',    ASCMS_MEDIA_WEB_PATH.'/Ecard/thumbnails');
 // Cx::getModelFolderName()
-define('ASCMS_MODEL_FOLDER',                '/model');
+define('ASCMS_MODEL_FOLDER',                '/Model');
 // Cx::getCodeBaseModelPath()
-define('ASCMS_MODEL_PATH',                  ASCMS_DOCUMENT_ROOT.ASCMS_MODEL_FOLDER);
-define('ASCMS_MODEL_PROXIES_PATH',          ASCMS_MODEL_PATH.'/proxies');
+define('ASCMS_MODEL_PATH',                  ASCMS_DOCUMENT_ROOT.ASCMS_CORE_FOLDER.ASCMS_MODEL_FOLDER.ASCMS_MODEL_FOLDER);
+define('ASCMS_MODEL_PROXIES_PATH',          ASCMS_MODEL_PATH.'/Entity/Proxy');
 define('ASCMS_TESTING_FOLDER',              '/Testing');
 define('ASCMS_APP_CACHE_FOLDER',            ASCMS_TEMP_PATH.'/appcache');
 define('ASCMS_APP_CACHE_FOLDER_WEB_PATH',   ASCMS_TEMP_WEB_PATH.'/appcache');
