@@ -134,7 +134,7 @@ Cx\Core\User\Model\Entity\UserProfile:
         title:
           referencedColumnName: id
           nullable: true
-  manyToMany:
-    userAttribute:
-      targetEntity: Cx\Core\User\Model\Entity\UserAttribute
+  oneToMany:
+    userAttributeValue:
+      targetEntity: Cx\Core\User\Model\Entity\UserAttributeValue
       mappedBy: userProfile

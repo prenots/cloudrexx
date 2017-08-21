@@ -83,15 +83,15 @@ class UserAttribute extends \Cx\Model\Base\EntityBase {
     private $accessId;
 
     /**
-     * @var Cx\Core\User\Model\Entity\UserProfile
+     * @var Cx\Core\User\Model\Entity\UserAttributeValue
      */
-    private $userProfile;
+    protected $userAttributeValue;
 
     public function __construct()
     {
         $this->parent = new \Doctrine\Common\Collections\ArrayCollection();
-    $this->userAttributeName = new \Doctrine\Common\Collections\ArrayCollection();
-    $this->userProfile = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->userAttributeName = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->userAttributeValue = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -245,6 +245,26 @@ class UserAttribute extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+     * Add userAttributeValue
+     *
+     * @param Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue
+     */
+    public function addUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue)
+    {
+        $this->userAttributeValue[] = $userAttributeValue;
+    }
+
+    /**
+     * Get userAttributeValue
+     *
+     * @return Doctrine\Common\Collections\Collection $userAttributeValue
+     */
+    public function getUserAttributeValue()
+    {
+        return $this->userAttributeValue;
+    }
+
+    /**
      * Set children
      *
      * @param Cx\Core\User\Model\Entity\UserAttribute $children
@@ -282,25 +302,5 @@ class UserAttribute extends \Cx\Model\Base\EntityBase {
     public function getAccessId()
     {
         return $this->accessId;
-    }
-
-    /**
-     * Add userProfile
-     *
-     * @param Cx\Core\User\Model\Entity\UserProfile $userProfile
-     */
-    public function addUserProfile(\Cx\Core\User\Model\Entity\UserProfile $userProfile)
-    {
-        $this->userProfile[] = $userProfile;
-    }
-
-    /**
-     * Get userProfile
-     *
-     * @return Doctrine\Common\Collections\Collection $userProfile
-     */
-    public function getUserProfile()
-    {
-        return $this->userProfile;
     }
 }
