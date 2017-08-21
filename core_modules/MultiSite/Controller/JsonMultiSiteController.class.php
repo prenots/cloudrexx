@@ -1796,6 +1796,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             );
         }
 
+        $updateDomainMaps = false;
         $mode = \Cx\Core\Setting\Controller\Setting::getValue(
             'mode','MultiSite'
         );
@@ -1830,9 +1831,19 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
 
             //Set the website status
             if (isset($params['post']['status'])) {
+                $oldStatus = $website->getStatus();
                 $website->setStatus(
                     contrexx_input2db($params['post']['status'])
                 );
+                $newStatus = $website->getStatus();
+                if ($oldStatus != $newStatus &&
+                    (
+                        $oldStatus == \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_DISABLED ||
+                        $newStatus == \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_DISABLED
+                    )
+                ) {
+                    $updateDomainMaps = true;
+                }
             }
             //Set the website codebase
             if (isset($params['post']['codeBase'])) {
@@ -1882,6 +1893,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $website->setServerWebsite($serverWebsite);
             }
             $em->flush();
+            if ($updateDomainMaps) {
+                $domainRepository = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Domain');
+                $domainRepository->exportDomainAndWebsite();
+            }
             return true;
         } catch (\Exception $e) {
             \DBG::log($e->getMessage());
