@@ -129,7 +129,7 @@ class Sandbox {
             }
             $parts = explode('\\', $entity);
             if ($parts[0] == 'Cx') {
-                if ($parts[1] == 'Model' && $parts[2] == 'Proxies') {
+                if ($parts[2] == 'Model' && $parts[5] == 'Proxy') {
                     continue;
                 }
                 if (!isset($sortedEntities[$parts[1]])) {

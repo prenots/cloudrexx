@@ -506,7 +506,7 @@ class Sync extends \Cx\Core\Model\Model\Entity\EntityBase {
         // end customizing
         
         $em = $this->cx->getDb()->getEntityManager();
-        if (substr(get_class($entity), 0, 16) == 'Cx\Model\Proxies') {
+        if (substr(get_class($entity), 0, 32) == 'Cx\Core\Model\Model\Entity\Proxy') {
             $em->refresh($entity);
             $entityClassName = $em->getClassMetadata(get_class($entity))->name;
         }

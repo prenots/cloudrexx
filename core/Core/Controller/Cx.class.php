@@ -282,11 +282,11 @@ namespace Cx\Core\Core\Controller {
         const FOLDER_NAME_LIBRARY = '/lib';
 
         /**
-         * The folder name used for the model storage location (/model).
+         * The folder name used for the model storage location (/Cx/Core/Model/Model).
          * Formerly known as ASCMS_MODEL_FOLDER
          * @var string
          */
-        const FOLDER_NAME_MODEL = '/model';
+        const FOLDER_NAME_MODEL = self::FOLDER_NAME_CORE . '/Model/Model';
 
         /**
          * The folder name used for the modules storage location (/modules).
@@ -2463,7 +2463,7 @@ namespace Cx\Core\Core\Controller {
 
 
         /**
-         * Return the folder name used for the model storage location (/model).
+         * Return the folder name used for the model storage location (/Cx/Core/Model/Model).
          * Formerly known as ASCMS_MODEL_FOLDER.
          * @return string
          */

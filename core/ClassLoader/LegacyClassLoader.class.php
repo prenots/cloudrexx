@@ -128,8 +128,8 @@ class LegacyClassLoader {
                     end($end).'.php', $origName)) {
                 return;
             }
-            // files in /model/entities/Cx/Model/Base
-            if ($this->testLoad($this->cx->getCodeBaseModelPath() . '/entities/Cx/Model/Base/' . $name . '.php', $origName)) { return; }
+            // files in /Cx/Core/Model/Model/Entity
+            if ($this->testLoad($this->cx->getCodeBaseModelPath() . '/Cx/Core/Model/Model/Entity/' . $name . '.php', $origName)) { return; }
 
             // core module and module libraries /[core_modules|modules]/{modulename}/lib/{modulename}Lib.class.php
             $moduleName = strtolower(preg_replace('/Library/', '', $name));
@@ -249,7 +249,6 @@ class LegacyClassLoader {
             $this->cx->getWebsiteCustomizingPath() . $this->cx->getCoreModuleFolderName(),
             $this->cx->getWebsiteCustomizingPath() . $this->cx->getCoreFolderName(),
             $this->cx->getWebsiteCustomizingPath() . $this->cx->getLibraryFolderName(),
-            $this->cx->getWebsiteCustomizingPath() . $this->cx->getModelFolderName(),
             $this->cx->getWebsiteCustomizingPath() . $this->cx->getModuleFolderName(),
         );
         if ($_CONFIG['useCustomizings'] == 'on' && file_exists($this->cx->getWebsiteCustomizingPath())) {

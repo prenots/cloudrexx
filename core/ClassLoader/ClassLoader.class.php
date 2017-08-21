@@ -111,20 +111,11 @@ class ClassLoader {
 
         $suffix = '.class';
         if ($parts[0] == 'Cx') {
-            // Exception for model, its within /model/[entities|events]/cx/model/
-            if ($parts[1] == 'Model') {
-                $third = 'entities';
-                if ($parts[2] == 'Events') {
-                    $third = 'events';
-                }
-                if ($parts[2] == 'Proxies') {
-                    $tmpPart = implode('', array_slice($parts, 3));
-                    $parts   = array('Cx', 'Model', 'Proxies', $tmpPart);
-                    $third = 'proxies';
-                    $suffix = '';
-                }
-                $parts = array_merge(array('Cx', 'Model', $third), $parts);
-
+            // Exception for model, its within /cx/core/model/model/entity
+            if ($parts[2] == 'Model' && $parts[5] == 'Proxy') {
+                $tmpPart = implode('', array_slice($parts, 6));
+                $parts   = array('Cx', 'Core', 'Model', 'Model', 'Entity', 'Proxy', $tmpPart);
+                $suffix  = '';
             // Exception for lib, its within /model/FRAMEWORK/
             } else if ($parts[1] == 'Lib') {
                 unset($parts[0]);
@@ -132,7 +123,7 @@ class ClassLoader {
                 $parts = array_merge(array('Cx', 'Lib', 'FRAMEWORK'), $parts);
             }
 
-        // Exception for overwritten gedmo classes, they are within /model/entities/Gedmo
+        // Exception for overwritten gedmo classes, they are within /core/model/model/entity/Gedmo
         // This is not ideal, maybe move the classes somewhere
         } else if ($parts[0] == 'Gedmo') {
             $suffix = '';
@@ -145,9 +136,6 @@ class ClassLoader {
             } else {
                 $parts = array_merge(array('Cx', 'Lib', 'doctrine', 'vendor', 'doctrine-' . strtolower($parts[1]), 'lib'), $parts);
             }
-        } else if ($parts[0] == 'DoctrineExtension') {
-            $suffix = '';
-            $parts = array_merge(array('Cx', 'Model', 'extensions'), $parts);
         } else if ($parts[0] == 'Symfony') {
             $suffix = '';
             $parts = array_merge(array('Cx', 'Lib', 'doctrine', 'vendor'), $parts);

@@ -586,7 +586,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function getEntityIndexData($entity) {
         $em = $this->cx->getDb()->getEntityManager();
         $entityClassName = get_class($entity);
-        if (substr($entityClassName, 0, 16) == 'Cx\Model\Proxies') {
+        if (substr($entityClassName, 0, 32) == 'Cx\Core\Model\Model\Entity\Proxy') {
             return $em->getUnitOfWork()->getEntityIdentifier($entity);
         }
         $entityMetaData = $em->getClassMetadata($entityClassName);
