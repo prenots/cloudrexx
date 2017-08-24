@@ -138,6 +138,7 @@ class SearchManager
                     'TXT_SEARCH_RESULTS_COMMENT' => sprintf($_ARRAYLANG['TXT_SEARCH_RESULTS_COMMENT'], $this->term, $countPages),
                     'TXT_SEARCH_TITLE'           => $_ARRAYLANG['TXT_NAVIGATION_TITLE'],
                     'TXT_SEARCH_CONTENT_TITLE'   => $_ARRAYLANG['TXT_PAGETITLE'],
+                    'TXT_SEARCH_TYPE'            => $_ARRAYLANG['TXT_SEARCH_TYPE'],
                     'TXT_SEARCH_SLUG'            => $_ARRAYLANG['TXT_CORE_CM_SLUG'],
                     'TXT_SEARCH_LANG'            => $_ARRAYLANG['TXT_LANGUAGE'],
                     'SEARCH_PAGING'              => $paging,
@@ -165,6 +166,7 @@ class SearchManager
                         if ($originalPage->isTargetInternal()) {
                             // is internal target, get target page
                             $originalPage = $pageRepo->getTargetPage($page);
+                            $link = 'index.php?cmd=Alias/modify&amp;id=' . $page->getNode();
                         } else {
                             // is an external target, set the link to the external targets url
                             $originalPage = new \Cx\Core\ContentManager\Model\Entity\Page();
@@ -176,6 +178,7 @@ class SearchManager
                     $this->template->setVariable(array(
                         'SEARCH_RESULT_BACKEND_LINK'  => $link,
                         'SEARCH_RESULT_TITLE'         => $originalPage->getTitle(),
+                        'SEARCH_RESULT_TYPE'          => contrexx_raw2xhtml(ucfirst($page->getType())),
                         'SEARCH_RESULT_CONTENT_TITLE' => $originalPage->getContentTitle(),
                         'SEARCH_RESULT_SLUG'          => substr($page->getPath(), 1),
                         'SEARCH_RESULT_LANG'          => $aliasLanguages,

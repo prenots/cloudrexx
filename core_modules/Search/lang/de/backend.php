@@ -36,7 +36,8 @@
 $_ARRAYLANG['TXT_SEARCH_NO_TERM'] = "Bitte geben Sie ein Suchwort ein.";
 $_ARRAYLANG['TXT_SEARCH_RESULTS_COMMENT'] = "Ihre Suche zu <strong>%s</strong> ergab %d Treffer.";
 $_ARRAYLANG['TXT_SEARCH_NO_RESULTS'] = "Mit dem Suchbegriff <strong>%s</strong> wurden keine Resultate gefunden.";
-$_ARRAYLANG['TXT_NAVIGATION_TITLE'] = 'Navigationstitel';
-$_ARRAYLANG['TXT_PAGETITLE'] = 'Seitentitel';
+$_ARRAYLANG['TXT_NAVIGATION_TITLE'] = 'Titel';
+$_ARRAYLANG['TXT_PAGETITLE'] = 'Beschreibung';
+$_ARRAYLANG['TXT_SEARCH_TYPE'] = 'Typ';
 $_ARRAYLANG['TXT_CORE_CM_SLUG'] = 'URI-Slug';
 ?>
