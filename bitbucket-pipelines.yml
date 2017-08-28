@@ -1,11 +1,9 @@
-image: cloudrexx/web:PHP7.0
-
 clone:
-  depth: 1 # only clone the last commit
-
+  depth: 1
 pipelines:
   default:
     - step:
+        image: php:7.0-apache
         script:
           - ls
         services:
