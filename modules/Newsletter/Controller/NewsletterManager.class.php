@@ -5218,13 +5218,17 @@ $WhereStatement = '';
 
         if (isset($_GET["bulkdelete"])) {
             $error = 0;
-            if (!empty($_POST['userid'])) {
-                foreach ($_POST['userid'] as $userid) {
-                    $userid=intval($userid);
-                    if (!$this->_deleteRecipient($userid)) {
-                        $error = 1;
-                    }
+            if (isset($_POST['userid']['Newsletter'])) {
+                foreach ($_POST['userid']['Newsletter'] as $userid) {
+                    $userid = intval($userid);
+                    $this->_deleteRecipient($userid);
                 }
+            }
+
+            if ( isset($_POST['userid']['Access']) &&
+                 !empty($_POST['userid']['Access'])
+            ) {
+                $error = 1;
             }
 /*
             if (!empty($_POST['accessUserid'])) {
@@ -5236,7 +5240,7 @@ $WhereStatement = '';
             }
 */
             if ($error) {
-                self::$strErrMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
+                self::$strErrMessage = $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_RECORD_DELETE_ERROR'];
             } else {
                 self::$strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
             }

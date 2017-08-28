@@ -501,3 +501,4 @@ $_ARRAYLANG['TXT_NEWSLETTER_GENERAL'] = 'General';
 $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_CODE'] = 'Email confirmation code';
 $_ARRAYLANG['TXT_NEWSLETTER_USER_EDIT_LINK'] = 'Link to edit view of user';
 $_ARRAYLANG['TXT_NEWSLETTER_CAPTCHA'] = 'Captcha';
+$_ARRAYLANG['TXT_NEWSLETTER_ACCESS_RECORD_DELETE_ERROR'] = 'Some recipients have not been removed as they are managed by the User & rights section.';
