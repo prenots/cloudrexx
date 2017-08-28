@@ -3,7 +3,7 @@ clone:
 pipelines:
   default:
     - step:
-        image: php:7.0-apache
+        image: cloudrexx/web:PHP7.0
         script:
           - ls
         services:
@@ -13,5 +13,5 @@ definitions:
     database:
       image: mariadb
       environment:
-        MYSQL_ROOT_PASSWORD: "123456"
+        MYSQL_ROOT_PASSWORD: 'cloudrexx'
         MYSQL_DATABASE: 'dev'
