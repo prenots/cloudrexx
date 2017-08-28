@@ -13,6 +13,5 @@ definitions:
     database:
       image: mariadb
       environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-        MYSQL_ROOT_PASSWORD: "\0"
+        MYSQL_ROOT_PASSWORD: "123456"
         MYSQL_DATABASE: 'dev'
