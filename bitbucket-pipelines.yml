@@ -1,18 +1,23 @@
+image: cloudrexx/web:PHP7.0
+
 clone:
   depth: 1 # only clone the last commit
+
 pipelines:
   default:
     - step:
-        image: php:7.0-apache
         script:
-          - ls
+          - mysql -uroot < echo "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
+          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
+          - mysql -uroot < ./installer/dump/contrexx_dump_structure.sql
+          - ./cx wb test 2>&1
         services:
-          - maria
+          - database
 definitions:
   services:
-    maria:
+    database:
       image: mariadb
       environment:
         MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-        MYSQL_ROOT_PASSWORD: ''
+        MYSQL_ROOT_PASSWORD: "\0"
         MYSQL_DATABASE: 'dev'
