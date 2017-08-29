@@ -5217,18 +5217,21 @@ $WhereStatement = '';
         }
 
         if (isset($_GET["bulkdelete"])) {
-            $error = 0;
+            $newsletterError = 0;
+            $accessError     = 0;
             if (isset($_POST['userid']['Newsletter'])) {
                 foreach ($_POST['userid']['Newsletter'] as $userid) {
-                    $userid = intval($userid);
-                    $this->_deleteRecipient($userid);
+                    $userid = contrexx_input2int($userid);
+                    if (!$this->_deleteRecipient($userid)) {
+                        $newsletterError = 1;
+                    }
                 }
             }
 
-            if ( isset($_POST['userid']['Access']) &&
-                 !empty($_POST['userid']['Access'])
+            if (isset($_POST['userid']['Access']) &&
+                !empty($_POST['userid']['Access'])
             ) {
-                $error = 1;
+                $accessError = 1;
             }
 /*
             if (!empty($_POST['accessUserid'])) {
@@ -5239,10 +5242,19 @@ $WhereStatement = '';
                 }
             }
 */
-            if ($error) {
-                self::$strErrMessage = $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_RECORD_DELETE_ERROR'];
-            } else {
+            $errorMessage = array();
+            if ($newsletterError) {
+                $errorMessage[] = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
+            } elseif (!empty($_POST['userid']['Newsletter'])) {
                 self::$strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
+            }
+
+            if ($accessError) {
+                $errorMessage[] = $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_RECORD_DELETE_ERROR'];
+            }
+
+            if (!empty($errorMessage)) {
+                self::$strErrMessage = implode('<br/>', $errorMessage);
             }
         }
 
