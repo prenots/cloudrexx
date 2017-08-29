@@ -5,9 +5,9 @@ pipelines:
     - step:
         image: cloudrexx/web:PHP7.0-with-mysql
         script:
-          - ls
-          - pwd
-          - mysql -h127.0.0.1 -uroot -pcloudrexx -e "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
+          #- mysql -h127.0.0.1 -uroot -pcloudrexx -e "SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_ENGINE_SUBSTITUTION');"
+          - mysql -h127.0.0.1 -uroot -pcloudrexx -e "SELECT @@sql_mode;"
+          - mysql -h127.0.0.1 -uroot -pcloudrexx -e "SET @@SQL_MODE = 'NO_ENGINE_SUBSTITUTION';"
           - mysql -h127.0.0.1 -uroot -pcloudrexx dev < ./installer/data/contrexx_dump_structure.sql
           - mysql -h127.0.0.1 -uroot -pcloudrexx dev < ./installer/data/contrexx_dump_data.sql
           - ./cx wb test 2>&1
