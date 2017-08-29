@@ -7,6 +7,7 @@ pipelines:
         script:
           - mysql -h127.0.0.1 -uroot -pcloudrexx dev < ./installer/data/contrexx_dump_structure.sql
           - mysql -h127.0.0.1 -uroot -pcloudrexx dev -e "SET @@SQL_MODE = ''; source ./installer/data/contrexx_dump_data.sql;"
+          - ./cx
           - ./cx wb test 2>&1
         services:
           - database
