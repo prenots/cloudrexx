@@ -368,6 +368,8 @@ INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('assig
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_birthday_users','10',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_birthday_users_only_with_p','',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_birthday_users_pic','',0);
+INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_next_birthday_users','5',0);
+INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_next_birthday_users_pic','',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_currently_online_users','10',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_currently_online_users_onl','',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_currently_online_users_pic','',0);
@@ -4001,6 +4003,7 @@ INSERT INTO `contrexx_module_crm_settings` (`setid`, `setname`, `setvalue`) VALU
 INSERT INTO `contrexx_module_crm_settings` (`setid`, `setname`, `setvalue`) VALUES (15,'emp_default_user_group','8');
 INSERT INTO `contrexx_module_crm_settings` (`setid`, `setname`, `setvalue`) VALUES (16,'user_account_mantatory','0');
 INSERT INTO `contrexx_module_crm_settings` (`setid`, `setname`, `setvalue`) VALUES (17,'default_country_value','204');
+INSERT INTO `contrexx_module_crm_settings` (`setid`, `setname`, `setvalue`) VALUES (18, 'contact_amount_enabled', '1');
 INSERT INTO `contrexx_module_crm_stages` (`id`, `label`, `stage`, `status`, `sorting`) VALUES (51,'Auftragsbestätigung akzeptiert','90',1,90);
 INSERT INTO `contrexx_module_crm_stages` (`id`, `label`, `stage`, `status`, `sorting`) VALUES (52,'Bedarfsaufnahme','10',1,10);
 INSERT INTO `contrexx_module_crm_stages` (`id`, `label`, `stage`, `status`, `sorting`) VALUES (49,'Mündliche Zusage durch Entscheider','80',1,80);

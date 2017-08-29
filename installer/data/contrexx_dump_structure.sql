@@ -35,6 +35,7 @@ CREATE TABLE `contrexx_access_user_attribute` (
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
   `access_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `read_access_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_access_user_attribute_name` (
@@ -58,6 +59,7 @@ CREATE TABLE `contrexx_access_user_core_attribute` (
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
   `access_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `read_access_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_groups` (
@@ -92,6 +94,7 @@ CREATE TABLE `contrexx_access_user_profile` (
   `user_id` int(5) unsigned NOT NULL DEFAULT '0',
   `gender` enum('gender_undefined','gender_female','gender_male') NOT NULL DEFAULT 'gender_undefined',
   `title` int(10) unsigned NOT NULL DEFAULT '0',
+  `designation` varchar(255) NOT NULL DEFAULT '',
   `firstname` varchar(255) NOT NULL DEFAULT '',
   `lastname` varchar(255) NOT NULL DEFAULT '',
   `company` varchar(255) NOT NULL DEFAULT '',
@@ -1099,7 +1102,9 @@ CREATE TABLE `contrexx_module_crm_contacts` (
   `customer_addedby` int(11) DEFAULT NULL,
   `company_size` int(11) DEFAULT NULL,
   `customer_currency` int(11) DEFAULT NULL,
+  `contact_amount` VARCHAR(256) DEFAULT NULL,
   `contact_familyname` varchar(256) DEFAULT NULL,
+  `contact_title` VARCHAR(256) DEFAULT NULL,
   `contact_role` varchar(256) DEFAULT NULL,
   `contact_customer` int(11) DEFAULT NULL,
   `contact_language` int(11) DEFAULT NULL,
@@ -1112,6 +1117,7 @@ CREATE TABLE `contrexx_module_crm_contacts` (
   `profile_picture` varchar(256) NOT NULL,
   `status` tinyint(2) NOT NULL DEFAULT '1',
   `added_date` date NOT NULL,
+  `updated_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `email_delivery` tinyint(2) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `contact_customer` (`contact_customer`),
