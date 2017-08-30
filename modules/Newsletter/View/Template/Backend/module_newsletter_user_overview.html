@@ -152,21 +152,21 @@ var cxDataList = function() {
                 userFunctions.append($(htmlACopyUser.replace('[id]', user.id)).append($(htmlImageCopy)));
                 userFunctions.append($(htmlAEditNewsletter.replace('[id]', user.id)).append($(htmlImageEdit)));
                 userFunctions.append($(htmlADelete.replace('[id]', user.id).replace('[email]', user.email)).append($(htmlImageDelete)));
+                checkboxName = 'userid[Newsletter][]';
             } else {
                 userFunctions.append($(htmlACopyUser.replace('[id]', user.id)).append($(htmlImageCopy)));
                 userFunctions.append($(htmlAEditAccess.replace('[id]', user.id)).append($(htmlImageEdit)));
                 userFunctions.append($(htmlImageIconSpacer));
+                checkboxName = 'userid[Access][]';
             }
 
             recipientRow = $(htmlRow.replace('[i]',(i%2)+1));
-            recipientRow.append(
-                $(htmlTd).append($(htmlInput.replace('[id]', user.id)))
-                         .append(
-                           $(htmlUserStatus.replace('[id]', user.id).replace('[status]', user.status)).append(
-                                user.status == '1' ? $(htmlImageLedGreen) : $(htmlImageLedRed)
-                           )
-                         )
-                );
+            recipientRow.append($(htmlTd).append(
+                $(htmlInput.replace('[id]', user.id)
+                    .replace('userid[]', checkboxName)
+                )
+            ).append($(htmlUserStatus.replace('[id]', user.id).replace('[status]', user.status))
+             .append(user.status == '1' ? $(htmlImageLedGreen) : $(htmlImageLedRed)));
             recipientRow.append($(htmlTd).append(user.email));
             recipientRow.append($(htmlTd).append(user.company));
             recipientRow.append($(htmlTd).append(user.lastname));
@@ -366,6 +366,12 @@ cx.ready(function() {newsletterList = new cxDataList()});
 var confirmDeleteInactive = function() {
     return confirm("{TXT_NEWSLETTER_REALLY_DELETE_ALL_INACTIVE}\n{TXT_ACTION_IS_IRREVERSIBLE}");
 }
+
+// Bulk change of checkbox
+function changeAllCheckboxes(status) {
+	changeCheckboxes('userlist','userid[Newsletter][]', status);
+	changeCheckboxes('userlist','userid[Access][]', status);
+}
 //]]>
 </script>
 <style type="text/css">
@@ -469,8 +475,8 @@ var confirmDeleteInactive = function() {
 
         <div>
             <img src="../core/Core/View/Media/icons/arrow.gif" border="0" width="38" height="22" alt="arrow" />
-            <a href="javascript:void(0)" onclick="changeCheckboxes('userlist','userid[]',true); return false;">{TXT_NEWSLETTER_CHECK_ALL}</a> /
-            <a href="javascript:void(0)" onclick="changeCheckboxes('userlist','userid[]',false); return false;">{TXT_NEWSLETTER_UNCHECK_ALL}</a>
+            <a href="javascript:void(0)" onclick="changeAllCheckboxes(true); return false;">{TXT_NEWSLETTER_CHECK_ALL}</a> /
+            <a href="javascript:void(0)" onclick="changeAllCheckboxes(false); return false;">{TXT_NEWSLETTER_UNCHECK_ALL}</a>
             <img src="../core/Core/View/Media/icons/strike.gif" alt="strike" title="strike" />
             <select name="userlist_MultiAction" onchange="MultiAction();">
                 <option value="0">{TXT_NEWSLETTER_WITH_SELECTED}:</option>

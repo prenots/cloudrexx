@@ -5216,29 +5216,63 @@ $WhereStatement = '';
             }
         }
 
-        $multiAction = !empty($_POST['userlist_MultiAction']) ? contrexx_input2raw($_POST['userlist_MultiAction']) : 0;
-        $userIds     = !empty($_POST['userid']) ? array_map('contrexx_input2int', $_POST['userid']) : array();
+        $multiAction = '';
+        if (!empty($_POST['userlist_MultiAction'])) {
+            $multiAction = contrexx_input2raw($_POST['userlist_MultiAction']);
+        }
+
+        $userIds = array();
+        if (!empty($_POST['userid'])) {
+            $userIds = contrexx_input2raw($_POST['userid']);
+        }
+
         $multiActionError   = 0;
         $multiActionMessage = '';
         switch ($multiAction) {
             case 'delete':
-                foreach ($userIds as $userid) {
-                    if (!$this->_deleteRecipient($userid)) {
-                        $multiActionError = 1;
+                foreach ($userIds['Newsletter'] as $newletterId) {
+                    $newsletterUserId = contrexx_input2int($newletterId);
+                    if (!$this->_deleteRecipient($newsletterUserId)) {
+                        $newsletterError = 1;
                     }
                 }
-                $multiActionMessage =   $multiActionError
-                                      ? $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR']
-                                      : $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
+                if (isset($userIds['Access'])) {
+                    $accessError = 1;
+                }
+
+                $errorMessage = array();
+                if ($newsletterError) {
+                    $errorMessage[] = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
+                } elseif (!empty($_POST['userid']['Newsletter'])) {
+                    self::$strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
+                }
+
+                if ($accessError) {
+                    $errorMessage[] = $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_RECORD_DELETE_ERROR'];
+                }
+
+                if (!empty($errorMessage)) {
+                    $multiActionError   = 1;
+                    $multiActionMessage = implode('<br/>', $errorMessage);
+                }
                 break;
             case 'activate':
             case 'deactivate':
-                if (!$this->changeRecipientStatus($userIds, $multiAction == 'activate')) {
-                    $multiActionError = 1;
+                foreach ($userIds['Newsletter'] as $newletterId) {
+                    $newsletterUserId = contrexx_input2int($newletterId);
+                    if (
+                        !$this->changeRecipientStatus(
+                            $newsletterUserId,
+                            $multiAction == 'activate'
+                        )
+                    ) {
+                        $multiActionError = 1;
+                    }
                 }
+
                 $multiActionMessage =   $multiActionError
-                                      ? $_ARRAYLANG['TXT_NEWSLETTER_USERS_'. strtoupper($multiAction) .'_ERROR']
-                                      : $_ARRAYLANG['TXT_NEWSLETTER_USERS_'. strtoupper($multiAction) .'_SUCCESS'];
+                    ? $_ARRAYLANG['TXT_NEWSLETTER_USERS_'. strtoupper($multiAction) .'_ERROR']
+                    : $_ARRAYLANG['TXT_NEWSLETTER_USERS_'. strtoupper($multiAction) .'_SUCCESS'];
                 break;
             default:
                 break;

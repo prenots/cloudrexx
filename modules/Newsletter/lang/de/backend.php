@@ -506,3 +506,4 @@ $_ARRAYLANG['TXT_NEWSLETTER_GENERAL'] = 'Allgemein';
 $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_CODE'] = 'Email Aktivierungscode';
 $_ARRAYLANG['TXT_NEWSLETTER_USER_EDIT_LINK'] = 'Link zu den Einstellungen des aktuellen Benutzers';
 $_ARRAYLANG['TXT_NEWSLETTER_CAPTCHA'] = 'Captcha';
+$_ARRAYLANG['TXT_NEWSLETTER_ACCESS_RECORD_DELETE_ERROR'] = 'Einige Teilnehmer wurden nicht gelöscht, da diese vom Bereich Benutzer & Rechte verwaltet werden.';
