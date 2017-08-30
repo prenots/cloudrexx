@@ -2993,6 +2993,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     protected function deployWebsiteFromRequest(\Cx\Core\Core\Controller\Cx $cx) {
         $multiSiteRepo = new \Cx\Core_Modules\MultiSite\Model\Repository\FileSystemWebsiteRepository();
 
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = '';
+        }
+
         // dynamic mapping of <website>.cloudrexx.website
         $_SERVER['HTTP_HOST'] = preg_replace('/\.cloudrexx\.website$/i', '.cloudrexx.com', $_SERVER['HTTP_HOST'], 1);
 
