@@ -141,7 +141,12 @@ class Egov extends EgovLibrary
         }
 
         $ReturnValue = '';
-        $newStatus = 1;
+        $autoStatus = self::GetProduktValue('product_autostatus', $product_id);
+        // $autoStatus == MANUAL => ERLEDIGT (Note: updateOrder() will recheck $autoStatus and will not update the order_state in case $autoStatus is set to MANUAL => order_state will be left to NEW)
+        // $autoStatus == AUTOMATIC => ERLEDIG
+        // $autoStatus == ELECTRO => ERLEDIGT
+        // $autoStatus == RESERVATION => RESERVATION
+        $newStatus  = $autoStatus == 3 ? 4 : 1;
         // Handle any kind of payment request
         if (!empty($_REQUEST['handler'])) {
             $ReturnValue = $this->payment($order_id, $product_amount);
@@ -236,8 +241,9 @@ class Egov extends EgovLibrary
         }
 
         // Update 29.10.2006 Statusmail automatisch abschicken || Produktdatei
+        $autoStatus = self::GetProduktValue('product_autostatus', $product_id);
         if (   self::GetProduktValue('product_electro', $product_id) == 1
-            || self::GetProduktValue('product_autostatus', $product_id) == 1
+            || in_array($autoStatus, array(1, 2, 3))
         ) {
             self::updateOrderStatus($order_id, $newStatus);
             $TargetMail = self::GetEmailAdress($order_id);
@@ -564,9 +570,6 @@ $yellowpayForm
         if (isset($_REQUEST['result'])) {
             // Returned from payment
             $result = $this->payment();
-        } elseif (isset($_REQUEST['send'])) {
-            // Store order and launch payment, if necessary
-            $result = $this->_saveOrder();
         }
         // Fix/replace HTML and line breaks, which will all fail in the
         // alert() call.
@@ -617,6 +620,31 @@ $yellowpayForm
 
         if (empty($_REQUEST['id'])) {
             return;
+        }
+        if (   isset($_POST['send'])
+            && (   \FWUser::getFWUserObject()->objUser->login()
+                || \Cx\Core_Modules\Captcha\Controller\Captcha::getInstance()->check()
+            )
+        ) {
+            // Store order and launch payment, if necessary
+            $result = $this->_saveOrder();
+            // Fix/replace HTML and line breaks, which will all fail in the
+            // alert() call.
+            $result =
+                html_entity_decode(
+                    strip_tags(
+                        preg_replace(
+                            '/\<br\s*?\/?\>/', '\n',
+                            preg_replace('/[\n\r]/', '', $result)
+                        )
+                    ), ENT_QUOTES, CONTREXX_CHARSET
+                );
+            $this->objTemplate->setVariable(
+                'EGOV_JS',
+                "<script type=\"text/javascript\">\n".
+                "// <![CDATA[\n$result\n// ]]>\n".
+                "</script>\n"
+            );
         }
         $query = "
             SELECT product_id, product_name, product_desc, product_price ".
