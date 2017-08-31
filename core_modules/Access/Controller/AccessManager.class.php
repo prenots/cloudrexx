@@ -2375,7 +2375,6 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
             'TXT_ACCESS_PROFILE_PIC'                            => $_CORELANG['TXT_ACCESS_PROFILE_PIC'],
             'TXT_ACCESS_MAX_WIDTH'                              => $_ARRAYLANG['TXT_ACCESS_MAX_WIDTH'],
             'TXT_ACCESS_MAX_HEIGHT'                             => $_ARRAYLANG['TXT_ACCESS_MAX_HEIGHT'],
-            'TXT_ACCESS_MAX_FILE_SIZE'                          => $_ARRAYLANG['TXT_ACCESS_MAX_FILE_SIZE'],
             'TXT_ACCESS_THUMBNAIL_WIDTH'                        => $_ARRAYLANG['TXT_ACCESS_THUMBNAIL_WIDTH'],
             'TXT_ACCESS_THUMBNAIL_HEIGHT'                       => $_ARRAYLANG['TXT_ACCESS_THUMBNAIL_HEIGHT'],
             'TXT_ACCESS_MAX_THUMBNAIL_WIDTH'                    => $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_WIDTH'],
@@ -2488,14 +2487,6 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
                 $arrSettings['profile_thumbnail_pic_height']['value'] = intval($_POST['accessProfileThumbnailPicHeight']);
             }
 
-            if (!empty($_POST['accessMaxProfilePicSize'])) {
-// TODO
-//                if (\FWSystem::getBytesOfLiteralSizeFormat($_POST['accessMaxProfilePicSize']) != $arrSettings['max_profile_pic_size']['value']) {
-//                    // resize profile pics
-//                }
-                $arrSettings['max_profile_pic_size']['value'] = \FWSystem::getBytesOfLiteralSizeFormat($_POST['accessMaxProfilePicSize']);
-            }
-
             if (isset($_POST['accessProfileThumbnailMethod']) && $_POST['accessProfileThumbnailMethod'] == 'scale') {
                 $arrSettings['profile_thumbnail_method']['value'] = 'scale';
                 $color = !empty($_POST['accessProfileThumbnailScaleColor']) ? contrexx_input2raw($_POST['accessProfileThumbnailScaleColor']) : NULL;
@@ -2523,14 +2514,6 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
             $arrSettings['user_account_verification']['value'] = 0;
             if (isset($_POST['user_account_verification'])) {
                 $arrSettings['user_account_verification']['value'] = 1;
-            }
-
-            if (!empty($_POST['accessMaxPicSize'])) {
-// TODO
-//                if (\FWSystem::getBytesOfLiteralSizeFormat($_POST['accessMaxPicSize']) != $arrSettings['max_pic_size']['value']) {
-//                    // resize pics
-//                }
-                $arrSettings['max_pic_size']['value'] = \FWSystem::getBytesOfLiteralSizeFormat($_POST['accessMaxPicSize']);
             }
 
             $session_on_interval =  intval($_POST['sessioninterval']);
@@ -2693,13 +2676,11 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
             'ACCESS_MAX_PROFILE_PIC_HEIGHT'                         => $arrSettings['max_profile_pic_height']['value'],
             'ACCESS_PROFILE_THUMBNAIL_PIC_WIDTH'                    => $arrSettings['profile_thumbnail_pic_width']['value'],
             'ACCESS_PROFILE_THUMBNAIL_PIC_HEIGHT'                   => $arrSettings['profile_thumbnail_pic_height']['value'],
-            'ACCESS_MAX_PROFILE_PIC_SIZE'                           => \FWSystem::getLiteralSizeFormat($arrSettings['max_profile_pic_size']['value']),
             'ACCESS_MAX_PIC_WIDTH'                                  => $arrSettings['max_pic_width']['value'],
             'ACCESS_MAX_PIC_HEIGHT'                                 => $arrSettings['max_pic_height']['value'],
             'ACCESS_MAX_THUMBNAIL_PIC_WIDTH'                        => $arrSettings['max_thumbnail_pic_width']['value'],
             'ACCESS_MAX_THUMBNAIL_PIC_HEIGHT'                       => $arrSettings['max_thumbnail_pic_height']['value'],
             'ACCESS_SESSION_USER_INTERVAL'                => $arrSettings['session_user_interval']['value'],
-            'ACCESS_MAX_PIC_SIZE'                                   => \FWSystem::getLiteralSizeFormat($arrSettings['max_pic_size']['value']),
             'ACCESS_PROFILE_THUMBNAIL_CROP'                         => $arrSettings['profile_thumbnail_method']['value'] == 'crop' ? 'selected="selected"' : '',
             'ACCESS_PROFILE_THUMBNAIL_SCALE'                        => $arrSettings['profile_thumbnail_method']['value'] == 'scale' ? 'selected="selected"' : '',
             'ACCESS_PROFILE_THUMBNAIL_SCALE_BOX'                    => $arrSettings['profile_thumbnail_method']['value'] == 'scale' ? 'inline' : 'none',

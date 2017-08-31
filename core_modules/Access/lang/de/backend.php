@@ -163,7 +163,6 @@ $_ARRAYLANG['TXT_ACCESS_LATEST_REGISTERED_USERS'] = "Neuste Benutzer";
 $_ARRAYLANG['TXT_ACCESS_MAIL_STORED_SUCCESSFULLY'] = "Das E-Mail wurde erfolgreich gespeichert.";
 $_ARRAYLANG['TXT_ACCESS_MAIL_SUBJECT'] = "E-Mail Betreff";
 $_ARRAYLANG['TXT_ACCESS_MANDATORY_FIELD'] = "Pflichtfeld";
-$_ARRAYLANG['TXT_ACCESS_MAX_FILE_SIZE'] = "Maximale Dateigrösse";
 $_ARRAYLANG['TXT_ACCESS_MAX_HEIGHT'] = "Maximale Höhe";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_HEIGHT'] = "Maximale Thumbnail Höhe";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_WIDTH'] = "Maximale Thumbnail Breite";

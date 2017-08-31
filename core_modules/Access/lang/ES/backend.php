@@ -158,7 +158,6 @@ $_ARRAYLANG['TXT_ACCESS_LATEST_REGISTERED_USERS'] = "Usuarios m&aacute;s recient
 $_ARRAYLANG['TXT_ACCESS_MAIL_STORED_SUCCESSFULLY'] = "El e-mail fue guardado.";
 $_ARRAYLANG['TXT_ACCESS_MAIL_SUBJECT'] = "Asunto del e-mail";
 $_ARRAYLANG['TXT_ACCESS_MANDATORY_FIELD'] = "Campo obligatorio";
-$_ARRAYLANG['TXT_ACCESS_MAX_FILE_SIZE'] = "Tama&ntilde m&aacute;ximo de archivo";
 $_ARRAYLANG['TXT_ACCESS_MAX_HEIGHT'] = "Altura m&aacute;xima";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_HEIGHT'] = "Altura m&aacute;xima de foto";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_WIDTH'] = "Anchura m&aacute;xima de foto";

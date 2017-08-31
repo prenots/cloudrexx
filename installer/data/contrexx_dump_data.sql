@@ -384,10 +384,8 @@ INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('default_email_access','members_only',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('default_profile_access','members_only',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_pic_height','600',1);
-INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_pic_size','199987.2',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_pic_width','600',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_profile_pic_height','160',1);
-INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_profile_pic_size','30003.2',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_profile_pic_width','160',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_thumbnail_pic_height','130',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_thumbnail_pic_width','130',1);

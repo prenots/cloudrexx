@@ -158,7 +158,6 @@ $_ARRAYLANG['TXT_ACCESS_LATEST_REGISTERED_USERS'] = "Nouveaux utilisateurs";
 $_ARRAYLANG['TXT_ACCESS_MAIL_STORED_SUCCESSFULLY'] = "E-mail enregistré";
 $_ARRAYLANG['TXT_ACCESS_MAIL_SUBJECT'] = "Sujet de l'E-mail";
 $_ARRAYLANG['TXT_ACCESS_MANDATORY_FIELD'] = "Champ requis";
-$_ARRAYLANG['TXT_ACCESS_MAX_FILE_SIZE'] = "Taille de fichier maximale";
 $_ARRAYLANG['TXT_ACCESS_MAX_HEIGHT'] = "Hauteur maximale";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_HEIGHT'] = "Hauteur maximale des vignettes";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_WIDTH'] = "Largeur maximale des vignettes";

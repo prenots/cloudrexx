@@ -350,7 +350,6 @@ class AccessLib
             $arrPlaceholders['_THUMBNAIL_SRC'] =
                 \ImageManager::getThumbnailFilename($arrPlaceholders['_SRC']);
             $arrPlaceholders['_UPLOAD_NAME'] = $this->attributeNamePrefix.'_images['.$objAttribute->getId().']['.$historyId.']';
-            $arrPlaceholders['_MAX_FILE_SIZE'] = \FWSystem::getLiteralSizeFormat($arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_size']['value']);
             $arrPlaceholders['_MAX_WIDTH'] = $arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_width']['value'];
             $arrPlaceholders['_MAX_HEIGHT'] = $arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_height']['value'];
             $arrPlaceholders['_CHOOSE_FILE'] = $_CORELANG['TXT_ACCESS_USER_CHOOSE_FILE'];
@@ -1750,12 +1749,6 @@ JS
                     ) {
                         continue;
                     }
-                    $fileSize = filesize($path);
-                    if (!$this->isImageWithinAllowedSize($fileSize, $attribute == 'picture')) {
-                        $objAttribute = $objUser->objAttribute->getById($attribute);
-                        $arrErrorMsg[] = sprintf($_CORELANG['TXT_ACCESS_PIC_TOO_BIG'], htmlentities($objAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET));
-                        continue;
-                    }
 
                     // resize image and put it into place (ASCMS_ACCESS_PHOTO_IMG_PATH / ASCMS_ACCESS_PROFILE_IMG_PATH)
                     if (($imageName = $this->moveUploadedImageInToPlace($objUser, $path, $fileName, $attribute == 'picture')) === false) {
@@ -1780,13 +1773,6 @@ JS
             return true;
         }
     }
-
-
-    private function isImageWithinAllowedSize($size, $profilePic)
-    {
-        return true;
-    }
-
 
     /**
      * Copy the uploaded images from temp folder to images folder

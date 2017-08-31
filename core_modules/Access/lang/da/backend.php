@@ -158,7 +158,6 @@ $_ARRAYLANG['TXT_ACCESS_LATEST_REGISTERED_USERS'] = "Nyeste brugere";
 $_ARRAYLANG['TXT_ACCESS_MAIL_STORED_SUCCESSFULLY'] = "Meddelelsen er blevet gemt. ";
 $_ARRAYLANG['TXT_ACCESS_MAIL_SUBJECT'] = "Emne for e-mail";
 $_ARRAYLANG['TXT_ACCESS_MANDATORY_FIELD'] = "Påkrævet felt";
-$_ARRAYLANG['TXT_ACCESS_MAX_FILE_SIZE'] = "Maksimal filstørrelse";
 $_ARRAYLANG['TXT_ACCESS_MAX_HEIGHT'] = "Maksimal højde";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_HEIGHT'] = "Maksimal thumbnail-højde";
 $_ARRAYLANG['TXT_ACCESS_MAX_THUMBNAIL_WIDTH'] = "Maksimal thumbnail-bredde";
