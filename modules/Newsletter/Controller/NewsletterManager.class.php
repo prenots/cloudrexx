@@ -5226,8 +5226,15 @@ $WhereStatement = '';
             $userIds = contrexx_input2raw($_POST['userid']);
         }
 
-        $multiActionError   = 0;
-        $multiActionMessage = '';
+        $bulkStatus = 0;
+        if (!empty($_POST['bulkStatus'])) {
+            $bulkStatus = contrexx_input2int($_POST['bulkStatus']);
+        }
+
+        $multiActionMessageError  = array();
+        $multiActionMessageOk     = '';
+        $newsletterError          = 0;
+        $accessError              = 0;
         switch ($multiAction) {
             case 'delete':
                 foreach ($userIds['Newsletter'] as $newletterId) {
@@ -5244,7 +5251,7 @@ $WhereStatement = '';
                 if ($newsletterError) {
                     $errorMessage[] = $_ARRAYLANG['TXT_DATA_RECORD_DELETE_ERROR'];
                 } elseif (!empty($_POST['userid']['Newsletter'])) {
-                    self::$strOkMessage = $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
+                    $multiActionMessageOk = $_ARRAYLANG['TXT_DATA_RECORD_DELETED_SUCCESSFUL'];
                 }
 
                 if ($accessError) {
@@ -5252,8 +5259,7 @@ $WhereStatement = '';
                 }
 
                 if (!empty($errorMessage)) {
-                    $multiActionError   = 1;
-                    $multiActionMessage = implode('<br/>', $errorMessage);
+                    $multiActionMessageError[] = implode('<br/>', $errorMessage);
                 }
                 break;
             case 'activate':
@@ -5270,19 +5276,45 @@ $WhereStatement = '';
                     }
                 }
 
-                $multiActionMessage =   $multiActionError
-                    ? $_ARRAYLANG['TXT_NEWSLETTER_USERS_'. strtoupper($multiAction) .'_ERROR']
-                    : $_ARRAYLANG['TXT_NEWSLETTER_USERS_'. strtoupper($multiAction) .'_SUCCESS'];
+                $loggedUserId = \FWUser::getFWUserObject()->objUser->getId();
+                if (isset($userIds['Access']) && $bulkStatus) {
+                    foreach ($userIds['Access'] as $accessId) {
+                        $accessUserId = contrexx_input2int($accessId);
+                        if ($accessUserId == $loggedUserId
+                            && $multiAction === 'deactivate'
+                        ) {
+                            $multiActionMessageError[] = $_ARRAYLANG['TXT_NEWSLETTER_NO_USER_WITH_SAME_ID'];
+                            continue;
+                        }
+
+                        if (
+                            !$this->changeUserStatus(
+                                $accessUserId,
+                                $multiAction == 'activate'
+                            )
+                        ) {
+                            $multiActionError = 1;
+                        }
+                    }
+                }
+
+                $msgPlaceholder = 'TXT_NEWSLETTER_USERS_'. strtoupper($multiAction);
+                if ($multiActionError) {
+                    $multiActionMessageError[] = $_ARRAYLANG[$msgPlaceholder .'_ERROR'];
+                } else {
+                    $multiActionMessageOk = $_ARRAYLANG[$msgPlaceholder . '_SUCCESS'];
+                }
                 break;
             default:
                 break;
         }
 
         if ($userIds && $multiAction) {
-            if ($multiActionError) {
-                self::$strErrMessage = $multiActionMessage;
-            } else {
-                self::$strOkMessage = $multiActionMessage;
+            if (!empty($multiActionMessageError)) {
+                self::$strErrMessage = implode('<br/>', $multiActionMessageError);
+            }
+            if (!empty($multiActionMessageOk)) {
+                self::$strOkMessage = $multiActionMessageOk;
             }
         }
 
@@ -5325,6 +5357,15 @@ $WhereStatement = '';
             'TXT_FUNCTIONS' => $_CORELANG['TXT_FUNCTIONS'],
             'TXT_NEWSLETTER_ACTIVATE'   => $_ARRAYLANG['TXT_NEWSLETTER_ACTIVATE'],
             'TXT_NEWSLETTER_DEACTIVATE' => $_ARRAYLANG['TXT_NEWSLETTER_DEACTIVATE'],
+            'TXT_NEWSLETTER_ACCESS_BULK_ACTIVATE' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_BULK_ACTIVATE'],
+            'TXT_NEWSLETTER_ACCESS_BULK_ACTIVATE_CHECKBOX' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_BULK_ACTIVATE_CHECKBOX'],
+            'TXT_NEWSLETTER_ACCESS_BULK_DEACTIVATE' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_BULK_DEACTIVATE'],
+            'TXT_NEWSLETTER_ACCESS_BULK_DEACTIVATE_CHECKBOX' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_BULK_DEACTIVATE_CHECKBOX'],
+            'TXT_NEWSLETTER_ACCESS_SINGLE_ACTIVATE' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_SINGLE_ACTIVATE'],
+            'TXT_NEWSLETTER_ACCESS_SINGLE_ACTIVATE_CHECKBOX' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_SINGLE_ACTIVATE_CHECKBOX'],
+            'TXT_NEWSLETTER_ACCESS_SINGLE_DEACTIVATE' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_SINGLE_DEACTIVATE'],
+            'TXT_NEWSLETTER_ACCESS_SINGLE_DEACTIVATE_CHECKBOX' => $_ARRAYLANG['TXT_NEWSLETTER_ACCESS_SINGLE_DEACTIVATE_CHECKBOX'],
+            'TXT_NEWSLETTER_NO_USER_WITH_SAME_ID' => $_ARRAYLANG['TXT_NEWSLETTER_NO_USER_WITH_SAME_ID']
         ));
         $this->_objTpl->setGlobalVariable(array(
             'TXT_NEWSLETTER_MODIFY_RECIPIENT' => $_ARRAYLANG['TXT_NEWSLETTER_MODIFY_RECIPIENT'],
@@ -5615,10 +5656,44 @@ function DeleteUser(UserID, email) {
 
 function MultiAction() {
   with (document.userlist) {
+    var accessChecked = 0;
+    $J(\'input[type="checkbox"]:checked\').each(function() {
+      var checkboxName = $J(this).attr("name");
+      if (checkboxName === "userid[Access][]") {
+        accessChecked = 1;
+      }
+    })
+
+    if (userlist_MultiAction.value === "activate") {
+      var title   = \'' . $_ARRAYLANG['TXT_NEWSLETTER_ACTIVATE'] . '\';
+      var content = $J("#accessBulkStatusActivate");
+    } else {
+      var title = \'' . $_ARRAYLANG['TXT_NEWSLETTER_DEACTIVATE'] . '\';
+      var content = $J("#accessBulkStatusDeactivate");
+    }
+
     switch (userlist_MultiAction.value) {
         case "activate":
         case "deactivate":
-            submit();
+            if (accessChecked) {
+              cx.ui.dialog({
+                width: 520,
+                title: title,
+                content: content,
+                autoOpen: true,
+                buttons: {
+                    "Ok": function() {
+                        submit();
+                        $J( this ).dialog( "close" );
+                    },
+                    "Cancel" : function() {
+                        $J( this ).dialog( "close" );
+                    }
+                }
+              });
+            } else {
+              submit();
+            }
             break;
         case "delete":
             if (confirm(\''.$_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_DELETE_SELECTED_RECIPIENTS'].'\n'.$_ARRAYLANG['TXT_NEWSLETTER_CANNOT_UNDO_OPERATION'].'\')) {

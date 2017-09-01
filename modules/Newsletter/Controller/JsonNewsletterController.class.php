@@ -82,7 +82,13 @@ class JsonNewsletterController extends \Cx\Core\Core\Model\Entity\Controller imp
     public function getAccessableMethods()
     {
         return array(
-            'setUserStatus',
+            'setUserStatus' => new \Cx\Core_Modules\Access\Model\Entity\Permission(
+                null,
+                null,
+                true,
+                null,
+                174
+            )
         );
     }
 
@@ -108,21 +114,40 @@ class JsonNewsletterController extends \Cx\Core\Core\Model\Entity\Controller imp
 
         $this->loadLanguageData();
 
-        if (!\Permission::checkAccess(174, 'static', true)) {
-            throw new JsonNewsletterException($_CORELANG['TXT_ACCESS_DENIED_DESCRIPTION']);
-        }
-
         $userId = !empty($params['post']['id']) ? contrexx_input2int($params['post']['id']) : 0;
         $status = !empty($params['post']['status']) ? contrexx_input2int($params['post']['status']) : 0;
+        $check = 0;
+        if (!empty($params['post']['check'])) {
+            $check = contrexx_input2int($params['post']['check']);
+        }
+
+        $type = '';
+        if (!empty($params['post']['type'])) {
+            $type = contrexx_input2raw($params['post']['type']);
+        }
 
         if (!$userId) {
             \DBG::log(__METHOD__ . ': User id is empty');
             throw new JsonNewsletterException($_ARRAYLANG['TXT_NEWSLETTER_USER_STATUS_CHANGE_ERROR']);
         }
 
+        $objUser      = \FWUser::getFWUserObject()->objUser;
+        if ($userId === $objUser->getId() && $check) {
+            throw new JsonNewsletterException($_ARRAYLANG['TXT_NEWSLETTER_NO_USER_WITH_SAME_ID']);
+        }
+
         $newsletterLib = new NewsletterLib();
-        if (!$newsletterLib->changeRecipientStatus(array($userId), $status)) {
-            \DBG::log(__METHOD__ . ': Could not change the user status. User id => '. $userId);
+        if ($check && $type === 'access') {
+            if (!$newsletterLib->changeUserStatus($userId, $status)) {
+                \DBG::log(__METHOD__ . ': Could not change the Access user status. User id => ' . $userId);
+                throw new JsonNewsletterException($_ARRAYLANG['TXT_NEWSLETTER_USER_STATUS_CHANGE_ERROR']);
+            }
+        } elseif ($type === 'newsletter') {
+            if (!$newsletterLib->changeRecipientStatus($userId, $status)) {
+                \DBG::log(__METHOD__ . ': Could not change the NewsLetter user status. User id => ' . $userId);
+                throw new JsonNewsletterException($_ARRAYLANG['TXT_NEWSLETTER_USER_STATUS_CHANGE_ERROR']);
+            }
+        } else {
             throw new JsonNewsletterException($_ARRAYLANG['TXT_NEWSLETTER_USER_STATUS_CHANGE_ERROR']);
         }
 

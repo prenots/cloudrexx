@@ -22,7 +22,7 @@ var cxDataList = function() {
     var htmlAEditAccess = '<a href="index.php?cmd=Access&act=user&tpl=modify&id=[id]&source=newsletter" title="{TXT_NEWSLETTER_MODIFY_RECIPIENT}"></a>';
     var htmlADelete = '<a href="javascript:void(0)" onclick="DeleteUser([id],\'[email]\')" title="{TXT_NEWSLETTER_DELETE_RECIPIENT}"></a>';
     var htmlUserFunctions = '<td style="text-align:right;"></td>';
-    var htmlUserStatus = '<a data-user-id="[id]" data-user-status="[status]" onclick="newsletterList.changeStatus($J(this))" href="javascript:void(0);"></a>';
+    var htmlUserStatus = '<a data-user-id="[id]" data-user-status="[status]" data-user-type="[type]" onclick="newsletterList.changeStatus($J(this))" href="javascript:void(0);"></a>';
     var htmlImageLedRed = '<img src="../core/Core/View/Media/icons/led_red.gif" title="{TXT_OPEN_ISSUE}" alt="{TXT_OPEN_ISSUE}" border="0" />';
     var htmlImageLedGreen = '<img src="../core/Core/View/Media/icons/led_green.gif" title="{TXT_ACTIVE}" alt="{TXT_ACTIVE}" border="0" />';
     var htmlImageEdit = '<img src="../core/Core/View/Media/icons/edit.gif" title="{TXT_NEWSLETTER_MODIFY_RECIPIENT}" alt="{TXT_NEWSLETTER_MODIFY_RECIPIENT}" border="0" />';
@@ -165,8 +165,11 @@ var cxDataList = function() {
                 $(htmlInput.replace('[id]', user.id)
                     .replace('userid[]', checkboxName)
                 )
-            ).append($(htmlUserStatus.replace('[id]', user.id).replace('[status]', user.status))
-             .append(user.status == '1' ? $(htmlImageLedGreen) : $(htmlImageLedRed)));
+            ).append($(htmlUserStatus.replace('[id]', user.id)
+                 .replace('[status]', user.status)
+                 .replace('[type]', user.type)
+              )
+             .append(user.status == '1' ? $(htmlImageLedGreen) : $(htmlImageLedRed))));
             recipientRow.append($(htmlTd).append(user.email));
             recipientRow.append($(htmlTd).append(user.company));
             recipientRow.append($(htmlTd).append(user.lastname));
@@ -201,18 +204,60 @@ var cxDataList = function() {
     cx.bind("loadingEnd", unlock, "newsletter");
     var changeStatus = function(elm) {
         var userId    = elm.data('userId'),
+            userType  = elm.data('userType'),
             newStatus = elm.data('userStatus') === 1 ? 0 : 1,
             that      = elm;
+        if (userType === 'access') {
+            if (newStatus) {
+                var title   = '{TXT_NEWSLETTER_ACTIVATE}' ;
+                var content = $J("#accessSingleActivate");
+            } else {
+                var title = '{TXT_NEWSLETTER_DEACTIVATE}';
+                var content = $J("#accessSingleDeactivate");
+            }
+
+            cx.ui.dialog({
+                width: 520,
+                title: title,
+                content: content,
+                autoOpen: true,
+                buttons: {
+                    "Ok": function() {
+	                    if (jQuery('.ui-dialog-content #checkStatus:checked').length > 0
+	                    ) {
+	                        singleStatusChange(userId, newStatus, 1, userType, that);
+	                    } else {
+	                        singleStatusChange(userId, newStatus, 0, userType, that);
+	                    }
+	                    jQuery('.ui-dialog-content #checkStatus').prop('checked', false);
+                        $J( this ).dialog( "close" );
+                    },
+                    "Cancel" : function() {
+                        $J( this ).dialog( "close" );
+                    }
+                }
+             });
+        } else {
+            singleStatusChange(userId, newStatus, 0, userType, that);
+        }
+    };
+
+//single recipient status change
+    var singleStatusChange = function(userId, newStatus, checkValue, userType, that) {
         cx.trigger("loadingStart", "newsletter", {});
         $.post(
             cx.variables.get('cadminPath', 'contrexx') + "index.php?cmd=JsonData&object=Newsletter&act=setUserStatus",
-            {id : userId, status : newStatus},
+            {id : userId, status : newStatus, check: checkValue, type: userType},
             function(res) {
                 var message = '';
                 if (res.status === 'success') {
-                    that.data('userStatus', newStatus);
-                    that.html(newStatus === 1 ? $(htmlImageLedGreen) : $(htmlImageLedRed));
-                    message = res.data.message;
+                    if (userType === 'access' && checkValue === 0) {
+                        message = res.data.message;
+                    } else {
+	                    that.data('userStatus', newStatus);
+	                    that.html(newStatus === 1 ? $(htmlImageLedGreen) : $(htmlImageLedRed));
+	                    message = res.data.message;
+                    }
                 } else {
                     message = res.message;
                 }
@@ -221,7 +266,7 @@ var cxDataList = function() {
             },
             'json'
         );
-    };
+    }
 
     var registerSortButtons = function() {
         $('a[name^=listSort]').each(
@@ -372,6 +417,14 @@ function changeAllCheckboxes(status) {
 	changeCheckboxes('userlist','userid[Newsletter][]', status);
 	changeCheckboxes('userlist','userid[Access][]', status);
 }
+
+//set a bulkstatus hidden field value as True, if the checkbox is checked in
+//dialog box
+jQuery('body').live('change', '#checkStatus', function() {
+	if(jQuery('.ui-dialog-content #checkStatus:checked').length > 0) {
+		jQuery('#checkStatus').val('1');
+	}
+})
 //]]>
 </script>
 <style type="text/css">
@@ -485,7 +538,8 @@ function changeAllCheckboxes(status) {
                 <option value="deactivate">{TXT_NEWSLETTER_DEACTIVATE}</option>
             </select>
         </div>
-    </form>
+		<input type="hidden" id="checkStatus" name="bulkStatus" value="0">
+		</form>
     <br />
     {TXT_NEWSLETTER_ROWS_PER_PAGE}:
     <a href="javascript:void(0)" onclick="newsletterList.setEntryLimit(50)">50</a>
@@ -497,3 +551,32 @@ function changeAllCheckboxes(status) {
 <!-- END module_newsletter_user_overview.html -->
 <div id="newsletter-load-lock"></div>
 </div>
+
+		<div id="accessBulkStatusActivate" style="display: none;">
+			<div>
+				<p>{TXT_NEWSLETTER_ACCESS_BULK_ACTIVATE}</p>
+			</div>
+			<input type="checkbox" id="checkStatus" name="checkStatus" value="0">
+			{TXT_NEWSLETTER_ACCESS_BULK_ACTIVATE_CHECKBOX}
+		</div>
+		<div id="accessBulkStatusDeactivate" style="display: none;">
+			<div>
+				<p>{TXT_NEWSLETTER_ACCESS_BULK_DEACTIVATE}</p>
+			</div>
+			<input type="checkbox" id="checkStatus" name="checkStatus" value="0">
+			{TXT_NEWSLETTER_ACCESS_BULK_DEACTIVATE_CHECKBOX}
+		</div>
+		<div id="accessSingleActivate" style="display: none;">
+			<div>
+				<p>{TXT_NEWSLETTER_ACCESS_SINGLE_ACTIVATE}</p>
+			</div>
+			<input type="checkbox" id="checkStatus" name="checkStatus" value="0">
+			{TXT_NEWSLETTER_ACCESS_SINGLE_ACTIVATE_CHECKBOX}
+		</div>
+		<div id="accessSingleDeactivate" style="display: none;">
+			<div>
+				<p>{TXT_NEWSLETTER_ACCESS_SINGLE_DEACTIVATE}</p>
+			</div>
+			<input type="checkbox" id="checkStatus" name="checkStatus" value="0">
+			{TXT_NEWSLETTER_ACCESS_SINGLE_DEACTIVATE_CHECKBOX}
+		</div>

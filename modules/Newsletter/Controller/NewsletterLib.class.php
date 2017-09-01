@@ -638,31 +638,55 @@ class NewsletterLib
     /**
      * Change the recipient status
      *
-     * @param array     $userIds  Array of user id's
-     * @param boolean   $status   True to activate the users, False to deactivate
+     * @param integer $userId User id
+     * @param boolean $status True to activate the users, False to deactivate
      *
-     * @return boolean  True when status changed successfully, False otherwise
+     * @return boolean True when status changed successfully, False otherwise
      */
-    public function changeRecipientStatus($userIds, $status = true)
+    public function changeRecipientStatus($userId, $status = true)
     {
-        global $objDatabase;
-
-        if (empty($userIds)) {
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        if (empty($userId)) {
             return false;
         }
+
         $userStatus = $status ? 1 : 0;
         $query = 'UPDATE
             `'.DBPREFIX.'module_newsletter_user`
         SET
             `status` = '. $userStatus .'
         WHERE
-            `id` IN ("'. implode('", "', contrexx_raw2db($userIds)) .'")';
+            `id` = ' . contrexx_raw2db($userId);
 
         $result = $objDatabase->Execute($query);
         if ($result == false) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Change the user status
+     *
+     * @param integer $userId user id
+     * @param boolean $status True to activate the users, False to deactivate
+     *
+     * @return boolean True when status changed successfully, False otherwise
+     */
+    public function changeUserStatus($userId, $status = true)
+    {
+        if (empty($userId)) {
+            return false;
+        }
+
+        $userStatus = $status ? 1 : 0;
+        $objUser = \FWUser::getFWUserObject()->objUser;
+        $user = $objUser->getUser($userId);
+        $user->setActiveStatus($userStatus);
+        if ($user->store()) {
+            return true;
+        }
+        return false;
     }
 
     /**
