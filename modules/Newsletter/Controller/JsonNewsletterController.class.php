@@ -87,7 +87,7 @@ class JsonNewsletterController extends \Cx\Core\Core\Model\Entity\Controller imp
                 null,
                 true,
                 null,
-                174
+                array(174)
             )
         );
     }

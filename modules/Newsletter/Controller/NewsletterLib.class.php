@@ -650,7 +650,11 @@ class NewsletterLib
             return false;
         }
 
-        $userStatus = $status ? 1 : 0;
+        $userStatus = 0;
+        if ($status) {
+            $userStatus = 1;
+        }
+
         $query = 'UPDATE
             `'.DBPREFIX.'module_newsletter_user`
         SET
@@ -679,7 +683,11 @@ class NewsletterLib
             return false;
         }
 
-        $userStatus = $status ? 1 : 0;
+        $userStatus = 0;
+        if ($status) {
+            $userStatus = 1;
+        }
+
         $objUser = \FWUser::getFWUserObject()->objUser;
         $user = $objUser->getUser($userId);
         $user->setActiveStatus($userStatus);
