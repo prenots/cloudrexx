@@ -4063,10 +4063,28 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      */
     protected function websiteRepositoryBackup($websiteBackupPath, $websitePath)
     {
-        if (   !\Cx\Lib\FileSystem\FileSystem::exists($websitePath) 
-            || !\Cx\Lib\FileSystem\FileSystem::copy_folder($websitePath, $websiteBackupPath . '/dataRepository', true)
-        ) {
-            throw new MultiSiteJsonException(__METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath);
+        if (!\Cx\Lib\FileSystem\FileSystem::exists($websitePath)) {
+            throw new MultiSiteJsonException(
+                __METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath
+            );
+        }
+
+        // copy everything except /tmp and any files starting with a dot
+        foreach (new \DirectoryIterator($websitePath) as $fileInfo) {
+            if ($fileInfo->isDot() || $fileInfo->getFilename() == 'tmp') {
+                continue;
+            }
+            if (
+                !\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                    $websitePath . '/' . $fileInfo->getFilename(),
+                    $websiteBackupPath . '/dataRepository/' . $fileInfo->getFilename(),
+                    true
+                )
+            ) {
+                throw new MultiSiteJsonException(
+                    __METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath
+                );
+            }
         }
     }
     
@@ -4731,13 +4749,16 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     protected function websiteRepositoryRestore($websitePath, $websiteBackupFilePath)
     {
         if (!\Cx\Lib\FileSystem\FileSystem::exists($websiteBackupFilePath)) {
-            throw new MultiSiteJsonException(__METHOD__.' failed! : Website Backup file doesnot exists!.');
+            throw new MultiSiteJsonException(__METHOD__.' failed! : Website Backup file does not exists!.');
         }
         
         $restoreWebsiteFile = new \PclZip($websiteBackupFilePath);
         if ($restoreWebsiteFile->extract(PCLZIP_OPT_PATH, $websitePath, PCLZIP_OPT_BY_PREG, '/dataRepository(.(?!config))*$/', PCLZIP_OPT_REMOVE_PATH, 'dataRepository', PCLZIP_OPT_REPLACE_NEWER) == 0) {
             throw new MultiSiteJsonException(__METHOD__.' failed! : Failed to extract the website repostory on restore.');
         }
+
+        // create tmp directory
+        \Cx\Lib\FileSystem\FileSystem::make_folder($websitePath . '/tmp');
     }
     
     /**
