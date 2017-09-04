@@ -4069,18 +4069,35 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             );
         }
 
+        // make sure backup directory exists
+        \Cx\Lib\FileSystem\FileSystem::make_folder($websiteBackupPath);
+
         // copy everything except /tmp and any files starting with a dot
         foreach (new \DirectoryIterator($websitePath) as $fileInfo) {
             if ($fileInfo->isDot() || $fileInfo->getFilename() == 'tmp') {
                 continue;
             }
-            if (
-                !\Cx\Lib\FileSystem\FileSystem::copy_folder(
-                    $websitePath . '/' . $fileInfo->getFilename(),
-                    $websiteBackupPath . '/dataRepository/' . $fileInfo->getFilename(),
-                    true
-                )
-            ) {
+            $result = false;
+            try {
+                if ($fileInfo->isDir()) {
+                    $result = \Cx\Lib\FileSystem\FileSystem::copy_folder(
+                        $websitePath . '/' . $fileInfo->getFilename(),
+                        $websiteBackupPath . '/dataRepository/' . $fileInfo->getFilename(),
+                        true
+                    );
+                } else {
+                    $objFile = new \Cx\Lib\FileSystem\File(
+                        $websitePath . '/' . $fileInfo->getFilename()
+                    );
+                    $objFile->copy(
+                        $websiteBackupPath . '/dataRepository/' . $fileInfo->getFilename()
+                    );
+                    $result = true;
+                }
+            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
+                \DBG::msg($e->getMessage());
+            }
+            if (!$result) {
                 throw new MultiSiteJsonException(
                     __METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath
                 );
