@@ -49,14 +49,18 @@ namespace Cx\Core\Model\Controller;
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
     
     /**
-     * PostInit hook to add entity validation
-     * @param \Cx\Core\Core\Controller\Cx $cx Cx class instance
+     * Registers EntityBase event listeners
      */
-    public function postInit(\Cx\Core\Core\Controller\Cx $cx) {
+    public function registerEventListeners() {
+        $ebel = new \Cx\Core\Model\Model\Event\EntityBaseEventListener();
         // init cx validation
-        $cx->getEvents()->addEventListener(
+        $this->cx->getEvents()->addEventListener(
             'model/onFlush',
-            new \Cx\Core\Model\Model\Event\EntityBaseEventListener()
+            $ebel
+        );
+        $this->cx->getEvents()->addEventListener(
+            'model/postFlush',
+            $ebel
         );
     }
 }

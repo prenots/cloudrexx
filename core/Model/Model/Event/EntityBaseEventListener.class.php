@@ -60,6 +60,11 @@ class EntityBaseException extends \Exception { }
 class EntityBaseEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
 
     /**
+     * @var array List of entities to re-merge with EM
+     */
+    protected $virtualEntities = array();
+
+    /**
      * Triggered on any model event
      * Will listen to 'model/onFlush' only. First entry in $eventArgs is the
      * doctrine EventArgs object.
@@ -67,13 +72,17 @@ class EntityBaseEventListener implements \Cx\Core\Event\Model\Entity\EventListen
      * @param array $eventArgs List of event arguments
      */
     public function onEvent($eventName, array $eventArgs) {
-        if ($eventName != 'model/onFlush') {
-            return;
+        switch ($eventName) {
+            case 'model/onFlush':
+                $em = current($eventArgs)->getEntityManager();
+                $uow = $em->getUnitOfWork();
+                $this->checkEntities($uow->getScheduledEntityInsertions(), $em);
+                $this->checkEntities($uow->getScheduledEntityUpdates(), $em);
+                break;
+            case 'model/postFlush':
+                $this->reAddVirtualEntities(current($eventArgs)->getEntityManager());
+                break;
         }
-        $em = current($eventArgs)->getEntityManager();
-        $uow = $em->getUnitOfWork();
-        $this->checkEntities($uow->getScheduledEntityInsertions());
-        $this->checkEntities($uow->getScheduledEntityUpdates());
     }
     
     /**
@@ -81,24 +90,30 @@ class EntityBaseEventListener implements \Cx\Core\Event\Model\Entity\EventListen
      * Checks all EntityBase derivated entities for being valid
      * ($entity->validate()) and not virtual.
      * @param array $entities List of entities to check
-     * @throws EntityBaseException If an entity is virtual
+     * @param \Cx\Core\Model\Controller\EntityManager EntityManager
      */
-    protected function checkEntities($entities) {
+    protected function checkEntities($entities, $em) {
         foreach ($entities AS $entity) {
             if (!is_a($entity, '\Cx\Model\Base\EntityBase')) {
                 continue;
             }
             $entity->validate();
             if ($entity->isVirtual()) {
-                throw new EntityBaseException(
-                    'Tried to persist entity of type "' .
-                    get_class($entity) .
-                    '" with identifier "' .
-                    $entity .
-                    '". This entity is virtual and cannot be persisted.'
-                );
+                $this->virtualEntities[] = $entity;
+                $em->detach($entity);
             }
         }
+    }
+
+    /**
+     * Merges virtual entity that were detached during checkEntities()
+     * @param \Cx\Core\Model\Controller\EntityManager EntityManager
+     */
+    protected function reAddVirtualEntities($em) {
+        foreach ($this->virtualEntities as $entity) {
+            $em->merge($entity);
+        }
+        $this->virtualEntities = array();
     }
 }
 
