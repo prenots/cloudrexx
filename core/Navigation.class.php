@@ -168,9 +168,11 @@ class Navigation
         $result = '';
         while($node->getLvl() > 0) {
             $page = $node->getPage($lang);
-            $title = $page->getTitle();
-            $path = \Cx\Core\Routing\Url::fromPage($page);
-            $result = '<a href="'.$path.'" title="'.contrexx_raw2xhtml($title).'">'.contrexx_raw2xhtml($title).'</a>'.$this->separator.' '.$result;
+            if ($page) {
+                $title = $page->getTitle();
+                $path = \Cx\Core\Routing\Url::fromPage($page);
+                $result = '<a href="'.$path.'" title="'.contrexx_raw2xhtml($title).'">'.contrexx_raw2xhtml($title).'</a>'.$this->separator.' '.$result;
+            }
             $node = $node->getParent();
         }
         return $result;
