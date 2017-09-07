@@ -4070,7 +4070,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         }
 
         // make sure backup directory exists
-        \Cx\Lib\FileSystem\FileSystem::make_folder($websiteBackupPath);
+        \Cx\Lib\FileSystem\FileSystem::make_folder($websiteBackupPath . '/dataRepository');
 
         // copy everything except /tmp and any files starting with a dot
         foreach (new \DirectoryIterator($websitePath) as $fileInfo) {
