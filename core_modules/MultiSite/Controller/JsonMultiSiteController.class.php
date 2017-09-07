@@ -3948,6 +3948,24 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     
                     $resp = self::executeCommandOnServiceServer('websiteBackup', $params['post'], $websiteServiceServer);
+                    if (!$resp || $resp->status == 'error' || $resp->data->status == 'error') {
+                        if (isset($resp->data)) {
+                            if (isset($resp->data->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) use ($websiteServiceServer) {return '('.$websiteServiceServer->gethostname().') '.$logEntry;}, $resp->data->log));
+                            }
+                            if (isset($resp->data->message)) {
+                                \DBG::msg($websiteServiceServer->gethostname() . ': ' . $resp->data->message);
+                            }
+                        } else {
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) use ($websiteServiceServer) {return '('.$websiteServiceServer->gethostname().') '.$logEntry;}, $resp->log));
+                            }
+                            if (isset($resp->message)) {
+                                \DBG::msg($websiteServiceServer->gethostname() . ': ' . $resp->message);
+                            }
+                        }
+                        continue;
+                    }
                     return $resp->data ? $resp->data : $resp;
                     break;
                 case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_HYBRID:
@@ -3976,15 +3994,20 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
 
                     return array(
                         'status'  => 'success', 
-                        'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_SUCCESS']
+                        'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_SUCCESS'],
+                        'log'     => \DBG::getMemoryLogs(),
                     );
                     break;
                 default:
                     break;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \DBG::log(__METHOD__.' failed!: '.$e->getMessage());
-            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_FAILED']);
+            return array(
+                'status'  => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_FAILED'],
+                'log'     => \DBG::getMemoryLogs(),
+            );
         }
     }
 
@@ -4063,10 +4086,45 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      */
     protected function websiteRepositoryBackup($websiteBackupPath, $websitePath)
     {
-        if (   !\Cx\Lib\FileSystem\FileSystem::exists($websitePath) 
-            || !\Cx\Lib\FileSystem\FileSystem::copy_folder($websitePath, $websiteBackupPath . '/dataRepository', true)
-        ) {
-            throw new MultiSiteJsonException(__METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath);
+        if (!\Cx\Lib\FileSystem\FileSystem::exists($websitePath)) {
+            throw new MultiSiteJsonException(
+                __METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath
+            );
+        }
+
+        // make sure backup directory exists
+        \Cx\Lib\FileSystem\FileSystem::make_folder($websiteBackupPath . '/dataRepository');
+
+        // copy everything except /tmp and any files starting with a dot
+        foreach (new \DirectoryIterator($websitePath) as $fileInfo) {
+            if ($fileInfo->isDot() || $fileInfo->getFilename() == 'tmp') {
+                continue;
+            }
+            $result = false;
+            try {
+                if ($fileInfo->isDir()) {
+                    $result = \Cx\Lib\FileSystem\FileSystem::copy_folder(
+                        $websitePath . '/' . $fileInfo->getFilename(),
+                        $websiteBackupPath . '/dataRepository/' . $fileInfo->getFilename(),
+                        true
+                    );
+                } else {
+                    $objFile = new \Cx\Lib\FileSystem\File(
+                        $websitePath . '/' . $fileInfo->getFilename()
+                    );
+                    $objFile->copy(
+                        $websiteBackupPath . '/dataRepository/' . $fileInfo->getFilename()
+                    );
+                    $result = true;
+                }
+            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
+                \DBG::msg($e->getMessage());
+            }
+            if (!$result) {
+                throw new MultiSiteJsonException(
+                    __METHOD__.' failed! : Failed to copy the website from ' . $websitePath . 'to ' . $websiteBackupPath
+                );
+            }
         }
     }
     
@@ -4731,13 +4789,16 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     protected function websiteRepositoryRestore($websitePath, $websiteBackupFilePath)
     {
         if (!\Cx\Lib\FileSystem\FileSystem::exists($websiteBackupFilePath)) {
-            throw new MultiSiteJsonException(__METHOD__.' failed! : Website Backup file doesnot exists!.');
+            throw new MultiSiteJsonException(__METHOD__.' failed! : Website Backup file does not exists!.');
         }
         
         $restoreWebsiteFile = new \PclZip($websiteBackupFilePath);
         if ($restoreWebsiteFile->extract(PCLZIP_OPT_PATH, $websitePath, PCLZIP_OPT_BY_PREG, '/dataRepository(.(?!config))*$/', PCLZIP_OPT_REMOVE_PATH, 'dataRepository', PCLZIP_OPT_REPLACE_NEWER) == 0) {
             throw new MultiSiteJsonException(__METHOD__.' failed! : Failed to extract the website repostory on restore.');
         }
+
+        // create tmp directory
+        \Cx\Lib\FileSystem\FileSystem::make_folder($websitePath . '/tmp');
     }
     
     /**
