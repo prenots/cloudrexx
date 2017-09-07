@@ -77,6 +77,7 @@ class DoctrineRepository extends DataSource {
         $criteria = array();
 
         // $elementId
+        $isSingle = isset($elementId) && count($elementId);
         if (isset($elementId)) {
             $criteria = $elementId;
         }
@@ -152,7 +153,12 @@ class DoctrineRepository extends DataSource {
             $dataSet = $dataSetFlipped->flip();
         }
 
-        return $dataSet->toArray();
+        $data = $dataSet->toArray();
+        if (!$isSingle) {
+            $data = array($data);
+        }
+
+        return $data;
     }
 
     /**
