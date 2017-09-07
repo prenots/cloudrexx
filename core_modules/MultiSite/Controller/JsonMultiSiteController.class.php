@@ -3948,6 +3948,24 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     
                     $resp = self::executeCommandOnServiceServer('websiteBackup', $params['post'], $websiteServiceServer);
+                    if (!$resp || $resp->status == 'error' || $resp->data->status == 'error') {
+                        if (isset($resp->data)) {
+                            if (isset($resp->data->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) use ($websiteServiceServer) {return '('.$websiteServiceServer->gethostname().') '.$logEntry;}, $resp->data->log));
+                            }
+                            if (isset($resp->data->message)) {
+                                \DBG::msg($websiteServiceServer->gethostname() . ': ' . $resp->data->message);
+                            }
+                        } else {
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) use ($websiteServiceServer) {return '('.$websiteServiceServer->gethostname().') '.$logEntry;}, $resp->log));
+                            }
+                            if (isset($resp->message)) {
+                                \DBG::msg($websiteServiceServer->gethostname() . ': ' . $resp->message);
+                            }
+                        }
+                        continue;
+                    }
                     return $resp->data ? $resp->data : $resp;
                     break;
                 case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_HYBRID:
@@ -3976,15 +3994,20 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
 
                     return array(
                         'status'  => 'success', 
-                        'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_SUCCESS']
+                        'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_SUCCESS'],
+                        'log'     => \DBG::getMemoryLogs(),
                     );
                     break;
                 default:
                     break;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \DBG::log(__METHOD__.' failed!: '.$e->getMessage());
-            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_FAILED']);
+            return array(
+                'status'  => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_FAILED'],
+                'log'     => \DBG::getMemoryLogs(),
+            );
         }
     }
 
