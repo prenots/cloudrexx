@@ -76,21 +76,22 @@ class DoctrineRepository extends DataSource {
 
         $criteria = array();
 
+        // $elementId
+        if (isset($elementId)) {
+            $criteria = $elementId;
+        }
+
         // $filter
         if (count($fieldList)) {
             foreach ($filter as $field=>$value) {
-                if (!in_array($field, $fieldList)) {
+                if (
+                    !in_array($field, $fieldList) ||
+                    !empty($criteria[$field])
+                ) {
                     continue;
                 }
                 $criteria[$field] = $value;
             }
-        }
-
-        // $elementId
-        if (isset($elementId)) {
-            $meta = $em->getClassMetadata($this->getIdentifier());
-            $identifierField = $meta->getSingleIdentifierFieldName();
-            $criteria[$identifierField] = $elementId;
         }
 
         // $order
