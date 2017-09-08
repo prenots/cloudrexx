@@ -54,17 +54,17 @@ class DoctrineRepository extends DataSource {
      * So if this is called without any arguments, all entries of this
      * DataSource are returned.
      * If no entry is found, an empty array is returned.
-     * @param string $elementId (optional) ID of the element if only one is to be returned
+     * @param array $elementId (optional) field=>value-type condition array for ID of the element if only one entry is to be returned
      * @param array $filter (optional) field=>value-type condition array, only supports = for now
      * @param array $order (optional) field=>order-type array, order is either "ASC" or "DESC"
      * @param int $limit (optional) If set, no more than $limit results are returned
      * @param int $offset (optional) Entry to start with
      * @param array $fieldList (optional) Limits the result to the values for the fields in this list
      * @throws \Exception If doctrine repository for this DataSource could not be found
-     * @return array Two dimensional array (/table) of results (array($row=>array($fieldName=>$value)))
+     * @return array Two dimensional array (/table) of results (array($row=>array($fieldName=>$value))) if ID is not set, one dimensional array otherwise
      */
     public function get(
-        $elementId = null,
+        $elementId = array(),
         $filter = array(),
         $order = array(),
         $limit = 0,
@@ -77,7 +77,7 @@ class DoctrineRepository extends DataSource {
         $criteria = array();
 
         // $elementId
-        $isSingle = isset($elementId) && count($elementId);
+        $isSingle = count($elementId);
         if (isset($elementId)) {
             $criteria = $elementId;
         }
