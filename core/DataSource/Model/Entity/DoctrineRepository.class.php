@@ -137,6 +137,7 @@ class DoctrineRepository extends DataSource {
             }
         }
         $result = $qb->getQuery()->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+        $dataCount = count($result);
 
         // $fieldList
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($result);
@@ -154,7 +155,8 @@ class DoctrineRepository extends DataSource {
         }
 
         $data = $dataSet->toArray();
-        if (!$isSingle) {
+        // Fix ArrayList changing to single mode when there's but one entry
+        if (!$isSingle && $dataCount == 1) {
             $data = array($data);
         }
 
