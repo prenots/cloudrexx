@@ -289,6 +289,7 @@ class DoctrineRepository extends DataSource {
                 $targetRepo = $em->getRepository($associationMapping['targetEntity']);
                 $primaryKeys = $entityClassMetadata->getIdentifierFieldNames();
                 $addMethod = 'add'.preg_replace('/_([a-z])/', '\1', ucfirst($field));
+                $getMethod = 'get'.preg_replace('/_([a-z])/', '\1', ucfirst($field));
                 // foreach distant entity
                 foreach ($foreignEntityIndexes as $foreignEntityIndex) {
                     // prepare data
@@ -310,6 +311,13 @@ class DoctrineRepository extends DataSource {
                         throw new \Exception(
                             'Entity not found (' . $associationMapping['targetEntity'] . ' with ID ' . var_export($foreignEntityIndexData, true) . ')'
                         );
+                    }
+                    // only add association if it does not yet exists
+                    $existingAssociatedEntities = $entity->$getMethod();
+                    foreach ($existingAssociatedEntities as $existingAssociatedEntity) {
+                        if ($targetEntity == $existingAssociatedEntity) {
+                            continue 2;
+                        }
                     }
                     $entity->$addMethod($targetEntity);
                 }
