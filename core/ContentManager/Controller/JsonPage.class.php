@@ -229,7 +229,6 @@ class JsonPage implements JsonAdapter {
                 // If we got a page id, the page already exists and can be updated.
                 $page = $this->pageRepo->find($pageId, 0, null, false);
                 $node = $page->getNode();
-
             // TRANSLATE
             } else if (!empty($nodeId) && !empty($lang)) {
                 // We are translating the page.
@@ -393,9 +392,6 @@ class JsonPage implements JsonAdapter {
                 $page->setRelatedBlocks($dataPost['pageBlocks']);
             }
 
-            $draftUpdateLog = null;
-            $liveUpdateLog = null;
-            $updatingDraft = false;
             if (($action == 'publish') && \Permission::checkAccess(78, 'static', true)) {
                 // User w/permission clicked save&publish. we should either publish the page or submit the draft for approval.
                 if ($page->getEditingStatus() == 'hasDraftWaiting') {
@@ -410,9 +406,6 @@ class JsonPage implements JsonAdapter {
                 $page->setEditingStatus('');
                 $this->messages[] = $_CORELANG['TXT_CORE_SAVED'];
             } else {
-                // User clicked save [as draft], so let's do that.
-                $updatingDraft = $page->getEditingStatus() != '' ? true : false;
-
                 if ($action == 'publish') {
                     // User w/o publish permission clicked save&publish. submit it as a draft.
                     $page->setEditingStatus('hasDraftWaiting');
@@ -424,70 +417,9 @@ class JsonPage implements JsonAdapter {
                     $page->setEditingStatus('hasDraft');
                     $this->messages[] = $_CORELANG['TXT_CORE_SAVED_AS_DRAFT'];
                 }
-
-                // Gedmo-loggable generates a LogEntry (i.e. revision) on persist, so we'll have to 
-                // store the draft first, then revert the current version to what it previously was.
-                // In the end, we'll have the current [published] version properly stored as a page
-                // and the draft version stored as a gedmo LogEntry.
-
-                $this->em->persist($page);
-                // Gedmo hooks in on persist/flush, so we unfortunately need to flush our em in
-                // order to get a clean set of logEntries.
-                $this->em->flush();
-                $logEntries = $this->logRepo->getLogEntries($page, false, 2);
-                // Revert to the published version.
-                $cachedEditingStatus = $page->getEditingStatus();
-                $this->logRepo->revert($page, $logEntries[1]->getVersion());
-                $page->setEditingStatus($cachedEditingStatus);
-
-                switch ($action) {
-                    case 'activate':
-                    case 'publish':
-                        $page->setActive(true);
-                        break;
-                    case 'deactivate':
-                        $page->setActive(false);
-                        break;
-                    case 'show':
-                        $page->setDisplay(true);
-                        break;
-                    case 'hide':
-                        $page->setDisplay(false);
-                        break;
-                    case 'protect':
-                        $page->setFrontendProtection(true);
-                        break;
-                    case 'unprotect':
-                        $page->setFrontendProtection(false);
-                        break;
-                    case 'lock':
-                        $page->setBackendProtection(true);
-                        break;
-                    case 'unlock':
-                        $page->setBackendProtection(false);
-                        break;
-                }
-
-                $this->em->persist($page);
-
-                // Gedmo auto-logs slightly too much data. clean up unnecessary revisions:
-                if ($updatingDraft) {
-                    $this->em->flush();
-
-                    $logEntries = $this->logRepo->getLogEntries($page, true, 3);
-                    $currentLog = $logEntries[1];
-                    $currentLogData = $currentLog->getData();
-                    $currentLogData['editingStatus'] = $page->getEditingStatus();
-                    $currentLog->setData($currentLogData);
-                    $this->em->persist($currentLog);
-
-                    $liveUpdateLog = $logEntries[2];
-                    $this->em->remove($logEntries[2]);
-                }
             }
 
-            $this->em->persist($page);
-
+            $this->em->flush();
             if ((isset($dataPost['inheritFrontendAccess']) && $dataPost['inheritFrontendAccess'] == 'on')
                     || (isset($dataPost['inheritBackendAccess']) && $dataPost['inheritBackendAccess'] == 'on')
                     || (isset($dataPost['inheritSkin']) && $dataPost['inheritSkin'] == 'on')
@@ -529,8 +461,6 @@ class JsonPage implements JsonAdapter {
                 }
             }
 
-            $this->em->flush();
-
             // bug fix #2279
             // could not save alias after running $this->em->clear()
             // Aliases are only updated in the editing mode.
@@ -550,87 +480,7 @@ class JsonPage implements JsonAdapter {
                     //$this->messages[] = $_CORELANG['TXT_CORE_ALIAS_CREATION_DENIED'];
                 }
             }
-
-            // this fixes log version number skipping
-            $this->em->clear();
-            $logs = $this->logRepo->getLogEntries($page, true, 2);
-            $this->em->persist($logs[0]);
-
-            if ($updatingDraft) {
-                $data = $logs[1]->getData();
-                if (!empty($action) && $draftUpdateLog) {
-                    $data = $draftUpdateLog->getData();
-                }
-                $data['editingStatus'] = 'hasDraft';
-                if ($action == 'publish' && !\Permission::checkAccess(78, 'static', true)) {
-                    $data['editingStatus'] = 'hasDraftWaiting';
-                }
-                switch ($action) {
-                    case 'activate':
-                        $data['active'] = true;
-                        break;
-                    case 'deactivate':
-                        $data['active'] = false;
-                        break;
-                    case 'show':
-                        $data['display'] = true;
-                        break;
-                    case 'hide':
-                        $data['display'] = false;
-                        break;
-                    case 'protect':
-                        $data['protection'] = $data['protection'] | FRONTEND_PROTECTION;
-                        break;
-                    case 'unprotect':
-                        $data['protection'] = $data['protection'] & ~FRONTEND_PROTECTION;
-                        break;
-                    case 'lock':
-                        $data['protection'] = $data['protection'] | BACKEND_PROTECTION;
-                        break;
-                    case 'unlock':
-                        $data['protection'] = $data['protection'] & ~BACKEND_PROTECTION;
-                        break;
-                }
-                $logs[1]->setData($data);
-
-                if (!empty($action) && $action != 'publish') {
-                    $data = $logs[0]->getData();
-                    if ($liveUpdateLog) {
-                        $data = $liveUpdateLog->getData();
-                    }
-                    switch ($action) {
-                        case 'activate':
-                            $data['active'] = true;
-                            break;
-                        case 'deactivate':
-                            $data['active'] = false;
-                            break;
-                        case 'show':
-                            $data['display'] = true;
-                            break;
-                        case 'hide':
-                            $data['display'] = false;
-                            break;
-                        case 'protect':
-                            $data['protection'] = $data['protection'] | FRONTEND_PROTECTION;
-                            break;
-                        case 'unprotect':
-                            $data['protection'] = $data['protection'] & ~FRONTEND_PROTECTION;
-                            break;
-                        case 'lock':
-                            $data['protection'] = $data['protection'] | BACKEND_PROTECTION;
-                            break;
-                        case 'unlock':
-                            $data['protection'] = $data['protection'] & ~BACKEND_PROTECTION;
-                            break;
-                    }
-                    $logs[0]->setData($data);
-                }
-
-                $this->em->persist($logs[0]);
-                $this->em->persist($logs[1]);
-                $this->em->flush();
-            }
+            $this->em->flush();
             $this->em->getConnection()->commit();
 
             // Drop cache of our page and all pages pointing to our page

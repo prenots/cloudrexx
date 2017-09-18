@@ -68,6 +68,27 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
      */
     protected $lastPreUpdateChangeset;
 
+    /**
+     * lastUpdatedEntity
+     *
+     * @var \Cx\Core\ContentManager\Model\Entity\Page
+     */
+    protected $lastUpdatedEntity;
+
+    /**
+     * entity's OldEditingStatus
+     *
+     * @var string
+     */
+    protected $entitysOldEditingStatus;
+
+    /**
+     * updatePageLog
+     *
+     * @var boolean
+     */
+    protected $updatePageLog = true;
+
     public function prePersist($eventArgs) {
         $this->setUpdatedByCurrentlyLoggedInUser($eventArgs);
         $this->fixAutoIncrement();
@@ -160,6 +181,28 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
         }
     }
 
+    /**
+     * Event postFlush
+     *
+     * @param \Doctrine\ORM\Event\PostFlushEventArgs $eventArgs
+     */
+    public function postFlush($eventArgs)
+    {
+        if (!$this->updatePageLog || !$this->lastUpdatedEntity) {
+            return;
+        }
+
+        $this->updatePageLogs(
+            $eventArgs->getEntityManager(),
+            $this->lastUpdatedEntity
+        );
+    }
+
+    /**
+     * Event OnFlush
+     *
+     * @param \Doctrine\ORM\Event\OnFlushEventArgs $eventArgs
+     */
     public function onFlush($eventArgs) {
         $em = $eventArgs->getEntityManager();
 
@@ -175,6 +218,206 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
 
         foreach ($uow->getScheduledEntityUpdates() AS $entity) {
             $this->checkValidPersistingOperation($pageRepo, $entity);
+            if (!$this->updatePageLog || !($entity instanceof Page)) {
+                continue;
+            }
+            $this->lastUpdatedEntity = $entity;
+            $changeSet = $uow->getEntityChangeSet($entity);
+            if (isset($changeSet['editingStatus'])) {
+                $this->entitysOldEditingStatus = $changeSet['editingStatus'][0];
+            } else  {
+                $this->entitysOldEditingStatus =
+                    $this->lastUpdatedEntity->getEditingStatus();
+            }
+        }
+    }
+
+    /**
+     * Update page logs while add/edit a page as draft
+     *
+     * @param Cx\Core\Model\Controller\EntityManager   $em   Entity Manager object
+     * @param Cx\Core\ContentManager\Model\Entity\Page $page Page object
+     *
+     * @return boolean
+     */
+    protected function updatePageLogs($em, $page)
+    {
+        if (!$page) {
+            return false;
+        }
+
+        $this->updatePageLog = false;
+        $updatingDraft       = false;
+        $logRepo             = $em->getRepository(
+            'Cx\Core\ContentManager\Model\Entity\LogEntry'
+        );
+        $action = '';
+        if (isset($_POST['action'])) {
+            $action = contrexx_input2raw($_POST['action']);
+        }
+
+        if (
+            !empty($action) &&
+            ($action != 'publish') &&
+            !($this->entitysOldEditingStatus != '')
+        ) {
+            $action = 'publish';
+        }
+
+        if (
+            !\FWValidator::isEmpty($page->getEditingStatus()) &&
+            in_array(
+                $page->getEditingStatus(),
+                array('hasDraftWaiting', 'hasDraft')
+            )
+        ) {
+            $updatingDraft = false;
+            if ($this->entitysOldEditingStatus != '') {
+                $updatingDraft = true;
+            }
+            // Gedmo-loggable generates a LogEntry (i.e. revision) on persist, so we'll have to
+            // store the draft first, then revert the current version to what it previously was.
+            // In the end, we'll have the current [published] version properly stored as a page
+            // and the draft version stored as a gedmo LogEntry.
+            $logEntries  = $logRepo->getLogEntries($page, false, 2);
+            //Revert the page to published version
+            $cachedEditingStatus = $page->getEditingStatus();
+            $logRepo->revert($page, $logEntries[1]->getVersion());
+            //Update page editing status and action(publish, activate,
+            //deactivate, show, hide, protect, unprotect, lock, unlock) based values
+            $page->setEditingStatus($cachedEditingStatus);
+            switch($action) {
+                case 'activate':
+                case 'publish':
+                    $page->setActive(true);
+                    break;
+                case 'deactivate':
+                    $page->setActive(false);
+                    break;
+                case 'show':
+                    $page->setDisplay(true);
+                    break;
+                case 'hide':
+                    $page->setDisplay(false);
+                    break;
+                case 'protect':
+                    $page->setFrontendProtection(true);
+                    break;
+                case 'unprotect':
+                    $page->setFrontendProtection(false);
+                    break;
+                case 'lock':
+                    $page->setBackendProtection(true);
+                    break;
+                case 'unlock':
+                    $page->setBackendProtection(false);
+                    break;
+            }
+            $em->getUnitOfWork()->computeChangeSet(
+                $em->getClassMetadata('Cx\Core\ContentManager\Model\Entity\Page'),
+                $page
+            );
+            //Gedmo auto-logs slightly too much data. clean up unnecessary revisions:
+            if ($updatingDraft) {
+                $em->flush();
+                $logEntries = $logRepo->getLogEntries($page, true, 3);
+                $currentLog = $logEntries[1];
+                $currentLogData = $currentLog->getData();
+                $currentLogData['editingStatus'] = $page->getEditingStatus();
+                $currentLog->setData($currentLogData);
+                $em->getUnitOfWork()->computeChangeSet(
+                    $em->getClassMetadata('Cx\Core\ContentManager\Model\Entity\LogEntry'),
+                    $currentLog
+                );
+
+                $liveUpdateLog = $logEntries[2];
+                $em->remove($logEntries[2]);
+            }
+            $em->flush();
+        }
+        //this fixes log version number skipping
+        $em->clear();
+        $logs = $logRepo->getLogEntries($page, true, 2);
+        $em->getUnitOfWork()->computeChangeSet(
+            $em->getClassMetadata('Cx\Core\ContentManager\Model\Entity\LogEntry'),
+            $logs[0]
+        );
+
+        if (!$updatingDraft) {
+            $em->flush();
+            $this->updatePageLog     = true;
+            $this->lastUpdatedEntity = null;
+            return;
+        }
+        $data = $logs[1]->getData();
+        $data['editingStatus'] = 'hasDraft';
+        if (
+            $action == 'publish' &&
+            !\Permission::checkAccess(78, 'static', true)
+        ) {
+            $data['editingStatus'] = 'hasDraftWaiting';
+        }
+        $this->updateLogByAction($data, $action);
+        $logs[1]->setData($data);
+        $em->getUnitOfWork()->computeChangeSet(
+            $em->getClassMetadata('Cx\Core\ContentManager\Model\Entity\LogEntry'),
+            $logs[1]
+        );
+        if (!empty($action) && $action != 'publish') {
+            $data = $logs[0]->getData();
+            if ($liveUpdateLog) {
+                $data = $liveUpdateLog->getData();
+            }
+            $this->updateLogByAction($data, $action);
+            $logs[0]->setData($data);
+            $em->getUnitOfWork()->computeChangeSet(
+                 $em->getClassMetadata('Cx\Core\ContentManager\Model\Entity\LogEntry'),
+                $logs[0]
+            );
+        }
+        $em->flush();
+        $this->updatePageLog     = true;
+        $this->lastUpdatedEntity = null;
+    }
+
+    /**
+     * Update log by action
+     *
+     * @param array  $data   log data
+     * @param string $action action value
+     */
+    protected function updateLogByAction(&$data, $action)
+    {
+        if (empty($action)) {
+            return;
+        }
+
+        switch($action) {
+            case 'activate':
+            case 'publish':
+                $data['active'] = true;
+                break;
+            case 'deactivate':
+                $data['active'] = false;
+                break;
+            case 'show':
+                $data['display'] = true;
+                break;
+            case 'hide':
+                $data['display'] = false;
+                break;
+            case 'protect':
+                $data['protection'] = $data['protection'] | FRONTEND_PROTECTION;
+                break;
+            case 'unprotect':
+                $data['protection'] = $data['protection'] & ~FRONTEND_PROTECTION;
+                break;
+            case 'lock':
+                $data['protection'] = $data['protection'] | BACKEND_PROTECTION;
+                break;
+            case 'unlock':
+                $data['protection'] = $data['protection'] & ~BACKEND_PROTECTION;
+                break;
         }
     }
 
