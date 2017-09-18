@@ -439,7 +439,7 @@ class Sync extends \Cx\Model\Base\EntityBase {
             }
             $relatedHosts[] = $hostEntity['host'];
         }
-        foreach ($this->getHostEntitiesIncludingLegacy(false) as $hostEntity) {
+        foreach ($this->getHostEntitiesIncludingLegacy() as $hostEntity) {
             if (in_array($hostEntity['host'], $relatedHosts)) {
                 continue;
             }

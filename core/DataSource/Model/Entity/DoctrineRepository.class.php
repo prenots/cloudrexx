@@ -314,10 +314,8 @@ class DoctrineRepository extends DataSource {
                     }
                     // only add association if it does not yet exists
                     $existingAssociatedEntities = $entity->$getMethod();
-                    foreach ($existingAssociatedEntities as $existingAssociatedEntity) {
-                        if ($targetEntity == $existingAssociatedEntity) {
-                            continue 2;
-                        }
+                    if (in_array($targetEntity, $existingAssociatedEntities)) {
+                        continue;
                     }
                     $entity->$addMethod($targetEntity);
                 }
