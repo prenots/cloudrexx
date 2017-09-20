@@ -147,7 +147,7 @@ class EsiWidget extends Widget {
      * @param string $jsonMethodName (optional) Name of the JsonAdapter method to call. If not specified, "getWidget" is used
      * @param array $jsonParams (optional) Params to pass on JsonAdapter call. If not specified, a default list is used, see getEsiParams()
      */
-    public function __construct($component, $name, $type = '', $jsonAdapterName = '', $jsonMethodName = '', $jsonParams = array()) {
+    public function __construct($component, $name, $type = self::TYPE_PLACEHOLDER, $jsonAdapterName = '', $jsonMethodName = '', $jsonParams = array()) {
         parent::__construct($component, $name, $type);
         $this->jsonAdapterName = $jsonAdapterName;
         $this->jsonMethodName = $jsonMethodName;

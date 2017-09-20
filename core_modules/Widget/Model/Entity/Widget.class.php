@@ -83,10 +83,7 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
      * @param string $name Name of this widget
      * @param string $type (optional) Whether this widget represents a template placeholder, block or callback, default: placeholder
      */
-    public function __construct($component, $name, $type = '') {
-        if (empty($type)) {
-            $type = static::TYPE_PLACEHOLDER;
-        }
+    public function __construct($component, $name, $type = self::TYPE_PLACEHOLDER) {
         $this->component = $component;
         $this->name = $name;
         $this->type = $type;
@@ -156,10 +153,10 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
      * @param string $targetEntity Parse target entity name
      * @param string $targetId Parse target entity ID
      * @param array $params (optional) List of params for widgets of type 'callback'
-     * @param array $excludedWidgets (optiona) List of widget names that shall not be parsed
+     * @param array $excludedWidgets (optional) List of widget names that shall not be parsed
      */
     public function parse($template, $response, $targetComponent, $targetEntity, $targetId, $arguments = array(), $excludedWidgets = array()) {
-        // Disable parsing of widgets in backend pending furtzer notice
+        // Disable parsing of widgets in backend pending further notice
         // See CLX-1674
         if ($this->cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
             return;
@@ -168,22 +165,21 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
         switch ($this->getType()) {
             case static::TYPE_CALLBACK:
             case static::TYPE_PLACEHOLDER:
-                if (!$template->placeholderExists($this->getName())) {
-                    return;
-                }
-                $content = $this->internalParse(
-                    $template,
-                    $response,
-                    $targetComponent,
-                    $targetEntity,
-                    $targetId,
-                    $arguments
-                );
-                \LinkGenerator::parseTemplate($content);
-                $template->setVariable(
-                    $this->getName(),
-                    $content
-                );
+            if (!$template->placeholderExists($this->getName())) {
+                return;
+            }
+            $content = $this->internalParse(
+                $template,
+                $response,
+                $targetComponent,
+                $targetEntity,
+                $targetId
+            );
+            \LinkGenerator::parseTemplate($content);
+            $template->setVariable(
+                $this->getName(),
+                $content
+            );
                 break;
             case static::TYPE_BLOCK:
                 if (!$template->blockExists($this->getName())) {
@@ -216,6 +212,9 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
                     false,
                     true
                 );
+                break;
+            default:
+                throw new \Exception('No such widget type for widget "' . $this->getName() . '" of component "' . $this->getRegisteringComponent()->getName() . '"');
                 break;
         }
     }

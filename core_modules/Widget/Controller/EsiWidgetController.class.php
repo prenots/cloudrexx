@@ -122,21 +122,9 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             }
         }
 
-        // ensure that the params can be fetched during internal parsing
-        $backupGetParams = $_GET;
-        $backupRequestParams = $_REQUEST;
-        $_GET = $params['get'];
-        $_REQUEST = $params['get'];
-        if (isset($params['post'])) {
-            $_REQUEST += $params['post'];
-        }
-
         // resolve widget template
+        $widget = $this->getComponent('Widget')->getWidget($params['get']['name']);
         return $this->internalParseWidget($widget, $params);
-
-        // restore params
-        $_GET = $backupGetParams;
-        $_REQUEST = $backupRequestParams;
     }
 
     /**
@@ -147,6 +135,16 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
      */
     protected function internalParseWidget($widget, $params) {
         $widgetContent = '';
+
+        // ensure that the params can be fetched during internal parsing
+        $backupGetParams = $_GET;
+        $backupRequestParams = $_REQUEST;
+        $_GET = $params['get'];
+        $_REQUEST = $params['get'];
+        if (isset($params['post'])) {
+            $_REQUEST += $params['post'];
+        }
+
         if ($widget->getType() != \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_BLOCK) {
             $widgetContent = '{' . $params['get']['name'] . '}';
         } else {
@@ -183,6 +181,8 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             $params['response'],
             $params['get']
         );
+        $_GET = $backupGetParams;
+        $_REQUEST = $backupRequestParams;
         $content = $widgetTemplate->get();
 
         $content = preg_replace('/\\[\\[([A-Z0-9_-]+)\\]\\]/', '{\\1}', $content);
