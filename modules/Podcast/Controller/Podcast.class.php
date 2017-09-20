@@ -145,7 +145,7 @@ EOF;
 
         if (($arrMedium = $this->_getMedium($mediumId, true)) !== false) {
             if ($this->_objTpl->blockExists('podcast_medium')) {
-                $arrTemplate = &$this->_getTemplate($arrMedium['template_id']);
+                $arrTemplate = $this->_getTemplate($arrMedium['template_id']);
 
                 $mediumCode = sprintf($embedCode, addcslashes($this->_getHtmlTag($arrMedium, $arrTemplate['template']), "\r\n'"));
                 $this->_objTpl->setVariable(array(

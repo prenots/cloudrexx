@@ -684,7 +684,7 @@ class PodcastLib
 
     function _getTemplateMenu($selectedTemplateId, $attrs = '')
     {
-        $arrTemplates = &$this->_getTemplates();
+        $arrTemplates = $this->_getTemplates();
         if($selectedTemplateId == $this->_getYoutubeTemplate()){
             $attrs .= ' disabled="disabled"';
         }
@@ -1202,7 +1202,7 @@ EOF;
                     }
                 }
             }
-        } elseif ($mediumId > 0 && ($arrMedium = &$this->_getMedium($mediumId)) !== false && $_REQUEST['section'] != 'Podcast') {
+        } elseif ($mediumId > 0 && ($arrMedium = $this->_getMedium($mediumId)) !== false && $_REQUEST['section'] != 'Podcast') {
             $mediumTitle = $arrMedium['title'];
             $mediumAuthor = $arrMedium['author'];
             $mediumDescription = $arrMedium['description'];
@@ -1242,14 +1242,14 @@ EOF;
             if(!empty($mediumYoutubeID)){
                 $mediumTitle = $this->_getYoutubeTitle($mediumYoutubeID);
                 $mediumThumbnail = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath().$this->_saveYoutubeThumbnail($mediumYoutubeID);
-                $mediumTemplate = &$this->_getYoutubeTemplate();
-                $mediumDescription = &$this->_getYoutubeDescription($mediumYoutubeID);
+                $mediumTemplate = $this->_getYoutubeTemplate();
+                $mediumDescription = $this->_getYoutubeDescription($mediumYoutubeID);
                 $mediumWidth = $this->_youTubeDefaultWidth;
                 $mediumSize = 0;
                 $mediumHeight = $this->_youTubeDefaultHeight;
             }else{
                 $mediumTitle = ($lastSlash = strrpos($mediumSource, '/')) !== false ? substr($mediumSource, $lastSlash+1) : $mediumSource;
-                $mediumTemplate = &$this->_getSuitableTemplate($mediumSource);
+                $mediumTemplate = $this->_getSuitableTemplate($mediumSource);
                 $dimensions = isset($_POST['podcast_medium_local_source']) && \Cx\Core_Modules\Media\Controller\MediaLibrary::_isImage(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$_POST['podcast_medium_local_source']) ? @getimagesize(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$_POST['podcast_medium_local_source']) : false;
                 if ($dimensions) {
                     $mediumWidth = $dimensions[0];
@@ -1294,7 +1294,7 @@ EOF;
                                                     )
         ));
 
-        $arrCategories = &$this->_getCategories();
+        $arrCategories = $this->_getCategories();
         $categoryNr = 0;
         $arrLanguages = \FWLanguage::getLanguageArray();
 
@@ -1444,7 +1444,7 @@ EOF;
     function _createRSS()
     {
         global $_CONFIG, $objDatabase;
-        $this->_arrSettings = &$this->_getSettings();
+        $this->_arrSettings = $this->_getSettings();
         $arrMedia = array();
         $objMedium = $objDatabase->Execute("
             SELECT tblMedium.id,
