@@ -26,10 +26,12 @@
  */
 
 /**
- * Represents a template widget that is handled by ESI
+ * Represents a template widget that contains randomized content
  *
+ * This class' only use is to identify such widgets. Randomizing is done in
+ * EsiWidgetController
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Michael Ritter <michael.ritter@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  coremodules_widget
  * @version     1.0.0
@@ -38,104 +40,47 @@
 namespace Cx\Core_Modules\Widget\Model\Entity;
 
 /**
- * Represents a template widget that is handled by ESI
+ * Represents a template widget that contains randomized content
  *
+ * This class' only use is to identify such widgets. Randomizing is done in
+ * EsiWidgetController
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
- * @author      Project Team SS4U <info@comvation.com>
+ * @author      Michael Ritter <michael.ritter@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  coremodules_widget
  * @version     1.0.0
  */
 class RandomEsiWidget extends EsiWidget {
-    /**
-     * Random widget names
-     *
-     * @var array
-     */
-    protected $randomNames;
 
     /**
-     * Instanciates a new widget
-     *
-     * @param \Cx\Core\Core\Model\Entity\SystemComponentController $component Component registering this widget
-     * @param string  $name            Name of this widget
-     * @param array   $randomNames     Array of random widget names
-     * @param boolean $hasContent      (optional) Wheter this widget has content or not
-     * @param string  $jsonAdapterName (optional) Name of the JsonAdapter to call. If not specified, $component->getName() is used
-     * @param string  $jsonMethodName  (optional) Name of the JsonAdapter method to call. If not specified, "getWidget" is used
-     * @param array   $jsonParams      (optional) Params to pass on JsonAdapter call. If not specified, a default list is used, see getEsiParams()
+     * @var int Number of unique repetitions
      */
-    public function __construct(
-        $component,
-        $name,
-        $randomNames,
-        $hasContent = false,
-        $jsonAdapterName = '',
-        $jsonMethodName = '',
-        $jsonParams = array()
-    ) {
-        parent::__construct(
-            $component,
-            $name,
-            $hasContent,
-            $jsonAdapterName,
-            $jsonMethodName,
-            $jsonParams
-        );
-        $this->randomNames = $randomNames;
+    protected $uniqueRepetitionCount = 1;
+
+    /**
+     * Returns the name of the JsonAdapter to call
+     * @return string JsonAdapter name
+     */
+    public function getJsonAdapterName() {
+        if (empty($this->jsonAdapterName)) {
+            return $this->getRegisteringComponent()->getName() . 'RandomWidget';
+        }
+        return $this->jsonAdapterName;
     }
 
     /**
-     * Get the random widget names
-     *
-     * @return type
+     * Returns the number of unique repetitions of this widget
+     * @return int Number of unique repetitions
      */
-    public function getRandomNames()
-    {
-        return $this->randomNames;
+    public function getUniqueRepetitionCount() {
+        return $this->uniqueRepetitionCount;
     }
 
-    /*
-     * Really parses this widget into $template
-     * If this Widget has no content, the replacement can simply be returned
-     * as string. Otherwise the replacement must be done in $template.
-     *
-     * @param \HTML_Template_Sigma                  $template        Template to parse this widget into
-     * @param \Cx\Core\Routing\Model\Entity\Reponse $response        Current response object
-     * @param string                                $targetComponent Parse target component name
-     * @param string                                $targetEntity    Parse target entity name
-     * @param string                                $targetId Parse  target entity ID
-     *
-     * @return string Replacement for widgets without content, NULL otherwise
+    /**
+     * Sets the number of unique repetitions of this widget
+     * @param int $count Number of unique repetitions
      */
-    public function internalParse(
-        $template,
-        $response,
-        $targetComponent,
-        $targetEntity,
-        $targetId
-    ) {
-        $randomEsiParams   = array();
-        $randomWidgetnames = $this->getRandomNames();
-        $esiParams         = $this->getEsiParams(
-            $targetComponent,
-            $targetEntity,
-            $targetId
-        );
-        foreach ($randomWidgetnames as $randomWidgetname) {
-            $randomEsiParams[] = array(
-                $this->getJsonAdapterName(),
-                $this->getJsonMethodName(),
-                array_merge($esiParams, array('randomName' => $randomWidgetname))
-            );
-        }
-        $esiContent = $this->getComponent('Cache')->getRandomizedEsiContent(
-            $randomEsiParams
-        );
-        if (!$this->hasContent()) {
-            return $esiContent;
-        }
-        $template->replaceBlock($this->getName(), $esiContent);
-        $template->touchBlock($this->getName());
+    public function setUniqueRepetitionCount($count) {
+        $this->uniqueRepetitionCount = $count;
     }
 }

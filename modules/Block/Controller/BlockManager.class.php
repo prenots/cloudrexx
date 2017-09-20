@@ -967,6 +967,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         $objJs->setVariable('ckeditorconfigpath', substr(\Env::get('ClassLoader')->getFilePath(ASCMS_CORE_PATH.'/Wysiwyg/ckeditor.config.js.php'), strlen(ASCMS_DOCUMENT_ROOT)+1), 'block');
 
+        // manually set Wysiwyg variables as the Ckeditor will be
+        // loaded manually through JavaScript (and not properly through the
+        // component interface)
+        $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader();
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        $mediaSource        = current($mediaSourceManager->getMediaTypes());
+        $mediaSourceDir     = $mediaSource->getDirectory();
+        $objJs->setVariable(array(
+            'ckeditorUploaderId'   => $uploader->getId(),
+            'ckeditorUploaderPath' => $mediaSourceDir[1] . '/'
+        ), 'wysiwyg');
+
         $arrActiveSystemFrontendLanguages = \FWLanguage::getActiveFrontendLanguages();
         $this->parseLanguageOptionsByPlaceholder($arrActiveSystemFrontendLanguages, 'global');
         $this->parseLanguageOptionsByPlaceholder($arrActiveSystemFrontendLanguages, 'direct');
@@ -1245,14 +1258,14 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         $clearCache = false;
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
-        if($arrStatusBlocks != null){
+        if ($arrStatusBlocks != null) {
             foreach ($arrStatusBlocks as $blockId){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='1' WHERE id=$blockId";
                 if ($objDatabase->Execute($query)) {
                     $clearCache = true;
                 }
             }
-        }else{
+        } else {
             if(isset($_GET['blockId'])){
                 $blockId = $_GET['blockId'];
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='1' WHERE id=$blockId";
@@ -1286,14 +1299,14 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         $clearCache = false;
         $arrStatusBlocks = isset($_POST['selectedBlockId']) ? $_POST['selectedBlockId'] : null;
-        if($arrStatusBlocks != null){
+        if ($arrStatusBlocks != null) {
             foreach ($arrStatusBlocks as $blockId){
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='0' WHERE id=$blockId";
                 if ($objDatabase->Execute($query)) {
                     $clearCache = true;
                 }
             }
-        }else{
+        } else {
             if(isset($_GET['blockId'])){
                 $blockId = $_GET['blockId'];
                 $query = "UPDATE ".DBPREFIX."module_block_blocks SET active='0' WHERE id=$blockId";
