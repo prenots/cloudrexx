@@ -120,10 +120,10 @@ class RandomEsiWidgetController extends \Cx\Core_Modules\Widget\Controller\Rando
                 $this->getName(),
                 'getWidget',
                 array(
-                    'name' => 'block_content_' . $key,
-                    'id'   => $blockId,
-                    'lang' => $params['get']['locale'],
-                    'page' => $params['get']['page']
+                    'name'   => 'block_content_' . $key,
+                    'id'     => $blockId,
+                    'locale' => $params['get']['locale'],
+                    'page'   => $params['get']['page']
                 ),
             );
         }
