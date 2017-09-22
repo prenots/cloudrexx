@@ -121,7 +121,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $widgetName
             );
             $widget->setEsiVariables(
-                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_LANG
+                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_LOCALE
             );
             $widgetController->registerWidget(
                 $widget

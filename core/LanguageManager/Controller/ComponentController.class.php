@@ -34,6 +34,8 @@
  * @subpackage  core_languagemanager
  */
 
+namespace Cx\Core\LanguageManager\Controller;
+
 /**
  * Main controller for Language Manager
  *
