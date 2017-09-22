@@ -859,11 +859,12 @@ class BlockLibrary
     /**
      * Get block names for randomizer
      *
-     * @param integer $id Id of randomizer
+     * @param integer $langId Lang ID
+     * @param integer $id     Id of randomizer
      *
      * @return array
      */
-    public function getBlockNamesForRandomizer($id = 0)
+    public function getBlockNamesForRandomizer($langId, $id = 0)
     {
         global $objDatabase;
 
@@ -872,10 +873,6 @@ class BlockLibrary
             $randomCondition = ' AND `tblBlock`.`random_'. $id .'` = 1';
         }
 
-        $langId = FRONTEND_LANG_ID;
-        if (!defined('FRONTEND_LANG_ID')) {
-            $langId = \Env::get('init')->userFrontendLangId;
-        }
         $now   = time();
         $query = '
             SELECT
@@ -909,7 +906,7 @@ class BlockLibrary
                 $objResult->MoveNext();
                 continue;
             }
-            $blocks[] = $this->blockNamePrefix . $objResult->fields['id'];
+            $blocks[] = $objResult->fields['id'];
             $objResult->MoveNext();
         }
 

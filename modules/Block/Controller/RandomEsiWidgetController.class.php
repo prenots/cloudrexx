@@ -26,7 +26,7 @@
  */
 
 /**
- * Class EsiWidgetController
+ * Class RandomEsiWidgetController
  *
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
  * @author      Project Team SS4U <info@cloudrexx.com>
@@ -38,7 +38,7 @@
 namespace Cx\Modules\Block\Controller;
 
 /**
- * JsonAdapter Controller to handle EsiWidgets
+ * JsonAdapter Controller to handle RandomEsiWidgets
  * Usage:
  * - Create a subclass that implements parseWidget()
  * - Register it as a Controller in your ComponentController
@@ -50,7 +50,7 @@ namespace Cx\Modules\Block\Controller;
  * @version     1.0.0
  */
 
-class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetController {
+class RandomEsiWidgetController extends \Cx\Core_Modules\Widget\Controller\RandomEsiWidgetController {
     /**
      * Parses a widget
      *
@@ -70,32 +70,63 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             return;
         }
 
-        // Parse blocks [[BLOCK_<ID>]]
-        $block        = new Block();
-        $matches      = null;
-        $code         = '{' . $name . '}';
-        $pageId       = $params['page']->getId();
-        $blockPattern = '/^' . $block->blockNamePrefix . '([0-9]+)$/';
-        if (preg_match($blockPattern, $name, $matches)) {
-            $block->setBlock(array($matches[1]), $code, $pageId);
-            $template->setVariable($name, $code);
+        // Parse random blocks [[BLOCK_RANDOMIZER]], [[BLOCK_RANDOMIZER_2]],
+        //                     [[BLOCK_RANDOMIZER_3]], [[BLOCK_RANDOMIZER_4]]
+        if (
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'blockRandom',
+                'Config'
+            ) != '1' ||
+            !preg_match('/^block_content_\d{1}$/', $name)
+        ) {
             return;
+        }
+        $block = new Block();
+        $code  = '{BLOCK_' . $params['id'] . '}';
+        $block->setBlock(array($params['id']), $code, $params['page']->getId());
+        $template->setVariable($name, $code);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRandomEsiWidgetContentInfos($widget, $params)
+    {
+        $block   = new Block();
+        $matches = null;
+        if (
+            !preg_match(
+                '/^' . $block->blockNamePrefix . 'RANDOMIZER(_([2-4])|$)/',
+                $widget->getName(),
+                $matches
+            )
+        ) {
+            return array();
         }
 
-        // parse global block [[BLOCK_GLOBAL]]
-        if ($name == $block->blockNamePrefix . 'GLOBAL') {
-            $block->setBlockGlobal($code, $pageId);
-            $template->setVariable($name, $code);
-            return;
+        $key = 0;
+        if (isset($matches[2]) && !empty($matches[2])) {
+            $key = $matches[2];
         }
+        // fetch all blocks
+        $langId = \FWLanguage::getLangIdByIso639_1($params['get']['locale']);
+        $blockIds = $block->getBlockNamesForRandomizer($langId, $key);
 
-        // Set category blocks [[BLOCK_CAT_<ID>]]
-        $catMatches = null;
-        $catPattern = '/^' . $block->blockNamePrefix . 'CAT_([0-9]+)$/';
-        if (preg_match($catPattern, $name, $catMatches)) {
-            $block->setCategoryBlock(array($catMatches[1]), $code, $pageId);
-            $template->setVariable($name, $code);
-            return;
+        // foreach block, get ESI infos:
+        $esiInfos = array();
+        foreach ($blockIds as $blockId) {
+            // adapter name, adapter method, params
+            $esiInfos[] = array(
+                $this->getName(),
+                'getWidget',
+                array(
+                    'name' => 'block_content_' . $key,
+                    'id'   => $blockId,
+                    'lang' => $params['get']['locale'],
+                    'page' => $params['get']['page']
+                ),
+            );
         }
+        return $esiInfos;
     }
 }

@@ -48,11 +48,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function getControllerClasses() {
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
-        return array('JsonBlock', 'EsiWidget');
+        return array('JsonBlock', 'EsiWidget', 'RandomEsiWidget');
     }
 
     public function getControllersAccessableByJson() {
-        return array('JsonBlockController', 'EsiWidgetController');
+        return array(
+            'JsonBlockController',
+            'EsiWidgetController',
+            'RandomEsiWidgetController'
+        );
     }
 
      /**
@@ -138,17 +142,25 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             if ($key > 0) {
                 $key += 1;
             }
-            $availableBlocks = $block->getBlockNamesForRandomizer($key);
-            $widget = new \Cx\Core_Modules\Widget\Model\Entity\RandomEsiWidget(
+            $widgets = array(
+                new \Cx\Core_Modules\Widget\Model\Entity\RandomEsiWidget(
+                    $this,
+                    $randomizerName
+                )
+            );
+            // this is used for parsing the randomized sub-widgets:
+            $widgets[] = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
-                $randomizerName,
-                $availableBlocks
+                'block_content_' . $key,
+                \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_CALLBACK
             );
-            $widget->setEsiVariable(
-                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
-                \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
-            );
-            $widgetController->registerWidget($widget);
+            foreach ($widgets as $widget) {
+                $widget->setEsiVariable(
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
+                );
+                $widgetController->registerWidget($widget);
+            }
         }
     }
 }
