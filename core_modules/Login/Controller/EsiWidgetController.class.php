@@ -62,9 +62,9 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      */
     public function parseWidget($name, $template, $response, $params)
     {
+        $langId = $params['locale']->getId();
         if ($name === 'LOGIN_URL') {
             // Need to manually load language data here since we need "Core"
-            $langId = \FWLanguage::getLangIdByIso639_1($params['locale']);
             $coreLang = \Env::get('init')->getComponentSpecificLanguageData(
                 'Core',
                 true,
