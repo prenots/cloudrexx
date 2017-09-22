@@ -1467,7 +1467,8 @@ class MediaDirectory extends MediaDirectoryLibrary
                 // but instead already the processed HTML-links.
                 //
                 // Load HTML code of navtree element into a DOMDocument
-                $domDocument = \DOMDocument::loadHTML($strName);
+                $domDocument = new \DOMDocument();
+                $domDocument->loadHTML($strName);
                 if ($domDocument) {
                     // fetch link tags
                     $nodeList = $domDocument->getElementsByTagName('a');
