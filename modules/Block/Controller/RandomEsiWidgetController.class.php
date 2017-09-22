@@ -110,7 +110,7 @@ class RandomEsiWidgetController extends \Cx\Core_Modules\Widget\Controller\Rando
         }
         // fetch all blocks
         $langId = \FWLanguage::getLangIdByIso639_1($params['get']['locale']);
-        $blockIds = $block->getBlockNamesForRandomizer($langId, $key);
+        $blockIds = $block->getBlockIdsForRandomizer($langId, $key);
 
         // foreach block, get ESI infos:
         $esiInfos = array();

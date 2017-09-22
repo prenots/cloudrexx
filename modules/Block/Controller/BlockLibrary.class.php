@@ -857,14 +857,14 @@ class BlockLibrary
     }
 
     /**
-     * Get block names for randomizer
+     * Get block IDs for randomizer
      *
      * @param integer $langId Lang ID
      * @param integer $id     Id of randomizer
      *
      * @return array
      */
-    public function getBlockNamesForRandomizer($langId, $id = 0)
+    public function getBlockIdsForRandomizer($langId, $id = 0)
     {
         global $objDatabase;
 
@@ -897,7 +897,7 @@ class BlockLibrary
             ' . $randomCondition;
         $objResult = $objDatabase->Execute($query);
         if ($objResult === false || $objResult->RecordCount() <= 0) {
-            return;
+            return array();
         }
 
         $blocks = array();
