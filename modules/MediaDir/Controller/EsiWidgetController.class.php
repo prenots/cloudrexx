@@ -86,12 +86,12 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             $coreLang = \Env::get('init')->getComponentSpecificLanguageData(
                 'Core',
                 true,
-                $params['lang']
+                $params['locale']->getId()
             );
             $arrlang = \Env::get('init')->getComponentSpecificLanguageData(
                 $this->getSystemComponentController()->getName(),
                 true,
-                $params['lang']
+                $params['locale']->getId()
             );
             $template->setVariable(
                 'TXT_MEDIADIR_LATEST',

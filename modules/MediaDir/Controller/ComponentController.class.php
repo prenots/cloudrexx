@@ -208,26 +208,26 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
 
             // Identify if the current widget is Template block or Placeholder
-            $isBlock = true;
+            $widgetType = \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_BLOCK;
             if (
                 in_array(
                     $widgetName,
                     array('MEDIADIR_NAVBAR', 'MEDIADIR_LATEST')
                 )
             ) {
-                $isBlock = false;
+                $widgetType = \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_PLACEHOLDER;
             }
 
             // Create and Register the widget in Widget Component
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $widgetName,
-                $isBlock,
+                $widgetType,
                 '',
                 '',
                 $parameter
             );
-            if (!$isBlock) {
+            if ($widgetType === \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_PLACEHOLDER) {
                 $widget->setEsiVariable(
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME |
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL
