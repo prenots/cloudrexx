@@ -1532,8 +1532,8 @@ namespace Cx\Core\Core\Controller {
                         unset($params['__cap']);
                     }
                     $params = contrexx_input2raw($params);
-                    if (isset($params['lang'])) {
-                        $langId = \FWLanguage::getLanguageIdByCode($params['lang']);
+                    if (isset($params['locale'])) {
+                        $langId = \FWLanguage::getLanguageIdByCode($params['locale']);
                         if ($langId) {
                             if (!defined('FRONTEND_LANG_ID')) {
                                 define('FRONTEND_LANG_ID', $langId);

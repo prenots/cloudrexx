@@ -186,14 +186,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $shopLibrary = new ShopLibrary();
         $this->registerWidgets(
             $shopLibrary->getShopWidgetNames('placeholder'),
-            false,
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::TYPE_PLACEHOLDER,
             array('redirect', 'catId', 'productId', 'referer')
         );
 
         // parse global product blocks and based on its category/shopJsCart
         $this->registerWidgets(
             $shopLibrary->getShopWidgetNames('block'),
-            true,
+            \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::TYPE_BLOCK,
             array('cmd', 'productId', 'referer', 'term', 'catId', 'manufacturerId')
         );
     }
@@ -202,14 +202,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * register the widget
      *
      * @param array   $widgetNames      array of widget names
-     * @param boolean $isBlock          If true, widget is template block otherwise placeholder
+     * @param string  $widgetType       widget type
      * @param array   $additionalParams array of additional parameters
      *
      * @return null
      */
     protected function registerWidgets(
         $widgetNames,
-        $isBlock,
+        $widgetType,
         $additionalParams = array()
     ) {
         if (empty($widgetNames)) {
@@ -235,24 +235,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $widget = new \Cx\Core_Modules\Widget\Model\Entity\SingleParseEsiWidget(
                     $this,
                     $widgetName,
-                    $isBlock
+                    $widgetType
                 );
                 $widget->setEsiVariable(
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_USER|
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME|
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL|
-                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_LANG
+                    \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_LOCALE
                 );
             } else {
                 $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                     $this,
                     $widgetName,
-                    $isBlock,
+                    $widgetType,
                     '',
                     '',
                     $params
                 );
-                if (!$isBlock) {
+                if ($widgetType == \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::TYPE_PLACEHOLDER) {
                     $widget->setEsiVariable(
                         \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_THEME|
                         \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CHANNEL

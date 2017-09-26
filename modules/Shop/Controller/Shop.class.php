@@ -627,16 +627,20 @@ die("Failed to get Customer for ID $customer_id");
         $template->setGlobalVariable($_ARRAYLANG);
 
         // Prepare template for "extraction"
-        $template->touchBlock('shopJsCart');
         $template->touchBlock('shopJsCartTotal');
-        $template->parse('shopJsCart');
         $template->touchBlock('shopJsCartProducts');
-        $div_cart = $template->get('shopJsCart');
         if ($template->blockExists('shopJsCartProducts')) {
             $template->parse('shopJsCartProducts');
             $div_product = $template->get('shopJsCartProducts');
+            $template->replaceBlock(
+                'shopJsCartProducts',
+                '[[SHOP_JS_CART_PRODUCTS]]'
+            );
         }
-
+        $template->touchBlock('shopJsCartProducts');
+        $template->touchBlock('shopJsCart');
+        $template->parse('shopJsCart');
+        $div_cart = $template->get('shopJsCart');
         // Keep the surrounding element if it has id "shopJsCart"
         $match = array();
         preg_match(

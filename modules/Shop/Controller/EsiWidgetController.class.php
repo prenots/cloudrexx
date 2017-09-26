@@ -126,23 +126,4 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
             Shop::view_product_overview(null, $catId, $template);
         }
     }
-
-    /**
-     * Get file content
-     *
-     * @param \Cx\Core\View\Model\Entity\Theme $theme    theme object
-     * @param string                           $fileName name of the file
-     *
-     * @return string
-     */
-    protected function getFileContent($theme, $fileName)
-    {
-        if (!($theme instanceof \Cx\Core\View\Model\Entity\Theme)) {
-            return;
-        }
-
-        return file_get_contents(
-            $theme->getFilePath($theme->getFolderName() . '/' . $fileName)
-        );
-    }
 }

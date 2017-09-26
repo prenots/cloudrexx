@@ -69,11 +69,14 @@ class SingleParseEsiWidget extends EsiWidget {
      * Really parses this widget into $template
      * If this Widget has no content, the replacement can simply be returned
      * as string. Otherwise the replacement must be done in $template.
+     *
      * @param \HTML_Template_Sigma $template Template to parse this widget into
      * @param \Cx\Core\Routing\Model\Entity\Reponse $response Current response object
      * @param string $targetComponent Parse target component name
      * @param string $targetEntity Parse target entity name
      * @param string $targetId Parse target entity ID
+     * @param array $params (optional) List of params for widgets of type 'callback'
+     *
      * @return string Replacement for widgets without content, NULL otherwise
      */
     public function internalParse(
@@ -81,7 +84,8 @@ class SingleParseEsiWidget extends EsiWidget {
         $response,
         $targetComponent,
         $targetEntity,
-        $targetId
+        $targetId,
+        $params = array()
     ) {
         if ($this->parsed) {
             return '';
@@ -93,7 +97,8 @@ class SingleParseEsiWidget extends EsiWidget {
             $response,
             $targetComponent,
             $targetEntity,
-            $targetId
+            $targetId,
+            $params
         );
     }
 }
