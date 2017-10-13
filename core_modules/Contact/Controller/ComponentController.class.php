@@ -96,12 +96,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $moduleStyleFile, $objTemplate, $_CORELANG, $subMenuTitle;
+        global $objTemplate, $_CORELANG, $subMenuTitle;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 $contactObj = new \Cx\Core_Modules\Contact\Controller\Contact(\Env::get('cx')->getPage()->getContent());
                 \Env::get('cx')->getPage()->setContent($contactObj->getContactPage());
-                $moduleStyleFile = $this->cx->getCodeBaseOffsetPath() . self::getPathForType($this->getType()) . '/' . $this->getName() . '/View/Style/frontend_style.css';
+                \Js::registerCSS(substr($this->getDirectory(false, true) . '/View/Style/frontend_style.css', 1));
                 break;
 
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:

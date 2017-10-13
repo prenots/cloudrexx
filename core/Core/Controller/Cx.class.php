@@ -1777,14 +1777,13 @@ namespace Cx\Core\Core\Controller {
         /**
          * Calls hooks before content is processed
          * @todo Remove usage of globals
-         * @global null $moduleStyleFile
          * @global type $plainCmd
          * @global type $plainSection
          * @global type $themesPages
          * @global type $page_template
          */
         protected function preContentLoad() {
-            global $moduleStyleFile, $plainCmd, $plainSection, $themesPages, $page_template;
+            global $plainCmd, $plainSection, $themesPages, $page_template;
 
             $this->ch->callPreContentLoadHooks();
 
@@ -1804,7 +1803,6 @@ namespace Cx\Core\Core\Controller {
                 \LinkGenerator::parseTemplate($pageContent);
                 $this->resolvedPage->setContent($pageContent);
 
-                $moduleStyleFile = null;
             } else if ($this->mode == self::MODE_BACKEND) {
                 // Skip the nav/language bar for modules which don't make use of either.
                 // TODO: Remove language selector for modules which require navigation but bring their own language management.
@@ -2104,7 +2102,6 @@ namespace Cx\Core\Core\Controller {
          * Parses the main template in order to finish request
          * @todo Remove usage of globals
          * @global type $themesPages
-         * @global null $moduleStyleFile
          * @global array $_CONFIG
          * @global type $subMenuTitle
          * @global type $_CORELANG
@@ -2112,7 +2109,7 @@ namespace Cx\Core\Core\Controller {
          * @global type $cmd
          */
         protected function finalize() {
-            global $themesPages, $moduleStyleFile, $_CONFIG,
+            global $themesPages, $_CONFIG,
                     $subMenuTitle, $_CORELANG, $plainCmd, $cmd;
 
             if ($this->mode == self::MODE_FRONTEND) {
@@ -2133,12 +2130,6 @@ namespace Cx\Core\Core\Controller {
                     'JAVASCRIPT_MOBILE_DETECTOR' =>
                         '<script type="text/javascript" src="lib/mobiledetector.js"></script>',
                 ));
-
-                if (!empty($moduleStyleFile))
-                    $this->template->setVariable(
-                        'STYLE_FILE',
-                        "<link rel=\"stylesheet\" href=\"$moduleStyleFile\" type=\"text/css\" media=\"screen, projection\" />"
-                    );
 
                 if (!$this->resolvedPage->getUseSkinForAllChannels() && isset($_GET['pdfview']) && intval($_GET['pdfview']) == 1) {
                     $pageTitle  = $this->resolvedPage->getTitle();

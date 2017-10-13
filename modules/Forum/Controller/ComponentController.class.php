@@ -62,7 +62,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 $objForum = new Forum(\Env::get('cx')->getPage()->getContent());
                 \Env::get('cx')->getPage()->setContent($objForum->getPage());
-//                $moduleStyleFile = $this->getDirectory() . '/css/frontend_style.css';
                 break;
 
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
