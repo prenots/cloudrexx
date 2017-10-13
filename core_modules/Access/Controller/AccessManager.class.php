@@ -1089,7 +1089,8 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
         global $_CORELANG;
 
         // hide access areas of inactive modules
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
         $componentRepository = $em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
         $component = $componentRepository->findOneBy(array('id' => $arrAreas[$areaId]['module_id']));
         $areaHidden = '';
@@ -1114,7 +1115,19 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
             $this->_objTpl->parse('access_permission_in_scope');
 
             $this->_objTpl->setVariable('ACCESS_AREA_ID', $arrAreas[$areaId]['access_id']);
-            $this->_objTpl->parse('access_permission_access_id');
+
+            if (in_array(
+                'Workbench',
+                \Cx\Core\ModuleChecker::getInstance(
+                    $em,
+                    $cx->getDb()->getAdoDb(),
+                    $cx->getClassLoader()
+                )->getCoreModules()
+            )) {
+                $this->_objTpl->parse('access_permission_access_id');
+            } else {
+                $this->_objTpl->hideBlock('access_permission_access_id');
+            }
         } else {
             $this->_objTpl->hideBlock('access_permission_in_scope');
             $this->_objTpl->hideBlock('access_permission_access_id');
