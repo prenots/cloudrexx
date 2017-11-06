@@ -133,11 +133,11 @@ function checkCategories()
     }
     else
     { // check all the subcategories
-      categoryChecker = true;
+      categoryChecker = false;
       <!-- BEGIN javascriptBlock7 -->
-        if (imageCategory{JS_IMAGE_ID7}.value == 0)
+        if (imageCategory{JS_IMAGE_ID7}.value > 0)
         { // there is no category checked, give out an error
-          categoryChecker = false;
+          categoryChecker = true;
         }
       <!-- END javascriptBlock7 -->
     }
