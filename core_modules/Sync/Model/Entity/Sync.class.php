@@ -84,6 +84,11 @@ class Sync extends \Cx\Model\Base\EntityBase {
      * @var Cx\Core_Modules\Sync\Model\Entity\Change
      */
     protected $changes;
+
+    /**
+     * @var Cx\Core_Modules\Sync\Model\Entity\Change
+     */
+    protected $originChanges;
     
     protected $oldHostEntities = array();
 
@@ -92,6 +97,7 @@ class Sync extends \Cx\Model\Base\EntityBase {
         $this->relations = new \Doctrine\Common\Collections\ArrayCollection();
         $this->hostEntities = new \Doctrine\Common\Collections\ArrayCollection();
         $this->changes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->originChanges = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -390,6 +396,37 @@ class Sync extends \Cx\Model\Base\EntityBase {
     {
         $this->changes[] = $changes;
     }
+
+    /**
+     * Add originChange
+     *
+     * @param Cx\Core_Modules\Sync\Model\Entity\Change $change
+     */
+    public function addOriginChange(\Cx\Core_Modules\Sync\Model\Entity\Change $change)
+    {
+        $this->originChanges[] = $change;
+    }
+
+    /**
+     * Get originChanges
+     *
+     * @return Doctrine\Common\Collections\Collection $changes
+     */
+    public function getOriginChanges()
+    {
+        return $this->originChanges;
+    }
+
+    /**
+     * Set originChanges
+     *
+     * @param array $changes
+     */
+    public function setOriginChanges($changes)
+    {
+        $this->originChanges[] = $changes;
+    }
+    
     
     public function calculateRelations($spooler, $eventType, $entityClassName, $entityIndexData, $entity) {
         $changeCondition = 'forward';

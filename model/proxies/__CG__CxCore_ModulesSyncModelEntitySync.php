@@ -73,10 +73,10 @@ class Sync extends \Cx\Core_Modules\Sync\Model\Entity\Sync implements \Doctrine\
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'toUri', 'apiKey', 'active', 'dataAccess', 'relations', 'hostEntities', 'changes', 'oldHostEntities', 'validators', 'virtual');
+            return array('__isInitialized__', 'id', 'toUri', 'apiKey', 'active', 'dataAccess', 'relations', 'hostEntities', 'changes', 'originChanges', 'oldHostEntities', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'id', 'toUri', 'apiKey', 'active', 'dataAccess', 'relations', 'hostEntities', 'changes', 'oldHostEntities', 'validators', 'virtual');
+        return array('__isInitialized__', 'id', 'toUri', 'apiKey', 'active', 'dataAccess', 'relations', 'hostEntities', 'changes', 'originChanges', 'oldHostEntities', 'validators', 'virtual');
     }
 
     /**
@@ -438,6 +438,39 @@ class Sync extends \Cx\Core_Modules\Sync\Model\Entity\Sync implements \Doctrine\
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setChanges', array($changes));
 
         return parent::setChanges($changes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addOriginChange(\Cx\Core_Modules\Sync\Model\Entity\Change $change)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOriginChange', array($change));
+
+        return parent::addOriginChange($change);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getOriginChanges()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOriginChanges', array());
+
+        return parent::getOriginChanges();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setOriginChanges($changes)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOriginChanges', array($changes));
+
+        return parent::setOriginChanges($changes);
     }
 
     /**
