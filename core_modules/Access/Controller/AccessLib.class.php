@@ -89,6 +89,11 @@ class AccessLib
     private $arrAccountAttributes;
 
     /**
+     * @var \Cx\Core\MediaSource\Model\Entity\LocalFileSystem
+     */
+    protected $fileSystem;
+
+    /**
      * Static Access id to manage the users(add/edit)
      */
     const MANAGE_USER_ACCESS_ID = 202;
@@ -134,6 +139,8 @@ class AccessLib
             $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Access'));
         }
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $this->fileSystem = $cx->getMediaSourceManager()->getMediaType('access')->getFileSystem();
         $this->loadAttributeTypeTemplates();
     }
 
@@ -333,8 +340,15 @@ class AccessLib
             $imageRepoPath = $attributeId == 'picture'
                                 ? $cx->getWebsiteImagesAccessProfilePath()
                                 : $cx->getWebsiteImagesAccessPhotoPath();
-
-            if (!$edit || file_exists($imageRepoPath .'/'. $image)) {
+            if (
+                !$edit || 
+                $this->fileSystem->fileExists(
+                    new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                        $imageRepoPath .'/'. $image,
+                        $this->fileSystem
+                    )
+                )
+            ) {
                 $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($objAttribute->getId(), $historyId), ENT_QUOTES, CONTREXX_CHARSET);
             }
             $arrPlaceholders['_SRC'] = $imageRepoWeb.'/'
@@ -887,7 +901,16 @@ class AccessLib
             $arrNoImage   = \User_Profile::$arrNoPicture;
         }
 
-        if ($value !== false && $value !== '' && (!$edit || file_exists($imageRepo.$value))) {
+        if (
+            $value !== false && 
+            $value !== '' && 
+            (!$edit || $this->fileSystem->fileExists(
+                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $imageRepo . $value,
+                    $this->fileSystem
+                )
+            ))
+        ) {
             $imageSet = true;
             $image['src'] =
                         ($thumbnail
@@ -1745,7 +1768,12 @@ JS
                     $fileName = basename($arrImage['path']);
                     $path     = $objSession->getTempPath() .'/' . contrexx_input2raw($uploaderId) . '/' . $fileName;
 
-                    if (   !\Cx\Lib\FileSystem\FileSystem::exists($path)
+                    if (   !$this->fileSystem->fileExists(
+                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                    $path,
+                                    $this->fileSystem
+                                )
+                            )
                         || !\FWValidator::is_file_ending_harmless($path)
                     ) {
                         continue;
@@ -1816,7 +1844,14 @@ JS
         $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : ASCMS_ACCESS_PHOTO_IMG_PATH;
         $index = 0;
         $imageName = $objUser->getId().'_'.$name;
-        while (file_exists($imageRepo.'/'.$imageName)) {
+        while (
+                $this->fileSystem->fileExists(
+                    new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                        $imageRepo .'/'. $imageName,
+                        $this->fileSystem
+                    )
+                )
+        ) {
             $imageName = $objUser->getId().'_'.++$index.'_'.$name;
         }
 
@@ -2032,7 +2067,12 @@ JS
                 }
             }
             array_walk($arrImages, function ($img) use ($imagePath) {
-                unlink($imagePath.'/'.$img);
+                $this->fileSystem->removeFile(
+                    new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                        $imagePath . '/'. $img,
+                        $this->fileSystem
+                    )
+                );
             });
         }
 
@@ -2042,18 +2082,41 @@ JS
 
     /*function unloadUploadedImage($tmpImageName)
     {
-        unlink(ASCMS_TEMP_PATH.'/'.$tmpImageName);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $this->fileSystem->removeFile(
+            new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                $cx->getWebsiteTempPath() . '/' . $tmpImageName,
+                $this->fileSystem
+            )
+        );
     }*/
 
     /*function loadUploadedImage($tmpName, $name)
     {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $index = 0;
         $tmpImageName = $name;
-        while (file_exists(ASCMS_TEMP_PATH.'/'.$tmpImageName)) {
+        while (
+            $this->fileSystem->fileExists(
+                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $cx->getWebsiteTempPath() . '/' . $tmpImageName,
+                    $this->fileSystem
+                )
+            )
+        ) {
             $tmpImageName = ++$index.$name;
         }
+        $tempImage = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+            $tmpName,
+            $this->fileSystem
+        );
 
-        if (move_uploaded_file($tmpName, ASCMS_TEMP_PATH.'/'.$tmpImageName)) {
+        if (
+            $this->fileSystem->moveFile(
+                $tempImage,
+                $cx->getWebsiteTempPath() . '/' . $tmpImageName
+            )
+        ) {
             return $tmpImageName;
         } else {
             false;

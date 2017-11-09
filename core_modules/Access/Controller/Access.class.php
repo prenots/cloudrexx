@@ -877,10 +877,19 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                         $objAttribute->getType() == 'image' &&
                         $objAttribute->getId() == 'picture'
                     ) {
-                        $path = $imagePath.'0_noavatar.gif';
-                        $imgName = $objUser->getProfileAttribute($objAttribute->getId());
-                        if (\Cx\Lib\FileSystem\FileSystem::exists($imagePath . $imgName)) {
-                            $path = $imagePath . $imgName;
+                        $imgName  = $objUser->getProfileAttribute($objAttribute->getId());
+                        $imageSrc = $imagePath . $imgName;
+                        if (
+                            $this->fileSystem->fileExists(
+                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                    $imageSrc,
+                                    $this->fileSystem
+                                )
+                            )
+                        ) {
+                            $path = $imageSrc;
+                        } else {
+                            $path = $imagePath . '0_noavatar.gif';
                         }
                         $replaceHtmlTerms[] = \Html::getImageByPath($path, 'alt="'.$objUser->getEmail().'"');
                         $replaceTextTerms[] = $path;
