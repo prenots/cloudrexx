@@ -3818,6 +3818,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     break;
                 case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_WEBSITE:
+                    \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
                     switch ($operation) {
                         case 'add':
                             if (!empty($configName) && !empty($configType)) {
@@ -3857,6 +3858,33 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                             \Cx\Core\Setting\Controller\Setting::init('MultiSite', '', 'FileSystem');
                             $multisiteConfigArray = \Cx\Core\Setting\Controller\Setting::getArray('MultiSite');
                             if ($multisiteConfigArray) {
+                                foreach ($multisiteConfigArray as &$configArray) {
+                                    $type = $configArray['type'];
+
+                                    switch ($type) {
+                                        case \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN:
+                                            break;
+
+                                        default:
+                                            continue;
+                                            break;
+                                    }
+
+                                    $matches   = null;
+                                    if (!preg_match('/^\{src:([a-z0-9_\\\:]+)\(\)\}$/i', $configArray['values'], $matches)) {
+                                        continue;
+                                    }
+                                    $configArray['values'] = call_user_func($matches[1]);
+
+                                    if ($configArray['name'] != 'website_server') {
+                                        continue;
+                                    }
+
+                                    $options = explode(',', $configArray['values']);
+                                    $options = preg_replace('/^[^:]+:(.*)$/', '\1:\1', $options);
+                                    $configArray['values'] = implode(',', $options);
+                                }
+
                                 return array('status' => 'success', "success"=> true,'result' => $multisiteConfigArray, 'multisiteConfig' => $operation);
                             }
                             break;
