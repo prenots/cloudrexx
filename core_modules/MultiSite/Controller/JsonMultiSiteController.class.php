@@ -2644,7 +2644,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'log'               => \DBG::getMemoryLogs(),
         );
     }
-
+    
     /**
      * Check current user is website owner or not
      * 
@@ -3884,7 +3884,6 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                     $options = preg_replace('/^[^:]+:(.*)$/', '\1:\1', $options);
                                     $configArray['values'] = implode(',', $options);
                                 }
-
                                 return array('status' => 'success', "success"=> true,'result' => $multisiteConfigArray, 'multisiteConfig' => $operation);
                             }
                             break;
