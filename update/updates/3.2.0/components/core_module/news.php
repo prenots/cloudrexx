@@ -1,9 +1,35 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 ////////////////////////////////////////////////////
 //BEGIN OF NEWS CONVERTING STUFF
 /*
-    this was c&ped together from news/admin.class.php and news/lib/newsLib.class.php 
+    this was c&ped together from news/admin.class.php and news/lib/newsLib.class.php
 */
 
 class HackyFeedRepublisher {
@@ -12,11 +38,11 @@ class HackyFeedRepublisher {
 
     public function runRepublishing() {
         $this->initRepublishing();
-    
+
         FWLanguage::init();
 
         $langIds = array_keys(FWLanguage::getLanguageArray());
-        
+
         foreach($langIds as $id) {
             $this->createRSS($id);
         }
@@ -37,7 +63,7 @@ class HackyFeedRepublisher {
     }
 
     protected function createRSS($langId){
-        global $_CONFIG, $objDatabase; 
+        global $_CONFIG, $objDatabase;
         $_FRONTEND_LANGID = $langId;
 
 
@@ -164,9 +190,9 @@ function _newsUpdate() {
 
 
     /************************************************
-    * EXTENSION:	Placeholder NEWS_LINK replaced	*
-    *				by NEWS_LINK_TITLE				*
-    * ADDED:		Contrexx v2.1.0					*
+    * EXTENSION:    Placeholder NEWS_LINK replaced    *
+    *                by NEWS_LINK_TITLE                *
+    * ADDED:        Contrexx v2.1.0                    *
     ************************************************/
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '2.1.0')) {
         try {
@@ -179,8 +205,8 @@ function _newsUpdate() {
 
 
     /************************************************
-    * EXTENSION:	Front- and backend permissions  *
-    * ADDED:		Contrexx v2.1.0					*
+    * EXTENSION:    Front- and backend permissions  *
+    * ADDED:        Contrexx v2.1.0                    *
     ************************************************/
     $query = "SELECT 1 FROM `".DBPREFIX."module_news_settings` WHERE `name` = 'news_message_protection'";
     $objResult = $objDatabase->SelectLimit($query, 1);
@@ -232,8 +258,8 @@ function _newsUpdate() {
 
 
     /************************************************
-    * EXTENSION:	Thunbmail Image                 *
-    * ADDED:		Contrexx v2.1.0					*
+    * EXTENSION:    Thunbmail Image                 *
+    * ADDED:        Contrexx v2.1.0                    *
     ************************************************/
     $arrColumns = $objDatabase->MetaColumnNames(DBPREFIX.'module_news');
     if ($arrColumns === false) {
@@ -305,7 +331,7 @@ function _newsUpdate() {
 
                 //title is html entity style
                 $title = html_entity_decode($title, ENT_QUOTES, CONTREXX_CHARSET);
-                //teaserText is html entity style, but no contrexx was specified on encoding
+                //teaserText is html entity style, but no cloudrexx was specified on encoding
                 $teaserText = html_entity_decode($teaserText);
 
                 \Cx\Lib\UpdateUtil::sql('UPDATE `'.DBPREFIX.'module_news` SET `title`="'.addslashes($title).'", `teaser_text`="'.addslashes($teaserText).'" where `id`='.$id);
@@ -778,7 +804,7 @@ NEWS;
                         if (!empty($page) && !preg_match('/<!--\s+BEGIN\s+news_use_teaser_text\s+-->.*<!--\s+END\s+news_use_teaser_text\s+-->/ms', $page)) {
                             $page = preg_replace('/\\{NEWS_TEASER_TEXT\\}/', '<!-- BEGIN news_use_teaser_text -->\0<!-- END news_use_teaser_text -->', $page);
                         }
-                        
+
                         return $page;
                     }, array('content'), '3.1.0');
 

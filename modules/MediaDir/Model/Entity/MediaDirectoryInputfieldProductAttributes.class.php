@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Media Directory Inputfield Product Attributes Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  * @todo        Edit PHP DocBlocks!
  */
@@ -13,9 +38,9 @@ namespace Cx\Modules\MediaDir\Model\Entity;
 /**
  * Media Directory Inputfield Product Attributes Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  */
 class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Controller\MediaDirectoryLibrary implements Inputfield
@@ -36,8 +61,8 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
 
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $_LANGID, $objInit, $_ARRAYLANG;
-        
+        global $objDatabase, $objInit, $_ARRAYLANG;
+
         $intId = intval($arrInputfield['id']);
 
         switch ($intView) {
@@ -65,11 +90,11 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
                     $arrValue = null;
                 }
 
-                $strOptions = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
+                $strOptions = empty($arrInputfield['default_value'][FRONTEND_LANG_ID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][FRONTEND_LANG_ID];
                 $arrOptions = explode(",", $strOptions);
-                
+
                 if(!empty($arrInputfield['info'][0])){
-                    $strInfoValue = empty($arrInputfield['info'][$_LANGID]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][$_LANGID].'"';
+                    $strInfoValue = empty($arrInputfield['info'][FRONTEND_LANG_ID]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][FRONTEND_LANG_ID].'"';
                     $strInfoClass = 'mediadirInputfieldHint';
                 } else {
                     $strInfoValue = null;
@@ -114,7 +139,7 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
                 break;
             case 2:
                 //search View
-                $strOptions = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
+                $strOptions = empty($arrInputfield['default_value'][FRONTEND_LANG_ID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][FRONTEND_LANG_ID];
                 $arrOptions = explode(",", $strOptions);
 
                 $strValue = isset($_GET[$intId]) ? $_GET[$intId] : '';
@@ -174,24 +199,10 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
 
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
-        global $objDatabase;
-
-        $intId = intval($arrInputfield['id']);
-        $objInputfieldValue = $objDatabase->Execute("
-            SELECT
-                `value`
-            FROM
-                ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields
-            WHERE
-                field_id=".$intId."
-            AND
-                entry_id=".$intEntryId."
-            LIMIT 1
-        ");
-
+        $strValue = static::getRawData($intEntryId, $arrInputfield, $arrTranslationStatus);
+        $strValue = strip_tags(htmlspecialchars($strValue, ENT_QUOTES, CONTREXX_CHARSET));
 
         $arrValues = explode(",", $arrInputfield['default_value'][0]);
-        $strValue = strip_tags(htmlspecialchars($objInputfieldValue->fields['value'], ENT_QUOTES, CONTREXX_CHARSET));
 
         //explode elements
         $arrElements = explode(",", $strValue);
@@ -216,6 +227,25 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
         }
 
         return $arrContent;
+    }
+
+    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus) {
+        global $objDatabase;
+
+        $intId = intval($arrInputfield['id']);
+        $objInputfieldValue = $objDatabase->Execute("
+            SELECT
+                `value`
+            FROM
+                ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields
+            WHERE
+                field_id=".$intId."
+            AND
+                entry_id=".$intEntryId."
+            LIMIT 1
+        ");
+
+        return $objInputfieldValue->fields['value'];
     }
 
 
@@ -248,8 +278,8 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
 EOF;
         return $strJavascriptCheck;
     }
-    
-    
+
+
     function getFormOnSubmit($intInputfieldId)
     {
         return null;

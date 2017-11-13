@@ -1,27 +1,47 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Checkout
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_checkout
  */
 
 namespace Cx\Modules\Checkout\Controller;
 
 /**
- * @ignore
- */
-\Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH.'/phpmailer/class.phpmailer.php');
-
-/**
  * Checkout
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_checkout
  */
 class Checkout extends CheckoutLibrary {
@@ -252,7 +272,7 @@ class Checkout extends CheckoutLibrary {
                 if ($id) {
                     $objSettingsYellowpay = new SettingsYellowpay($objDatabase);
                     $arrYellowpay = $objSettingsYellowpay->get();
-                    
+
                     $arrOrder = array(
                         'ORDERID'   => $id,
                         'AMOUNT'    => intval($arrFieldValues['invoice_amount'] * 100),
@@ -264,7 +284,7 @@ class Checkout extends CheckoutLibrary {
                     $arrSettings['postfinance_hash_signature_in']['value'] = $arrYellowpay['sha_in'];
                     $arrSettings['postfinance_authorization_type']['value'] = $arrYellowpay['operation'];
                     $arrSettings['postfinance_use_testserver']['value'] = $arrYellowpay['testserver'];
-                    
+
                     $landingPage = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findOneByModuleCmdLang('Checkout', '', FRONTEND_LANG_ID);
 
                     $this->objTemplate->setVariable('CHECKOUT_YELLOWPAY_FORM', \Yellowpay::getForm($arrOrder, $_ARRAYLANG['TXT_CHECKOUT_START_PAYMENT'], false, $arrSettings, $landingPage));
@@ -460,7 +480,7 @@ class Checkout extends CheckoutLibrary {
                 $arrFieldsToHighlight[$key] = '';
                 continue;
             }
-        }    
+        }
 
         foreach ($arrUserData['selection'] as $key => $field) {
             if (!empty($field['mandatory'])) {
@@ -695,24 +715,11 @@ class Checkout extends CheckoutLibrary {
     {
         global $_ARRAYLANG, $_CONFIG;
 
-        $objPHPMailer = new \phpmailer();
+        $objPHPMailer = new \Cx\Core\MailTemplate\Model\Entity\Mail();
 
-        if ($_CONFIG['coreSmtpServer'] > 0 && @include_once ASCMS_CORE_PATH.'/SmtpSettings.class.php') {
-            if (($arrSmtp = \SmtpSettings::getSmtpAccount($_CONFIG['coreSmtpServer'])) !== false) {
-                $objPHPMailer->IsSMTP();
-                $objPHPMailer->Host = $arrSmtp['hostname'];
-                $objPHPMailer->Port = $arrSmtp['port'];
-                $objPHPMailer->SMTPAuth = true;
-                $objPHPMailer->Username = $arrSmtp['username'];
-                $objPHPMailer->Password = $arrSmtp['password'];
-            }
-        }
-
-        $objPHPMailer->CharSet = CONTREXX_CHARSET;
         $objPHPMailer->IsHTML(true);
         $objPHPMailer->Subject = $arrMail['title'];
-        $objPHPMailer->From = $_CONFIG['contactFormEmail'];
-        $objPHPMailer->FromName = $_CONFIG['domainUrl'];
+        $objPHPMailer->SetFrom($_CONFIG['contactFormEmail'], $_CONFIG['domainUrl']);
         $objPHPMailer->AddAddress($recipient);
         $objPHPMailer->Body = $arrMail['content'];
         $objPHPMailer->Send();

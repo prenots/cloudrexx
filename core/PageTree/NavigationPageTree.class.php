@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * NavigationPageTree
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core_pagetree
  */
 
@@ -14,9 +39,9 @@ namespace Cx\Core\PageTree;
 /**
  * NavigationPageTree
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core_pagetree
  */
 class NavigationPageTree extends SigmaPageTree {
@@ -28,17 +53,17 @@ class NavigationPageTree extends SigmaPageTree {
 
     protected $branchNodeIds = array(); //holds all ids of the $currentPage's Node and it's parents
 
-    public function __construct($entityManager, $license, $maxDepth = 0, $activeNode = null, $lang = null, $currentPage = null) { 
+    public function __construct($entityManager, $license, $maxDepth = 0, $activeNode = null, $lang = null, $currentPage = null) {
         parent::__construct($entityManager, $license, $maxDepth, $activeNode, $lang, $currentPage, false);
 
         //go up the branch and collect all node ids. used later in renderElement().
-        $node = $currentPage->getNode();        
+        $node = $currentPage->getNode();
         while($node) {
             $this->branchNodeIds[] = $node->getId();
             $node = $node->getParent();
         }
     }
-    
+
     /**
      * Get the first level index which should be shown
      * @return int the first level
@@ -70,14 +95,14 @@ class NavigationPageTree extends SigmaPageTree {
         if (!$this->isParentNodeInsideCurrentBranch($page->getNode())) {
             return '';
         }
-        
+
         $blockName = 'level_'.$level;
         $hideLevel = false;
         $hasCustomizedBlock = $this->template->blockExists($blockName);
         if($hasCustomizedBlock) {
             if(!$this->topLevelBlockName) {
                 $this->topLevelBlockName = $blockName;
-            }                
+            }
         }
         else {
             if ($this->topLevelBlockName) {
@@ -95,7 +120,7 @@ class NavigationPageTree extends SigmaPageTree {
         } catch (\Cx\Core\ContentManager\Model\Entity\PageException $e) {
             $parentPath = '/';
         }
-        
+
         if($this->topLevelBlockName && !$hideLevel && $page->isVisible()) {
 //TODO: invisible childs
 //      maybe the return value of this function could set whether the childs
@@ -110,6 +135,8 @@ class NavigationPageTree extends SigmaPageTree {
                 'TARGET' => empty($linkTarget) ? '_self' : $linkTarget,
                 'LEVEL_INFO' => $hasChilds ? '' : 'down',
                 'STYLE' => $style,
+                'PAGE_ID' => $page->getId(),
+                'PAGE_NODE_ID' => $page->getNode()->getId(),
                 'CSS_NAME' => $page->getCssNavName()
             ));
             $this->template->parse($blockName);
@@ -131,7 +158,7 @@ class NavigationPageTree extends SigmaPageTree {
             return $this->template->get();
         }
     }
-    
+
     private function isNodeInsideCurrentBranch($node)
     {
         return in_array($node->getId(), $this->branchNodeIds);
@@ -144,21 +171,21 @@ class NavigationPageTree extends SigmaPageTree {
         }
         return $this->isNodeInsideCurrentBranch($node->getParent());
     }
-    
+
     public function preRenderLevel($level, $lang, $parentNode) {}
-    
+
     public function postRenderLevel($level, $lang, $parentNode) {}
 
     protected function preRenderElement($level, $hasChilds, $lang, $page) {}
 
     protected function postRenderElement($level, $hasChilds, $lang, $page) {}
-    
+
     protected function renderHeader($lang) {}
-    
+
     protected function renderFooter($lang) {}
-    
+
     protected function realPreRender($lang) {}
-    
+
     /**
      * Called on construction. Override if you do not want to override the ctor.
      */

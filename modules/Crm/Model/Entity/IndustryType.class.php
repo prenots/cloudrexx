@@ -1,14 +1,40 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * IndustryType Class CRM
  *
  * @category   IndustryType
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     SoftSolutions4U Development Team <info@softsolutions4u.com>
- * @copyright  2012 and CONTREXX CMS - COMVATION AG
+ * @copyright  2012 and CLOUDREXX CMS - CLOUDREXX AG
  * @license    trial license
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 
 namespace Cx\Modules\Crm\Model\Entity;
@@ -17,12 +43,12 @@ namespace Cx\Modules\Crm\Model\Entity;
  * IndustryType Class CRM
  *
  * @category   IndustryType
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     SoftSolutions4U Development Team <info@softsolutions4u.com>
- * @copyright  2012 and CONTREXX CMS - COMVATION AG
+ * @copyright  2012 and CLOUDREXX CMS - CLOUDREXX AG
  * @license    trial license
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 
 class IndustryType
@@ -67,7 +93,8 @@ class IndustryType
         $arrIndustries = array();
         $whereParentId = '';
         $whereActive   = '';
-        
+        $langId = !empty($_LANGID) ? $_LANGID : FRONTEND_LANG_ID;
+
         if (!empty($intIndustryId)) {
             $whereParentId = '';
         } else {
@@ -75,14 +102,14 @@ class IndustryType
                 $whereParentId = "AND parent_id = {$intParentId}";
             } else {
                 $whereParentId = "AND parent_id = 0";
-            }            
+            }
         }
 
         if ($status) {
             $whereActive = "AND (Intype.status = '1') ";
         } else {
             $whereActive = '';
-	}
+    }
         $sortOrder = 'ORDER BY sorting ASC';
 
         $objIndustries = $objDatabase->Execute("SELECT Intype.id,
@@ -93,7 +120,7 @@ class IndustryType
                                                  FROM `".DBPREFIX."module_{$this->moduleName}_industry_types` AS Intype
                                                  LEFT JOIN `".DBPREFIX."module_{$this->moduleName}_industry_type_local` AS Inloc
                                                     ON Intype.id = Inloc.entry_id
-                                                 WHERE Inloc.lang_id = ".$_LANGID."
+                                                 WHERE Inloc.lang_id = ".$langId."
                                                  $whereParentId
                                                  $whereActive
                                                  $sortOrder
@@ -121,7 +148,7 @@ class IndustryType
 
     /**
      * Set the variable if new
-     * 
+     *
      * @param String $name  variable name
      * @param String $value variable value
      *
@@ -134,7 +161,7 @@ class IndustryType
 
     /**
      * Get the variable value
-     * 
+     *
      * @param String $name variable name
      *
      * @return String

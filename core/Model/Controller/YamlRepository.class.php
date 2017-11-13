@@ -1,12 +1,38 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * YAML Repository
  *
  * A entity repository with its storage being in a YAML-file.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_model
  */
 
@@ -15,9 +41,9 @@ namespace Cx\Core\Model\Controller;
 /**
  * YAML Repository Exception
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_model
  */
 class YamlRepositoryException extends \Exception {};
@@ -27,9 +53,9 @@ class YamlRepositoryException extends \Exception {};
  *
  * A entity repository with its storage being in a YAML-file.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_model
  * @todo        Make thread safe. The current implementation of YamlRepository
  *              does not take the case into account if the repository gets
@@ -86,7 +112,7 @@ class YamlRepository {
      * @var string
      */
     protected $entityIdentifier;
-    
+
     /**
      * Definition of the unique key attributes of the entity model
      * @var array
@@ -103,8 +129,17 @@ class YamlRepository {
             throw new YamlRepositoryException('No repository specified!');
        }
 
-        $this->repositoryPath = $repositoryPath; 
+        $this->repositoryPath = $repositoryPath;
         $this->load();
+    }
+
+    /**
+     * Tells wheter an entity is managed by this repo or not
+     * @param \Cx\Model\Base\EntityBase $entity Entity to test
+     * @return boolean True if given entity is managed by this repo, false otherwise
+     */
+    public function isManaged(\Cx\Model\Base\EntityBase $entity) {
+        return in_array($entity, $this->entities);
     }
 
     /**
@@ -123,9 +158,9 @@ class YamlRepository {
      */
     protected function load() {
         $this->reset();
-        
+
         if(!$this->fileExistsAndNotEmpty($this->repositoryPath)) return false;
-        
+
         list($meta, $entities) = $this->loadData();
 
         $this->entityAutoIncrement = $meta['auto_increment'];
@@ -169,7 +204,7 @@ class YamlRepository {
     public function findAll() {
         return $this->entities;
     }
-    
+
      /**
      * Return single entity specified by primary identifier $id
      * @param   mixed   Value of primary identifier
@@ -179,7 +214,7 @@ class YamlRepository {
         if (isset($this->entities[$id])) {
             return $this->entities[$id];
         }
-        
+
         throw new YamlRepositoryException("No entity found by $this->entityIdentifier = $id!");
     }
 
@@ -232,7 +267,7 @@ class YamlRepository {
         }
         $this->validate($entity);
         $this->entities[$this->getIdentifierOfEntity($entity)] = $entity;
-        
+
         if (!$entity->isVirtual()) {
             $this->addedEntities[] = $entity;
             \Env::get('cx')->getEvents()->triggerEvent('model/prePersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($entity, \Env::get('em'))));
@@ -249,7 +284,7 @@ class YamlRepository {
         $this->removedEntities[] = $entity;
         \Env::get('cx')->getEvents()->triggerEvent('model/preRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($entity, \Env::get('em'))));
     }
-    
+
     /**
      * Flush the current state of the repository into the file system.
      */
@@ -275,17 +310,17 @@ class YamlRepository {
             }
             $entitiesToPersist[$this->getIdentifierOfEntity($entity)] = $entity;
         }
-        
+
         foreach ($this->updatedEntities as $entity) {
             \Env::get('cx')->getEvents()->triggerEvent('model/preUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($entity, \Env::get('em'))));
         }
-        
+
         $this->prepareFile($this->repositoryPath, $this->entityUniqueKeys, $this->entityIdentifier);
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet();
         $dataSet->add('data', $entitiesToPersist);
         $dataSet->add('meta', $this->getMetaDefinition());
         $dataSet->save($this->repositoryPath);
-        
+
         // triger post-events
         // apply the same order of event-triggers as doctrine does:
         // 1. postPersist
@@ -305,7 +340,7 @@ class YamlRepository {
         $this->addedEntities = array();
         $this->updatedEntities = array();
         $this->removedEntities = array();
-        
+
         \Env::get('cx')->getEvents()->triggerEvent('model/postFlush', array(new \Doctrine\ORM\Event\OnFlushEventArgs(\Env::get('em')), $this->repositoryPath));
     }
 
@@ -364,10 +399,10 @@ class YamlRepository {
         }
         return call_user_func(array($entity, "get".ucfirst($identifierKey)));
     }
-        
+
     /**
      * Checks if file exists, if not - creates new one with metadata
-     * 
+     *
      * @param string $filename
      * @param array $unique_keys
      * @param string $identifier
@@ -375,7 +410,7 @@ class YamlRepository {
      * @throws \Cx\Core\Setting\Controller\SettingException
      */
     protected function prepareFile($filename, $unique_keys = array(), $identifier) {
-        
+
         if($this->fileExistsAndNotEmpty($filename)) return true;
         \DBG::log('Creating new file');
         try {
@@ -383,7 +418,7 @@ class YamlRepository {
             $file->touch();
             $data = trim($file->getData());
             if(empty($data)) {
-                $inidata = 
+                $inidata =
                     "meta:\n" .
                     "   auto_increment: 1\n";
                 if(!empty($identifier)) {
@@ -391,21 +426,21 @@ class YamlRepository {
                 }
                 if(!empty($unique_keys)) {
                     $inidata .= "   unique_keys:\n";
-                    foreach($unique_keys as $key) {        
+                    foreach($unique_keys as $key) {
                         $inidata .= "        - $key";
                     }
-                }    
+                }
                 $file->write($inidata);
             }
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::log('EX ' . $e->getMessage());
             throw new \Cx\Core\Setting\Controller\YamlRepositoryException($e->getMessage());
-        }  
+        }
     }
-    
+
     /**
      * Checks if file exists and is not empty
-     * 
+     *
      * @param string $filename
      * @return bool
      */
@@ -413,4 +448,3 @@ class YamlRepository {
         return (file_exists($filename) && filesize($filename) > 0);
     }
 }
-

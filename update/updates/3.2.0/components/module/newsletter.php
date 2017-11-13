@@ -1,5 +1,31 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 function _newsletterUpdate()
 {
     global $objDatabase, $objUpdate, $_CONFIG;
@@ -55,14 +81,14 @@ function _newsletterUpdate()
 
 
     DBG::msg("Done checking tables.. going to check settings");
-    
+
 
     //the two values notifyOnUnsubscribe and notificationUnsubscribe have been merged into the latter.
     $unsubscribeVal=1;
     try {
         DBG::msg("Retrieving old unsubscribe value if set.");
         $res = \Cx\Lib\UpdateUtil::sql("SELECT setvalue FROM ".DBPREFIX."module_newsletter_settings WHERE setname='notifyOnUnsubscribe'");
-        
+
         if(!$res->EOF){
             $unsubscribeVal = $res->fields['setvalue'];
         }
@@ -78,7 +104,7 @@ function _newsletterUpdate()
     catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
-        
+
     $settings = array(
         'sender_mail'             => array('setid' =>  1, 'setname' => 'sender_mail',             'setvalue' => 'info@example.com', 'status' => 1),
         'sender_name'             => array('setid' =>  2, 'setname' => 'sender_name',             'setvalue' => 'admin',            'status' => 1),
@@ -308,7 +334,7 @@ function _newsletterUpdate()
         )) {
             // set user's SALUTATION based of previews updates
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_newsletter_user` SET `salutation` = `title`, `title` = '' WHERE `salutation` = '0' AND `title` REGEXP '^[0-9]+$'");
-            
+
             // clear all user's TITLE attribute that consist only of a number (it is most likely not the case that a user's TITLE is a number,
             // so we assume that it is a left over of the preview update bug, which did not migrate the user's TITLE attribute to the user's SALUTATION attribute
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_newsletter_user` SET `title` = '' WHERE `title` REGEXP '^[0-9]+$'");

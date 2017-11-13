@@ -1,6 +1,32 @@
 <?php
+
 /**
- * Contrexx CMS
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * Cloudrexx CMS
  * generated date Tue, 30 Aug 2005 14:11:18 +0200
  **/
 
@@ -43,6 +69,7 @@ $_ARRAYLANG['TXT_CRM_COMMENT_CREATEDBY']                                 = 'Erst
 $_ARRAYLANG['TXT_CRM_COMMENT_UPDATEBY']                                  = 'Bearbeitet von';
 $_ARRAYLANG['TXT_CRM_COMMENT_DATE_TIME']                                 = 'Kommentiert von Datum';
 $_ARRAYLANG['TXT_CRM_COMMENT_TITLE']                                     = 'Hinweise';
+$_ARRAYLANG['TXT_CRM_LASTUPDATE']                                        = 'zuletzt aktualisiert am';
 $_ARRAYLANG['TXT_CRM_TASK_FUNCTIONS']                                    = "Funktionen";
 $_ARRAYLANG['TXT_CRM_CUSTOMER_DETAIL'] = 'Kunden-Details';
 $_ARRAYLANG['TXT_CRM_NOTES_ADD'] = 'Notizen hinzufügen';
@@ -92,6 +119,7 @@ $_ARRAYLANG['TXT_CRM_NEXT_INVOICE'] = "nächste Rechnung";
 $_ARRAYLANG['TXT_CRM_SUPPORT_TICKET'] = "Support Ticket";
 $_ARRAYLANG['TXT_CRM_DATE'] = "Datum";
 $_ARRAYLANG['TXT_CRM_TITLE'] = "Titel";
+$_ARRAYLANG['TXT_CRM_AMOUNT'] = "Betrag";
 $_ARRAYLANG['TXT_CRM_DESCRIPTION'] = "Beschreibung";
 $_ARRAYLANG['TXT_CRM_PRICE'] = "Preis";
 $_ARRAYLANG['TXT_CRM_ADDITIONAL_INFORMATION'] = "Zusätzliche Information";
@@ -204,6 +232,7 @@ $_ARRAYLANG['TXT_CRM_PHONE'] = "Telefon";
 $_ARRAYLANG['TXT_CRM_STATUS_SUCCESSFULLY_CHANGED'] = "Kundenkontakt-Status erfolgreich geändert.";
 $_ARRAYLANG['TXT_CRM_FAMILY_NAME'] = "Nachname";
 $_ARRAYLANG['TXT_CRM_ROLE'] = "Position";
+$_ARRAYLANG['TXT_CRM_TITLE'] = "Titel";
 $_ARRAYLANG['TXT_CRM_CUSTOMER_CONTACT_DELETED_SUCCESSFULLY'] = "Kundenkontakt erfolgreich gelöscht";
 $_ARRAYLANG['TXT_CRM_CONTACT_UPDATED_STATUS_MESSAGE'] = "Kontaktdetails Erfolgreich aktualisiert";
 $_ARRAYLANG['TXT_CRM_CUSTOMER_CONTACT_CONNOT_DELETE'] = "Hauptkontakte können nicht gelöscht werden!";
@@ -328,7 +357,7 @@ $_ARRAYLANG['TXT_CRM_ADD_NEW_CUSTOMER'] = "Unternehmen hinzufügen";
 $_ARRAYLANG['TXT_CRM_ADD_NEW_CONTACT']  = "Person hinzufügen";
 $_ARRAYLANG['TXT_CRM_GENERAL_INFORMATION']  = "Allgemeine Informationen";
 $_ARRAYLANG['TXT_CRM_PROFILE_INFORMATION']  = "Profil Informationen";
-$_ARRAYLANG['TXT_CRM_CUSTOMER_SEARCH_HINT'] = "Verwenden Sie das ? und * Symbole zur Durchführung eines einzelnen / mehreren Zeichen Suche. Zum Beispiel um alle Wörter mit O beginnend zu suchen, verwenden Sie die O* oder O? Abfrage. Um für die Begriffe in ähnlicher Schreibweise suchen, verwenden Sie das ~ Symbol am Ende eines Wortes.";
+$_ARRAYLANG['TXT_CRM_CUSTOMER_SEARCH_HINT'] = "Verwenden Sie das ? und * Symbole zur Durchführung eines einzelnen / mehreren Zeichen Suche. Zum Beispiel um alle Wörter mit O beginnend zu suchen, verwenden Sie die O* oder O? Abfrage. Um für die Begriffe in ähnlicher Schreibweise suchen, verwenden Sie das ~ Symbol am Ende eines Wortes.<br /><br /><b>Achtung:</b><br />Der Suchbegriff muss mindestens 4 Zeichen lang sein!";
 $_ARRAYLANG['TXT_CRM_ALL_PERSONS'] = "Alle Personen";
 $_ARRAYLANG['TXT_CRM_SAVE_AND_ADD_NEW_COMPANY'] = "Speichern und neue Firma erstellen";
 $_ARRAYLANG['TXT_CRM_SAVE_AND_ADD_NEW_PERSON']  = "Speichern und neue Person erstellen";
@@ -506,6 +535,7 @@ $_ARRAYLANG['TXT_CRM_FILTER_TASK_TYPE']             = "Filter Aufgaben";
 $_ARRAYLANG['TXT_CRM_MAIL_TEMPLATE']                = "E-Mail Vorlagen";
 $_ARRAYLANG['TXT_CRM_STAGES_SAVED']                 = "Verkaufschancen Hinzufügen erfolgreich hinzugefügen";
 $_ARRAYLANG['TXT_CRM_ACCOUNT_ARE_MANTATORY']        = "Verwendung von Benutzerkonten ist zwingend";
+$_ARRAYLANG['TXT_CRM_CONTACT_AMOUNT_ENABLED']       = "Betragfeld für Kontakte aktivieren";
 $_ARRAYLANG['TXT_CRM_TITLE_CUSTOMER_ADDEDBY']      = "Hinzugefügt von";
 $_ARRAYLANG['TXT_CRM_TASK_RESPONSIBLE']             = "Ansprechsperson";
 $_ARRAYLANG['TXT_CRM_NOTIFY']                       = "Benachrichtigung";
@@ -594,3 +624,6 @@ $_ARRAYLANG['TXT_CRM_PROFILE_ATTRIBUT_INDUSTRY_TYPE']  = 'Profilattribut für Br
 $_ARRAYLANG['TXT_CRM_PROFILE_ATTRIBUT_COMPANY_SIZE']  = 'Profilattribut für die Firmengrösse';
 $_ARRAYLANG['TXT_CRM_PROFILE_ATTRIBUT_CUSTOMER_TYPE']  = 'Profilattribut für den Kundentypen';
 $_ARRAYLANG['TXT_CRM_EMAIL_DELIVERY'] = 'E-Mail Zustellung';
+$_ARRAYLANG['TXT_CRM_FILTER_STATUS'] = 'Statusfilter';
+$_ARRAYLANG['TXT_CRM_TASK_STATUS_OPEN'] = 'Offen';
+$_ARRAYLANG['TXT_CRM_TASK_STATUS_COMPLETED'] = 'Erledigt';

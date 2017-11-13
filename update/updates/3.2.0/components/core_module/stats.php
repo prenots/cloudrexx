@@ -1,4 +1,30 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 function _statsUpdate()
 {
     global $objDatabase, $objUpdate, $_CONFIG, $_ARRAYLANG;
@@ -10,46 +36,46 @@ function _statsUpdate()
 
     foreach (array(
         'stats_browser' => array(
-            'obsoleteIndex'	=> 'name',
+            'obsoleteIndex'    => 'name',
             'unique' => array('name'),
             'change' => "`name` `name` VARCHAR(255) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_colourdepth' => array(
-            'obsoleteIndex'	=> 'depth',
+            'obsoleteIndex'    => 'depth',
             'unique' => array('depth')
         ),
         'stats_country' => array(
-            'obsoleteIndex'	=> 'country',
+            'obsoleteIndex'    => 'country',
             'unique' => array('country'),
             'change' => "`country` `country` VARCHAR(100) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_hostname' => array(
-            'obsoleteIndex'	=> 'hostname',
+            'obsoleteIndex'    => 'hostname',
             'unique' => array('hostname'),
             'change' => "`hostname` `hostname` VARCHAR(255) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_operatingsystem' => array(
-            'obsoleteIndex'	=> 'name',
+            'obsoleteIndex'    => 'name',
             'unique' => array('name'),
             'change' => "`name` `name` VARCHAR(255) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_referer' => array(
-            'obsoleteIndex'	=> 'uri',
+            'obsoleteIndex'    => 'uri',
             'unique' => array('uri'),
             'change' => "`uri` `uri` VARCHAR(255) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_requests' => array(
-            'obsoleteIndex'	=> 'page',
+            'obsoleteIndex'    => 'page',
             'unique' => array('page'),
             'count' => 'visits',
             'change' => "`page` `page` VARCHAR(255) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_requests_summary' => array(
-            'obsoleteIndex'	=> 'type',
+            'obsoleteIndex'    => 'type',
             'unique' => array('type', 'timestamp')
         ),
         'stats_screenresolution' => array(
-            'obsoleteIndex'	=> 'resolution',
+            'obsoleteIndex'    => 'resolution',
             'unique' => array('resolution')
         ),
         'stats_search' => array(
@@ -57,26 +83,26 @@ function _statsUpdate()
             'unique' => array('name')
         ),
         'stats_spiders' => array(
-            'obsoleteIndex'	=> 'page',
+            'obsoleteIndex'    => 'page',
             'unique' => array('page'),
             'change' => "`page` `page` VARCHAR(100) BINARY DEFAULT NULL"
         ),
-        'stats_spiders_summary'	=> array(
-            'obsoleteIndex'	=> 'unqiue',
+        'stats_spiders_summary'    => array(
+            'obsoleteIndex'    => 'unqiue',
             'unique' => array('name'),
             'change' => "`name` `name` VARCHAR(255) BINARY NOT NULL DEFAULT ''"
         ),
         'stats_visitors_summary' => array(
-            'obsoleteIndex'	=> 'type',
+            'obsoleteIndex'    => 'type',
             'unique' => array('type', 'timestamp')
         ),
         /************************************************
         * EXTENSION:    Unique key on sid attribte of   *
         *               table contrexx_statis_visitors  *
-        * ADDED:		Contrexx v2.1.0					*
+        * ADDED:        Contrexx v2.1.0                    *
         ************************************************/
         'stats_visitors' => array(
-            'obsoleteIndex'	=> 'sid',
+            'obsoleteIndex'    => 'sid',
             'unique' => array('sid'),
             'count'  => 'timestamp'
         )
@@ -225,7 +251,7 @@ function _statsUpdate()
     catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
-        
+
     try {
         //2.2.0: new config option 'exclude_identifying_info'
         \Cx\Lib\UpdateUtil::sql('

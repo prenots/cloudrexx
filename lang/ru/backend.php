@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lang
  */
 $_ARRAYLANG['TXT_INTERNAL'] = "internal";
@@ -100,7 +126,6 @@ $_ARRAYLANG['TXT_PAGE_NAME'] = "Название электронной стра
 $_ARRAYLANG['TXT_SECONDS'] = "Секунды";
 $_ARRAYLANG['TXT_TRANSLATION'] = "Перевод";
 $_ARRAYLANG['TXT_BROWSERLANGUAGE'] = "Язык";
-$_ARRAYLANG['TXT_LANGUAGE_SETTINGS'] = "Языковые установки";
 $_ARRAYLANG['TXT_START_DATE'] = "Стартовая дата";
 $_ARRAYLANG['TXT_STATS'] = "Статистика";
 $_ARRAYLANG['TXT_STATS_SETTINGS'] = "Settings";
@@ -108,6 +133,8 @@ $_ARRAYLANG['TXT_PROTECTION_CHANGE'] = "Право на пользование �
 $_ARRAYLANG['TXT_SYSTEM_SETTINGS'] = "Системные установки";
 $_ARRAYLANG['TXT_THUMBNAIL_GALLERY'] = "Картинная галерея";
 $_ARRAYLANG['TXT_FROM'] = "от";
+$_ARRAYLANG['TXT_PAGING_OUT_OF'] = "из";
+$_ARRAYLANG['TXT_PAGING_TO'] = "до";
 $_ARRAYLANG['TXT_FIRST_NAME'] = "Имя";
 $_ARRAYLANG['TXT_PASSWORD_FIELD_EMPTY'] = "Если поле, предназначенное для пароля останется незаполненным, будет сохранён старый пароль!";
 $_ARRAYLANG['TXT_PASSWORD_MD5_ENCRYPTED'] = "Пароль будет зашифрован с помощью MD5-логаритма";
@@ -173,7 +200,7 @@ $_ARRAYLANG['TXT_WELCOME_MESSAGE'] = "Добро пожаловать";
 $_ARRAYLANG['TXT_ADMINISTSRATORS_ONLINE'] = "Administrators online";
 $_ARRAYLANG['TXT_LAST_LOGIN'] = "Last login";
 $_ARRAYLANG['TXT_LAST_LOGINS'] = "Last logins";
-$_ARRAYLANG['TXT_CONTREXX_NEWS'] = "Contrexx News";
+$_ARRAYLANG['TXT_CONTREXX_NEWS'] = "Cloudrexx News";
 $_ARRAYLANG['TXT_CREATING_AND_PUBLISHING'] = "Creating and publishing";
 $_ARRAYLANG['TXT_EVALUATE_AND_VIEW'] = "Evaluate and view";
 $_ARRAYLANG['TXT_MANAGE'] = "Manage";
@@ -442,12 +469,12 @@ $_ARRAYLANG['TXT_DIRECTORY_ADD_FILES'] = "Dateien hinzufügen";
 $_ARRAYLANG['TXT_DIRECTORY_ADD_CATEGORIES'] = "Kategorien hinzufügen";
 $_ARRAYLANG['TXT_MEMBERDIR'] = "Address Management";
 $_ARRAYLANG['TXT_SUBMIT_SELECT'] = "Select action";
-$_ARRAYLANG['TXT_DEBUGGING_FLAG_PHP'] = "PHP errors"; 
-$_ARRAYLANG['TXT_DEBUGGING_FLAG_ADODB'] = "ADODB: all queries"; 
-$_ARRAYLANG['TXT_DEBUGGING_FLAG_ADODB_TRACE'] = "ADODB: trace queries"; 
-$_ARRAYLANG['TXT_DEBUGGING_FLAG_ADODB_ERROR'] = "ADODB: errors only"; 
-$_ARRAYLANG['TXT_DEBUGGING_FLAG_LOG_FIREPHP'] = "Output to FirePHP"; 
-$_ARRAYLANG['TXT_DEBUGGING_FLAG_LOG_FILE'] = "Output to file"; 
+$_ARRAYLANG['TXT_DEBUGGING_FLAG_PHP'] = "PHP errors";
+$_ARRAYLANG['TXT_DEBUGGING_FLAG_ADODB'] = "ADODB: all queries";
+$_ARRAYLANG['TXT_DEBUGGING_FLAG_ADODB_TRACE'] = "ADODB: trace queries";
+$_ARRAYLANG['TXT_DEBUGGING_FLAG_ADODB_ERROR'] = "ADODB: errors only";
+$_ARRAYLANG['TXT_DEBUGGING_FLAG_LOG_FIREPHP'] = "Output to FirePHP";
+$_ARRAYLANG['TXT_DEBUGGING_FLAG_LOG_FILE'] = "Output to file";
 $_ARRAYLANG['TXT_SETTINGS_TITLE_SUBSYSTEM'] = "Subsystems";
 $_ARRAYLANG['TXT_SETTINGS_HISTORY'] = "Content history & Workflowsystem";
 $_ARRAYLANG['TXT_NETTOOLS_MODULE_DESCRIPTION'] = "Miscellanous Network Tools";
@@ -770,7 +797,7 @@ $_ARRAYLANG['TXT_AUCTION_MODULE_DESCRIPTION'] = "Auktionen";
 $_ARRAYLANG['TXT_AUCTION_TITLE'] = "Auktionen";
 $_ARRAYLANG['TXT_CORE_XML_SITEMAP_NOT_WRITABLE'] = "Unable to update the XML sitemap %s due it's write-protected!";
 $_ARRAYLANG['TXT_CORE_HTACCESS_FILE_NOT_WRITABLE'] = "The file %s can't be updated due it's write-protected! Please remove the write-protection for letting the system working properly.";
-$_ARRAYLANG['TXT_CORE_INVALID_HTACCESS_FORMAT'] = "Unable to read the HtAccess file %s due to invalid Contrexx specific directives!";
+$_ARRAYLANG['TXT_CORE_INVALID_HTACCESS_FORMAT'] = "Unable to read the HtAccess file %s due to invalid Cloudrexx specific directives!";
 $_ARRAYLANG['TXT_CORE_APACHE_MOD_REWRITE_REQUIRED'] = "This function depends on a system running on an Apache web server. As well does it require the Apache module mod_rewrite. The system was unable to determine if those requirements are fulfilled!";
 $_ARRAYLANG['TXT_DBM_ERROR_GETTING_TABLES_INFO'] = "Fehler:  Konnte keine Informationen über vorhandene Tabellen lesen";
 $_ARRAYLANG['TXT_DBM_CSV_FOLDER'] = "Verzeichnis: '%1\$s'";
@@ -805,7 +832,7 @@ $_ARRAYLANG['TXT_CORE_SETTING_VALUE'] = "Einstellung";
 $_ARRAYLANG['TXT_CORE_SETTINGS_ERROR_RETRIEVING'] = "Fehler bei der Abfrage der Einstellungen";
 $_ARRAYLANG['TXT_CORE_SETTINGS_NONE_FOUND'] = "Keine Einstellungen gefunden";
 $_ARRAYLANG['TXT_ECARD_MODULE_DESCRIPTION'] = "Digital Postcards";
-$_ARRAYLANG['TXT_CSRF_TITLE'] = "Contrexx security information";
+$_ARRAYLANG['TXT_CSRF_TITLE'] = "Cloudrexx security information";
 $_ARRAYLANG['TXT_CSRF_DESCR'] = 'You are changing the system configuration. If you see this message<ul><li>after clicking a link in the administration interface, click <a href="%1$s">save changes</a></li><li>after clicking a link inside an e-mail message or outside the administration interface, click <a href="%2$s">discard changes</a></li></ul>';
 $_ARRAYLANG['TXT_CSRF_ABORT'] = "discard changes";
 $_ARRAYLANG['TXT_CSRF_CONTINUE'] = "save changes";
@@ -821,7 +848,7 @@ $_ARRAYLANG['TXT_MEDIADIR_MODULE_DESCRIPTION'] = 'Flexible and customizable medi
 $_ARRAYLANG['TXT_CHECKOUT_MODULE'] = "Online Payment";
 $_ARRAYLANG['TXT_CHECKOUT_MODULE_DESCRIPTION'] = "Easy solution to process transactions on Yellowpay.";
 $_ARRAYLANG['TXT_LICENSE_KEY'] = 'License key';
-$_ARRAYLANG['TXT_LICENSE_KEY_HELP'] = 'Enter here your license key to activate this Contrexx© installation.';
+$_ARRAYLANG['TXT_LICENSE_KEY_HELP'] = 'Enter here your license key to activate this Cloudrexx© installation.';
 
 $_ARRAYLANG['ADD_FILES'] = "Dateien hinzufügen";
 $_ARRAYLANG['ADD_INSTRUCTIONS'] = "Fügen Sie die Dateien zur Warteschlange hinzu und drücken Sie auf Start.";
@@ -857,7 +884,7 @@ $_ARRAYLANG['TXT_CONFIRM_SET_GLOBAL_REDIRECT_TARGET'] = "Wollen Sie das Zielfens
 $_ARRAYLANG['TXT_CONFIRM_SET_GLOBAL_ROBOTS'] = "Wollen Sie den Meta Robot Status wirklich für alle Seiten (%s) setzen?";
 $_ARRAYLANG['TXT_CONFIRM_SET_GLOBAL_THEMES_ID'] = "Wollen Sie die Design Vorlage %s wirklich für alle Seiten (%s) übernehmen?";
 $_ARRAYLANG['TXT_CONNECT_ACCT_EXPIRED_OR_INACTIVE'] = "Ihr Account ist abgelaufen oder wurde deaktiviert. Bitte wenden Sie sich an Ihren Administrator.";
-$_ARRAYLANG['TXT_CONNECT_DISABLED'] = "Diese Seite erlaub keine Anmeldungen über ContrexxConnect.";
+$_ARRAYLANG['TXT_CONNECT_DISABLED'] = "Diese Seite erlaub keine Anmeldungen über CloudrexxConnect.";
 $_ARRAYLANG['TXT_CONNECT_IDENTITY_NOT_REGISTERED'] = "Ihre Identität wurde von Ihrem IdP bestätigt, ist aber mit keinem Account in unserem System verbunden.";
 $_ARRAYLANG['TXT_CONNECT_IDP_RETURNED'] = "Ihr IdP hat folgende Fehlermeldung zurückgegeben: ";
 $_ARRAYLANG['TXT_CONNECT_OPENID_LOG_IN_CANCELLED'] = "Anmeldung vom Benutzer abgebrochen.";
@@ -1069,7 +1096,7 @@ $_ARRAYLANG['TXT_CSRF_BUTTON'] = "Klicken Sie hier, um fortzufahren.";
 $_ARRAYLANG['TXT_ELEARNING'] = "e-Learning";
 $_ARRAYLANG['TXT_ELEARNING_ADMINISTRATION'] = "e-Learning Administration";
 $_ARRAYLANG['TXT_ELEARNING_MODULE_DESCRIPTION'] = "e-Learning";
-$_ARRAYLANG['TXT_ENABLE_CONNECT'] = "Logins über ContrexxConnect erlauben.";
+$_ARRAYLANG['TXT_ENABLE_CONNECT'] = "Logins über CloudrexxConnect erlauben.";
 $_ARRAYLANG['TXT_LANGUAGE_ANY'] = "beliebig";
 $_ARRAYLANG['TXT_LANGUAGE_BACKEND'] = "Backend";
 $_ARRAYLANG['TXT_LANGUAGE_BACKEND_COLON'] = "Backend (admin.class.php):";

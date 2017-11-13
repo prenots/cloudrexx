@@ -1,7 +1,7 @@
 /*
-   Base Style Sheet for the CONTREXX CMS backend console.
+   Base Style Sheet for the CLOUDREXX CMS backend console.
 
-   Copyright 2005 COMVATION AG.
+   Copyright 2005 CLOUDREXX AG.
    All Rights Reserved.
 
 */
@@ -82,7 +82,7 @@ a:active {
     top: 14px;
     width: 145px;
     height: 25px;
-    background: url(../Media/login_contrexx_logo.png) no-repeat;
+    background: url(../Media/login_cloudrexx_logo.png) no-repeat;
     outline: 0;
 }
 
@@ -227,8 +227,8 @@ a:active {
 #content_login form {
     float: left;
     width: 100%;
-/*    padding: 10px;
-    background-color: silver;*/
+    /*    padding: 10px;
+        background-color: silver;*/
 }
 
 #content_login hr {
@@ -381,12 +381,6 @@ a:active {
     height: 23px;
 }
 
-#content_login #captcha #coreCaptchaImage {
-    width: 87px;
-    height: 29px;
-}
-
-
 #content_wrapper td.content_wrapper.left {
     float: left;
     width: 217px;
@@ -506,6 +500,7 @@ textarea.cke_source {
     margin: 0 7px 0 0;
 }
 #captcha #coreCaptchaImage {
+    margin-top: 0;
     float: left;
     width: 93px;
     height: 31px;
@@ -1119,18 +1114,18 @@ table tr.reset td {
 }
 
 .sort-handle { /*the drag handle*/
-               cursor: move;
-               width: 17px;
-               background-image: url(../Media/icons/updown.gif);
-               background-repeat: no-repeat;
-               background-position: center left;
-               clear: left;
-               float: left;
-               height: 25px;
-               width: 17px;
-               margin: 0;
-               padding: 0;
-               margin-right: 3px;
+    cursor: move;
+    width: 17px;
+    background-image: url(../Media/icons/updown.gif);
+    background-repeat: no-repeat;
+    background-position: center left;
+    clear: left;
+    float: left;
+    height: 25px;
+    width: 17px;
+    margin: 0;
+    padding: 0;
+    margin-right: 3px;
 }
 
 
@@ -1259,28 +1254,28 @@ input[type=checkbox].really {
 }
 
 table.adminlist td.nowrap {
-  white-space: nowrap;
-  vertical-align: top;
+    white-space: nowrap;
+    vertical-align: top;
 }
 
 /* Icon representing a URL (module shop, Coupon) */
 .icon_url {
-  float: left;
-  width: 14px;
-  height: 16px;
-  margin-top: 3px;
-  background-image: url(../Media/icons/link.gif);
-  background-position: left top;
-  background-repeat: no-repeat;
-  cursor: pointer;
+    float: left;
+    width: 14px;
+    height: 16px;
+    margin-top: 3px;
+    background-image: url(../Media/icons/link.gif);
+    background-position: left top;
+    background-repeat: no-repeat;
+    cursor: pointer;
 }
 
 /* Invisible layer whose visibility state is toggled upon clicking the
    URL icon.  Usually contains an input text field (module shop, Coupon) */
 .layer_url {
-  display: none;
-  float: none;
-  margin-left: 20px;
+    display: none;
+    float: none;
+    margin-left: 20px;
 }
 
 /* icons */
@@ -1363,6 +1358,42 @@ table.adminlist td.nowrap {
     position: fixed !important;
 }
 
+.ui-dialog.cxDialog {
+    position: absolute;
+    top: 0 !important;
+    border-top: 0;
+    border-right: 1px solid #0a85c8;
+    border-bottom: 1px solid #0a85c8;
+    border-left: 1px solid #0a85c8;
+    border-radius: 0;
+    text-align: center;
+}
+
+.ui-dialog.noTitle .ui-dialog-titlebar {
+    display: none;
+}
+
+.ui-dialog.cxDialog .error {
+    color: #ff0000;
+}
+
+.ui-dialog.cxDialog #loading {
+    float: none;
+    margin: 0 auto;
+    width: 95px;
+    height: 16px;
+}
+
+.ui-dialog.cxDialog #loading img {
+    float: left;
+}
+
+.ui-dialog.cxDialog #loading span {
+    float: left;
+    margin: 0 0 0 5px;
+    line-height: 16px;
+}
+
 /* Style of info, ok, warning, alert, upgrade and news boxes */
 .okbox, #okbox,
 .infobox, #infobox,
@@ -1417,12 +1448,12 @@ table.adminlist td.nowrap {
 }
 
 .warningbox, #warningbox {
-    background: #FEF0D0;
-    color: #DA7A0A;
+    background: #fcf8e3;
+    color: #8a6d3b;
 }
 
 .warningbox a, #warningbox a {
-    color: #DB7A0A;
+    color: #8a6d3b;
 }
 
 .news,
@@ -1651,36 +1682,6 @@ a.cke_dialog_ui_button_ok:hover {
 .bs-callout a.alert-link {
     font-weight: bold;
 }
-/* maintenance page */
-.maintenance-content {
-
-    background: #616161;
-    width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 150px;
-    display: block;
-    text-align: center;
-    color: #fff;
-    padding: 23px 0 30px 0;
-}
-.maintenance-content h1 {
-    font-size: 32px;
-    font-weight: normal;
-    margin: 5px 0 0 0;
-    float: none;
-}
-.maintenance-content span {
-    font-size: 14px;
-    font-weight: normal;
-}
-@media (max-width: 767px) {
-    .maintenance-content {
-        width: 95%;
-        margin-top: 120px;
-        margin-bottom: 50px;
-    }
-}
 
 /* modal style */
 .fade {
@@ -1739,9 +1740,9 @@ a.cke_dialog_ui_button_ok:hover {
     position: relative;
     background-color: #fff;
     border: 1px solid #999;
-    border: 1px solid rgba(0, 0, 0, .2);
-    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
-    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+    border: none;
+    -webkit-box-shadow: 0 5px 200px rgba(0, 0, 0, .5);
+    box-shadow: 0 5px 200px rgba(0, 0, 0, .5);
     background-clip: padding-box;
     outline: 0
 }
@@ -1768,7 +1769,6 @@ a.cke_dialog_ui_button_ok:hover {
 
 .modal-header {
     padding: 15px;
-    border-bottom: 1px solid #e5e5e5;
     min-height: 16.43px
 }
 
@@ -1813,8 +1813,8 @@ a.cke_dialog_ui_button_ok:hover {
     }
 
     .modal-content {
-        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, .5)
+        -webkit-box-shadow: 0 5px 200px rgba(0, 0, 0, .5);
+        box-shadow: 0 5px 200px rgba(0, 0, 0, .5);
     }
 
     .modal-sm {
@@ -1867,7 +1867,7 @@ a.cke_dialog_ui_button_ok:hover {
 
 
 .modal-backdrop {
-    background-color: white;
+    background-color: black;
 }
 
 .modal-title {
@@ -1876,6 +1876,6 @@ a.cke_dialog_ui_button_ok:hover {
 }
 
 .modal-header {
-    background-color: #f5f5f5
+    background-color: #0a85c8;
+    color: #fff;
 }
-

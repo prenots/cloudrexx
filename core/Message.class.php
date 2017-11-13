@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Message
  *
  * Handles status messages
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
 */
 
@@ -15,10 +40,10 @@
  * Message
  *
  * Handles status messages on single pages or across redirects
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  * @todo        Distinguish between flash and deferred messages
 */
@@ -103,7 +128,9 @@ class Message
         if (empty($_SESSION['messages_stack'])) {
             $_SESSION['messages_stack'] = array();
         }
-        $_SESSION['messages_stack'] = array_push($_SESSION['messages_stack']->toArray(), $_SESSION['messages']->toArray());
+        $messagesStackTmp = $_SESSION['messages_stack']->toArray();
+        array_push($messagesStackTmp, $_SESSION['messages']);
+        $_SESSION['messages_stack'] = $messagesStackTmp;
         self::clear();
     }
 
@@ -119,7 +146,9 @@ class Message
             self::clear();
             return;
         }
-        $_SESSION['messages'] = array_pop(self::toArray($_SESSION['messages_stack']));
+        $messagesStackTmp = $_SESSION['messages_stack']->toArray();
+        $_SESSION['messages'] = array_pop($messagesStackTmp);
+        $_SESSION['messages_stack'] = $messagesStackTmp;
     }
 
 
@@ -137,7 +166,7 @@ class Message
      */
     static function add($message, $class=self::CLASS_INFO)
     {
-        if (!\cmsSession::isInitialized()) {
+        if (!\Cx\Core\Session\Model\Entity\Session::isInitialized()) {
             throw new \Exception("\Message can't be used at this point as no session has been initialized yet!");
         }
         if (empty($_SESSION['messages'])) {
@@ -146,7 +175,7 @@ class Message
         if (empty($_SESSION['messages'][$class])) {
             $_SESSION['messages'][$class] = array();
         }
-        
+
         $_SESSION['messages'][$class][] = $message;
     }
 
@@ -339,10 +368,10 @@ class Message
         }
         return null;
     }
-    
-    /** 
-     * Formats variable of an unknown type into array and returns it 
-     * 
+
+    /**
+     * Formats variable of an unknown type into array and returns it
+     *
      * @param type $var
      * @return array
      */

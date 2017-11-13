@@ -1,21 +1,46 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Framework language
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     2.3.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_framework
  * @todo        Edit PHP DocBlocks!
  */
 
 /**
  * Framework language
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     2.3.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_framework
  */
 class FWLanguage
@@ -42,7 +67,7 @@ class FWLanguage
     static function init()
     {
         global $_CONFIG, $objDatabase;
-        
+
         $objResult = $objDatabase->Execute("
             SELECT id, lang, name, charset, themesid,
                    frontend, backend, is_default
@@ -392,7 +417,7 @@ class FWLanguage
         while(!$rs->EOF) {
             $langId = intval($rs->fields['id']);
             $fallbackLangId = intval($rs->fields['fallback']);
-            
+
             //explicitly overwrite null (default) with the default language id
             if($fallbackLangId === 0) {
                 $fallbackLangId = $defaultLangId;
@@ -404,7 +429,7 @@ class FWLanguage
             $ret[$langId] = $fallbackLangId;
             $rs->MoveNext();
         }
-        
+
         return $ret;
     }
 }

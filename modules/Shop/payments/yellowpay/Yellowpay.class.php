@@ -1,22 +1,47 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * PostFinance online payment
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  */
 
 /**
  * PostFinance online payment
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @internal    Yellowpay must be configured to return with the follwing requests:
  * POST after payment was made:
@@ -467,7 +492,12 @@ class Yellowpay
             $arrFields['OPERATION'] = $arrSettings['postfinance_authorization_type']['value'];
         }
         if (empty($arrFields['LANGUAGE'])) {
-            $arrFields['LANGUAGE'] = strtolower(FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID)).'_'.strtoupper(FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID));
+            $shortCode = FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID);
+            if (!strpos($shortCode, '-')) { // short code only contains iso1, like 'de' or 'en'
+                $arrFields['LANGUAGE'] = strtolower($shortCode).'_'.strtoupper($shortCode);
+            } else { // short code contains alpha2 code as well, like 'de-DE' or 'en-GB'
+                $arrFields['LANGUAGE'] = str_replace('-', '_', $shortCode);
+            }
         }
 
         $baseUri = Cx\Core\Routing\Url::fromPage($landingPage)->toString().'?result=';
@@ -595,7 +625,7 @@ class Yellowpay
             case 'AMOUNT':
                 // Fix cents, like "1.23" to "123"
                 if (preg_match('/\./', $value)) {
-                    $value = intval($value * 100);
+                    $value = intval(bcmul($value, 100, 0));
                 }
                 if ($value === intval($value)) return $value;
                 break;
@@ -690,7 +720,7 @@ class Yellowpay
                     || $value == 'BYPSP') return $value;
                 break;
 
-            // Contrexx does not yet supply nor support the following:
+            // Cloudrexx does not yet supply nor support the following:
             // payment methods/page specifics: see chapter 9.1
             case 'PM':
             case 'BRAND':

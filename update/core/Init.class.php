@@ -1,22 +1,47 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Initialize the CMS
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  * @todo        Edit PHP DocBlocks!
  */
 
 /**
  * Initialize the CMS
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  * @todo        Any methods handling content or language should be moved
  *              away from here to a distinct class!
@@ -496,7 +521,7 @@ class InitCMS
         //exists. trying to read a non-existant file would lead to an empty content-template.
         //to omit this, we read the standard print content template instead.
         //another possible behaviour would be to read the standard theme's custom content template instead.
-        //this is not done, because customcontent files are mostly used for sidebars etc. - 
+        //this is not done, because customcontent files are mostly used for sidebars etc. -
         //stuff that should not change the print representation of the content.
         if (!file_exists(ASCMS_THEMES_PATH.'/'.$this->themesPath.'/'.$this->customContentTemplate)) {
             return false;
@@ -663,12 +688,12 @@ class InitCMS
         }
 
         $path = $this->arrModulePath[$module].$this->arrLang[$langId]['lang'].'/'.$mode.'.php';
-        
+
         $customizingPath = preg_replace('#'.ASCMS_PATH.ASCMS_PATH_OFFSET.'#', ASCMS_CUSTOMIZING_PATH, $path);
         if ($_CONFIG['useCustomizings'] == 'on' && file_exists($customizingPath)) {
             $path = $customizingPath;
         }
-        
+
         if (!file_exists($path)) {
             $path = '';
             $langId = $mode == 'backend' ? $this->getBackendDefaultLangId() : $this->getFrontendDefaultLangId();
@@ -868,7 +893,7 @@ class InitCMS
         $url = \Env::get('Resolver')->getUrl();
         $myUrl = clone $url;
         $myUrl->setParam($key, $value);
-        
+
         return $myUrl;
     }
 

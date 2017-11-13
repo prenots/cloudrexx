@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Shop settings
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Ivan Schmid <ivan.schmid@comvation.com>
  * @author      Reto Kohli <reto.kohli@comvation.com> (parts)
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @version     3.0.0
  */
@@ -14,10 +39,10 @@ namespace Cx\Modules\Shop\Controller;
 
 /**
  * Shop settings
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Ivan Schmid <ivan.schmid@comvation.com>
  * @author      Reto Kohli <reto.kohli@comvation.com> (parts)
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @version     3.0.0
  */
@@ -185,6 +210,30 @@ class ShopSettings
             \Cx\Core\Setting\Controller\Setting::add('numof_products_per_page_frontend',
                 intval($_POST['numof_products_per_page_frontend']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
+        }
+        if (!\Cx\Core\Setting\Controller\Setting::set('num_categories_per_row',
+            intval($_POST['num_categories_per_row']))) {
+            \Cx\Core\Setting\Controller\Setting::add('num_categories_per_row',
+                intval($_POST['num_categories_per_row']), null,
+                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
+        }
+        if (!\Cx\Core\Setting\Controller\Setting::set('activate_product_attribute_children',
+            !empty($_POST['shop_activate_product_attribute_children']))) {
+            \Cx\Core\Setting\Controller\Setting::add('activate_product_attribute_children',
+                !empty($_POST['shop_activate_product_attribute_children']), null,
+                \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
+        }
+        if (!\Cx\Core\Setting\Controller\Setting::set('force_select_option',
+            !empty($_POST['shop_force_select_option']))) {
+            \Cx\Core\Setting\Controller\Setting::add('force_select_option',
+                !empty($_POST['shop_force_select_option']), null,
+                \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
+        }
+        if (!\Cx\Core\Setting\Controller\Setting::set('verify_account_email',
+            !empty($_POST['shop_verify_account_email']))) {
+            \Cx\Core\Setting\Controller\Setting::add('verify_account_email',
+                !empty($_POST['shop_verify_account_email']), null,
+                \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
         }
     }
 
@@ -745,7 +794,7 @@ class ShopSettings
         \Cx\Core\Setting\Controller\Setting::add('vat_other_id', 1, ++$i,
             \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
         \Cx\Core\Setting\Controller\Setting::add('weight_enable', 0, ++$i,
-            \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
+            \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
         \Cx\Core\Setting\Controller\Setting::add('show_products_default', 0, ++$i,
             \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
         \Cx\Core\Setting\Controller\Setting::add('product_sorting', 0, ++$i,
@@ -883,6 +932,18 @@ class ShopSettings
             \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN_USER_CUSTOM_ATTRIBUTE, null, 'config');
         \Cx\Core\Setting\Controller\Setting::add('user_profile_attribute_notes', 0, 352,
             \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN_USER_CUSTOM_ATTRIBUTE, null, 'config');
+        \Cx\Core\Setting\Controller\Setting::add('num_categories_per_row', 4, ++$i,
+            \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
+
+
+        // New for v5.0.0
+        \Cx\Core\Setting\Controller\Setting::add('activate_product_attribute_children', 1, ++$i,
+            \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
+        \Cx\Core\Setting\Controller\Setting::add('force_select_option', 0, ++$i,
+            \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
+        \Cx\Core\Setting\Controller\Setting::add('verify_account_email', 1, ++$i,
+            \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
+
         // Note that the Settings *MUST* be reinited after adding new entries!
 
         // Add more new/missing settings here

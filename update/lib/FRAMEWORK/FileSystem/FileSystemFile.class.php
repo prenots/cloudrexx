@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Cx\Lib\FileSystem;
 /**
  * File System File
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -14,12 +40,12 @@ class FileSystemFileException extends \Exception {};
 /**
  * File System File
  *
- * This class provides an object based interface to a file that resides 
+ * This class provides an object based interface to a file that resides
  * on the local file system.
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 class FileSystemFile implements FileInterface
@@ -48,7 +74,7 @@ class FileSystemFile implements FileInterface
             $this->filePath = ASCMS_DOCUMENT_ROOT.'/'.$file;
         }
     }
-    
+
     public function getFileOwner()
     {
         // get the user-ID of the user who owns the loaded file
@@ -56,26 +82,26 @@ class FileSystemFile implements FileInterface
         if (!$fileOwnerId) {
             throw new FileSystemFileException('Unable to fetch file owner of '.$this->filePath);
         }
-        
+
         return $fileOwnerId;
     }
-    
+
     public function isWritable() {
         return is_writable($this->filePath);
     }
 
     public function write($data)
     {
-        // first try 
+        // first try
         $fp = @fopen($this->filePath, 'w');
         if (!$fp) {
             // try to set write access
             $this->makeWritable($this->filePath);
         }
 
-        // second try 
+        // second try
         $fp = @fopen($this->filePath, 'w');
-        if (!$fp) { 
+        if (!$fp) {
             throw new FileSystemFileException('Unable to open file '.$this->filePath.' for writting!');
         }
 
@@ -94,16 +120,16 @@ class FileSystemFile implements FileInterface
 
     public function append($data)
     {
-        // first try 
+        // first try
         $fp = @fopen($this->filePath, 'a');
         if (!$fp) {
             // try to set write access
             $this->makeWritable($this->filePath);
         }
 
-        // second try 
+        // second try
         $fp = @fopen($this->filePath, 'a');
-        if (!$fp) { 
+        if (!$fp) {
             throw new FileSystemFileException('Unable to open file '.$this->filePath.' for writting!');
         }
 
@@ -127,7 +153,7 @@ class FileSystemFile implements FileInterface
             throw new FileSystemFileException('Unable to touch file in file system!');
         }
     }
-    
+
     public function copy($dst)
     {
         if (!copy($this->filePath, $dst)) {
@@ -161,11 +187,11 @@ class FileSystemFile implements FileInterface
         $parentDirectory = dirname($this->filePath);
         if (!is_writable($parentDirectory)) {
             if (strpos($parentDirectory, ASCMS_DOCUMENT_ROOT) === 0) {
-                // parent directory lies within the Contrexx installation directory,
+                // parent directory lies within the Cloudrexx installation directory,
                 // therefore, we shall try to make it writable
                 \Cx\Lib\FileSystem\FileSystem::makeWritable($parentDirectory);
             } else {
-                throw new FileSystemFileException('Parent directory '.$parentDirectory.' lies outside of Contrexx installation and can therefore not be made writable!');
+                throw new FileSystemFileException('Parent directory '.$parentDirectory.' lies outside of Cloudrexx installation and can therefore not be made writable!');
             }
         }
 
@@ -191,4 +217,3 @@ class FileSystemFile implements FileInterface
         }
     }
 }
-

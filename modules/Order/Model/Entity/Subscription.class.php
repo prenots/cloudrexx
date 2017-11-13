@@ -1,10 +1,36 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Class Subscription
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_order
  */
 
@@ -14,10 +40,10 @@ class SubscriptionException extends \Exception {}
 
 /**
  * Class Subscription
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_order
  */
 class Subscription extends \Cx\Model\Base\EntityBase {
@@ -25,12 +51,12 @@ class Subscription extends \Cx\Model\Base\EntityBase {
      * @var integer $id
      */
     protected $id;
-    
+
     /**
      * @var Cx\Modules\Order\Model\Entity\Order
      */
     protected $order;
-    
+
     /**
      * @var Cx\Modules\Pim\Model\Entity\Product
      */
@@ -48,13 +74,13 @@ class Subscription extends \Cx\Model\Base\EntityBase {
     protected $externalSubscriptionId = null;
     protected $description = null;
     protected $note = null;
-    
+
     /**
      *
-     * @var string $state 
+     * @var string $state
      */
     protected $state;
-    
+
     /**
      *
      * @var datetime $terminationDate
@@ -81,11 +107,11 @@ class Subscription extends \Cx\Model\Base\EntityBase {
         if (!$product) {
             return;
         }
-        
+
         $this->subscriptionDate = new \DateTime();
         $this->product = $product;
         $this->setProductEntity($product->getNewEntityForSale($options));
-        
+
         $objCurrency = null;
         if ($this->getOrder()) {
             $objCurrency = $this->getOrder()->getCurrency();
@@ -93,7 +119,7 @@ class Subscription extends \Cx\Model\Base\EntityBase {
             $defaultCurrencyId = \Cx\Modules\Crm\Controller\CrmLibrary::getDefaultCurrencyId();
             $objCurrency = $defaultCurrencyId ? \Env::get('em')->getRepository('Cx\Modules\Crm\Model\Entity\Currency')->findOneById($defaultCurrencyId) : null;
         }
-        
+
         $this->paymentAmount = $product->getPaymentAmount($options['renewalUnit'], $options['renewalQuantifier'], $objCurrency);
         $this->paymentState = self::PAYMENT_OPEN;
         if ($product->isExpirable()) {
@@ -112,7 +138,7 @@ class Subscription extends \Cx\Model\Base\EntityBase {
 
     /**
      * Get the id
-     * 
+     *
      * @return integer $id
      */
     public function getId() {
@@ -129,7 +155,7 @@ class Subscription extends \Cx\Model\Base\EntityBase {
 
     /**
      * Set the order
-     * 
+     *
      * @param \Cx\Modules\Order\Model\Entity\Order $order
      */
     public function setOrder(Order $order, $updatePaymentAmount = false) {
@@ -141,28 +167,28 @@ class Subscription extends \Cx\Model\Base\EntityBase {
             $this->paymentAmount = $this->getProduct()->getPaymentAmount($this->getRenewalUnit(), $this->getRenewalQuantifier(), $order->getCurrency());
         }
     }
-    
+
     /**
      * Get the order
-     * 
+     *
      * @return \Cx\Modules\Order\Model\Entity\Order $order
      */
     public function getOrder() {
         return $this->order;
     }
-    
+
     /**
      * Set the product
-     * 
+     *
      * @param integer $product
      */
     public function setProduct($product) {
         $this->product = $product;
     }
-    
+
     /**
      * Get the product
-     * 
+     *
      * @return integer $product
      */
     public function getProduct() {
@@ -196,7 +222,7 @@ class Subscription extends \Cx\Model\Base\EntityBase {
         $this->productEntity = $productEntity;
         $this->productEntityId = null;
         if ($productEntity instanceof \Cx\Model\Base\EntityBase) {
-            $entityIdKey = \Env::get('em')->getClassMetadata(get_class($productEntity))->getSingleIdentifierFieldName(); 
+            $entityIdKey = \Env::get('em')->getClassMetadata(get_class($productEntity))->getSingleIdentifierFieldName();
             $this->productEntityId = $productEntity->{'get'.ucfirst($entityIdKey)}();
         }
     }
@@ -243,43 +269,43 @@ class Subscription extends \Cx\Model\Base\EntityBase {
 
     /**
      * Getter for $description
-     * 
+     *
      * @return string $description
      */
     public function getDescription() {
         return $this->description;
     }
-    
+
     /**
      * Setter for $description
-     * 
+     *
      * @param string $description
      */
     public function setDescription($description) {
         $this->description = $description;
     }
-    
+
     /**
      * Getter for $note
-     * 
+     *
      * @return string $note
      */
     public function getNote() {
         return $this->note;
     }
-    
+
     /**
      * Setter for $note
-     * 
+     *
      * @param string $note
      */
     public function setNote($note) {
         $this->note = $note;
     }
-    
+
     /**
      * Get the externalSubscriptionId
-     * 
+     *
      * @return integer
      */
     public function getExternalSubscriptionId() {
@@ -288,7 +314,7 @@ class Subscription extends \Cx\Model\Base\EntityBase {
 
     /**
      * Set the externalSubscriptionId
-     * 
+     *
      * @param integer $externalSubscriptionId
      */
     public function setExternalSubscriptionId($externalSubscriptionId) {
@@ -310,7 +336,7 @@ class Subscription extends \Cx\Model\Base\EntityBase {
     }
     /**
      * Get the date time object of subscription date
-     * 
+     *
      * @return object date time object of subscription date
      */
     public function getSubscriptionDate() {
@@ -318,62 +344,62 @@ class Subscription extends \Cx\Model\Base\EntityBase {
     }
     /**
      * Set the date time object of subscription date
-     * 
+     *
      * @param object date time object of subscription date
      */
     public function setSubscriptionDate($subscriptionDate) {
         $this->subscriptionDate = $subscriptionDate;
     }
-    
+
     /**
      * Get the state
-     * 
+     *
      * @return string state of the subscription
      */
     public function getState()
     {
-        return $this->state; 
+        return $this->state;
     }
-    
+
     /**
      * Set the state
-     * 
+     *
      * @param string $state state of the subscription
      */
     public function setState($state)
     {
-        $this->state = $state; 
+        $this->state = $state;
     }
-    
+
     /**
      * Get the subscription's termination date
-     * 
+     *
      * @return object date time object of termination date
      */
     public function getTerminationDate()
     {
         return $this->terminationDate;
     }
-    
+
     /**
      * Set the subscription's termination date
-     * 
+     *
      * @param object $terminationDate date time object of termination date
      */
     public function setTerminationDate($terminationDate)
     {
-        $this->terminationDate = $terminationDate; 
+        $this->terminationDate = $terminationDate;
     }
-    
+
     /**
      * Change Subscription State to Terminate.
-     * 
+     *
      * @throws WebsiteException
      */
     public function terminate()
     {
         global $_ARRAYLANG;
-        
+
         if ($this->externalSubscriptionId) {
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
             $instanceName  = \Cx\Core\Setting\Controller\Setting::getValue('payrexxAccount','MultiSite');
@@ -382,12 +408,12 @@ class Subscription extends \Cx\Model\Base\EntityBase {
                 return;
             }
             $payrexx = new \Payrexx\Payrexx($instanceName, $apiSecret);
-            
+
             $subscription = new \Payrexx\Models\Request\Subscription();
             $subscription->setId($this->externalSubscriptionId);
             try {
                 $response = $payrexx->cancel($subscription);
-                if ((isset($response['status']) && $response['status'] != 'success') 
+                if ((isset($response['status']) && $response['status'] != 'success')
                         || (isset($response['data']['status']) && $response['data']['status'] != 'cancelled')) {
                     throw new SubscriptionException($_ARRAYLANG['TXT_MODULE_ORDER_SUBSCRIPTION_PAYREXX_CANCEL_FAILED']);
                 }

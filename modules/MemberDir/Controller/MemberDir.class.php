@@ -1,16 +1,42 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 namespace Cx\Modules\MemberDir\Controller;
 
 /**
  * Member directory
  *
  * Frontend memberdir class
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_memberdir
  */
 class MemberDir extends MemberDirLibrary
@@ -377,11 +403,11 @@ class MemberDir extends MemberDirLibrary
                     }
                     $subs = array();
                     if(strpos($objResult->fields[$key], 'http://') !== false){
-                        preg_match('#http://([a-zA-Z0-9_\-\.]+\.[a-zA-Z]{1,}[a-zA-Z0-9_\-\#\%\&/\?]+)#', $objResult->fields[$key], $subs);
+                        preg_match('#http://([a-zA-Z0-9_\-\.]+\.[a-zA-Z]{1,}[a-zA-Z0-9_\-\#\%\&/\?\.\=]+)#', $objResult->fields[$key], $subs);
                         $objResult->fields[$key] = '<a href="http://'.$subs[1].'" title="http://'.$subs[1].'" target="_blank">'.$objResult->fields[$key].'</a>';
                     }
                     if(strpos($objResult->fields[$key], 'www.') !== false){
-                        preg_match('#www\.([a-zA-Z0-9_\-\.]+\.[a-zA-Z]{1,}[a-zA-Z0-9_\-\#\%\&/\?]+)#', $objResult->fields[$key], $subs);
+                        preg_match('#www\.([a-zA-Z0-9_\-\.]+\.[a-zA-Z]{1,}[a-zA-Z0-9_\-\#\%\&/\?\.\=]+)#', $objResult->fields[$key], $subs);
                         $objResult->fields[$key] = '<a href="http://www.'.$subs[1].'" title="http://www.'.$subs[1].'" target="_blank">'.$objResult->fields[$key].'</a>';
                     }
                     $this->_objTpl->setVariable(array(
@@ -433,84 +459,84 @@ class MemberDir extends MemberDirLibrary
      */
     function _categoryList()
     {
-	global $objDatabase, $_ARRAYLANG;
+    global $objDatabase, $_ARRAYLANG;
 
-	//evaluate template and render directory tree.
-       	$directoryIds = array_keys($this->directories);
-	$len = count($this->directories);
-	for($i = 0; $i < $len; $i++)
-	{
-	    //the current directory.
-	    $directory = &$this->directories[$directoryIds[$i]];
-	    $directoryId = $directoryIds[$i];
+    //evaluate template and render directory tree.
+           $directoryIds = array_keys($this->directories);
+    $len = count($this->directories);
+    for($i = 0; $i < $len; $i++)
+    {
+        //the current directory.
+        $directory = &$this->directories[$directoryIds[$i]];
+        $directoryId = $directoryIds[$i];
 
-	    //skip directories from other languages and disabled directories
-	    //      display should work.
+        //skip directories from other languages and disabled directories
+        //      display should work.
             if ($directory['lang'] != $this->langId && $directory['lang'] != 0 || !$directory['active']) {
                 continue;
             }
 
-	    //subleveling I: get our data together. 
+        //subleveling I: get our data together.
 
-	    //levels are zerobased and increase during subleveling
-	    $lastDirectoryLevel = 0; //level before current directory
-	    $nextDirectoryLevel = 0; //level after current directory
+        //levels are zerobased and increase during subleveling
+        $lastDirectoryLevel = 0; //level before current directory
+        $nextDirectoryLevel = 0; //level after current directory
 
-	    if($i > 0)
-		$lastDirectoryLevel = $this->directories[$directoryIds[$i-1]]['level'];
-	    if($i < $len-1)
-		$nextDirectoryLevel = $this->directories[$directoryIds[$i+1]]['level'];
+        if($i > 0)
+        $lastDirectoryLevel = $this->directories[$directoryIds[$i-1]]['level'];
+        if($i < $len-1)
+        $nextDirectoryLevel = $this->directories[$directoryIds[$i+1]]['level'];
 
 
-	    //subleveling II: parse template
+        //subleveling II: parse template
 
-	    //get level difference. 0 means same, >0 means sublevel (, <0 means parent level)
-	    $levelDelta = $directory['level'] - $lastDirectoryLevel;
-	    //open sublevels as needed
-	    if($levelDelta > 0) { //open sublevel
-		//no loop because our data guarantees a level increase of max. 1 level
-		$this->_objTpl->setVariable(array(
-	            "MEMBERDIR_PARENT_ID" => $directory['parentdir'],
-		    "MEMBERDIR_PADDING_LEFT"  => $directory['level'] * 20
-		));
-		$this->_objTpl->parse("div-block-beginning");
-	    } else { //parent or same level
-		$this->_objTpl->hideBlock('div-block-beginning');
-	    }
-	    //get level difference. (0 means same, >0 means sublevel,) <0 means parent level
-	    $levelDelta = $nextDirectoryLevel - $directory['level'];
-	    if($levelDelta < 0)
-	    { //close sublevels as needed
-		for($j = 0; $j < abs($levelDelta); $j++) {
-		    $this->_objTpl->touchBlock("div-block-ending");
-		    $this->_objTpl->parse("div-block-ending");			
-		}
-	    }
-	       
+        //get level difference. 0 means same, >0 means sublevel (, <0 means parent level)
+        $levelDelta = $directory['level'] - $lastDirectoryLevel;
+        //open sublevels as needed
+        if($levelDelta > 0) { //open sublevel
+        //no loop because our data guarantees a level increase of max. 1 level
+        $this->_objTpl->setVariable(array(
+                "MEMBERDIR_PARENT_ID" => $directory['parentdir'],
+            "MEMBERDIR_PADDING_LEFT"  => $directory['level'] * 20
+        ));
+        $this->_objTpl->parse("div-block-beginning");
+        } else { //parent or same level
+        $this->_objTpl->hideBlock('div-block-beginning');
+        }
+        //get level difference. (0 means same, >0 means sublevel,) <0 means parent level
+        $levelDelta = $nextDirectoryLevel - $directory['level'];
+        if($levelDelta < 0)
+        { //close sublevels as needed
+        for($j = 0; $j < abs($levelDelta); $j++) {
+            $this->_objTpl->touchBlock("div-block-ending");
+            $this->_objTpl->parse("div-block-ending");
+        }
+        }
 
-	    //fill in data of current directory
 
-	    //set plus sign if childs are available...
-	    if ($directory['has_children']) {
-		$this->_objTpl->setVariable(array(
-		  "MEMBERDIR_DIR_ID"      => $directoryId,
-		  "MEMBERDIR_IMAGE_SRC"   => "pluslink.gif"
-		  ));
-	    } else { //...else show nothing
-		$this->_objTpl->setVariable(array(
-		  "MEMBERDIR_IMAGE_SRC"   => "pixel.gif"
-		  ));
-	    }
+        //fill in data of current directory
 
-	    //set name / id
-	    $this->_objTpl->setVariable(array(
-		  "MEMBERDIR_DIR_ID"      => $directoryId,
-		  "MEMBERDIR_DIR_NAME"    => $directory['name'],
-		  ));
+        //set plus sign if childs are available...
+        if ($directory['has_children']) {
+        $this->_objTpl->setVariable(array(
+          "MEMBERDIR_DIR_ID"      => $directoryId,
+          "MEMBERDIR_IMAGE_SRC"   => "pluslink.gif"
+          ));
+        } else { //...else show nothing
+        $this->_objTpl->setVariable(array(
+          "MEMBERDIR_IMAGE_SRC"   => "pixel.gif"
+          ));
+        }
 
-	    //finally parse.
-	    $this->_objTpl->parse("category");
-	}
+        //set name / id
+        $this->_objTpl->setVariable(array(
+          "MEMBERDIR_DIR_ID"      => $directoryId,
+          "MEMBERDIR_DIR_NAME"    => $directory['name'],
+          ));
+
+        //finally parse.
+        $this->_objTpl->parse("category");
+    }
     }
 
     function getPlaceholderName($name)

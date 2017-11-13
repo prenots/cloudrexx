@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lang
  */
 $_ARRAYLANG['TXT_CORE_SUBMIT'] = "Submit";
@@ -28,6 +54,8 @@ $_ARRAYLANG['TXT_PASSWORD'] = "Пароль";
 $_ARRAYLANG['TXT_PAGE'] = "Сайт";
 $_ARRAYLANG['TXT_BROWSERLANGUAGE'] = "Язык";
 $_ARRAYLANG['TXT_FROM'] = "от";
+$_ARRAYLANG['TXT_PAGING_OUT_OF'] = "из";
+$_ARRAYLANG['TXT_PAGING_TO'] = "до";
 $_ARRAYLANG['TXT_PASSWORD_FIELD_EMPTY'] = "Если поле, предназначенное для пароля останется незаполненным, будет сохранён старый пароль!";
 $_ARRAYLANG['TXT_SIZE'] = "Размер файла";
 $_ARRAYLANG['TXT_DATABASE_QUERY_ERROR'] = "Ошибка при осуществлении запроса в банк данных!";
@@ -193,7 +221,7 @@ $_ARRAYLANG['TXT_AUCTION_MODULE_DESCRIPTION'] = "Auktionen";
 $_ARRAYLANG['TXT_AUCTION_TITLE'] = "Auktionen";
 $_ARRAYLANG['TXT_MARKET_LATEST'] = "Latest Ads";
 $_ARRAYLANG['TXT_CORE_LAST_MODIFIED_PAGE'] = "Geändert am";
-$_ARRAYLANG['TXT_CSRF_TITLE'] = "Contrexx security information";
+$_ARRAYLANG['TXT_CSRF_TITLE'] = "Cloudrexx security information";
 $_ARRAYLANG['TXT_CSRF_DESCR'] = 'You are changing the system configuration. If you see this message<ul><li>after clicking a link in the administration interface, click <a href="%1$s">save changes</a></li><li>after clicking a link inside an e-mail message or outside the administration interface, click <a href="%2$s">discard changes</a></li></ul>';
 $_ARRAYLANG['TXT_CSRF_ABORT'] = "discard changes";
 $_ARRAYLANG['TXT_CSRF_CONTINUE'] = "save changes";
@@ -265,6 +293,6 @@ $_ARRAYLANG['TXT_CORE_YEARS'] = "Jahre";
 $_ARRAYLANG['TXT_CSRF_BUTTON'] = "Klicken Sie hier, um fortzufahren.";
 $_ARRAYLANG['TXT_PARTNERS_MODULE_DESCRIPTION'] = "Verwaltung und Präsentation von Geschäftspartnern";
 $_ARRAYLANG['UPLOAD_FORM_ADD'] = "Weitere Dateien hinzuf&uuml;gen";
-$_ARRAYLANG['TXT_CORE_CAPTCHA'] = "Security code";
-$_ARRAYLANG['TXT_CORE_CAPTCHA_ENTER_THE_LETTERS_BELOW'] = "Enter the letters below.";
+$_ARRAYLANG['TXT_CORE_CAPTCHA'] = "Код безопасности";
+$_ARRAYLANG['TXT_CORE_CAPTCHA_ENTER_THE_LETTERS_BELOW'] = "введите цифры и буквы нижней строки.";
 $_ARRAYLANG['TXT_CORE_REMEMBER_ME'] = "Remember me";

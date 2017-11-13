@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * JumpUploader
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_upload
  */
 
@@ -14,18 +39,18 @@ namespace Cx\Core_Modules\Upload\Controller;
 /**
  * JumpUploader
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_upload
  */
 class JumpUploader extends Uploader
 {
     /**
      * @override
-     */     
+     */
     public function handleRequest()
-    {    
+    {
         // Get parameters
         $chunk = $_POST['partitionIndex'];
         $chunks = $_POST['partitionCount'];
@@ -48,12 +73,12 @@ class JumpUploader extends Uploader
             $this->addHarmfulFileToResponse($fileName);
         }
 
-        die(0); 
+        die(0);
     }
 
     /**
      * @override
-     */     
+     */
     public function getXHtml($backend = false)
     {
       global $objInit;
@@ -61,20 +86,18 @@ class JumpUploader extends Uploader
 
       $tpl = new \Cx\Core\Html\Sigma(ASCMS_CORE_MODULE_PATH.'/Upload/template/uploaders');
       $tpl->setErrorHandling(PEAR_ERROR_DIE);
-      
+
       $tpl->loadTemplateFile('jump.html');
 
       $basePath = 'index.php?';
-      $basePath .= ($this->isBackendRequest ? 'cmd=Upload&act' : 'section=Upload&cmd'); //act and cmd vary 
+      $basePath .= ($this->isBackendRequest ? 'cmd=Upload&act' : 'section=Upload&cmd'); //act and cmd vary
       $appletPath = $basePath.'=jumpUploaderApplet';
       $l10nPath = $basePath.'=jumpUploaderL10n';
 
-      $langId;
       if(!$this->isBackendRequest)
-          $langId = $objInit->getFrontendLangId();
+          $langCode = \FWLanguage::getLanguageCodeById($objInit->getFrontendLangId());
       else //backend
-          $langId = $objInit->getBackendLangId();
-      $langCode = \FWLanguage::getLanguageCodeById($langId);
+          $langCode = \FWLanguage::getBackendLanguageCodeById($objInit->getBackendLangId());
       if (!file_exists(ASCMS_CORE_MODULE_PATH.'/Upload/ressources/uploaders/jump/messages_'.$langCode.'.zip')) {
           $langCode = 'en';
       }
@@ -85,7 +108,7 @@ class JumpUploader extends Uploader
       $tpl->setVariable('UPLOAD_LANG_URL', $l10nPath);
       $tpl->setVariable('UPLOAD_URL', $uploadPath);
       $tpl->setVariable('UPLOAD_ID', $this->uploadId);
-      
+
       return $tpl->get();
     }
 }

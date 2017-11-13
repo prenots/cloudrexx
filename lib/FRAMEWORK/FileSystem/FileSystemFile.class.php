@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * File System File
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -14,23 +39,23 @@ namespace Cx\Lib\FileSystem;
 /**
  * FileSystemFileException
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
-class FileSystemFileException extends \Exception {};
+class FileSystemFileException extends FileException {};
 
 /**
  * File System File
  *
- * This class provides an object based interface to a file that resides 
+ * This class provides an object based interface to a file that resides
  * on the local file system.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 class FileSystemFile implements FileInterface
@@ -48,7 +73,7 @@ class FileSystemFile implements FileInterface
         if (empty($file)) {
             throw new FileSystemFileException('No file path specified!');
         }
-        
+
         // $file is specified by absolute file system path of operating system
         if (   strpos($file, \Env::get('cx')->getWebsiteDocumentRootPath()) === 0
             || strpos($file, \Env::get('cx')->getCodeBaseDocumentRootPath()) === 0
@@ -65,34 +90,34 @@ class FileSystemFile implements FileInterface
             $this->filePath = \Env::get('cx')->getWebsiteDocumentRootPath() . '/'.$file;
         }
     }
-    
+
     public function getFileOwner()
     {
         // get the user-ID of the user who owns the loaded file
-        $fileOwnerId = file_exists($this->filePath) && fileowner($this->filePath);
+        $fileOwnerId = file_exists($this->filePath) ? fileowner($this->filePath) : 0;
         if (!$fileOwnerId) {
             throw new FileSystemFileException('Unable to fetch file owner of '.$this->filePath);
         }
-        
+
         return $fileOwnerId;
     }
-    
+
     public function isWritable() {
         return is_writable($this->filePath);
     }
 
     public function write($data)
     {
-        // first try 
+        // first try
         $fp = @fopen($this->filePath, 'w');
         if (!$fp) {
             // try to set write access
             $this->makeWritable($this->filePath);
         }
 
-        // second try 
+        // second try
         $fp = @fopen($this->filePath, 'w');
-        if (!$fp) { 
+        if (!$fp) {
             throw new FileSystemFileException('Unable to open file '.$this->filePath.' for writting!');
         }
 
@@ -111,16 +136,16 @@ class FileSystemFile implements FileInterface
 
     public function append($data)
     {
-        // first try 
+        // first try
         $fp = @fopen($this->filePath, 'a');
         if (!$fp) {
             // try to set write access
             $this->makeWritable($this->filePath);
         }
 
-        // second try 
+        // second try
         $fp = @fopen($this->filePath, 'a');
-        if (!$fp) { 
+        if (!$fp) {
             throw new FileSystemFileException('Unable to open file '.$this->filePath.' for writting!');
         }
 
@@ -144,7 +169,7 @@ class FileSystemFile implements FileInterface
             throw new FileSystemFileException('Unable to touch file in file system!');
         }
     }
-    
+
     public function copy($dst)
     {
         if (!copy($this->filePath, $dst)) {
@@ -152,12 +177,12 @@ class FileSystemFile implements FileInterface
         }
         \Cx\Lib\FileSystem\FileSystem::makeWritable($dst);
     }
-    
+
     public function rename($dst)
     {
         $this->move($dst);
     }
-    
+
     public function move($dst)
     {
         if (!rename($this->filePath, $dst)) {
@@ -191,11 +216,11 @@ class FileSystemFile implements FileInterface
         $parentDirectory = dirname($this->filePath);
         if (!is_writable($parentDirectory)) {
             if (strpos($parentDirectory, \Env::get('cx')->getWebsiteDocumentRootPath()) === 0) {
-                // parent directory lies within the Contrexx installation directory,
+                // parent directory lies within the Cloudrexx installation directory,
                 // therefore, we shall try to make it writable
                 \Cx\Lib\FileSystem\FileSystem::makeWritable($parentDirectory);
             } else {
-                throw new FileSystemFileException('Parent directory '.$parentDirectory.' lies outside of Contrexx installation and can therefore not be made writable!');
+                throw new FileSystemFileException('Parent directory '.$parentDirectory.' lies outside of Cloudrexx installation and can therefore not be made writable!');
             }
         }
 
@@ -220,10 +245,10 @@ class FileSystemFile implements FileInterface
             throw new FileSystemFileException('Unable to delete file '.$this->filePath.'!');
         }
     }
-    
+
     /**
      * Get the absolute path of the file($this->file)
-     * 
+     *
      * @return string absolute path of the file
      */
     public function getAbsoluteFilePath()
@@ -231,4 +256,3 @@ class FileSystemFile implements FileInterface
         return $this->filePath;
     }
 }
-

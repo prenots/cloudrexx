@@ -1,13 +1,38 @@
-<?php 
+<?php
 
- /** 
- * @copyright   CONTREXX CMS - COMVATION AG 
- * @author      Comvation Development Team <info@comvation.com>
- * @access      public 
- * @package     contrexx
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @access      public
+ * @package     cloudrexx
  * @subpackage  core_config
- */ 
-global $_ARRAYLANG; 
+ */
+global $_ARRAYLANG;
 $_ARRAYLANG['TXT_SETTINGS_MENU_SYSTEM'] = 'System';
 $_ARRAYLANG['TXT_SETTINGS_MENU_CACHE'] = 'Caching';
 $_ARRAYLANG['TXT_EMAIL_SERVER'] = 'E-Mail Server';
@@ -36,12 +61,12 @@ $_ARRAYLANG['TXT_SETTINGS_DEBUGGING_FLAG_DB_CHANGE'] = 'Datenbank: Änderungen (
 $_ARRAYLANG['TXT_SETTINGS_DEBUGGING_FLAG_DB_ERROR'] = 'Datenbank: Fehler';
 $_ARRAYLANG['TXT_SETTINGS_DEBUGGING_FLAG_LOG_FILE'] = 'Ausgabe in Datei';
 $_ARRAYLANG['TXT_SETTINGS_DEBUGGING_FLAG_LOG_FIREPHP'] = 'Ausgabe in FirePHP';
-$_ARRAYLANG['TXT_DEBUGGING_EXPLANATION'] = 'Modus zur Fehlersuche für Contrexx-Entwickler. Wird nur für den momentan eingeloggten Benutzer aktiviert. Verfällt mit der Sitzung.';
+$_ARRAYLANG['TXT_DEBUGGING_EXPLANATION'] = 'Modus zur Fehlersuche für Cloudrexx-Entwickler. Wird nur für den momentan eingeloggten Benutzer aktiviert. Verfällt mit der Sitzung.';
 $_ARRAYLANG['TXT_SAVE'] = 'Speichern';
 $_ARRAYLANG['TXT_CORE_CONFIG_SYSTEMSTATUS'] = 'Seitenstatus';
 $_ARRAYLANG['TXT_CORE_CONFIG_SYSTEMSTATUS_TOOLTIP_HELP'] = 'Ist die Seite aktiviert? - Status (on | off)';
 $_ARRAYLANG['TXT_CORE_CONFIG_COREIDSSTATUS'] = 'Benachrichtigungen vom Sicherheitssystem';
-$_ARRAYLANG['TXT_CORE_CONFIG_COREIDSSTATUS_TOOLTIP_HELP'] = 'Contrexx Intrusion Detection System - Sie erhalten Benachrichtigungen per E-Mail wenn Angriffe abgewehrt wurden (on | off)';
+$_ARRAYLANG['TXT_CORE_CONFIG_COREIDSSTATUS_TOOLTIP_HELP'] = 'Cloudrexx Intrusion Detection System - Sie erhalten Benachrichtigungen per E-Mail wenn Angriffe abgewehrt wurden (on | off)';
 $_ARRAYLANG['TXT_CORE_CONFIG_XMLSITEMAPSTATUS'] = 'XML Sitemap';
 $_ARRAYLANG['TXT_CORE_CONFIG_XMLSITEMAPSTATUS_TOOLTIP_HELP'] = 'Automatische Erzeugung einer XML Sitemap - Status (on | off).';
 $_ARRAYLANG['TXT_CORE_CONFIG_COREGLOBALPAGETITLE'] = 'Globaler Seitentitel';
@@ -62,6 +87,8 @@ $_ARRAYLANG['TXT_CORE_CONFIG_SESSIONLIFETIME'] = 'Session Dauer';
 $_ARRAYLANG['TXT_CORE_CONFIG_SESSIONLIFETIME_TOOLTIP_HELP'] = 'Die Session Zeit in Sekunden';
 $_ARRAYLANG['TXT_CORE_CONFIG_SESSIONLIFETIMEREMEMBERME'] = 'Session Dauer (Angemeldet bleiben)';
 $_ARRAYLANG['TXT_CORE_CONFIG_SESSIONLIFETIMEREMEMBERME_TOOLTIP_HELP'] = 'Die Session Zeit in Sekunden für Benutzer, die beim Login die Checkbox "Angemeldet bleiben" gesetzt haben.';
+$_ARRAYLANG['TXT_CORE_CONFIG_DEFAULTLANGUAGEID'] = 'Standard Sprache';
+$_ARRAYLANG['TXT_CORE_CONFIG_DEFAULTLOCALEID'] = 'Standard Sprachversion';
 $_ARRAYLANG['TXT_CORE_CONFIG_DNSSERVER'] = 'DNS-Server';
 $_ARRAYLANG['TXT_CORE_CONFIG_DNSSERVER_TOOLTIP_HELP'] = 'Ein DNS-Server wird für die Abfrage eines MX-Lookup"s bei den Netzwerk Tools benötigt.';
 $_ARRAYLANG['TXT_CORE_CONFIG_COREADMINNAME'] = 'Name des Administrators';
@@ -78,8 +105,8 @@ $_ARRAYLANG['TXT_CORE_CONFIG_CONTACTFAX'] = 'Fax';
 $_ARRAYLANG['TXT_CORE_CONFIG_SEARCHVISIBLECONTENTONLY'] = 'Nur in sichtbaren Inhaltsseiten suchen';
 $_ARRAYLANG['TXT_CORE_CONFIG_LANGUAGEDETECTION'] = 'Sprache automatisch erkennen';
 $_ARRAYLANG['TXT_CORE_CONFIG_LANGUAGEDETECTION_TOOLTIP_HELP'] = 'Diese Einstellung bewirkt, dass automatisch die Standardsprache des Browsers ausgelesen und als Contentsprache verwendet wird.';
-$_ARRAYLANG['TXT_CORE_CONFIG_GOOGLEMAPSAPIKEY_TOOLTIP_HELP'] = 'Globaler Google-Map API Schlüssel für die Hauptdomain. <br />Neue Schlüssel können erstellt werden unter: http://code.google.com/apis/maps/signup.html';
-$_ARRAYLANG['TXT_CORE_CONFIG_GOOGLEMAPSAPIKEY'] = 'Google-Map API Schlüssel';
+$_ARRAYLANG['TXT_CORE_CONFIG_GOOGLEMAPSAPIKEY_TOOLTIP_HELP'] = 'Globaler Google Maps API-Schlüssel.<br />Im Webdesign Template verfügbar über den Platzhalter [[GOOGLE_MAPS_API_KEY]].<br /><br /><i>Tipp: Ein API-Schlüssel kann unter <a href="https://developers.google.com/maps/documentation/embed/guide#api-schlussel">https://developers.google.com/maps/documentation/embed/guide#api-schlussel</a> beantragt werden</i>';
+$_ARRAYLANG['TXT_CORE_CONFIG_GOOGLEMAPSAPIKEY'] = 'Google Maps API-Schlüssel';
 $_ARRAYLANG['TXT_CORE_CONFIG_FRONTENDEDITINGSTATUS'] = 'Frontend Editing';
 $_ARRAYLANG['TXT_CORE_CONFIG_FRONTENDEDITINGSTATUS_TOOLTIP_HELP'] = 'Mit Hilfe des Frontend Editing können Sie Ihre Seite auch ohne ein vorheriges Einloggen im Backend anpassen - Status (on | off).';
 $_ARRAYLANG['TXT_CORE_CONFIG_USECUSTOMIZINGS'] = 'Individuelle Kundenanpassungen';
@@ -91,11 +118,20 @@ $_ARRAYLANG['TXT_CORE_CONFIG_DASHBOARDNEWS'] = 'Dashboard News';
 $_ARRAYLANG['TXT_CORE_CONFIG_DASHBOARDSTATISTICS'] = 'Dashboard Statistiken';
 $_ARRAYLANG['TXT_CORE_CONFIG_GOOGLEANALYTICSTRACKINGID'] = 'Google Analytics Tracking-ID';
 $_ARRAYLANG['TXT_CORE_CONFIG_GOOGLEANALYTICSTRACKINGID_TOOLTIP_HELP'] = 'Geben Sie hier Ihre Google Analytics Tracking-ID ein. Diese finden Sie in Ihrem Google Analytics Konto unter Verwaltung => Tracking-Code.';
+$_ARRAYLANG['TXT_CORE_CONFIG_DEFAULTMETAIMAGE'] = 'Standard Metabild';
+$_ARRAYLANG['TXT_CORE_CONFIG_DNSHOSTNAMELOOKUP'] = 'DNS Hostname Auflösung';
+$_ARRAYLANG['TXT_CORE_CONFIG_DNSHOSTNAMELOOKUP_TOOLTIP_HELP'] = 'Aktivieren Sie diese Option, um die Auflösung der Hostnamen (basierend auf der IP-Adresse) der Website-Besucher zu aktivieren. Wichtig: Dadurch kann die Ladegeschwindigkeit der Website langsamer werden.';
 $_ARRAYLANG['TXT_CORE_CONFIG_PASSWORDCOMPLEXITY'] = 'Kennwort muss der Komplexitätsvoraussetzung entsprechen';
 $_ARRAYLANG['TXT_CORE_CONFIG_PASSWORDCOMPLEXITY_TOOLTIP_HELP'] = 'Kennwort muss folgende Zeichen enthalten: Gross-, Kleinbuchstabe und Zahl';
+$_ARRAYLANG['TXT_CORE_CONFIG_CAPTCHAMETHOD'] = 'CAPTCHA Methode';
+$_ARRAYLANG['TXT_CORE_CONFIG_RECAPTCHASITEKEY'] = 'Site key für reCAPTCHA';
+$_ARRAYLANG['TXT_CORE_CONFIG_RECAPTCHASECRETKEY'] = 'Secret key für reCAPTCHA';
+$_ARRAYLANG['TXT_CORE_CONFIG_CONTREXX_CAPTCHA_LABEL'] = 'Cloudrexx';
+$_ARRAYLANG['TXT_CORE_CONFIG_RECAPTCHA_LABEL'] = 'reCAPTCHA';
+$_ARRAYLANG['TXT_CORE_CONFIG_CAPTCHAMETHOD_TOOLTIP_HELP'] = 'Wählen Sie den CAPTCHA-Mechanismus aus, welcher zur Abwehr von SPAM eingesetzt werden soll<br /><br /><strong>Cloudrexx</strong><br />Sofort einsetzbar - Benötigt keine zusätzliche Konfiguration.<br /><br /><strong>reCAPTCHA</strong><br />reCAPTCHA ist ein CAPTCHA-Service von Google Inc. und bietet bestmöglichen Schutz gegen SPAM. Für die Nutzung wird ein Google-Konto benötigt, um die benötigten API-Schlüssel zu beantragen. <a href="https://www.google.com/recaptcha/intro/index.html" target="_blank">Mehr Informationen</a>';
 $_ARRAYLANG['TXT_CORE_CONFIG_ADVANCEDUPLOADBACKEND'] = 'Erweiterte Dateiuploadmöglickeiten';
 $_ARRAYLANG['TXT_CORE_CONFIG_ADVANCEDUPLOADFRONTEND'] = 'Erweiterte Dateiuploadmöglickeiten';
-$_ARRAYLANG['TXT_CORE_CONFIG_FORCEPROTOCOLFRONTEND_TOOLTIP_HELP'] = $_ARRAYLANG['TXT_CORE_CONFIG_FORCEPROTOCOLBACKEND_TOOLTIP_HELP'] = 'Contrexx erzwingt standardmässig kein Protokoll. Sie können HTTP erzwingen um die Suchmaschinen-Bewertung zu verbessern oder HTTPS (Hypertext Transfer Protocol Secure), ein Protokoll das zusätzlich mehr Sicherheit garantiert, aktivieren. Sollte Ihr Webserver dies nicht unterstützen, deaktiviert Contrexx diese Einstellung automatisch wieder.';
+$_ARRAYLANG['TXT_CORE_CONFIG_FORCEPROTOCOLFRONTEND_TOOLTIP_HELP'] = $_ARRAYLANG['TXT_CORE_CONFIG_FORCEPROTOCOLBACKEND_TOOLTIP_HELP'] = 'Cloudrexx erzwingt standardmässig kein Protokoll. Sie können HTTP erzwingen um die Suchmaschinen-Bewertung zu verbessern oder HTTPS (Hypertext Transfer Protocol Secure), ein Protokoll das zusätzlich mehr Sicherheit garantiert, aktivieren. Sollte Ihr Webserver dies nicht unterstützen, deaktiviert Cloudrexx diese Einstellung automatisch wieder.';
 $_ARRAYLANG['TXT_CORE_CONFIG_FORCEPROTOCOLBACKEND'] = 'Verwendetes Protokoll';
 $_ARRAYLANG['TXT_CORE_CONFIG_FORCEPROTOCOLFRONTEND'] = 'Verwendetes Protokoll';
 $_ARRAYLANG['TXT_SETTINGS_FORCE_PROTOCOL_NONE'] = 'dynamisch';
@@ -162,3 +198,4 @@ $_ARRAYLANG['TXT_CORE_CONFIG_PORTFRONTENDHTTP'] = 'HTTP Port';
 $_ARRAYLANG['TXT_CORE_CONFIG_PORTFRONTENDHTTPS'] = 'HTTPS Port';
 $_ARRAYLANG['TXT_CORE_CONFIG_PORTBACKENDHTTP'] = 'HTTP Port';
 $_ARRAYLANG['TXT_CORE_CONFIG_PORTBACKENDHTTPS'] = 'HTTPS Port';
+$_ARRAYLANG['TXT_CORE_CONFIG_PDF'] = 'PDF Vorlagen';

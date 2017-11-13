@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * FileSystem
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -14,10 +39,10 @@ namespace Cx\Lib\FileSystem;
 /**
  * FileSystemException
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -27,10 +52,10 @@ class FileSystemException extends \Exception {};
  * File System
  * Collection of file system (direct or through FTP) manipulation tools
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Janik Tschanz <janik.tschanz@comvation.com>
  * @author      Reto Kohli <reto.kohli@comvation.com> (new static methods, error system)
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 class FileSystem
@@ -161,7 +186,7 @@ class FileSystem
             ) {
                 self::$ftpAuth = true;
                 return true;
-            } 
+            }
 
             @ftp_close(self::$connection);
         }
@@ -314,18 +339,18 @@ class FileSystem
         } else {
             @unlink($path.$fileName);
             clearstatcache();
-            if (@file_exists($path.$fileName)) {
-                $filesys = eregi_replace('/', '\\', $path.$fileName);
-//                @system("del $filesys");
-//                clearstatcache();
-//                // Doesn't work in safe mode
-//                if (@file_exists($path.$fileName)) {
-                    @chmod ($path.$fileName, 0775);
-                    @unlink($path.$fileName);
-                    @system("del $filesys");
-//                }
-            }
-            clearstatcache();
+//            if (@file_exists($path.$fileName)) {
+//                $filesys = eregi_replace('/', '\\', $path.$fileName);
+////                @system("del $filesys");
+////                clearstatcache();
+////                // Doesn't work in safe mode
+////                if (@file_exists($path.$fileName)) {
+//                    @chmod ($path.$fileName, 0775);
+//                    @unlink($path.$fileName);
+//                    @system("del $filesys");
+////                }
+//            }
+//            clearstatcache();
             if (@file_exists($path.$fileName)) return 'error';
         }
         return $fileName;
@@ -352,12 +377,12 @@ class FileSystem
 
     // replaces some characters
     public static function replaceCharacters($string) {
-        // contrexx file name policies
+        // cloudrexx file name policies
         $string = \FWValidator::getCleanFileName($string);
 
         // media library special changes; code depends on those
         // replace $change with ''
-        $change = array('+');
+        $change = array('+', '#');
 
         // replace $signs1 with $signs
         $signs1 = array(' ', 'ä', 'ö', 'ü', 'ç');
@@ -396,7 +421,7 @@ class FileSystem
                 && strpos($path, '../')  === false
                 && strpos($path, '..\\') === false
                 && strpos($path, '/..')  === false
-                && strpos($path, '\..')  === false ? trim($_GET['path']) : false;
+                && strpos($path, '\..')  === false ? trim($path) : false;
 
         return $path;
     }
@@ -612,7 +637,7 @@ class FileSystem
     }
 
     static function path_absolute_to_os_root(&$path) {
-        
+
         // $path is specified by absolute file system path of operating system
         if (   strpos($path, \Env::get('cx')->getWebsiteDocumentRootPath()) === 0
             || strpos($path, \Env::get('cx')->getCodeBaseDocumentRootPath()) === 0
@@ -628,7 +653,7 @@ class FileSystem
         } else {
             $path = \Env::get('cx')->getWebsiteDocumentRootPath() . '/'.$path;
         }
-        
+
     }
 
     /**
@@ -649,7 +674,7 @@ class FileSystem
             }
 //DBG::log("File::make_folder($folder_path): FAIL, a file of the name $folder_path exists already<br />");
             return false;
-        } 
+        }
 
         \Cx\Lib\FileSystem\FileSystem::makeWritable(dirname(\Env::get('cx')->getWebsiteDocumentRootPath().'/'.$folder_path));
         @mkdir(\Env::get('cx')->getWebsiteDocumentRootPath().'/'.$folder_path, self::CHMOD_FOLDER, $recursive ? true : false);
@@ -705,7 +730,7 @@ class FileSystem
                       @ftp_chdir(self::$connection, $part);
                    }
                 }
-            }            
+            }
 //DBG::log("File::make_folder_ftp($folder_path): Failed to create folder ".self::$ftpPath."/$folder_path<br />");
             return false;
         }
@@ -726,10 +751,10 @@ class FileSystem
      */
     public static function copy_folder($source_path, $target_path, $force=false)
     {
-        
+
         self::path_absolute_to_os_root($source_path);
         self::path_absolute_to_os_root($target_path);
-        
+
         if (self::exists($target_path)) {
             if (!$force)
                 return false;
@@ -738,7 +763,7 @@ class FileSystem
                 return false;
             }
         }
-        
+
         $directory = @opendir($source_path);
         $file = @readdir($directory);
         while ($file) {
@@ -1128,4 +1153,3 @@ class FileSystem
     }
 
 }
-

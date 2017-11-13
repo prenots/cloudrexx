@@ -1,23 +1,49 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 function _forumUpdate()
 {
     global $objDatabase, $_ARRAYLANG;
 
     $arrSettings = array(
                         '9' => array(
-                            'name' 	=> 'banned_words',
+                            'name'     => 'banned_words',
                             'value' => 'penis enlargement,free porn,(?i:buy\\\\s*?(?:cheap\\\\s*?)?viagra)'),
                         '10' => array(
-                            'name' 	=> 'wysiwyg_editor',
+                            'name'     => 'wysiwyg_editor',
                             'value' => '1'),
                         '11' => array(
-                            'name' 	=> 'tag_count',
+                            'name'     => 'tag_count',
                             'value' => '10'),
                         '12' => array(
-                            'name' 	=> 'latest_post_per_thread',
+                            'name'     => 'latest_post_per_thread',
                             'value' => '1'),
                         '13' => array(
-                            'name' 	=> 'allowed_extensions',
+                            'name'     => 'allowed_extensions',
                             'value' => '7z,aiff,asf,avi,bmp,csv,doc,fla,flv,gif,gz,gzip, jpeg,jpg,mid,mov,mp3,mp4,mpc,mpeg,mpg,ods,odt,pdf, png,ppt,pxd,qt,ram,rar,rm,rmi,rmvb,rtf,sdc,sitd,swf, sxc,sxw,tar,tgz,tif,tiff,txt,vsd,wav,wma,wmv,xls,xml ,zip')
                         );
 
@@ -120,7 +146,7 @@ function _forumUpdate()
                 // add missing template block captcha
                 $content = preg_replace('/(.*)(<tr[^>]*>.*?<td[^>]*>.*?\{FORUM_CAPTCHA_IMAGE_URL\}.*?<\/td>.*?<\/tr>)/ms', '$1<!-- BEGIN captcha -->$2<!-- END captcha -->', $content);
             }
-                
+
             // add missing placeholder {FORUM_JAVASCRIPT_SCROLLTO}
             if (strpos($content, '{FORUM_JAVASCRIPT_SCROLLTO}') === false) {
                 $content = '{FORUM_JAVASCRIPT_SCROLLTO}'.$content;

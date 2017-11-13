@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * HTML element helpers
  *
  * Provides some commonly used HTML elements
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  */
 
@@ -15,10 +40,10 @@
  * HTML class
  *
  * Provides some commonly used HTML elements
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  */
 class Html
@@ -615,15 +640,21 @@ var _active_tab = '.
         $options = '';
         foreach ($arrOptions as $key => $value) {
             $options .=
-                '<option value="'.$key.'"'.
-                (is_array($selected)
-                    ? (isset($selected[$key]) ? Html::ATTRIBUTE_SELECTED : '')
-                    : ("$selected" === "$key"  ? Html::ATTRIBUTE_SELECTED : '')
-                ).
-                ($attribute ? ' '.$attribute : '').
-                '>'.
-                ($value != '' ? contrexx_raw2xhtml($value) : '&nbsp;').
-                "</option>\n";
+                '<option value="' . $key . '"'
+                . (
+                    (
+                        is_array($selected) &&
+                        array_key_exists($key, $selected)
+                    ) || 
+                    (
+                        !is_array($selected) &&
+                        "$selected" === "$key"
+                    )
+                    ? Html::ATTRIBUTE_SELECTED : ''
+                )
+                . ($attribute ? ' ' . $attribute : '') . '>'
+                . ($value != '' ? contrexx_raw2xhtml($value) : '&nbsp;')
+                . "</option>\n";
         }
         return $options;
     }
@@ -839,9 +870,9 @@ var _active_tab = '.
     static function getLabel($for, $text, $attribute='')
     {
         global $_ARRAYLANG;
-        
+
         $text = isset($_ARRAYLANG[$text]) ? $_ARRAYLANG[$text] : contrexx_raw2xhtml($text);
-        
+
         return
             '<label for="'.$for.'"'.
             ($attribute ? ' '.$attribute : '').
@@ -1328,16 +1359,16 @@ cx.jQuery(function() {
 ');
         return self::getInputText($name, $date, $id, $attribute);
     }
-    
+
     /**
      * Returns a datetimepicker element
-     * 
+     *
      * @staticvar integer $index integer value
      * @param     string $name textbox name for datetimepicker
      * @param     array  $options datetimepicker options Ex.dateFormat
-     * @param     string $attribute 
+     * @param     string $attribute
      * @param     string $id To initialize the datatime picker
-     * 
+     *
      * @return    string The datetimepicker element HTML code
      */
     static function getDatetimepicker($name, $options = null, $attribute = null, &$id = null) {
@@ -1948,8 +1979,8 @@ cx.jQuery(document).ready(function($) {
             return '';
         }
 //echo("Html::getLed($status, $action): led is ".$objImage->getPath()."<br />");
-        $objImage->setWidth(11);
-        $objImage->setHeight(11);
+        $objImage->setWidth(13);
+        $objImage->setHeight(13);
         $led_html = self::getImageOriginal(
             $objImage,
             'border="0"'.($alt ? ' alt="'.$alt.'" title="'.$alt.'"' : ''));
@@ -2762,28 +2793,28 @@ function cloneElement(id)
 ';
     }
 
-    
+
     /**
      * Generates code for ContentManager style language state icons
-     * 
+     *
      * For $languageStates you may supply an array in one of these to forms:
-     * 
+     *
      * $languageStates = array(
      *      {language id} => 'active','inactive','inexistent',
      * )
-     * 
+     *
      * $languageStates = array(
      *      {language id} => array(
      *          'active' => {bool},
      *          'page' => {page id or object},
      *      ),
      * )
-     * 
+     *
      * The latter will be resolved to the first form. The two forms can be mixed.
-     * 
+     *
      * For $link, supply a hyperlink, that may contain %1$d and %2$s which will be
      * replaced with the language ID and code.
-     * 
+     *
      * @param   array   $languageStates Language states to get icons for
      * @param   string  $link           Hyperlink for language icons
      * @return  string                  The HTML code for the elements
@@ -2806,7 +2837,7 @@ function cloneElement(id)
                 }
             }
         }
-        
+
         // parse icons
         $content = '<div class="language-icons">';
         foreach (\FWLanguage::getActiveFrontendLanguages() as $language) {
@@ -2820,7 +2851,7 @@ function cloneElement(id)
         }
         return $content . '</div>';
     }
-    
+
     /**
      * Returns a single language icon
      * @param   int     $languageId     Language ID

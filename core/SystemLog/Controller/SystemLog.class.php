@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * SystemLog
  * Class to see SystemLog
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author        Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author        Cloudrexx Development Team <info@cloudrexx.com>
  * @version        1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_systemlog
  * @todo        Edit PHP DocBlocks!
  */
@@ -16,11 +41,11 @@ namespace Cx\Core\SystemLog\Controller;
  * Class SystemLog
  * Class to see SystemLog
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author        Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author        Cloudrexx Development Team <info@cloudrexx.com>
  * @access        public
  * @version        1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_systemlog
  */
 class SystemLog
@@ -28,7 +53,7 @@ class SystemLog
     var $statusMessage = "";
 
     private $act = '';
-    
+
     /**
     * Constructor
     *
@@ -37,14 +62,14 @@ class SystemLog
     */
     function __construct()
     {
-        global $_ARRAYLANG, $objTemplate;        
+        global $_ARRAYLANG, $objTemplate;
     }
 
 
     function setNavigation()
     {
         global $_ARRAYLANG, $objTemplate;
-        
+
         $objTemplate->setVariable(array(
             'CONTENT_TITLE'      => $_ARRAYLANG['TXT_OVERVIEW'],
             'CONTENT_NAVIGATION' => '<a href="index.php?cmd=SystemLog" class="active">'.$_ARRAYLANG['TXT_OVERVIEW'].'</a>',
@@ -55,7 +80,7 @@ class SystemLog
     function getLogPage()
     {
         global $objTemplate;
-        
+
         if (!isset($_GET['act'])) {
             $_GET['act'] = '';
         }
@@ -131,7 +156,7 @@ class SystemLog
         $term = isset($_POST['term']) ? contrexx_input2db($_POST['term']) : '';
         $objTemplate->setVariable('LOG_SEARCHTERM', $term);
         $q_search = '';
-        
+
         if(!empty($term)){
            $q_search = "WHERE log.id LIKE '%$term%'
                        OR log.userid LIKE '%$term%'
@@ -165,7 +190,7 @@ class SystemLog
                      log.http_x_forwarded_for AS http_x_forwarded_for,
                      log.referer AS referer
                 FROM ".DBPREFIX."log AS log
-                $q_search 
+                $q_search
                 ORDER BY log.id DESC
          ";
 

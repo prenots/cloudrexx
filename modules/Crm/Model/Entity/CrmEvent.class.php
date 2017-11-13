@@ -1,14 +1,40 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * CrmEvent Class CRM
  *
  * @category   CrmEvent
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     SoftSolutions4U Development Team <info@softsolutions4u.com>
- * @copyright  2012 and CONTREXX CMS - COMVATION AG
+ * @copyright  2012 and CLOUDREXX CMS - CLOUDREXX AG
  * @license    trial license
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 
 namespace Cx\Modules\Crm\Model\Entity;
@@ -17,12 +43,12 @@ namespace Cx\Modules\Crm\Model\Entity;
  * CrmEvent Class CRM
  *
  * @category   CrmEvent
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     SoftSolutions4U Development Team <info@softsolutions4u.com>
- * @copyright  2012 and CONTREXX CMS - COMVATION AG
+ * @copyright  2012 and CLOUDREXX CMS - CLOUDREXX AG
  * @license    trial license
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 class CrmEvent
 {
@@ -76,7 +102,7 @@ class CrmEvent
 
     /**
      * Set Context
-     * 
+     *
      * @param String $context event context
      *
      * @return null
@@ -88,7 +114,7 @@ class CrmEvent
 
     /**
      * Get Context
-     * 
+     *
      * @return String
      */
     public function getContext()
@@ -110,7 +136,7 @@ class CrmEvent
 
     /**
      * Get Information
-     * 
+     *
      * @return String
      */
     public function getInfo()
@@ -140,7 +166,7 @@ class CrmEvent
 
     /**
      * Set name
-     * 
+     *
      * @param String $name set event name
      *
      * @return null
@@ -152,7 +178,7 @@ class CrmEvent
 
     /**
      * Get name
-     * 
+     *
      * @return String
      */
     public function getName()
@@ -160,4 +186,3 @@ class CrmEvent
         return $this->name;
     }
 }
- 

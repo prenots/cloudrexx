@@ -1,10 +1,36 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Class ComponentController
  *
- * @copyright   Comvation AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   Cloudrexx AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_cron
  */
 
@@ -15,9 +41,9 @@ namespace Cx\Core_Modules\Cron\Controller;
  *
  * The main controller for Cron
  *
- * @copyright   Comvation AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   Cloudrexx AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_cron
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
@@ -27,21 +53,21 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function __construct(\Cx\Core\Core\Model\Entity\SystemComponent $systemComponent, \Cx\Core\Core\Controller\Cx $cx) {
         parent::__construct($systemComponent, $cx);
     }
-    
+
     public function getCommandsForCommandMode() {
         return array('Cron');
     }
-    
+
     /**
      * This component only has a backend
      */
     public function getControllerClasses() {
         return array('Backend', 'Default', 'Settings');
     }
-    
+
     /**
      * To describe the Cron command
-     * 
+     *
      * @param type $command
      * @param type $short
      * @return string
@@ -54,10 +80,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     /**
      * Fetch all Job entities and check each of them if they need to be executed
-     * 
-     * @param string $command
+     *
+     * @param string $command Name of command to execute
+     * @param array  $arguments List of arguments for the command
+     * @param array  $dataArguments (optional) List of data arguments for the command
      */
-    public function executeCommand($command, $arguments)
+    public function executeCommand($command, $arguments, $dataArguments = array())
     {
         switch ($command) {
             case 'Cron':
@@ -73,16 +101,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         $data .= "\r\n\r\n" . $command . ":\r\n" . $detail;
                     }
                 }
-                
+
                 $this->cx->getEvents()->triggerEvent('SysLog/Add', array(
-                    'severity'  => $severity, 
+                    'severity'  => $severity,
                     'message'   => 'Cron Executed',
                     'data'      => $data,
                 ));
                 break;
         }
     }
-    
+
     protected function executeCronJobs(&$severity, &$executedJobs) {
         $em = $this->cx->getDb()->getEntityManager();
         $cronJobs = $em->getRepository('Cx\Core_Modules\Cron\Model\Entity\Job')->findBy(array('active'=>1));

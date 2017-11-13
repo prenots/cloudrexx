@@ -1,12 +1,37 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * my Administrator manager
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  * @todo        Edit PHP DocBlocks!
  */
@@ -22,15 +47,15 @@ namespace Cx\Core_Modules\Home\Controller;
  *
  * Class to show the my admin pages
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @version	   1.0.1
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @version       1.0.1
+ * @package     cloudrexx
  * @subpackage  core
  */
 class Home {
     var $statusMessage;
-            
+
     /**
     * Constructor
     *
@@ -40,7 +65,7 @@ class Home {
     function __construct()
     {
         global $_CORELANG, $objTemplate;
-        
+
         $administratorsOnline = '';
         if ($objUser = \FWUser::getFWUserObject()->objUser->getUsers($filter = array('is_admin' => true, 'active' => true, 'last_activity' => array('>' => (time()-3600))))) {
             $arrAdministratorsOnline = array();
@@ -50,7 +75,7 @@ class Home {
                 $arrAdministratorsOnline[$i++]['username'] = $objUser->getUsername();
                 $objUser->next();
             }
-            
+
             for ($i = 0; $i < count($arrAdministratorsOnline); $i++) {
                 $administratorsOnline .= '<a href="index.php?cmd=Access&amp;act=user&amp;tpl=modify&amp;id='.$arrAdministratorsOnline[$i]['id'].'">'.$arrAdministratorsOnline[$i]['username'].($i == (count($arrAdministratorsOnline)-1) ? '' : ',').'</a>';
             }
@@ -76,8 +101,8 @@ class Home {
         }
 
         $objTemplate->setVariable(array(
-            'CONTENT_TITLE'		=> '',
-            'CONTENT_STATUS_MESSAGE'	=> trim($this->statusMessage),
+            'CONTENT_TITLE'        => '',
+            'CONTENT_STATUS_MESSAGE'    => trim($this->statusMessage),
         ));
     }
 
@@ -102,24 +127,24 @@ class Home {
 
         $objTemplate->setVariable(array(
             'CSRF'                          => \Cx\Core\Csrf\Controller\Csrf::param(),
-            'TXT_LAST_LOGIN' 				=> htmlentities($_CORELANG['TXT_LAST_LOGIN'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_CONTREXX_NEWS' 			=> htmlentities($_CORELANG['TXT_CONTREXX_NEWS'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_LAST_LOGIN'                 => htmlentities($_CORELANG['TXT_LAST_LOGIN'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_CONTREXX_NEWS'             => htmlentities($_CORELANG['TXT_CONTREXX_NEWS'], ENT_QUOTES, CONTREXX_CHARSET),
             'TXT_CREATING_AND_PUBLISHING'   => htmlentities($_CORELANG['TXT_CREATING_AND_PUBLISHING'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_EVALUATE_AND_VIEW' 		=> htmlentities($_CORELANG['TXT_EVALUATE_AND_VIEW'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_MANAGE' 					=> htmlentities($_CORELANG['TXT_MANAGE'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_NEW_SITE' 					=> htmlentities($_CORELANG['TXT_NEW_PAGE'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_ADD_NEWS' 					=> htmlentities($_CORELANG['TXT_ADD_NEWS'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_ADD_BLOCK' 				=> htmlentities($_CORELANG['TXT_ADD_BLOCK'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_ADD_FORM' 					=> htmlentities($_CORELANG['TXT_ADD_FORM'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_CONTENT_MANAGER' 			=> htmlentities($_CORELANG['TXT_CONTENT_MANAGER'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_STATS' 					=> htmlentities($_CORELANG['TXT_STATS'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_WORKFLOW'					=> htmlentities($_CORELANG['TXT_WORKFLOW'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_FORMS' 					=> htmlentities($_CORELANG['TXT_FORMS'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_SYSTEM_SETTINGS' 			=> htmlentities($_CORELANG['TXT_SYSTEM_SETTINGS'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_USER_MANAGER' 				=> htmlentities($_CORELANG['TXT_USER_ADMINISTRATION'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_MEDIA_MANAGER' 			=> htmlentities($_CORELANG['TXT_MEDIA_MANAGER'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_IMAGE_ADMINISTRATION'		=> htmlentities($_CORELANG['TXT_IMAGE_ADMINISTRATION'], ENT_QUOTES, CONTREXX_CHARSET),
-            'TXT_SKINS' 					=> htmlentities($_CORELANG['TXT_DESIGN_MANAGEMENT'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_EVALUATE_AND_VIEW'         => htmlentities($_CORELANG['TXT_EVALUATE_AND_VIEW'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_MANAGE'                     => htmlentities($_CORELANG['TXT_MANAGE'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_NEW_SITE'                     => htmlentities($_CORELANG['TXT_NEW_PAGE'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_ADD_NEWS'                     => htmlentities($_CORELANG['TXT_ADD_NEWS'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_ADD_BLOCK'                 => htmlentities($_CORELANG['TXT_ADD_BLOCK'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_ADD_FORM'                     => htmlentities($_CORELANG['TXT_ADD_FORM'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_CONTENT_MANAGER'             => htmlentities($_CORELANG['TXT_CONTENT_MANAGER'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_STATS'                     => htmlentities($_CORELANG['TXT_STATS'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_WORKFLOW'                    => htmlentities($_CORELANG['TXT_WORKFLOW'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_FORMS'                     => htmlentities($_CORELANG['TXT_FORMS'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_SYSTEM_SETTINGS'             => htmlentities($_CORELANG['TXT_SYSTEM_SETTINGS'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_USER_MANAGER'                 => htmlentities($_CORELANG['TXT_USER_ADMINISTRATION'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_MEDIA_MANAGER'             => htmlentities($_CORELANG['TXT_MEDIA_MANAGER'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_IMAGE_ADMINISTRATION'        => htmlentities($_CORELANG['TXT_IMAGE_ADMINISTRATION'], ENT_QUOTES, CONTREXX_CHARSET),
+            'TXT_SKINS'                     => htmlentities($_CORELANG['TXT_DESIGN_MANAGEMENT'], ENT_QUOTES, CONTREXX_CHARSET),
             'TXT_VISITORS'                  => htmlentities($_CORELANG['TXT_CORE_VISITORS'], ENT_QUOTES, CONTREXX_CHARSET),
             'TXT_REQUESTS'                  => htmlentities($_CORELANG['TXT_CORE_REQUESTS'], ENT_QUOTES, CONTREXX_CHARSET),
             'TXT_DASHBOARD_NEWS_ALERT'      => htmlentities($_CORELANG['TXT_DASHBOARD_NEWS_ALERT'], ENT_QUOTES, CONTREXX_CHARSET),
@@ -195,7 +220,7 @@ class Home {
         }
 
         $arrItems = null;
-		// This index may be unset
+        // This index may be unset
         if (!empty($_CONFIG['dashboardNewsSrc'])) {
             $objRss = new \XML_RSS($_CONFIG['dashboardNewsSrc'] . '?version=' . $_CONFIG['coreCmsVersion']);
             $objRss->parse();

@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_contact
  */
 $_ARRAYLANG['TXT_CONTACT_TRANSFERED_DATA_FROM'] = "These are the informations transferred from the contact form of the website of ";
@@ -137,8 +163,10 @@ $_ARRAYLANG['TXT_CONTACT_FILE_NOT_UPLOADED'] = "A File has not been uploaded!";
 $_ARRAYLANG['TXT_CONTACT_CAPTCHA_PROTECTION'] = "CAPTCHA protection";
 $_ARRAYLANG['TXT_CONTACT_SAVE_DATA_IN_CRM']   = "Create CRM contact from submitted data";
 $_ARRAYLANG['TXT_CONTACT_CAPTCHA_DESCRIPTION'] = "Please type in the characters from the picture into the textfield. This is required for the system to know that you are not a spambot.";
-$_ARRAYLANG['TXT_CONTACT_SEND_COPY_DESCRIPTION'] = "Activating this option makes sure that a carbon copy of the data from the form will be sent to the sender.";
-$_ARRAYLANG['TXT_CONTACT_SEND_COPY'] = "Carbon copy to sender";
+$_ARRAYLANG['TXT_CONTACT_SEND_COPY_DESCRIPTION'] = "Activate this option if the notification email shall also be sent to the contact who did submit the form.";
+$_ARRAYLANG['TXT_CONTACT_SEND_COPY'] = "Send copy to contact";
+    $_ARRAYLANG['TXT_CONTACT_SEND_MULTIPLE_REPLY_DESCRIPTION'] = "Activate this option if the form does contain multiple input fields with validation 'E-Mail Address' and that the notification email shall therefore be sent to all submitted email addresses as a copy";
+$_ARRAYLANG['TXT_CONTACT_SEND_MULTIPLE_REPLY'] = "Send to multiple contacts";
 $_ARRAYLANG['TXT_CONTACT_CUSTOM_STYLE_DESCRIPTION'] = "If an own CSS style is in use, this form has the ID and CSS class <strong>'contactForm_\$FormularNummer'</strong>, i.e. contactForm_2. By default, only 'contactForm' is used for these attributes.";
 $_ARRAYLANG['TXT_CONTACT_CUSTOM_STYLE'] = "Use own style";
 $_ARRAYLANG['TXT_CONTACT_RESET'] = "Reset";

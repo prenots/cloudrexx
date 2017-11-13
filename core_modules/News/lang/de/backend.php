@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_news
  */
 $_ARRAYLANG['TXT_DELETE_MARKED'] = "Markierte löschen";
@@ -37,6 +63,8 @@ $_ARRAYLANG['TXT_NEWS_MESSAGES'] = "Newsmeldungen";
 $_ARRAYLANG['TXT_NEWS_MESSAGE'] = "Newsmeldung";
 $_ARRAYLANG['TXT_EXTERNAL_SOURCE'] = "Externe Quellen";
 $_ARRAYLANG['TXT_LINK'] = "Link";
+$_ARRAYLANG['TXT_NEWS_REDIRECT_NEW_WINDOW'] = "Neues Fenster";
+$_ARRAYLANG['TXT_NEWS_REDIRECT_NEW_WINDOW_HELP'] = "Aktivieren Sie diese Option, damit die Verlinkung in einem neuen Fenster geöffnet wird.";
 $_ARRAYLANG['TXT_NEWS_NEWS_CONTENT'] = "Newsinhalt";
 $_ARRAYLANG['TXT_STORE'] = "Speichern";
 $_ARRAYLANG['TXT_PUBLISHING'] = "Veröffentlichen";

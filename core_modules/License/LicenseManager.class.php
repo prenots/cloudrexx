@@ -1,10 +1,35 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Cx\Core_Modules\License;
 
 class LicenseManager {
     /**
-     * @var string 
+     * @var string
      */
     private $act;
     /**
@@ -27,7 +52,7 @@ class LicenseManager {
      * @var \ADONewConnection
      */
     private $db;
-    
+
     public function __construct($act, $template, &$_CORELANG, &$_CONFIG, &$objDb) {
         $this->act = $act;
         $this->template = $template;
@@ -42,7 +67,7 @@ class LicenseManager {
             ');
         }
     }
-    
+
     public function getPage($post, &$_CORELANG) {
         $lc = LicenseCommunicator::getInstance($this->config);
         $lc->addJsUpdateCode($this->lang, $this->license, true, false);
@@ -75,7 +100,7 @@ class LicenseManager {
             \JS::activate('cx');
             $remoteTemplate = new \Cx\Core\Html\Sigma(ASCMS_TEMP_PATH);
             $remoteTemplate->loadTemplateFile('/licenseManager.html');
-            
+
             if (isset($_POST['save']) && isset($_POST['licenseKey'])) {
                 $remoteTemplate->setVariable('STATUS_TYPE', 'okbox');
                 $remoteTemplate->setVariable('STATUS_MESSAGE', $this->lang['TXT_LICENSE_SAVED']);
@@ -83,25 +108,25 @@ class LicenseManager {
                 $remoteTemplate->setVariable('STATUS_TYPE', 'okbox');
                 $remoteTemplate->setVariable('STATUS_MESSAGE', $this->lang['TXT_LICENSE_UPDATED']);
             }
-            
+
             $remoteTemplate->setVariable($this->lang);
-            
+
             $this->setLicensePlaceholders($remoteTemplate);
-            
+
             if ($remoteTemplate->blockExists('legalComponents')) {
                 foreach ($this->license->getLegalComponentsList() as $component) {
                     $remoteTemplate->setVariable('LICENSE_LEGAL_COMPONENT', contrexx_raw2xhtml($component));
                     $remoteTemplate->parse('legalComponents');
                 }
             }
-            
+
             if ($remoteTemplate->blockExists('licenseDomain')) {
                 foreach ($this->license->getRegisteredDomains() as $domain) {
                     $remoteTemplate->setVariable('LICENSE_DOMAIN', contrexx_raw2xhtml($domain));
                     $remoteTemplate->parse('licenseDomain');
                 }
             }
-            
+
             $message = $this->license->getMessage(false, \FWLanguage::getLanguageCodeById(BACKEND_LANG_ID), $this->lang);
             if (!$sm->isWritable()) {
                 $remoteTemplate->setVariable('MESSAGE_TITLE', preg_replace('/<br \/>/', ' ', sprintf($_CORELANG['TXT_SETTINGS_ERROR_NO_WRITE_ACCESS'], \Cx\Core\Config\Controller\Config::getSettingsFile())));
@@ -120,7 +145,7 @@ class LicenseManager {
                     }
                 }
             }
-            
+
             if (\FWUser::getFWUserObject()->objUser->getAdminStatus()) {
                 $remoteTemplate->touchBlock('licenseAdmin');
                 $remoteTemplate->hideBlock('licenseNotAdmin');
@@ -129,20 +154,20 @@ class LicenseManager {
                 $remoteTemplate->touchBlock('licenseNotAdmin');
                 $remoteTemplate->setVariable('LICENSE_ADMIN_MAIL', contrexx_raw2xhtml($this->config['coreAdminEmail']));
             }
-            
+
             $this->template->setVariable('ADMIN_CONTENT', $remoteTemplate->get());
         } else {
             $this->template->setVariable('ADMIN_CONTENT', $this->lang['TXT_LICENSE_NO_TEMPLATE']);
         }
     }
-    
+
     public function getReplacedMessageText($message) {
         $msgTemplate = new \Cx\Core\Html\Sigma();
         $msgTemplate->setTemplate($message->getText());
         $this->setLicensePlaceholders($msgTemplate);
         return $msgTemplate->get();
     }
-    
+
     public function setLicensePlaceholders($template) {
         $date = $this->license->getValidToDate();
         if ($date) {
@@ -208,7 +233,7 @@ class LicenseManager {
             'VERSION_STATE' => contrexx_raw2xhtml($this->license->getVersion()->getState()),
             'VERSION_RELEASE_DATE' => contrexx_raw2xhtml($this->license->getVersion()->getReleaseDate()),
         ));
-        
+
         if ($template->blockExists('upgradable')) {
             if ($this->license->isUpgradable()) {
                 $template->touchBlock('upgradable');

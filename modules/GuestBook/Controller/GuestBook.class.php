@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * GuestBook
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_guestbook
  * @todo        Edit PHP DocBlocks!
  */
@@ -14,11 +39,11 @@ namespace Cx\Modules\GuestBook\Controller;
  * GuestBook
  *
  * Guestbook frontend
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_guestbook
  */
 class GuestBook extends GuestBookLibrary {
@@ -97,8 +122,8 @@ class GuestBook extends GuestBookLibrary {
         $this->_objTpl->setVariable("GUESTBOOK_TOTAL_ENTRIES", $count);
 
         $query = "    SELECT         id,
-								forename,
-								name,
+                                forename,
+                                name,
                                 gender,
                                 url,
                                 email,
@@ -184,7 +209,7 @@ class GuestBook extends GuestBookLibrary {
                 $errors .= $error . "<br />";
             }
         }
-        
+
         $checked = "checked=\"checked\"";
 
         if ($_POST['malefemale'] == "F") {
@@ -257,8 +282,8 @@ class GuestBook extends GuestBookLibrary {
 
         $query = "INSERT INTO " . DBPREFIX . "module_guestbook
                         (status,
-	                     forename,
-	                     name,
+                         forename,
+                         name,
                          gender,
                          url,
                          datetime,
@@ -268,8 +293,8 @@ class GuestBook extends GuestBookLibrary {
                          location,
                          lang_id)
                  VALUES ($status,
-						'" . addslashes($name) . "',
-						'" . addslashes($forename) . "',
+                        '" . addslashes($name) . "',
+                        '" . addslashes($forename) . "',
                         '" . addslashes($gender) . "',
                         '" . addslashes($url) . "',
                         '".date('Y-m-d H:i:s')."',
@@ -364,34 +389,16 @@ class GuestBook extends GuestBookLibrary {
         $mailto = $_CONFIG['coreAdminEmail'];
         $subject = $_ARRAYLANG['TXT_NEW_GUESTBOOK_ENTRY'] . " " . $_CONFIG['domainUrl'];
 
-        if (@include_once ASCMS_LIBRARY_PATH . '/phpmailer/class.phpmailer.php') {
-            $objMail = new \phpmailer();
+        $objMail = new \Cx\Core\MailTemplate\Model\Entity\Mail();
 
-            if ($_CONFIG['coreSmtpServer'] > 0 && @include_once ASCMS_CORE_PATH . '/SmtpSettings.class.php') {
-                if (($arrSmtp = \SmtpSettings::getSmtpAccount($_CONFIG['coreSmtpServer'])) !== false) {
-                    $objMail->IsSMTP();
-                    $objMail->Host = $arrSmtp['hostname'];
-                    $objMail->Port = $arrSmtp['port'];
-                    $objMail->SMTPAuth = true;
-                    $objMail->Username = $arrSmtp['username'];
-                    $objMail->Password = $arrSmtp['password'];
-                }
-            }
-
-            $objMail->CharSet = CONTREXX_CHARSET;
-            if (isset($email)) {
-                $objMail->From = $email;
-                $objMail->AddReplyTo($email);
-            } else {
-                $objMail->From = $mailto;
-            }
-            $objMail->Subject = $subject;
-            $objMail->IsHTML(false);
-            $objMail->Body = $message;
-            $objMail->AddAddress($mailto);
-            if ($objMail->Send()) {
-                return true;
-            }
+        $from = isset($email) ? $email : $mailto;
+        $objMail->SetFrom($from);
+        $objMail->Subject = $subject;
+        $objMail->IsHTML(false);
+        $objMail->Body = $message;
+        $objMail->AddAddress($mailto);
+        if ($objMail->Send()) {
+            return true;
         }
 
         return false;

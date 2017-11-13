@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Media  Directory Category Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  * @todo        Edit PHP DocBlocks!
  */
@@ -13,9 +38,9 @@ namespace Cx\Modules\MediaDir\Controller;
 /**
  * Media Directory Category Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  */
 class MediaDirectoryCategory extends MediaDirectoryLibrary
@@ -56,7 +81,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
     function getCategories($intCategoryId=null, $intParentId=null)
     {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID, $objInit;
+        global $_ARRAYLANG, $_CORELANG, $objDatabase, $objInit;
 
         $arrCategories = array();
 
@@ -91,6 +116,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 break;
         }
 
+        $langId = FRONTEND_LANG_ID;
+
         $objCategories = $objDatabase->Execute("
             SELECT
                 cat.`id` AS `id`,
@@ -101,7 +128,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 cat.`picture` AS `picture`,
                 cat.`active` AS `active`,
                 cat_names.`category_name` AS `name`,
-                cat_names.`category_description` AS `description`
+                cat_names.`category_description` AS `description`,
+                cat_names.`category_metadesc` AS `metadesc`
             FROM
                 ".DBPREFIX."module_".$this->moduleTablePrefix."_categories AS cat,
                 ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names AS cat_names
@@ -109,28 +137,37 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 ($whereCategoryId cat_names.category_id=cat.id)
                 $whereParentId
                 $whereActive
-                AND (cat_names.lang_id='".$_LANGID."')
+                AND (cat_names.lang_id='".$langId."')
             ORDER BY
                 ".$sortOrder."
         ");
+
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
+        $levelId = null;
+        if (isset($requestParams['lid'])) {
+            $levelId = intval($requestParams['lid']);
+        }
 
         if ($objCategories !== false) {
             while (!$objCategories->EOF) {
                 $arrCategory = array();
                 $arrCategoryName = array();
                 $arrCategoryDesc = array();
+                $arrCategoryMetaDesc = array();
                 $this->intNumEntries = 0;
                 $arrCategory['catNumEntries'] = 0;
 
                 //get lang attributes
                 $arrCategoryName[0] = $objCategories->fields['name'];
                 $arrCategoryDesc[0] = $objCategories->fields['description'];
+                $arrCategoryMetaDesc[0] = $objCategories->fields['metadesc'];
 
                 $objCategoryAttributes = $objDatabase->Execute("
                     SELECT
                         `lang_id` AS `lang_id`,
                         `category_name` AS `name`,
-                        `category_description` AS `description`
+                        `category_description` AS `description`,
+                        `category_metadesc` AS `metadesc`
                     FROM
                         ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names
                     WHERE
@@ -141,6 +178,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                     while (!$objCategoryAttributes->EOF) {
                         $arrCategoryName[$objCategoryAttributes->fields['lang_id']] = htmlspecialchars($objCategoryAttributes->fields['name'], ENT_QUOTES, CONTREXX_CHARSET);
                         $arrCategoryDesc[$objCategoryAttributes->fields['lang_id']] = htmlspecialchars($objCategoryAttributes->fields['description'], ENT_QUOTES, CONTREXX_CHARSET);
+                        $arrCategoryMetaDesc[$objCategoryAttributes->fields['lang_id']] = htmlspecialchars($objCategoryAttributes->fields['metadesc'], ENT_QUOTES, CONTREXX_CHARSET);
 
                         $objCategoryAttributes->MoveNext();
                     }
@@ -151,9 +189,10 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 $arrCategory['catOrder'] = intval($objCategories->fields['order']);
                 $arrCategory['catName'] = $arrCategoryName;
                 $arrCategory['catDescription'] = $arrCategoryDesc;
+                $arrCategory['catMetaDesc'] = $arrCategoryMetaDesc;
                 $arrCategory['catPicture'] = htmlspecialchars($objCategories->fields['picture'], ENT_QUOTES, CONTREXX_CHARSET);
                 if($this->arrSettings['settingsCountEntries'] == 1 || $objInit->mode == 'backend') {
-                    $arrCategory['catNumEntries'] = $this->countEntries(intval($objCategories->fields['id']), isset($_GET['lid']) ? intval($_GET['lid']) : NULL);
+                    $arrCategory['catNumEntries'] = $this->countEntries(intval($objCategories->fields['id']), $levelId);
                 }
                 $arrCategory['catShowEntries'] = intval($objCategories->fields['show_entries']);
                 $arrCategory['catShowSubcategories'] = intval($objCategories->fields['show_subcategories']);
@@ -171,7 +210,18 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         return $arrCategories;
     }
 
+    public function findOneBySlug($slug) {
+        return $this->findOneByName($this->getNameFromSlug($slug));
+    }
 
+    public function findOneByName($name) {
+        $arrCategories = $this->getCategoryData();
+        foreach ($arrCategories as $arrCategory) {
+            if ($arrCategory['catName'][0] == $name) {
+                return $arrCategory['catId'];
+            }
+        }
+    }
 
     function listCategories($objTpl, $intView, $intCategoryId=null, $arrParentIds=null, $intEntryId=null, $arrExistingBlocks=null, $intStartLevel=1)
     {
@@ -188,6 +238,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
             $arrCategories = $arrCategoryChildren;
         }
 
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
 
         switch ($intView) {
             case 1:
@@ -225,6 +276,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                         $this->moduleLangVar.'_CATEGORY_ORDER' => $arrCategory['catOrder'],
                         $this->moduleLangVar.'_CATEGORY_NAME' => contrexx_raw2xhtml($arrCategory['catName'][0]),
                         $this->moduleLangVar.'_CATEGORY_DESCRIPTION' => $arrCategory['catDescription'][0],
+                        $this->moduleLangVar.'_CATEGORY_DESCRIPTION_ESCAPED' => strip_tags($arrCategory['catDescription'][0]),
                         $this->moduleLangVar.'_CATEGORY_PICTURE' => $arrCategory['catPicture'],
                         $this->moduleLangVar.'_CATEGORY_NUM_ENTRIES' => $arrCategory['catNumEntries'],
                         $this->moduleLangVar.'_CATEGORY_ICON' => $spacer.$strCategoryIcon,
@@ -265,16 +317,21 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
                 $intNumCategories = count($arrCategories);
 
-                if($intNumCategories%$intNumBlocks != 0) {
+                if($intNumBlocks && $intNumCategories%$intNumBlocks != 0) {
                 	$intNumCategories = $intNumCategories+($intNumCategories%$intNumBlocks);
                 }
 
                 $intNumPerRow = intval($intNumCategories/$intNumBlocks);
                 $x=0;
 
-                foreach ($arrCategories as $key => $arrCategory) {
-                    $strLevelId = isset($_GET['lid']) ? "&amp;lid=".intval($_GET['lid']) : '';
+                $levelId = null;
+                if (isset($requestParams['lid'])) {
+                    $levelId = intval($requestParams['lid']);
+                }
 
+                $thumbnailFormats = $this->cx->getMediaSourceManager()->getThumbnailGenerator()->getThumbnails();
+
+                foreach ($arrCategories as $key => $arrCategory) {
                     if($this->arrSettings['settingsCategoryOrder'] == 2) {
                         $strIndexHeader = strtoupper(substr($arrCategory['catName'][0],0,1));
 
@@ -311,21 +368,38 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                         $strCategoryCmd = null;
                     }
 
-                    $childrenString = $this->createCategorieTree(
-                        $arrCategory,$strCategoryCmd,$strLevelId
-                    );
+                    $childrenString = $this->createCategorieTree($arrCategory, $levelId);
 
                     //parse variables
                     $objTpl->setVariable(array(
                         $this->moduleLangVar.'_CATEGORY_LEVEL_ID' => $arrCategory['catId'],
                         $this->moduleLangVar.'_CATEGORY_LEVEL_NAME' => contrexx_raw2xhtml($arrCategory['catName'][0]),
-                        $this->moduleLangVar.'_CATEGORY_LEVEL_LINK' => $strIndexHeaderTag.'<a href="index.php?section='.$this->moduleName.$strCategoryCmd.$strLevelId.'&amp;cid='.$arrCategory['catId'].'">'.contrexx_raw2xhtml($arrCategory['catName'][0]).'</a>',
+                        $this->moduleLangVar.'_CATEGORY_LEVEL_LINK' => $strIndexHeaderTag.'<a href="'.$this->getAutoSlugPath(null, $arrCategory['catId'], $levelId, true).'">'.contrexx_raw2xhtml($arrCategory['catName'][0]).'</a>',
+                        $this->moduleLangVar.'_CATEGORY_LEVEL_LINK_SRC' => $this->getAutoSlugPath(null, $arrCategory['catId'], $levelId, true),
                         $this->moduleLangVar.'_CATEGORY_LEVEL_DESCRIPTION' => $arrCategory['catDescription'][0],
                         $this->moduleLangVar.'_CATEGORY_LEVEL_PICTURE' => '<img src="'.$arrCategory['catPicture'].'" border="0" alt="'.contrexx_raw2xhtml($arrCategory['catName'][0]).'" />',
                         $this->moduleLangVar.'_CATEGORY_LEVEL_PICTURE_SOURCE' => $arrCategory['catPicture'],
                         $this->moduleLangVar.'_CATEGORY_LEVEL_NUM_ENTRIES' => $arrCategory['catNumEntries'],
                         $this->moduleLangVar.'_CATEGORY_LEVEL_CHILDREN' => $childrenString,
                     ));
+
+                    // parse thumbnails
+                    if (!empty($arrCategory['catPicture'])) {
+                        $arrThumbnails = array();
+                        $imagePath = pathinfo($arrCategory['catPicture'], PATHINFO_DIRNAME);
+                        $imageFilename = pathinfo($arrCategory['catPicture'], PATHINFO_BASENAME);
+                        $thumbnails = $this->cx->getMediaSourceManager()->getThumbnailGenerator()->getThumbnailsFromFile($imagePath, $imageFilename, true);
+                        foreach ($thumbnailFormats as $thumbnailFormat) {
+                            if (!isset($thumbnails[$thumbnailFormat['size']])) {
+                                continue;
+                            }
+                            $format = strtoupper($thumbnailFormat['name']);
+                            $thumbnail = $thumbnails[$thumbnailFormat['size']];
+                            $objTpl->setVariable(
+                                $this->moduleLangVar.'_CATEGORY_LEVEL_THUMBNAIL_FORMAT_' . $format, $thumbnail
+                            );
+                        }
+                    }
 
                     $intBlockId = $arrExistingBlocks[$i];
 
@@ -429,17 +503,44 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 break;
             case 5:
                 //Frontend View Detail
-                $strLevelId = isset($_GET['lid']) ? "&amp;lid=".intval($_GET['lid']) : '';
-
+                $levelId = null;
+                if (isset($requestParams['lid'])) {
+                    $levelId = intval($requestParams['lid']);
+                }
+                
+                $thumbImage = $this->getThumbImage($arrCategories[$intCategoryId]['catPicture']);
                 $objTpl->setVariable(array(
                     $this->moduleLangVar.'_CATEGORY_LEVEL_ID' => $arrCategories[$intCategoryId]['catId'],
                     $this->moduleLangVar.'_CATEGORY_LEVEL_NAME' => contrexx_raw2xhtml($arrCategories[$intCategoryId]['catName'][0]),
-                    $this->moduleLangVar.'_CATEGORY_LEVEL_LINK' => '<a href="index.php?section='.$this->moduleName.$strLevelId.'&amp;cid='.$arrCategories[$intCategoryId]['catId'].'">'.contrexx_raw2xhtml($arrCategories[$intCategoryId]['catName'][0]).'</a>',
+                    $this->moduleLangVar.'_CATEGORY_LEVEL_LINK' => '<a href="'.$this->getAutoSlugPath(null, $intCategoryId, $levelId).'">'.contrexx_raw2xhtml($arrCategories[$intCategoryId]['catName'][0]).'</a>',
+                    $this->moduleLangVar.'_CATEGORY_LEVEL_LINK_SRC' => $this->getAutoSlugPath(null, $intCategoryId, $levelId),
                     $this->moduleLangVar.'_CATEGORY_LEVEL_DESCRIPTION' => $arrCategories[$intCategoryId]['catDescription'][0],
-                    $this->moduleLangVar.'_CATEGORY_LEVEL_PICTURE' => '<img src="'.$arrCategories[$intCategoryId]['catPicture'].'.thumb" border="0" alt="'.$arrCategories[$intCategoryId]['catName'][0].'" />',
+                    $this->moduleLangVar.'_CATEGORY_LEVEL_PICTURE' => '<img src="'. $thumbImage .'" border="0" alt="'.$arrCategories[$intCategoryId]['catName'][0].'" />',
                     $this->moduleLangVar.'_CATEGORY_LEVEL_PICTURE_SOURCE' => $arrCategories[$intCategoryId]['catPicture'],
                     $this->moduleLangVar.'_CATEGORY_LEVEL_NUM_ENTRIES' => $arrCategories[$intCategoryId]['catNumEntries'],
                 ));
+
+                // parse thumbnails
+                if ($thumbImage) {
+                    $thumbnailFormats = $this->cx->getMediaSourceManager()->getThumbnailGenerator()->getThumbnails();
+                    $arrThumbnails = array();
+                    $imagePath = pathinfo($arrCategories[$intCategoryId]['catPicture'], PATHINFO_DIRNAME);
+                    $imageFilename = pathinfo($arrCategories[$intCategoryId]['catPicture'], PATHINFO_BASENAME);
+                    $thumbnails = $this->cx->getMediaSourceManager()->getThumbnailGenerator()->getThumbnailsFromFile($imagePath, $imageFilename, true);
+                    foreach ($thumbnailFormats as $thumbnailFormat) {
+                        if (!isset($thumbnails[$thumbnailFormat['size']])) {
+                            continue;
+                        }
+                        $format = strtoupper($thumbnailFormat['name']);
+                        $thumbnail = $thumbnails[$thumbnailFormat['size']];
+                        $objTpl->setVariable(
+                            $this->moduleLangVar.'_CATEGORY_LEVEL_THUMBNAIL_FORMAT_' . $format, $thumbnail
+                        );
+                    }
+                }
+
+                // parse GoogleMap
+                $this->parseGoogleMapPlaceholder($objTpl, $this->moduleLangVar.'_CATEGORY_LEVEL_GOOGLE_MAP');
 
                 if(!empty($arrCategories[$intCategoryId]['catPicture']) && $this->arrSettings['settingsShowCategoryImage'] == 1) {
                     $objTpl->parse($this->moduleNameLC.'CategoryLevelPicture');
@@ -462,14 +563,18 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 break;
             case 6:
                 //Frontend Tree Placeholder
+
+                $levelId = null;
+                if (isset($requestParams['lid'])) {
+                    $levelId = intval($requestParams['lid']);
+                }
                 foreach ($arrCategories as $key => $arrCategory) {
                 	$this->arrExpandedCategoryIds = array();
                     $bolExpandCategory = $this->getExpandedCategories($intCategoryId, array($arrCategory));
-                    $strLevelId = isset($_GET['lid']) ? "&amp;lid=".intval($_GET['lid']) : '';
                     $strLinkClass = $bolExpandCategory ? 'active' : 'inactive';
                     $strListClass = 'level_'.intval(count($arrParentIds)+$intStartLevel);
                     
-                    $this->strNavigationPlaceholder .= '<li class="'.$strListClass.'"><a href="index.php?section='.$this->moduleName.$strLevelId.'&amp;cid='.$arrCategory['catId'].'" class="'.$strLinkClass.'">'.contrexx_raw2xhtml($arrCategory['catName'][0]).'</a></li>';
+                    $this->strNavigationPlaceholder .= '<li class="'.$strListClass.'"><a href="'.$this->getAutoSlugPath(null, $arrCategory['catId'], $levelId).'" class="'.$strLinkClass.'">'.contrexx_raw2xhtml($arrCategory['catName'][0]).'</a></li>';
             
                     $arrParentIds[] = $arrCategory['catId'];
 
@@ -517,7 +622,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
     function saveCategory($arrData, $intCategoryId=null)
     {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID;
+        global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
         //get data
         $intId = intval($intCategoryId);
@@ -530,6 +635,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         $arrName = $arrData['categoryName'];
         
         $arrDescription = $arrData['categoryDescription'];
+
+        $arrMetaDesc = $arrData['categoryMetaDesc'];
 
         if(empty($intId)) {
             //insert new category
@@ -550,11 +657,14 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
                 foreach ($this->arrFrontendLanguages as $key => $arrLang) {
                     if(empty($arrName[0])) $arrName[0] = "[[".$_ARRAYLANG['TXT_MEDIADIR_NEW_CATEGORY']."]]";
+                    if(empty($arrMetaDesc[0])) $arrMetaDesc[0] = isset($arrMetaDesc[FRONTEND_LANG_ID]) ? $arrMetaDesc[FRONTEND_LANG_ID] : '';
 
                     $strName = $arrName[$arrLang['id']];
                     $strDescription = $arrDescription[$arrLang['id']];
+                    $metaDesc = $arrMetaDesc[$arrLang['id']];
 
                     if(empty($strName)) $strName = $arrName[0];
+                    if(empty($metaDesc)) $metaDesc = $arrMetaDesc[0];
 
                     $objInsertNames = $objDatabase->Execute("
                         INSERT INTO
@@ -563,7 +673,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                             `lang_id`='".intval($arrLang['id'])."',
                             `category_id`='".intval($intId)."',
                             `category_name`='".contrexx_raw2db($strName)."',
-                            `category_description`='".contrexx_raw2db($strDescription)."'
+                            `category_description`='".contrexx_raw2db($strDescription)."',
+                            `category_metadesc`='".contrexx_input2db($metaDesc)."'
                     ");
                 }
 
@@ -603,11 +714,14 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                 if($objInsertNames !== false) {
                     foreach ($this->arrFrontendLanguages as $key => $arrLang) {
                         if(empty($arrName[0])) $arrName[0] = "[[".$_ARRAYLANG['TXT_MEDIADIR_NEW_CATEGORY']."]]";
+                        if(empty($arrMetaDesc[0])) $arrMetaDesc[0] = isset($arrMetaDesc[FRONTEND_LANG_ID]) ? $arrMetaDesc[FRONTEND_LANG_ID] : '';
                         
                         $strName = $arrName[$arrLang['id']];
                         $strDescription = $arrDescription[$arrLang['id']];
+                        $metaDesc = $arrMetaDesc[$arrLang['id']];
 
                         if(empty($strName)) $strName = $arrName[0];
+                        if(empty($metaDesc)) $metaDesc = $arrMetaDesc[0];
 
                         $objInsertNames = $objDatabase->Execute("
                             INSERT INTO
@@ -616,7 +730,8 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                                 `lang_id`='".intval($arrLang['id'])."',
                                 `category_id`='".intval($intId)."',
                                 `category_name`='".contrexx_raw2db(contrexx_input2raw($strName))."',
-                                `category_description`='".contrexx_raw2db(contrexx_input2raw($strDescription))."'
+                                `category_description`='".contrexx_raw2db(contrexx_input2raw($strDescription))."',
+                                `category_metadesc`='".contrexx_input2db($metaDesc)."'
                         ");
                     }
 
@@ -667,7 +782,7 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
 
     function countEntries($intCategoryId=null, $intLevelId=null)
     {
-        global $objDatabase, $_LANGID;
+        global $objDatabase;
 
         $intCategoryId = intval($intCategoryId);
         $intLevelId = intval($intLevelId);
@@ -703,9 +818,9 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
                                                 AND 
                                                     (rel_inputfield.`form_id` = entry.`form_id`)
                                                 AND 
-                                                    (rel_inputfield.`field_id` = (".$this->getQueryToFindFirstInputFieldId()."))
+                                                    (rel_inputfield.`field_id` = (".$this->getQueryToFindPrimaryInputFieldId()."))
                                                 AND
-                                                    (rel_inputfield.`lang_id` = '".$_LANGID."')
+                                                    (rel_inputfield.`lang_id` = '".FRONTEND_LANG_ID."')
                                                 AND ((`entry`.`duration_type`=2 AND `entry`.`duration_start` <= ".time()." AND `entry`.`duration_end` >= ".time().") OR (`entry`.`duration_type`=1))
                                                     " . $whereCategory . "
                                                 GROUP BY
@@ -737,13 +852,13 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
      *
      * @return array
      */
-    public function createCategorieTree($arrCategory,$strCategoryCmd,$strLevelId) {
+    public function createCategorieTree($arrCategory, $levelId) {
         $childrenString = '<ul>';
         if (!empty($arrCategory['catChildren'])) {
             foreach ($arrCategory['catChildren'] as $children) {
-                $childrenString .= '<li><a href="index.php?section='.$this->moduleName.$strCategoryCmd.$strLevelId.'&amp;cid='.$children['catId'].'">' . $children['catName'][0] .'</a>';
+                $childrenString .= '<li><a href="'.$this->getAutoSlugPath(null, $children['catId'], $levelId).'">' . $children['catName'][0] .'</a>';
                 if (!empty($children['catChildren'])) {
-                    $childrenString .= $this->createCategorieTree($children,$strCategoryCmd,$strLevelId);
+                    $childrenString .= $this->createCategorieTree($children, $levelId);
                 }
                 $childrenString .= '</li>';
             }
@@ -752,4 +867,3 @@ class MediaDirectoryCategory extends MediaDirectoryLibrary
         return $childrenString;
     }
 }
-?>

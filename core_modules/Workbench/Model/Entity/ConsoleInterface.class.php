@@ -1,4 +1,30 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * User interface for console usage
  * @author Michael Ritter <michael.ritter@comvation.com>
@@ -15,7 +41,7 @@ class ConsoleInterface extends UserInterface {
     /**
      * Initialize this interface
      * @param array $arguments Commandline arguments
-     * @param \Cx\Core\Core\Controller\Cx $cx Contrexx main class
+     * @param \Cx\Core\Core\Controller\Cx $cx Cloudrexx main class
      */
     public function __construct($arguments, $cx) {
         parent::__construct($cx);
@@ -28,7 +54,7 @@ class ConsoleInterface extends UserInterface {
         if ($command == 'help') {
             if (isset($arguments[2])) {
                 if ($this->commandExists($arguments[2])) {
-                    $command = $this->getCommand($arguments[2]);    
+                    $command = $this->getCommand($arguments[2]);
                     echo 'Command `' . $command->getName() . "`\r\n" .
                         $command->getDescription() . "\r\n\r\n" .
                         $command->getSynopsis() . "\r\n\r\n" .
@@ -54,12 +80,12 @@ class ConsoleInterface extends UserInterface {
         }
         echo "\r\n";
     }
-    
+
     /**
      * Shows help for workbench
      */
     private function showHelp() {
-        echo 'Contrexx Workbench command line utility
+        echo 'Cloudrexx Workbench command line utility
 
 Synopsis: workbench(.bat) <subcommand> [options] [parameter]
 
@@ -70,7 +96,7 @@ Available subcommands:' . "\r\n";
             echo "\t" . $command->getName() . ' - ' . $command->getDescription() . "\r\n";
         }
     }
-    
+
     /**
      * Shows the ASCII flag
      */
@@ -137,14 +163,14 @@ Available subcommands:' . "\r\n";
               '2-8'   => '='
           ),
         );
-        
+
         $colCount = 38;
         $rowCount = max(array_keys($flagConfig));
-        
+
         echo "\n";
         for ($i=1;$i<=$rowCount;$i++) {
             $flagConfig[$i] = $rowConfig = isset($flagConfig[$i]) ? $flagConfig[$i] : $flagConfig[$i-1];
-            
+
             $colValues = array();
             foreach ($rowConfig as $key => $value) {
                 list($minCol, $maxCol) = explode('-', $key);
@@ -152,15 +178,15 @@ Available subcommands:' . "\r\n";
                     $colValues[$k] = $value;
                 }
             }
-            
+
             for ($j=1;$j<=$colCount;$j++) {
                 echo isset($colValues[$j]) ? $colValues[$j] : ' ';
             }
             echo "\n";
         }
-        
+
     }
-    
+
     /**
      * Gives commands access to database object
      * @return \AdoNewConnection Database connection
@@ -168,7 +194,7 @@ Available subcommands:' . "\r\n";
     public function getDb() {
         return $this->cx->getDb();
     }
-    
+
     /**
      * Get a user input
      * @param string $description Description to display the user
@@ -184,7 +210,7 @@ Available subcommands:' . "\r\n";
         }
         return $line;
     }
-    
+
     /**
      * Ask the user a yes/no question, default answer is no
      * @param string $question Question for the user
@@ -196,7 +222,7 @@ Available subcommands:' . "\r\n";
         $line = strtolower(trim(fgets($handle)));
         return ($line == 'yes' || $line == 'y');
     }
-    
+
     /**
      * Display a message for the user
      * @param string $message Message to display
@@ -207,10 +233,10 @@ Available subcommands:' . "\r\n";
         }
         echo $message . "\r\n";
     }
-    
+
     /**
      * Recursively show an array to the user (BETA)
-     * 
+     *
      * Accepts an array in the form array({something}=>{title}, 'children'=>{recursion})
      * @todo Tested for 2 dimensions only
      * @todo $childrenCount must be an array in order to handle more than 2 dimensions

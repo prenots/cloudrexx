@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  */
 global $_ARRAYLANG;
@@ -189,7 +215,7 @@ $_ARRAYLANG['TXT_SHOP_ACCOUNT_NEW_CUSTOMER'] = "Soy un nuevo cliente.";
 $_ARRAYLANG['TXT_SHOP_ACCOUNT_NOTE'] = "Resgistr&aacute;ndose con nosotros le ser&aacute; m&aacute;s f&aacute;cil realizar su pedido. Adem&aacute;s, podr&aacute; conocer el estado de los mismos y realizar un seguimiento de ellos en todo momento.";
 $_ARRAYLANG['TXT_SHOP_ACCOUNT_EXISTING_CUSTOMER'] = "Ya estoy registrado.";
 $_ARRAYLANG['TXT_SHOP_ACCOUNT_LOGIN'] = "Autenticarse >>";
-$_ARRAYLANG['TXT_SHOP_CATEGORIES'] = "Categor&iacute;as:";
+$_ARRAYLANG['TXT_SHOP_CATEGORIES'] = "Categor&iacute;as";
 $_ARRAYLANG['TXT_PRODUCTS_IN_CATEGORY'] = "Productos en la categor&iacute;a";
 $_ARRAYLANG['TXT_SHOP_GO_TO_CATEGORY'] = "Ir a la categor&iacute;a";
 $_ARRAYLANG['TXT_SHOP_LSV_EE_FIRST_NAME'] = "Nombre";

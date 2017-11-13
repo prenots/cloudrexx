@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Cx\Lib\FileSystem;
 /**
  * FTP File
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -14,16 +40,16 @@ class FTPFileException extends \Exception {};
 /**
  * FTP File
  *
- * This class provides an object based interface to a file located 
+ * This class provides an object based interface to a file located
  * on an FTP server.
  * In general, do no use this class. Instead use the class Cx\Lib\FileSystem\File
  * which is a wrapper that uses either this class or
  * Cx\Lib\FileSystem\FileSystemFile for file operations, depending on the
  * system configuration.
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 class FTPFile implements FileInterface
@@ -96,7 +122,7 @@ class FTPFile implements FileInterface
         $this->uploadTempFile();
         $this->deleteTempFile();
     }
-    
+
     public function append($data)
     {
         $this->write($data);
@@ -111,29 +137,29 @@ class FTPFile implements FileInterface
 
         $this->write('');
     }
-    
+
     public function copy($dst)
     {
         $this->initConnection();
-        
+
         try {
             $src = fopen($this->passedFilePath, 'r');
-            
+
             $pathInfo = pathinfo($dst);
             $path     = $pathInfo['dirname'];
             $file     = $pathInfo['basename'];
             $filePath = $this->getValidFilePath($file, $path);
             $dst      = $filePath . '/' . $file;
-            
+
             ftp_set_option($this->connection, FTP_TIMEOUT_SEC, 600);
-            
+
             if (!ftp_fput($this->connection, $dst, $src, FTP_BINARY)) {
                 throw new FTPFileException('FTP upload from ' . $this->passedFilePath . ' to ' . $dst . ' failed.');
             }
         } catch (FTPFileException $e) {
             throw new FTPFileException($e->getMessage());
         }
-        
+
     }
 
     public function makeWritable()
@@ -159,11 +185,11 @@ class FTPFile implements FileInterface
         /*$parentDirectory = dirname($this->passedFilePath);
         if (!is_writable($parentDirectory)) {
             if (strpos($parentDirectory, ASCMS_DOCUMENT_ROOT) === 0) {
-                // parent directory lies within the Contrexx installation directory,
+                // parent directory lies within the Cloudrexx installation directory,
                 // therefore, we shall try to make it writable
                 \Cx\Lib\FileSystem\FileSystem::makeWritable($parentDirectory);
             } else {
-                \DBG::msg('Parent directory '.$parentDirectory.' lies outside of Contrexx installation and can therefore not be made writable!');
+                \DBG::msg('Parent directory '.$parentDirectory.' lies outside of Cloudrexx installation and can therefore not be made writable!');
             }
         }*/
 
@@ -215,7 +241,7 @@ class FTPFile implements FileInterface
         // try memory first
         if (($this->tempFileHandler = fopen("php://memory", 'r+')) === false) {
             // unable to use memory as temporary storage location,
-            // try to create file in the session temp path 
+            // try to create file in the session temp path
             if (empty($sessionObj)) { //session hasn't been initialized so far
                 $sessionObj = new cmsSession();
             }
@@ -274,12 +300,11 @@ class FTPFile implements FileInterface
         if (!$this->connection) {
             throw new FTPFileException('Unable to establish FTP connection. Probably wrong FTP host info specified in config/configuration.php');
         }
-    
+
         if (!ftp_login($this->connection, $this->ftpConfig['username'], $this->ftpConfig['password'])) {
             throw new FTPFileException('Unable to authenticate on FTP server. Probably wrong FTP login credentials specified in config/configuration.php');
         }
-    
+
         $this->connected = true;
     }
 }
-

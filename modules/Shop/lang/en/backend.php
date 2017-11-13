@@ -1,4 +1,30 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 global $_ARRAYLANG;
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "The total weight of your order exceeds the available shipment conditions";
 $_ARRAYLANG['TXT_ACCEPT_CHANGES'] = "Accept changes";
@@ -55,6 +81,8 @@ $_ARRAYLANG['TXT_CONFIRM_DELETE_CUSTOMER'] = "Do you want to delete this custome
 $_ARRAYLANG['TXT_CONFIRM_DELETE_DATA'] = "Do you want to delete this record?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_OPTION'] = "Do you want to delete this option?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_ORDER'] = "Do you want to delete this/these order(s)?";
+$_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'] = 'Do you want to re-increase the product stock count?';
+$_ARRAYLANG['TXT_SHOP_CONFIRM_REDUCE_STOCK'] = 'Do you want to decrease the product stock count?';
 $_ARRAYLANG['TXT_CONFIRM_DELETE_PAYMENT'] = "Do you want to delete this payment method?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_PRODUCT'] = "Do you want to delete this/these product(s)?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_SHIPMENT'] = "Do you want to delete this shipment method?";
@@ -132,6 +160,7 @@ $_ARRAYLANG['TXT_EKP'] = "Final customer";
 $_ARRAYLANG['TXT_EMAIL'] = "E-mail";
 $_ARRAYLANG['TXT_EMAIL_SEND_SUCCESSFULLY'] = "E-mail sent to %1\$s";
 $_ARRAYLANG['TXT_EMAIL_USED_BY_OTHER_CUSTOMER'] = "This e-mail address is already assigned to a customer";
+$_ARRAYLANG['TXT_SHOP_BIRTHDAY'] = "Birthday";
 $_ARRAYLANG['TXT_ENABLED_FILE_EXTENSIONS'] = "Accepted file formats";
 $_ARRAYLANG['TXT_END_DATE'] = "End date";
 $_ARRAYLANG['TXT_ERROR_DELETING_PRODUCT'] = "Failed to delete the products";
@@ -776,6 +805,12 @@ $_ARRAYLANG['TXT_SHOP_SETTING_USER_PROFILE_ATTRIBUTE_NOTES'] = "Profile attribut
 $_ARRAYLANG['TXT_SHOP_SETTING_USERGROUP_ID_CUSTOMER'] = "User group of final customers";
 $_ARRAYLANG['TXT_SHOP_SETTING_USERGROUP_ID_RESELLER'] = "User group of resellers";
 $_ARRAYLANG['TXT_SHOP_SETTING_WEIGHT_ENABLE'] = "Use product weight";
+$_ARRAYLANG['TXT_SHOP_SETTING_ACTIVATE_PRODUCT_ATTRIBUTE_CHILDREN'] = "Option-selection of product attributes";
+$_ARRAYLANG['TXT_SHOP_SETTING_ACTIVATE_PRODUCT_ATTRIBUTE_CHILDREN_TOOLTIP'] = "When this option is activated, the the options of product attributes will all be selected by select when assiging a new product attribute to a product.";
+$_ARRAYLANG['TXT_SHOP_SETTING_FORCE_SELECT_OPTION'] = "Always show please-select option";
+$_ARRAYLANG['TXT_SHOP_SETTING_FORCE_SELECT_OPTION_TOOLTIP'] = "When this option is activated, then all dropdown product attributes will include the option 'Please select', even for product attributes that do only contain one option for selection. Otherwise, if this option is not set, then the 'Please select' option will only be shown if there is more than one option available for selection.";
+$_ARRAYLANG['TXT_SHOP_SETTING_VERIFY_ACCOUNT_EMAIL'] = "Verify customer's email address";
+$_ARRAYLANG['TXT_SHOP_SETTING_VERIFY_ACCOUNT_EMAIL_TOOLTIP'] = "When this option is activated, then anonymous customers (order without registration) are not able to place an order with an email address of an existing customer.";
 $_ARRAYLANG['TXT_SHOP_SETTINGS_EXTENDED'] = "Advanced settings";
 $_ARRAYLANG['TXT_SHOP_SHIPMENT_NEW'] = "New shipping conditions";
 $_ARRAYLANG['TXT_SHOP_SHIPMENT_NEW_TIP'] = "At least one of the values must be different from zero";
@@ -962,3 +997,5 @@ $_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX_INSTANCE_NAME'] = "Instance name";
 $_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX_API_SECRET'] = "API Secret";
 $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_PAYREXX'] = "Payrexx could not be initialized due to configuration error";
 $_ARRAYLANG['TXT_SHOP_SETTING_NUMOF_PRODUCTS_PER_PAGE_FRONTEND'] = "Number of products per page in the frontend";
+$_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW'] = "Number of categories per row";
+$_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW_TOOLTIP'] = "Set the number of categories that shall be listed per row in the online shop";

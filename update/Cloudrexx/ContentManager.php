@@ -1,5 +1,31 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 require_once dirname(dirname(dirname(__FILE__))) . '/core/Core/init.php';
 init('minimal');
 echo contentManagerUpdates();
@@ -7,7 +33,7 @@ echo contentManagerUpdates();
 function contentManagerUpdates() {
     //Database migration
     try {
-        //update module name 
+        //update module name
         \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`) VALUES ('72', 'ContentManager', 'DEV', 'TXT_CONTENTMANAGER_MODULE_DESCRIPTION', 'n', '0', '1', '1', '1')");
         //update navigation url
         \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."backend_areas` SET `uri` = 'index.php?cmd=ContentManager&act=new' WHERE `area_id` = 5");
@@ -53,13 +79,13 @@ function contentManagerUpdates() {
             'target' => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'active'),
             'module' => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'target'),
             'cmd' => array('type' => 'VARCHAR(50)', 'notnull' => true, 'default' => '', 'after' => 'module'),
-                ), 
+                ),
                 array(
                     'node_id' => array('fields' => array('node_id', 'lang'), 'type' => 'UNIQUE'),
                     'IDX_D8E86F54460D9FD7' => array('fields' => array('node_id'))
-                ), 
-                'InnoDB', 
-                '', 
+                ),
+                'InnoDB',
+                '',
                 array(
                     'node_id' => array(
                         'table' => DBPREFIX . 'content_node',
@@ -88,50 +114,50 @@ function contentManagerUpdates() {
             $designTemplateName  = $page->getSkin() ? $themeRepo->findById($page->getSkin())->getFoldername() : $themeRepo->getDefaultTheme()->getFoldername();
             $cmd                 = !$page->getCmd() ? 'Default' : ucfirst($page->getCmd());
             $moduleFolderName    = contrexx_isCoreModule($page->getModule()) ? 'core_modules' : 'modules';
-        
+
             $themesPath = ASCMS_THEMES_PATH . '/' . $designTemplateName;
-        
+
             //check common module or core_module folder exists
             if (!file_exists($themesPath . '/' . $moduleFolderName)) {
                 \Cx\Lib\FileSystem\FileSystem::make_folder($themesPath . '/' . $moduleFolderName);
             }
-        
+
             //check module's folder exists
             if (!file_exists($themesPath . '/' . $moduleFolderName . '/' . $page->getModule())) {
                 \Cx\Lib\FileSystem\FileSystem::make_folder($themesPath . '/' . $moduleFolderName . '/' . $page->getModule());
             }
-            
+
             //check module's template folder exists
             if (!file_exists($themesPath . '/' . $moduleFolderName . '/' . $page->getModule() . '/Template')) {
                 \Cx\Lib\FileSystem\FileSystem::make_folder($themesPath . '/' . $moduleFolderName . '/' . $page->getModule() . '/Template');
             }
-        
+
             //check module's Frontend folder exists
             if (!file_exists($themesPath . '/' . $moduleFolderName . '/' . $page->getModule() . '/Template/Frontend')) {
                 \Cx\Lib\FileSystem\FileSystem::make_folder($themesPath . '/' . $moduleFolderName . '/' . $page->getModule() . '/Template/Frontend');
             }
-        
+
             $targetPath = $themesPath . '/' . $moduleFolderName . '/' . $page->getModule() . '/Template/Frontend';
             $applicationTemplateName = getFilename($targetPath, $cmd . '_custom_' . FWLanguage::getLanguageCodeById($page->getLang()));
-        
+
             if (file_exists($targetPath)) {
                 //create a application template file
                 $file = new \Cx\Lib\FileSystem\File($targetPath . '/' . $applicationTemplateName);
                 $file->write($page->getContent());
             }
-            
-            //update application template 
+
+            //update application template
             $page->setContent('{APPLICATION_DATA}');
             $page->setApplicationTemplate($applicationTemplateName);
             $page->setUseCustomApplicationTemplateForAllChannels(1);
             \Env::get('em')->persist($page);
             \Env::get('em')->flush();
-            
+
         } catch (\Exception $e) {
             throw new \Exception('Error :' . $e);
         }
     }
-    
+
     return 'Application template migrated successfully.';
 }
 

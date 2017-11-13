@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Teasers
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author Cloudrexx Development Team <info@cloudrexx.com>
  * @version 1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_news
  * @todo        Edit PHP DocBlocks!
  */
@@ -17,11 +42,11 @@ namespace Cx\Core_Modules\News\Controller;
  *
  * class to show the news teasers
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author Cloudrexx Development Team <info@cloudrexx.com>
  * @access public
  * @version 1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_news
  */
 class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
@@ -93,7 +118,8 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                    tblL.teaser_text
               FROM ".DBPREFIX."module_news AS tblN
              INNER JOIN ".DBPREFIX."module_news_locale AS tblL ON tblL.news_id=tblN.id
-             WHERE tblL.lang_id=".FRONTEND_LANG_ID.
+             WHERE tblL.lang_id=".FRONTEND_LANG_ID."
+               AND tblN.teaser_frames != '' ".
               ($this->administrate == false
                 ? " AND tblN.validated='1'
                     AND tblN.status='1'
@@ -143,9 +169,10 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                 } else {
                     $author = '';
                 }
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
                 if (!empty($objResult->fields['teaser_image_thumbnail_path'])) {
                     $image = $objResult->fields['teaser_image_thumbnail_path'];
-                } elseif (!empty($objResult->fields['teaser_image_path']) && file_exists(ASCMS_PATH.\ImageManager::getThumbnailFilename($objResult->fields['teaser_image_path']))) {
+                } elseif (!empty($objResult->fields['teaser_image_path']) && file_exists($cx->getWebsitePath() .'/' .\ImageManager::getThumbnailFilename($objResult->fields['teaser_image_path']))) {
                     $image = \ImageManager::getThumbnailFilename($objResult->fields['teaser_image_path']);
                 } elseif (!empty($objResult->fields['teaser_image_path'])) {
                     $image = $objResult->fields['teaser_image_path'];
@@ -161,7 +188,7 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                     'redirect'          => $objResult->fields['redirect'],
                     'ext_url'           => $extUrl,
                     'category'          => implode(', ', contrexx_raw2xhtml($newsCategories)),
-                    'category_id'       => array_keys($newsCategories), 
+                    'category_id'       => array_keys($newsCategories),
                     'teaser_full_text'  => $objResult->fields['teaser_full_text'],
                     'teaser_text'       => $objResult->fields['teaser_text'],
                     'teaser_show_link'  => $objResult->fields['teaser_show_link'],
@@ -265,6 +292,8 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
     */
     function _getTeaserFrame($id, $templateId)
     {
+        global $_CORELANG;
+
         $teaserFrame = "";
 
         $arrTeaserBlocks = array();
@@ -288,9 +317,10 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         $teaserBlockCode = str_replace('{TEASER_DATE}', date(ASCMS_DATE_FORMAT_DATE, $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['date']), $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_TIME}', date(ASCMS_DATE_FORMAT_TIME, $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['date']), $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_TITLE}', contrexx_raw2xhtml($this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['title']), $teaserBlockCode);
+                        $teaserBlockCode = str_replace('{TEASER_MORE}', $_CORELANG['TXT_READ_MORE'], $teaserBlockCode);
                         if ($this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['teaser_show_link']) {
                             $teaserBlockCode = str_replace(
-                                '{TEASER_URL}', 
+                                '{TEASER_URL}',
                                 empty($this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['redirect'])
                                     ? \Cx\Core\Routing\Url::fromModuleAndCmd('News', $this->findCmdById('details', $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['category_id']), FRONTEND_LANG_ID, array('newsid' => $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['id'], 'teaserId' => $this->arrTeaserFrames[$id]['id']))
                                     : $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['redirect'], $teaserBlockCode
@@ -302,7 +332,7 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                             $teaserBlockCode = preg_replace('/<!-- BEGIN teaser_link -->[\S\s]*<!-- END teaser_link -->/', '', $teaserBlockCode);
                         }
                         $teaserBlockCode = str_replace('{TEASER_IMAGE_PATH}', $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['teaser_image_path'], $teaserBlockCode);
-                        $teaserBlockCode = str_replace('{TEASER_TEXT}', nl2br($this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['teaser_text']), $teaserBlockCode);
+                        $teaserBlockCode = str_replace('{TEASER_TEXT}', $this->arrSettings['news_use_teaser_text'] ? nl2br($this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['teaser_text']) : '', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_FULL_TEXT}', $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['teaser_full_text'], $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_AUTHOR}', $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['author'], $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_EXT_URL}', $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]]['ext_url'], $teaserBlockCode);
@@ -311,10 +341,11 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         $teaserBlockCode = str_replace('{TEASER_DATE}', 'TXT_DATE', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_LONG_DATE}', 'TXT_LONG_DATE', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_TITLE}', 'TXT_TITLE', $teaserBlockCode);
+                        $teaserBlockCode = str_replace('{TEASER_MORE}', $_CORELANG['TXT_READ_MORE'], $teaserBlockCode);   
                         $teaserBlockCode = str_replace('{TEASER_URL}', 'TXT_URL', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_URL_TARGET}', 'TXT_URL_TARGET', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_IMAGE_PATH}', 'TXT_IMAGE_PATH', $teaserBlockCode);
-                        $teaserBlockCode = str_replace('{TEASER_TEXT}', 'TXT_TEXT', $teaserBlockCode);
+                        $teaserBlockCode = str_replace('{TEASER_TEXT}', $this->arrSettings['news_use_teaser_text'] ? 'TXT_TEXT' : '', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_FULL_TEXT}', 'TXT_FULL_TEXT', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_AUTHOR}', 'TEASER_AUTHOR', $teaserBlockCode);
                         $teaserBlockCode = str_replace('{TEASER_EXT_URL}', 'TEASER_EXT_URL', $teaserBlockCode);

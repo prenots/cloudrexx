@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  */
 global $_ARRAYLANG;
@@ -46,6 +72,7 @@ $_ARRAYLANG['TXT_EKP'] = "Final customer";
 $_ARRAYLANG['TXT_EMAIL'] = "E-mail";
 $_ARRAYLANG['TXT_EMAIL_ADDRESS'] = "E-mail Address";
 $_ARRAYLANG['TXT_EMAIL_USED_BY_OTHER_CUSTOMER'] = "This e-mail address is already assigned to a customer";
+$_ARRAYLANG['TXT_SHOP_BIRTHDAY'] = "Birthday";
 $_ARRAYLANG['TXT_EMPTY_CART'] = "Empty the shopping basket";
 $_ARRAYLANG['TXT_EMPTY_SHOPPING_CART'] = "Your shopping basket is empty.";
 $_ARRAYLANG['TXT_ERROR_ACCOUNT_INFORMATION_NOT_AVAILABLE'] = "Error: Account information is not available";
@@ -145,9 +172,9 @@ $_ARRAYLANG['TXT_SHOP_CART_COLON'] = "Basket:";
 $_ARRAYLANG['TXT_SHOP_CART_CONTENT'] = "Shopping basket content:";
 $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'] = "The basket is being loaded...";
 $_ARRAYLANG['TXT_SHOP_CART_JS_FORMAT_PRODUCT'] = "[[SHOP_JS_PRODUCT_QUANTITY]]x [[SHOP_JS_PRODUCT_TITLE]]<br />([[SHOP_JS_PRODUCT_PRICE]] [[SHOP_JS_TOTAL_PRICE_UNIT]])";
-$_ARRAYLANG['TXT_SHOP_CART_JS_FORMAT_TOTAL'] = "Totally [[SHOP_JS_PRODUCT_COUNT]] products<br />Amount: <b>[[SHOP_JS_TOTAL_PRICE]] [[SHOP_JS_TOTAL_PRICE_UNIT]]</b>";
+$_ARRAYLANG['TXT_SHOP_CART_JS_FORMAT_TOTAL'] = "Totally [[SHOP_JS_PRODUCT_COUNT]] product(s)<br />Amount: <b>[[SHOP_JS_TOTAL_PRICE]] [[SHOP_JS_TOTAL_PRICE_UNIT]]</b>";
 $_ARRAYLANG['TXT_SHOP_CART_PRODUCTS_VALUE'] = "products, total amount";
-$_ARRAYLANG['TXT_SHOP_CATEGORIES'] = "Categories:";
+$_ARRAYLANG['TXT_SHOP_CATEGORIES'] = "Categories";
 $_ARRAYLANG['TXT_SHOP_CATEGORY_ALL'] = "All categories";
 $_ARRAYLANG['TXT_SHOP_CATEGORY_DESCRIPTION'] = "Description";
 $_ARRAYLANG['TXT_SHOP_CATEGORY_NAME'] = "Category";
@@ -492,3 +519,9 @@ $_ARRAYLANG['TXT_SHOP_ORDER_PRODUCT_CODE'] = "Product code";
 $_ARRAYLANG['TXT_SHOP_ORDER_PRODUCT_PRICE'] = "Price";
 $_ARRAYLANG['TXT_SHOP_ORDER_PRODUCT_DATE'] = "Date added";
 $_ARRAYLANG['TXT_SHOP_ORDER_PRODUCT_BESTSELLER'] = "Popularity";
+$_ARRAYLANG['TXT_SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_1'] = "instead of";
+$_ARRAYLANG['TXT_SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_2'] = "only";
+$_ARRAYLANG['TXT_SHOP_PRODUCT_SINGLE_CART_STOCK_OUTOFF_ERROR'] = "The product <strong>%s</strong> is sold out.";
+$_ARRAYLANG['TXT_SHOP_PRODUCT_MULTIPLE_CART_STOCK_OUTOFF_ERROR'] = "The products <strong>%s</strong> are sold out.";
+$_ARRAYLANG['TXT_SHOP_CHOOSE_FILE'] = 'Choose File';
+$_ARRAYLANG['TXT_SHOP_REMOVE_FILE'] = 'Remove File';

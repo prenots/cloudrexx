@@ -1,18 +1,43 @@
-<?php 
+<?php
 
- /** 
- * @copyright   CONTREXX CMS - COMVATION AG 
- * @author      Comvation Development Team <info@comvation.com>
- * @access      public 
- * @package     contrexx
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @access      public
+ * @package     cloudrexx
  * @subpackage  core_viewmanager
- */ 
-global $_ARRAYLANG; 
+ */
+global $_ARRAYLANG;
 $_ARRAYLANG['TXT_DESIGN_MANAGEMENT'] = "Layout";
 $_ARRAYLANG['TXT_VIEWMANAGER_MODULE_DESCRIPTION'] = "Layout";
 $_ARRAYLANG['TXT_THEME_UNABLE_TO_CREATE'] = '  cannot be created';
-$_ARRAYLANG['TXT_DESIGN_OVERVIEW'] = 'Overview';
-$_ARRAYLANG['TXT_DESIGN_TEMPLATES'] = 'Theme Manager';
+$_ARRAYLANG['TXT_VIEWMANAGER_OVERVIEW'] = 'Overview';
+$_ARRAYLANG['TXT_VIEWMANAGER_TEMPLATE_EDITOR'] = 'Theme Manager';
 $_ARRAYLANG['TXT_DESIGN_SETTINGS'] = 'Settings';
 $_ARRAYLANG['TXT_DESIGN_FILES_ADMINISTRATION'] = 'Files administration';
 $_ARRAYLANG['TXT_CORE_PLACEHOLDERS'] = 'Placeholders';
@@ -89,7 +114,6 @@ $_ARRAYLANG['TXT_ACTIVE_TEMPLATE'] = 'Standard';
 $_ARRAYLANG['TXT_ACTIVE_PDF_TEMPLATE'] = 'PDF';
 $_ARRAYLANG['TXT_ACTIVE_PRINT_TEMPLATE'] = 'Print';
 $_ARRAYLANG['TXT_THEME_ACTIVATE_INFO'] = 'Activated Languages';
-$_ARRAYLANG['TXT_THEME_ACTIVATE_INFO_BODY'] = 'Languags highlighted in pink have been activated as a Frontend language in the <a href="index.php?cmd=LanguageManager">settings.</a>';
 $_ARRAYLANG['TXT_ACTIVE_MOBILE_TEMPLATE'] = 'Mobile';
 $_ARRAYLANG['TXT_APP'] = 'App';
 $_ARRAYLANG['TXT_DESIGN_VARIABLES_LIST'] = 'Replacement directory';
@@ -101,7 +125,7 @@ $_ARRAYLANG['TXT_REPLACEMENT_LIST'] = 'Replacement list';
 $_ARRAYLANG['TXT_FILES'] = 'Files';
 $_ARRAYLANG['TXT_CONTENTS'] = 'Contents';
 $_ARRAYLANG['TXT_DESIGN_REPLACEMENTS_DIR'] = 'Replacement directory';
-$_ARRAYLANG['TXT_PLACEHOLDER_DIRECTORY_DESCRIPTION'] = 'A detailed list of placeholders can be found in the <a href="http://www.contrexx.com/wiki/de/index.php?title=Platzhalterverzeichnis" target="_blank">Contrexx&reg; placeholder directory</a>.';
+$_ARRAYLANG['TXT_PLACEHOLDER_DIRECTORY_DESCRIPTION'] = 'A detailed list of placeholders can be found in the <a href="http://www.cloudrexx.com/wiki/de/index.php?title=Platzhalterverzeichnis" target="_blank">Cloudrexx&reg; placeholder directory</a>.';
 $_ARRAYLANG['TXT_CHANNELS'] = 'Channels';
 $_ARRAYLANG['TXT_MODULE_URLS'] = 'Links to core modules';
 $_ARRAYLANG['TXT_CONTACT'] = 'Contact';
@@ -201,6 +225,9 @@ $_ARRAYLANG['TXT_THEME_FILE_EXTENSION_NOT_ALLOWED'] = "The file uses an illegal 
 $_ARRAYLANG['TXT_THEME_FULLSCREEN'] = 'Full screen';
 $_ARRAYLANG['TXT_THEME_FULLSCREEN_INFO'] = 'Shortcut F11';
 $_ARRAYLANG['TXT_THEME_EXIT_FULLSCREEN'] = 'Exit full screen';
+$_ARRAYLANG['TXT_THEME_TEMPLATEEDITOR_USABLE'] = 'Editor';
+$_ARRAYLANG['TXT_THEME_TEMPLATEEDITOR_UNUSABLE'] = 'Code only';
+$_ARRAYLANG['TXT_THEME_TEMPLATEEDITOR_EDIT'] = 'Customize';
 $_ARRAYLANG['TXT_THEME_NEW_THEME'] = 'New Theme';
 $_ARRAYLANG['TXT_THEME_FILESYSTEM'] = 'Import from filesystem (%s directory)';
 $_ARRAYLANG['TXT_VIEWMANAGER_THEME_SELECTION_TXT'] = 'Select the source from where you would like to import a new theme';
@@ -208,3 +235,4 @@ $_ARRAYLANG['TXT_VIEWMANAGER_THEME'] = 'Theme';
 $_ARRAYLANG['TXT_VIEWMANAGER_SOURCE'] = 'Source';
 $_ARRAYLANG['TXT_THEME_ERROR_IN_INSERT_THEME'] = 'Could not save the theme in database.';
 $_ARRAYLANG['TXT_UNABLE_TO_CONVERT_THEME_TO_COMPONENT'] = 'Unable to convert theme to component.Please make sure the theme folder has read and write permission.';
+$_ARRAYLANG['TXT_CORE_VIEWMANAGER_LOADING'] = "Loading...";

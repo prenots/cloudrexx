@@ -1,12 +1,37 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Framework Validator
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_framework
  * @todo        Edit PHP DocBlocks!
  */
@@ -25,7 +50,7 @@ define('VALIDATOR_REGEX_EMAIL',
 
 /**
  * Regular Expression in javascript for e-mail addresses
- * @author  Michael Räss <info@comvation.com>
+ * @author  Michael Räss <info@cloudrexx.com>
  * @since  2.2.6
  * @deprecated 3.1.1
  */
@@ -59,7 +84,7 @@ define('VALIDATOR_REGEX_URI',
 
 /**
  * Regular Expression in javascript for URIs
- * @author  Michael Räss <info@comvation.com>
+ * @author  Michael Räss <info@cloudrexx.com>
  * @since   2.2.6
  * @deprecated 3.1.1
  */
@@ -70,25 +95,25 @@ define('VALIDATOR_REGEX_URI_JS',
 /**
  * Framework Validator
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @version     1.0.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_framework
- * @author      Comvation Development Team <info@comvation.com>
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      Reto Kohli <reto.kohli@comvation.com> (parts)
  * @todo        Edit PHP DocBlocks!
  * @todo        Most, if not all, should be static
  */
 class FWValidator
 {
-    
+
     /**
      * Regular Expression for e-mail addresses
      * @author Kevin Riesen
      * @since 3.1.1
      */
     const REGEX_EMAIL = VALIDATOR_REGEX_EMAIL;
-    
+
     /**
      * Regular Expression in javascript for e-mail addresses
      * @author Kevin Riesen
@@ -98,28 +123,28 @@ class FWValidator
 
     /**
      * Regular Expression for URI protocols
-     * 
+     *
      * Known protocols include HTTP, HTTPS, FTP, and FTPS
      * @author Kevin Riesen
      * @since 3.1.1
      */
     const REGEX_URI_PROTO = VALIDATOR_REGEX_URI_PROTO;
-    
+
     /**
      * Regular Expression for URIs
      * @author  Kevin Riesen
      * @since   3.1.1
      */
     const REGEX_URI = VALIDATOR_REGEX_URI;
-    
-    
+
+
     /*
      * Regular Expression in javascript for URIs
      * @author Kevin Riesen
      * @since 3.1.1
      */
     const REGEX_URI_JS = VALIDATOR_REGEX_URI_JS;
-    
+
     /**
      * Validate an E-mail address
      *
@@ -275,19 +300,19 @@ class FWValidator
 
         return $fileName;
     }
-    
+
     /**
      * Check whether the given value is empty or not
-     * 
+     *
      * @param mixed $value
-     * 
+     *
      * @return boolean true if the value is empty, false otherwise
      */
     public static function isEmpty($value)
     {
         return empty($value);
     }
-    
+
     /**
     * Tests if an input is valid PHP serialized string.
     *
@@ -306,19 +331,19 @@ class FWValidator
     * <li>null: <code>N;</code></li>
     * </ul>
     *
-    * @author	Chris Smith <code+php@chris.cs278.org>, Frank Bültge <frank@bueltge.de>
-    * @copyright	Copyright (c) 2009 Chris Smith (http://www.cs278.org/), 2011 Frank Bültge (http://bueltge.de)
-    * @license	http://sam.zoy.org/wtfpl/ WTFPL
-    * @param	string $value Value to test for serialized form
-    * @param	mixed $result Result of unserialize() of the $value
-    * @return	boolean True if $value is serialized data, otherwise FALSE
+    * @author    Chris Smith <code+php@chris.cs278.org>, Frank Bültge <frank@bueltge.de>
+    * @copyright    Copyright (c) 2009 Chris Smith (http://www.cs278.org/), 2011 Frank Bültge (http://bueltge.de)
+    * @license    http://sam.zoy.org/wtfpl/ WTFPL
+    * @param    string $value Value to test for serialized form
+    * @param    mixed $result Result of unserialize() of the $value
+    * @return    boolean True if $value is serialized data, otherwise FALSE
     */
     static function is_serialized( $value, &$result = null ) {
         // Bit of a give away this one
         if ( ! is_string( $value ) ) {
             return false;
         }
-        
+
         // Serialized FALSE, return TRUE. unserialize() returns FALSE on an
         // invalid string or it could return FALSE if the string is serialized
         // FALSE, eliminate that possibility.
@@ -326,10 +351,10 @@ class FWValidator
             $result = false;
             return true;
         }
-        
-        $length	= strlen($value);
-        $end	= '';
-        
+
+        $length    = strlen($value);
+        $end    = '';
+
         if ( isset( $value[0] ) ) {
             switch ($value[0]) {
                 case 's':
@@ -344,7 +369,7 @@ class FWValidator
                 case 'a':
                 case 'O':
                     $end .= '}';
-                    
+
                     if (':' !== $value[1]) {
                         return false;
                     }
@@ -361,28 +386,28 @@ class FWValidator
                         case 8:
                         case 9:
                             break;
-                        
+
                         default:
                             return false;
                     }
                 case 'N':
                     $end .= ';';
-                    
+
                     if ($value[$length - 1] !== $end[0]) {
                         return false;
                     }
                     break;
-                
+
                 default:
                     return false;
             }
         }
-        
+
         if ( ( $result = @unserialize($value) ) === false ) {
             $result = null;
             return false;
         }
-        
+
         return true;
     }
 }
@@ -390,9 +415,9 @@ class FWValidator
 /**
  * An abstract base for ZendValidator-Style instantiable Validators
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_framework
  */
 abstract class CxValidate {
@@ -417,9 +442,9 @@ abstract class CxValidate {
 /**
  * Validates Strings to a set of constraints
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_framework
  */
 class CxValidateString extends CxValidate {
@@ -451,9 +476,9 @@ class CxValidateString extends CxValidate {
 /**
  * CxValidateRegexp
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_framework
  */
 class CxValidateRegexp extends CxValidate {
@@ -474,15 +499,15 @@ class CxValidateRegexp extends CxValidate {
     }
 
     return $this->passesValidation;
-    }   
+    }
 }
 
 /**
  * CxValidateInteger
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_framework
  */
 class CxValidateInteger extends CxValidate {

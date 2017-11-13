@@ -1,20 +1,46 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * AliasManager
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author        Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author        Cloudrexx Development Team <info@cloudrexx.com>
  * @version        1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_alias
  * @todo        Edit PHP DocBlocks!
  */
 namespace Cx\Core_Modules\Alias\Controller;
 /**
  * AliasManager
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author        Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author        Cloudrexx Development Team <info@cloudrexx.com>
  * @version        1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_alias
  * @todo        Edit PHP DocBlocks!
  */
@@ -45,7 +71,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
     var $arrStatusMsg = array('ok' => array(), 'error' => array());
 
     private $act = '';
-    
+
     /**
     * PHP5 constructor
     *
@@ -54,21 +80,23 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
     */
     function __construct()
     {
-        
+
         parent::__construct();
-        
+
         $this->_objTpl = new \Cx\Core\Html\Sigma(ASCMS_CORE_MODULE_PATH.'/Alias/View/Template/Backend');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
-        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);        
+        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
     }
-    private function setNavigation()
+
+    protected function setNavigation()
     {
         global $objTemplate, $_ARRAYLANG;
 
-        $objTemplate->setVariable("CONTENT_NAVIGATION",
-            ("<a href='index.php?cmd=Alias' class='".($this->act == '' || $this->act == 'delete' ? 'active' : '')."'>".$_ARRAYLANG['TXT_ALIAS_ALIASES']."</a>"
-            ."<a href='index.php?cmd=Alias&amp;act=modify' class='".($this->act == 'modify' ? 'active' : '')."'>".$_ARRAYLANG['TXT_ALIAS_ADD_ALIAS']."</a>")
-        );
+        $navigation = '<a href="index.php?cmd=Alias" class="' . ($this->act == '' || $this->act == 'delete' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_ALIAS_ALIASES'] . '</a>';
+        if (\Permission::checkAccess(78, 'static', true)) {
+            $navigation .= '<a href="index.php?cmd=Alias&amp;act=modify" class="' . ($this->act == 'modify' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_ALIAS_ADD_ALIAS'] . '</a>';
+        }
+        $objTemplate->setVariable('CONTENT_NAVIGATION', $navigation);
     }
 
     /**
@@ -88,10 +116,12 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
 
         switch ($_REQUEST['act']) {
             case 'modify':
+                \Permission::checkAccess(78, 'static');
                 $this->_modifyAlias($_POST);
                 break;
 
             case 'delete':
+                \Permission::checkAccess(78, 'static');
                 $this->_delete();
 
             default:
@@ -127,7 +157,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
             'ALIAS_SHOW_LEGACY_PAGE_VALUE' => intval($showLegacyPagealiases),
         ));
 
-        // show warning message if contrexx is running on an IIS webserver and the web.config seems not be be registred in the server configuration
+        // show warning message if cloudrexx is running on an IIS webserver and the web.config seems not be be registred in the server configuration
         if (ASCMS_WEBSERVER_SOFTWARE == 'iis') {
             \Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH.'/PEAR/HTTP/Request2.php');
             $objRequest = new \HTTP_Request2('http://'.$_CONFIG['domainUrl'].ASCMS_PATH_OFFSET.'/'.FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID).'/index.php?section=Error');
@@ -143,7 +173,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                 \DBG::msg($objException->getMessage());
             }
         }
-        
+
         // Alias search was triggerd
         if(!empty($_GET['term'])){
             $slug = '%' . $_GET['term'] . '%';
@@ -151,12 +181,12 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
         } else {
             $slug = null;
         }
-        
+
         // search for aliases
         $this->_objTpl->setVariable(array(
             'TXT_SEARCH'        => $_CORELANG['TXT_SEARCH'],
         ));
-        
+
         $arrAliases = $this->_getAliases($_CONFIG['corePagingLimit'], false, $showLegacyPagealiases, $slug);
 
         if ($this->hasLegacyPages) {
@@ -181,6 +211,9 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                 'TXT_ALIAS_OPEN_ALIAS_NEW_WINDOW'   => $_ARRAYLANG['TXT_ALIAS_OPEN_ALIAS_NEW_WINDOW'],
             ));
 
+            // this is a dirty hack, to force the CSS class 'rowWarn'
+            // on non-existent targets
+            $targetURL = '<none>';
             foreach ($arrAliases as $page) {
 
                 $sourceURL = $page->getSlug();
@@ -192,6 +225,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                     ));
 
                     $target = "";
+                    $target_title = '';
                     if ($this->_isLocalAliasTarget($page)) {
                         // alias points to a local webpage
                         $targetPage = $this->_fetchTarget($page);
@@ -207,7 +241,13 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                     }
                     $this->_objTpl->hideBlock('alias_source_not_set');
                     $this->_objTpl->parse('alias_source_list');
-                    
+
+                if (\Permission::checkAccess(78, 'static', true)) {
+                    $this->_objTpl->touchBlock('alias_functions');
+                } else {
+                    $this->_objTpl->hideBlock('alias_functions');
+                }
+
                 $this->_objTpl->setVariable(array(
                     // if target is local (target != targetURL) and target is empty: class is rowWarn
                     'ALIAS_ROW_CLASS'       => $target != $targetURL && empty($target) && $nr++ ? 'rowWarn ' : 'row'.($nr++ % 2 + 1),
@@ -274,7 +314,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                     $nr++;
                 }
             }
-            
+
             // delete removed
             $sources = $this->_getAliasesWithSameTarget($alias);
             foreach ($sources as $sourceAlias) {
@@ -293,7 +333,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                     }
                 }
             }
-            
+
             // save information
             if (!empty($newtarget)) {
                 if (count($aliases) || count($newaliases)) {
@@ -337,7 +377,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                         }
                     }
                     if (!$error) {
-                        $this->arrStatusMsg['ok'][] = $aliasId ? $_ARRAYLANG['TXT_ALIAS_ALIAS_SUCCESSFULLY_UPDATED'] : $_ARRAYLANG['TXT_ALIAS_ALIAS_SUCCESSFULLY_ADDED'];   
+                        $this->arrStatusMsg['ok'][] = $aliasId ? $_ARRAYLANG['TXT_ALIAS_ALIAS_SUCCESSFULLY_UPDATED'] : $_ARRAYLANG['TXT_ALIAS_ALIAS_SUCCESSFULLY_ADDED'];
                     }
                     $_REQUEST['act'] = ''; // For the navigation
                     return $this->_list();
@@ -352,7 +392,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
                 }
             }
         }
-        
+
         $mediaBrowser = new \Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser();
         $mediaBrowser->setOptions(array('type' => 'button', 'data-cx-mb-views' => 'sitestructure'));
         $mediaBrowser->setCallback('aliasSetUrl');
@@ -402,7 +442,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
         ));
 
         $nr = 0;
-        
+
         $sources = $this->_getAliasesWithSameTarget($alias);
 
         if (is_array($sources) && count($sources)) {
@@ -425,7 +465,7 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
         ));
         $this->_objTpl->parse('alias_list');
     }
-    
+
 
     function _delete($aliasId = "")
     {

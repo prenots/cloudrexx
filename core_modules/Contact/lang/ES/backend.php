@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_contact
  */
 $_ARRAYLANG['TXT_CONTACT_TRANSFERED_DATA_FROM'] = "Esta es la informaci&oacute;n enviada por el formulario de contacto de la Web ";
@@ -38,7 +64,7 @@ $_ARRAYLANG['TXT_CONTACT_FUNCTIONS'] = "Funciones";
 $_ARRAYLANG['TXT_CONTACT_DETAILS'] = "Detalles";
 $_ARRAYLANG['TXT_CONTACT_DELETE_ENTRY'] = "Eliminar Entrada";
 $_ARRAYLANG['TXT_CONTACT_ENTRIES_OF_NAME'] = "Formulario de contacto, entradas de %NAME%";
-$_ARRAYLANG['TXT_CONTACT_CONFIRM_OPEN_UPLOADED_FILE'] = "Podr&iacute;a ser posible que este archivo est&eacute; infectado por un virus o troyano, \n ya que se ha sido subido por alguien desconocido. \ 
+$_ARRAYLANG['TXT_CONTACT_CONFIRM_OPEN_UPLOADED_FILE'] = "Podr&iacute;a ser posible que este archivo est&eacute; infectado por un virus o troyano, \n ya que se ha sido subido por alguien desconocido. \
 \n \¿Desea abrirlo de todas formas?";
 $_ARRAYLANG['TXT_CONTACT_ACTION_IS_IRREVERSIBLE'] = "\¡Esta acci&oacute;n no se puede deshacer!";
 $_ARRAYLANG['TXT_CONTACT_NAME'] = "Nombre";

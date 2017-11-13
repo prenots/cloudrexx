@@ -1,12 +1,37 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Cx\Core_Modules\Login\Controller;
 
 /**
  * Login
- * @copyright   CONTREXX WCMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX WCMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_login
  */
 class LoginManager {
@@ -60,15 +85,18 @@ class LoginManager {
         }
 
         $this->objTemplate->setVariable('CONTREXX_CHARSET', CONTREXX_CHARSET);
-        
+
         $endcode = $this->objTemplate->get();
-        
+
         // replace links from before contrexx 3
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $ls = new \LinkSanitizer(
-            ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH.'/',
-            $endcode);
+            $cx,
+            $cx->getCodeBaseOffsetPath() . $cx->getBackendFolderName() . '/',
+            $endcode
+        );
         $endcode = $ls->replace();
-        
+
         echo $endcode;
         exit();
     }
@@ -146,8 +174,8 @@ class LoginManager {
         $confirmedPassword = isset($_POST['password2']) ? trim(contrexx_stripslashes($_POST['password2'])) : '';
 
         $this->objTemplate->setVariable(array(
-            'LOGIN_USERNAME'    => htmlentities($email, ENT_QUOTES, CONTREXX_CHARSET),
-            'LOGIN_RESTORE_KEY' => htmlentities($restoreKey, ENT_QUOTES, CONTREXX_CHARSET),
+            'LOGIN_EMAIL'       => contrexx_raw2xhtml($email),
+            'LOGIN_RESTORE_KEY' => contrexx_raw2xhtml($restoreKey),
         ));
 
         if (isset($_POST['reset_password'])) {
@@ -226,12 +254,12 @@ class LoginManager {
     private function showLogin()
     {
         global $_CORELANG, $_ARRAYLANG;
-        
+
         $this->objTemplate->addBlockfile('CONTENT_FILE', 'CONTENT_BLOCK', '/core_modules/Login/View/Template/Backend/login.html');
         $frontendLink = ASCMS_INSTANCE_OFFSET;
         if (empty($frontendLink)) {
             $frontendLink = '/';
-        }        
+        }
         $this->objTemplate->setVariable(array(
             'TITLE'                         => $_ARRAYLANG['TXT_LOGIN_LOGIN'],
             'TXT_LOGIN_LOGIN'               => $_ARRAYLANG['TXT_LOGIN_LOGIN'],
@@ -258,6 +286,7 @@ class LoginManager {
             $this->objTemplate->setVariable(array(
                 'TXT_LOGIN_SECURITY_CODE'   => $_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'],
                 'CAPTCHA_CODE'              => \Cx\Core_Modules\Captcha\Controller\Captcha::getInstance()->getCode(3),
+                'CAPTCHA_VALIDATION_CODE'   => \Cx\Core_Modules\Captcha\Controller\Captcha::getInstance()->getJSValidationFn(),
             ));
             $this->objTemplate->parse('captcha');
         } else {

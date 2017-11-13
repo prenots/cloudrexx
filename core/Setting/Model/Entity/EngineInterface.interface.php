@@ -1,16 +1,42 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Specific Setting for this Component. Use this abstract class extends with the Db.class.php or FileSystem.class.php
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com> (parts)
  * @author      Manish Thakur <manishthakur@cdnsol.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_setting
  * @todo        Edit PHP DocBlocks!
  */
- 
+
 namespace Cx\Core\Setting\Model\Entity;
 
 /**
@@ -18,11 +44,11 @@ namespace Cx\Core\Setting\Model\Entity;
  *
  * Before trying to access a modules' settings, *DON'T* forget to call
  * {@see Setting::init()} before calling getValue() for the first time!
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com> (parts)
  * @author      Manish Thakur <manishthakur@cdnsol.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_setting
  * @todo        Edit PHP DocBlocks!
  */
@@ -52,7 +78,7 @@ interface EngineInterface {
      */
      function flush();
 
-    /** 
+    /**
      * Returns the settings array for the given section and group
      *
      * See {@see init()} on how the arguments are used.
@@ -83,10 +109,10 @@ interface EngineInterface {
      *                                null otherwise
      */
      function getValue($name);
-    
+
     /**
      * Returns the true or false for given the setting name
-     * 
+     *
      * If the settings have not been initialized (see {@see init()}), or
      * if no setting of that name is present in the current set, false
      * is returned.
@@ -139,7 +165,7 @@ interface EngineInterface {
      * @param   string    $name   The settings name
      * @return  boolean           True on successful update or if
      *                            unchanged, false on failure
-     * 
+     *
      * @global  mixed     $objDatabase    Database connection object
      */
     public  function update($name);
@@ -161,7 +187,7 @@ interface EngineInterface {
      *                              defaults to the empty string
      * @param   string    $group    The optional group
      * @return  boolean             True on success, false otherwise
-     */ 
+     */
     public  function add($name, $value, $ord=false, $type='text', $values='', $group=null);
 
     /**
@@ -194,7 +220,7 @@ interface EngineInterface {
      *
      * Tries to fix or recreate the settings.
      * @return  boolean             False, always.
-     * 
+     *
      */
     public  function errorHandler();
 }

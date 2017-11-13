@@ -1,14 +1,39 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * E-Card
  *
  * Send electronic postcards to your friends
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     2.1.0
  * @since       2.1.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_ecard
  * @todo        Edit PHP DocBlocks!
  */
@@ -19,11 +44,11 @@ namespace Cx\Modules\Ecard\Controller;
  * E-Card
  *
  * Send electronic postcards to your friends
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     2.1.0
  * @since       2.1.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_ecard
  * @todo        Edit PHP DocBlocks!
  */
@@ -38,7 +63,7 @@ class EcardManager
     public $strOkMessage = '';
 
     private $act = '';
-    
+
     /**
      * PHP5 constructor
      *
@@ -51,7 +76,7 @@ class EcardManager
 
         $this->_objTpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Ecard/View/Template/Backend');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
-        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);        
+        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
     }
     private function setNavigation()
     {
@@ -93,10 +118,10 @@ class EcardManager
             'ADMIN_CONTENT' => $this->_objTpl->get(),
             'CONTENT_TITLE' => $this->_pageTitle,
         ));
-        
+
         $this->act = $_REQUEST['act'];
         $this->setNavigation();
-        
+
         return $this->_objTpl->get();
     }
 
@@ -115,7 +140,7 @@ class EcardManager
                                 'type' => 'button',
                                 'data-cx-mb-views' => 'filebrowser',
                                 'id' => 'mediabrowser_button',
-                                'style' => 'display: none;'    
+                                'style' => 'display: none;'
                                 )
                             );
         /* Update progress */
@@ -130,7 +155,7 @@ class EcardManager
                        SET setting_value='".contrexx_addslashes($filename)."'
                      WHERE setting_name='motive_$i'";
                 $objResult = $objDatabase->Execute($query);
-                
+
                 /* Create optimized picture for e-card dispatch */
                 if ($filepath != '' && file_exists(\Env::get('cx')->getWebsitePath().$filepath)) {
                     $this->resizeMotive(2, \Env::get('cx')->getWebsitePath().$filepath, ASCMS_ECARD_OPTIMIZED_PATH.'/');
@@ -174,7 +199,7 @@ class EcardManager
                 $sourcePath = ASCMS_ECARD_OPTIMIZED_WEB_PATH.'/'.$motiveFilename;
                 $thumbnail = ASCMS_ECARD_THUMBNAIL_WEB_PATH.'/'.$motiveFilename;
             }
-            /* Initialize DATA placeholder */                        
+            /* Initialize DATA placeholder */
             $this->_objTpl->setVariable(array(
                 'MOTIVE_PATH' => $sourcePath,
                 'MOTIVE_THUMB_PATH' => $thumbnail,

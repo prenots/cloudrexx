@@ -1,12 +1,37 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * News : Get recent comments
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @author      ss4u <ss4u.comvation@gmail.com>
  * @version     3.1.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_news
  */
 
@@ -14,11 +39,11 @@ namespace Cx\Core_Modules\News\Controller;
 
 /**
  * News : Get recent comments
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @author      ss4u <ss4u.comvation@gmail.com>
  * @version     3.1.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_news
  */
 class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
@@ -35,13 +60,13 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
         $this->_objTemplate = new \Cx\Core\Html\Sigma('.');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTemplate);
     }
-    
+
     function getRecentNewsComments()
     {
         global $objDatabase;
-        
+
         $this->_objTemplate->setTemplate($this->_pageContent,true,true);
-        
+
         // abort if template block is missing
         if (!$this->_objTemplate->blockExists('news_comments')) {
             return;
@@ -49,7 +74,7 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
 
         // abort if commenting system is not active
         if (!$this->arrSettings['news_comments_activated']) {
-            $this->_objTemplate->hideBlock('news_comments');            
+            $this->_objTemplate->hideBlock('news_comments');
         } else {
             $_ARRAYLANG = \Env::get('init')->loadLanguageData('News');
             $commentsCount = (int) $this->arrSettings['recent_news_message_limit'];
@@ -60,13 +85,13 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
                               `nComment`.`userid`,
                               `nComment`.`text`,
                               `news`.`id`
-                        FROM  
+                        FROM
                               `".DBPREFIX."module_news_comments` AS nComment
-                        LEFT JOIN 
+                        LEFT JOIN
                               `".DBPREFIX."module_news` AS news
                         ON
                             `nComment`.newsid = `news`.id
-                        LEFT JOIN 
+                        LEFT JOIN
                               `".DBPREFIX."module_news_locale` AS nLocale
                         ON
                             `news`.id = `nLocale`.news_id AND `nLocale`.lang_id = ". FRONTEND_LANG_ID ."
@@ -79,7 +104,7 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         AND
                             `nComment`.`is_active` = '1'
                         ORDER BY
-                              `date` DESC 
+                              `date` DESC
                         LIMIT 0, $commentsCount";
 
             $objResult = $objDatabase->Execute($query);
@@ -100,12 +125,12 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
             $i = 0;
             while (!$objResult->EOF) {
                 self::parseUserAccountData($this->_objTemplate, $objResult->fields['userid'], $objResult->fields['poster_name'], 'news_comments_poster');
-                
+
                 $commentTitle = $objResult->fields['title'];
                 $newsCategories = $this->getCategoriesByNewsId($objResult->fields['id']);
                 $newsUrl  = \Cx\Core\Routing\Url::fromModuleAndCmd('News', $this->findCmdById('details', array_keys($newsCategories)), FRONTEND_LANG_ID, array('newsid' => $objResult->fields['id']));
                 $newsLink = self::parseLink($newsUrl, $commentTitle, contrexx_raw2xhtml($commentTitle));
-                
+
                 $this->_objTemplate->setVariable(array(
                    'NEWS_COMMENTS_CSS'          => 'row'.($i % 2 + 1),
                    'NEWS_COMMENTS_TITLE'        => contrexx_raw2xhtml($commentTitle),
@@ -125,7 +150,7 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
             $this->_objTemplate->parse('news_comment_list');
             $this->_objTemplate->hideBlock('news_no_comment');
         }
-         
+
         return $this->_objTemplate->get();
     }
 }

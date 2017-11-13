@@ -146,7 +146,17 @@ class Website extends \Cx\Model\Base\EntityBase {
      * @var Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection $websiteCollection
      */
     protected $websiteCollection;
-    
+
+    /**
+     * @var string $mode
+     */
+    protected $mode;
+
+    /**
+     * @var Cx\Core_Modules\MultiSite\Model\Entity\Website $serverWebsite
+     */
+    protected $serverWebsite;
+
     /*
      * Constructor
      * */
@@ -165,6 +175,7 @@ class Website extends \Cx\Model\Base\EntityBase {
             $this->language = \FWLanguage::getDefaultLangId();
         }
         $this->status = self::STATE_INIT;
+        $this->mode   = \Cx\Core_Modules\MultiSite\Controller\ComponentController::WEBSITE_MODE_STANDALONE;
         $this->websiteServiceServerId = 0;
         $this->installationId = $this->generateInstalationId();
         $this->themeId = $themeId;
@@ -806,20 +817,17 @@ class Website extends \Cx\Model\Base\EntityBase {
             'log'         => \DBG::getMemoryLogs(),
         );
     }
-    
-    /*
-    * function validate to validate website name
-    * */
+
+    /**
+     * Validate website entity.
+     * Checks if the name of the website is valid and unique.
+     */
     public function validate()
     {
-        self::validateName($this->getName());
-    }
-
-    public static function validateName($name) {
         global $_ARRAYLANG;
 
         \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::loadLanguageData();
-        $websiteName = $name;
+        $websiteName = $this->getName();
 
         // verify that name is not a blocked word
         $unavailablePrefixesValue = explode(',',\Cx\Core\Setting\Controller\Setting::getValue('unavailablePrefixes','MultiSite'));
@@ -839,7 +847,8 @@ class Website extends \Cx\Model\Base\EntityBase {
         }
 
         // existing website
-        if (\Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website')->findOneBy(array('name' => $websiteName))) {
+        $website = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website')->findOneBy(array('name' => $websiteName));
+        if ($website && $website != $this) {
             throw new WebsiteException(sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_ALREADY_EXISTS'], "<strong>$websiteName</strong>"));
         }
     }
@@ -987,6 +996,7 @@ class Website extends \Cx\Model\Base\EntityBase {
                 \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_WEBSITE.':'.\Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_WEBSITE, 'config')){
                     throw new WebsiteException("Failed to add Setting entry for MultiSite mode");
             }
+            //website group
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'website','FileSystem', $websiteConfigPath);
             if (\Cx\Core\Setting\Controller\Setting::getValue('serviceHostname','MultiSite') === NULL
                 && !\Cx\Core\Setting\Controller\Setting::add('serviceHostname', $serviceHostname, 2,
@@ -1038,6 +1048,28 @@ class Website extends \Cx\Model\Base\EntityBase {
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'website')){
                     throw new WebsiteException("Failed to add website entry for website FTP user");
             }
+            $standalone = \Cx\Core_Modules\MultiSite\Controller\ComponentController::WEBSITE_MODE_STANDALONE;
+            $client     = \Cx\Core_Modules\MultiSite\Controller\ComponentController::WEBSITE_MODE_CLIENT;
+            $server     = \Cx\Core_Modules\MultiSite\Controller\ComponentController::WEBSITE_MODE_SERVER;
+            if (\Cx\Core\Setting\Controller\Setting::getValue('website_mode','MultiSite') === NULL
+                && !\Cx\Core\Setting\Controller\Setting::add('website_mode', 'standalone', 11,
+                \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, $standalone.':'.$standalone.','.$client.':'.$client.','.$server.':'.$server, 'website')
+            ) {
+                throw new MultiSiteException('Failed to add Setting entry for website mode');
+            }
+            if (\Cx\Core\Setting\Controller\Setting::getValue('website_server','MultiSite') === NULL
+                && !\Cx\Core\Setting\Controller\Setting::add('website_server', '', 12,
+                \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, '{src:\\Cx\\Core_Modules\\MultiSite\\Controller\\ComponentController::getServerWebsiteList()}', 'website')
+            ) {
+                throw new MultiSiteException('Failed to add Setting entry for website server');
+            }
+            if (\Cx\Core\Setting\Controller\Setting::getValue('website_shared_folder','MultiSite') === NULL
+                && !\Cx\Core\Setting\Controller\Setting::add('website_shared_folder', $this->cx->getWebsiteImagesWebPath(), 13,
+                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, '', 'website')
+            ) {
+                throw new MultiSiteException('Failed to add Setting entry for website shared folder');
+            }
+
         } catch (\Exception $e) {
             // we must re-initialize the original MultiSite settings of the main installation
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem', null, \Cx\Core\Setting\Controller\Setting::REPOPULATE);
@@ -1944,9 +1976,12 @@ throw new WebsiteException('implement secret-key algorithm first!');
                 }
                 
                 $objDataSet         = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($arr);
-                $objEntityInterface = new \Cx\Core_Modules\Listing\Model\Entity\EntityInterface();
-                $objEntityInterface->setEntityClass('Cx\Core\User\Model\Entity\User');
-                $adminUsers = $objDataSet->export($objEntityInterface);
+                $users = $objDataSet->toArray();
+                if ($objDataSet->size() == 1) {
+                    $users = array($users);
+                }
+                
+                $adminUsers = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($users);
                 return $adminUsers;
             }
         } catch (\Cx\Core_Modules\MultiSite\Controller\MultiSiteJsonException $e) {
@@ -2033,5 +2068,45 @@ throw new WebsiteException('implement secret-key algorithm first!');
     public function removeDomain(Domain $domain)
     {
         $this->domains->removeElement($domain);
+    }
+
+    /**
+     * Set the website mode
+     *
+     * @param string $mode
+     */
+    public function setMode($mode)
+    {
+        $this->mode = $mode;
+    }
+
+    /**
+     * Get the website mode
+     *
+     * @return string $mode
+     */
+    public function getMode()
+    {
+        return $this->mode;
+    }
+
+    /**
+     * set the server website
+     *
+     * @param \Cx\Core_Modules\MultiSite\Model\Entity\Website|null $serverWebsite
+     */
+    public function setServerWebsite($serverWebsite)
+    {
+        $this->serverWebsite = $serverWebsite;
+    }
+
+    /**
+     * get the server website
+     *
+     * @return \Cx\Core_Modules\MultiSite\Model\Entity\Website $serverWebsite
+     */
+    public function getServerWebsite()
+    {
+        return $this->serverWebsite;
     }
 }

@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Csrf Class
  * Protect against Csrf attacks
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      David Vogt <david.vogt@comvation.com>
  * @since       2.1.3
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_csrf
  */
 
@@ -22,10 +47,10 @@ namespace Cx\Core\Csrf\Controller;
  * This class expects that the session has been set up
  * correctly and can be used through $_SESSION.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      David Vogt <david.vogt@comvation.com>
  * @since       2.1.3
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_csrf
  */
 class Csrf {
@@ -74,6 +99,9 @@ class Csrf {
 
     private static function __get_code()
     {
+        // don't generate a CSRF token in case the user is not signed-in
+        if (!self::__is_logged_in()) return false;
+
         if (!empty(self::$current_code)) {
             return self::$current_code;
         }
@@ -119,7 +147,7 @@ class Csrf {
         \DBG::stack();
         header(self::__enhance_header($header), $replace, $httpResponseCode);
     }
-    
+
     /**
      * Redirect
      *
@@ -140,10 +168,10 @@ class Csrf {
         if (headers_sent()) {
             return false;
         }
-        
+
         $url = \Cx\Core\Routing\Url::fromMagic($url);
         $url = $url->toString(); // use absolute url
-        
+
         self::header('Location: '. $url);
 
         if (    $rfc2616 && isset($_SERVER['REQUEST_METHOD']) &&
@@ -220,7 +248,7 @@ class Csrf {
         if (self::__is_ajax()) {
             return;
         }
-        
+
         if (!is_object($tpl)) {
             \DBG::msg("self::add_placeholder(): fix this call, that ain't a template object! (Stack follows)");
             \DBG::stack();
@@ -307,7 +335,8 @@ class Csrf {
 
         $data = ($_SERVER['REQUEST_METHOD'] == 'GET' ? $_GET : $_POST);
         self::add_code();
-        $tpl = new \Cx\Core\Html\Sigma(\Env::get('cx')->getCodeBaseCorePath() . '/Csrf/View/Template/Generic/');
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $tpl = new \Cx\Core\Html\Sigma($cx->getCodeBaseCorePath() . '/Csrf/View/Template/Generic/');
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
         $tpl->loadTemplateFile('Warning.html');
         $form = '';
@@ -340,15 +369,17 @@ class Csrf {
             'IMAGES_PATH'       => ASCMS_ADMIN_WEB_PATH.'/images/csrfprotection',
         ));
         $tpl->parse();
-        
+
         $endcode = $tpl->get();
-        
+
         // replace links from before contrexx 3
         $ls = new \LinkSanitizer(
-            ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH.'/',
-            $endcode);
+            $cx,
+            $cx->getCodeBaseOffsetPath() . $cx->getBackendFolderName() . '/',
+            $endcode
+        );
         $endcode = $ls->replace();
-        
+
         echo $endcode;
         die();
     }
@@ -388,9 +419,10 @@ class Csrf {
 
     private static function __is_ajax()
     {
-        return
-            (   isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-             && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
+        return (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+        || (isset($_SERVER['HTTP_CHECK_CSRF'])
+            && $_SERVER['HTTP_CHECK_CSRF'] == 'false');
     }
 
 
@@ -413,7 +445,8 @@ class Csrf {
     private static function __setkey($key, $value)
     {
         if (!isset($_SESSION[self::$sesskey])) {
-            \cmsSession::getInstance();
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getComponent('Session')->getSession();
             $_SESSION[self::$sesskey] = array();
         }
         $_SESSION[self::$sesskey][$key] = $value;

@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * FTPFile
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -14,10 +39,10 @@ namespace Cx\Lib\FileSystem;
 /**
  * FTPFileException
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 
@@ -26,17 +51,17 @@ class FTPFileException extends \Exception {};
 /**
  * FTP File
  *
- * This class provides an object based interface to a file located 
+ * This class provides an object based interface to a file located
  * on an FTP server.
  * In general, do no use this class. Instead use the class Cx\Lib\FileSystem\File
  * which is a wrapper that uses either this class or
  * Cx\Lib\FileSystem\FileSystemFile for file operations, depending on the
  * system configuration.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
 class FTPFile implements FileInterface
@@ -89,7 +114,7 @@ class FTPFile implements FileInterface
      */
     private function getValidFilePath($file, $path)
     {
-        $cx = \Env::get('cx');
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
 // TODO: Implement support for having a different document root for the Website repository than for the Code Base repository
         if (strpos($cx->getWebsiteDocumentRootPath(), $cx->getCodeBaseDocumentRootPath()) !== 0) {
@@ -142,7 +167,7 @@ class FTPFile implements FileInterface
         $this->uploadTempFile();
         $this->deleteTempFile();
     }
-    
+
     public function append($data)
     {
         $this->write($data);
@@ -157,54 +182,54 @@ class FTPFile implements FileInterface
 
         $this->write('');
     }
-    
+
     public function copy($dst)
     {
         $this->initConnection();
-        
+
         try {
             $src = fopen($this->passedFilePath, 'r');
-            
+
             $pathInfo = pathinfo($dst);
             $path     = $pathInfo['dirname'];
             $file     = $pathInfo['basename'];
             $filePath = $this->getValidFilePath($file, $path);
             $dst      = $filePath . '/' . $file;
-            
+
             ftp_set_option($this->connection, FTP_TIMEOUT_SEC, 600);
-            
+
             if (!ftp_fput($this->connection, $dst, $src, FTP_BINARY)) {
                 throw new FTPFileException('FTP upload from ' . $this->passedFilePath . ' to ' . $dst . ' failed.');
             }
         } catch (FTPFileException $e) {
             throw new FTPFileException($e->getMessage());
         }
-        
+
     }
-    
+
     public function rename($dst)
     {
         $this->move($dst);
     }
-    
+
     public function move($dst)
     {
         $this->initConnection();
-        
+
         try {
             $pathInfo = pathinfo($dst);
             $path     = $pathInfo['dirname'];
             $file     = $pathInfo['basename'];
             $filePath = $this->getValidFilePath($file, $path);
             $dst      = $filePath . '/' . $file;
-            
+
             if (!ftp_rename($this->connection, $this->passedFilePath, $dst)) {
                 throw new FTPFileException('FTP rename from ' . $this->passedFilePath . ' to ' . $dst . ' failed.');
             }
         } catch (FTPFileException $e) {
             throw new FTPFileException($e->getMessage());
         }
-        
+
     }
 
     public function makeWritable()
@@ -230,11 +255,11 @@ class FTPFile implements FileInterface
         /*$parentDirectory = dirname($this->passedFilePath);
         if (!is_writable($parentDirectory)) {
             if (strpos($parentDirectory, \Env::get('cx')->getCodeBaseDocumentRootPath()) === 0) {
-                // parent directory lies within the Contrexx installation directory,
+                // parent directory lies within the Cloudrexx installation directory,
                 // therefore, we shall try to make it writable
                 \Cx\Lib\FileSystem\FileSystem::makeWritable($parentDirectory);
             } else {
-                \DBG::msg('Parent directory '.$parentDirectory.' lies outside of Contrexx installation and can therefore not be made writable!');
+                \DBG::msg('Parent directory '.$parentDirectory.' lies outside of Cloudrexx installation and can therefore not be made writable!');
             }
         }*/
 
@@ -280,16 +305,13 @@ class FTPFile implements FileInterface
     }
 
     private function openTempFileHandler()
-    {        
-        global $sessionObj;
-        
+    {
         // try memory first
         if (($this->tempFileHandler = fopen("php://memory", 'r+')) === false) {
             // unable to use memory as temporary storage location,
-            // try to create file in the session temp path 
-            if (empty($sessionObj)) { //session hasn't been initialized so far
-                $sessionObj = \cmsSession::getInstance();
-            }
+            // try to create file in the session temp path
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $sessionObj = $cx->getComponent('Session')->getSession();
 
             $sessionTempPath = $_SESSION->getTempPath();
             $pathInfo = pathinfo($this->file);
@@ -346,17 +368,17 @@ class FTPFile implements FileInterface
         if (!$this->connection) {
             throw new FTPFileException('Unable to establish FTP connection. Probably wrong FTP host info specified in config/configuration.php');
         }
-    
+
         if (!ftp_login($this->connection, $this->ftpConfig['username'], $this->ftpConfig['password'])) {
             throw new FTPFileException('Unable to authenticate on FTP server. Probably wrong FTP login credentials specified in config/configuration.php');
         }
-    
+
         $this->connected = true;
     }
-    
+
     /**
      * Get the absolute path of the file($this->file)
-     * 
+     *
      * @return string absolute path of the file
      */
     public function getAbsoluteFilePath()
@@ -364,4 +386,3 @@ class FTPFile implements FileInterface
         return $this->filePath;
     }
 }
-

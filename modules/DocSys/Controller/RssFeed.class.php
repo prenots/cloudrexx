@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Docsys RSS XML Feed
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_docsys
  * @todo        Edit PHP DocBlocks!
  */
@@ -14,11 +40,11 @@ namespace Cx\Modules\DocSys\Controller;
  * Docsys RSS XML Feed
  *
  * Produces the RSS XML Feedfile of the latest docsys entries
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_docsys
  */
 class RssFeed
@@ -48,12 +74,10 @@ class RssFeed
     */
     function __construct()
     {
-        global $_CONFIG, $objInit, $objDatabase;
+        global $_CONFIG, $objInit;
 
         $this->langId=$objInit->userFrontendLangId;
-
-        $query = "SELECT lang FROM ".DBPREFIX."languages WHERE id='$this->langId'";
-        $objResult = $objDatabase->Execute($query);
+        $langShort = \FWLanguage::getLanguageParameter($this->langId, 'lang');
 
         $this->xmlType = "headlines";
         $this->filePath = \Env::get('cx')->getWebsiteFeedPath();
@@ -61,10 +85,10 @@ class RssFeed
         $this->channelCopyright = ASCMS_PROTOCOL."://".$_SERVER['SERVER_NAME'];
         $this->channelGenerator = $_CONFIG['coreCmsName'];
         $this->channelWebMaster = $_CONFIG['coreAdminEmail'];
-        $this->channelLanguage  = $objResult->fields['lang'];
+        $this->channelLanguage  = $langShort;
         $this->itemLink = ASCMS_PROTOCOL."://".$_SERVER['SERVER_NAME']."/?section=DocSys".MODULE_INDEX."&amp;cmd=details&amp;id=";
-        $this->fileName[1] = 'docsys_headlines_'.$objResult->fields['lang'].'.xml';
-        $this->fileName[2] = 'docsys_'.$objResult->fields['lang'].'.xml';
+        $this->fileName[1] = 'docsys_headlines_'.$langShort.'.xml';
+        $this->fileName[2] = 'docsys_'.$langShort.'.xml';
 
         $this->limit=20;
         if($this->limit<1 OR $this->limit>100){
@@ -83,7 +107,7 @@ class RssFeed
         if(is_writeable($this->filePath) AND is_dir($this->filePath)){
             return true;
         }
-        else{  
+        else{
             return false;
         }
     }
@@ -126,7 +150,7 @@ class RssFeed
 //                             ".DBPREFIX."access_users AS u
 //                        WHERE n.userid = u.id AND n.lang = ".$_LANGID."
 //                        ORDER BY n.id DESC";
-            
+
             $query = "SELECT n.id AS docId,
                                n.date,
                                n.title,

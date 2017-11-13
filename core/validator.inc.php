@@ -1,14 +1,39 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Validator
  *
  * Global request validator
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core
  * @todo        Edit PHP DocBlocks!
  * @todo        Isn't this supposed to be a class?
@@ -261,9 +286,21 @@ function contrexx_raw2db($raw)
         }
         return $arr;
     }
-    return addslashes($raw);
-}
 
+    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+    $db = $cx->getDb();
+    if (!isset($db)) {
+        throw new \Cx\Core\Model\DbException('Database not yet initialized!');
+    }
+    $pdo = $db->getPdoConnection();
+    $rawQuoted = $pdo->quote($raw);
+    //addslashes did not add quotes, but pdo:quote does
+    //we remove the quotes so we do not have to change all the queries
+    if (strpos($rawQuoted, '\'') === 0 && substr($rawQuoted, -1) === '\'') {
+        $rawQuoted = substr($rawQuoted, 1, -1);
+    }
+    return $rawQuoted;
+}
 
 /**
  * Encodes a raw string or array thereof for use with XML
@@ -307,16 +344,27 @@ function contrexx_raw2encodedUrl($source, $encodeDash=false)
         return $arr;
     }
     $cutHttp = false;
+    $https = false;
     if (!$encodeDash && substr($source, 0, 7) == 'http://') {
         $source = substr($source, 7);
         $cutHttp = true;
+    } else if (!$encodeDash && substr($source, 0, 8) == 'https://') {
+        $source = substr($source, 8);
+        $cutHttp = true;
+        $https = true;
     }
     $source = array_map('rawurlencode', explode('/', $source));
     if ($encodeDash) {
         $source = str_replace('-', '%2D', $source);
     }
     $result = implode('/', $source);
-    if ($cutHttp) $result = 'http://'.$result;
+    if ($cutHttp) {
+        $protocol = 'http';
+        if ($https) {
+            $protocol .= 's';
+        }
+        $result = $protocol . '://' . $result;
+    }
     return $result;
 }
 
@@ -343,6 +391,26 @@ function contrexx_remove_script_tags($raw)
     return $result;
 }
 
+/**
+ * Decode [X]HTML entities to raw plaintext string
+ *
+ * Note that arrays may be nested, and all scalar (leaf) elements are treated
+ * the same way.  Array keys are preserved.
+ * @param   mixed     $xhtml      The raw string or array
+ * @return  mixed               The raw decoded string or array
+ * @author  Thomas Däppen <thomas.daeppen@cloudrexx.com>
+ */
+function contrexx_xhtml2raw($xhtml)
+{
+    if (is_array($xhtml)) {
+        $arr = array();
+        foreach ($xhtml as $i => $_xhtml) {
+            $arr[$i] = contrexx_xhtml2raw($_xhtml);
+        }
+        return $arr;
+    }
+    return html_entity_decode($xhtml, ENT_QUOTES, CONTREXX_CHARSET);
+}
 
 /**
  * Extracts the plaintext out of a html code

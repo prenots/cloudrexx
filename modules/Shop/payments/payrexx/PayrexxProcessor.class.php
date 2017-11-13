@@ -1,20 +1,45 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Payrexx Payment Processor
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Ueli Kramer <ueli.kramer@comvation.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  */
 
 /**
  * Payrexx Payment Processor
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Ueli Kramer <ueli.kramer@comvation.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  */
 class PayrexxProcessor
@@ -56,10 +81,12 @@ class PayrexxProcessor
         $invoice->setReferenceId('Shop-' . $order->id());
         $invoice->setTitle($_CONFIG['coreGlobalPageTitle']);
         $invoice->setDescription('&nbsp;');
-        $invoice->setPsp(999); // prevent to use default psp
+        // Known PSP are listed on https://payrexx.readme.io/docs/miscellaneous
+        // Let Payrexx set the available PSP automatically
+        $invoice->setPsp([]);
         $invoice->setName('Contrexx Shop Order: #' . $_SESSION['shop']['order_id']);
         $invoice->setPurpose('Shop Order #' . $_SESSION['shop']['order_id']);
-        $invoice->setAmount(intval($_SESSION['shop']['grand_total_price']*100));
+        $invoice->setAmount(intval(bcmul($_SESSION['shop']['grand_total_price'], 100, 0)));
         $invoice->setCurrency(\Cx\Modules\Shop\Controller\Currency::getCodeById($order->currency_id()));
         $invoice->addField('email', false, $order->billing_email());
         $invoice->addField('company', false, $order->billing_company());
@@ -183,4 +210,3 @@ EOF;
         return $orderId[1];
     }
 }
-
