@@ -1742,6 +1742,8 @@ throw new WebsiteException('implement secret-key algorithm first!');
             } else {
                 if (isset($resp->log)) {
                     \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
+                } elseif (isset($resp->data) && isset($resp->data->log)) {
+                    \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
                 }
                 throw new WebsiteException('Unable to setup the theme: Error in setting theme in Website');
             }

@@ -816,10 +816,20 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 );
             }
         } catch (\Exception $e) {
-            throw new MultiSiteJsonException(array(
-                'log'       => \DBG::getMemoryLogs(),
-                'message'   => $e->getMessage(),
-            ));
+            if ($throwException) {
+                // used by internal method calls
+                throw new MultiSiteJsonException(array(
+                    'log'       => \DBG::getMemoryLogs(),
+                    'message'   => $e->getMessage(),
+                ));
+            } else {
+                // used by JsonAdapter call to this method
+                return array(
+                    'status'    => 'error',
+                    'log'       => \DBG::getMemoryLogs(),
+                    'message'   => $e->getMessage(),
+                );
+            }
         }
     }
 
