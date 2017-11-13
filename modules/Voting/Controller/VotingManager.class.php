@@ -1,13 +1,39 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Class Voting Manager
  *
  * Class for the voting system
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Contrexx Dev Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Dev Team <info@cloudrexx.com>
  * @version       1.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_voting
  * @todo        Edit PHP DocBlocks!
  */
@@ -17,10 +43,10 @@ namespace Cx\Modules\Voting\Controller;
  *
  * Class for the voting system
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Contrexx Dev Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Dev Team <info@cloudrexx.com>
  * @version       1.1
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_voting
  * @todo        Edit PHP DocBlocks!
  */
@@ -44,7 +70,7 @@ class VotingManager
 
         $this->_objTpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Voting/View/Template/Backend');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
-        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);        
+        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
     }
     private function setNavigation()
     {
@@ -733,14 +759,14 @@ class VotingManager
 
         // Now select those fields from our table.
         $fields_txt = join(',', $fields);
-		#echo "exporting $fields_txt...\n";
+        #echo "exporting $fields_txt...\n";
 
         $sql_export = "
             SELECT $fields_txt
             FROM ".DBPREFIX."voting_additionaldata
             WHERE voting_system_id = $voting_id
             ORDER BY date_entered
-			";
+            ";
         $data = $objDatabase->Execute($sql_export);
         header("Content-Type: text/csv");
         header("Content-Disposition: Attachment; filename=\"export.csv\"");

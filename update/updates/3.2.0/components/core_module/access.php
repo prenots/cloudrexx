@@ -1,5 +1,31 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 function _accessUpdate()
 {
     global $objDatabase, $objUpdate, $_CONFIG, $_ARRAYLANG, $_CORELANG;
@@ -47,7 +73,7 @@ function _accessUpdate()
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 
-	\DBG::msg('001');
+    \DBG::msg('001');
     $arrMails = array(
         array(
             'type'            => 'reg_confirm',
@@ -910,50 +936,50 @@ function _accessUpdate()
     }
 
     /************************************************
-	* BUGFIX:	Set write access to the upload dir  *
-	************************************************/
+    * BUGFIX:    Set write access to the upload dir  *
+    ************************************************/
     // This is obsolete due to the new \Cx\Lib\FileSystem
     /*
-	require_once ASCMS_FRAMEWORK_PATH.'/File.class.php';
-	$objFile = new File();
-	if (is_writeable(ASCMS_ACCESS_PROFILE_IMG_PATH) || $objFile->setChmod(ASCMS_ACCESS_PROFILE_IMG_PATH, ASCMS_ACCESS_PROFILE_IMG_WEB_PATH, '')) {
-    	if ($mediaDir = @opendir(ASCMS_ACCESS_PROFILE_IMG_PATH)) {
-    		while($file = readdir($mediaDir)) {
-    			if ($file != '.' && $file != '..') {
-    				if (!is_writeable(ASCMS_ACCESS_PROFILE_IMG_PATH.'/'.$file) && !$objFile->setChmod(ASCMS_ACCESS_PROFILE_IMG_PATH.'/', ASCMS_ACCESS_PROFILE_IMG_WEB_PATH.'/', $file)) {
-    					setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_FILE'], ASCMS_ACCESS_PROFILE_IMG_PATH.'/'.$file, $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
-    					return false;
-    				}
-    			}
-			}
-    	} else {
-    		setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PROFILE_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
-    		return false;
-		}
+    require_once ASCMS_FRAMEWORK_PATH.'/File.class.php';
+    $objFile = new File();
+    if (is_writeable(ASCMS_ACCESS_PROFILE_IMG_PATH) || $objFile->setChmod(ASCMS_ACCESS_PROFILE_IMG_PATH, ASCMS_ACCESS_PROFILE_IMG_WEB_PATH, '')) {
+        if ($mediaDir = @opendir(ASCMS_ACCESS_PROFILE_IMG_PATH)) {
+            while($file = readdir($mediaDir)) {
+                if ($file != '.' && $file != '..') {
+                    if (!is_writeable(ASCMS_ACCESS_PROFILE_IMG_PATH.'/'.$file) && !$objFile->setChmod(ASCMS_ACCESS_PROFILE_IMG_PATH.'/', ASCMS_ACCESS_PROFILE_IMG_WEB_PATH.'/', $file)) {
+                        setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_FILE'], ASCMS_ACCESS_PROFILE_IMG_PATH.'/'.$file, $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
+                        return false;
+                    }
+                }
+            }
+        } else {
+            setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PROFILE_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
+            return false;
+        }
     } else {
-    	setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PROFILE_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
-    	return false;
+        setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PROFILE_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
+        return false;
     }
 
-	require_once ASCMS_FRAMEWORK_PATH.'/File.class.php';
-	$objFile = new File();
-	if (is_writeable(ASCMS_ACCESS_PHOTO_IMG_PATH) || $objFile->setChmod(ASCMS_ACCESS_PHOTO_IMG_PATH, ASCMS_ACCESS_PHOTO_IMG_WEB_PATH, '')) {
-    	if ($mediaDir = @opendir(ASCMS_ACCESS_PHOTO_IMG_PATH)) {
-    		while($file = readdir($mediaDir)) {
-    			if ($file != '.' && $file != '..') {
-    				if (!is_writeable(ASCMS_ACCESS_PHOTO_IMG_PATH.'/'.$file) && !$objFile->setChmod(ASCMS_ACCESS_PHOTO_IMG_PATH.'/', ASCMS_ACCESS_PHOTO_IMG_WEB_PATH.'/', $file)) {
-    					setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_FILE'], ASCMS_ACCESS_PHOTO_IMG_PATH.'/'.$file, $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
-    					return false;
-    				}
-    			}
-			}
-    	} else {
-    		setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PHOTO_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
-    		return false;
-		}
+    require_once ASCMS_FRAMEWORK_PATH.'/File.class.php';
+    $objFile = new File();
+    if (is_writeable(ASCMS_ACCESS_PHOTO_IMG_PATH) || $objFile->setChmod(ASCMS_ACCESS_PHOTO_IMG_PATH, ASCMS_ACCESS_PHOTO_IMG_WEB_PATH, '')) {
+        if ($mediaDir = @opendir(ASCMS_ACCESS_PHOTO_IMG_PATH)) {
+            while($file = readdir($mediaDir)) {
+                if ($file != '.' && $file != '..') {
+                    if (!is_writeable(ASCMS_ACCESS_PHOTO_IMG_PATH.'/'.$file) && !$objFile->setChmod(ASCMS_ACCESS_PHOTO_IMG_PATH.'/', ASCMS_ACCESS_PHOTO_IMG_WEB_PATH.'/', $file)) {
+                        setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_FILE'], ASCMS_ACCESS_PHOTO_IMG_PATH.'/'.$file, $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
+                        return false;
+                    }
+                }
+            }
+        } else {
+            setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PHOTO_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
+            return false;
+        }
     } else {
-    	setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PHOTO_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
-    	return false;
+        setUpdateMsg(sprintf($_ARRAYLANG['TXT_SET_WRITE_PERMISSON_TO_DIR_AND_CONTENT'], ASCMS_ACCESS_PHOTO_IMG_PATH.'/', $_CORELANG['TXT_UPDATE_TRY_AGAIN']), 'msg');
+        return false;
     }*/
 
     return true;

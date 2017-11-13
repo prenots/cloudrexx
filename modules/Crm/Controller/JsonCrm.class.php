@@ -1,10 +1,35 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * JSON Adapter for Crm module
- * @copyright   Comvation AG
+ * @copyright   Cloudrexx AG
  * @author      ss4u <ss4ugroup@gmail.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_crm
  */
 
@@ -13,18 +38,18 @@ use \Cx\Core\Json\JsonAdapter;
 
 /**
  * JSON Adapter for Crm module
- * @copyright   Comvation AG
+ * @copyright   Cloudrexx AG
  * @author      ss4u <ss4ugroup@gmail.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_crm
  */
 class JsonCrm implements JsonAdapter {
     /**
      * List of messages
-     * @var Array 
+     * @var Array
      */
     private $messages = array();
-    
+
     /**
      * Returns the internal name used as identifier for this adapter
      * @return String Name of this adapter
@@ -32,7 +57,7 @@ class JsonCrm implements JsonAdapter {
     public function getName() {
         return 'Crm';
     }
-    
+
     /**
      * Returns an array of method names accessable from a JSON request
      * @return array List of method names
@@ -56,7 +81,7 @@ class JsonCrm implements JsonAdapter {
     public function getDefaultPermissions() {
         return null;
     }
-    
+
     /**
      * get customer search result
      *
@@ -65,7 +90,7 @@ class JsonCrm implements JsonAdapter {
      * @return json result
      */
     public function searchContacts()
-    { 
+    {
         global $objDatabase;
 
         $searchFields = array(
@@ -84,10 +109,10 @@ class JsonCrm implements JsonAdapter {
             'sorto'               => $_REQUEST['sorto'],
             'sortf'               => $_REQUEST['sortf'],
         );
-        
+
         $objCrmLibrary = new CrmLibrary($this->getName());
         $query         = $objCrmLibrary->getContactsQuery($searchFields);
-        
+
         $objResult     = $objDatabase->Execute($query);
 
         $result = array();
@@ -106,7 +131,7 @@ class JsonCrm implements JsonAdapter {
                 $objResult->MoveNext();
             }
         }
-        
+
         return $result;
     }
-}    
+}

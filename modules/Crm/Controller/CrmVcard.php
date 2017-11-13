@@ -1,15 +1,41 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * CrmVcard Class CRM
  * A class to generate vCards for contact data.
  *
  * @category   CrmVcard
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     SoftSolutions4U Development Team <info@softsolutions4u.com>
- * @copyright  2012 and CONTREXX CMS - COMVATION AG
+ * @copyright  2012 and CLOUDREXX CMS - CLOUDREXX AG
  * @license    trial license
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 
 namespace Cx\Modules\Crm\Controller;
@@ -19,12 +45,12 @@ namespace Cx\Modules\Crm\Controller;
  * A class to generate vCards for contact data.
  *
  * @category   CrmVcard
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     SoftSolutions4U Development Team <info@softsolutions4u.com>
- * @copyright  2012 and CONTREXX CMS - COMVATION AG
+ * @copyright  2012 and CLOUDREXX CMS - CLOUDREXX AG
  * @license    trial license
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 class CrmVcard
 {
@@ -35,14 +61,14 @@ class CrmVcard
   * @var String
   */
   var $log;
-  
+
   /**
   * array of this vcard's contact data
   *
   * @access private
   * @var array
   */
-  var $data;  
+  var $data;
 
   /**
   * filename for download file naming
@@ -50,7 +76,7 @@ class CrmVcard
   * @access private
   * @var String
   */
-  var $filename; 
+  var $filename;
 
   /**
   * PUBLIC, PRIVATE, CONFIDENTIAL
@@ -58,7 +84,7 @@ class CrmVcard
   * @access private
   * @var String
   */
-  var $class; 
+  var $class;
 
   /**
   * revision_date
@@ -152,12 +178,12 @@ class CrmVcard
     if (!$this->data['timezone']) { $this->data['timezone'] = date("O"); }
     if (!$this->revision_date) { $this->revision_date = date('Y-m-d H:i:s'); }
 
-  	$this->card = "BEGIN:VCARD\r\n";
+      $this->card = "BEGIN:VCARD\r\n";
     $this->card .= "VERSION:3.0\r\n";
     $this->card .= "CLASS:".$this->class."\r\n";
     $this->card .= "PRODID:-//NONSGML Version 1//EN\r\n";
     $this->card .= "REV:".$this->revision_date."\r\n";
-  	$this->card .= "FN:".$this->data['display_name']."\r\n";
+      $this->card .= "FN:".$this->data['display_name']."\r\n";
     $this->card .= "N:"
       .$this->data['last_name'].";"
       .$this->data['first_name'].";"
@@ -167,12 +193,12 @@ class CrmVcard
       .$this->data['name_prefix'].";"
       .$this->data['name_suffix']."\r\n";
     if ($this->data['nickname']) { $this->card .= "NICKNAME:".$this->data['nickname']."\r\n"; }
-  	if ($this->data['title']) { $this->card .= "TITLE:".$this->data['title']."\r\n"; }
-  	if ($this->data['company']) { $this->card .= "ORG:".$this->data['company']; }
-  	if ($this->data['department']) { $this->card .= ";".$this->data['department']; }
-  	$this->card .= "\r\n";
+      if ($this->data['title']) { $this->card .= "TITLE:".$this->data['title']."\r\n"; }
+      if ($this->data['company']) { $this->card .= "ORG:".$this->data['company']; }
+      if ($this->data['department']) { $this->card .= ";".$this->data['department']; }
+      $this->card .= "\r\n";
 
-  	if ($this->data['work_po_box']
+      if ($this->data['work_po_box']
     || $this->data['work_extended_address']
     || $this->data['work_address']
     || $this->data['work_city']
@@ -189,7 +215,7 @@ class CrmVcard
         .$this->data['work_postal_code'].";"
         .$this->data['work_country']."\r\n";
     }
-  	if ($this->data['home_po_box']
+      if ($this->data['home_po_box']
     || $this->data['home_extended_address']
     || $this->data['home_address']
     || $this->data['home_city']
@@ -244,10 +270,10 @@ class CrmVcard
     if (!$this->card) { $this->build(); }
     if (!$this->filename) { $this->filename = trim($this->data['display_name']); }
     $this->filename = str_replace(" ", "_", $this->filename);
-  	header("Content-Type: text/x-vcard; charset=utf-8");
-  	header("Content-Disposition: attachment; filename=".$this->filename.".vcf");
-  	header("Pragma: public");
-  	echo $this->card;
+      header("Content-Type: text/x-vcard; charset=utf-8");
+      header("Content-Disposition: attachment; filename=".$this->filename.".vcf");
+      header("Pragma: public");
+      echo $this->card;
     return true;
   }
 }

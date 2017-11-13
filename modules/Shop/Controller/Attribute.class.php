@@ -1,12 +1,37 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Shop Product Attribute class
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @todo        Test!
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  */
 
@@ -25,9 +50,9 @@ namespace Cx\Modules\Shop\Controller;
  * values, that is, whether it is optional or mandatory, and whether single
  * or multiple attributes may be chosen at a time.  See {@link ?} for details.
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @todo        Test!
  */
@@ -92,8 +117,8 @@ class Attribute
 // TODO: Disabled FTTB.  Feature for 3.1.0
 // TODO: Include upload path with corresponding backend setting
 // TODO: Set form type for multipart
-//        self::TYPE_UPLOAD_OPTIONAL => 'TYPE_UPLOAD_OPTIONAL',
-//        self::TYPE_UPLOAD_MANDATORY => 'TYPE_UPLOAD_MANDATORY',
+        self::TYPE_UPLOAD_OPTIONAL => 'TYPE_UPLOAD_OPTIONAL',
+        self::TYPE_UPLOAD_MANDATORY => 'TYPE_UPLOAD_MANDATORY',
         self::TYPE_TEXTAREA_OPTIONAL => 'TYPE_TEXTAREA_OPTIONAL',
         self::TYPE_TEXTAREA_MANDATORY => 'TYPE_TEXTAREA_MANDATORY',
         self::TYPE_EMAIL_OPTIONAL => 'TYPE_EMAIL_OPTIONAL',
@@ -435,7 +460,6 @@ class Attribute
              WHERE `id`=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
-        unset($this);
         $objDatabase->Execute("OPTIMIZE TABLE ".DBPREFIX."module_shop_attribute");
         $objDatabase->Execute("OPTIMIZE TABLE ".DBPREFIX."module_shop_option");
         $objDatabase->Execute("OPTIMIZE TABLE ".DBPREFIX."module_shop_rel_product_attribute");
@@ -781,9 +805,9 @@ class Attribute
                 return '.+';
 // TODO: Improve the regex for file names
             case self::TYPE_UPLOAD_OPTIONAL:
-                return '.*';
+                return '(^$|^.+\..+$)';
             case self::TYPE_UPLOAD_MANDATORY:
-                return '.+';
+                return '^.+\..+$';
             case self::TYPE_EMAIL_OPTIONAL:
                 return '(^$|^'.\FWValidator::REGEX_EMAIL.'$)';
             case self::TYPE_EMAIL_MANDATORY:

@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * EntityInterface Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_listing
  */
 
@@ -13,13 +38,13 @@ namespace Cx\Core_Modules\Listing\Model\Entity;
 
 /**
  * EntityInterface Class
- * 
+ *
  * This class used to convert the entity objects into array and array
  * into entity objects
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_listing
  */
 class EntityInterface implements Exportable, Importable
@@ -32,29 +57,29 @@ class EntityInterface implements Exportable, Importable
      */
     public function __construct()
     {
-        
+
     }
 
     /**
      * This function is used to convert the array into entity objects.
-     * 
+     *
      * @param  array $data
-     * 
+     *
      * @return array return as entity object array
      */
-    public function export($data) 
+    public function export($data)
     {
         if (empty($data)) {
             return;
         }
-        
+
         $em = \Env::get('em');
         $entityClassMetaData    = $em->getClassMetadata($this->entityClass);
         $repository             = $em->getRepository($this->entityClass);
         $entities    = array();
-        
+
         foreach ($data as $entityArray) {
-            
+
             $entityObj = null;
             $primaryKeyName = $entityClassMetaData->getSingleIdentifierFieldName();
 
@@ -72,26 +97,26 @@ class EntityInterface implements Exportable, Importable
 
             foreach ($entityArray as $entityField => $entityValue) {
                 $associationObj = null;
-                
+
                 if (!in_array('set' . ucfirst($entityField), $classMethods)) {
                     continue;
                 }
-                
+
                 if ($entityClassMetaData->isSingleValuedAssociation($entityField)) {
-                    
+
                     $targetEntity = $associationMappings[$entityField]['targetEntity'];
-                    
+
                     $mappingEntityField = $em->getClassMetadata($targetEntity)->getSingleIdentifierFieldName();
-                    //check the association entity 
-                    $mappingEntityValue = is_array($entityValue) 
-                                            ? (isset($entityValue[$mappingEntityField]) ? $entityValue[$mappingEntityField] : 0) 
+                    //check the association entity
+                    $mappingEntityValue = is_array($entityValue)
+                                            ? (isset($entityValue[$mappingEntityField]) ? $entityValue[$mappingEntityField] : 0)
                                             : $entityValue;
                     if (!\FWValidator::isEmpty($mappingEntityValue)) {
                         $associationObj = $em->getRepository($targetEntity)->findOneBy(array($mappingEntityField => $mappingEntityValue));
                     }
-                    
+
                     if (!$associationObj) {
-                        $associationObj = new $targetEntity();                        
+                        $associationObj = new $targetEntity();
                     }
                     if(is_array($entityValue)){
                         foreach ($entityValue as $method => $value) {
@@ -100,17 +125,17 @@ class EntityInterface implements Exportable, Importable
                     } else {
                         $entityObj->{'set' . ucfirst($entityField)}($associationObj);
                     }
-                    
+
                     $entityValue = $associationObj;
                 }
-                
+
                 //checks if the string a serialized array
                 if(\FWValidator::is_serialized($entityValue)) {
                     $entityValue = unserialize($entityValue);
                 }
-                
+
                 $entityObj->{'set' . ucfirst($entityField)}($entityValue);
-                
+
             }
             $entities[] = $entityObj;
         }
@@ -119,19 +144,19 @@ class EntityInterface implements Exportable, Importable
 
     /**
      * set the entity class
-     * 
+     *
      * @param string $entityClass
      */
-    public function setEntityClass($entityClass) 
+    public function setEntityClass($entityClass)
     {
         $this->entityClass = $entityClass;
     }
 
     /**
      * This function is used to convert the entity object into array.
-     * 
-     * @param  mixed Single or array of entity objects     
-     * 
+     *
+     * @param  mixed Single or array of entity objects
+     *
      * @return array  return as array
      */
     public function import($data)
@@ -141,7 +166,7 @@ class EntityInterface implements Exportable, Importable
             $data = array($data);
         }
 
-        //create array from objects 
+        //create array from objects
         $resultArr = array();
         foreach ($data as $object) {
 
@@ -166,25 +191,25 @@ class EntityInterface implements Exportable, Importable
                     }
                 }
             }
-            //get entity columns    
+            //get entity columns
             $entityColumns = $this->getColumnNamesByEntity($object);
             $resultData = array_merge($entityColumns, $associationEntityColumns);
             $resultData['virtual'] = $object->isVirtual();
 
             $resultArr[] = $resultData;
         }
-        
+
         return $resultArr;
     }
-    
+
     /**
      * get column name and values form the given entity object
-     * 
-     * @param object $entityObject  
-     * 
+     *
+     * @param object $entityObject
+     *
      * @return array
      */
-    public function getColumnNamesByEntity($entityObject) 
+    public function getColumnNamesByEntity($entityObject)
     {
         $data = array();
         $entityClassMetaData  =  \Env::get('em')->getClassMetadata(get_class($entityObject));

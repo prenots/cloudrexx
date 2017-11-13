@@ -1,21 +1,46 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Immo management
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_immo
  * @todo        Edit PHP DocBlocks!
  */
 
 /**
  * Real-Estate management module
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_immo
  * @version     1.0.0
  * @todo        Extend the module_immo_settings table for even more
@@ -91,15 +116,11 @@ class Immo extends ImmoLib
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
         $this->_objTpl->setTemplate($pageContent);
 
-        if (function_exists('mysql_set_charset')) {
-            mysql_set_charset("utf8"); //this is important for umlauts
-        }
-
         // initialise the session array
         if (!isset($_SESSION['immo'])) {
             $_SESSION['immo'] = array();
         }
-        
+
         parent::__construct();
     }
 
@@ -310,9 +331,6 @@ class Immo extends ImmoLib
     function _showInterestForm()
     {
         global $objDatabase, $_ARRAYLANG, $_CONFIG;
-        require_once(
-            ASCMS_LIBRARY_PATH.DIRECTORY_SEPARATOR.'phpmailer'.
-            DIRECTORY_SEPARATOR."class.phpmailer.php");
 
         if (!empty($_REQUEST['immoid'])) {
             $this->_objTpl->setVariable('IMMO_ID', intval($_REQUEST['immoid']));
@@ -362,7 +380,7 @@ class Immo extends ImmoLib
             $address = $this->_getFieldFromText('adresse');
             $location = $this->_getFieldFromText('ort');
 
-            $mailer = new PHPMailer();
+            $mailer = new Cx\Core\MailTemplate\Model\Entity\Mail();
             $objRS = $objDatabase->Execute('
                 SELECT setvalue
                   FROM '.DBPREFIX.'module_immo_settings
@@ -373,20 +391,7 @@ class Immo extends ImmoLib
                 $mailer->AddAddress($email);
             }
 
-            if ($_CONFIG['coreSmtpServer'] > 0 && @include_once ASCMS_CORE_PATH.'/SmtpSettings.class.php') {
-                if (($arrSmtp = SmtpSettings::getSmtpAccount($_CONFIG['coreSmtpServer'])) !== false) {
-                    $mailer->IsSMTP();
-                    $mailer->Host = $arrSmtp['hostname'];
-                    $mailer->Port = $arrSmtp['port'];
-                    $mailer->SMTPAuth = true;
-                    $mailer->Username = $arrSmtp['username'];
-                    $mailer->Password = $arrSmtp['password'];
-                }
-            }
-
-            $mailer->CharSet = CONTREXX_CHARSET;
-            $mailer->From = contrexx_addslashes($_REQUEST['contactFormField_email']);
-            $mailer->FromName = 'Interessent';
+            $mailer->SetFrom(contrexx_addslashes($_REQUEST['contactFormField_email']), 'Interessent');
             $mailer->Subject = 'Neuer Interessent für '.$ref_note.' Ref-Nr.: '.$reference;
             $mailer->IsHTML(false);
             $mailer->Body = 'Jemand interessiert sich für das Objekt '.$ref_note.' Ref-Nr.: '.$reference."\n \nhttp://".$_CONFIG['domainUrl'].ASCMS_PATH_OFFSET."/admin/index.php?cmd=immo&act=stats\n";
@@ -407,8 +412,7 @@ class Immo extends ImmoLib
 
             //mail for interested customer
             $mailer->ClearAddresses();
-            $mailer->From = $this->arrSettings['sender_email'];
-            $mailer->FromName = $this->arrSettings['sender_name'];
+            $mailer->SetFrom($this->arrSettings['sender_email'], $this->arrSettings['sender_name']);
             $mailer->AddAddress($_REQUEST['contactFormField_email']);
             $mailer->Subject = $this->arrSettings['interest_confirm_subject'];
             $message = str_replace('[[IMMO_OBJECT]]', $address.', '.$location." (Ref.Nr.: $reference)", $this->arrSettings['interest_confirm_message']);
@@ -658,7 +662,6 @@ class Immo extends ImmoLib
             $error=0;
             if ($objValidator->isEmail($email)) {
                 if (!empty($name) && !empty($telephone) && !empty($email) && $immoID > 0 && $fieldID > 0) {
-                    require_once(ASCMS_LIBRARY_PATH.DS.'/phpmailer'.DS."class.phpmailer.php");
                     $objRS = $objDatabase->SelectLimit("SELECT email
                                                 FROM ".DBPREFIX."module_immo_contact
                                                 WHERE immo_id = '$immoID'
@@ -677,15 +680,13 @@ class Immo extends ImmoLib
                                                 AND lang_id = '".$this->frontLang."'", 1);
                     if ($objRS) {
                         $link = 'http://'.$_CONFIG['domainUrl'].str_replace(" ", "%20", $objRS->fields['fieldvalue']);
-                        $mailer = new PHPMailer();
+                        $mailer = new Cx\Core\MailTemplate\Model\Entity\Mail();
                         $objDatabase->Execute("INSERT INTO ".DBPREFIX."module_immo_contact
                                                 VALUES
                                                 (NULL, '$email', '$name', '$firstname', '$street', '$zip', '$location', '$company', '$telephone', '$telephone_office', '$telephone_mobile', '$purchase', '$funding', '$comment', '$immoID', '$fieldID', ".mktime()." )");
 
-                        $mailer->CharSet = CONTREXX_CHARSET;
                         $mailer->IsHTML(false);
-                        $mailer->From = $this->arrSettings['sender_email'];
-                        $mailer->FromName = $this->arrSettings['sender_name'];
+                        $mailer->SetFrom($this->arrSettings['sender_email'], $this->arrSettings['sender_name']);
                         $mailer->Subject = $this->arrSettings['prot_link_message_subject'];
                         $mailer->Body = str_replace('[[IMMO_PROTECTED_LINK]]', $link, $this->arrSettings['prot_link_message_body'])."\n\n";
                         $mailer->AddAddress($email);

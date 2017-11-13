@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_forum
  */
 $_ARRAYLANG['TXT_FORUM_NO_POSTINGS'] = "No Entries Available.";
@@ -74,7 +100,7 @@ $_ARRAYLANG['TXT_FORUM_FILE_ATTACHMENT'] = "Attachment";
 $_ARRAYLANG['TXT_FORUM_RATING'] = "Rating";
 $_ARRAYLANG['TXT_FORUM_RATING_THANKS'] = "Thank you!";
 $_ARRAYLANG['TXT_FORUM_BANNED_WORD'] = "The following word is not allowed in the post: '%s'!";
-$_ARRAYLANG['TXT_FORUM_KEYWORDS'] = "Stichwörter";
+$_ARRAYLANG['TXT_FORUM_KEYWORDS'] = "Keywords";
 $_ARRAYLANG['TXT_FORUM_COMMA_SEPARATED_KEYWORDS'] = "Meaningful keywords, separated by comma";
 $_ARRAYLANG['TXT_FORUM_UPLOAD_TOO_BIG'] = "The uploaded file has exceeded the maximum allowed size.";
 $_ARRAYLANG['TXT_FORUM_UPLOAD_PARTIAL'] = "The file was uploaded only partially. Please try again. If the problem persists, please conact the webmaster.";
@@ -107,4 +133,5 @@ $_ARRAYLANG['TXT_FORUM_THREAD_ACTION_CLOSE_CONFIRM_1'] = "Re-open this thread?";
 $_ARRAYLANG['TXT_FORUM_THREAD_ACTION_STICKY_CONFIRM_0'] = "Make this thread sticky?";
 $_ARRAYLANG['TXT_FORUM_THREAD_ACTION_STICKY_CONFIRM_1'] = "Revert sticky?";
 $_ARRAYLANG['TXT_FORUM_THREAD_ACTION_DELETE_CONFIRM'] = "Delete this thread?";
+$_ARRAYLANG['TXT_FORUM_CHOOSE_FILE'] = "Choose File";
 ?>

@@ -1,5 +1,31 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 namespace Cx\Core_Modules\Workbench\Controller;
 
 class SandboxException extends \Exception {}
@@ -20,7 +46,7 @@ class Sandbox {
         $this->execute();
         $this->show($language);
     }
-    
+
     protected function initialize(&$arguments) {
         switch ($this->mode) {
             case self::MODE_DQL:
@@ -40,7 +66,7 @@ class Sandbox {
                 break;
         }
     }
-    
+
     protected function execute() {
         switch ($this->mode) {
             case self::MODE_DQL:
@@ -88,7 +114,7 @@ class Sandbox {
                 break;
         }
     }
-    
+
     /**
      * This code does not belong here, but where to put it?
      */
@@ -136,14 +162,14 @@ class Sandbox {
         $entityList .= '</ul>';
         return $entityList;
     }
-    
+
     /**
      * @todo: no HTML here!
      */
     protected function show(&$lang) {
         $this->template = new \Cx\Core\Html\Sigma(ASCMS_CORE_MODULE_PATH . '/Workbench/View/Template/Backend');
         $this->template->loadTemplateFile('Sandbox.html');
-        
+
         switch ($this->mode) {
             case self::MODE_DQL:
                 $sideboxTitle = $lang['TXT_WORKBENCH_SANDBOX_ENTITIES'];
@@ -158,7 +184,7 @@ class Sandbox {
                 </ul>';
                 break;
         }
-        
+
         $this->template->setVariable(array(
             'FORM_ACTION' => 'index.php?cmd=Workbench&act=sandbox/' . $this->mode,
             'TXT_WORKBENCH_SANDBOX_SUBMIT' => $lang['TXT_WORKBENCH_SANDBOX_SUBMIT'],
@@ -168,16 +194,15 @@ class Sandbox {
             'SIDEBOX_CONTENT' => $sideboxContent,
         ));
     }
-    
+
     public function phpErrorsAsExceptionsHandler($errno, $errstr) {
         if (!$this->errrorHandlerActive) {
             return;
         }
         throw new SandboxException($errstr);
     }
-    
+
     public function __toString() {
         return $this->template->get();
     }
 }
-

@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lang
  */
 $_ARRAYLANG['TXT_CORE_SUBMIT'] = "Envoyer";
@@ -28,6 +54,8 @@ $_ARRAYLANG['TXT_PASSWORD'] = "Mot de passe";
 $_ARRAYLANG['TXT_PAGE'] = "Page";
 $_ARRAYLANG['TXT_BROWSERLANGUAGE'] = "Langue";
 $_ARRAYLANG['TXT_FROM'] = "sur";
+$_ARRAYLANG['TXT_PAGING_OUT_OF'] = "sur";
+$_ARRAYLANG['TXT_PAGING_TO'] = "à";
 $_ARRAYLANG['TXT_PASSWORD_FIELD_EMPTY'] = "Si un mot de passe n'est pas saisi, le mot de passe actuel sera conservé! ";
 $_ARRAYLANG['TXT_SIZE'] = "Taille du fichier";
 $_ARRAYLANG['TXT_DATABASE_QUERY_ERROR'] = "Erreur lors de la requête à la base de données!";
@@ -148,7 +176,6 @@ $_ARRAYLANG['TXT_ACCESS_FAILED_TO_UPDATE_USER_ACCOUNT'] = "Erreur lors de la mis
 $_ARRAYLANG['TXT_ACCESS_FEMALE'] = "Féminin";
 $_ARRAYLANG['TXT_ACCESS_FILL_OUT_ALL_REQUIRED_FIELDS'] = "Veuillir saisir tous les champs requis!";
 $_ARRAYLANG['TXT_ACCESS_FIRSTNAME'] = "Prénom";
-$_ARRAYLANG['TXT_ACCESS_GENDER'] = "Sexe";
 $_ARRAYLANG['TXT_ACCESS_INTERESTS'] = "Domaines d'intérêts";
 $_ARRAYLANG['TXT_ACCESS_INVALID_EMAIL_ADDRESS'] = "Veuillir saisir une adresse E-mail valide!";
 $_ARRAYLANG['TXT_ACCESS_INVALID_PASSWORD'] = "The password is invalid. It must contain at least 6 characters.";
@@ -200,7 +227,7 @@ $_ARRAYLANG['TXT_AUCTION_TITLE'] = "Enchères";
 $_ARRAYLANG['TXT_MARKET_LATEST'] = "Dernières annonces";
 $_ARRAYLANG['TXT_CORE_LAST_MODIFIED_PAGE'] = "Geändert am";
 $_ARRAYLANG['TXT_ACCESS_PRIMARY_GROUP'] = "Groupe primaire des utilisateurs";
-$_ARRAYLANG['TXT_CSRF_TITLE'] = "Contrexx security information";
+$_ARRAYLANG['TXT_CSRF_TITLE'] = "Cloudrexx security information";
 $_ARRAYLANG['TXT_CSRF_DESCR'] = 'You are changing the system configuration. If you see this message<ul><li>after clicking a link in the administration interface, click <a href="%1$s">save changes</a></li><li>after clicking a link inside an e-mail message or outside the administration interface, click <a href="%2$s">discard changes</a></li></ul>';
 $_ARRAYLANG['TXT_CSRF_ABORT'] = "discard changes";
 $_ARRAYLANG['TXT_CSRF_CONTINUE'] = "save changes";
@@ -275,3 +302,5 @@ $_ARRAYLANG['UPLOAD_FORM_ADD'] = "Ajouter autres fichiers";
 $_ARRAYLANG['TXT_CORE_CAPTCHA'] = "Code de sécurité";
 $_ARRAYLANG['TXT_CORE_CAPTCHA_ENTER_THE_LETTERS_BELOW'] = "Veuillez saisir la séquence de caractères de l'image dans le champ ci-dessous.";
 $_ARRAYLANG['TXT_CORE_REMEMBER_ME'] = "Souviens de moi";
+
+$_ARRAYLANG['TXT_READ_MORE'] = "Plus";

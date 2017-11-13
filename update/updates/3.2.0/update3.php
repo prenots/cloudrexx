@@ -1,6 +1,31 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * This file updates a RC1 or RC2 installation to a stable installation
  * To update your installation perform the following:
  * 1. Copy all your files to a backup folder
@@ -1591,7 +1616,7 @@ if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.1.0')) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
     \DBG::log('installing crm module');
-    
+
     // install frontend editing
     $frontendEditingModuleInfo = getModuleInfo('FrontendEditing');
     try {
@@ -2115,7 +2140,7 @@ if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.1.0')) {
         \DBG::dump($calendarMigration);
         return $calendarMigration;
     }
-    
+
     // rewrite backendAreas
     require_once(dirname(__FILE__).'/components/core/backendAreas.php');
     $backendAreasUpdate = _updateBackendAreas();
@@ -2305,8 +2330,8 @@ foreach ($arrContentSites as $module) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 }
-    
-    
+
+
 $arrContentSites = array(
     'media1', 'media2', 'media3', 'media4',
 );

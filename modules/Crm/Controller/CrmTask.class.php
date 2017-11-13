@@ -1,34 +1,60 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * This is the crmTask class file for handling the all functionalities under task menu.
  *
  * PHP version 5.3 or >
  *
  * @category   CrmTask
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     ss4ugroup <ss4ugroup@softsolutions4u.com>
  * @license    BSD Licence
  * @version    1.0.0
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 
 namespace Cx\Modules\Crm\Controller;
 
 /**
- * This is the crmTask class file for handling the all functionalities under task menu. 
+ * This is the crmTask class file for handling the all functionalities under task menu.
  *
  * @category   CrmTask
- * @package    contrexx
+ * @package    cloudrexx
  * @subpackage module_crm
  * @author     ss4ugroup <ss4ugroup@softsolutions4u.com>
  * @license    BSD Licence
  * @version    1.0.0
- * @link       www.contrexx.com
+ * @link       www.cloudrexx.com
  */
 
 class CrmTask extends CrmLibrary
-{    
+{
     /**
      * Template object
      *
@@ -88,29 +114,30 @@ class CrmTask extends CrmLibrary
         global $_ARRAYLANG, $objDatabase;
 
         \JS::registerJS('lib/javascript/jquery.tmpl.min.js');
-        
+
         $objtpl = $this->_objTpl;
         $_SESSION['pageTitle'] = $_ARRAYLANG['TXT_CRM_TASK_OVERVIEW'];
         $objtpl->loadTemplateFile("module_{$this->moduleNameLC}_tasks_overview.html");
         $objtpl->setGlobalVariable("MODULE_NAME", $this->moduleName);
-        
+
         $msg = isset($_GET['mes']) ? base64_decode($_GET['mes']) : '';
         if ($msg) {
             switch ($msg) {
             case 'taskDeleted':
-                $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_TASK_DELETE_MESSAGE'];            
+                $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_TASK_DELETE_MESSAGE'];
                 break;
             }
         }
 
         $filterTaskType  = isset($_GET['searchType'])? intval($_GET['searchType']) : 0 ;
+        $filterTaskStatus= !empty($_GET['status']) && is_array($_GET['status']) ? contrexx_input2int($_GET['status']) : array(0);
         $filterTaskTitle = isset($_GET['searchTitle'])? contrexx_input2raw($_GET['searchTitle']) : '';
         $sortField       = isset($_GET['sort_by']) && array_key_exists($_GET['sort_by'], $this->_sortFields) ? (int) $_GET['sort_by'] : 2;
         $sortOrder       = (isset($_GET['sort_order']) && $_GET['sort_order'] == 1)  ? 1 : 0 ;
 
         $filter     = array();
         $filterLink = '';
-        
+
         if (!empty($filterTaskType)) {
             $filter[]    = " t.task_type_id = '$filterTaskType'";
             $filterLink .= "&searchType=$filterTaskType";
@@ -120,8 +147,13 @@ class CrmTask extends CrmLibrary
             $filterLink .= "&searchTitle=$filterTaskTitle";
         }
 
+        if (!empty($filterTaskStatus)) {
+            $filter[]    = ' t.task_status IN ('. implode(" ,", $filterTaskStatus) .')';
+            $filterLink .= '&status[]='. implode('&status[]=', $filterTaskStatus);
+        }
+
         $filterCondition = !empty($filter) ? " WHERE ". implode(" AND", $filter) : '';
-        
+
         $query = "SELECT tt.name,
                                tt.icon,
                                t.task_status,
@@ -143,18 +175,18 @@ class CrmTask extends CrmLibrary
                             ON (t.customer_id = c.id) $filterCondition";
 
         /* Start Paging ------------------------------------ */
-        $intPos             = (isset($_GET['pos'])) ? intval($_GET['pos']) : 0;        
-        $intPerPage         = $this->getPagingLimit();        
+        $intPos             = (isset($_GET['pos'])) ? intval($_GET['pos']) : 0;
+        $intPerPage         = $this->getPagingLimit();
         $strPagingSource    = getPaging($this->countRecordEntries($query), $intPos, "&amp;cmd=".$this->moduleName."&amp;act=task$filterLink", false, '', $intPerPage);
         $this->_objTpl->setVariable('ENTRIES_PAGING', $strPagingSource);
-        
+
         /* End Paging -------------------------------------- */
-        
+
         $start  = $intPos ? $intPos : 0;
-        
+
         $sorto  = $sortOrder ? 'DESC' : 'ASC';
         $query .= " ORDER BY {$this->_sortFields[$sortField]['column']} $sorto LIMIT $start, $intPerPage";
-        
+
         $objResult  = $objDatabase->Execute($query);
 
         $row = 'row2';
@@ -196,7 +228,7 @@ class CrmTask extends CrmLibrary
                             'TXT_CRM_IMAGE_DELETE'  => $_ARRAYLANG['TXT_CRM_IMAGE_DELETE'],
                             'TXT_CRM_DELETE_CONFIRM'=> $_ARRAYLANG['TXT_CRM_DELETE_CONFIRM'],
                             'CRM_TASK_EXPIRED_CLASS'=> $objResult->fields['task_status'] == 1 || strtotime($objResult->fields['due_date']) > $now ? '' : 'task_expired',
-                            
+
                     ));
                     $objtpl->parse('showTask');
                     $objResult->MoveNext();
@@ -223,7 +255,7 @@ class CrmTask extends CrmLibrary
             $objtpl->setVariable(array(
                 'CRM_FILTER_SORT_ID'             => $key,
                 'CRM_FILTER_SORT_FIELD'          => $_ARRAYLANG[$value['name']],
-                'CRM_FILTER_SORT_FIELD_SELECTED' => $selected,                
+                'CRM_FILTER_SORT_FIELD_SELECTED' => $selected,
             ));
             $objtpl->parse('sort_fields');
         }
@@ -236,6 +268,8 @@ class CrmTask extends CrmLibrary
                 'CRM_TASK_SORT_ORDER_TITLE'     => $sortOrder ? 'descending' : 'ascending',
                 'CRM_TASK_SORT_ORDER_ICONS'     => json_encode($sortIcons),
                 'CRM_REDIRECT_LINK'             => '&redirect='.base64_encode("&act=task$filterLink&pos=$intPos"),
+                'CRM_TASK_STATUS_OPEN'          => !empty($filterTaskStatus) && in_array(0, $filterTaskStatus) ? 'checked="checked"' : '',
+                'CRM_TASK_STATUS_COMPLETED'     => !empty($filterTaskStatus) && in_array(1, $filterTaskStatus) ? 'checked="checked"' : '',
                 'TXT_CRM_OVERVIEW'              => $_ARRAYLANG['TXT_CRM_OVERVIEW'],
                 'TXT_CRM_ADD_TASK'              => $_ARRAYLANG['TXT_CRM_ADD_TASK'],
                 'TXT_CRM_ADD_IMPORT'            => $_ARRAYLANG['TXT_CRM_ADD_IMPORT'],
@@ -264,7 +298,10 @@ class CrmTask extends CrmLibrary
                 'TXT_CRM_FILTER_TASK_TYPE'      => $_ARRAYLANG['TXT_CRM_FILTER_TASK_TYPE'],
                 'TXT_CRM_TASK_OPEN'             => $_ARRAYLANG['TXT_CRM_TASK_OPEN'],
                 'TXT_CRM_TASK_COMPLETED'        => $_ARRAYLANG['TXT_CRM_TASK_COMPLETED'],
-                'TXT_CRM_FILTER_SORT_BY'        => $_ARRAYLANG['TXT_CRM_FILTER_SORT_BY']
+                'TXT_CRM_FILTER_SORT_BY'        => $_ARRAYLANG['TXT_CRM_FILTER_SORT_BY'],
+                'TXT_CRM_FILTER_STATUS'         => $_ARRAYLANG['TXT_CRM_FILTER_STATUS'],
+                'TXT_CRM_TASK_STATUS_OPEN'      => $_ARRAYLANG['TXT_CRM_TASK_STATUS_OPEN'],
+                'TXT_CRM_TASK_STATUS_COMPLETED' => $_ARRAYLANG['TXT_CRM_TASK_STATUS_COMPLETED'],
         ));
     }
 
@@ -278,7 +315,7 @@ class CrmTask extends CrmLibrary
     public function _modifyTask()
     {
         global $_ARRAYLANG,$objDatabase,$objJs,$objFWUser;
-        
+
         \JS::registerCSS("modules/Crm/View/Style/contact.css");
         if ( gettype($objFWUser) === 'NULL') {
             $objFWUser = \FWUser::getFWUserObject();
@@ -288,7 +325,7 @@ class CrmTask extends CrmLibrary
 
         $this->_objTpl->loadTemplateFile('module_'.$this->moduleNameLC.'_addtasks.html');
         $objtpl->setGlobalVariable("MODULE_NAME", $this->moduleName);
-        
+
         $settings    = $this->getSettings();
 
         $id          = isset($_REQUEST['id'])? (int) $_REQUEST['id']:'';
@@ -319,7 +356,7 @@ class CrmTask extends CrmLibrary
                 list($task_edit_permission) = $this->getTaskPermission($added_user, $assigned_user);
                 if (!$task_edit_permission) {
                     \Permission::noAccess();
-                }                
+                }
             }
         }
 
@@ -342,7 +379,7 @@ class CrmTask extends CrmLibrary
                         $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_TASK_UPDATE_MESSAGE'];
                 } else {
                         $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_CRM_TASK_RESPONSIBLE_ERR'];
-                    }                
+                    }
             } else {
                 $addedDate = date('Y-m-d H:i:s');
                 $fields    = array(
@@ -379,7 +416,7 @@ class CrmTask extends CrmLibrary
                     //setting email template lang id
                     $availableMailTempLangAry = $this->getActiveEmailTemLangId('Crm', CRM_EVENT_ON_TASK_CREATED);
                     $availableLangId          = $this->getEmailTempLang($availableMailTempLangAry, $objFWUser->objUser->getUser($assignedto)->getEmail());
-                    $info['lang_id']          = $availableLangId;  
+                    $info['lang_id']          = $availableLangId;
 
                     $dispatcher = CrmEventDispatcher::getInstance();
                     $dispatcher->triggerEvent(CRM_EVENT_ON_TASK_CREATED, null, $info);
@@ -387,7 +424,7 @@ class CrmTask extends CrmLibrary
 
                 \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName.base64_decode($redirect));
                 exit();
-            }            
+            }
         } elseif (!empty($id)) {
             $objValue       = $objDatabase->Execute("SELECT task_id,
                                                             task_title,
@@ -447,7 +484,7 @@ class CrmTask extends CrmLibrary
                 'TXT_CRM_BACK'                 => $_ARRAYLANG['TXT_CRM_BACK'],
                 'TXT_CRM_NOTIFY'               => $_ARRAYLANG['TXT_CRM_NOTIFY'],
                 'TXT_CRM_MANDATORY_FIELDS_NOT_FILLED_OUT' => $_ARRAYLANG['TXT_CRM_MANDATORY_FIELDS_NOT_FILLED_OUT'],
-                
+
         ));
     }
 
@@ -504,7 +541,7 @@ class CrmTask extends CrmLibrary
                             ON (t.customer_id = c.id) WHERE t.id = $id";
 
                     $objResult = $objDatabase->Execute($query);
-                    
+
                     $now = strtotime('now');
                     if ($objResult) {
                         $json['task'] = array(
@@ -544,7 +581,7 @@ class CrmTask extends CrmLibrary
 
         $id       = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         $redirect = isset($_REQUEST['redirect']) ? $_REQUEST['redirect'] : base64_encode('&act=task');
-        
+
         if (!empty($id)) {
             $objResult = $objDatabase->Execute("SELECT `added_by`,
                                                        `assigned_to`
@@ -561,30 +598,8 @@ class CrmTask extends CrmLibrary
 
         if (!empty($id)) {
             $objResult = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_{$this->moduleNameLC}_task WHERE id = '$id'");
-            
+
             \Cx\Core\Csrf\Controller\Csrf::header("Location:index.php?cmd=".$this->moduleName.base64_decode($redirect)."&mes=".  base64_encode('taskDeleted'));
         }
     }
-
-    /**
-     * Get username
-     *
-     * @param Integer $userId
-     *
-     * @return String
-     */
-    function getUserName($userId)
-    {
-        if (!empty ($userId)) {
-            $objFWUser  = \FWUser::getFWUserObject();
-            $objUser    = $objFWUser->objUser->getUser($userId);
-            $userName   = $objUser->getRealUsername();
-            if ($userName) {
-                return $userName;
-            } else {
-                return $objUser->getUsername();
-            }
-        }
-    }
-
 }

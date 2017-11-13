@@ -1,4 +1,31 @@
-<?php define('UPDATE_PATH', dirname(__FILE__));@include_once(UPDATE_PATH.'/../config/configuration.php');@header('content-type: text/html; charset='.(UPDATE_UTF8 ? 'utf-8' : 'iso-8859-1'));?>
+<?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+define('UPDATE_PATH', dirname(__FILE__));@include_once(UPDATE_PATH.'/../config/configuration.php');@header('content-type: text/html; charset='.(UPDATE_UTF8 ? 'utf-8' : 'iso-8859-1'));?>
 
 var request_active = false;
 var getDebugInfo = false;
@@ -108,7 +135,7 @@ function getFormData(goBack)
       }
     }
   }
-  
+
   aFormData = new Array();
   for (i in oFormData) {
     aFormData.push(i+':'+((typeof(oFormData[i]) == 'object') ? '["'+oFormData[i].join('","')+'"]' : '"'+oFormData[i]+'"'));
@@ -124,7 +151,7 @@ function getFormData(goBack)
   var delInAcLangs     = $J("#delInAcLangs:checked").length ? ",delInAcLangs:"       + $J("#delInAcLangs:checked").val() : "";
 
   var parameters = doGroup + pgUsername + pgPassword + pgCmsVersion + pgMigrateLangIds + similarPages + removePages + delInAcLangs;
-  
+
   return '{' + aFormData.join(',') + parameters + '}';
 }
 
@@ -138,10 +165,10 @@ function parseResponse(response)
         }
         if (oResponse.dialog) {
             similarPages = oResponse.dialog.similarPages;
-            
+
             setContent('<div style="margin: 180px 0 0 155px;">Bitte haben Sie einen Moment Geduld.<br /><?php $txt = 'Das Update wird durchgeführt...';print UPDATE_UTF8 ? $txt : utf8_decode($txt);?><br /><br /><img src="template/contrexx/images/content/loading_animation.gif" width="208" height="13" alt="" /></div>');
             setNavigation('');
-            
+
             cx.ui.dialog({
                 width:         1020,
                 height:        830,
@@ -150,7 +177,7 @@ function parseResponse(response)
                 dialogClass:   "content-migration-dialog",
                 title:         "Inhaltsseiten gruppieren",
                 content:       oResponse.content,
-                
+
                 close: function() {
                     executeGrouping();
                 },

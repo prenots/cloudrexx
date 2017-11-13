@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_egov
  */
 $_ARRAYLANG['TXT_PRODUCTS'] = "Produkte";
@@ -94,7 +120,7 @@ $_ARRAYLANG['TXT_EGOV_STTINGS_DATE_LABEL'] = "Bezeichnung für die Datumseingabe
 $_ARRAYLANG['TXT_EGOV_STTINGS_DATE_ENTRY_DESC'] = "Beschreibung für Datumeingabe";
 $_ARRAYLANG['TXT_BROWSE'] = "Durchsuchen";
 $_ARRAYLANG['TXT_EGOV_SOURCECODE'] = "Quelltext anzeigen";
-$_ARRAYLANG['TXT_EGOV_PRODUCT_AUTO'] = "Bestellungstatus";
+$_ARRAYLANG['TXT_EGOV_PRODUCT_AUTO'] = "Bestellverarbeitung";
 $_ARRAYLANG['TXT_EGOV_PRODUCT_ELECTRO'] = "Elektronisches Produkt";
 $_ARRAYLANG['TXT_EGOV_PRODUCT_SELECT_FILE'] = "Datei auswählen";
 $_ARRAYLANG['TXT_MARKED'] = "Markierte";
@@ -103,7 +129,6 @@ $_ARRAYLANG['TXT_IMGALT_DELETE'] = "Löschen";
 $_ARRAYLANG['TXT_EGOV_SELECTED'] = "Ausgewählt";
 $_ARRAYLANG['TXT_EGOV_NOT_SELECTED'] = "Nicht ausgewählt";
 $_ARRAYLANG['TXT_EGOV_QUANTITY'] = "Anzahl";
-$_ARRAYLANG['TXT_EGOV_ORDER_STATE_AUTOMAIL'] = "Bestellung wird automatisch angenommen und per E-Mail bestätigt.";
 $_ARRAYLANG['TXT_EGOV_SUBJECT'] = "Betreff";
 $_ARRAYLANG['EGOV_TXT_STATE_CHANGE'] = "Statusänderung";
 $_ARRAYLANG['EGOV_TXT_ORDER_ENTRY'] = "Bestelleingang";
@@ -122,14 +147,14 @@ $_ARRAYLANG['TXT_EGOV_FILE_ERROR'] = "Eine unerlaubte Datei wurde entdeckt. Anha
 $_ARRAYLANG['TXT_EGOV_PAYMENTS'] = "Zahlungsarten";
 $_ARRAYLANG['TXT_EGOV_ACTIVATE_PAYPAL'] = "PayPal aktivieren";
 $_ARRAYLANG['TXT_EGOV_SANDBOX_EMAIL'] = "PayPal-Kennung (Sandbox E-Mail)";
-$_ARRAYLANG['TXT_EGOV_PAYPAL_CURRENCY'] = "Standart Währung";
+$_ARRAYLANG['TXT_EGOV_PAYPAL_CURRENCY'] = "Standard Währung";
 $_ARRAYLANG['TXT_EGOV_PAYPAL_IPN'] = "IPN Verifizierung";
 $_ARRAYLANG['TXT_EGOV_SETTINGS_UPDATE_FAILED'] = "Fehler beim speichern der Einstellungen";
 $_ARRAYLANG['TXT_EGOV_SEQUENCE'] = "Reihenfolge";
 $_ARRAYLANG['TXT_EGOV_UP'] = "hoch";
 $_ARRAYLANG['TXT_EGOV_DOWN'] = "runter";
 $_ARRAYLANG['TXT_EGOV_ERROR_NEW_ENTRY'] = "Neuer Eintrag";
-$_ARRAYLANG['TXT_EGOV_GENERAL'] = "Standart Währung";
+$_ARRAYLANG['TXT_EGOV_GENERAL'] = "Standard Währung";
 $_ARRAYLANG['TXT_EGOV_DEFAULT_CURRENCY'] = "Währung";
 $_ARRAYLANG['TXT_EGOV_PAYPAL_EMAIL'] = "PayPal E-Mail Konto";
 $_ARRAYLANG['TXT_EGOV_CHECK_YOUR_INPUT'] = "Bitte überprüfen Sie Ihre Eingabe!";
@@ -158,6 +183,7 @@ $_ARRAYLANG['TXT_EGOV_PRODUCT_QUANTITY_LIMIT'] = "Wechsel auf \\\"Bald ausgebuch
 $_ARRAYLANG['TXT_EGOV_ALTERNATIVE_PAYMENT_METHODS'] = "Alternative Bezahlmethode";
 $_ARRAYLANG['TXT_EGOV_ALTERNATIVE_PAYMENT_NAMES'] = "Bezeichnung";
 $_ARRAYLANG['TXT_STATE_ALTERNATIVE'] = "Alternativ";
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_RESERVED'] = 'reserviert';
 
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE'] = "PostFinance";
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_ACTIVATED'] = "PostFinance aktivieren";
@@ -168,3 +194,14 @@ $_ARRAYLANG['TXT_EGOV_POSTFINANCE_ACCEPTED_PAYMENT_METHODS'] = "Akzeptierte Zahl
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_HASH_SIGNATURE_IN'] = "SHA-IN Passphrase";
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_HASH_SIGNATURE_OUT'] = "SHA-OUT Passphrase";
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_USE_TESTSERVER'] = "Testserver verwenden";
+$_ARRAYLANG['TXT_EGOV_OVERVIEW_AMOUNT'] = "Anzahl";
+$_ARRAYLANG['TXT_EGOV_OVERVIEW_RESERVATION_DATE'] = "Reservationsdatum";
+$_ARRAYLANG['TXT_EGOV_AUTOMATICALLY'] = 'Automatisch';
+$_ARRAYLANG['TXT_EGOV_MANUALLY'] = 'Manuel';
+$_ARRAYLANG['TXT_EGOV_RESERVATION'] = 'Reservation';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_HANDLED_DESK'] = 'Bestellung wird auf Status <strong>Erledigt</strong> gesetzt';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_RESERVE_DESK'] = 'Bestellung wird auf Status <strong>Reserviert</strong> gesetzt';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_NOT_PAID_DESK'] = 'Bestellung wird im Status <strong>nicht bezahlt</strong> erfasst';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_EMAIL_NOTIFICATION'] = 'E-Mail-Bestätigung an Kunde wird ausgelöst';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_HANDLE_EMAIL_NOTIFICATION'] = 'E-Mail-Bestätigung wird mit ausgewählter Datei als Anhang versendet';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_NOT_PAID_EMAIL_NOTIFICATION'] = 'E-Mail-Bestätigung an Kunde wird keine gesendet';

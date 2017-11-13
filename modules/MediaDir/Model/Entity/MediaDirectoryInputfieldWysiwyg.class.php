@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Media Directory Inputfield WYSIWYG Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  * @todo        Edit PHP DocBlocks!
  */
@@ -14,15 +39,15 @@ namespace Cx\Modules\MediaDir\Model\Entity;
 /**
  * Media Directory Inputfield WYSIWYG Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  * @todo        Edit PHP DocBlocks!
  */
 class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\MediaDirectoryLibrary implements Inputfield
 {
-    public $arrPlaceholders = array('TXT_MARKETPLACE_INPUTFIELD_NAME','MARKETPLACE_INPUTFIELD_VALUE');
+    public $arrPlaceholders = array('TXT_MEDIADIR_INPUTFIELD_NAME','MEDIADIR_INPUTFIELD_VALUE');
 
 
     /**
@@ -37,7 +62,7 @@ class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\Me
 
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $_LANGID, $objInit, $_ARRAYLANG;;
+        global $objDatabase, $objInit, $_ARRAYLANG;;
 
         $intId = intval($arrInputfield['id']);
 
@@ -65,8 +90,8 @@ class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\Me
                         }
 // TODO: What if the current language value is missing?
 // The empty string is an inconvenient default!
-//                        $arrValue[0] = $arrValue[$_LANGID];
-                        $arrValue[0] = (isset($arrValue[$_LANGID]) ? $arrValue[$_LANGID] : '');
+//                        $arrValue[0] = $arrValue[FRONTEND_LANG_ID];
+                        $arrValue[0] = (isset($arrValue[FRONTEND_LANG_ID]) ? $arrValue[FRONTEND_LANG_ID] : '');
                     }
                 } else {
                     $arrValue = null;
@@ -108,7 +133,7 @@ class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\Me
                         $strInputfield .=  new \Cx\Core\Wysiwyg\Wysiwyg($this->moduleNameLC.'Inputfield['.$intId.']['.$intLangId.']', contrexx_raw2xhtml($arrValue[$intLangId])).'&nbsp;'.$arrLang['name'].'<br />';
                     }
                     $strInputfield .=  "&nbsp;<a href=\"javascript:javascript:ExpandMinimizeMultiple('".$intId."', 'ELEMENT');\">&laquo;&nbsp;".$_ARRAYLANG['TXT_MEDIADIR_MINIMIZE']."</a>";
-                                        
+
                     $strInputfield .= '</span>';
                 } else {
                     //$strInputfield = '<textarea name="'.$this->moduleName.'Inputfield['.$intId.'][0]" id="'.$this->moduleName.'Inputfield_'.$intId.'_0" class="'.$this->moduleName.'InputfieldTextarea" onfocus="this.select();" />'.$arrValue[0].'</textarea>';
@@ -128,7 +153,7 @@ class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\Me
                         //$strInputfield .= '<textarea name="'.$this->moduleName.'Inputfield['.$intId.']['.$intLangId.']" id="'.$this->moduleName.'Inputfield_'.$intId.'_'.$intLangId.'" class="'.$this->moduleName.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[$intLangId].' onfocus="this.select();" />'.$arrValue[$intLangId].'</textarea>&nbsp;'.$arrLang['name'].'<a href="javascript:ExpandMinimize(\''.$intId.'\');">&nbsp;'.$minimize.'</a><br />';
 
                         $strInputfield .=  new \Cx\Core\Wysiwyg\Wysiwyg($this->moduleNameLC.'Inputfield['.$intId.']['.$intLangId.']', contrexx_raw2xhtml($arrValue[$intLangId])).'&nbsp;'.$arrLang['name'].'<a href="javascript:javascript:ExpandMinimizeMultiple(\''.$intId.'\', \'ELEMENT\');">&nbsp;'.$minimize.'</a><br />';
-                    }                    
+                    }
                     $strInputfield .= '</span></span>';
                 }
                 return $strInputfield;
@@ -165,20 +190,33 @@ class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\Me
 
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
-        global $objDatabase, $_LANGID;
+        $strValue = static::getRawData($intEntryId, $arrInputfield, $arrTranslationStatus);
+
+        if (!empty($strValue)) {
+            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = htmlspecialchars($arrInputfield['name'][0], ENT_QUOTES, CONTREXX_CHARSET);
+            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $strValue;
+        } else {
+            $arrContent = null;
+        }
+
+        return $arrContent;
+    }
+
+    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus) {
+        global $objDatabase;
 
         $intId = intval($arrInputfield['id']);
         $objEntryDefaultLang = $objDatabase->Execute("SELECT `lang_id` FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_entries WHERE id=".intval($intEntryId)." LIMIT 1");
         $intEntryDefaultLang = intval($objEntryDefaultLang->fields['lang_id']);
 
         if ($this->arrSettings['settingsTranslationStatus'] == 1) {
-            if (in_array($_LANGID, $arrTranslationStatus)) {
-                $intLangId = $_LANGID;
+            if (in_array(FRONTEND_LANG_ID, $arrTranslationStatus)) {
+                $intLangId = FRONTEND_LANG_ID;
             } else {
                 $intLangId = $intEntryDefaultLang;
             }
         } else {
-            $intLangId = $_LANGID;
+            $intLangId = FRONTEND_LANG_ID;
         }
 
         $objInputfieldValue = $objDatabase->Execute("
@@ -224,22 +262,13 @@ class MediaDirectoryInputfieldWysiwyg extends \Cx\Modules\MediaDir\Controller\Me
             LIMIT 1
         "); */
 
-        $strValue = $objInputfieldValue->fields['value'];
-
-        if (!empty($strValue)) {
-            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = htmlspecialchars($arrInputfield['name'][0], ENT_QUOTES, CONTREXX_CHARSET);
-            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $strValue;
-        } else {
-            $arrContent = null;
-        }
-
-        return $arrContent;
+        return $objInputfieldValue->fields['value'];
     }
 
 
 
     function getJavascriptCheck()
-    {             
+    {
         return null;
     }
 

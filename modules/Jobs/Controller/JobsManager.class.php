@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * jobsManager
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_jobs
  * @todo        Edit PHP DocBlocks!
  */
@@ -17,11 +42,11 @@ namespace Cx\Modules\Jobs\Controller;
 /**
  * jobsManager
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_jobs
  */
 class JobsManager extends JobsLibrary
@@ -51,7 +76,7 @@ class JobsManager extends JobsLibrary
         $this->pageTitle = $_ARRAYLANG["TXT_JOBS_MANAGER"];
         $this->_objTpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Jobs/View/Template/Backend');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
-        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);        
+        $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
         $this->langId=$objInit->userFrontendLangId;
     }
     private function setNavigation()
@@ -220,15 +245,13 @@ class JobsManager extends JobsLibrary
         ));
         $query = "SELECT n.id AS jobsId, n.date, n.changelog,
                          n.title, n.status, n.author,
-                         l.name,
+                         n.lang,
                          nc.name AS catname,
                          n.userid
                     FROM ".DBPREFIX."module_jobs_categories AS nc,
-                         ".DBPREFIX."module_jobs AS n,
-                         ".DBPREFIX."languages AS l
+                         ".DBPREFIX."module_jobs AS n
                          $locationFilter
-                         n.lang=l.id
-                     AND n.lang=$this->langId
+                     n.lang=$this->langId
                      AND $docFilter nc.catid=n.catid
                    ORDER BY n.id DESC";
         $objResult = $objDatabase->Execute($query);
@@ -240,7 +263,13 @@ class JobsManager extends JobsLibrary
             $this->_objTpl->hideBlock('row');
             return;
         }
+        // get array containing the active locale ids
+        $activeLangIds = \FWLanguage::getIdArray('frontend');
         while ($objResult !== false && !$objResult->EOF) {
+            // check if the job has assigned an existing language
+            if (!in_array($objResult->fields['lang'], $activeLangIds)) {
+                $objResult->MoveNext();
+            }
             $statusPicture = ($objResult->fields['status']==1) ? "status_green.gif" : "status_red.gif";
             $jobUser = \FWUser::getFWUserObject()->objUser->getUser($objResult->fields['userid']);
             $username = $_ARRAYLANG['TXT_ACCESS_UNKNOWN'];
@@ -725,7 +754,7 @@ class JobsManager extends JobsLibrary
             'changelog' => array('val' => $date, 'omitEmpty' => true),
             'catId' => array('val' => $catId, 'omitEmpty' => true),
         ))." WHERE id = $id;";
-      
+
         if (!$objDatabase->Execute($query) or $dberr) {
             $this->strErrMessage = $_ARRAYLANG['TXT_DATABASE_QUERY_ERROR'];
         } else {

@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * User Profile
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Daeppen <thomas.daeppen@comvation.com>
  * @version     2.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_framework
  */
 
@@ -13,10 +38,10 @@
  * User Profile
  *
  * The User object is used for all user related operations.
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Daeppen <thomas.daeppen@comvation.com>
  * @version     2.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lib_framework
  * @uses        /lib/FRAMEWORK/User/User_Profile_Attribute.class.php
  */
@@ -104,7 +129,7 @@ class User_Profile
                                 $arrDateCombined[$char] = $arrDate[1][$charNr];
                             }
 
-                            $value = mktime(1, 0, 0,
+                            $value = gmmktime(1, 0, 0,
                                 (isset($arrDateCombined['m']) ? $arrDateCombined['m'] : $arrDateCombined['n']), // month
                                 (isset($arrDateCombined['d']) ? $arrDateCombined['d'] : $arrDateCombined['j']), // day
                                 (isset($arrDateCombined['Y']) ? $arrDateCombined['Y'] : ($arrDateCombined['y'] + ($arrDateCombined['y'] < 70 ? 2000 : 1900))) // year
@@ -185,7 +210,7 @@ class User_Profile
     }
 
     /**
-     * @param  mixed    $profileUpdated	If $profileUpdated is provided, then in case any profile
+     * @param  mixed    $profileUpdated    If $profileUpdated is provided, then in case any profile
      *                                  changes are being flushed to the database, $profileUpdated
      *                                  will be set to TRUE, otherwise it'll be left untouched.
      */
@@ -194,6 +219,7 @@ class User_Profile
         global $objDatabase, $_CORELANG;
 
         $error = false;
+
         foreach ($this->arrLoadedUsers[$this->id]['profile'] as $attributeId => $arrValue)
         {
             foreach ($arrValue as $historyId => $value)
@@ -201,10 +227,10 @@ class User_Profile
                 $newValue = !isset($this->arrCachedUsers[$this->id]['profile'][$attributeId][$historyId]);
                 if ($newValue || $value != $this->arrCachedUsers[$this->id]['profile'][$attributeId][$historyId]) {
                     $query = $this->objAttribute->isCoreAttribute($attributeId) ?
-                        "UPDATE `".DBPREFIX."access_user_profile` SET `".$attributeId."` = '".addslashes($value)."' WHERE `user_id` = ".$this->id :
+                        "UPDATE `".DBPREFIX."access_user_profile` SET `".$attributeId."` = '" . contrexx_raw2db($value) . "' WHERE `user_id` = ".$this->id :
                         ($newValue ?
-                            "INSERT INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", ".$attributeId.", ".$historyId.", '".addslashes($value)."')" :
-                            "UPDATE `".DBPREFIX."access_user_attribute_value` SET `value` = '".addslashes($value)."' WHERE `user_id` = ".$this->id." AND `attribute_id` = ".$attributeId." AND `history_id` = ".$historyId
+                            "INSERT INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", ".$attributeId.", ".$historyId.", '" . contrexx_raw2db($value) . "')" :
+                            "UPDATE `".DBPREFIX."access_user_attribute_value` SET `value` = '" . contrexx_raw2db($value) . "' WHERE `user_id` = ".$this->id." AND `attribute_id` = ".$attributeId." AND `history_id` = ".$historyId
                         );
 
                     if ($objDatabase->Execute($query) === false) {
@@ -394,10 +420,10 @@ class User_Profile
                 }
 
 
-            } elseif ($attribute == 'birthday_day') {
-                $arrConditions[] = "(FROM_UNIXTIME(tblP.`birthday`, '%e') = '".intval($condition)."')";
-            } elseif ($attribute == 'birthday_month') {
-                $arrConditions[] = "(FROM_UNIXTIME(tblP.`birthday`, '%c') = '".intval($condition)."')";
+            } elseif ($attribute === 'birthday_day') {
+                $arrConditions[] = "(DATE_FORMAT(DATE_ADD(FROM_UNIXTIME(0), interval `tblP`.`birthday` second), '%e') = '".intval($condition)."')";
+            } elseif ($attribute === 'birthday_month') {
+                $arrConditions[] = "(DATE_FORMAT(DATE_ADD(FROM_UNIXTIME(0), interval `tblP`.`birthday` second), '%c') = '".intval($condition)."')";
             }
         }
 
@@ -424,9 +450,18 @@ class User_Profile
      * (You might even want to extend this to work with arrays, too.
      * Currently, only the shop module uses this feature.) -- RK 20100910
      * @param   mixed     $arrFilter    The term or array of terms
+     * @param   string    $forceTableIdx    Argument must not be used
+     *                                      directly. Will internally be used
+     *                                      for recursion (parsing child
+     *                                      attributes of complex profile
+     *                                      attributes like gender or
+     *                                      country). If $forceTableIdx is set
+     *                                      then its value will be used as
+     *                                      prefix for the table alias of the
+     *                                      SQL statement.
      * @return  array                   The array of SQL snippets
      */
-    protected function parseCustomAttributeFilterConditions($arrFilter)
+    protected function parseCustomAttributeFilterConditions($arrFilter, $forceTableIdx = null)
     {
         if (empty($this->objAttribute)) {
             $this->initAttributes();
@@ -434,35 +469,44 @@ class User_Profile
 
         $arrConditions = array();
         foreach ($arrFilter as $attribute => $condition) {
-            if ($this->objAttribute->load($attribute) && !$this->objAttribute->isCoreAttribute($attribute)) {
-                switch ($this->objAttribute->getDataType()) {
-                    case 'string':
-                        $percent = '%';
-                        if (   !is_array($condition)
-                            && strpos('%', $condition) !== false) $percent = '';
-                        $arrConditions[] =
-                            "tblA.`attribute_id` = ".$attribute.
-                            " AND (tblA.`value` LIKE '$percent".
-                            (is_array($condition)
-                              ? implode("$percent' OR tblA.`value` LIKE '$percent",
-                                    array_map('addslashes', $condition))
-                              : addslashes($condition))."$percent')";
-                        break;
+            if (!$this->objAttribute->load($attribute) || $this->objAttribute->isCoreAttribute($attribute)) {
+                continue;
+            }
 
-                    case 'int':
-                        $arrConditions[] = "tblA.`attribute_id` = ".$attribute." AND (tblA.`value` = '".(is_array($condition) ? implode("' OR tblA.`value` = '", array_map('intval', $condition)) : intval($condition))."')";
-                        break;
-                    case 'array':
-                        if (count($this->objAttribute->getChildren())) {
-                            foreach ($this->objAttribute->getChildren() as $childAttributeId) {
-                                $arrSubFilter[$childAttributeId] = $condition;
-                            }
-                            $arrConditions[] = implode(' OR ', $this->parseCustomAttributeFilterConditions($arrSubFilter));
+            if ($forceTableIdx) {
+                $tableIdx = $forceTableIdx;
+            } else {
+                $tableIdx = $attribute;
+            }
+
+            switch ($this->objAttribute->getDataType()) {
+                case 'string':
+                    $percent = '%';
+                    if (   !is_array($condition)
+                        && strpos('%', $condition) !== false) $percent = '';
+                    $arrConditions['tblA_' . $tableIdx] =
+                        "tblA_$tableIdx.`attribute_id` = ".$attribute.
+                        " AND (tblA_$tableIdx.`value` LIKE '$percent".
+                        (is_array($condition)
+                          ? implode("$percent' OR tblA_$tableIdx.`value` LIKE '$percent",
+                                array_map('addslashes', $condition))
+                          : addslashes($condition))."$percent')";
+                    break;
+
+                case 'int':
+                    $arrConditions['tblA_' . $tableIdx] = "tblA_$tableIdx.`attribute_id` = ".$attribute." AND (tblA_$tableIdx.`value` = '".(is_array($condition) ? implode("' OR tblA_$tableIdx.`value` = '", array_map('intval', $condition)) : intval($condition))."')";
+                    break;
+                case 'array':
+                    if (count($this->objAttribute->getChildren())) {
+                        foreach ($this->objAttribute->getChildren() as $childAttributeId) {
+                            $arrSubFilter[$childAttributeId] = $condition;
                         }
-                        break;
-                }
+                        $arrConditions['tblA_' . $tableIdx] = implode(' OR ', $this->parseCustomAttributeFilterConditions($arrSubFilter, $tableIdx));
+                    }
+                    break;
             }
         }
+
         return $arrConditions;
     }
 

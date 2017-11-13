@@ -117,7 +117,7 @@ interface SubscriptionController {
      * @param string  $ipAddress      ip address
      * @param string  $sourceAddress  source address
      */
-    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress);  
+    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role);  
     
     /**
      * Get the all available service plans of mail service server

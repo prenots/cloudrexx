@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Class RegularExpression
  *
- * @copyright   CONTREXX CMS - CLOUDREXX AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_helpers
  */
 
@@ -14,23 +39,23 @@ namespace Cx\Lib\Helpers;
 /**
  * Class RegularExpression
  *
- * @copyright   CONTREXX CMS - CLOUDREXX AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_helpers
  */
 class RegularExpression
 {
     /**
      * Regex
-     * 
-     * @var string 
+     *
+     * @var string
      */
     protected $regex = '';
-    
+
     /**
      * Replacement string
-     * 
+     *
      * @var string
      */
     protected $replacement;
@@ -41,24 +66,24 @@ class RegularExpression
      * @var boolean
      */
     protected $hasReplacement = false;
-    
+
     /**
      * Delimiter
-     * 
-     * @var string 
+     *
+     * @var string
      */
     protected $delimiter = '/';
-    
+
     /**
      * Flags
-     * 
+     *
      * @var array
      */
     protected $flags = array();
 
     /**
      * Contructor for RegularExpression
-     * 
+     *
      * @param string $regex Regular expression
      */
     public function __construct($regex = '')
@@ -85,7 +110,7 @@ class RegularExpression
 
     /**
      * Getter for $regex
-     * 
+     *
      * @return string
      */
     function getRegex()
@@ -95,17 +120,17 @@ class RegularExpression
 
     /**
      * Getter for $replacement
-     * 
+     *
      * @return string
      */
     function getReplacement()
     {
         return $this->replacement;
     }
-    
+
     /**
      * Getter for Delimiter
-     * 
+     *
      * @return string
      */
     function getDelimiter()
@@ -115,27 +140,27 @@ class RegularExpression
 
     /**
      * Getter for flags
-     * 
+     *
      * @return array
      */
     function getFlags()
     {
         return $this->flags;
     }
-    
+
     /**
      * Set the regular expression
-     * 
+     *
      * @param string $regex
      */
     function setRegex($regex)
     {
         $this->regex = $regex;
     }
-    
+
     /**
      * Set the replacement string
-     * 
+     *
      * @param string $replacement
      */
     function setReplacement($replacement)
@@ -143,10 +168,10 @@ class RegularExpression
         $this->replacement = $replacement;
         $this->hasReplacement = true;
     }
-    
+
     /**
      * Set the delimiter
-     * 
+     *
      * @param string $delimiter
      */
     function setDelimiter($delimiter)
@@ -156,31 +181,31 @@ class RegularExpression
 
     /**
      * Set the flags
-     * 
+     *
      * @param array $flags
      */
     function setFlags($flags)
     {
         $this->flags = $flags;
     }
-    
+
     /**
      * Match the input string with regular expression
-     * 
+     *
      * @param string $input Input string
-     * 
+     *
      * @return boolean True|False True on regular expression matches the string
      */
     function match($input)
     {
         return preg_match($this->delimiter . $this->regex . $this->delimiter, $input, $matches);
     }
-    
+
     /**
      * Search and replace in the Input string
-     * 
+     *
      * @param string $input Input string
-     * 
+     *
      * @return string Replaced string
      */
     function replace($input)
@@ -190,10 +215,10 @@ class RegularExpression
         }
         return preg_replace($this->delimiter . $this->regex . $this->delimiter, $this->replacement, $input);
     }
-    
+
     /**
      * Return the regular expression concatenated by delimiter
-     * 
+     *
      * @return string Return the regular expression concatenated by delimiter
      */
     function __toString()

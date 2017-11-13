@@ -1,6 +1,31 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * @ignore
  */
 require_once(ASCMS_FRAMEWORK_PATH.'/Validator.class.php');
@@ -12,10 +37,10 @@ require_once(ASCMS_FRAMEWORK_PATH.'/User/User.class.php');
 
 /**
  * Install Wizard Controller
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author        Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author        Cloudrexx Development Team <info@cloudrexx.com>
  * @version       $Id:     Exp $
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  installer
  * @todo        Edit PHP DocBlocks!
  */
@@ -490,7 +515,7 @@ class Installer
         $gdVersion    = $objCommon->checkGDSupport();
         $ftpSupport   = $objCommon->checkFTPSupport();
         $apcSupport   = $objCommon->enableApc();
-        
+
         if ($apcSupport) {
             $memoryLimit = $objCommon->checkMemoryLimit(32);
         } else {
@@ -814,7 +839,7 @@ class Installer
         if (isset($_SESSION['installer']['setPermissions']) && $_SESSION['installer']['setPermissions']) {
             $this->configGeneral = true;
         } else {
-            if (isset($_SESSION['installer']['config']['documentRoot'])	&& isset($_SESSION['installer']['config']['offsetPath'])) {
+            if (isset($_SESSION['installer']['config']['documentRoot'])    && isset($_SESSION['installer']['config']['offsetPath'])) {
                 $result = $objCommon->checkCMSPath();
                 if ($result !== true) {
                     $this->arrStatusMsg['general'] .= $result;
@@ -1070,7 +1095,7 @@ class Installer
                 $dbDatabaseName = $_SESSION['installer']['config']['dbDatabaseName'];
                 $dbTablePrefix = $_SESSION['installer']['config']['dbTablePrefix'];
                 $dbCollation = !empty($_SESSION['installer']['config']['dbCollation']) ? $_SESSION['installer']['config']['dbCollation'] : '';
-                
+
                 $timezones = timezone_identifiers_list();
                 $timezone = $timezones[$_SESSION['installer']['config']['timezone']];
                 $dateTimeZone = new DateTimeZone($timezone);
@@ -1142,7 +1167,7 @@ class Installer
             // set general error message
             if (isset($this->arrStatusMsg['general']) && !empty($this->arrStatusMsg['general'])) {
                 $objTpl->setVariable(array(
-                    'GENERAL_ERROR_MSG'	=> $this->arrStatusMsg['general']
+                    'GENERAL_ERROR_MSG'    => $this->arrStatusMsg['general']
                 ));
                 $objTpl->parse('generalErrorMsg');
             } else {
@@ -1152,7 +1177,7 @@ class Installer
             // set database error message
             if (isset($this->arrStatusMsg['database']) && !empty($this->arrStatusMsg['database'])) {
                 $objTpl->setVariable(array(
-                    'DATABASE_ERROR_MSG'	=> $this->arrStatusMsg['database']
+                    'DATABASE_ERROR_MSG'    => $this->arrStatusMsg['database']
                 ));
                 $objTpl->parse('databaseErrorMsg');
             } else {
@@ -1475,10 +1500,10 @@ class Installer
             }
         }
     }
-        
+
         /**
          * create htaccess file
-         * 
+         *
          * @access      private
          * @global      object  $objCommon
          * @return      mixed   true on success, error message on failure
@@ -1837,7 +1862,7 @@ class Installer
     }
 
     function _showTermination() {
-        global $objTpl, $_ARRLANG, $_CONFIG, $_DBCONFIG, $objCommon, $basePath, $sessionObj, $documentRoot;
+        global $objTpl, $_ARRLANG, $_CONFIG, $_DBCONFIG, $objCommon, $basePath, $documentRoot;
 
         // load template file
         $objTpl->addBlockfile('CONTENT', 'CONTENT_BLOCK', "termination.html");
@@ -1907,9 +1932,9 @@ class Installer
             // We might have some overhead, since versioncheck.php does more or less the same again
             $documentRoot = realpath(dirname($basePath));
             require_once($documentRoot.'/core/Core/init.php');
-            init('minimal', false);
-            
-            if (!isset($sessionObj) || !is_object($sessionObj)) $sessionObj = cmsSession::getInstance();
+            $cx = init('minimal', false);
+
+            $sessionObj = $cx->getComponent('Session')->getSession();
 
             $userId = 1;
             $_SESSION->cmsSessionUserUpdate($userId);

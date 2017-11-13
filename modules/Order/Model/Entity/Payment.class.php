@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Class Payment
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_order
  */
 
@@ -13,10 +38,10 @@ namespace Cx\Modules\Order\Model\Entity;
 
 /**
  * Class Invoice
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_order
  */
 class Payment extends \Cx\Model\Base\EntityBase {
@@ -25,42 +50,42 @@ class Payment extends \Cx\Model\Base\EntityBase {
      * @var integer $id
      */
     protected $id;
-    
+
     /**
-     * @var \Cx\Modules\Order\Model\Entity\Invoice $invoice 
+     * @var \Cx\Modules\Order\Model\Entity\Invoice $invoice
      */
     protected $invoice;
-    
+
     /**
      *
      * @var DateTime $date
      */
     protected $date;
-    
+
     /**
      *
      * @var double $amount
      */
     protected $amount;
-    
+
     /**
      *
      * @var string $transactionReference
      */
     protected $transactionReference;
-    
+
     /**
      *
      * @var string $handler
      */
     protected $handler;
-    
+
     /**
      *
      * @var array $transactionData
      */
     protected $transactionData = array();
-    
+
     const HANDLER_CASH = 'cash';
     const HANDLER_PAYREXX = 'payrexx';
 
@@ -72,10 +97,10 @@ class Payment extends \Cx\Model\Base\EntityBase {
         $this->date = new \DateTime();
         $this->handler = self::HANDLER_CASH;
     }
-    
+
     /**
      * Get the id
-     * 
+     *
      * @return integer $id
      */
     public function getId() {
@@ -140,56 +165,56 @@ class Payment extends \Cx\Model\Base\EntityBase {
 
     /**
      * Get the invoice
-     * 
+     *
      * @return \Cx\Modules\Order\Model\Entity\Invoice $invoice
      */
     public function getInvoice() {
         return $this->invoice;
     }
-    
+
     /**
      * Set the invoice
-     * 
+     *
      * @param \Cx\Modules\Order\Model\Entity\Invoice $invoice
      */
     public function setInvoice(Invoice $invoice) {
         $this->invoice = $invoice;
     }
-    
+
     /**
      * Get the handler
-     * 
+     *
      * @return string $handler
      */
     public function getHandler() {
         return $this->handler;
     }
-    
+
     /**
      * Set the handler
-     * 
+     *
      * @param string $handler
      */
     public function setHandler($handler) {
         $this->handler = $handler;
     }
-    
+
     /**
      * Set the transactionData
-     * 
+     *
      * @param array $transactionData transactionData
      */
-    public function setTransactionData($transactionData) 
+    public function setTransactionData($transactionData)
     {
         $this->transactionData = $transactionData;
     }
-    
+
     /**
      * Get transactionData
-     * 
+     *
      * @return array
      */
-    public function getTransactionData() 
+    public function getTransactionData()
     {
         return $this->transactionData;
     }

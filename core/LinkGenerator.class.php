@@ -1,20 +1,45 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * LinkGenerator
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core
  */
 
 /**
  * LinkGeneratorException
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core
  */
 class LinkGeneratorException extends \Exception {}
@@ -22,9 +47,9 @@ class LinkGeneratorException extends \Exception {}
 /**
  * Handles the node-Url placeholders: [[ NODE_(<node_id>|<module>[_<cmd>])[_<lang_id>] ]]
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core
  */
 class LinkGenerator {
@@ -62,13 +87,13 @@ class LinkGenerator {
             $lg->scan($template);
         }
 
-        $lg->fetch(Env::get('em'));        
+        $lg->fetch(Env::get('em'));
 
         foreach ($arrTemplates as &$template) {
             $lg->replaceIn($template);
         }
     }
-    
+
     public function __construct($absoluteUris = false, $domain = null) {
         $this->absoluteUris = $absoluteUris;
         $this->domain = $domain;
@@ -88,7 +113,7 @@ class LinkGenerator {
             return;
         }
 
-        for($i = 0; $i < count($matches[0]); $i++) {           
+        for($i = 0; $i < count($matches[0]); $i++) {
             $nodeId = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_NODE_ID][$i]) ?$matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_NODE_ID][$i] : 0;
             $module = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_MODULE][$i]) ? strtolower($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_MODULE][$i]) : '';
             $cmd = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_CMD][$i]) ? strtolower($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_CMD][$i]) : '';
@@ -132,8 +157,8 @@ class LinkGenerator {
         $qb = $em->createQueryBuilder();
         $qb->add('select', new Doctrine\ORM\Query\Expr\Select(array('p')));
         $qb->add('from', new Doctrine\ORM\Query\Expr\From('Cx\Core\ContentManager\Model\Entity\Page', 'p'));
-       
-        //build a big or with all the node ids and pages 
+
+        //build a big or with all the node ids and pages
         $arrExprs = null;
         $fetchedPages = array();
         $pIdx = 0;
@@ -273,4 +298,3 @@ class LinkGenerator {
         }
     }
 }
-

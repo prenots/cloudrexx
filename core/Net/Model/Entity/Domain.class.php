@@ -1,12 +1,38 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Domain Entity
  *
  * A entity that represents a domain.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_model
  */
 
@@ -15,9 +41,9 @@ namespace Cx\Core\Net\Model\Entity;
 /**
  * Domain Entity
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_model
  */
 class DomainException extends \Exception {};
@@ -27,9 +53,9 @@ class DomainException extends \Exception {};
  *
  * A entity that represents a domain.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_model
  */
 class Domain extends \Cx\Core\Model\Model\Entity\YamlEntity {
@@ -74,6 +100,7 @@ class Domain extends \Cx\Core\Model\Model\Entity\YamlEntity {
      * @param   string $name    Domain name to set the domain to
      */
     public function setName($name) {
+        $name = preg_replace('/\s+/', '', $name);
         $this->name = \Cx\Core\Net\Controller\ComponentController::convertIdnToAsciiFormat($name);
     }
 
@@ -84,7 +111,7 @@ class Domain extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getName() {
         return $this->name;
     }
-    
+
     /**
      * Returns the top-level-domain of the Domain
      * @return string the top-level-domain of the Domain
@@ -93,7 +120,7 @@ class Domain extends \Cx\Core\Model\Model\Entity\YamlEntity {
         $parts = $this->getParts();
         return $parts[0];
     }
-    
+
     /**
      * Returns the domain parts as an array where the tld is listed in index 0, sld in index 1 etc.
      * @return array the domain parts as an array
@@ -102,7 +129,7 @@ class Domain extends \Cx\Core\Model\Model\Entity\YamlEntity {
         $parts = array_reverse(explode('.', $this->getName()));
         return $parts;
     }
-    
+
     /**
      * Return the domain name with the following schema <idn notation> (<punycode notation>)
      * Attention. Returns the punycode notation only when needed
@@ -115,6 +142,4 @@ class Domain extends \Cx\Core\Model\Model\Entity\YamlEntity {
         }
         return $domainName;
     }
-
 }
-

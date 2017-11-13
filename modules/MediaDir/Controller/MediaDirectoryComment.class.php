@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Media Directory Comment Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  * @todo        Edit PHP DocBlocks!
  */
@@ -13,9 +38,9 @@ namespace Cx\Modules\MediaDir\Controller;
 /**
  * Media Directory Comment Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  */
 class MediaDirectoryComment extends MediaDirectoryLibrary
@@ -42,7 +67,7 @@ class MediaDirectoryComment extends MediaDirectoryLibrary
 
         $strOkMessage = $_ARRAYLANG['TXT_MEDIADIR_COMMENT_ADD_SUCCESSFULL'];
         $strErrMessage = $_ARRAYLANG['TXT_MEDIADIR_COMMENT_ADD_CORRUPT'];
-        
+
         $strFunctionComment = $this->moduleNameLC.'Comment';
         $strFunctionRefreshComment = $this->moduleNameLC.'RefreshComments';
         $strFunctionCheckCommentForm = $this->moduleNameLC.'CheckCommentForm';
@@ -54,7 +79,7 @@ class MediaDirectoryComment extends MediaDirectoryLibrary
         $strCommentErrMessage = $this->moduleNameLC.'ErrorMessage';
 
         $strCommentsJavascript  =  <<<EOF
-        
+
 var $strFunctionComment = function(entry)
 {
     var elEntry = cx.jQuery('#commentForm_'+entry);
@@ -104,24 +129,24 @@ var $strFunctionCheckCommentForm = function(entry)
     errorCSSBorderStyle = '#ff0000 1px solid';
 
     if (commentName == '') {
-    	isOk = false;
-    	cx.jQuery('#commentName').css({'border': errorCSSBorderStyle});
+        isOk = false;
+        cx.jQuery('#commentName').css({'border': errorCSSBorderStyle});
     } else {
         cx.jQuery('#commentName').css({'border': ''});
     }
 
     if(commentComment == '') {
-    	isOk = false;
-    	cx.jQuery('#commentComment').css({'border': errorCSSBorderStyle});
+        isOk = false;
+        cx.jQuery('#commentComment').css({'border': errorCSSBorderStyle});
     } else {
         cx.jQuery('#commentComment').css({'border': ''});
     }
 
     if (!isOk) {
-		cx.jQuery('#$strCommentErrMessage').css({'display': 'block'});
-	} else {
-	   $strFunctionComment(entry);
-	}
+        cx.jQuery('#$strCommentErrMessage').css({'display': 'block'});
+    } else {
+       $strFunctionComment(entry);
+    }
 }
 
 EOF;
@@ -310,8 +335,6 @@ EOF;
 
 
     function refreshComments($intEnrtyId, $strPageSection, $strPageCmd) {
-        global $_LANGID;
-
         $arrComment = $this->getLastComment($intEnrtyId);
 
         $pageRepo = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
@@ -319,7 +342,7 @@ EOF;
             'module' => contrexx_addslashes($strPageSection),
             'cmd' => contrexx_addslashes($strPageCmd),
             'type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
-            'lang' => intval($_LANGID),
+            'lang' => intval(FRONTEND_LANG_ID),
         ));
 
         if (count($pages)) {

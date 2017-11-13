@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  lang
  */
 global $_ARRAYLANG;
@@ -103,8 +129,6 @@ $_ARRAYLANG['TXT_PAGE_NAME'] = "Seitenname";
 $_ARRAYLANG['TXT_SECONDS'] = "Sekunden";
 $_ARRAYLANG['TXT_TRANSLATION'] = "Übersetzung";
 $_ARRAYLANG['TXT_BROWSERLANGUAGE'] = "Sprache";
-$_ARRAYLANG['TXT_LANGUAGE_SETTINGS'] = "Sprachen";
-$_ARRAYLANG['TXT_LANGUAGEMANAGER_MODULE_DESCRIPTION'] = "Language";
 $_ARRAYLANG['TXT_START_DATE'] = "Startdatum";
 $_ARRAYLANG['TXT_STATS'] = "Statistik";
 $_ARRAYLANG['TXT_STATS_SETTINGS'] = "Einstellungen";
@@ -112,6 +136,8 @@ $_ARRAYLANG['TXT_PROTECTION_CHANGE'] = "Frontend Zugangsberechtigung";
 $_ARRAYLANG['TXT_SYSTEM_SETTINGS'] = "Grundeinstellungen";
 $_ARRAYLANG['TXT_THUMBNAIL_GALLERY'] = "Bildergalerie";
 $_ARRAYLANG['TXT_FROM'] = "von";
+$_ARRAYLANG['TXT_PAGING_OUT_OF'] = "von";
+$_ARRAYLANG['TXT_PAGING_TO'] = "bis";
 $_ARRAYLANG['TXT_FIRST_NAME'] = "Vorname";
 $_ARRAYLANG['TXT_PASSWORD_FIELD_EMPTY'] = "Wenn das Passwortfeld leer bleibt, wird das aktuelle Passwort beibehalten! ";
 $_ARRAYLANG['TXT_PASSWORD_MD5_ENCRYPTED'] = "Das Passwort wird mit dem MD5 Logarithmus verschlüsselt.";
@@ -164,7 +190,6 @@ $_ARRAYLANG['TXT_ADD_REPOSITORY'] = "Zum Repository hinzufügen";
 $_ARRAYLANG['TXT_CONFIRM_REPOSITORY'] = "Wollen Sie dieses Modul wirklich ins Repository aufnehmen?";
 $_ARRAYLANG['TXT_CALENDAR'] = "Veranstaltungskalender";
 $_ARRAYLANG['TXT_CALENDAR_MODULE_DESCRIPTION'] = "Event Kalendersystem";
-$_ARRAYLANG['TXT_THEME_IMPORT_EXPORT'] = "Import/Export";
 $_ARRAYLANG['TXT_THEME_LIBRARIES'] = "Bibliotheken";
 $_ARRAYLANG['TXT_THEME_LIBRARY'] = "Bibliothek";
 $_ARRAYLANG['TXT_DOC_SYS_MODULE_DESCRIPTION'] = "Dokumenten Management System";
@@ -180,7 +205,7 @@ $_ARRAYLANG['TXT_LICENSE'] = "Lizenzverwaltung";
 $_ARRAYLANG['TXT_LICENSE_LICENSE'] = 'Lizenz';
 $_ARRAYLANG['TXT_LICENSE_UPDATED'] = 'Die Lizenz wurde aktualisiert.';
 $_ARRAYLANG['TXT_LICENSE_SAVED'] = 'Die Einstellungen wurden gespeichert.';
-$_ARRAYLANG['TXT_LICENSE_NO_TEMPLATE'] = "Konnte die Vorlage nicht abrufen. Bitte melden Sie sich bei Ihrem System Administrator oder beim Contrexx support.";
+$_ARRAYLANG['TXT_LICENSE_NO_TEMPLATE'] = "Konnte die Vorlage nicht abrufen. Bitte melden Sie sich bei Ihrem System Administrator oder beim Cloudrexx support.";
 $_ARRAYLANG['TXT_LICENSE_OVERVIEW'] = "Übersicht";
 $_ARRAYLANG['TXT_LICENSE_STATE'] = "Status";
 $_ARRAYLANG['TXT_LICENSE_EDITION'] = "Edition";
@@ -190,7 +215,7 @@ $_ARRAYLANG['TXT_LICENSE_VALID_TO'] = "Gültig bis";
 $_ARRAYLANG['TXT_LICENSE_CREATED_AT'] = "Erstellt am";
 $_ARRAYLANG['TXT_INSTALLATION_ID'] = "Installationsschlüssel";
 $_ARRAYLANG['TXT_LICENSE_KEY'] = 'Lizenzschlüssel';
-$_ARRAYLANG['TXT_LICENSE_KEY_HELP'] = 'Geben Sie hier Ihren Lizenzschlüssel ein, um diese Contrexx© Installation zu aktivieren.';
+$_ARRAYLANG['TXT_LICENSE_KEY_HELP'] = 'Geben Sie hier Ihren Lizenzschlüssel ein, um diese Cloudrexx© Installation zu aktivieren.';
 $_ARRAYLANG['TXT_LICENSE_STATE_NOK'] = 'Ungültig';
 $_ARRAYLANG['TXT_LICENSE_STATE_OK'] = 'Gültig';
 $_ARRAYLANG['TXT_LICENSE_STATE_DEMO'] = 'Trial';
@@ -206,7 +231,7 @@ $_ARRAYLANG['TXT_WELCOME_MESSAGE'] = "Willkommen";
 $_ARRAYLANG['TXT_ADMINISTSRATORS_ONLINE'] = "Administratoren online";
 $_ARRAYLANG['TXT_LAST_LOGIN'] = "Letzte Anmeldung";
 $_ARRAYLANG['TXT_LAST_LOGINS'] = "Letzte Anmeldungen";
-$_ARRAYLANG['TXT_CONTREXX_NEWS'] = "Contrexx News";
+$_ARRAYLANG['TXT_CONTREXX_NEWS'] = "Cloudrexx News";
 $_ARRAYLANG['TXT_CREATING_AND_PUBLISHING'] = "Publizieren und Anlegen";
 $_ARRAYLANG['TXT_EVALUATE_AND_VIEW'] = "Auswerten und Ansehen";
 $_ARRAYLANG['TXT_MANAGE'] = "Verwalten";
@@ -288,8 +313,9 @@ $_ARRAYLANG['TXT_DELETE_GROUPS'] = "Gruppen löschen";
 $_ARRAYLANG['TXT_ADD_GROUPS'] = "Gruppen erstellen";
 $_ARRAYLANG['TXT_EDIT_GROUPS'] = "Gruppen editieren";
 $_ARRAYLANG['TXT_RESET_STATS'] = "Statistiken zurücksetzen";
-$_ARRAYLANG['TXT_ACTIVATE_SKINS'] = "Designs aktivieren";
-$_ARRAYLANG['TXT_EDIT_SKINS'] = "Designs bearbeiten";
+$_ARRAYLANG['TXT_ACTIVATE_SKINS'] = "Aktivierung von Webdesign Templates";
+$_ARRAYLANG['TXT_EDIT_SKINS'] = "Verwaltung von Webdesign Templates";
+$_ARRAYLANG['TXT_CORE_VIEWMANAGER_TEMPLATE_EDITOR_ACCESS'] = 'Webdesign Templates mit Template Editor anpassen';
 $_ARRAYLANG['TXT_EDIT_LANGUAGE_SETTINGS'] = "Sprachvariablen mutieren";
 $_ARRAYLANG['TXT_DELETE_LANGUAGES'] = "Sprachen löschen";
 $_ARRAYLANG['TXT_REGISTER_MODULES'] = "Module registrieren";
@@ -499,7 +525,7 @@ $_ARRAYLANG['TXT_SETTINGS_DOMAIN_URL'] = "Domain Ihrer Homepage";
 $_ARRAYLANG['TXT_RESERVATION_MODULE_DESCRIPTION'] = "Reservierungssystem";
 $_ARRAYLANG['TXT_RESERVATION'] = "Reservierungen";
 $_ARRAYLANG['TXT_RESERVATION_MODULE'] = "Reservierungssystem";
-$_ARRAYLANG['TXT_THEME_IMPORT_EXPORT'] = "Schnittstellen";
+$_ARRAYLANG['TXT_THEME_IMPORT_EXPORT'] = "Import/Export von Webdesign Templates";
 $_ARRAYLANG['TXT_LOGOUT_WARNING'] = "Sie beenden Ihre geschützte Administrations Konsole. Zu Ihrer Sicherheit empfehlen wir, den Cache Ihres Browsers zu leeren. Wollen Sie die Administrations Console wirklich beenden?";
 $_ARRAYLANG['TXT_EXPORT'] = "Export";
 $_ARRAYLANG['TXT_THEME_PRINT'] = "Druckansicht";
@@ -734,6 +760,7 @@ $_ARRAYLANG['TXT_ACCESS_SET_ADDRESS_OF_WEBSITE'] = "Geben Sie die Adresse einer 
 $_ARRAYLANG['TXT_ACCESS_SIGNATURE'] = "Signatur";
 $_ARRAYLANG['TXT_ACCESS_SKYPE_NAME'] = "Skype-Name";
 $_ARRAYLANG['TXT_ACCESS_TITLE'] = "Anrede";
+$_ARRAYLANG['TXT_ACCESS_DESIGNATION'] = "Titel";
 $_ARRAYLANG['TXT_ACCESS_UNABLE_DELETE_YOUR_USER'] = "Sie können Ihren eigenen Benutzer nicht löschen!";
 $_ARRAYLANG['TXT_ACCESS_UNABLE_STORE_PROFILE_ATTIRBUTE'] = "Die Profileigenschaft %s konnte nicht gespeichert werden!";
 $_ARRAYLANG['TXT_ACCESS_NOT_SPECIFIED'] = "Keine Angabe";
@@ -744,6 +771,7 @@ $_ARRAYLANG['TXT_ACCESS_USERNAME_ALREADY_USED'] = "Der gewählte Benutzername wi
 $_ARRAYLANG['TXT_ACCESS_VISIT_WEBSITE'] = "Webseite besuchen";
 $_ARRAYLANG['TXT_ACCESS_WEBSITE'] = "Webseite";
 $_ARRAYLANG['TXT_ACCESS_ZIP'] = "PLZ";
+$_ARRAYLANG['TXT_ACCESS_USER_CHOOSE_FILE'] = 'Datei wählen';
 $_ARRAYLANG['CONTENT_ALIAS_HELPTEXT'] = "Mit einem Alias können Sie der Seite eine URL zuweisen, die für Suchmaschinen sowie für das menschliche Auge angenehmer ist. Anstelle von z.B. <b>www.ihredomain.com/index.php?page=9234<\\/b> kann eine URL in der Form <b>www.ihredomain.com/dienstleistung<\\/b> benutzt werden.";
 $_ARRAYLANG['TXT_ERROR_NO_TITLE'] = "Diese Seite hat keinen Linknamen und konnte deshalb nicht gespeichert werden.";
 $_ARRAYLANG['TXT_CREATE_BACKUPS'] = "Backup erstellen";
@@ -809,7 +837,7 @@ $_ARRAYLANG['TXT_AUCTION_MODULE_DESCRIPTION'] = "Auktionen";
 $_ARRAYLANG['TXT_AUCTION_TITLE'] = "Auktionen";
 $_ARRAYLANG['TXT_CORE_XML_SITEMAP_NOT_WRITABLE'] = "Das XML Sitemap %s konnte nicht aktualisiert werden, da die Datei nicht beschreibbar ist!";
 $_ARRAYLANG['TXT_CORE_HTACCESS_FILE_NOT_WRITABLE'] = "Die Datei %s ist nicht beschreibbar und kann daher nicht aktualisiert werden! Setzen Sie auf diese Datei Schreibzugriff, damit das System korrekt funktioniert!";
-$_ARRAYLANG['TXT_CORE_INVALID_HTACCESS_FORMAT'] = "Die HtAccess Datei %s konnte nicht ausgelesen werden, da die darin enthaltenen Contrexx spezifischen Anweisungen ungültig sind!";
+$_ARRAYLANG['TXT_CORE_INVALID_HTACCESS_FORMAT'] = "Die HtAccess Datei %s konnte nicht ausgelesen werden, da die darin enthaltenen Cloudrexx spezifischen Anweisungen ungültig sind!";
 $_ARRAYLANG['TXT_CORE_APACHE_MOD_REWRITE_REQUIRED'] = "Diese Funktion setzt voraus, dass das System auf einem Apache Webserver betrieben wird. Zudem wird das Apache Modul mod_rewrite verwendet. Es konnte nicht sichergestellt werden, ob dieser Server diese Anforderungen erfüllt!";
 $_ARRAYLANG['TXT_DBM_ERROR_GETTING_TABLES_INFO'] = "Fehler:  Konnte keine Informationen über vorhandene Tabellen lesen";
 $_ARRAYLANG['TXT_DBM_CSV_FOLDER'] = "Verzeichnis: '%1\$s'";
@@ -845,7 +873,7 @@ $_ARRAYLANG['TXT_CORE_SETTINGS_ERROR_RETRIEVING'] = "Fehler bei der Abfrage der 
 $_ARRAYLANG['TXT_CORE_SETTINGS_NONE_FOUND'] = "Keine Einstellungen gefunden";
 $_ARRAYLANG['TXT_ACCESS_PRIMARY_GROUP'] = "Primäre Benutzergruppe";
 $_ARRAYLANG['TXT_ECARD_MODULE_DESCRIPTION'] = "Digitalen Postkarten";
-$_ARRAYLANG['TXT_CSRF_TITLE'] = "Contrexx Sicherheitshinweis";
+$_ARRAYLANG['TXT_CSRF_TITLE'] = "Cloudrexx Sicherheitshinweis";
 $_ARRAYLANG['TXT_CSRF_DESCR'] = 'Sie sind dabei, &Auml;nderungen am System herbeizuf&uuml;hren. Falls Sie diese Meldung<ul><li>nach einem Klick auf einen Link in der Administrationsoberfl&auml;che sehen, klicken Sie auf <a href="%1$s">&Auml;nderungen &uuml;bernehmen</a></li><li>nach einem Klick auf einen Link in einer E-Mail oder ausserhalb der Administrationsoberfl&auml;che sehen, klicken Sie auf <a href="%2$s">&Auml;nderungen verwerfen</a></li></ul>';
 $_ARRAYLANG['TXT_CSRF_ABORT'] = "&Auml;nderungen verwerfen";
 $_ARRAYLANG['TXT_CSRF_CONTINUE'] = "&Auml;nderungen &uuml;bernehmen";
@@ -958,13 +986,13 @@ $_ARRAYLANG['TXT_CONNECT_OPENID_NO_ENDPOINT_FOUND'] = "Für die angegebene OpenI
 $_ARRAYLANG['TXT_CONNECT_OPENID_SIGNATURE_MISMATCH'] = "Die erhaltenen Zugangsdaten stimmen nicht mit ihrer Signatur überein. Versuchen Sie's nochmal.";
 $_ARRAYLANG['TXT_CONNECT_OPENID_LOG_IN_CANCELLED'] = "Anmeldung vom Benutzer abgebrochen.";
 $_ARRAYLANG['TXT_CONNECT_SUISSEID_NO_CERT_FOUND'] = "Es konnte keine SuisseID gefunden werden.";
-$_ARRAYLANG['TXT_ENABLE_CONNECT'] = "Logins über ContrexxConnect erlauben.";
-$_ARRAYLANG['TXT_CONNECT_DISABLED'] = "Diese Seite erlaub keine Anmeldungen über ContrexxConnect.";
+$_ARRAYLANG['TXT_ENABLE_CONNECT'] = "Logins über CloudrexxConnect erlauben.";
+$_ARRAYLANG['TXT_CONNECT_DISABLED'] = "Diese Seite erlaub keine Anmeldungen über CloudrexxConnect.";
 $_ARRAYLANG['TXT_ELEARNING'] = "e-Learning";
 $_ARRAYLANG['TXT_ELEARNING_MODULE_DESCRIPTION'] = "e-Learning";
 $_ARRAYLANG['TXT_LOGIN_OPENID'] = "OpenID";
 $_ARRAYLANG['TXT_LOGIN_SUBMIT_OPENID'] = "Mit OpenID anmelden";
-$_ARRAYLANG['TXT_LOGIN_SIGN_UP'] = "Haben Sie noch kein Account? Jetzt registrieren";
+$_ARRAYLANG['TXT_CORE_SIGN_UP'] = "Haben Sie noch kein Konto? Jetzt registrieren";
 $_ARRAYLANG['TXT_ELEARNING_ADMINISTRATION'] = "e-Learning Administration";
 $_ARRAYLANG['TXT_CORE_CUSTOMCONTENT'] = "Benutzerdefinierte Inhaltsvorlage";
 $_ARRAYLANG['TXT_CORE_CALENDAR_OPEN'] = "Kalender öffnen";
@@ -980,6 +1008,7 @@ $_ARRAYLANG['TXT_ALIAS_DOMAIN_MAPPING'] = "Domain-Mappings";
 $_ARRAYLANG['TXT_ACCESS_GROUP_NAME_INVALID'] = "Der gewählte Gruppenname ist nicht gültig! Wählen Sie bitte einen anderen Namen für die Gruppe.";
 $_ARRAYLANG['TXT_ACCESS_USER_ACCOUNTS_ACTIVATED'] = "Benutzerkonten aktiviert";
 $_ARRAYLANG['TXT_ACCESS_USER_ACCOUNTS_DEACTIVATED'] = "Benutzerkonten aktiviert";
+$_ARRAYLANG['TXT_CORE_HTML_FORM_VALIDATION_ERROR'] = 'Die Validierung mindestens eines Feldes ist fehlgeschlagen!';
 
 // core Image/Imagetype
 $_ARRAYLANG['TXT_CORE_CLEAR_IMAGE'] = "Bild entfernen";
@@ -1074,6 +1103,8 @@ $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_IS_PROTECTED'] = "Diese Vorlage ist geschütz
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_KEY'] = "Schlüssel";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_MESSAGE'] = "Nachricht";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_MESSAGE_HTML'] = "Nachricht (HTML)";
+$_ARRAYLANG['TXT_CORE_MAILTEMPLATE_ATTACH_PDF'] = "Dynamisches PDF-Dokument anhängen";
+$_ARRAYLANG['TXT_CORE_MAILTEMPLATE_PDF_TEMPLATE'] = "PDF Vorlage";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NAME'] = "Name der Vorlage";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NEW'] = "Neue E-Mail Vorlage hinzufügen";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NOTE_PLACEHOLDERS'] = "Verwenden Sie für die Felder einen fixen Wert, sofern dieser bekannt und immer gültig ist.  Setzen Sie einen Platzhalter ein, wenn er automatisch eingesetzt wird.";
@@ -1114,7 +1145,9 @@ $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NOTE_REPLY'] = "Nur eine E-Mail Adresse.";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NOTE_TO'] = "Trennen Sie mehrere E-Mail Adressen durch Kommas.";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NOTE_CC'] = "Trennen Sie mehrere E-Mail Adressen durch Kommas.";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NOTE_BCC'] = "Trennen Sie mehrere E-Mail Adressen durch Kommas.";
+$_ARRAYLANG['TXT_CORE_MAILTEMPLATE_NOTE_ATTACH_PDF'] = "Wählen Sie diese Option, um ein dynamisch generiertes PDF-Dokument dem sendenden E-Mail anzuhängen.";
 $_ARRAYLANG['TXT_CORE_MAILTEMPLATE_WARNING_NONE'] = "Es sind keine E-Mail Vorlagen vorhanden";
+$_ARRAYLANG['TXT_CORE_MAILTEMPLATE_ERROR_NO_SECTION_OR_GROUP'] = "Diesem Sprachplatzhalter ist kein Wert zugewiesen.";
 
 // core \Cx\Core\Setting
 $_ARRAYLANG['TXT_CORE_SETTING'] = "Einstellungen";
@@ -1129,6 +1162,7 @@ $_ARRAYLANG['TXT_CORE_SETTING_VALUE'] = "Einstellung";
 $_ARRAYLANG['TXT_CORE_SETTING_WARNING_EMPTY'] = "Hinweis: Leerer Wert für Einstellung '%1\$s' (Schlüssel '%2\$s')";
 $_ARRAYLANG['TXT_CORE_SETTING_WARNING_MISSING_LANGUAGE'] = "Fehlender Spracheintrag für Schlüssel '%2\$s' (Index '%1\$s')";
 $_ARRAYLANG['TXT_CORE_SETTING_WARNING_NONE_FOUND_FOR_TAB_AND_SECTION'] = "Hinweis: Keine Einstellungen gefunden für Tab %1\$s, Sektion %2\$s";
+$_ARRAYLANG['TXT_CORE_SETTING_ERROR_STORING_IMAGE'] ='Die Einstellung %s konnte nicht gespeichert werden';
 $_ARRAYLANG['TXT_CORE_SETTING_ERROR_STORING_UNKNOWN_SETTING'] = "Fehler: Die unbekanne Einstellung \"%1\$s\" konnte nicht aktualisiert werden";
 // UNUSED -- keep it anyway
 //$_ARRAYLANG['TXT_CORE_SETTING_ERROR_STORING_SETTINGS'] = "Fehler: Die Einstellungen konnten nicht aktualisiert werden";
@@ -1241,6 +1275,7 @@ $_ARRAYLANG['TXT_CORE_CM_PAGE_TITLE_INFO'] = 'Wird auf der Inhaltsseite und in S
 $_ARRAYLANG['TXT_CORE_CM_TYPE'] = 'Typ';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_CONTENT'] = 'Inhaltsseite';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_REDIRECT'] = 'Weiterleitung';
+$_ARRAYLANG['TXT_CORE_CM_TYPE_SYMLINK'] = 'Verknüpfung';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_APPLICATION'] = 'Anwendung';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_FALLBACK'] = 'Andere Sprachversion verwenden:';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_CONTENT_INFO'] = 'Verwendet den Content-Editor zur Verwaltung des Seiteninhalts.';
@@ -1248,6 +1283,9 @@ $_ARRAYLANG['TXT_CORE_CM_TYPE_REDIRECT_TARGET'] = 'Ziel';
 $_ARRAYLANG['TXT_CORE_CM_BROWSE'] = 'Durchsuchen...';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_REDIRECT_INFO'] = 'Weiterleitung auf eine andere Seite oder ein externes Ziel.';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_REDIRECT_INFO_ACTION'] = 'Externe URL eingeben oder Seite auswählen.';
+$_ARRAYLANG['TXT_CORE_CM_TYPE_SYMLINK_TARGET'] = 'Ziel';
+$_ARRAYLANG['TXT_CORE_CM_TYPE_SYMLINK_INFO'] = 'Verknüpfung zu einer anderen Seite.';
+$_ARRAYLANG['TXT_CORE_CM_TYPE_SYMLINK_INFO_ACTION'] = 'Seite auswählen.';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_APPLICATION_AREA'] = 'Bereich';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_APPLICATION_INFO'] = 'W&auml;hlen Sie die gew&uuml;nschte Anwendung und deren Bereich. Mehr Informationen finden Sie in der Anwendungsdokumentation.';
 $_ARRAYLANG['TXT_CORE_CM_TYPE_FALLBACK_INFO'] = 'Verwendet die Inhalte und Einstellungen der korrespondierenden Seite einer anderen Sprache.';
@@ -1262,6 +1300,8 @@ $_ARRAYLANG['TXT_CORE_CM_METADESC'] = 'Beschreibung';
 $_ARRAYLANG['TXT_CORE_CM_METADESC_INFO'] = 'Wird von Suchmaschinen als Beschreibung verwendet. Beispiel: Muster AG ist der schnellste Pizzakurier in Westeuropa';
 $_ARRAYLANG['TXT_CORE_CM_METAKEYS'] = 'Stichworte';
 $_ARRAYLANG['TXT_CORE_CM_METAKEYS_INFO'] = 'Werden von Suchmaschinen als zus&auml;tzliche Stichworte aufgenommen. Beispiele: Muster, Pizza, Europa, K&auml;se';
+$_ARRAYLANG['TXT_CORE_CM_METAIMAGE'] = 'Bild';
+$_ARRAYLANG['TXT_CORE_CM_METAIMAGE_INFO'] = 'Wird bei den sozialen Netzwerken als Vorschaubild dargestellt.';
 $_ARRAYLANG['TXT_CORE_CM_THEMES'] = 'Theme';
 $_ARRAYLANG['TXT_CORE_CM_THEMES_INFO'] = 'Die Seite wird im ausgew&auml;hlten Theme angezeigt.';
 $_ARRAYLANG['TXT_CORE_CM_CUSTOM_CONTENT'] = 'Inhaltsvorlage';
@@ -1318,6 +1358,7 @@ $_ARRAYLANG['TXT_CORE_CM_PAGE_TYPE_HOME'] = "Startseite";
 $_ARRAYLANG['TXT_CORE_CM_PAGE_TYPE_CONTENT_SITE'] = "Inhaltseite";
 $_ARRAYLANG['TXT_CORE_CM_PAGE_TYPE_APPLICATION'] = "Anwendung";
 $_ARRAYLANG['TXT_CORE_CM_PAGE_TYPE_REDIRECTION'] = "Weiterleitung";
+$_ARRAYLANG['TXT_CORE_CM_PAGE_TYPE_SYMLINK'] = "Verknüpfung";
 $_ARRAYLANG['TXT_CORE_CM_PAGE_TYPE_FALLBACK'] = "Fallback";
 $_ARRAYLANG['TXT_CORE_CM_PAGE_MOVE_INFO'] = "Verschieben Sie die Seite mittels Drag and Drop.";
 $_ARRAYLANG['TXT_CORE_CM_TRANSLATION_INFO'] = "Klicken Sie hier um die Seite in dieser Sprache zu editieren.";
@@ -1381,7 +1422,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_NEWS_TICKER'] = 'Newsticker';
 $_ARRAYLANG['TXT_CORE_MODULE_NEWS_TEASERS'] = 'Teasers';
 $_ARRAYLANG['TXT_CORE_MODULE_NEWS_SETTINGS'] = 'Einstellungen';
 
-$_ARRAYLANG['TXT_CORE_CANNOT_USE_AS_ALIAS'] = 'Bestehende Dateien oder Ordner aus dem Root-Verzeichnis und aktivierte Sprachen (z.B. de, en) können nicht als Alias verwendet werden.';
+$_ARRAYLANG['TXT_CORE_CANNOT_USE_AS_ALIAS'] = 'Bestehende Dateien oder Ordner aus dem Root-Verzeichnis und Sprachcodes (z.B. de, en-US) können nicht als Alias verwendet werden.';
 $_ARRAYLANG['TXT_CORE_REMOVE_ALIAS_TO_ACTIVATE_LANGUAGE'] = 'Um diese Sprache zu aktivieren, muss folgendes Alias gelöscht oder umbennent werden, da es für das virtuelle Sprachverzeichnis verwendet wird';
 $_ARRAYLANG['TXT_SURVEY_MODULE'] = "Umfragen";
 $_ARRAYLANG[' TXT_CSRF_MODULE_DESCRIPTION'] = "Csrf";
@@ -1398,6 +1439,13 @@ $_ARRAYLANG['TXT_CORE_RECORD_DELETED_SUCCESSFUL'] ='Der Eintrag wurde erfolgreic
 $_ARRAYLANG['TXT_CORE_RECORD_DELETE_CONFIRM'] ='Bitte bestätigen Sie den Löschvorgang des ausgewählten Eintrages.';
 $_ARRAYLANG['TXT_CORE_RECORD_EDIT_TITLE'] ='Eintrag bearbeiten';
 $_ARRAYLANG['TXT_CORE_RECORD_DELETE_TITLE'] ='Eintrag löschen';
+$_ARRAYLANG['TXT_CORE_RECORD_FILL_OUT_AT_LEAST_ONE_FILED'] = "Der Eintrag konnte nicht gespeichert werden, bitte füllen Sie mindestens ein Feld aus";
+$_ARRAYLANG['TXT_CORE_RECORD_VALIDATION_FAILED'] = "Der Eintrag konnte nicht gespeichert werden, die Validation ist fehlgeschlagen";
+$_ARRAYLANG['TXT_CORE_RECORD_NO_SUCH_ENTRY'] = "Der Eintrag konnte nicht gespeichert werden, es wurde kein solcher Eintrag gefunden";
+$_ARRAYLANG['TXT_CORE_RECORD_FUNCTION_NOT_FOUND'] = "Die Einträge unter '%s' konnten nicht gespeichert werden, da die Funktion '%s' nicht gefunden wurde. Wenden Sie sich bitte an den System-Administrator";
+$_ARRAYLANG['TXT_CORE_RECORD_CLASS_NOT_FOUND'] = "Die Einträge unter '%s' konnten nicht gespeichert werden, da die Klasse nicht gefunden wurde. Wenden Sie sich bitte an den System-Administrator";
+$_ARRAYLANG['TXT_CORE_RECORD_ONE_TO_N_ASSOCIATION'] = "Diese Einträge werden erst gespeichert/gelöscht, wenn das Hauptformular abgeschickt wird.";
+$_ARRAYLANG['TXT_CORE_RECORD_UNKNOWN_ERROR'] = "Eintrag konnte nicht gespeichert werden. Prüfen Sie ihre Eingabe und versuchen Sie es erneut.";
 $_ARRAYLANG['TXT_SETTINGS_UPDATED'] = 'Die Einstellungen wurden gespeichert.';
 $_ARRAYLANG['TXT_ACTIVATED'] = "Aktiviert";
 $_ARRAYLANG['TXT_DEACTIVATED'] = "Deaktiviert";
@@ -1413,3 +1461,8 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SYSTEM_MANAGEMENT']        = "Systemverwa
 
 $_ARRAYLANG['TXT_CORE_EDIT_USER_CRM_ACCOUNT'] = 'Dieser Benutzer ist verknüpft mit einem CRM Kontakt, klicken um direkt zum CRM Kontakt zu gelangen.';
 $_ARRAYLANG['TXT_CORE_NONE'] = 'Keine';
+
+$_ARRAYLANG['TXT_CORE_ACTIVE'] = "Aktiv";
+$_ARRAYLANG['TXT_CORE_INACTIVE'] = 'Inaktiv';
+$_ARRAYLANG['TXT_CORE_SCHEDULED_ACTIVE'] = 'Zeitgesteuerte Veröffentlichung aktiv';
+$_ARRAYLANG['TXT_CORE_SCHEDULED_INACTIVE'] = 'Deaktiviert aufgrund der zeitgesteuerten Veröffentlichung';

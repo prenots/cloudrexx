@@ -277,7 +277,13 @@ class CronController extends \Cx\Core\Core\Model\Entity\Controller {
                 if ($isUserDateField || in_array($fieldType, $dateFieldTypes)) {
                     $conditions[] = $this->getDateFilter($formattedCriteria, $criteria, $isUserDateField);
                 } else {
-                    $conditions[] = $formattedCriteria . ' = "' . $criteria . '" ';
+                    if (strpos($criteria, '!') === 0) {
+                        $conditions[] = $formattedCriteria . ' != "' . substr($criteria, 1) . '" ';
+                    } elseif (preg_match('/^(NOT\s+)?IN\s*\(.*\)$/i', $criteria)) {
+                        $conditions[] = $formattedCriteria . ' ' . $criteria;
+                    } else {
+                        $conditions[] = $formattedCriteria . ' = "' . $criteria . '" ';
+                    }
                 }
             }
         }

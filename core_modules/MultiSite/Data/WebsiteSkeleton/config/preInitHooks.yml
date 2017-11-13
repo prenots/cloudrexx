@@ -1,6 +1,14 @@
 -
+  name: GeoIp
+  type: core_module
+-
+  name: Cache
+  type: core_module
+# Net depends on Cache (DataSet)
+-
   name: Net
   type: core
+# MultiSite depends on Cache (DataSet) and Net (Domains)
 -
   name: MultiSite
   type: core_module

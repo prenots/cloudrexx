@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * YamlSettingEventListener
- *  
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core_config
  */
 
@@ -13,31 +39,31 @@ namespace Cx\Core\Config\Model\Event;
 
 /**
  * YamlSettingEventListenerException
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_config
  */
 class YamlSettingEventListenerException extends \Exception {}
 
 /**
  * YamlSettingEventListener
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_config
  */
-class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
+class YamlSettingEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener {
     public function preUpdate($eventArgs) {
         global $_CONFIG,$_ARRAYLANG;
         try {
             $objSetting = $eventArgs->getEntity();
             $value = $objSetting->getValue();
-            
+
             switch ($objSetting->getName()) {
                 case 'timezone':
                     if (!in_array($value, timezone_identifiers_list())) {
@@ -45,7 +71,7 @@ class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListe
                         throw new YamlSettingEventListenerException($_ARRAYLANG['TXT_CORE_TIMEZONE_INVALID']);
                     }
                     break;
-             
+
                 case 'domainUrl':
                     $arrMatch = array();
                     if (preg_match('#^https?://(.*)$#', $value, $arrMatch)) {
@@ -53,6 +79,7 @@ class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListe
                     }
                     $value = htmlspecialchars($value, ENT_QUOTES, CONTREXX_CHARSET);
                     $objSetting->setValue($value);
+                    $this->getComponent('Cache')->deleteNonPagePageCache();
                     break;
 
                 case 'forceProtocolFrontend':
@@ -62,6 +89,7 @@ class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListe
                         }
                         $objSetting->setValue($value);
                     }
+                    $this->getComponent('Cache')->deleteNonPagePageCache();
                     break;
 
                 case 'forceProtocolBackend':
@@ -81,6 +109,33 @@ class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListe
                     }
                     $value = \Cx\Core\Config\Controller\Config::checkAccessibility($protocol) ? $value : 'off';
                     $objSetting->setValue($value);
+                    $this->getComponent('Cache')->deleteNonPagePageCache();
+                    break;
+                
+                case 'cacheReverseProxy':
+                case 'cacheProxyCacheConfig':
+                    if ($value != $_CONFIG[$objSetting->getName()]) {
+                        // drop reverse proxy cache
+                        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearReverseProxyCache('*');
+                    }
+                    break;
+                
+                case 'cacheSsiOutput':
+                case 'cacheSsiType':
+                case 'cacheSsiProcessorConfig':
+                    if ($value != $_CONFIG[$objSetting->getName()]) {
+                        // drop esi/ssi cache
+                        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->clearSsiCache();
+                    }
+                    break;
+                case 'defaultMetaimage':
+                    if ($value != $_CONFIG[$objSetting->getName()]) {
+                        // drop esi/ssi cache
+                        $this->cx->getEvents()->triggerEvent(
+                            'clearEsiCache',
+                            array('Widget', 'METAIMAGE')
+                        );
+                    }
                     break;
             }
         } catch (YamlSettingEventListenerException $e) {
@@ -95,14 +150,17 @@ class YamlSettingEventListener implements \Cx\Core\Event\Model\Entity\EventListe
             \DBG::msg($e->getMessage());
         }
     }
-    
+
     public function onEvent($eventName, array $eventArgs) {
-        \DBG::msg(__METHOD__);
         if ($eventName == 'postFlush') {
-            if (isset($eventArgs[1]) && !preg_match('#\b(Config.yml)\b#', $eventArgs[1])) {
+            if (
+                !isset($eventArgs[1]) ||
+                (isset($eventArgs[1]) && !preg_match('#\b(Config.yml)\b#', $eventArgs[1]))
+            ) {
                 return false;
             }
         }
+        \DBG::msg(__METHOD__ . ': '. $eventName);
         $this->$eventName(current($eventArgs));
     }
 }

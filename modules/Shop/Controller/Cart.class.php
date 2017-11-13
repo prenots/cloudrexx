@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Cart
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @todo        Test!
  */
@@ -14,10 +39,10 @@ namespace Cx\Modules\Shop\Controller;
 
 /**
  * Shop Cart
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @todo        Test!
  */
@@ -99,13 +124,21 @@ class Cart
         if (!include_once(\Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseLibraryPath() . '/PEAR/Services/JSON.php')) {
             die('Could not load JSON library');
         }
+
+        // Get amount of products in cart.
+        // Only fetch from session if session has been initialized.
+        $itemCount = 0;
+        if (Shop::hasSession()) {
+            $itemCount = $_SESSION['shop']['cart']['total_items'];
+        }
+
         $arrCart = array(
             'items' => self::$products,
             'total_price' => Currency::formatPrice(
                   self::get_price()
                 + (Vat::isEnabled() && !Vat::isIncluded()
                     ? self::get_vat_amount() : 0)),
-            'item_count' => $_SESSION['shop']['cart']['total_items'],
+            'item_count' => $itemCount,
             'unit' => Currency::getActiveCurrencySymbol()
         );
         $objJson = new \Services_JSON();
@@ -113,6 +146,40 @@ class Cart
         die($objJson->encode($arrCart));
     }
 
+    /**
+     * Check the cart product stock status
+     * If any of the product is out of stock then return error message
+     *
+     * @return mixed null|string
+     */
+    static function checkProductStockStatus()
+    {
+        global $_ARRAYLANG;
+
+        if (empty(Cart::get_products_array())) {
+            return;
+        }
+
+        $outOfStockProducts = array();
+        foreach (Cart::get_products_array() as $product) {
+            $objProduct = Product::getById($product['id']);
+            if ($objProduct && !$objProduct->getStatus()) {
+                $outOfStockProducts[] = contrexx_raw2xhtml($objProduct->name());
+            }
+        }
+
+        if (empty($outOfStockProducts)) {
+            return;
+        }
+
+        return sprintf(
+            (   count($outOfStockProducts) > 1
+             ? $_ARRAYLANG['TXT_SHOP_PRODUCT_MULTIPLE_CART_STOCK_OUTOFF_ERROR']
+             : $_ARRAYLANG['TXT_SHOP_PRODUCT_SINGLE_CART_STOCK_OUTOFF_ERROR']
+            ),
+            implode(', ', $outOfStockProducts)
+        );
+    }
 
     /**
      * Gets a product that has been sent through a POST request
@@ -135,13 +202,10 @@ class Cart
             $cart_id = intval($keys[0]);
         }
         $arrOptions = array();
-        // Add names of uploaded files to options array, so they will be
-        // recognized and added to the product in the cart
-        if (!empty($_FILES['productOption']['name'])) {
-            $arrOptions = $_FILES['productOption']['name'];
-        }
+        //Add values of the product option to options array, so they will be
+        //recognized and added to the product in the cart
         if (!empty($_POST['productOption'])) {
-            $arrOptions = $arrOptions + $_POST['productOption'];
+            $arrOptions = contrexx_input2raw($_POST['productOption']);
         }
         $arrProduct = array(
             'id' => intval($_REQUEST['productId']),
@@ -306,7 +370,8 @@ class Cart
                 }
                 if (   $type == Attribute::TYPE_UPLOAD_OPTIONAL
                     || $type == Attribute::TYPE_UPLOAD_MANDATORY) {
-                    $option_id = Shop::uploadFile($attribute_id);
+                    $filename = $arrNewProduct['options'][$attribute_id];
+                    $option_id = Shop::uploadFile($filename);
                     if ($option_id == '') {
                         continue;
                     }
@@ -391,6 +456,9 @@ class Cart
         global $_ARRAYLANG;
 
 //DBG::log("Cart::update(): Cart: ".var_export($_SESSION['shop']['cart'], true));
+        if (!Shop::hasSession()) {
+            return true;
+        }
         if (empty($_SESSION['shop']['cart'])) {
             self::init();
             return true;//self::get_products_array();
@@ -518,6 +586,7 @@ class Cart
                             : utf8_encode($objProduct->name())),
                           ENT_QUOTES, CONTREXX_CHARSET)),
                 'options' => $product['options'],
+                'options_count' => count($product['options']),
                 'options_long' => $options_strings[0],
                 'options_cart' => $options_strings[1],
                 'price' => Currency::formatPrice($price),
@@ -857,12 +926,17 @@ die("Cart::view(): ERROR: No template");
                             Currency::getActiveCurrencySymbol(),
                     ));
                 }
-                if (intval($arrProduct['minimum_order_quantity'])>0) {
+                if (intval($arrProduct['minimum_order_quantity']) > 0) {
                     $objTemplate->setVariable(array(
                         'SHOP_PRODUCT_MINIMUM_ORDER_QUANTITY' => $arrProduct['minimum_order_quantity'],
                     ));
-                } elseif ($objTemplate->blockExists('orderQuantity')) {
-                    $objTemplate->hideBlock('orderQuantity');
+                } else {
+                    if ($objTemplate->blockExists('orderQuantity')) {
+                        $objTemplate->hideBlock('orderQuantity');
+                    }
+                    if ($objTemplate->blockExists('minimumOrderQuantity')) {
+                        $objTemplate->hideBlock('minimumOrderQuantity');
+                    }
                 }
                 $objTemplate->parse('shopCartRow');
             }
@@ -939,7 +1013,7 @@ die("Cart::view(): ERROR: No template");
                 ));
             }
         }
-        if (self::needs_shipment()) { 
+        if (self::needs_shipment()) {
             $objTemplate->setVariable(array(
                 'TXT_SHIP_COUNTRY' => $_ARRAYLANG['TXT_SHIP_COUNTRY'],
                 // Old, obsolete

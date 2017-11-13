@@ -1,6 +1,32 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 return true;
-global $sessionObj, $_CONFIG, $_CORELANG, $objUser, $objDatabase;
+global $_CONFIG, $_CORELANG, $objUser, $objDatabase;
 
 if (!isset($objUser) || !isset($objDatabase) || !isset($license)) {
     require_once dirname(dirname(dirname(__FILE__))).'/core/Core/init.php';
@@ -8,11 +34,14 @@ if (!isset($objUser) || !isset($objDatabase) || !isset($license)) {
     // In mode 'minimal' we have to manually register event listeners.
     // The listener registerYamlSettingEventListener is used to update the
     // settings.php file.
-    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener();
+    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener($cx);
+}
+if (!$cx) {
+    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 }
 
 // Init user
-if (empty($sessionObj)) $sessionObj = \cmsSession::getInstance();
+$sessionObj = $cx->getComponent('Session')->getSession();
 if (!isset($objUser)) {
     $objUser = $cx->getUser()->objUser;
 }

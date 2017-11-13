@@ -1,19 +1,45 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * ContrexxJavascript
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_cxjs
  */
 
 /**
  * ContrexxJavascriptException
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_cxjs
  */
 class ContrexxJavascriptException extends Exception {}
@@ -26,9 +52,9 @@ require_once UPDATE_PATH . '/lib/FRAMEWORK/cxjs/ContrexxJavascriptI18n.class.php
  * This class configures the ContrexxJavascript-object
  * (referred to as 'cx-object' in the comments)
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  lib_cxjs
  * @todo this can be cached
  */
@@ -52,7 +78,7 @@ class ContrexxJavascript {
 
         $backOrFrontend = $objInit->mode;
         global $objFWUser;
-        $langId; 
+        $langId;
         if($backOrFrontend == "frontend")
             $langId = $objInit->getFrontendLangId();
         else //backend
@@ -75,7 +101,7 @@ class ContrexxJavascript {
         //let i18n set it's variables
         $i18n = new ContrexxJavascriptI18n($langCode);
         $i18n->variablesTo($this);
-        
+
         //determine the correct jquery ui css' path.
         //the user might have overridden the default css in the theme, so look out for this too.
         $jQUiCssPath = 'themes/'.$objInit->getCurrentThemesPath().'/jquery-ui.css'; //customized css would be here
@@ -108,7 +134,7 @@ class ContrexxJavascript {
         //   => in this case, the scope is in parameter value
         //b) no scope was specified
         //   => in this case, we use the default scope 'global'
-        //c) a) and b) occur  
+        //c) a) and b) occur
 
         $multipleValues = is_array($key);
         if(is_null($scope)) {
@@ -122,7 +148,7 @@ class ContrexxJavascript {
         if(!isset($this->variables[$scope])) {
             $this->variables[$scope] = array();
         }
-        
+
         if(!$multipleValues) {
             $this->variables[$scope][$key] = $value;
         }
@@ -158,7 +184,7 @@ class ContrexxJavascript {
      */
     protected function variableConfigJs() {
         $js='';
-        foreach($this->variables as $scope => $variables) {          
+        foreach($this->variables as $scope => $variables) {
             $js  .= 'cx.variables.set(';
             $js .= json_encode($variables);
             $js .= ",'$scope');\n";

@@ -1,10 +1,35 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Shop library
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Ivan Schmid <ivan.schmid@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @version     3.0.0
  */
@@ -13,10 +38,10 @@ namespace Cx\Modules\Shop\Controller;
 
 /**
  * All the helping hands needed to run the shop
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Ivan Schmid <ivan.schmid@comvation.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @todo        Add a proper constructor that initializes the class with its
  *              various variables, and/or move the appropriate parts to
@@ -65,32 +90,20 @@ die("ShopLibrary::shopSendmail(): Obsolete method called");
         // replace cr/lf by lf only
         $shopMailBody = preg_replace('/\015\012/', "\012", $shopMailBody);
 
-        if (@include_once ASCMS_LIBRARY_PATH.'/phpmailer/class.phpmailer.php') {
-            $objMail = new \phpmailer();
-            if (   isset($_CONFIG['coreSmtpServer'])
-                && $_CONFIG['coreSmtpServer'] > 0
-                && @include_once ASCMS_CORE_PATH.'/SmtpSettings.class.php') {
-                if (($arrSmtp = SmtpSettings::getSmtpAccount($_CONFIG['coreSmtpServer'])) !== false) {
-                    $objMail->IsSMTP();
-                    $objMail->Host = $arrSmtp['hostname'];
-                    $objMail->Port = $arrSmtp['port'];
-                    $objMail->SMTPAuth = true;
-                    $objMail->Username = $arrSmtp['username'];
-                    $objMail->Password = $arrSmtp['password'];
-                }
-            }
-            $objMail->CharSet = CONTREXX_CHARSET;
-            $objMail->From = preg_replace('/\015\012/', "\012", $shopMailFrom);
-            $objMail->FromName = preg_replace('/\015\012/', "\012", $shopMailFromText);
-            $objMail->AddReplyTo($_CONFIG['coreAdminEmail']);
-            $objMail->Subject = $shopMailSubject;
-            $objMail->IsHTML(false);
-            $objMail->Body = $shopMailBody;
-            $objMail->AddAddress($shopMailTo);
-            if ($objMail->Send()) {
-                return true;
-            }
+        $objMail = new \Cx\Core\MailTemplate\Model\Entity\Mail();
+
+        $from = preg_replace('/\015\012/', "\012", $shopMailFrom);
+        $fromName = preg_replace('/\015\012/', "\012", $shopMailFromText);
+        $objMail->AddReplyTo($_CONFIG['coreAdminEmail']);
+        $objMail->SetFrom($from, $fromName);
+        $objMail->Subject = $shopMailSubject;
+        $objMail->IsHTML(false);
+        $objMail->Body = $shopMailBody;
+        $objMail->AddAddress($shopMailTo);
+        if ($objMail->Send()) {
+            return true;
         }
+
         return false;
  */
     }
@@ -249,7 +262,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         // If the image is situated in or below the shop image folder,
         // don't bother to copy it.
         if (!preg_match($shopImageFolderRe, $imageFileSource)) {
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $imageFileTarget) 
+            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $imageFileTarget)
              && preg_match('/(\.\w+)$/', $imageFileSource, $arrMatch)) {
                 $imageFileTarget = preg_replace('/\.\w+$/', uniqid().$arrMatch[1], $imageFileTarget);
                 \Message::information(sprintf(
@@ -381,8 +394,17 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
      */
     static function getSubstitutionArray()
     {
+        // fetch shop country name
+        $countryId = \Cx\Core\Setting\Controller\Setting::getValue('country_id','Shop');
+        $country = \Cx\Core\Country\Controller\Country::getNameById($countryId);
+
         return array(
-            'SHOP_COMPANY' => \Cx\Core\Setting\Controller\Setting::getValue('company','Shop'),
+            'SHOP_COMPANY'  => \Cx\Core\Setting\Controller\Setting::getValue('company','Shop'),
+            'SHOP_ADDRESS'  => \Cx\Core\Setting\Controller\Setting::getValue('address','Shop'),
+            'SHOP_TELEPHONE'=> \Cx\Core\Setting\Controller\Setting::getValue('telephone','Shop'),
+            'SHOP_FAX'      => \Cx\Core\Setting\Controller\Setting::getValue('fax','Shop'),
+            'SHOP_COUNTRY'  => $country,
+            'SHOP_EMAIL'    => \Cx\Core\Setting\Controller\Setting::getValue('email','Shop'),
             'SHOP_HOMEPAGE' => \Cx\Core\Routing\Url::fromModuleAndCmd(
                 'Shop', '', FRONTEND_LANG_ID)->toString(),
         );

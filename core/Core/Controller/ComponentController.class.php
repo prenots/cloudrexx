@@ -1,8 +1,75 @@
 <?php
 
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+
 namespace Cx\Core\Core\Controller;
 
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+    const CLI_SCRIPT_NAME = './cx ';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getControllerClasses()
+    {
+        return array('EsiWidget');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array('EsiWidgetController');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postInit(\Cx\Core\Core\Controller\Cx $cx)
+    {
+        $widgetController = $this->getComponent('Widget');
+        $widgetController->registerWidget(
+            new \Cx\Core_Modules\Widget\Model\Entity\FinalStringWidget(
+                $this,
+                'PATH_OFFSET',
+                $this->cx->getCodeBaseOffsetPath()
+            )
+        );
+
+        foreach (array('BASE_URL', 'VERSION') as $widgetName) {
+            $widgetController->registerWidget(
+                new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+                    $this,
+                    $widgetName
+                )
+            );
+        }
+    }
 
     public function getCommandsForCommandMode() {
         return array('help', 'status', 'diff', 'version', 'info', 'install', 'uninstall');
@@ -31,7 +98,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
             case 'version':
                 if ($short) {
-                    return 'Displays info about the version of Contrexx';
+                    return 'Displays info about the version of Cloudrexx';
                 }
                 return '(todo)';
                 break;
@@ -55,12 +122,24 @@ cx(.bat) uninstall [core|core_module|module|lib|theme] {component name}';
         return '';
     }
 
-    public function executeCommand($command, $arguments)
+    public function executeCommand($command, $arguments, $dataArguments = array())
     {
-        
+
         switch ($command) {
             case 'help':
-                echo 'Contrexx command mode help.
+                $commands = $this->cx->getCommands();
+                if (count($arguments)) {
+                    if (isset($commands[current($arguments)])) {
+                        echo $commands[current($arguments)]->getCommandDescription(
+                            current($arguments),
+                            false
+                        ) . "\n";
+                        return;
+                    } else {
+                        echo "No such command\n";
+                    }
+                }
+                echo 'Cloudrexx command mode help.
 
 ';
                 //if (count($arguments))
@@ -71,7 +150,6 @@ Use »cx(.bat) help <command>« for more info about a command
 Available commands:
 
 ';
-                $commands = $this->cx->getCommands();
                 $commandPerComponent = array();
                 foreach ($commands as $command=>$component) {
                     if (!isset($commandPerComponent[$component->getName()])) {
@@ -161,7 +239,7 @@ Available commands:
         if (!file_exists($file)) {
             return 'deleted';
         }
-        // get path relative to Contrexx root
+        // get path relative to Cloudrexx root
         // md5sum not matching
             // return 'irregular';
         // exists in customizing
@@ -170,5 +248,28 @@ Available commands:
             // else return 'customized';
         return 'normal';
     }
+    
+    /**
+     * Executes a command (in CLI command mode) asynchronously
+     * @param string $command Command mode command name to execute
+     * @param array $arguments List of strings as arguments for the command
+     * @throws \Exception If an argument or the command name contains any other characters than a-z, A-Z and 0-9
+     * @throws \Exception If we're running on windows
+     * @todo: Add support for Windows environment (http://stackoverflow.com/questions/26876728/execute-php-script-from-php-page-asynchronously-in-windows-system)
+     */
+    public function execAsync($command, $arguments) {
+        array_unshift($arguments, $command);
+        foreach ($arguments as $argument) {
+            if (!preg_match('/^[a-z0-9]+$/i', $argument)) {
+                throw new \Exception('Invalid argument');
+            }
+        }
+        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            throw new \Exception('This function does not yet work on windows systems!');
+        }
+        // todo: ' &' should not be here and instead be a flag for cx (./cx -async <params>)
+        // todo: we should allow overriding the call using event system (for cloud)
+        $command = static::CLI_SCRIPT_NAME . implode(' ', $arguments) . ' > /dev/null 2>&1 &';
+        exec($command);
+    }
 }
-

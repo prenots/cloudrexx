@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_egov
  */
 $_ARRAYLANG['TXT_PRODUCTS'] = "Products";
@@ -94,7 +120,7 @@ $_ARRAYLANG['TXT_EGOV_STTINGS_DATE_LABEL'] = "Description for date";
 $_ARRAYLANG['TXT_EGOV_STTINGS_DATE_ENTRY_DESC'] = "Description for date entry";
 $_ARRAYLANG['TXT_BROWSE'] = "Search";
 $_ARRAYLANG['TXT_EGOV_SOURCECODE'] = "Show sourcecode";
-$_ARRAYLANG['TXT_EGOV_PRODUCT_AUTO'] = "Status of order";
+$_ARRAYLANG['TXT_EGOV_PRODUCT_AUTO'] = "Order handling";
 $_ARRAYLANG['TXT_EGOV_PRODUCT_ELECTRO'] = "Electronic product";
 $_ARRAYLANG['TXT_EGOV_PRODUCT_SELECT_FILE'] = "Choose file";
 $_ARRAYLANG['TXT_MARKED'] = "Selected";
@@ -103,7 +129,6 @@ $_ARRAYLANG['TXT_IMGALT_DELETE'] = "Delete";
 $_ARRAYLANG['TXT_EGOV_SELECTED'] = "Selected";
 $_ARRAYLANG['TXT_EGOV_NOT_SELECTED'] = "Not selected";
 $_ARRAYLANG['TXT_EGOV_QUANTITY'] = "Quantity";
-$_ARRAYLANG['TXT_EGOV_ORDER_STATE_AUTOMAIL'] = "Order is accepted automatically and confirmed by e-mail";
 $_ARRAYLANG['TXT_EGOV_SUBJECT'] = "Subject";
 $_ARRAYLANG['EGOV_TXT_STATE_CHANGE'] = "Status modification";
 $_ARRAYLANG['EGOV_TXT_ORDER_ENTRY'] = "Incoming orders";
@@ -158,6 +183,7 @@ $_ARRAYLANG['TXT_EGOV_PRODUCT_QUANTITY_LIMIT'] = "Change to \\\"soon booked up\\
 $_ARRAYLANG['TXT_EGOV_ALTERNATIVE_PAYMENT_METHODS'] = "Alternative payment method";
 $_ARRAYLANG['TXT_EGOV_ALTERNATIVE_PAYMENT_NAMES'] = "Description";
 $_ARRAYLANG['TXT_STATE_ALTERNATIVE'] = "Alternatively";
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_RESERVED'] = 'reserved';
 
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE'] = "PostFinance";
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_ACTIVATED'] = "Activate PostFinance";
@@ -168,3 +194,14 @@ $_ARRAYLANG['TXT_EGOV_POSTFINANCE_ACCEPTED_PAYMENT_METHODS'] = "Accepted payment
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_HASH_SIGNATURE_IN'] = "SHA-IN Passphrase";
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_HASH_SIGNATURE_OUT'] = "SHA-OUT Passphrase";
 $_ARRAYLANG['TXT_EGOV_POSTFINANCE_USE_TESTSERVER'] = "Use testserver";
+$_ARRAYLANG['TXT_EGOV_OVERVIEW_AMOUNT'] = "Amount";
+$_ARRAYLANG['TXT_EGOV_OVERVIEW_RESERVATION_DATE'] = "Date of Reservation";
+$_ARRAYLANG['TXT_EGOV_AUTOMATICALLY'] = 'Automatically';
+$_ARRAYLANG['TXT_EGOV_MANUALLY'] = 'Manually';
+$_ARRAYLANG['TXT_EGOV_RESERVATION'] = 'Reservation';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_HANDLED_DESK'] = 'Order state is set to <strong>handled</strong>';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_RESERVE_DESK'] = 'Order state is set to <strong>reserved</strong>';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_NOT_PAID_DESK'] = 'Order state is set to <strong>not paid</strong>';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_EMAIL_NOTIFICATION'] = 'Email notification is sent';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_HANDLE_EMAIL_NOTIFICATION'] = 'Email notification is sent with set attachment';
+$_ARRAYLANG['TXT_EGOV_ORDER_STATE_NOT_PAID_EMAIL_NOTIFICATION'] = 'No email notification is being sent';

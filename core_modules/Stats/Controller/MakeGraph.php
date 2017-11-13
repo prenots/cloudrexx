@@ -1,25 +1,50 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Statistics
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_stats
  * @todo        Edit PHP DocBlocks!
  */
 namespace Cx\Core_Modules\Stats\Controller;
 /**
  * Make Graph
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_stats
  * @todo        Edit PHP DocBlocks!
  */
- 
+
 class MakeGraph
 {
     public $stats = '';
@@ -349,9 +374,9 @@ class MakeGraph
     function _generateGraph()
     {
         global $_ARRAYLANG;
-        
+
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        
+
         $graph = new \ykcee;
         $graph->SetImageSize($this->graphWidth, $this->graphHeight);
         $graph->SetTitleFont($cx->getCodeBaseLibraryPath().'/ykcee/VERDANA.TTF');
@@ -406,8 +431,8 @@ $objDatabase = $cx->getDb()->getAdoDb();
 $adminPage = true;
 $objInit = new \InitCMS($mode="backend");
 
-$sessionObj = \cmsSession::getInstance();
-$_SESSION->cmsSessionStatusUpdate("backend");
+$sessionObj = $cx->getComponent('Session')->getSession();
+$sessionObj->cmsSessionStatusUpdate("backend");
 \Permission::checkAccess(19, 'static');
 
 $objInit->_initBackendLanguage();

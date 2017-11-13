@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Class SubscriptionRepository
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_order
  */
 
@@ -13,24 +38,24 @@ namespace Cx\Modules\Order\Model\Repository;
 
 /**
  * Class SubscriptionRepository
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_order
  */
 class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
      * Fetch expired Subscriptions
-     * 
+     *
      * @param   mixed   $status Optional argument to filter the expired subscriptions
      *                          by status (Subscription::$state).
      *                          Specify single status as string or multiple status as array.
      * @return  array   Returns an array of Subscription objects. If none are found, NULL is returned.
      */
-    public function getExpiredSubscriptions($status = null) 
+    public function getExpiredSubscriptions($status = null)
     {
         $now = new \DateTime('now');
         $qb  = \Env::get('em')->createQueryBuilder();
@@ -42,25 +67,25 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
             if (is_array($status)) {
                 $qb->andWhere($qb->expr()->in('s.state', $status));
             } else {
-                $qb->andWhere('s.state = :state')->setParameter('state', $status); 
+                $qb->andWhere('s.state = :state')->setParameter('state', $status);
             }
         }
         return $qb->getQuery()->getResult();
     }
-    
+
     /**
      * Find the subscriptions by the filter
-     * 
+     *
      * @param string $filter
-     * 
+     *
      * @return array
      */
     function findSubscriptionsBySearchTerm($filter) {
         if (empty($filter)) {
             return array();
         }
-        
-        $qb            = $this->getEntityManager()->createQueryBuilder();
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
         $subscriptions = array();
         
         if (    !empty($filter['term'])
@@ -138,15 +163,15 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
             }
             $subscriptions = $this->getSubscriptionsByCriteria($options);
         }
-        
+
         return $subscriptions;
     }
-    
+
     /**
      * Get the subscriptions by criteria
-     * 
+     *
      * @param array $criteria
-     * 
+     *
      * @return array
      */
     function getSubscriptionsByCriteria($criteria, $order = array()) {
@@ -160,13 +185,13 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
             ->from('\Cx\Modules\Order\Model\Entity\Subscription', 's')
             ->leftJoin('s.product', 'p')
             ->leftJoin('s.order', 'o');
-            
+
         if (!empty($order)) {
             foreach ($order as $field => $type) {
                 $qb->orderBy($field, $type);
             }
         }
-        
+
         $i = 1;
         foreach ($criteria as $fieldType => $value) {
             if (method_exists($qb->expr(), $fieldType) && is_array($value)) {
@@ -179,7 +204,7 @@ class SubscriptionRepository extends \Doctrine\ORM\EntityRepository
             $i++;
         }
         $subscriptions = $qb->getQuery()->getResult();
-        
+
         return !empty($subscriptions) ? $subscriptions : array();
     }
 }

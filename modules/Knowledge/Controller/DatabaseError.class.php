@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Contains database error class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author Stefan Heinemann <sh@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_knowledge
  */
 
@@ -18,9 +43,9 @@ namespace Cx\Modules\Knowledge\Controller;
  * adodb error message and some kind of stacktrace that can be
  * return either plainly or formatted for the red alertbox.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author Stefan Heinemann <sh@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_knowledge
  */
 class DatabaseError extends \Exception
@@ -34,7 +59,7 @@ class DatabaseError extends \Exception
     {
         parent::__construct($message);
     }
-    
+
     /**
      * Return a formated error message
      *
@@ -45,9 +70,9 @@ class DatabaseError extends \Exception
     public function formatted()
     {
         global $objDatabase;
-        
+
         $txt_details = "Details";
-       
+
         return "<a style=\"margin-left: 1em;\" href=\"javascript:void(0);\" onclick=\"showErrDetails(this);\">$txt_details&gt;&gt;</a>
         <div style=\"display:none;\" id=\"errDetails\">
         ".$this->getMessage()."<br />
@@ -73,7 +98,7 @@ class DatabaseError extends \Exception
             /* ]]> */
         </script>";
     }
-    
+
     /**
      * Return a plain error message
      *
@@ -85,7 +110,7 @@ class DatabaseError extends \Exception
     public function plain()
     {
         global $objDatabase;
-        
+
         return  $this->getMessage()."\n".
                 strip_tags($objDatabase->ErrorMsg())."\n".
                 $this->getTraceAsString();

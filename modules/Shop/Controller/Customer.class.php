@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Shop Customer
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  * @todo        Test!
  */
@@ -16,10 +41,10 @@ namespace Cx\Modules\Shop\Controller;
  * Customer as used in the Shop.
  *
  * Extends the User class
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_shop
  */
 class Customer extends \User
@@ -556,6 +581,7 @@ class Customer extends \User
             'CUSTOMER_PHONE' => $this->phone(),
             'CUSTOMER_FAX' => $this->fax(),
             'CUSTOMER_USERNAME' => $this->username(),
+            'CUSTOMER_BIRTHDAY' => date(ASCMS_DATE_FORMAT_DATE, $this->getProfileAttribute('birthday')),
 // There are not used in any MailTemplate so far:
 //            'CUSTOMER_COUNTRY_ID' => $this->country_id(),
 //            'CUSTOMER_NOTE' => $this->getProfileAttribute($index_notes),
@@ -694,7 +720,7 @@ class Customer extends \User
                 throw new \Cx\Lib\Update_DatabaseException(
                    "Failed to create User_Profile_Attribute 'notes'");
             }
-            
+
             //Re initialize shop setting
             \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
 //DBG::log("Customer::errorHandler(): Stored notes attribute, ID ".$objProfileAttribute->getId());
@@ -724,7 +750,7 @@ class Customer extends \User
                 throw new \Cx\Lib\Update_DatabaseException(
                    "Failed to create User_Profile_Attribute 'notes'");
             }
-            
+
             //Re initialize shop setting
             \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
             if (!(\Cx\Core\Setting\Controller\Setting::set('user_profile_attribute_customer_group_id', $objProfileAttribute->getId())

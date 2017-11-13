@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * PageRepositoryTest
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      SS4U <ss4u.comvation@gmail.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_contentmanager
  */
 
@@ -15,22 +40,22 @@ namespace Cx\Core\ContentManager\Testing\UnitTest;
 
 /**
  * PageRepositoryTest
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      SS4U <ss4u.comvation@gmail.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_contentmanager
  */
 class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 {
-    public function testPagesAtPath() {        
-        
+    public function testPagesAtPath() {
+
         $pageRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $nodeRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Node');
 
-        $n1 = new \Cx\Core\ContentManager\Model\Entity\Node(); 
+        $n1 = new \Cx\Core\ContentManager\Model\Entity\Node();
         $n2 = new \Cx\Core\ContentManager\Model\Entity\Node();
         $n3 = new \Cx\Core\ContentManager\Model\Entity\Node();
 
@@ -40,15 +65,15 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $n2->addChildren($n1);
         $n3->setParent($nodeRepo->getRoot());
         $nodeRepo->getRoot()->addChildren($n3);
-        
+
         self::$em->persist($n1);
         self::$em->persist($n2);
-        self::$em->persist($n3);        
+        self::$em->persist($n3);
         self::$em->flush();
-        
-        $p1 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+
+        $p1 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p1->setLang(1);
-        $p1->setTitle('rootTitle_1');        
+        $p1->setTitle('rootTitle_1');
         $p1->setNode($n1);
         $p1->setNodeIdShadowed($n1->getId());
         $p1->setUseCustomContentForAllChannels('');
@@ -57,7 +82,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p1->setCmd('');
         $p1->setActive(1);
 
-        $p2 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+        $p2 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p2->setLang(2);
         $p2->setTitle('rootTitle_1');
         $p2->setNode($n1);
@@ -68,7 +93,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p2->setCmd('');
         $p2->setActive(1);
 
-        $p3 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+        $p3 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p3->setLang(3);
         $p3->setTitle('rootTitle_2');
         $p3->setNode($n1);
@@ -78,9 +103,9 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p3->setUseSkinForAllChannels('');
         $p3->setCmd('');
         $p3->setActive(1);
-        
 
-        $p4 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+
+        $p4 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p4->setLang(3);
         $p4->setTitle('childTitle');
         $p4->setNode($n2);
@@ -90,8 +115,8 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p4->setUseSkinForAllChannels('');
         $p4->setCmd('');
         $p4->setActive(1);
-        
-        $p5 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+
+        $p5 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p5->setLang(1);
         $p5->setTitle('otherRootChild');
         $p5->setNode($n3);
@@ -115,26 +140,26 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 
         self::$em->flush();
 
-        //make sure we re-fetch a correct state        
+        //make sure we re-fetch a correct state
         self::$em->refresh($n1);
         self::$em->refresh($n2);
         self::$em->refresh($n3);
-        
+
         //1 level
         $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(1) .'/rootTitle_1');
         $this->assertEquals('rootTitle_1/',$match['matchedPath']);
         $this->assertInstanceOf('Cx\Core\ContentManager\Model\Entity\Page',$match['page'][1]);
         // $this->assertEquals(array(1,2),$match['lang']);
-        
+
         //2 levels
-        $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(3) .'/rootTitle_2/childTitle');        
+        $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(3) .'/rootTitle_2/childTitle');
         $this->assertEquals('rootTitle_2/childTitle/',$match['matchedPath']);
         $this->assertEquals('',$match['unmatchedPath']);
         $this->assertInstanceOf('Cx\Core\ContentManager\Model\Entity\Page',$match['page'][3]);
         $this->assertEquals(array(3),$match['lang']);
 
         //3 levels, 2 in tree
-        $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(3) .'/rootTitle_2/childTitle/asdfasdf');        
+        $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(3) .'/rootTitle_2/childTitle/asdfasdf');
         $this->assertEquals('rootTitle_2/childTitle/',$match['matchedPath']);
         // check unmatched path too
         $this->assertEquals('asdfasdf',$match['unmatchedPath']);
@@ -142,13 +167,13 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $this->assertEquals(array(3),$match['lang']);
 
         //3 levels, wrong lang from 2nd level
-        $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(1) .'/rootTitle_1/childTitle/asdfasdf');        
+        $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(1) .'/rootTitle_1/childTitle/asdfasdf');
         $this->assertEquals('rootTitle_1/',$match['matchedPath']);
         $this->assertInstanceOf('Cx\Core\ContentManager\Model\Entity\Page',$match['page'][1]);
         //$this->assertEquals(array(1,2),$match['lang']);
 
         //inexistant
-        $match = $pageRepo->getPagesAtPath('doesNotExist');        
+        $match = $pageRepo->getPagesAtPath('doesNotExist');
         $this->assertEquals(null,$match);
 
         //exact matching
@@ -162,23 +187,23 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 
         //second other child of root node
         $match = $pageRepo->getPagesAtPath('/'. \FWLanguage::getLanguageCodeById(1) .'/otherRootChild', null, 1);
-        $this->assertEquals('otherRootChild/',$match['matchedPath']);        
+        $this->assertEquals('otherRootChild/',$match['matchedPath']);
         $this->assertInstanceOf('Cx\Core\ContentManager\Model\Entity\Page',$match['page']);
     }
 
     public function testGetFromModuleCmdByLang() {
         $nodeRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Node');
         $pageRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
-        
+
         $n1 = new \Cx\Core\ContentManager\Model\Entity\Node();
 
         $n1->setParent($nodeRepo->getRoot());
         $nodeRepo->getRoot()->addChildren($n1);
-        
+
         self::$em->persist($n1);
         self::$em->flush();
-        
-        $p1 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+
+        $p1 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p1->setLang(1);
         $p1->setTitle('rootTitle_1');
         $p1->setNode($n1);
@@ -191,7 +216,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p1->setUseSkinForAllChannels('');
         $p1->setActive(1);
 
-        $p2 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+        $p2 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p2->setLang(2);
         $p2->setTitle('rootTitle_1');
         $p2->setNode($n1);
@@ -203,7 +228,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p2->setUseCustomApplicationTemplateForAllChannels('');
         $p2->setUseSkinForAllChannels('');
         $p2->setActive(1);
-        
+
         // French is inactive
         $p3 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p3->setLang(3);
@@ -226,10 +251,10 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         //self::$em->persist($p3);
 
         self::$em->flush();
-        
+
         //make sure we re-fetch a correct state
         self::$em->refresh($n1);
-        
+
         //test correct fetching
         $pages = $pageRepo->getFromModuleCmdByLang('myModule');
 
@@ -252,7 +277,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 
     public function testGetPathToPage() {
         $nodeRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Node');
-        
+
         $n1 = new \Cx\Core\ContentManager\Model\Entity\Node();
         $n1->setParent($nodeRepo->getRoot());
         $nodeRepo->getRoot()->addChildren($n1);
@@ -263,8 +288,8 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         self::$em->persist($n1);
         self::$em->persist($n2);
         self::$em->flush();
-        
-        $p1 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+
+        $p1 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p1->setLang(1);
         $p1->setTitle('root');
         $p1->setNode($n1);
@@ -275,7 +300,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p1->setCmd('');
         $p1->setActive(1);
 
-        $p2 = new \Cx\Core\ContentManager\Model\Entity\Page();     
+        $p2 = new \Cx\Core\ContentManager\Model\Entity\Page();
         $p2->setLang(1);
         $p2->setTitle('child page');
         $p2->setNode($n2);
@@ -285,17 +310,17 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
         $p2->setUseSkinForAllChannels('');
         $p2->setCmd('');
         $p2->setActive(1);
-        
+
         self::$em->persist($n1);
         self::$em->persist($n2);
 
         self::$em->persist($p1);
         self::$em->persist($p2);
-        
+
         self::$em->flush();
-        
+
         $pageId = $p2->getId();
-        
+
         \Env::get('em')->refresh($n1);
 
         //make sure we re-fetch a correct state
@@ -303,7 +328,7 @@ class PageRepositoryTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
 
         $pageRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
 
-        $page = $pageRepo->findOneById($pageId);        
+        $page = $pageRepo->findOneById($pageId);
         $this->assertEquals('root/child-page', $pageRepo->getPath($page));
-    }    
+    }
 }

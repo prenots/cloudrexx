@@ -1,22 +1,48 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Class Podcast
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_podcast
  * @todo        Edit PHP DocBlocks!
  */
 namespace Cx\Modules\Podcast\Controller;
 /**
  * Frontend of the Podcast module
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author        Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author        Cloudrexx Development Team <info@cloudrexx.com>
  * @access        public
  * @version        1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_podcast
  * @todo        Edit PHP DocBlocks!
  */
@@ -110,9 +136,9 @@ class Podcast extends PodcastLib
 </script>
 EOF;
 
-        if (($arrMedium = &$this->_getMedium($mediumId, true)) !== false) {
+        if (($arrMedium = $this->_getMedium($mediumId, true)) !== false) {
             if ($this->_objTpl->blockExists('podcast_medium')) {
-                $arrTemplate = &$this->_getTemplate($arrMedium['template_id']);
+                $arrTemplate = $this->_getTemplate($arrMedium['template_id']);
 
                 $mediumCode = sprintf($embedCode, addcslashes($this->_getHtmlTag($arrMedium, $arrTemplate['template']), "\r\n'"));
                 $this->_objTpl->setVariable(array(
@@ -159,7 +185,7 @@ EOF;
         }
         if ($this->_objTpl->blockExists('podcast_media')) {
             $pos = isset($_GET['pos']) ? intval($_GET['pos']) : 0;
-            $arrMedia = &$this->_getMedia($categories, true, $_CONFIG['corePagingLimit'], $pos);
+            $arrMedia = $this->_getMedia($categories, true, $_CONFIG['corePagingLimit'], $pos);
             if (count($arrMedia) > 0) {
                 foreach ($arrMedia as $mediumId => $arrMedium) {
                     $this->_objTpl->setVariable(array(
@@ -186,7 +212,7 @@ EOF;
                 }
             }
 
-            $mediaCount = &$this->_getMediaCount($categoryId, true);
+            $mediaCount = $this->_getMediaCount($categoryId, true);
 
             if ($mediaCount > $_CONFIG['corePagingLimit']) {
                 $paging = getPaging($mediaCount, $pos, '&section=Podcast&cid='.$categoryId, $_ARRAYLANG['TXT_PODCAST_MEDIA']);

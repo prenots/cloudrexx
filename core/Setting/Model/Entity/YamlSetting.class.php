@@ -1,12 +1,38 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * YamlSetting Entity
  *
  * A entity that represents a YamlSetting.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core_setting
  */
 
@@ -17,9 +43,9 @@ namespace Cx\Core\Setting\Model\Entity;
  *
  * A entity that represents a YamlSetting.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  core_setting
  */
 class YamlSettingException extends \Exception {};
@@ -29,9 +55,9 @@ class YamlSettingException extends \Exception {};
  *
  * A entity that represents a YamlSetting.
  *
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Däppen <thomas.daeppen@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_setting
  */
 class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
@@ -46,37 +72,37 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
      * @var string
      */
     protected $name;
-    
+
     /**
      * YamlSetting's section name
      * @var string
      */
     protected $section;
-    
+
     /**
      *YamlSetting's group name
      * @var string
      */
     protected $group;
-    
+
     /**
      * YamlSetting's default value
      * @var string
      */
     protected $value;
-    
+
     /**
      * YamlSetting's type
      * @var string
      */
     protected $type;
-    
+
     /**
      * YamlSetting's values
      * @var string
      */
     protected $values;
-    
+
     /**
      * YamlSetting's order number
      * @var integer
@@ -122,7 +148,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getName() {
         return $this->name;
     }
-    
+
     /**
      * Return the section name
      * @return string $section
@@ -130,7 +156,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getSection() {
         return $this->section;
     }
-    
+
     /**
      * Set the section name
      * @param string $section
@@ -138,7 +164,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function setSection($section) {
         $this->section = $section;
     }
-    
+
     /**
      * Set the group name
      * @param string $group
@@ -146,7 +172,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function setGroup($group) {
         $this->group = $group;
     }
-    
+
     /**
      * Return the group name
      * @return string $group
@@ -154,7 +180,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getGroup() {
         return $this->group;
     }
-    
+
     /**
      * Set the setting's value
      * @param string $value
@@ -162,7 +188,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function setValue($value) {
         $this->value = $value;
     }
-    
+
     /**
      * Return the setting's value
      * @return string $value
@@ -170,7 +196,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getValue() {
         return $this->value;
     }
-    
+
     /**
      * Set the setting's type
      * @param string $type
@@ -178,7 +204,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function setType($type) {
         $this->type = $type;
     }
-    
+
     /**
      * Return the setting's type
      * @return string $type
@@ -186,7 +212,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getType() {
         return $this->type;
     }
-    
+
     /**
      * Set the settings values
      * @param string $values
@@ -194,7 +220,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function setValues($values) {
         $this->values = $values;
     }
-    
+
     /**
      * Return the setting's values
      * @return string $values
@@ -202,7 +228,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function getValues() {
         return $this->values;
     }
-    
+
     /**
      * Set the setting's order
      * @param integer $ord
@@ -210,7 +236,7 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
     public function setOrd($ord) {
         $this->ord =  $ord;
     }
-    
+
     /**
      * Return the setting's order
      * @return string
@@ -219,4 +245,3 @@ class YamlSetting extends \Cx\Core\Model\Model\Entity\YamlEntity {
         return $this->ord;
     }
 }
-

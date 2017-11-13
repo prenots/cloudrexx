@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Data
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Kaelin <thomas.kaelin@comvation.com>
  * @version        $Id: index.inc.php,v 1.00 $
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_data
  *
  * THIS FILE HAS TO BE OPENED WITH UTF-8 ENCODING
@@ -16,10 +41,10 @@ namespace Cx\Modules\Data\Controller;
 $_ARRAYLANG['TXT_DIV_THUMBNAIL_TYPE'] = "Thumbnail des Bildes verwenden";
 /**
  * DataAdmin
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Thomas Kaelin <thomas.kaelin@comvation.com>
  * @version        $Id: index.inc.php,v 1.00 $
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_data
  */
 class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
@@ -40,7 +65,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
     }
 
     private $act = '';
-    
+
     /**
     * Constructor    -> Create the module-menu and an internal template-object
     *
@@ -55,7 +80,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         $this->_objTpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Data/View/Template/Backend');
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
 
-         $this->_intLanguageId = $objInit->userFrontendLangId;        
+         $this->_intLanguageId = $objInit->userFrontendLangId;
     }
     private function setNavigation()
     {
@@ -100,10 +125,10 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             case 'editEntry':
                 /*$objPerm->checkAccess(120, 'static');*/
                 $this->editEntry($_GET['id']);
-    			break;
-    		case 'copyEntry':
-    			/*$objPerm->checkAccess(120, 'static');*/
-    			$this->editEntry($_GET['id'], true);
+                break;
+            case 'copyEntry':
+                /*$objPerm->checkAccess(120, 'static');*/
+                $this->editEntry($_GET['id'], true);
                 break;
             case 'updateEntry':
                 /*$objPerm->checkAccess(120, 'static');*/
@@ -380,12 +405,12 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
 
             $this->_objTpl->setGlobalVariable(array(
                 "CATID"         => $key,
-                "PARENT_ID"     =>  !isset($arrCategories[$key]['parent_id']) 
-                                    ? $arrCategories[$key]['parent_id'] 
+                "PARENT_ID"     =>  !isset($arrCategories[$key]['parent_id'])
+                                    ? $arrCategories[$key]['parent_id']
                                     : 0,
                 "LEVEL"         => $level
             ));
-            
+
             foreach ($children as $child) {
                 $this->_objTpl->setVariable("CHILD_ID", $child);
                 $this->_objTpl->parse("set_child");
@@ -604,7 +629,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             foreach($this->_arrLanguages as $intLanguageId => $arrTranslations) {
                 $arrLanguages[$intCounter%3] .= '
                     <input '.(($arrCategories[$intCategoryId][$intLanguageId]['is_active'] == 1) ? 'checked="checked"' : '').'
-                        type="checkbox" name="frmEditCategory_Languages[]" 
+                        type="checkbox" name="frmEditCategory_Languages[]"
                         value="'.$intLanguageId.'" />'.
                     $arrTranslations['long'].' ['.$arrTranslations['short'].']<br />';
 
@@ -650,9 +675,9 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
            $this->_objTpl->setVariable(array(
                "FRONTEND_PAGE"             => $pageName,
                "FRONTEND_PAGE_ID"          => $pageVal['cmd'],
-               "FRONTEND_PAGE_SELECTED"    => 
-                   ($pageVal['cmd'] == $arrCategories[$intCategoryId]['cmd']) 
-                   ? "selected=\"selected\"" 
+               "FRONTEND_PAGE_SELECTED"    =>
+                   ($pageVal['cmd'] == $arrCategories[$intCategoryId]['cmd'])
+                   ? "selected=\"selected\""
                    : ""
            ));
            $this->_objTpl->parse("frontendPage");
@@ -668,17 +693,17 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
      */
     function parseCategoryDropdown($categoryTree, $arrCategories, $select, $level, $lang, $parent = true)
     {
-	// this used to expect an int value, only allowing entries to belong to a single category. this way we
-	// continue to support legacy calls but add support for multiple categories in callers aware of that. -fs
-	if (intval($select) == $select) {
-		$select = array($select);
-	}
+    // this used to expect an int value, only allowing entries to belong to a single category. this way we
+    // continue to support legacy calls but add support for multiple categories in callers aware of that. -fs
+    if (intval($select) == $select) {
+        $select = array($select);
+    }
 
         foreach ($categoryTree as $key => $value) {
             $selected = false;
             if ($select > 0) {
                 if ($parent) {
-                	if ($key == $arrCategories[$select[0]]['parent_id']) {
+                    if ($key == $arrCategories[$select[0]]['parent_id']) {
                         $selected = true;
                     }
                 } else {
@@ -694,7 +719,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             // having a loop.
             if ($this->current_cat_id and $key == $this->current_cat_id)
                 continue;
-				
+
             $this->_objTpl->setVariable(array(
                 "CATEGORY_OPT_LABEL"      => $arrCategories[$key][$lang]['name'],
                 "CATEGORY_OPT_VALUE"      => $key,
@@ -711,21 +736,21 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
 
         }
     }
-	
+
     function parseCategorySelector($categoryTree, $arrCategories, $select, $level, $lang, $parent = true, $stack)
     {
-	// this used to expect an int value, only allowing entries to belong to a single category. this way we
-	// continue to support legacy calls but add support for multiple categories in callers aware of that. -fs
-	if (intval($select) == $select) {
-		$select = array($select);
-	}
+    // this used to expect an int value, only allowing entries to belong to a single category. this way we
+    // continue to support legacy calls but add support for multiple categories in callers aware of that. -fs
+    if (intval($select) == $select) {
+        $select = array($select);
+    }
 
         foreach ($categoryTree as $key => $value) {
             $selected = false;
             if ($select > 0) {
-				if (in_array($key, $select)) {
-					$selected = true;
-				}
+                if (in_array($key, $select)) {
+                    $selected = true;
+                }
             }
 
             // Don't show our own id as selectable parent. This just causes trouble.
@@ -739,18 +764,18 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                 "CATEGORY_OPT_LABEL"      => $arrCategories[$key][$lang]['name'],
                 "CATEGORY_OPT_VALUE"      => $key,
                 "CATEGORY_OPT_SELECTED"   => "",
-                "CATEGORY_OPT_INDENT"         =>  $stack 
+                "CATEGORY_OPT_INDENT"         =>  $stack
             ));
-			
-			if ($selected) {
-				$this->_objTpl->parse("assignedCategories");
-			}
-			else {
-				$this->_objTpl->parse("availableCategories");
-			}
-			
+
+            if ($selected) {
+                $this->_objTpl->parse("assignedCategories");
+            }
+            else {
+                $this->_objTpl->parse("availableCategories");
+            }
+
             if (count($value) > 0) {
-				$stack .= $arrCategories[$key][$lang]['name'].' &raquo; ';
+                $stack .= $arrCategories[$key][$lang]['name'].' &raquo; ';
                 $this->parseCategorySelector($value, $arrCategories, $select, $level+1, $lang, $parent, $stack);
             }
 
@@ -860,7 +885,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         global $_ARRAYLANG;
 
         \JS::activate('jqueryui');
-        
+
         $intSelectedCategory = (isset($_GET['catId'])) ? intval($_GET['catId']) : 0;
         $intPagingPosition = (isset($_GET['pos'])) ? intval($_GET['pos']) : 0;
 
@@ -946,26 +971,26 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                 } else {
                     $mode = $_ARRAYLANG['TXT_DATA_ENTRY_MODE_FORWARD'];
                 }
-				
-				// List multiple categories -fs
-				$catList = '';
-				$separator = ', ';
-				foreach ($category_keys as $k) {
-					$catName = $arrCategories[$k][$this->_intLanguageId]['name'];
-					
-					// if a catId is set, we'll want to highlight that particular category (and have it
-					// displayed first)
-					if ($k == $intSelectedCategory) {
-						$catList = '<strong>'.$catName.'</strong>'.$separator.$catList;
-					}
-					else {
-						$catList .= $catName.$separator;
-					}
-				}
-				// cut off the last ", ".
-				$catList = substr($catList, 0, -2);
-				
-				
+
+                // List multiple categories -fs
+                $catList = '';
+                $separator = ', ';
+                foreach ($category_keys as $k) {
+                    $catName = $arrCategories[$k][$this->_intLanguageId]['name'];
+
+                    // if a catId is set, we'll want to highlight that particular category (and have it
+                    // displayed first)
+                    if ($k == $intSelectedCategory) {
+                        $catList = '<strong>'.$catName.'</strong>'.$separator.$catList;
+                    }
+                    else {
+                        $catList .= $catName.$separator;
+                    }
+                }
+                // cut off the last ", ".
+                $catList = substr($catList, 0, -2);
+
+
                    $this->_objTpl->setVariable(array(
                        'ENTRY_ROWCLASS'        =>    ($intRowClass % 2 == 0) ? 'row1' : 'row2',
                        'ENTRY_ID'                =>    $intEntryId,
@@ -1085,13 +1110,13 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
 
     /**
      * Get the MediaBrowser button
-     * 
+     *
      * @global array $_ARRAYLANG
      * @return string
      */
     public static function getMediaBrowserButton() {
         global $_ARRAYLANG;
-        
+
         $mediaBrowser = new \Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser();
         $mediaBrowser->setCallback('mbCallback');
         $mediaBrowser->setOptions(array(
@@ -1099,10 +1124,10 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                                     'id'               => 'mediabrowser_button',
                                     'style'            => 'display: none;'
                                 ));
-        
+
         return $mediaBrowser->getXHtml($_ARRAYLANG['TXT_CORE_CM_BROWSE']);
     }
-    
+
     /**
      * Shows the "Add Entry" page.
      *
@@ -1117,7 +1142,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
 
         $this->_strPageTitle = $_ARRAYLANG['TXT_DATA_ENTRY_ADD_TITLE'];
         $this->_objTpl->loadTemplateFile('module_data_entries_edit.html',true,true);
-        
+
         $this->_objTpl->setVariable(array(
             'TXT_EDIT_LANGUAGES'    =>    $_ARRAYLANG['TXT_DATA_CATEGORY_ADD_LANGUAGES'],
             'TXT_ADD_ENTRY'         =>  $_ARRAYLANG['TXT_DATA_ENTRY_ADD_TITLE'],
@@ -1145,7 +1170,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
             'RELEASE_COLOR'                 => "gray",
             'MEDIABROWSER_BUTTON'           => self::getMediaBrowserButton()
 ));
-        
+
         $arrCategories = $this->createCategoryArray();
 
         $catTree = $this->buildCatTree($arrCategories);
@@ -1331,13 +1356,14 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         global $objDatabase;
 
         $intMessageId = intval($intMessageId);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
         //Collect data for every language
         $arrValues = array();
         foreach ($_POST as $strKey => $strValue) {
             if (substr($strKey,0,strlen('frmEditEntry_Subject_')) == 'frmEditEntry_Subject_') {
                 $intLanguageId = intval(substr($strKey,strlen('frmEditEntry_Subject_')));
-                $arrValues[$intLanguageId] = array(    
+                $arrValues[$intLanguageId] = array(
                     'subject'           => contrexx_addslashes(strip_tags($_POST['frmEditEntry_Subject_'.$intLanguageId])),
                     'content'           => contrexx_addslashes($_POST['frmEditEntry_Content_'.$intLanguageId]),
                     'is_active'         => intval(in_array($intLanguageId, $_POST['frmEditEntry_Languages'])),
@@ -1414,10 +1440,22 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                 if (!isset($objImage)) {
                     $objImage = new \ImageManager();
                 }
-                $strPath = dirname(ASCMS_DOCUMENT_ROOT.$arrEntryValues['image']).'/';
-                $strWebPath = substr($strPath, strlen(ASCMS_PATH_OFFSET));
+                $strPath = dirname($cx->getWebsitePath().$arrEntryValues['image']).'/';
+                $strWebPath = substr($strPath, strlen($cx->getWebsiteOffsetPath()));
                 $file = basename($arrEntryValues['image']);
-                $objImage->_createThumbWhq($strPath, $strWebPath, $file, $arrEntryValues['thumbnail_width'], $arrEntryValues['thumbnail_height'], 90, '', ASCMS_DATA_IMAGES_PATH.'/', ASCMS_DATA_IMAGES_WEB_PATH.'/', $intMessageId.'_'.$intLanguageId.'_'.$file);
+
+                $objImage->_createThumbWhq(
+                        $strPath,
+                        $strWebPath,
+                        $file,
+                        $arrEntryValues['thumbnail_width'],
+                        $arrEntryValues['thumbnail_height'],
+                        90,
+                        '.thumb',
+                        $cx->getWebsiteImagesDataPath() . '/',
+                        $cx->getWebsiteImagesDataWebPath() . '/',
+                        $intMessageId.'_'.$intLanguageId.'_'.$file
+                );
             }
         }
     }
@@ -1437,7 +1475,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
 
         $this->_strPageTitle = $copy ? $_ARRAYLANG['TXT_DATA_ENTRY_COPY_TITLE'] : $_ARRAYLANG['TXT_DATA_ENTRY_EDIT_TITLE'];
         $this->_objTpl->loadTemplateFile('module_data_entries_edit.html',true,true);
-        
+
         $this->_objTpl->setVariable(array(
             'TXT_EDIT_LANGUAGES'    =>    $_ARRAYLANG['TXT_DATA_CATEGORY_ADD_LANGUAGES'],
             'TXT_EDIT_SUBMIT'        =>    $_ARRAYLANG['TXT_SAVE'],
@@ -1739,7 +1777,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         global $_ARRAYLANG, $objDatabase;
 
         $intEntryId = intval($intEntryId);
-
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($intEntryId > 0) {
 
 
@@ -1780,8 +1818,8 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                                       WHERE ref_id = ".$intEntryId);
 
             $objFile = new \File();
-            foreach (glob(ASCMS_DATA_IMAGES_PATH.'/'.$intEntryId.'_*') as $image) {
-                $objFile->delFile(ASCMS_DATA_IMAGES_PATH.'/', ASCMS_DATA_IMAGES_WEB_PATH.'/', basename($image));
+            foreach (glob($cx->getWebsiteImagesDataPath() . '/' . $intEntryId . '_*') as $image) {
+                $objFile->delFile($cx->getWebsiteImagesDataPath() . '/', $cx->getWebsiteImagesDataWebPath() . '/', basename($image));
             }
 
             $this->writeMessageRSS();
@@ -1825,13 +1863,13 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         $this->_objTpl->loadTemplateFile('module_data_settings.html',true,true);
 
         \Cx\Core\Setting\Controller\Setting::init('Config', 'component','Yaml');
-        
+
         if (\Cx\Core\Setting\Controller\Setting::getValue('dataUseModule')) {
             $useDatalist = 1;
         } else {
             $useDatalist = 0;
         }
-        
+
         $ie = (preg_match("/MSIE (6|7)/", $_SERVER['HTTP_USER_AGENT'])) ? true : false;
 
         $this->_objTpl->setVariable(array(
@@ -1977,7 +2015,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                 }
 
         }
-        
+
         \Cx\Core\Setting\Controller\Setting::init('Config', 'component','Yaml');
         \Cx\Core\Setting\Controller\Setting::set('dataUseModule', isset($_POST['frmSettings_useDatalist'])?1:0);
         \Cx\Core\Setting\Controller\Setting::storeFromPost();

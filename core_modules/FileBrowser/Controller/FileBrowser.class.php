@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * File browser
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_filebrowser
  * @todo        Edit PHP DocBlocks!
  */
@@ -14,11 +39,11 @@ namespace Cx\Core_Modules\FileBrowser\Controller;
 
 /**
  * File browser
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     1.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_filebrowser
  */
 class FileBrowser {
@@ -113,12 +138,12 @@ class FileBrowser {
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
 
-        $this->_iconPath = ASCMS_CORE_MODULE_WEB_PATH.'/FileBrowser/View/Media/';        
+        $this->_iconPath = ASCMS_CORE_MODULE_WEB_PATH.'/FileBrowser/View/Media/';
         $this->_setFrontendLanguageId();
-        $this->_mediaType = $this->_getMediaType();        
+        $this->_mediaType = $this->_getMediaType();
         $this->_mediaMode = $this->_getMediaMode();
         $this->_path      = $this->_getPath();
-        
+
         $this->checkMakeDir();
         $this->_initFiles();
     }
@@ -155,18 +180,18 @@ class FileBrowser {
     }
 
     function _getPath() {
-        
+
         if (!isset($_SESSION['fileBrowser'])) {
             $_SESSION['fileBrowser'] = array();
             $_SESSION['fileBrowser']['path'] = array();
         }
-        
+
         $path =    $this->_mediaType != 'webpages'
                 && array_key_exists($this->_mediaType, $this->mediaTypePaths)
                 && isset($_SESSION['fileBrowser']['path'][$this->_mediaType])
-                ?  $_SESSION['fileBrowser']['path'][$this->_mediaType] 
+                ?  $_SESSION['fileBrowser']['path'][$this->_mediaType]
                 :  "";
-        
+
         if (isset($_REQUEST['path']) && !stristr($_REQUEST['path'], '..')) {
             $path = $_REQUEST['path'];
         }
@@ -175,12 +200,12 @@ class FileBrowser {
             $path .= "/";
         }
         // update path in session if type equals to files
-        if (    $this->_mediaType != 'webpages' 
+        if (    $this->_mediaType != 'webpages'
              && array_key_exists($this->_mediaType, $this->mediaTypePaths)
            ) {
             $_SESSION['fileBrowser']['path'][$this->_mediaType] = $path;
         }
-        
+
         return $path;
     }
 
@@ -305,7 +330,7 @@ class FileBrowser {
             $this->_pushStatusMessage($_ARRAYLANG['TXT_FILEBROWSER_INVALID_CHARACTERS'], 'error');
         }
     }
-	
+
     /**
      * Set the navigation with the media type drop-down menu in the file browser
      * @access private
@@ -384,7 +409,7 @@ class FileBrowser {
                     $arrPage['alias'] = $page['title'];
                     $arrPage['frontend_access_id'] = $page['attr']['frontend_access_id'];
                     $arrPage['backend_access_id'] = $page['attr']['backend_access_id'];
-                    
+
                     // JsonNode does not provide those
                     //$arrPage['level'] = ;
                     //$arrPage['type'] = ;
@@ -393,7 +418,7 @@ class FileBrowser {
                     //$arrPage['moduleid'] = ;
                     //$arrPage['startdate'] = ;
                     //$arrPage['enddate'] = ;
-                    
+
                     // But we can simulate level and type for our purposes: (level above)
                     $jsondata = json_decode($page['attr']['data-href']);
                     $path     = $jsondata->path;
@@ -405,9 +430,9 @@ class FileBrowser {
                             $arrPage['cmd'] = $module[1];
                         }
                     }
-                    
+
                     $url = "'" . '[[' . \Cx\Core\ContentManager\Model\Entity\Page::PLACEHOLDER_PREFIX;
-    
+
 // TODO: This only works for regular application pages. Pages of type fallback that are linked to an application
 //       will be parsed using their node-id ({NODE_<ID>})
                     if (($arrPage['type'] == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION) && ($this->_mediaMode !== 'alias')) {
@@ -415,12 +440,12 @@ class FileBrowser {
                         if (!empty($arrPage['cmd'])) {
                             $url .= '_' . $arrPage['cmd'];
                         }
-    
+
                         $url = strtoupper($url);
                     } else {
                         $url .= $arrPage['node_id'];
                     }
-    
+
                     // if language != current language or $alwaysReturnLanguage
                     if ($this->_frontendLanguageId != $_FRONTEND_LANGID ||
                             (isset($_GET['alwaysReturnLanguage']) &&
@@ -428,7 +453,7 @@ class FileBrowser {
                         $url .= '_' . $this->_frontendLanguageId;
                     }
                     $url .= "]]'";
-                    
+
                     $this->_objTpl->setVariable(array(
                         'FILEBROWSER_ROW_CLASS'         => $rowNr%2 == 0 ? "row1" : "row2",
                         'FILEBROWSER_FILE_PATH_CLICK'   => "javascript:{setUrl($url,null,null,'".\FWLanguage::getLanguageCodeById($this->_frontendLanguageId).$path."','page')}",
@@ -439,7 +464,7 @@ class FileBrowser {
                         'FILEBROWSER_SPACING_STYLE'     => 'style="margin-left: '.($arrPage['level'] * 15).'px;"',
                     ));
                     $this->_objTpl->parse('content_files');
-    
+
                     $rowNr++;
                 }
                 break;
@@ -452,8 +477,8 @@ class FileBrowser {
                 \Permission::checkAccess(39, 'static');  //Upload Media-Files
 
             //Hier soll wirklich kein break stehen! Beabsichtig!
-    
-    
+
+
             default:
                 if (count($this->_arrDirectories) > 0) {
                     foreach ($this->_arrDirectories as $arrDirectory) {
@@ -469,14 +494,14 @@ class FileBrowser {
                         $rowNr++;
                     }
                 }
-    
+
                 if (count($this->_arrFiles) > 0) {
                     $arrEscapedPaths = array();
                     foreach ($this->_arrFiles as $arrFile) {
                         $arrEscapedPaths[] = contrexx_raw2encodedUrl($arrFile['path']);
                             $this->_objTpl->setVariable(array(
                                 'FILEBROWSER_ROW_CLASS'             => $rowNr%2 == 0 ? "row1" : "row2",
-                                'FILEBROWSER_ROW_STYLE'				=> in_array($arrFile['name'], $this->highlightedFiles) ? ' style="background: '.$this->highlightColor.';"' : '',
+                                'FILEBROWSER_ROW_STYLE'                => in_array($arrFile['name'], $this->highlightedFiles) ? ' style="background: '.$this->highlightColor.';"' : '',
                                 'FILEBROWSER_FILE_PATH_DBLCLICK'    => "setUrl('".contrexx_raw2xhtml($arrFile['path'])."',".$arrFile['width'].",".$arrFile['height'].",'')",
                                 'FILEBROWSER_FILE_PATH_CLICK'       => "javascript:{showPreview(".(count($arrEscapedPaths)-1).",".$arrFile['width'].",".$arrFile['height'].")}",
                                 'FILEBROWSER_FILE_NAME'             => contrexx_stripslashes($arrFile['name']),
@@ -487,7 +512,7 @@ class FileBrowser {
                             $this->_objTpl->parse('content_files');
                             $rowNr++;
                     }
-    
+
                     $this->_objTpl->setVariable('FILEBROWSER_FILES_JS', "'".implode("','",$arrEscapedPaths)."'");
                 }
                 if (array_key_exists($this->_mediaType, $this->mediaTypePaths)) {
@@ -510,7 +535,7 @@ class FileBrowser {
 
 
         //data we want to remember for handling the uploaded files
-		$data = array();
+        $data = array();
         if (array_key_exists($this->_mediaType, $this->mediaTypePaths)) {
             $data['path']    = $this->mediaTypePaths[$this->_mediaType][0].$this->_path;
             $data['webPath'] = $this->mediaTypePaths[$this->_mediaType][1].$this->_path;
@@ -544,7 +569,7 @@ class FileBrowser {
         }
 
         $objFWSystem = new \FWSystem();
-        
+
         // cannot upload or mkdir in webpages view
         if ($this->_mediaType == "webpages") {
             return;
@@ -556,17 +581,17 @@ class FileBrowser {
             'FILEBROWSER_MAX_FILE_SIZE' => $objFWSystem->getMaxUploadFileSize(),
             'TXT_CREATE_DIRECTORY'      => $_ARRAYLANG['TXT_FILEBROWSER_CREATE_DIRECTORY'],
             'TXT_UPLOAD_FILE'           => $_ARRAYLANG['TXT_FILEBROWSER_UPLOAD_FILE'],
-                        'JAVASCRIPT'            	=> \JS::getCode(),
+                        'JAVASCRIPT'                => \JS::getCode(),
         ));
 
         $this->_objTpl->parse('fileBrowser_upload');
     }
 
 
-	/**
+    /**
      * this is called as soon as uploads have finished.
      * takes care of moving them to the right folder
-     * 
+     *
      * @return string the directory to move to
      */
     public static function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos) {
@@ -575,40 +600,40 @@ class FileBrowser {
 
         //we remember the names of the uploaded files here. they are stored in the session afterwards,
         //so we can later display them highlighted.
-        $arrFiles = array(); 
-        
+        $arrFiles = array();
+
         //rename files, delete unwanted
         $arrFilesToRename = array(); //used to remember the files we need to rename
         $h = opendir($tempPath);
         while(false !== ($file = readdir($h))) {
-			$info = pathinfo($file);
+            $info = pathinfo($file);
 
             //skip . and ..
             if($file == '.' || $file == '..') { continue; }
 
-			$file = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($file);
+            $file = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($file);
 
-			//delete potentially malicious files
+            //delete potentially malicious files
             if(!\FWValidator::is_file_ending_harmless($file)) {
                 @unlink($tempPath.'/'.$file);
                 continue;
             }
 
-			//check if file needs to be renamed
-			$newName = '';
-			$suffix = '';
+            //check if file needs to be renamed
+            $newName = '';
+            $suffix = '';
             if (file_exists($path.$file)) {
-				$suffix = '_'.time();
+                $suffix = '_'.time();
                 if (empty($_REQUEST['uploadForceOverwrite']) || !intval($_REQUEST['uploadForceOverwrite'] > 0)) {
-					$newName = $info['filename'].$suffix.'.'.$info['extension'];
-					$arrFilesToRename[$file] = $newName;
-					array_push($arrFiles, $newName);
+                    $newName = $info['filename'].$suffix.'.'.$info['extension'];
+                    $arrFilesToRename[$file] = $newName;
+                    array_push($arrFiles, $newName);
                 }
             } else {
                 array_push($arrFiles, $file);
             }
         }
-        
+
         //rename files where needed
         foreach($arrFilesToRename as $oldName => $newName){
             rename($tempPath.'/'.$oldName, $tempPath.'/'.$newName);
@@ -634,7 +659,7 @@ class FileBrowser {
 
         /* unwanted files have been deleted, unallowed filenames corrected.
            we can now simply return the desired target path, as only valid
-           files are present in $tempPath */	 
+           files are present in $tempPath */
         return array($path, $webPath);
     }
 
@@ -700,7 +725,7 @@ class FileBrowser {
     /**
      * Search the icon for a file
      * @param  string $file: The icon of this file will be searched
-     */    
+     */
     function _getIcon($file)
     {
         $icon = '';
@@ -708,14 +733,14 @@ class FileBrowser {
             $info = pathinfo($file);
             $icon = strtoupper($info['extension']);
         }
-        
+
         $arrImageExt        = array('JPEG', 'JPG', 'TIFF', 'GIF', 'BMP', 'PNG');
         $arrVideoExt        = array('3GP', 'AVI', 'DAT', 'FLV', 'FLA', 'M4V', 'MOV', 'MPEG', 'MPG', 'OGG', 'WMV', 'SWF');
         $arrAudioExt        = array('WAV', 'WMA', 'AMR', 'MP3', 'AAC');
         $arrPresentationExt = array('ODP', 'PPT', 'PPTX');
         $arrSpreadsheetExt  = array('CSV', 'ODS', 'XLS', 'XLSX');
         $arrDocumentsExt    = array('DOC', 'DOCX', 'ODT', 'RTF');
-        
+
         switch (true) {
             case ($icon == 'TXT'):
                 $icon = 'Text';

@@ -1,4 +1,30 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +50,7 @@ namespace Cx\Core_Modules\Cache\Controller\Doctrine\CacheDriver;
  *
  * @since  2.3
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_cache
  */
 abstract class FileCache extends \Cx\Core_Modules\Cache\Controller\Doctrine\CacheDriver\CacheProvider
@@ -102,7 +128,7 @@ abstract class FileCache extends \Cx\Core_Modules\Cache\Controller\Doctrine\Cach
         $path = implode(str_split($hash, 16), DIRECTORY_SEPARATOR);
         $path = $this->directory . DIRECTORY_SEPARATOR . $path;
         $id   = preg_replace('@[\\\/:"*?<>|]+@', '', $id);
-        
+
         return $path . DIRECTORY_SEPARATOR . $id . $this->extension;
     }
 
@@ -110,7 +136,7 @@ abstract class FileCache extends \Cx\Core_Modules\Cache\Controller\Doctrine\Cach
      * {@inheritdoc}
      */
     protected function doDelete($id)
-    {       
+    {
         return @unlink($this->getFilename($id));
     }
 

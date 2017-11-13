@@ -1,13 +1,38 @@
-<?php 
+<?php
 
- /** 
- * @copyright   CONTREXX CMS - COMVATION AG 
- * @author      Comvation Development Team <info@comvation.com>
- * @access      public 
- * @package     contrexx
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @access      public
+ * @package     cloudrexx
  * @subpackage  core_languagemanager
- */ 
-global $_ARRAYLANG; 
+ */
+global $_ARRAYLANG;
 $_ARRAYLANG['TXT_LANGUAGE_LIST'] = 'Overview';
 $_ARRAYLANG['TXT_VARIABLE_LIST'] = 'Language variable list';
 $_ARRAYLANG['TXT_ADD_LANGUAGE_VARIABLES'] = 'Add A New Language Variable';
@@ -71,3 +96,6 @@ $_ARRAYLANG['TXT_LANGUAGE_ACTION_COPY'] = 'Copy contents from this language"s fa
 $_ARRAYLANG['TXT_LANGUAGE_ACTION_LINK'] = 'Link contents from this language"s fallback language to this language';
 $_ARRAYLANG['TXT_COULD_NOT_WRITE_TO_FILE'] = 'Could not write to file';
 $_ARRAYLANG['TXT_SUCCESSFULLY_EXPORTED_TO_FILES'] = 'Language variables successfully exported to files.';
+$_ARRAYLANG['TXT_LANGUAGE_MANAGER_OK'] = 'Ok';
+$_ARRAYLANG['TXT_LANGUAGE_MANAGER_LABEL_LANG_REMOVAL'] = 'Confirm language data removal';
+$_ARRAYLANG['TXT_LANGUAGE_MANAGER_LANG_REMOVAL_CONTENT'] = 'Remove all language related data of the deactivated language from all applications.';

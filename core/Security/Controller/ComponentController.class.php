@@ -1,11 +1,37 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 /**
  * Main controller for Security
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Gerben van der Lubbe <spoofedexistence@gmail.com>
  * @author      Ivan Schmid <ivan.schmid@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_security
  */
 
@@ -13,17 +39,17 @@ namespace Cx\Core\Security\Controller;
 
 /**
  * Main controller for Security
- * 
+ *
  * The security class checks for possible attacks to the server
  * and supports a few functions to make everything more secure.
- * @copyright   CONTREXX CMS - COMVATION AG
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Gerben van der Lubbe <spoofedexistence@gmail.com>
  * @author      Ivan Schmid <ivan.schmid@comvation.com>
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_security
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-    
+
     /**
      * Title of the active page
      * @var boolean
@@ -31,7 +57,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public $reportingMode = false;
 
     /**
-     * $_SERVER variable indexes used by Contrexx
+     * $_SERVER variable indexes used by Cloudrexx
      *
      * @var array
      */
@@ -59,7 +85,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         'SERVER_SOFTWARE',
         'argv',
     );
-    
+
     public function getControllerClasses() {
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
@@ -68,7 +94,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     /**
      * Do something before resolving is done
-     * 
+     *
      * @param \Cx\Core\Routing\Url                      $request    The URL object for this request
      */
     public function preResolve(\Cx\Core\Routing\Url $request) {
@@ -79,7 +105,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 if ($config['coreIdsStatus']=='on') {
                     $this->reportingMode = true;
                 }
-                
+
                 $_GET     = $this->detectIntrusion($_GET);
                 $_POST    = $this->detectIntrusion($_POST);
                 $_COOKIE  = $this->detectIntrusion($_COOKIE);
@@ -87,7 +113,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
     }
-    
+
     /**
     * Get request info
     *
@@ -162,11 +188,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // Get the data to insert in the database
         $cdate = time();
         $dbuser = htmlspecialchars(addslashes($user), ENT_QUOTES, CONTREXX_CHARSET);
-        $dbuser = mysql_escape_string($dbuser);
+        $dbuser = contrexx_raw2db($dbuser);
         $dbgpcs = htmlspecialchars(addslashes($gpcs), ENT_QUOTES, CONTREXX_CHARSET);
-        $dbgpcs = mysql_escape_string($dbgpcs);
-        $where = addslashes("$file : $line");
-        $where = mysql_escape_string($where);
+        $dbgpcs = contrexx_raw2db($dbgpcs);
+        $where  = addslashes("$file : $line");
+        $where  = contrexx_raw2db($where);
 
         // Insert the intrusion in the database
         $objDatabase->Execute("INSERT INTO ".DBPREFIX."ids (timestamp, type, remote_addr, http_x_forwarded_for, http_via, user, gpcs, file)
@@ -179,30 +205,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $message = "DATE : $cdate\r\nFILE : $where\r\n\r\n$user\r\n\r\n$gpcs";
 
         // Send the e-mail to the administrator
-        if (\Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH.'/phpmailer/class.phpmailer.php')) {
-            $objMail = new \phpmailer();
+        $objMail = new \Cx\Core\MailTemplate\Model\Entity\Mail();
 
-            if ($config['coreSmtpServer'] > 0 && \Env::get('ClassLoader')->loadFile(ASCMS_CORE_PATH.'/SmtpSettings.class.php')) {
-                if (($arrSmtp = \SmtpSettings::getSmtpAccount($config['coreSmtpServer'])) !== false) {
-                    $objMail->IsSMTP();
-                    $objMail->Host = $arrSmtp['hostname'];
-                    $objMail->Port = $arrSmtp['port'];
-                    $objMail->SMTPAuth = true;
-                    $objMail->Username = $arrSmtp['username'];
-                    $objMail->Password = $arrSmtp['password'];
-                }
-            }
+        $objMail->SetFrom($config['coreAdminEmail'], $config['coreAdminName']);
+        $objMail->Subject = $_SERVER['HTTP_HOST']." : $type";
+        $objMail->IsHTML(false);
+        $objMail->Body = $message;
+        $objMail->AddAddress($emailto);
+        $objMail->Send();
 
-            $objMail->CharSet = CONTREXX_CHARSET;
-            $objMail->From = $config['coreAdminEmail'];
-            $objMail->FromName = $config['coreAdminName'];
-            $objMail->AddReplyTo($config['coreAdminEmail']);
-            $objMail->Subject = $_SERVER['HTTP_HOST']." : $type";
-            $objMail->IsHTML(false);
-            $objMail->Body = $message;
-            $objMail->AddAddress($emailto);
-            $objMail->Send();
-        }
     }
 
     /**

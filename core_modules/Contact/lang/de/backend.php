@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_contact
  */
 $_ARRAYLANG['TXT_CONTACT_TRANSFERED_DATA_FROM'] = "Hier sind die übermittelten Informationen vom Kontaktformular der Webseite von";
@@ -137,8 +163,10 @@ $_ARRAYLANG['TXT_CONTACT_FILE_NOT_UPLOADED'] = "Eine Datei wurde nicht hinauf ge
 $_ARRAYLANG['TXT_CONTACT_CAPTCHA_PROTECTION'] = "CAPTCHA-Schutz";
 $_ARRAYLANG['TXT_CONTACT_SAVE_DATA_IN_CRM']   = "Neuer CRM Kontakt von Kontaktanfrage erstellen";
 $_ARRAYLANG['TXT_CONTACT_CAPTCHA_DESCRIPTION'] = "Tippen Sie bitte die Zeichenfolge im dargestellten Bild in das Textfeld ein. Dies ist notwendig, damit das System Sie von einem Spambot unterscheiden kann.";
-$_ARRAYLANG['TXT_CONTACT_SEND_COPY_DESCRIPTION'] = "Durch das Aktivieren dieser Option, wird zusätzlich eine Kopie der angegebenen Formulardaten an den Absender geschickt.";
-$_ARRAYLANG['TXT_CONTACT_SEND_COPY'] = "Kopie an Absender";
+$_ARRAYLANG['TXT_CONTACT_SEND_COPY_DESCRIPTION'] = "Durch das Aktivieren dieser Option wird die E-Mail-Benachrichtigung zusätzlich an den Kontakt gesendet. Als E-Mail-Adresse wird der übermittelte Wert des ersten Formularfeldes mit der Validierung 'E-Mail Adresse' genommen. Falls keinem Formularfeld die Validierung 'E-Mail Adresse' zugewiesen ist, werden die übermittelten Formulardaten nach einer gültigen E-Mail Adresse durchsucht. E-Mail Adresse innerhalb eines Fliesstextes werden dabei aber nicht beachtet.";
+$_ARRAYLANG['TXT_CONTACT_SEND_COPY'] = "Kopie an Kontakt senden";
+$_ARRAYLANG['TXT_CONTACT_SEND_MULTIPLE_REPLY_DESCRIPTION'] = "Durch das Aktivieren dieser Option wird die E-Mail-Benachrichtigung an alle E-Mail-Adressen (aus Formularfelder mit Validierung 'E-Mail Adresse') gesendet.";
+$_ARRAYLANG['TXT_CONTACT_SEND_MULTIPLE_REPLY'] = "Versand an mehrere Kontakte";
 $_ARRAYLANG['TXT_CONTACT_CUSTOM_STYLE_DESCRIPTION'] = "Wird ein eigener CSS-Stil verwendet, so hat dieses Forumlar die ID und CSS-Klasse <strong>'contactForm_\$FormularNummer'</strong> z.B. contactForm_2, standardmässig sind für diese Attribute nur 'contactForm' gesetzt";
 $_ARRAYLANG['TXT_CONTACT_CUSTOM_STYLE'] = "Eigenen Stil verwenden";
 $_ARRAYLANG['TXT_CONTACT_RESET'] = "Zurücksetzen";

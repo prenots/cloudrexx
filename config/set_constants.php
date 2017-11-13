@@ -1,8 +1,33 @@
 <?php
 
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @package     contrexx
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @package     cloudrexx
  * @subpackage  config
  * @todo        Edit PHP DocBlocks!
  */
@@ -39,14 +64,12 @@ define('ASCMS_CUSTOMIZING_PATH',            ASCMS_INSTANCE_PATH.ASCMS_INSTANCE_O
 // Cx::getWebsiteCustomizingWebPath()
 define('ASCMS_CUSTOMIZING_WEB_PATH',        ASCMS_INSTANCE_OFFSET.'/customizing');
 
-require_once ASCMS_DOCUMENT_ROOT.'/config/settings.php';
-
 if (
     isset($_CONFIG['useCustomizings']) && $_CONFIG['useCustomizings'] == 'on' &&
     file_exists(ASCMS_CUSTOMIZING_PATH.'/config/SetCustomizableConstants.php')
 ) {
     require_once ASCMS_CUSTOMIZING_PATH.'/config/SetCustomizableConstants.php';
-    
+
     // load constants from basepath
 } else if (file_exists(ASCMS_DOCUMENT_ROOT.'/config/SetCustomizableConstants.php')) {
     require_once ASCMS_DOCUMENT_ROOT.'/config/SetCustomizableConstants.php';

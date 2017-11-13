@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  module_gallery
  */
 $_ARRAYLANG['TXT_GALLERY_CATEGORY_NAME'] = "Nombre";
@@ -111,7 +137,7 @@ $_ARRAYLANG['TXT_GALLERY_CAT_DETAILS_ATTR'] = "Propiedades";
 $_ARRAYLANG['TXT_GALLERY_CAT_DETAILS_ORIG_CAPT'] = "Tama&ntilde;o original de la imagen";
 $_ARRAYLANG['TXT_GALLERY_CAT_DETAILS_THUMB_CAPT'] = "Tama&ntilde; de la miniatura";
 $_ARRAYLANG['TXT_GALLERY_CAT_DETAILS_THUMB_QUALITY_CAPT'] = "Calidad de la miniatura";
-$_ARRAYLANG['TXT_QUALITY'] = "Calidad para las im&aacute;genes importadas";
+$_ARRAYLANG['TXT_GALLERY_QUALITY'] = "Calidad para las im&aacute;genes importadas";
 $_ARRAYLANG['TXT_GALLERY_SPACE'] = "Espacio requerido";
 $_ARRAYLANG['TXT_SETTINGS_COMMENTS'] = "Activar comentarios";
 $_ARRAYLANG['TXT_SETTINGS_VOTING'] = "Activar puntuaciones";

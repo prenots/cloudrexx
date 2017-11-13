@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * Class Delta
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_update
  */
 
@@ -13,10 +38,10 @@ namespace Cx\Core_Modules\Update\Model\Entity;
 
 /**
  * Class Delta
- * 
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Project Team SS4U <info@comvation.com>
- * @package     contrexx
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_update
  */
 class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
@@ -52,7 +77,7 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
 
     /**
      * Set id
-     * 
+     *
      * @param integer $id
      */
     public function setId($id) {
@@ -115,7 +140,7 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
 
     /**
      * addCodeBase
-     * 
+     *
      * @param integer $codeBaseId
      * @param boolean $rollback
      * @param integer $offset
@@ -138,10 +163,10 @@ class Delta extends \Cx\Core\Model\Model\Entity\YamlEntity {
 
     /**
      * Run the Migration command to migrate the DB
-     * 
+     *
      * @param integer $version
      * @param string  $process
-     * 
+     *
      * @return integer
      */
     protected function runMigrationCommand($version, $process) {

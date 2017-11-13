@@ -1,21 +1,46 @@
 <?php
 
 /**
- * Marketplace Modul Inputfield Country Class
+ * Cloudrexx
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
- * @package     contrexx
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * MediaDir Modul Inputfield Country Class
+ *
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  * @todo        Edit PHP DocBlocks!
  */
 namespace Cx\Modules\MediaDir\Model\Entity;
 /**
- * Marketplace Modul Inputfield Country Class
+ * MediaDir Modul Inputfield Country Class
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  module_mediadir
  */
 class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\MediaDirectoryLibrary implements Inputfield
@@ -35,14 +60,14 @@ class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\Me
 
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $_LANGID, $objInit, $_ARRAYLANG;
+        global $objDatabase, $objInit, $_ARRAYLANG;
 
         $intId = intval($arrInputfield['id']);
 
         switch ($intView) {
             default:
             case 1:
-            	if(isset($intEntryId) && $intEntryId != 0) {
+                if(isset($intEntryId) && $intEntryId != 0) {
                     $objInputfieldValue = $objDatabase->Execute("
                         SELECT
                             `value`
@@ -58,18 +83,18 @@ class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\Me
                 } else {
                     $strValue = null;
                 }
-                
+
                 if(empty($strValue)) {
                     if(substr($arrInputfield['default_value'][0],0,2) == '[[') {
                         $objPlaceholder = new \Cx\Modules\MediaDir\Controller\MediaDirectoryPlaceholder($this->moduleName);
                         $strValue = $objPlaceholder->getPlaceholder($arrInputfield['default_value'][0]);
                     } else {
-                        $strValue = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
+                        $strValue = empty($arrInputfield['default_value'][FRONTEND_LANG_ID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][FRONTEND_LANG_ID];
                     }
                 }
-                
+
                 if(!empty($arrInputfield['info'][0])){
-                    $strInfoValue = empty($arrInputfield['info'][$_LANGID]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][$_LANGID].'"';
+                    $strInfoValue = empty($arrInputfield['info'][FRONTEND_LANG_ID]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][FRONTEND_LANG_ID].'"';
                     $strInfoClass = 'mediadirInputfieldHint';
                 } else {
                     $strInfoValue = null;
@@ -77,13 +102,13 @@ class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\Me
                 }
 
                 if($objInit->mode == 'backend') {
-                	$strInputfield = '<select name="'.$this->moduleNameLC.'Inputfield['.$intId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'" class="'.$this->moduleNameLC.'InputfieldDropdown" style="width: 302px">';
+                    $strInputfield = '<select name="'.$this->moduleNameLC.'Inputfield['.$intId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'" class="'.$this->moduleNameLC.'InputfieldDropdown" style="width: 302px">';
                 } else {
-                	$strInputfield = '<select name="'.$this->moduleNameLC.'Inputfield['.$intId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'" class="'.$this->moduleNameLC.'InputfieldDropdown '.$strInfoClass.'" '.$strInfoValue.'>';
+                    $strInputfield = '<select name="'.$this->moduleNameLC.'Inputfield['.$intId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'" class="'.$this->moduleNameLC.'InputfieldDropdown '.$strInfoClass.'" '.$strInfoValue.'>';
                 }
 
                 $strInputfieldOptions = \Cx\Core\Country\Controller\Country::getMenuoptions($strValue);
-                
+
                 $strInputfield .= $strInputfieldOptions.'</select>';
 
                 return $strInputfield;
@@ -91,9 +116,9 @@ class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\Me
                 break;
             case 2:
                 //search View
-                $country = \Cx\Core\Country\Controller\Country::getNameArray(true, $_LANGID);
+                $country = \Cx\Core\Country\Controller\Country::getNameArray(true, FRONTEND_LANG_ID);
                 foreach ($country as $id => $name) {
-                	$strInputfieldOptions .= '<option value="'.$id.'">'.$name.'</option>';
+                    $strInputfieldOptions .= '<option value="'.$id.'">'.$name.'</option>';
                 }
 
                 $strInputfield = '<select name="'.$intId.'" class="'.$this->moduleName.'InputfieldSearch">';
@@ -133,7 +158,23 @@ class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\Me
 
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
-        global $objDatabase, $_ARRAYLANG, $_LANGID;
+        global $_ARRAYLANG;
+
+        $strValue = static::getRawData($intEntryId, $arrInputfield, $arrTranslationStatus);
+
+        if(!empty($strValue)) {
+            $strValue = strip_tags(htmlspecialchars($strValue, ENT_QUOTES, CONTREXX_CHARSET));
+            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = $_ARRAYLANG['TXT_'.$this->moduleLangVar.'_INPUTFIELD_TYPE_COUNTRY'];
+            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $strValue;
+        } else {
+            $arrContent = null;
+        }
+
+        return $arrContent;
+    }
+
+    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus) {
+        global $objDatabase;
 
         $intId = intval($arrInputfield['id']);
 
@@ -154,22 +195,13 @@ class MediaDirectoryInputfieldCountry extends \Cx\Modules\MediaDir\Controller\Me
                 entry_id=".$intEntryId."
             ORDER BY
                 CASE ".DBPREFIX."core_text.lang_id
-                    WHEN ".$_LANGID." THEN 1
+                    WHEN ".FRONTEND_LANG_ID." THEN 1
                     ELSE 2
                 END
             LIMIT 1
         ");
 
-        $strValue = strip_tags(htmlspecialchars($objInputfieldValue->fields['text'], ENT_QUOTES, CONTREXX_CHARSET));
-
-        if(!empty($strValue)) {
-            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = $_ARRAYLANG['TXT_'.$this->moduleLangVar.'_INPUTFIELD_TYPE_COUNTRY'];
-            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $strValue;
-        } else {
-            $arrContent = null;
-        }
-
-        return $arrContent;
+        return $objInputfieldValue->fields['text'];
     }
 
 

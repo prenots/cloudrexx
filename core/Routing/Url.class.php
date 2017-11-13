@@ -1,13 +1,38 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * An URL container
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_routing
  * @todo        Edit PHP DocBlocks!
  */
@@ -17,11 +42,11 @@ namespace Cx\Core\Routing;
 /**
  * URL Exception
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_routing
  * @todo        Edit PHP DocBlocks!
  */
@@ -30,11 +55,11 @@ class UrlException extends \Exception {};
 /**
  * An URL container
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
  * @version     3.0.0
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  core_routing
  * @todo        Edit PHP DocBlocks!
  */
@@ -65,7 +90,7 @@ class Url {
      */
     protected $path = null;
     /**
-     * Virtual language directory, like 'de' or 'en'
+     * Virtual language directory, like 'de', 'en' or 'en-GB'
      * @var string
      */
     protected $langDir = '';
@@ -96,7 +121,7 @@ class Url {
     const ROUTED = 2;
 
     protected $state = 0;
-    
+
     /**
      * The port of the URL
      * @var int
@@ -104,17 +129,35 @@ class Url {
     protected $port = 0;
 
     /**
+     * The fragment (after #) part of the URL
+     * @var string
+     */
+    protected $fragment = '';
+
+    /**
+     * Holds the cache for Url::getSystemPortByServiceName()
+     * @var array
+     */
+    protected static $systemInternetServiceProtocolPorts = array();
+
+    /**
      * Initializes $domain, $protocol, $port and $path.
      * @param string $url http://example.com/Test
      * @param bool $replacePorts - indicates if we need to replace ports with default ones
      */
     public function __construct($url, $replacePorts = false) {
-        
+
         $data = parse_url($url);
         if (isset($data['host'])) {
             $this->domain   = $data['host'];
         }
+        if (empty($this->domain)) {
+            $this->domain = \Env::get('config')['domainUrl'];
+        }
         $this->protocol = $data['scheme'];
+        if (empty($this->protocol)) {
+            $this->protocol = 'http';
+        }
         if ($this->protocol == 'file') {
             // we don't want virtual language dir in file URLs
             $this->setMode('backend');
@@ -126,13 +169,26 @@ class Url {
             $this->port = $this->getDefaultPort();
         }
         if (!$this->port) {
-            $this->port = getservbyname($this->protocol, 'tcp');
+            $this->port = static::getSystemPortByServiceName($this->protocol, 'tcp');
         }
         $path = '';
         if (isset($data['path'])) {
             $path = $data['path'];
         }
         $path = ltrim($path, '/');
+
+        // do not add virtual language dir for files
+        $fileName = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . '/' . $path;
+        if (file_exists($fileName)) {
+            $this->setMode('backend');
+        }
+        $this->realPath = '/' . $path;
+
+        // do not add virtual language dir in backend
+        if (strpos($this->realPath, \Cx\Core\Core\Controller\Cx::instanciate()->getBackendFolderName()) === 0) {
+            $this->setMode('backend');
+        }
+
         if(!empty($data['query'])) {
             $path .= '?' . $data['query'];
         }
@@ -140,6 +196,10 @@ class Url {
             $this->setPath($path);
         } else {
             $this->suggest();
+        }
+
+        if (!empty($data['fragment'])) {
+            $this->fragment = $data['fragment'];
         }
 
         $this->addPassedParams();
@@ -154,14 +214,42 @@ class Url {
     }
 
     /**
+     * Checks wheter this Url points to a location within this installation
+     * @todo This does not work correctly if setPath() is called from outside
+     * @return boolean True for internal URL, false otherwise
+     */
+    public function isInternal() {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        // check domain
+        $domainRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Core\Net\Model\Entity\Domain'
+        );
+        if (!$domainRepo->findOneBy(array('name' => $this->getDomain()))) {
+            return false;
+        }
+
+        // check offset
+        $installationOffset = \Env::get('cx')->getWebsiteOffsetPath();
+        $providedOffset = $this->realPath;
+        if (
+            $installationOffset !=
+            substr($providedOffset, 0, strlen($installationOffset))
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Get the protocol
-     * 
+     *
      * @return String
      */
     public function getProtocol() {
         return $this->protocol;
     }
-    
+
     public function getMode() {
         return $this->mode;
     }
@@ -172,7 +260,7 @@ class Url {
     public function isRouted() {
         return $this->state >= self::ROUTED;
     }
-    
+
     /**
      * gets port of URL;
      */
@@ -186,17 +274,17 @@ class Url {
     function setPort($port) {
         $this->port = $port;
     }
-    
-    /** 
+
+    /**
      * gets default port from settings
      */
     function getDefaultPort() {
         $mode = $this->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND ? 'Backend' : 'Frontend';
-        \Cx\Core\Setting\Controller\Setting::init('Config', null, 'Yaml', null, \Cx\Core\Setting\Controller\Setting::POPULATE);
+        \Cx\Core\Setting\Controller\Setting::init('Config', null, 'Yaml', null, \Cx\Core\Setting\Controller\Setting::NOT_POPULATE);
         $protocol = strtoupper($this->getProtocol());
-        $port  =  \Cx\Core\Setting\Controller\Setting::getValue('port' . $mode . $protocol);
+        $port  =  \Cx\Core\Setting\Controller\Setting::getValue('port' . $mode . $protocol, 'Config');
         return $port;
-    }    
+    }
 
     /**
      * sets $this->suggestedParams and $this->suggestedTargetPath
@@ -221,7 +309,7 @@ class Url {
                 $this->suggestedParams = $matches[2];
             }
         }
-        
+
 
         $this->state = self::SUGGESTED;
     }
@@ -297,8 +385,8 @@ class Url {
                 unset($params[$key]);
                 $this->removeAllParams();
                 $this->addParamsToPath($params);
-                return;
             }
+            return;
         }
         if (!empty($key)) {
             $this->setParams(array($key => $value));
@@ -492,8 +580,8 @@ class Url {
     public function getSuggestedParams() {
         return $this->suggestedParams;
     }
-    
-    
+
+
     public static function fromRequest() {
         if (php_sapi_name() === 'cli') {
             return new Url('file://' . getcwd());
@@ -554,7 +642,7 @@ class Url {
      * @param int $lang (optional) Language to use, default is FRONTENT_LANG_ID
      * @param array $parameters (optional) HTTP GET parameters to append
      * @param string $protocol (optional) The protocol to use
-     * @param boolean $returnErrorPageOnError (optional) If set to TRUE, this method will return an URL object that point to the error page of Contrexx. Defaults to TRUE.
+     * @param boolean $returnErrorPageOnError (optional) If set to TRUE, this method will return an URL object that point to the error page of Cloudrexx. Defaults to TRUE.
      * @return \Cx\Core\Routing\Url Url object for the supplied module, cmd and lang
      */
     public static function fromModuleAndCmd($module, $cmd = '', $lang = '', $parameters = array(), $protocol = '', $returnErrorPageOnError = true) {
@@ -585,7 +673,7 @@ class Url {
 
         return static::fromPage($page, $parameters, $protocol, true);
     }
-    
+
     /**
      * This returns an Url object for an absolute or relative url or an Url object
      * @author Michael Ritter <michael.ritter@comvation.com>
@@ -598,16 +686,16 @@ class Url {
         if (is_object($url) && $url instanceof self) {
             return $url;
         }
-        
+
         $matches = array();
         preg_match('#(http(s)?|file)://#', $url, $matches);
-        
+
         // relative URL
         if (!count($matches)) {
-            
+
             $absoluteUrl = self::fromRequest();
             preg_match('#((?:http(?:s)?|file)://)((?:[^/]*))([/$](?:.*)/)?#', $absoluteUrl->toString(true), $matches);
-            
+
             // starting with a /?
             if (substr($url, 0, 1) == '/') {
                 $url = $matches[1] . $matches[2] . $url;
@@ -615,12 +703,12 @@ class Url {
                 $url = $matches[1] . $matches[2] . $matches[3] . $url;
             }
             $url = new static($url);
-            
+
         // absolute URL
         } else {
             $url = new static($url);
         }
-        
+
         // disable virtual language dir if not in Backend
         if(preg_match('/.*(cadmin).*/', $url->getPath()) < 1 && $url->getProtocol() != 'file'){
             $url->setMode('frontend');
@@ -638,15 +726,13 @@ class Url {
      */
     public static function fromDocumentRoot($arrParameters = array(), $lang = '', $protocol = '')
     {
-        global $_CONFIG;
-
         if ($lang == '') {
             $lang = FRONTEND_LANG_ID;
         }
         if ($protocol == '') {
             $protocol = ASCMS_PROTOCOL;
         }
-        $host = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_CONFIG['domainUrl'];
+        $host = \Env::get('config')['domainUrl'];
         $offset = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath();
         $langDir = \FWLanguage::getLanguageCodeById($lang);
         $parameters = '';
@@ -667,6 +753,7 @@ class Url {
      * @param int $lang (optional) Language to use, default is FRONTEND_LANG_ID
      * @param array $parameters (optional) HTTP GET parameters to append
      * @param string $protocol (optional) The protocol to use
+     * @throws \Cx\Core\Routing\UrlException If no page was found
      * @return \Cx\Core\Routing\Url Url object for the supplied module, cmd and lang
      */
     public static function fromNodeId($nodeId, $lang = '', $parameters = array(), $protocol = '') {
@@ -678,6 +765,9 @@ class Url {
             'node' => $nodeId,
             'lang' => $lang,
         ));
+        if (!$page) {
+            throw new UrlException('Unable to find a page with Node-ID:' . $nodeId . ' in language:' . $lang . '!');
+        }
         return static::fromPage($page, $parameters, $protocol);
     }
 
@@ -714,19 +804,16 @@ class Url {
 
     /**
      * Returns the URL object for a page
-     * @global type $_CONFIG
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page Page to get the URL to
      * @param array $parameters (optional) HTTP GET parameters to append
      * @param string $protocol (optional) The protocol to use
      * @return \Cx\Core\Routing\Url Url object for the supplied page
      */
     public static function fromPage($page, $parameters = array(), $protocol = '') {
-        global $_CONFIG;
-        
         if ($protocol == '') {
             $protocol = ASCMS_PROTOCOL;
         }
-        $host = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_CONFIG['domainUrl'];
+        $host = \Env::get('config')['domainUrl'];
         $offset = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath();
         $path = $page->getPath();
         $langDir = \FWLanguage::getLanguageCodeById($page->getLang());
@@ -740,19 +827,43 @@ class Url {
         }
         return new Url($protocol.'://'.$host.$offset.'/'.$langDir.$path.$getParams, true);
     }
+    
+    /**
+     * Returns the URL object for a command mode command accessed via HTTP(s)
+     * @param string $command Command mode command name
+     * @param array $arguments List of non-named arguments
+     * @param array $parameters List of named parameters (key=>value style array)
+     * @return \Cx\Core\Routing\Url Url object for the supplied command name
+     */
+    public static function fromApi($command, $arguments, $parameters = array()) {
+        $url = \Cx\Core\Routing\Url::fromDocumentRoot();
+        $url->setMode('backend');
+        $url->setPath('api/' . $command . '/' . implode('/', $arguments));
+        $url->removeAllParams();
+        $url->setParams($parameters);
+        return $url;
+    }
 
     /**
      * Returns an absolute or relative link
      * @param boolean $absolute (optional) set to false to return a relative URL
-     * @return type 
+     * @return type
      */
     public function toString($absolute = true, $forcePort = false) {
         if(!$absolute) {
-            return \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()  . '/' .
-                ($this->getMode() != 'backend' ? $this->getLangDir().'/' : '') . 
-                $this->path;
+            $relativeUrl = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath() .
+                '/';
+            if (
+                $this->getMode() != 'backend' &&
+                static::isVirtualLanguageDirsActive() &&
+                !empty($this->getLangDir())
+            ) {
+                $relativeUrl .= $this->getLangDir() . '/';
+            }
+            $relativeUrl .= $this->path . (empty($this->fragment) ? '' : '#' . $this->fragment);
+            return $relativeUrl;
         }
-        $defaultPort = getservbyname($this->protocol, 'tcp');
+        $defaultPort = static::getSystemPortByServiceName($this->protocol, 'tcp');
         $portPart = '';
         if ($this->port && (!$defaultPort || $this->port != $defaultPort || $forcePort)) {
             $portPart = ':' . $this->port;
@@ -763,9 +874,62 @@ class Url {
             $this->toString(false);
     }
 
-    public function getLangDir() {
+    /**
+     * Get port number associated with an Internet service and protocol.
+     *
+     * This method is an alias to getservbyname(), whereas the result will be
+     * cached for later usages.
+     *
+     * @param   string  $service    The Internet service name, as a string.
+     * @param   string  $protocol   Either "tcp" or "udp" (in lowercase).
+     * @return  int The Internet port which corresponds to service for the
+     *              specified protocol as per /etc/services.
+     */
+    public static function getSystemPortByServiceName($service, $protocol) {
+        if (!isset(static::$systemInternetServiceProtocolPorts[$service])) {
+            static::$systemInternetServiceProtocolPorts[$service] = array();
+        }
+        if (!isset(static::$systemInternetServiceProtocolPorts[$service][$protocol])) {
+            static::$systemInternetServiceProtocolPorts[$service][$protocol] = getservbyname($service, $protocol);
+        }
+
+        return static::$systemInternetServiceProtocolPorts[$service][$protocol];
+    }
+
+    /**
+     * Tells wheter virtual language directories are in use or not
+     * This only returns true if there's but one frontend language active
+     * @return boolean True if virtual language directories are in use, false otherwise
+     */
+    public static function isVirtualLanguageDirsActive() {
+        // if only 1 lang active and virtual lang dirs deactivated, return false
+        if (count(\FWLanguage::getActiveFrontendLanguages()) > 1) {
+            return true;
+        }
+        return \Cx\Core\Setting\Controller\Setting::getValue(
+            'useVirtualLanguageDirectories',
+            'Config'
+        ) != 'off';
+    }
+
+    /**
+     * Returns the virtual language directory for this URL
+     * This returns an empty string if virtual language directories are not in use.
+     * If $fromUrl is set to true and the URL contained a virtual language
+     * directory on initialization, this returns the supplied directory even
+     * if virtual language directories are not in use.
+     * @param boolean $fromUrl (optional) Return supplied instead of calculated directory if set to true, default false
+     * @return string Virtual language directory
+     */
+    public function getLangDir($fromUrl = false) {
         $lang_dir = '';
 
+        if (!static::isVirtualLanguageDirsActive()) {
+            if ($fromUrl) {
+                return $this->langDir;
+            }
+            return \FWLanguage::getLanguageCodeById(\FWLanguage::getDefaultLangId());
+        }
         if ($this->langDir == '' && defined('FRONTEND_LANG_ID')) {
             $lang_dir = \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID);
         } else {

@@ -1,9 +1,35 @@
 <?php
+
 /**
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      Comvation Development Team <info@comvation.com>
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @access      public
- * @package     contrexx
+ * @package     cloudrexx
  * @subpackage  coremodule_news
  */
 $_ARRAYLANG['TXT_DATE'] = "Date";
@@ -14,6 +40,8 @@ $_ARRAYLANG['TXT_NEWS_MESSAGE'] = "Article";
 $_ARRAYLANG['TXT_HYPERLINKS'] = "Liens hypertexte";
 $_ARRAYLANG['TXT_EXTERNAL_SOURCE'] = "Sources externes";
 $_ARRAYLANG['TXT_LINK'] = "Lien";
+$_ARRAYLANG['TXT_NEWS_REDIRECT_NEW_WINDOW'] = "Nouvelles fenêtre";
+$_ARRAYLANG['TXT_NEWS_REDIRECT_NEW_WINDOW_HELP'] = "Avec cette option vous pouvez définir si le lien de cette nouvelles doit être ouvert dans une fenêtre séparée.";
 $_ARRAYLANG['TXT_NEWS_NEWS_CONTENT'] = "Contenu de l'article";
 $_ARRAYLANG['TXT_IMPORTANT_HYPERLINKS'] = "Liens importants";
 $_ARRAYLANG['TXT_NEWS_SOURCE'] = "Source";
@@ -42,6 +70,8 @@ $_ARRAYLANG['TXT_NOTIFY_ADDRESS'] = "Bonjour";
 $_ARRAYLANG['TXT_NOTIFY_SUBJECT'] = "Articles à valider";
 $_ARRAYLANG['TXT_NOTIFY_MESSAGE'] = "Un nouvel article a été soumis. Lien pour la validation:";
 $_ARRAYLANG['TXT_NEWS_MORE'] = "plus";
+$_ARRAYLANG['TXT_NEWS_MORE_INFO'] = "En savoir plus";
+$_ARRAYLANG['TXT_NEWS_HEADLINE'] = "actualité";
 $_ARRAYLANG['TXT_NEWS_COMMENTS_NONE_EXISTING'] = "No comments yet.";
 $_ARRAYLANG['TXT_NEWS_LIB_POSTED_BY'] = "posted by [USER] at [DATE]";
 $_ARRAYLANG['TXT_NEWS_COMMENTS_SAVING_ERROR'] = "Comment saving error";
@@ -72,9 +102,10 @@ $_ARRAYLANG['TXT_NEWS_MONTH_9'] = "Septembre";
 $_ARRAYLANG['TXT_NEWS_MONTH_10'] = "Octobre";
 $_ARRAYLANG['TXT_NEWS_MONTH_11'] = "Novembre";
 $_ARRAYLANG['TXT_NEWS_MONTH_12'] = "Décembre";
-$_ARRAYLANG['TXT_NEWS_ADD_COMMENT'] = "Add comment";
-$_ARRAYLANG['TXT_NEWS_NAME'] = "Name";
-$_ARRAYLANG['TXT_NEWS_TITLE'] = "Title";
-$_ARRAYLANG['TXT_NEWS_COMMENT'] = "Comment";
-$_ARRAYLANG['TXT_NEWS_ADD'] = "Add";
-$_ARRAYLANG['TXT_NEWS_REDIRECT_INSTRUCTION'] = "The following link takes you to the message:";
+$_ARRAYLANG['TXT_NEWS_ADD_COMMENT'] = "Ajouter un commentaire";
+$_ARRAYLANG['TXT_NEWS_WRITE_COMMENT'] = "Laisser un commentaire";
+$_ARRAYLANG['TXT_NEWS_NAME'] = "Nom";
+$_ARRAYLANG['TXT_NEWS_TITLE'] = "Titre";
+$_ARRAYLANG['TXT_NEWS_COMMENT'] = "Commentaire";
+$_ARRAYLANG['TXT_NEWS_ADD'] = "Ajouter";
+$_ARRAYLANG['TXT_NEWS_REDIRECT_INSTRUCTION'] = "Le lien suivant vous amène à le message:";

@@ -1,4 +1,30 @@
 <?php
+
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Cx\Update\Cx_3_0_4;
 
 set_time_limit(0);
@@ -356,7 +382,7 @@ class ContentMigration
                     if (!isset($_SESSION['contrexx_update']['pages'])) {
                         $_SESSION['contrexx_update']['pages'] = array();
                     }
-                    
+
                     // CREATE PAGE
                     switch ($objResult->fields['action']) {
                         case 'new':
@@ -531,7 +557,7 @@ class ContentMigration
 
         return true;
     }
-    
+
     function _setCmd($page, $cmd) {
         $origCmd = $cmd;
         $cmd = preg_replace('/[^-A-Za-z0-9_]+/', '_', $origCmd);
@@ -1001,7 +1027,7 @@ class ContentMigration
                         $pageRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
                         $pages = $pageRepo->findBy(array(
                             'lang' => $langId,
-                        ), true);
+                        ), null, null, null, true);
                         foreach ($pages as $page) {
                             $pageIds[$langId][] = $page->getId();
                         }

@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2015
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+/**
  * FolderWidget
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_upload
  */
 
@@ -14,20 +39,20 @@ namespace Cx\Core_Modules\Upload\Controller;
 /**
  * FolderWidgetException
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_upload
  */
 class FolderWidgetException extends \Exception {}
 
 /**
- * A folder widget (obviously). Use this to display a list of the files contained in a 
+ * A folder widget (obviously). Use this to display a list of the files contained in a
  * certain folder and let the user modify them (currently only deletion possible).
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_upload
  * @todo does not use filemanager - deleting won't work in folders without the needed permissions
  */
@@ -60,15 +85,15 @@ class FolderWidget {
 
         $tpl = new \Cx\Core\Html\Sigma(ASCMS_CORE_MODULE_PATH.'/Upload/template/');
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
-        
+
         $tpl->loadTemplateFile('folderWidget.html');
         $tpl->setVariable('ID', $this->id);
 
         //from where the combouploader gets the code on an uploader switch
         $cmdOrSection = $this->isBackendRequest ? 'cmd' : 'section';
         $actOrCmd = $this->isBackendRequest ? 'act' : 'cmd';
-        $refreshUrl = ($this->isBackendRequest ? ASCMS_ADMIN_WEB_PATH : ASCMS_PATH_OFFSET).\Env::get('virtualLanguageDirectory').'/index.php?'.$cmdOrSection.'=Upload&'.$actOrCmd.'=refreshFolder'; 
-        $deleteUrl = ($this->isBackendRequest ? ASCMS_ADMIN_WEB_PATH : ASCMS_PATH_OFFSET).\Env::get('virtualLanguageDirectory').'/index.php?'.$cmdOrSection.'=Upload&'.$actOrCmd.'=deleteFile'; 
+        $refreshUrl = ($this->isBackendRequest ? ASCMS_ADMIN_WEB_PATH : ASCMS_PATH_OFFSET).\Env::get('virtualLanguageDirectory').'/index.php?'.$cmdOrSection.'=Upload&'.$actOrCmd.'=refreshFolder';
+        $deleteUrl = ($this->isBackendRequest ? ASCMS_ADMIN_WEB_PATH : ASCMS_PATH_OFFSET).\Env::get('virtualLanguageDirectory').'/index.php?'.$cmdOrSection.'=Upload&'.$actOrCmd.'=deleteFile';
 
         \ContrexxJavascript::getInstance()->setVariable(array(
                 'refreshUrl' => $refreshUrl,
