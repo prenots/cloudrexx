@@ -260,6 +260,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     public function signup($params) {
         global $_ARRAYLANG;
 
+        // required to allow the AJAX request send the MultiSiteAffiliate COOKIE
+        header('Access-Control-Allow-Credentials: true');
+
         // abort in case command has been requested without any data
         if (empty($params['post'])) {
             return;
