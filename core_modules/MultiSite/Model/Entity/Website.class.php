@@ -518,6 +518,7 @@ class Website extends \Cx\Model\Base\EntityBase {
         global $_DBCONFIG, $_ARRAYLANG, $_CORELANG;
         
         \DBG::msg('Website::setup()');
+        \DBG::msg($options);
         \DBG::msg('change Website::$status from "'.$this->status.'" to "'.self::STATE_SETUP.'"');
         $this->status = self::STATE_SETUP;
         \Env::get('em')->persist($this);
@@ -545,12 +546,16 @@ class Website extends \Cx\Model\Base\EntityBase {
             //create user account in website service server
             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('createUser', array('userId' => $this->owner->getId(), 'email'  => $this->owner->getEmail()), $this->websiteServiceServer);
             if(!$resp || $resp->status == 'error'){
+                \DBG::dump($resp);
                 $errMsg = isset($resp->message) ? $resp->message : '';
                 \DBG::dump($errMsg);
                 if (isset($resp->log)) {
                     \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->log));
                 }
-                throw new WebsiteException('Problem in creating website owner '.$errMsg);    
+                if (isset($resp->data) && isset($resp->data->log)) {
+                    \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->data->log));
+                }
+                throw new WebsiteException('Problem in creating website owner ');    
             }
             if (isset($resp->data->log)) {
                 \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->data->log));
@@ -676,12 +681,42 @@ class Website extends \Cx\Model\Base\EntityBase {
                 $params = \Cx\Core_Modules\MultiSite\Model\Event\AccessUserEventListener::fetchUserData($this->owner);
                 switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
                     case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_MANAGER:
-                        \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('updateUser', $params, $this->websiteServiceServer);
+                        // update user on service server
+                        $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('updateUser', $params, $this->websiteServiceServer);
+                        if (!$resp || $resp->status == 'error') {
+                            $errMsg = isset($resp->message) ? $resp->message : '';
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->log));
+                            }
+                        }
+                        if (isset($resp->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->data->log));
+                        }
+                        // update user on newly created website
+                        $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $this);
+                        if(!$resp || $resp->status == 'error'){
+                            $errMsg = isset($resp->message) ? $resp->message : '';
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
+                            }
+                        }
+                        if (isset($resp->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
+                        }
                         break;
 
                     case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_HYBRID:
                     case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_SERVICE:
-                        \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $this);
+                        $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $this);
+                        if(!$resp || $resp->status == 'error'){
+                            $errMsg = isset($resp->message) ? $resp->message : '';
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
+                            }
+                        }
+                        if (isset($resp->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
+                        }
                         break;
                 }
                 $mailTemplateKey = 'newWebsiteCreated';

@@ -1214,8 +1214,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 if (isset($command) && isset($params)) {
                     if ($submitFormAction == 'Ssl') {
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer($command, $params, $website->getWebsiteServiceServer());
+                        $logPrefix = 'Service: '.$website->getWebsiteServiceServer()->getLabel();
                     } else {                    
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite($command, $params, $website);
+                        $logPrefix = 'Website: '.$website->getName();
                     }
                     if ($response && $response->status == 'success' && $response->data->status == 'success') {
                         $message = ($submitFormAction == 'Select') 
@@ -1224,11 +1226,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
                         return $this->parseJsonMessage($message, true);
                     } else {
+\DBG::dump($response);
+                        if (isset($response) && isset($response->data) && isset($response->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry, $prefix) {return '('.$prefix.') '.$logEntry;}, $response->data->log, array_fill(0, count($response->data->log), $logPrefix)));
+                        }
                         return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
                     }
                 }
             } catch (\Exception $e) {
-                \DBG::log('Failed to '.$submitFormAction. 'Domain'. $e->message());
+                \DBG::log('Failed to '.$submitFormAction. 'Domain'. $e->getMessage());
                 return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
             }
         } else {
@@ -1351,7 +1357,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     }
                 }
             } catch (\Exception $e) {
-                \DBG::log('Failed to '.$submitFormAction. ' E-Mail'. $e->message());
+                \DBG::log('Failed to '.$submitFormAction. ' E-Mail'. $e->getMessage());
                 return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
             }
         } else {
@@ -1468,7 +1474,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     }
                 }
             } catch (\Exception $e) {
-                \DBG::log('Failed to ' . $submitFormAction . 'administrator account' . $e->message());
+                \DBG::log('Failed to ' . $submitFormAction . 'administrator account' . $e->getMessage());
                 return $this->parseJsonMessage($errorMsg, false);
             }
         } else {
@@ -1776,6 +1782,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'subscriptionId'        => $subscriptionId
             );
             $resp = JsonMultiSiteController::executeCommandOnManager('websiteRestore', $params);
+            if (isset($resp->log)) {
+                \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$website->getName().') '.$logEntry;}, $resp->log));
+            }
             return $responseType == 'json' ? $resp : ($resp->status == 'success' ? $resp->data->messsage : $resp->message);
             
         } catch (\Exception $e) {

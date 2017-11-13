@@ -1119,6 +1119,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $errcode = $resultNode->errcode;
         $systemError = $response->system->errtext;
         if ('error' == (string)$resultNode->status || $systemError) {
+            \DBG::dump($recordId);
             \DBG::dump($xmldoc->saveXML());
             \DBG::dump($response);
             $error = (isset($systemError)?$systemError:$resultNode->errtext);
