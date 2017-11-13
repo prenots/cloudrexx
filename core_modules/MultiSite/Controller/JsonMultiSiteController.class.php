@@ -550,6 +550,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $subscription->setReferenceId($transactionReference);
                 $subscription->setPsp(5);
                 
+                $calculatedProductPrice = $productPrice;
                 if (   !\FWValidator::isEmpty($subscriptionId)
                     && $subscriptionObj
                     && !\FWValidator::isEmpty($subscriptionObj->getPaymentAmount())
@@ -570,11 +571,12 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     
                     $credit                   = number_format($subscriptionPricePerDay * $daysLeftInCurrentRenewal, 2, '.', '');
 
+                    $calculatedProductPrice   = $productPrice - $credit;
                     // set discount price of first payment period of subscription
-                    $subscriptionOptions['oneTimeSalePrice'] = $productPrice - $credit;
+                    $subscriptionOptions['oneTimeSalePrice'] = $calculatedProductPrice;
                 }
                 //update amount deatails in subscription
-                $subscription->setAmount(($productPrice - $credit) * 100);
+                $subscription->setAmount($product->getAmountWithVat($calculatedProductPrice) * 100);
                 
                 $subscription->setCurrency(\Payrexx\Models\Request\Subscription::CURRENCY_CHF);
 
@@ -601,7 +603,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         if (!\FWValidator::isEmpty($credit)) {
                             $updateSubscription = new \Payrexx\Models\Request\Subscription();
                             $updateSubscription->setId($newExternalSubscriptionId);
-                            $updateSubscription->setAmount($productPrice * 100);
+                            $updateSubscription->setAmount($product->getAmountWithVat($productPrice) * 100);
                             $updateSubscription->setCurrency(\Payrexx\Models\Request\Subscription::CURRENCY_CHF);
                             try {
                                 $payrexx->update($updateSubscription);
@@ -624,7 +626,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         );
                         
                         // create payment for order
-                        ComponentController::createPayrexxPayment($transactionReference, $productPrice - $credit, $transactionData);
+                        ComponentController::createPayrexxPayment($transactionReference, $product->getAmountWithVat($calculatedProductPrice), $transactionData);
                     } else {
                         \DBG::log('JsonMultiSiteController::manageSubscription() - Could not create a subscription.');
                         return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SUBSCRIPTION_'.$subscriptionType.'_FAILED']);
