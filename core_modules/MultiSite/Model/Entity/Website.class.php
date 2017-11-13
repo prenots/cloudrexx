@@ -614,9 +614,6 @@ class Website extends \Cx\Model\Base\EntityBase {
 
             \DBG::msg('Website: initializeConfig..');
             $this->initializeConfig();
-            
-            \DBG::msg('Website: initializeLanguage..');
-            $this->initializeLanguage();
 
             \DBG::msg('Website: setupTheme..');
             $this->setupTheme($websiteThemeId);
@@ -994,7 +991,11 @@ class Website extends \Cx\Model\Base\EntityBase {
             $params = array(
                 'dashboardNewsSrc' => \Cx\Core\Setting\Controller\Setting::getValue('dashboardNewsSrc','MultiSite'),
                 'coreAdminEmail'   => $this->owner->getEmail(),
-                'contactFormEmail' => $this->owner->getEmail()
+                'contactFormEmail' => $this->owner->getEmail(),
+                // we should migrate this to locales
+                // this only works as long as the website skeleton data does use the same locale/language IDs as the website service and master
+                'defaultLocaleId'  => $this->language,
+                'defaultLanguageId'=> $this->language,
             );
             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('setupConfig', $params, $this);
             if(!$resp || $resp->status == 'error'){
@@ -1712,36 +1713,13 @@ throw new WebsiteException('implement secret-key algorithm first!');
                         \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
                     }
                     if (isset($resp->message)) {
-                        \DBG::msg('(Website: '.$this->getName().') '.$resp->message);
+                        \DBG::msg('(Website: '.$this->getName().') '.serialize($resp->message));
                     }
                     throw new WebsiteException('Unable to setup license: Error in setup license in Website');
                 }
             } catch (\Cx\Core_Modules\MultiSite\Controller\MultiSiteJsonException $e) {
                 throw new WebsiteException('Unable to setup license: '.$e->getMessage());
             }           
-        } 
-    }
-    
-    /**
-     * Initialize the language
-     */
-    public function initializeLanguage() {
-        //send the JSON Request 'setDefaultLanguage' command from service to website
-        try {
-            $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('setDefaultLanguage', array('langId' => $this->language), $this);
-            if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
-                if (isset($resp->data->log)) {
-                    \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
-                }
-                return true;
-            } else {
-                if (isset($resp->log)) {
-                    \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
-                }
-                throw new WebsiteException('Unable to initialize the language: Error in initializing language in Website');
-            }
-        } catch (\Cx\Core_Modules\MultiSite\Controller\MultiSiteJsonException $e) {
-            throw new WebsiteException('Unable to initialize the language: '.$e->getMessage());
         }        
     }
     

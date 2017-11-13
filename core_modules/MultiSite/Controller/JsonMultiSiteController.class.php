@@ -2634,53 +2634,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'log'               => \DBG::getMemoryLogs(),
         );
     }
-    
-    /**
-     * Set the default language
-     * 
-     * @global \Cx\Core_Modules\MultiSite\Controller\ADOConnection $objDatabase
-     * @param array $params
-     * 
-     * @return boolean
-     * @throws MultiSiteJsonException
-     */
-    public function setDefaultLanguage($params) {
-        global $objDatabase;
 
-        if (empty($params['post']['langId'])) {
-            throw new MultiSiteJsonException('JsonMultiSiteController::setDefaultLanguage() failed: No language specified.');
-        }
-        
-        try {
-            $deactivateIds = array();
-            $arrLang = \FWLanguage::getLanguageArray();
-            foreach ($arrLang As $key => $value) {
-                if ($key != $params['post']['langId']) {
-                    $deactivateIds[] = $key;
-                }
-            }
-            
-            //deactivate all the languages except the lang $params['post']['langId']
-            $deactivateQuery = \SQL::update('languages', array('backend' => 0, 'frontend' => 0, 'is_default' => 'false'), array('escape' => true)) . ' WHERE `id` In (' . implode(', ', $deactivateIds) . ')';
-            
-            //set the lang($params['post']['langId']) as default
-            $activateQuery = \SQL::update('languages', array('backend' => 1, 'frontend' => 1, 'is_default' => 'true'), array('escape' => true)) . ' WHERE `id` = ' . $params['post']['langId'];
-            
-            if ($objDatabase->Execute($deactivateQuery) !== false && $objDatabase->Execute($activateQuery) !== false) {
-                return array(
-                    'status' => 'success',
-                    'log'    => \DBG::getMemoryLogs(),
-                );
-            }
-            
-        } catch (\Exception $e) {
-            throw new MultiSiteJsonException(array(
-                'log'       => \DBG::getMemoryLogs(),
-                'message'   => 'JsonMultiSiteController::setDefaultLanguage() failed: Updating Language status.' . $e->getMessage(),
-            ));
-        }
-    }
-    
     /**
      * Check current user is website owner or not
      * 
