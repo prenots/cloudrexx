@@ -297,7 +297,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 'email' => $params['post']['multisite_email_address'],
                 'groups'=> explode(',', $arrSettings['assigne_to_groups']['value']),
                 'newsletter_lists' => array(2),
-            )));
+            )), true);
 
             $objFWUser = \FWUser::getFWUserObject();
             $objUser = $objFWUser->objUser->getUser(intval($user['userId']));
@@ -771,7 +771,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         }
     }
 
-    public function createUser($params) {
+    public function createUser($params, $throwException = false) {
         try {
             if (empty($params['post'])) {
                 throw new MultiSiteJsonException('Invalid arguments specified for command JsonMultiSiteController::createUser.');
@@ -1871,7 +1871,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     ->getRepository('Cx\Core\User\Model\Entity\User')
                     ->findOneById(contrexx_input2db($params['post']['userId']));
                 if (!$owner) {
-                    $userDetails = $this->createUser($params);
+                    $userDetails = $this->createUser($params, true);
                     $owner = $em
                         ->getRepository('Cx\Core\User\Model\Entity\User')
                         ->findOneById($userDetails['userId']);
@@ -7350,6 +7350,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
                 case ComponentController::MODE_WEBSITE:
                     $em             = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+                    $em->getConfiguration()->getResultCacheImpl()->deleteAll();
                     $userRepo       = $em->getRepository('Cx\Core\User\Model\Entity\User');
                     $ownerEmail     = !empty($params['post']['ownerEmail']) ? contrexx_input2raw($params['post']['ownerEmail']) : '';
                     $objUser        = $userRepo->findOneBy(array('email' => $ownerEmail));
@@ -7424,9 +7425,13 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHANGE_OWNER_USER_ERROR']);
                     break;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \DBG::log($e->getMessage());
-            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHANGE_OWNER_USER_ERROR']);
+            return array(
+                'status'  => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHANGE_OWNER_USER_ERROR'].'3',
+                'log'     => \DBG::getMemoryLogs(),
+            );
         }
     }
     
