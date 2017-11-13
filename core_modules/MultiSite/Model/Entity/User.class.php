@@ -62,4 +62,25 @@ class User extends \User {
     public function assignRandomUserId() {
         $this->id = time().rand(1,getrandmax());
     }
+
+    /**
+     * Returns the md5 sum of the set password of the user account.
+     * @return  string  The set password of the user account
+     */
+    public function getHashedPassword() {
+        if (!empty($this->password)) {
+            return $this->password;
+        }
+
+        // fetch the password from the database
+        $db = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        $result = $db->Execute('SELECT `password` FROM `'.DBPREFIX.'access_users` WHERE `id` = '.$this->id);
+        if ($result !== false && $result->RecordCount()) {
+            return $result->fields['password'];
+
+            // note: do not set the fetched password to $this->password,
+            // otherwise the User::store() method will force to rewrite
+            // the password to the database
+        }
+    }
 }

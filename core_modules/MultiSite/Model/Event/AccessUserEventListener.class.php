@@ -282,6 +282,13 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
             $objFWUser = \FWUser::getFWUserObject();
             $objUser   = $objFWUser->objUser->getUser($objUser->getId());
         }
+
+        // Replace $objUser by a multisite user object.
+        // This is required to have the method $objUser->getHashedPassword()
+        // always return the hashed password of the user account.
+        $user = new \Cx\Core_Modules\MultiSite\Model\Entity\User();
+        $objUser = $user->getUser($objUser->getId());
+
         //get user's profile details
         $objUser->objAttribute->first();
         $arrUserDetails = array();
