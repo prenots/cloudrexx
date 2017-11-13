@@ -7283,8 +7283,13 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $siteList = $hostingController->getAllSites();
                     
                     if (!in_array($params['post']['domainName'], $siteList)) {
-                        $hostingController->createSite($params['post']['domainName'], $hostingController->getWebspaceId()); 
+                        $siteId = $hostingController->createSite($params['post']['domainName'], $hostingController->getWebspaceId()); 
+                        if ($siteId) {
+                            $hostingController->disableMailService($siteId);
+                            $hostingController->disableDnsService($siteId);
+                        }
                     } else {
+                        $siteId = array_search($params['post']['domainName'], $siteList);
                         $sslCertificates = $hostingController->getSSLCertificates($params['post']['domainName']);
                         if (!empty($sslCertificates)) {
                             $hostingController->removeSSLCertificates($params['post']['domainName'], $sslCertificates);
@@ -7297,17 +7302,26 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                                                         $params['post']['privateKey'],
                                                                         $params['post']['certificate'], 
                                                                         $params['post']['caCertificate']);  
-                    return $installSslCertificate
-                           ? array('status' => 'success')
-                           : array('status' => 'error');
+                    if ($installSslCertificate) {
+                        if ($hostingController->activateSSLCertificate($params['post']['certificateName'], $siteId)) {
+                            return array('status' => 'success');
+                        }
+                    }
                     break;
                 default :
                     break;
             }
-            return array('status' => 'error');
+            return array(
+                'status' => 'error',
+                'log'    => \DBG::getMemoryLogs(),
+            );
         } catch (\Exception $e) {
             \DBG::msg($e->getMessage());
-            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED']);
+            return array(
+                'status'  => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED'],
+                'log'     => \DBG::getMemoryLogs(),
+            );
         }
     }
 

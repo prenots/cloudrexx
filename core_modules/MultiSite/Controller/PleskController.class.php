@@ -1358,6 +1358,48 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
     }
     
     /**
+     * Disable the DNS Service
+     * 
+     * @param integer $siteId
+     * 
+     * @return boolean
+     * @throws ApiRequestException
+     */
+    public function disableDnsService($siteId)
+    {
+        \DBG::msg("MultiSite (PleskController): Disable DNS Service.");
+        if (empty($siteId)) {
+            return;
+        }
+        
+        $xmldoc = $this->getXmlDocument();
+        $packet = $this->getRpcPacket($xmldoc);       
+
+        $dns = $xmldoc->createElement('dns');
+        $packet->appendChild($dns);
+        
+        $disableTag = $xmldoc->createElement('disable');
+        $dns->appendChild($disableTag);
+
+        $filterTag = $xmldoc->createElement('filter');
+        $disableTag->appendChild($filterTag);
+        
+        $site = $xmldoc->createElement('site-id', $siteId);
+        $filterTag->appendChild($site);
+        
+        $response = $this->executeCurl($xmldoc);
+        $resultNode = $response->{'dns'}->{'disable'}->result;
+        $systemError = $response->system->errtext;
+        if ('error' == (string)$resultNode->status || $systemError) {
+            \DBG::dump($xmldoc->saveXML());
+            \DBG::dump($response);
+            $error = (isset($systemError) ? $systemError : $resultNode->errtext);
+            throw new ApiRequestException("Error in disable DNS service: {$error}");
+        }
+        return true;
+    }
+    
+    /**
      * Get All FtpAccounts
      * 
      * @param boolean $extendedData Get additional data of the FTP user
@@ -1820,49 +1862,55 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $virtualHostTag = $xmldoc->createElement('vrt_hst');
         $hostingTag->appendChild($virtualHostTag);
         
-
-        // first property
-        $propertyTag = $xmldoc->createElement('property');
-        $virtualHostTag->appendChild($propertyTag);
+        // www_root
+        $propertyWwwRootTag = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertyWwwRootTag);
         
-        $propertyNameTag = $xmldoc->createElement('name', 'www_root');
-        $propertyTag->appendChild($propertyNameTag);
+        $propertyWwwRootNameTag = $xmldoc->createElement('name', 'www_root');
+        $propertyWwwRootTag->appendChild($propertyWwwRootNameTag);
         
-        $propertyValueTag = $xmldoc->createElement('value', $documentRoot);
-        $propertyTag->appendChild($propertyValueTag);
+        $propertyWwwRootValueTag = $xmldoc->createElement('value', $documentRoot);
+        $propertyWwwRootTag->appendChild($propertyWwwRootValueTag);
 
-
-        // next property
-        $propertyTag2 = $xmldoc->createElement('property');
-        $virtualHostTag->appendChild($propertyTag2);
-
-        $propertySslTag = $xmldoc->createElement('name', 'ssl');
-        $propertyTag2->appendChild($propertySslTag);
+        // ssl
+        $propertySslTag = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertySslTag);
+        
+        $propertySslNameTag = $xmldoc->createElement('name', 'ssl');
+        $propertySslTag->appendChild($propertySslNameTag);
 
         $propertySslValueTag = $xmldoc->createElement('value', true);
-        $propertyTag2->appendChild($propertySslValueTag);
+        $propertySslTag->appendChild($propertySslValueTag);
 
+        // additional-settings
+        $propertyHttpTag = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertyHttpTag);
+        
+        $propertyHttpNameTag = $xmldoc->createElement('name', 'additional-settings');
+        $propertyHttpTag->appendChild($propertyHttpNameTag);
 
-        // next property
-        $propertyTag3 = $xmldoc->createElement('property');
-        $virtualHostTag->appendChild($propertyTag3);
+        $httpValue = <<<HTTP
+Include "/home/httpd/vhosts/h1.cloudrexx.com/scripts/apache_h1.cloudrexx.com_HTTP.conf"
+ServerAlias *.MAIN-DOMAIN
+HTTP;
+        $propertyHttpValueTag = $xmldoc->createElement('value', $httpValue);
+        $propertyHttpTag->appendChild($propertyHttpValueTag);
 
-        $propertyNameTag3 = $xmldoc->createElement('name', 'additional-settings');
-        $propertyTag3->appendChild($propertyNameTag3);
+        // additional-ssl-settings
+        $propertyHttpsTag = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertyHttpsTag);
+        
+        $propertyHttpsNameTag = $xmldoc->createElement('name', 'additional-ssl-settings');
+        $propertyHttpsTag->appendChild($propertyHttpsNameTag);
 
-        $propertyValueTag3 = $xmldoc->createElement('value', "Include \"/home/httpd/vhosts/h1.cloudrexx.com/scripts/apache_h1.cloudrexx.com.conf\"\nServerAlias *." . $domain);
-        $propertyTag3->appendChild($propertyValueTag3);
+        $httpsValue = <<<HTTPS
+Include "/home/httpd/vhosts/h1.cloudrexx.com/scripts/apache_h1.cloudrexx.com_HTTPS.conf"
+ServerAlias *.MAIN-DOMAIN
+HTTPS;
+        $propertyHttpsValueTag = $xmldoc->createElement('value', $httpsValue);
+        $propertyHttpsTag->appendChild($propertyHttpsValueTag);
 
-
-        // next property
-        $propertyTag4 = $xmldoc->createElement('property');
-        $virtualHostTag->appendChild($propertyTag4);
-
-        $propertyNameTag4 = $xmldoc->createElement('name', 'additional-ssl-settings');
-        $propertyTag4->appendChild($propertyNameTag4);
-
-        $propertyValueTag4 = $xmldoc->createElement('value', "Include \"/home/httpd/vhosts/h1.cloudrexx.com/scripts/apache_h1.cloudrexx.com.conf\"\nServerAlias *." . $domain);
-        $propertyTag4->appendChild($propertyValueTag4);
+        // execute request
         
 
         $response   = $this->executeCurl($xmldoc);
@@ -2025,7 +2073,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         if (!empty($respArr)) {
             $responseArr = isset($respArr['result'][0]) && is_array($respArr['result'][0]) ? $respArr['result'] : $respArr;
             foreach ($responseArr as $result) {
-                $siteList[] = $result['data']['gen_info']['name'];
+                $siteList[$result['id']] = $result['data']['gen_info']['name'];
             }
         }
         return $siteList;
@@ -2139,7 +2187,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         
         $responseJson = json_encode($resultNode);
         $respArr      = json_decode($responseJson, true);
-        $resultArr    = (count($respArr['certificates']['certificate']) == count($respArr['certificates']['certificate'], COUNT_RECURSIVE)) 
+        $resultArr    = !isset($respArr['certificates']['certificate']) || (count($respArr['certificates']['certificate']) == count($respArr['certificates']['certificate'], COUNT_RECURSIVE)) 
                         ? $respArr['certificates'] : $respArr['certificates']['certificate'];
         
         //store all the certificate names into an array
@@ -2201,22 +2249,22 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * Activate the SSL Certificate
      *
      * @param string $certificateName certificate name
-     * @param string $domain          domain name
+     * @param string $siteId    ID of the plesk site
      *
      * @return boolean
      * @throws ApiRequestException
      */
-    public function activateSSLCertificate($certificateName, $domain)
+    public function activateSSLCertificate($certificateName, $siteId)
     {
         \DBG::msg('MultiSite (PleskController): Activate the SSL Certificate.');
-        if (empty($certificateName) || empty($domain)) {
+        if (empty($certificateName) || empty($siteId)) {
             return false;
         }
 
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
 
-        $webspace = $xmldoc->createElement('webspace');
+        $webspace = $xmldoc->createElement('site');
         $packet->appendChild($webspace);
 
         $set = $xmldoc->createElement('set');
@@ -2225,7 +2273,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $filter = $xmldoc->createElement('filter');
         $set->appendChild($filter);
 
-        $domainName = $xmldoc->createElement('name', $domain);
+        $domainName = $xmldoc->createElement('id', $siteId);
         $filter->appendChild($domainName);
 
         $values = $xmldoc->createElement('values');
