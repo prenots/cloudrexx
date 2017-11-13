@@ -10,3 +10,6 @@
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
+.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.cxDialog.noTitle {
+    top: 40px !important;
+}

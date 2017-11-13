@@ -3465,6 +3465,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     public function showMaintenanceIndicationBar()
     {
+        // TODO add option to configure maintenance status from admin
+        return;
+
         // only show in backend
         if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
             return;
