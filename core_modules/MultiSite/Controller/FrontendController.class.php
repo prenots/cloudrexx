@@ -130,6 +130,7 @@ class FrontendController extends \Cx\Core\Core\Model\Entity\SystemComponentFront
         ComponentController::showOrHideBlock($template, 'showAffiliateIdPartTwo', $isAffiliateIdExists);
         ComponentController::showOrHideBlock($template, 'showCloudrexxBannerLinks', $isAffiliateIdExists);
         ComponentController::showOrHideBlock($template, 'affiliateIdInput', !$isAffiliateIdExists);
+        ComponentController::showOrHideBlock($template, 'affiliateHowto', !$isAffiliateIdExists);
         
         if (!$isAffiliateIdExists) {
             return;
