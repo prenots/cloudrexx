@@ -244,7 +244,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             return;
         }
         try {
-            \Cx\Core_Modules\MultiSite\Model\Entity\Website::validateName(contrexx_input2raw($params['post']['multisite_address']));
+            $websiteName = contrexx_input2raw($params['post']['multisite_address']);
+            $website = new \Cx\Core_Modules\MultiSite\Model\Entity\Website(null, $websiteName);
+            $website->validate();
         } catch (\Cx\Core_Modules\MultiSite\Model\Entity\WebsiteException $e) {
             throw new MultiSiteJsonException(array(
                 'object'    => 'address',
