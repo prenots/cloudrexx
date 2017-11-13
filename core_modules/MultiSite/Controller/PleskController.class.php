@@ -1820,6 +1820,8 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $virtualHostTag = $xmldoc->createElement('vrt_hst');
         $hostingTag->appendChild($virtualHostTag);
         
+
+        // first property
         $propertyTag = $xmldoc->createElement('property');
         $virtualHostTag->appendChild($propertyTag);
         
@@ -1828,7 +1830,41 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         
         $propertyValueTag = $xmldoc->createElement('value', $documentRoot);
         $propertyTag->appendChild($propertyValueTag);
+
+
+        // next property
+        $propertyTag2 = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertyTag2);
+
+        $propertySslTag = $xmldoc->createElement('name', 'ssl');
+        $propertyTag2->appendChild($propertySslTag);
+
+        $propertySslValueTag = $xmldoc->createElement('value', true);
+        $propertyTag2->appendChild($propertySslValueTag);
+
+
+        // next property
+        $propertyTag3 = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertyTag3);
+
+        $propertyNameTag3 = $xmldoc->createElement('name', 'additional-settings');
+        $propertyTag3->appendChild($propertyNameTag3);
+
+        $propertyValueTag3 = $xmldoc->createElement('value', "Include \"/home/httpd/vhosts/h1.cloudrexx.com/scripts/apache_h1.cloudrexx.com.conf\"\nServerAlias *." . $domain);
+        $propertyTag3->appendChild($propertyValueTag3);
+
+
+        // next property
+        $propertyTag4 = $xmldoc->createElement('property');
+        $virtualHostTag->appendChild($propertyTag4);
+
+        $propertyNameTag4 = $xmldoc->createElement('name', 'additional-ssl-settings');
+        $propertyTag4->appendChild($propertyNameTag4);
+
+        $propertyValueTag4 = $xmldoc->createElement('value', "Include \"/home/httpd/vhosts/h1.cloudrexx.com/scripts/apache_h1.cloudrexx.com.conf\"\nServerAlias *." . $domain);
+        $propertyTag4->appendChild($propertyValueTag4);
         
+
         $response   = $this->executeCurl($xmldoc);
         $resultNode = $response->site->add->result;
         
@@ -2005,7 +2041,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string $certificateAuthority      certificate authority
      */
     public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
-        \DBG::msg("MultiSite (XamppController): Install the SSL Certificate for the domain.");
+        \DBG::msg("MultiSite (PleskController): Install the SSL Certificate for the domain.");
         if (    empty($name) 
             ||  empty($domain) 
             ||  empty($certificatePrivateKey)
@@ -2069,7 +2105,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return array list of certificates
      */
     public function getSSLCertificates($domain) {
-        \DBG::msg("MultiSite (XamppController): Fetch the SSL Certificate details.");
+        \DBG::msg("MultiSite (PleskController): Fetch the SSL Certificate details.");
         if (empty($domain)) {
             return false;
         }
@@ -2122,7 +2158,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param array  $names  certificate names
      */
     public function removeSSLCertificates($domain, $names = array()) {
-        \DBG::msg("MultiSite (XamppController): Remove the SSL Certificates.");
+        \DBG::msg("MultiSite (PleskController): Remove the SSL Certificates.");
         if (!is_array($names) || empty($names) || empty($domain)) {
             return false;
         }
@@ -2156,6 +2192,69 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
             \DBG::dump($response);
             $error = (isset($systemError) ? $systemError : $resultNode->errtext);
             throw new ApiRequestException("Error in removing the SSL Certificate: {$error}");
+        }
+        
+        return true;
+    }
+
+    /**
+     * Activate the SSL Certificate
+     *
+     * @param string $certificateName certificate name
+     * @param string $domain          domain name
+     *
+     * @return boolean
+     * @throws ApiRequestException
+     */
+    public function activateSSLCertificate($certificateName, $domain)
+    {
+        \DBG::msg('MultiSite (PleskController): Activate the SSL Certificate.');
+        if (empty($certificateName) || empty($domain)) {
+            return false;
+        }
+
+        $xmldoc = $this->getXmlDocument();
+        $packet = $this->getRpcPacket($xmldoc);
+
+        $webspace = $xmldoc->createElement('webspace');
+        $packet->appendChild($webspace);
+
+        $set = $xmldoc->createElement('set');
+        $webspace->appendChild($set);
+
+        $filter = $xmldoc->createElement('filter');
+        $set->appendChild($filter);
+
+        $domainName = $xmldoc->createElement('name', $domain);
+        $filter->appendChild($domainName);
+
+        $values = $xmldoc->createElement('values');
+        $set->appendChild($values);
+
+        $hosting = $xmldoc->createElement('hosting');
+        $values->appendChild($hosting);
+
+        $virtualHost = $xmldoc->createElement('vrt_hst');
+        $hosting->appendChild($virtualHost);
+
+        $property = $xmldoc->createElement('property');
+        $virtualHost->appendChild($property);
+
+        $name = $xmldoc->createElement('name', 'certificate_name');
+        $property->appendChild($name);
+
+        $value = $xmldoc->createElement('value', $certificateName);
+        $property->appendChild($value);
+
+        $response   = $this->executeCurl($xmldoc);
+        $resultNode = $response->webspace->set->result;
+
+        $systemError = $response->system->errtext;
+        if ('error' == (string) $resultNode->status || $systemError) {
+            \DBG::dump($xmldoc->saveXML());
+            \DBG::dump($response);
+            $error = (isset($systemError) ? $systemError : $resultNode->errtext);
+            throw new ApiRequestException("Error in activating the SSL Certificate: {$error}");
         }
         
         return true;

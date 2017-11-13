@@ -1192,7 +1192,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         break;
                     
                     case 'Ssl':
-                        $certificateName = isset($_POST['certificate_name']) ? contrexx_input2raw($_POST['certificate_name']) : '';
+                        $certificateName = $domainName;//isset($_POST['certificate_name']) ? contrexx_input2raw($_POST['certificate_name']) : '';
                         $privateKey      = isset($_POST['private_key']) ? contrexx_input2raw($_POST['private_key']) : '';
                         if (empty($certificateName) || empty($privateKey)) {
                             return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED'], false);

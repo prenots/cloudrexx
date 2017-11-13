@@ -178,4 +178,12 @@ interface SubscriptionController {
      * @param array  $names  certificate names
      */
     public function removeSSLCertificates($domain, $names = array());
+
+    /**
+     * Activate the SSL Certificate
+     *
+     * @param string $certificateName certificate name
+     * @param string $domain          domain name
+     */
+    public function activateSSLCertificate($certificateName, $domain);
 }
