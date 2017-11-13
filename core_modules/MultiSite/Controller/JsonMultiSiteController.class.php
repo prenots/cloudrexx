@@ -294,6 +294,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 'active'=> true,
                 'email' => $params['post']['multisite_email_address'],
                 'groups'=> explode(',', $arrSettings['assigne_to_groups']['value']),
+                'newsletter_lists' => array(2),
             )));
 
             $objFWUser = \FWUser::getFWUserObject();
@@ -793,6 +794,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             
             if (!empty($params['post']['groups'])) {
                 $objUser->setGroups($params['post']['groups']);
+            }
+
+            if (!empty($params['post']['newsletter_lists'])) {
+                $objUser->setSubscribedNewsletterListIDs(array_map('intval', $params['post']['newsletter_lists']));
             }
 
             if (!$objUser->store()) {
