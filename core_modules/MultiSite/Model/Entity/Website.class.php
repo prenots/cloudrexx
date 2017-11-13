@@ -2093,7 +2093,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
                                         alt="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DETAIL_LINK'] . '"
                                     />
                                 </a>';
-        return '<a href="index.php?cmd=MultiSite&editid='. $this->getId() .'" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EDIT_LINK'] . '">' 
+        return '<a href="index.php?cmd=MultiSite&editid={0,'. $this->getId() .'}" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EDIT_LINK'] . '">' 
                 . $this->getName() . 
                 '</a>' . $websiteDetailLink;
     }
