@@ -859,10 +859,14 @@ class Website extends \Cx\Model\Base\EntityBase {
      */
     public function validate()
     {
+        self::validateName($this->getName());
+    }
+
+    public static function validateName($name) {
         global $_ARRAYLANG;
 
         \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::loadLanguageData();
-        $websiteName = $this->getName();
+        $websiteName = $name;
 
         // verify that name is not a blocked word
         $unavailablePrefixesValue = explode(',',\Cx\Core\Setting\Controller\Setting::getValue('unavailablePrefixes','MultiSite'));
@@ -882,8 +886,7 @@ class Website extends \Cx\Model\Base\EntityBase {
         }
 
         // existing website
-        $website = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website')->findOneBy(array('name' => $websiteName));
-        if ($website && $website != $this) {
+        if (\Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website')->findOneBy(array('name' => $websiteName))) {
             throw new WebsiteException(sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_ALREADY_EXISTS'], "<strong>$websiteName</strong>"));
         }
     }
