@@ -129,6 +129,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * @param string $credentialsSecret AWS secret access key
      * @param string $region            AWS region
      * @param string $version           AWS version
+     * @throws AwsS3FileSystemException
      */
     public function __construct(
         $bucketName,
@@ -155,6 +156,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         $this->credentialsSecret = $credentialsSecret;
         $this->version           = $version;
         $this->directoryPrefix   = 's3://' . $this->bucketName . '/';
+
         // Initialize the S3 Client object
         $this->initS3Client();
     }
@@ -185,7 +187,157 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         }
     }
 
-    public function getFileList($directory, $recursive = true) {}
+    /**
+     * Get the file list
+     *
+     * @param string  $directory Directory path
+     * @param boolean $recursive If true recursively parse $directory and list all the files
+     *                           otherwise list all files under the $directory
+     * @return array Array of file list
+     */
+    public function getFileList($directory, $recursive = true)
+    {
+        if (isset($this->fileListCache[$directory][$recursive])) {
+            return $this->fileListCache[$directory][$recursive];
+        }
+
+        $dirPath = rtrim($this->rootPath . '/' . $directory, '/');
+        if (!$this->isFileExists(new LocalFile($dirPath, $this))) {
+            return array();
+        }
+
+        $regex = '/^((?!thumb(_[a-z]+)?).)*$/';
+        if ($recursive) {
+            $iteratorIterator = new \RegexIterator(
+                new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($dirPath),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                ),
+                $regex
+            );
+        } else {
+            $iteratorIterator = new \RegexIterator(
+                new \IteratorIterator(new \DirectoryIterator($dirPath)),
+                $regex
+            );
+        }
+
+        $jsonFileArray = array();
+        $thumbnailList = $this->cx->getMediaSourceManager()
+            ->getThumbnailGenerator()
+            ->getThumbnails();
+
+        foreach ($iteratorIterator as $file) {
+            /**
+             * @var $file \SplFileInfo
+             */
+            $extension = 'Dir';
+            if (!$file->isDir()) {
+                $extension = strtolower(
+                    pathinfo($file->getFilename(), PATHINFO_EXTENSION)
+                );
+            }
+
+            // filters
+            if (
+                $file->getFilename() == '.' ||
+                $file->getFilename() == 'index.php' ||
+                strpos($file->getFilename(), '.') === 0
+            ) {
+                continue;
+            }
+
+            // set preview if image
+            $preview    = 'none';
+            $hasPreview = false;
+            $thumbnails = array();
+            if ($this->isImage($extension)) {
+                $hasPreview = true;
+                $thumbnails = $this->getThumbnails(
+                    $thumbnailList,
+                    $extension,
+                    $file
+                );
+                $preview = current($thumbnails);
+                if (
+                    !$this->isFileExists(
+                        new LocalFile(
+                            $this->cx->getWebsitePath() . $preview,
+                            $this
+                        )
+                    )
+                ) {
+                    $hasPreview = false;
+                }
+            }
+
+            $size      = \FWSystem::getLiteralSizeFormat($file->getSize());
+            $fileInfos = array(
+                'filepath'   => mb_strcut(
+                    $file->getPath() . '/' . $file->getFilename(),
+                    mb_strlen($this->cx->getWebsitePath())
+                ),
+                // preselect in mediabrowser or mark a folder
+                'name'       => $file->getFilename(),
+                'size'       => $size ? $size : '0 B',
+                'cleansize'  => $file->getSize(),
+                'extension'  => ucfirst(mb_strtolower($extension)),
+                'preview'    => $preview,
+                'hasPreview' => $hasPreview,
+                // preselect in mediabrowser or mark a folder
+                'active'     => false,
+                'type'       => $file->getType(),
+                'thumbnail'  => $thumbnails
+            );
+
+            // filters
+            if (preg_match('/\.thumb/', $fileInfos['name'])) {
+                continue;
+            }
+
+            $path = array(
+                $file->getFilename() => array('datainfo' => $fileInfos)
+            );
+
+            if ($recursive) {
+                for (
+                    $depth = $iteratorIterator->getDepth() - 1;
+                    $depth >= 0;
+                    $depth--
+                ) {
+                    $path = array(
+                        $iteratorIterator->getSubIterator($depth)->current()->getFilename() => $path
+                    );
+                }
+            }
+            $jsonFileArray = $this->array_merge_recursive($jsonFileArray, $path);
+        }
+        $jsonFileArray = $this->utf8EncodeArray($jsonFileArray);
+        $this->fileListCache[$directory][$recursive] = $jsonFileArray;
+
+        return $jsonFileArray;
+    }
+
+    /**
+     * Applies utf8_encode() to keys and values of an array
+     * From: http://stackoverflow.com/questions/7490105/array-walk-recursive-modify-both-keys-and-values
+     *
+     * @param array $array Array to encode
+     * @return array UTF8 encoded array
+     */
+    public function utf8EncodeArray($array)
+    {
+        $helper = array();
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $value = $this->utf8EncodeArray($value);
+            } else {
+                $value = utf8_encode($value);
+            }
+            $helper[utf8_encode($key)] = $value;
+        }
+        return $helper;
+    }
 
     /**
      * Check whether the file exists in the filesytem
@@ -194,7 +346,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * @return boolean true if the file or directory specified by
      *                 filename exists otherwise false
      */
-    public function fileExists(File $file)
+    public function isFileExists(File $file)
     {
         return file_exists(
             $this->directoryPrefix . $this->getFullPath($file) .
@@ -206,17 +358,16 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * Remove the file
      *
      * @param LocalFile $file File object
-     * @return string status message of the file remove
+     * @return string Status message of the file remove
      */
     public function removeFile(File $file)
     {
-        global $_ARRAYLANG;
-
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $filename = $file->getFullName();
         $strPath  = $file->getPath();
         if (empty($filename) || empty($strPath)) {
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+                $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
                 $filename
             );
         }
@@ -225,12 +376,12 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         if (is_dir($directoryPath)) {
             if (rmdir($directoryPath)) {
                 return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
                     $filename
                 );
             } else {
                 return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
                     $filename
                 );
             }
@@ -239,16 +390,45 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                 // If the removing file is image then remove its thumbnail files
                 $this->removeThumbnails($file);
                 return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
+                    $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
                     $filename
                 );
             } else {
                 return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+                    $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
                     $filename
                 );
             }
         }
+    }
+
+    /**
+     * Get Thumbnails
+     *
+     * @param array  $thumbnailList Array of thumbnails list
+     * @param string $extension     File extension
+     * @param object $file          File object
+     * @return array Array of thumbnails
+     */
+    public function getThumbnails(
+        $thumbnailList,
+        $extension,
+        $file
+    ) {
+        $thumbnails = array();
+        foreach ($thumbnailList as $thumbnail) {
+            $thumbnails[$thumbnail['size']] = preg_replace(
+                '/\.' . $extension . '$/i',
+                $thumbnail['value'] . '.' . strtolower($extension),
+                str_replace(
+                    $this->cx->getWebsitePath(),
+                    '',
+                    $file->getRealPath()
+                )
+            );
+        }
+
+        return $thumbnails;
     }
 
     /**
@@ -280,7 +460,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * Check the given argument $extension as image extension
      *
      * @param string $extension File extenstion
-     * @return boolean true if the $extension is image extension otherwise false
+     * @return boolean True if the $extension is image extension otherwise false
      */
     public function isImage($extension)
     {
@@ -291,48 +471,135 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * Get the file full path
      *
      * @param File $file File object
-     * @return string full path of the file
+     * @return string Full path of the file
      */
     public function getFullPath(File $file)
     {
         return $this->rootPath . ltrim($file->getPath(), '.') . '/';
     }
 
-    public function moveFile(File $file, $destination) {}
+    /**
+     * Move the file
+     *
+     * @param File   $file        File object
+     * @param string $destination Destination filename
+     * @return string Status message of file move
+     */
+    public function moveFile(File $file, $destination)
+    {
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
+        $errorMsg = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
+        if (
+            !$this->isFileExists($file) ||
+            empty($destination) ||
+            \FWValidator::is_file_ending_harmless($destination)
+        ) {
+            return sprintf($errorMsg, $file->getFullName());
+        }
+
+        $filePath = $this->getFullPath($file);
+        if (is_dir($this->directoryPrefix . $filePath . $file->getFullName())) {
+            $sourceFileName      = $filePath . $file->getFullName();
+            $destinationFileName = $filePath . $destination;
+        } else {
+            $sourceFileName      = $filePath . $file->getFullName();
+            $destinationFileName = $filePath . $destination . '.' . $file->getExtension();
+        }
+
+        if ($sourceFileName == $destinationFileName) {
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
+                $file->getName()
+            );
+        }
+
+        $destinationFolder = realpath(pathinfo($destinationFileName, PATHINFO_DIRNAME));
+        if (!MediaSourceManager::isSubdirectory($this->rootPath, $destinationFolder)) {
+            return sprintf($errorMsg, $file->getName());
+        }
+        $this->removeThumbnails($file);
+
+        if (
+            !rename(
+                $this->directoryPrefix . $sourceFileName,
+                $this->directoryPrefix . $destinationFileName
+            )
+        ) {
+            return sprintf($errorMsg, $file->getName());
+        }
+
+        return sprintf(
+            $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
+            $file->getName()
+        );
+    }
 
     /**
      * Write the File
      *
      * @param File $file File object
+     * @throws AwsS3FileSystemException
      */
     public function writeFile(File $file, $content)
     {
-        file_put_contents(
-            $this->directoryPrefix . $this->getFullPath($file) .
-            $file->getFullName(),
-            $content
-        );
+        $filePath =
+            $this->directoryPrefix . $this->getFullPath($file) . $file->getFullName();
+        $stream = fopen($filePath, 'w');
+        if (!$stream) {
+            throw new AwsS3FileSystemException(
+                'Unable to open file ' . $filePath . ' for writing!'
+            );
+        }
+        // acquire exclusive file lock
+        flock($stream, LOCK_EX);
+
+        // write data to file
+        $writeStatus = fwrite($stream, $content);
+
+        // release exclusive file lock
+        flock($stream, LOCK_UN);
+
+        fclose($stream);
+
+        if ($writeStatus === false) {
+            throw new AwsS3FileSystemException(
+                'Unable to write data to file ' . $filePath . '!'
+            );
+        }
     }
 
     /**
      * Read the File
      *
      * @param File $file File object
-     * @return string content of the file
+     * @throws AwsS3FileSystemException
+     * @return string Content of the file
      */
     public function readFile(File $file)
     {
-        return file_get_contents(
-            $this->directoryPrefix . $this->getFullPath($file) .
-            $file->getFullName()
-        );
+        $filePath = $this->directoryPrefix . $this->getFullPath($file) .
+            $file->getFullName();
+        if (!$this->isFileExists($file)) {
+            throw new AwsS3FileSystemException(
+                'Unable to read data from file ' . $filePath . '!'
+            );
+        }
+
+        $content = file_get_contents($filePath);
+        if ($content === false) {
+            throw new AwsS3FileSystemException(
+                'Unable to read data from file ' . $filePath . '!'
+            );
+        }
+
+        return $content;
     }
 
     /**
      * Check whether the $file is directory or not
      *
      * @param File $file File object
-     * @return boolean true if the $file is a directory otherwise false
+     * @return boolean True if the $file is a directory otherwise false
      */
     public function isDirectory(File $file)
     {
@@ -346,7 +613,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * Check whether the $file is file or not
      *
      * @param File $file File object
-     * @return boolean true if the $file is a file otherwise false
+     * @return boolean True if the $file is a file otherwise false
      */
     public function isFile(File $file)
     {
@@ -363,25 +630,37 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      *
      * @param string $path      Directory path
      * @param string $directory Directory name
-     * @return string status message
+     * @return string Status message
      */
     public function createDirectory($path, $directory)
     {
-        global $_ARRAYLANG;
-
-        \Env::get('init')->loadLanguageData('MediaBrowser');
+        $arrLang = \Env::get('init')->loadLanguageData('MediaBrowser');
         if (!mkdir($this->directoryPrefix . $path . '/' . $directory)) {
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
+                $arrLang['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
                 $directory
             );
         } else {
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
+                $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
                 $directory
             );
         }
     }
 
-    public function getFileFromPath($path) {}
+    /**
+     * Get file from path
+     *
+     * @param string $filepath File path
+     * @return LocalFile File object
+     */
+    public function getFileFromPath($filepath)
+    {
+        $fileinfo = pathinfo($filepath);
+        $files    = $this->getFileList($fileinfo['dirname']);
+        if (!isset($files[$fileinfo['basename']])) {
+            return;
+        }
+        return new LocalFile($filepath, $this);
+    }
 }
