@@ -1399,6 +1399,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
                         return $this->parseJsonMessage($message, true);
                     } else {
+                        if (isset($response) && isset($response->data) && isset($response->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return $logEntry;}, $response->data->log));
+                        }
                         return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
                     }
                 }
@@ -1947,6 +1950,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'subscriptionId'         => $subscriptionId
             );
             $resp = JsonMultiSiteController::executeCommandOnManager('websiteRestore', $params);
+            if (isset($resp->log)) {
+                \DBG::appendLogs(
+                    array_map(
+                        function($logEntry) {
+                            return '(Website: '.$website->getName().') '.$logEntry;
+                        },
+                        $resp->log
+                    )
+                );
+            }
             return $responseType == 'json' ? $resp : ($resp->status == 'success' ? $resp->data->messsage : $resp->message);
             
         } catch (\Exception $e) {
