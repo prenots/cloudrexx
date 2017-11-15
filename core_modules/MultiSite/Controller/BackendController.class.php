@@ -244,7 +244,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if(empty($websiteServiceServers)){
                 $websiteServiceServers = new \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer();
             }
-            $view = new \Cx\Core\Html\Controller\ViewGenerator($websiteServiceServers,
+            $view = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteServiceServers,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_SERVICE_SERVERS'],
                     'functions' => array(
@@ -353,7 +354,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
             
             $codebaseRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($codebaseRepositoryDataArray);
-            $codeBase = new \Cx\Core\Html\Controller\ViewGenerator($codebaseRepositoryDataSet,
+            $codeBase = new \Cx\Core\Html\Controller\ViewGenerator(
+                $codebaseRepositoryDataSet,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_CODEBASES'],
                     'fields' => array(
@@ -392,7 +394,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
             $hasAccess = in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID));
             $headerMessage = in_array($mode, array(ComponentController::MODE_SERVICE))? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SETTINGS_WEBSITE_TEMPLATE_HEADER_MSG']: '';
-            $websiteTemplatesView = new \Cx\Core\Html\Controller\ViewGenerator($websiteTemplates, 
+            $websiteTemplatesView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteTemplates, 
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_TEMPLATES'].$headerMessage,
                     'functions' => array(
@@ -429,7 +432,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if (empty($mailServiceServers)) {
                 $mailServiceServers = new \Cx\Core_Modules\MultiSite\Model\Entity\MailServiceServer();
             }
-            $mailServiceServersView = new \Cx\Core\Html\Controller\ViewGenerator($mailServiceServers, 
+            $mailServiceServersView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $mailServiceServers,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_MAIL_SERVICE_SERVERS'],
                     'functions' => array(
@@ -494,7 +498,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $cronMails = new \Cx\Core_Modules\MultiSite\Model\Entity\CronMail();
             }
 
-            $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator($cronMails,
+            $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $cronMails,
                     array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_EMAILS'],
                         'functions' => array(
@@ -856,7 +861,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
         }
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($affiliateIds);
-        $view    = new \Cx\Core\Html\Controller\ViewGenerator($dataSet, array(
+        $view    = new \Cx\Core\Html\Controller\ViewGenerator(
+            $dataSet,
+            array(
                         'header' => 'Affiliate IDs',
                         'functions' => array(
                           'paging'  => true  
@@ -978,7 +985,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function parseFtpAccountsToMaintenanceSection($websiteArray, \Cx\Core\Html\Sigma $template, $placeholder)
     {        
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($websiteArray);
-        $view    = new \Cx\Core\Html\Controller\ViewGenerator($dataSet, array(
+        $view = new \Cx\Core\Html\Controller\ViewGenerator(
+            $dataSet,
+            array(
                         'header' => 'FTP',
                         'functions' => array(
                           'paging'  => true  
@@ -1031,7 +1040,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         $domains = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findBy(array('componentType' => 'website'));
         self::$dnsRecords = self::getDnsRecords();
-        $view = new \Cx\Core\Html\Controller\ViewGenerator($domains, array(
+        $view = new \Cx\Core\Html\Controller\ViewGenerator(
+            $domains,
+            array(
             'header' => 'Domains',
             'functions' => array(
                 'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
@@ -1137,7 +1148,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $allBackupsArray = $this->getAllBackupFilesInfoAsArray($term);
             $allBackupFilesInfo = !empty($allBackupsArray) ? $allBackupsArray : null;
             $websiteBackupRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($allBackupFilesInfo);
-            $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator($websiteBackupRepositoryDataSet,
+            $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteBackupRepositoryDataSet,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_MAINTENANCE_BACKUPSANDRESTORE'],
                     'functions' => array(

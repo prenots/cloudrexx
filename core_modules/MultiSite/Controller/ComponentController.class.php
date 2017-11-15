@@ -1403,7 +1403,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     }
                 }
             } catch (\Exception $e) {
-                \DBG::log('Failed to '.$submitFormAction. 'Domain'. $e->message());
+                \DBG::log('Failed to '.$submitFormAction. 'Domain'. $e->getMessage());
                 return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
             }
         } else {
@@ -1526,7 +1526,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     }
                 }
             } catch (\Exception $e) {
-                \DBG::log('Failed to '.$submitFormAction. ' E-Mail'. $e->message());
+                \DBG::log('Failed to '.$submitFormAction. ' E-Mail'. $e->getMessage());
                 return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
             }
         } else {
@@ -1643,7 +1643,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     }
                 }
             } catch (\Exception $e) {
-                \DBG::log('Failed to ' . $submitFormAction . 'administrator account' . $e->message());
+                \DBG::log('Failed to ' . $submitFormAction . 'administrator account' . $e->getMessage());
                 return $this->parseJsonMessage($errorMsg, false);
             }
         } else {
@@ -2136,12 +2136,20 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
                     throw new \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteException('Website setup process not successful');
                 } catch (\Cx\Core_Modules\MultiSite\Model\Entity\WebsiteException $e) {
-                    return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED']);
+                    return array(
+                        'status' => 'error',
+                        'message'=> $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED'],
+                        'log'    => \DBG::getMemoryLogs(),
+                    );
                 }
             }
         } catch (\Exception $e) {
             \DBG::log("Failed to add website:" . $e->getMessage());
-            return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED']);
+            return array(
+                'status' => 'error',
+                'message'=> $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED'],
+                'log'    => \DBG::getMemoryLogs(),
+            );
         }
     }
     
@@ -2803,25 +2811,25 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 ) {
                        throw new MultiSiteException("Failed to add Setting entry for Affiliate Payout Limit");
                 }
-                if (    \Cx\Core\Setting\Controller\Setting::getValue('affiliateCookieLifetime', 'MultiSite') === NULL 
+                if (    \Cx\Core\Setting\Controller\Setting::getValue('affiliateCookieLifetime', 'MultiSite') === NULL
                     &&  !\Cx\Core\Setting\Controller\Setting::add('affiliateCookieLifetime', 30, 6, \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, '', 'affiliate')
                 ) {
                         throw new MultiSiteException("Failed to add Setting entry for Affiliate cookie life time");
                 }
-                        
+                
                 if (!\FWValidator::isEmpty(\Env::get('db'))) {
                     self::addOrUpdateConfigurationOptionUserProfileAttributeId(
-                        'affiliateIdProfileAttributeId', 
+                        'affiliateIdProfileAttributeId',
                         'Affiliate ID user profile attribute ID',
                         3,
                         'affiliate');
                     self::addOrUpdateConfigurationOptionUserProfileAttributeId(
-                        'affiliateIdReferenceProfileAttributeId', 
+                        'affiliateIdReferenceProfileAttributeId',
                         'Affiliate ID (reference) user profile attribute ID',
                         4,
                         'affiliate');
                     self::addOrUpdateConfigurationOptionUserProfileAttributeId(
-                        'payPalProfileAttributeId', 
+                        'payPalProfileAttributeId',
                         'PayPal profile attribute ID',
                         5,
                         'affiliate',
@@ -2861,7 +2869,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     throw new MultiSiteException('Failed to add Setting entry for ' . $attributeName);
                 }
             } else {
-                if (   !(\Cx\Core\Setting\Controller\Setting::set($configOptionName, $dbProfileAttributeId) 
+                if (   !(\Cx\Core\Setting\Controller\Setting::set($configOptionName, $dbProfileAttributeId)
                     && \Cx\Core\Setting\Controller\Setting::update($configOptionName))
                 ) {
                     throw new MultiSiteException('Failed to update Setting for ' . $attributeName);
@@ -3565,7 +3573,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Get the External Payment Customer Id Profile Attribute Id
      * 
-     * @param string  $configOptionName config option name 
+     * @param string  $configOptionName config option name
      * @param string  $attributeName    attribute name
      * @param boolean $protection       write protection for the profile attribute
      * 
@@ -3818,7 +3826,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if (isset($_GET['templateEditor'])) {
             return;
         }
-        
+
         $loadPoweredFooter = self::getModuleAdditionalDataByType('MultiSite', 'poweredbyfooter');
         
         if (empty($loadPoweredFooter)) {
