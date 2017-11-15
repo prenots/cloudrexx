@@ -174,9 +174,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'getDomainSslCertificate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'linkSsl'                 => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'setWebsiteOwner' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
+            'getWebsiteSize' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'getServerWebsiteList' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'checkServerWebsiteAccessedByClient' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
-            'getWebsiteSize' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
         );  
     }
 
@@ -4006,8 +4006,8 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     return array(
                         'status'  => 'success', 
                         'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_SUCCESS'],
-                        'backups' => $archives,
                         'log'     => \DBG::getMemoryLogs(),
+                        'backups' => $archives,
                     );
                     break;
                 default:
@@ -4491,7 +4491,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 && !\Cx\Lib\FileSystem\FileSystem::make_folder($websiteBackupPath.'/info')) {
                 throw new MultiSiteJsonException('Failed to create the website backup info location Folder');
             }
-            
+
             $config = \Env::get('config');
             $resp->data->websiteInfo->codeBase =   !\FWValidator::isEmpty($website->getCodeBase())
                                                  ? $website->getCodeBase() 
@@ -4957,7 +4957,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             $websiteConfigInfo = array(
                 'websiteMultisite'   => array('websiteState' => $websiteInfoArray['websiteState']['value']),
                 'websiteConfig'      => $configSettingArray
-                );
+            );
             
             \DBG::log('JsonMultiSiteController: Restore website net domains..');
             $this->updateWebsiteNetDomainsOnRestore($website, $websiteBackupFilePath);
@@ -5871,7 +5871,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
         self::loadLanguageData();
-        
+
         if (empty($params['post']['websiteId'])) {
             \DBG::log('JsonMultiSiteController::enableMailService() failed: Insufficient arguments supplied: ' . var_export($params, true));
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_EXISTS']);
@@ -7300,7 +7300,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 case ComponentController::MODE_MANAGER:
                     $objUser = \FWUser::getFWUserObject()->objUser;
                     $em      = $this->cx->getDb()->getEntityManager();
-                    
+
                     $websiteAddress = isset($params['post']['multisite_address']) ? contrexx_input2raw($params['post']['multisite_address']) : '';
                     $subscriptionId = isset($params['post']['subscriptionId']) ? contrexx_input2int($params['post']['subscriptionId']) : 0;
                     $productId      = isset($params['post']['productId']) ? contrexx_input2int($params['post']['productId']) : 0;
@@ -7366,7 +7366,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         'websiteName'           => $websiteAddress,
                         'websiteBackupFileName' => current($websiteBackupResp->data->backups),
                         'serviceServerId'       => $website->getWebsiteServiceServerId(),
-                        'selectedUserId'        => $objUser->getId(),                        
+                        'selectedUserId'        => $objUser->getId(),
                     );
                     if (!empty($subscriptionId)) {
                         $restoreArguments['subscriptionId'] = $subscriptionId;
@@ -7500,7 +7500,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     public function linkSsl($params)
     {
         global $_ARRAYLANG;
-        
+
         if (   empty($params['post']) 
             || empty($params['post']['domainName']) 
             || empty($params['post']['certificateName']) 
@@ -7872,3 +7872,4 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         }
     }
 }
+

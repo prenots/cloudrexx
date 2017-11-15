@@ -41,7 +41,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * @return array List of acts
      */
     public function getCommands() {
-        
+
         //array structure has to be defined as follows
         //array('XY' => array('access' => $permissionAccess, 'sub_commands' => $subCommandsArray))
         //XY => act value should be defined here.
@@ -154,7 +154,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
         }
     }
-    
+
     /**
      * Use this to parse your backend page
      * 
@@ -169,7 +169,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $communicationManagementAccess = \Permission::checkAccess(self::MULTISITE_COMMUNICATION_MANAGEMENT_ACCESS_ID, 'static', true);
         $systemManagementAccess        = \Permission::checkAccess(self::MULTISITE_SYSTEM_MANAGEMENT_ACCESS_ID, 'static', true);
-        
+
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
             case ComponentController::MODE_NONE:
             case ComponentController::MODE_WEBSITE:
@@ -220,7 +220,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $config = \Env::get('config');
         $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
-        
+
         if (   \Permission::checkAccess(self::MULTISITE_COMMUNICATION_MANAGEMENT_ACCESS_ID, 'static', true)
             && !\Permission::checkAccess(self::MULTISITE_SYSTEM_MANAGEMENT_ACCESS_ID, 'static', true)
             && (   empty($cmd[1]) 
@@ -231,7 +231,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
            ) {
             \Permission::noAccess();
         }
-        
+
         if (!empty($cmd[1]) && $cmd[1]=='email') {   
             $template->setVariable(array(
                 'TABLE' => \Cx\Core\MailTemplate\Controller\MailTemplate::adminView('MultiSite', 'nonempty', $config['corePagingLimit'], 'settings/email')->get(),
@@ -587,7 +587,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $template->setVariable('TABLE', $cronMailLogView->render());
         }
     }
-    
+
     public function parseSectionStatistics(\Cx\Core\Html\Sigma $template, array $cmd) {
         //dynamic use websites path
         //self::errorHandler();
@@ -1101,7 +1101,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ));
         $template->setVariable('TABLE', $view->render()); 
     }
-    
+
     /**
      * Parse the section Backups and Restore
      * List all Backups

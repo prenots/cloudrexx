@@ -77,7 +77,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array('Backend', 'Frontend', 'Cron', 'JsonMultiSite');
     }
     
-    public function getControllersAccessableByJson() { 
+    public function getControllersAccessableByJson() {
         return array('JsonMultiSiteController');
     }
 
@@ -136,7 +136,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $page->setModule('MultiSite');
         $pageContent = \Cx\Core\Core\Controller\Cx::getContentTemplateOfPage($page);
         \LinkGenerator::parseTemplate($pageContent, true, new \Cx\Core\Net\Model\Entity\Domain(\Cx\Core\Setting\Controller\Setting::getValue('customerPanelDomain','MultiSite')));
-        $objTemplate = new \Cx\Core\Html\Sigma();                
+        $objTemplate = new \Cx\Core\Html\Sigma();
         $objTemplate->setTemplate($pageContent);
         $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
 
@@ -148,7 +148,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         break;
 
                     case 'Login':
-                        echo $this->executeCommandLogin($objTemplate);                        
+                        echo $this->executeCommandLogin($objTemplate);
                         break;
 
                     case 'User':
@@ -156,7 +156,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         break;
 
                     case 'Subscription':
-                        echo $this->executeCommandSubscription($objTemplate, $arguments);                        
+                        echo $this->executeCommandSubscription($objTemplate, $arguments);
                         break;
                         
                     case 'SubscriptionSelection':
@@ -221,12 +221,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api Signup command 
+     * Api Signup command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
     public function executeCommandSignup($objTemplate, $arguments)
     {
@@ -298,12 +298,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api Login command 
+     * Api Login command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
     public function executeCommandLogin($objTemplate)
     {
@@ -326,14 +326,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api User command 
+     * Api User command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
-    public function executeCommandUser($objTemplate, $arguments) 
+    public function executeCommandUser($objTemplate, $arguments)
     {
         // profile attribute labels are stored in core-lang
         global $objInit, $_CORELANG, $_ARRAYLANG;
@@ -341,7 +341,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $_CORELANG = $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
 
         if (!self::isUserLoggedIn()) {
-            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];            
+            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];
         }
         $objUser = \FWUser::getFWUserObject()->objUser;
         
@@ -370,12 +370,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api Subscription command 
+     * Api Subscription command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
     public function executeCommandSubscription($objTemplate, $arguments) {
         global $_ARRAYLANG;
@@ -383,7 +383,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $objTemplate->setGlobalVariable($_ARRAYLANG);
         
         if (!self::isUserLoggedIn()) {
-            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];            
+            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];
         }
 
         $crmContactId = \FWUser::getFWUserObject()->objUser->getCrmUserId();
@@ -478,19 +478,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api SubscriptionSelection command 
+     * Api SubscriptionSelection command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
-    public function executeCommandSubscriptionSelection($objTemplate, $arguments) 
+    public function executeCommandSubscriptionSelection($objTemplate, $arguments)
     {
         global $_ARRAYLANG;
 
         if (!self::isUserLoggedIn()) {
-            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];            
+            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];
         }
         
         $websiteId = isset($arguments['id']) ? $arguments['id'] : 0;
@@ -556,7 +556,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $productCollection = $product->getUpgrades();
             // cast $productCollection into an array -> this is required as uasort() only works with arrays
             foreach ($productCollection as $product) {
-                $products[] = $product; 
+                $products[] = $product;
             }
         } else {
             $products = \Env::get('em')->getRepository('Cx\Modules\Pim\Model\Entity\Product')->findAll();
@@ -584,7 +584,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         
         foreach ($products as $product) {
-// customizing: do not list Trial and Enterprise product 
+// customizing: do not list Trial and Enterprise product
 // TODO: implement some sort of selective product selection in the multisite configuration
             if (in_array($product->getName(), array('Free', 'Enterprise'))) {
                 continue;
@@ -607,10 +607,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         $objTemplate->setVariable(array(
             'MULTISITE_SUBSCRIPTION_ID'             => $subscriptionId,
-            'MULTISITE_WEBSITE_NAME'                => $websiteName,    
-            'MULTISITE_SUBSCRIPTION_RENEWAL_PLAN'   => $renewalPlan,    
+            'MULTISITE_WEBSITE_NAME'                => $websiteName,
+            'MULTISITE_SUBSCRIPTION_RENEWAL_PLAN'   => $renewalPlan,
             'MULTISITE_ACCEPT_TERMS_URL'            => sprintf($_ARRAYLANG['TXT_MULTISITE_ACCEPT_TERMS'], $termsUrl),
-            'MULTISITE_IS_USER_HAS_PAYREXX_ACCOUNT' => !\FWValidator::isEmpty($objUser->getProfileAttribute(\Cx\Core\Setting\Controller\Setting::getValue('externalPaymentCustomerIdProfileAttributeId','MultiSite'))) ? 'true' : 'false',            
+            'MULTISITE_IS_USER_HAS_PAYREXX_ACCOUNT' => !\FWValidator::isEmpty($objUser->getProfileAttribute(\Cx\Core\Setting\Controller\Setting::getValue('externalPaymentCustomerIdProfileAttributeId','MultiSite'))) ? 'true' : 'false',
         ));
         return $objTemplate->get();
     }
@@ -637,14 +637,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api SubscriptionDetail command 
+     * Api SubscriptionDetail command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
-    public function executeCommandSubscriptionDetail($objTemplate, $arguments) 
+    public function executeCommandSubscriptionDetail($objTemplate, $arguments)
     {
         global $_ARRAYLANG;
 
@@ -654,7 +654,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $action         = isset($arguments['action']) ? contrexx_input2raw($arguments['action']) : '';
 
         if (!self::isUserLoggedIn()) {
-            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];            
+            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];
         }
 
         $crmContactId = \FWUser::getFWUserObject()->objUser->getCrmUserId();
@@ -693,8 +693,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     break;
                 
                 case 'updateDescription':
-                    $description = isset($_POST['description']) 
-                                        ? contrexx_input2raw($_POST['description']) 
+                    $description = isset($_POST['description'])
+                                        ? contrexx_input2raw($_POST['description'])
                                         : '';
                     $subscriptionObj->setDescription($description);
                     \Env::get('em')->flush();
@@ -720,7 +720,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             'MULTISITE_SUBSCRIPTION_DESCRIPTION' => contrexx_raw2xhtml($subscriptionObj->getDescription()),
             'MULTISITE_SUBSCRIPTION_CANCEL_CONTENT' => sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SUBSCRIPTION_CANCEL_CONTENT'], $subscriptionExpirationDate),
             'MULTISITE_SUBSCRIPTION_CANCEL_SUBMIT_URL' => '/api/MultiSite/SubscriptionDetail?action=subscriptionCancel&id=' . $subscriptionId,
-            'MULTISITE_SUBSCRIPTION_DESCRIPTION_SUBMIT_URL' => '/api/MultiSite/SubscriptionDetail?action=updateDescription&id=' . $subscriptionId,            
+            'MULTISITE_SUBSCRIPTION_DESCRIPTION_SUBMIT_URL' => '/api/MultiSite/SubscriptionDetail?action=updateDescription&id=' . $subscriptionId,
         ));
         
         $cancelButtonStatus = ($subscriptionObj->getState() !== \Cx\Modules\Order\Model\Entity\Subscription::STATE_CANCELLED);
@@ -758,12 +758,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api SubscriptionAddWebsite command 
+     * Api SubscriptionAddWebsite command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
     public function executeCommandSubscriptionAddWebsite($objTemplate, $arguments)
     {
@@ -1180,15 +1180,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $mainDomainName = '';
             if ($resp->status == 'success' && $resp->data->status == 'success') {
                 $mainDomainName = $resp->data->mainDomain;
-            }             
+            }
             $domains = array_merge(array($website->getBaseDn()), $website->getDomainAliases());
             foreach ($domains as $domain) {
                 if ($domain->getType() == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN ||
                     $domain->getType() == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN ) {
                     continue;
                 }
-                $isBaseDomain = $domain->getType() == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN;        
-                $domainId     = $isBaseDomain ? $domain->getId() : $domain->getCoreNetDomainId(); 
+                $isBaseDomain = $domain->getType() == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN;
+                $domainId     = $isBaseDomain ? $domain->getId() : $domain->getCoreNetDomainId();
                 $objTemplate->setVariable(array(
                         'MULTISITE_WEBSITE_DOMAIN'                    => contrexx_raw2xhtml(\Cx\Core\Net\Controller\ComponentController::convertIdnToUtf8Format($domain->getName())),
                         'MULTISITE_WEBSITE_DOMAIN_NAME'               => contrexx_raw2xhtml($domain->getNameWithPunycode()),
@@ -1206,9 +1206,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 self::showOrHideBlock($objTemplate, 'showWebsiteSpfAction', $domainSpfStatus);
                 //hide the selection websiteMainDomain if the website is disabled
                 self::showOrHideBlock($objTemplate, 'showWebsiteMainDomain', !$statusDisabled);
-                $objTemplate->parse('showWebsiteDomains');                
+                $objTemplate->parse('showWebsiteDomains');
             }
-        }        
+        }
         
         //show the website's domain name
         if ($objTemplate->blockExists('showWebsiteDomainName')) {
@@ -1231,12 +1231,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
 
             $showMailService = (   !\FWValidator::isEmpty($additionalData)
-                                && isset($additionalData->service) 
+                                && isset($additionalData->service)
                                 && !\FWValidator::isEmpty($additionalData->service));
             if ($website->getMailServiceServer() && !\FWValidator::isEmpty($website->getMailAccountId())) {
                 $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnManager('getMailServiceStatus', array('websiteId' => $websiteId));
                 if (!\FWValidator::isEmpty($response)
-                        && $response->status == 'success' 
+                        && $response->status == 'success'
                         && $response->data->status == 'success'
                 ) {
                     $mailServiceServerStatus = $response->data->mailServiceStatus;
@@ -1246,7 +1246,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             self::showOrHideBlock($objTemplate, 'openAdministration', $mailServiceServerStatus);
             self::showOrHideBlock($objTemplate, 'activateMailService', !$mailServiceServerStatus);
 
-            $objTemplate->setVariable('MULTISITE_WEBSITE_MAIL_SERVICE_STATUS', $statusDisabled ? ($mailServiceServerStatus 
+            $objTemplate->setVariable('MULTISITE_WEBSITE_MAIL_SERVICE_STATUS', $statusDisabled ? ($mailServiceServerStatus
                                                                                                   ? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_MAIL_SERVICE_ENABLED']
                                                                                                   : $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_MAIL_SERVICE_DISABLED']
                                                                                                  )
@@ -1286,14 +1286,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         
         return $objTemplate->get();
     }
-  
+    
     /**
-     * Api Domain command 
+     * Api Domain command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
     public function executeCommandDomain($objTemplate, $arguments) {
 
@@ -1323,7 +1323,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $submitFormAction = isset($arguments['action']) ? contrexx_input2raw($arguments['action']) : '';
         $domainId         = isset($arguments['domain_id']) ? contrexx_input2raw($arguments['domain_id']) : '';
         $domainName       = isset($arguments['domain_name']) ? contrexx_input2raw($arguments['domain_name']):'';
-                
+        
         //processing form values after submit
         if (!\FWValidator::isEmpty($submitFormAction)) {
             try {
@@ -1389,11 +1389,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 if (isset($command) && isset($params)) {
                     if ($submitFormAction == 'Ssl') {
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer($command, $params, $website->getWebsiteServiceServer());
-                    } else {                    
+                    } else {
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite($command, $params, $website);
                     }
                     if ($response && $response->status == 'success' && $response->data->status == 'success') {
-                        $message = ($submitFormAction == 'Select') 
+                        $message = ($submitFormAction == 'Select')
                                     ? sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_SUCCESS_MSG'], contrexx_raw2xhtml($domainName))
                                     : $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_SUCCESS_MSG'];
 
@@ -1424,10 +1424,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 }
                 
                 if (($loadPageAction == 'Ssl') && $objTemplate->blockExists('showSslCertificateForm')) {
-                    $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('getDomainSslCertificate', array('domainName' => $domainName), $website->getWebsiteServiceServer());                    
+                    $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('getDomainSslCertificate', array('domainName' => $domainName), $website->getWebsiteServiceServer());
                     $sslCertificate = ($response && $response->status == 'success' && $response->data->status == 'success') ? implode(', ', $response->data->sslCertificate) : '';
-                    self::showOrHideBlock($objTemplate, 'showSslCertificate', $sslCertificate);                    
-                    $objTemplate->setVariable(array(                        
+                    self::showOrHideBlock($objTemplate, 'showSslCertificate', $sslCertificate);
+                    $objTemplate->setVariable(array(
                         'TXT_MULTISITE_DOMAIN_CERTIFICATE' => sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_DOMAIN_CERTIFICATE'], contrexx_raw2xhtml($sslCertificate)),
                     ));
                 }
@@ -1438,7 +1438,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     if ($website->getMailServiceServer() && !\FWValidator::isEmpty($website->getMailAccountId())) {
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnManager('getMailServiceStatus', array('websiteId' => $websiteId));
                         if (!\FWValidator::isEmpty($response)
-                                && $response->status == 'success' 
+                                && $response->status == 'success'
                                 && $response->data->status == 'success'
                         ) {
                             $mailServiceServerStatus = $response->data->mailServiceStatus;
@@ -1467,12 +1467,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api Email command 
+     * Api Email command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
     public function executeCommandEmail($objTemplate, $arguments) {
 
@@ -1501,7 +1501,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $loadPageAction   = isset($arguments[1]) ? contrexx_input2raw($arguments[1]) : '';
         $submitFormAction = isset($arguments['action']) ? contrexx_input2raw($arguments['action']) : '';
         $password         = isset($arguments['pwd']) ? contrexx_input2raw($arguments['pwd']) : '';
-                
+
         //processing form values after submit
         if (!\FWValidator::isEmpty($submitFormAction)) {
             try {
@@ -1553,14 +1553,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api command Admin 
+     * Api command Admin
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string
      */
-    public function executeCommandAdmin($objTemplate, $arguments) 
+    public function executeCommandAdmin($objTemplate, $arguments)
     {
         global $objInit, $_CORELANG, $_ARRAYLANG;
 
@@ -1777,7 +1777,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         global $_ARRAYLANG;
         
         try {
-            if (   !isset($arguments['websiteId']) 
+            if (   !isset($arguments['websiteId'])
                 && !isset($arguments['serviceServerId'])
             ) {
                 throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
@@ -1786,10 +1786,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $websiteId         = isset($arguments['websiteId'])
                                  ? contrexx_input2int($arguments['websiteId'])
                                  : 0;
-            $serviceServerId   = isset($arguments['serviceServerId']) 
+            $serviceServerId   = isset($arguments['serviceServerId'])
                                  ? contrexx_input2int($arguments['serviceServerId'])
                                  : 0;
-            $backupLocation    = isset($arguments['backupLocation']) 
+            $backupLocation    = isset($arguments['backupLocation'])
                                  ? contrexx_input2raw($arguments['backupLocation'])
                                  : '';
             $responseType      = isset($arguments['responseType'])
@@ -1952,7 +1952,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         } catch (\Exception $e) {
             \DBG::log(__METHOD__ .' failed! : '. $e->getMessage());
             return $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_FAILED'];
-        } 
+        }
     }
     
     /**
@@ -1967,7 +1967,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     {
         global $_ARRAYLANG;
         
-        if (   empty($filePath) 
+        if (   empty($filePath)
             || empty($websiteServiceServer)
         ) {
             throw new MultiSiteException(__METHOD__.' : failed!. '.$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
@@ -1987,7 +1987,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
 
             //cleanup temp dir
-            if (   \Cx\Lib\FileSystem\FileSystem::exists($filePath) 
+            if (   \Cx\Lib\FileSystem\FileSystem::exists($filePath)
                 && !\Cx\Lib\FileSystem\FileSystem::delete_file($filePath)
             ) {
                 throw new MultiSiteException('Unable to delete the file: '. $filePath);
@@ -1997,7 +1997,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             throw new MultiSiteException(__METHOD__ .' failed! : '. $e->getMessage());
         }
     }
-        
+    
     /**
      * Api Cron command
      */
@@ -2227,7 +2227,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $websiteInitialStatus = array(
             \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_INIT,
-            \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_SETUP, 
+            \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_SETUP,
         );
         
         $status = ($website->getStatus() == \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE);
@@ -2317,17 +2317,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * returns the formatted query string
      * 
-     * @param array $params parameters array 
+     * @param array $params parameters array
      * 
      * @return string query string
      */
     public static function buildHttpQueryString($params = array())
     {
         $separator   = '';
-        $queryString = ''; 
+        $queryString = '';
         foreach($params as $key => $value) {
-            $queryString .= $separator . $key . '=' . $value; 
-            $separator    = '&'; 
+            $queryString .= $separator . $key . '=' . $value;
+            $separator    = '&';
         }
         
         return $queryString;
@@ -2347,7 +2347,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             } else {
                 $objTemplate->hideBlock($blockName);
             }
-        } 
+        }
     }
     
     /**
@@ -2360,7 +2360,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         
         $objUser = \FWUser::getFWUserObject()->objUser;
         
-        return $objUser->login(); 
+        return $objUser->login();
     }
     
     /**
@@ -2414,7 +2414,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
 
             default:
-                throw new MultiSiteException('Unknown websiteController set!');    
+                throw new MultiSiteException('Unknown websiteController set!');
                 break;
         }
 
@@ -2436,14 +2436,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
             case 'xampp':
             default:
-                throw new MultiSiteException('Unknown MailController set!');    
+                throw new MultiSiteException('Unknown MailController set!');
                 break;
         }
         return $hostingController;
     }
     
     /**
-     * Fixes database errors.   
+     * Fixes database errors.
      *
      * @return  boolean                 False.  Always.
      * @throws  MultiSiteException
@@ -2744,7 +2744,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     throw new MultiSiteException("Failed to add Setting entry for default Website Template");
             }
             if (!\FWValidator::isEmpty(\Env::get('db'))
-                && \Cx\Core\Setting\Controller\Setting::getValue('defaultPimProduct','MultiSite') === NULL 
+                && \Cx\Core\Setting\Controller\Setting::getValue('defaultPimProduct','MultiSite') === NULL
                 && !\Cx\Core\Setting\Controller\Setting::add('defaultPimProduct', self::getDefaultPimProductId(), 4,
                 \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, '{src:\\'.__CLASS__.'::getProductList()}', 'manager') ) {
                    throw new MultiSiteException("Failed to add Setting entry for Product List");
@@ -2951,7 +2951,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm->addModelListener(\Doctrine\ORM\Events::postRemove, 'Cx\\Core\\Net\\Model\\Entity\\Domain', $domainEventListener);
         $evm->addModelListener(\Doctrine\ORM\Events::preUpdate, 'Cx\\Core\\Net\\Model\\Entity\\Domain', $domainEventListener);
     }
-        
+
     protected function registerWebsiteEventListener() {
         $websiteEventListener = new \Cx\Core_Modules\MultiSite\Model\Event\WebsiteEventListener();
         $evm = \Env::get('cx')->getEvents();
@@ -2991,14 +2991,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm->addModelListener(\Doctrine\ORM\Events::prePersist, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\CronMail', $cronMailEventListener);
         $evm->addModelListener(\Doctrine\ORM\Events::preUpdate, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\CronMail', $cronMailEventListener);
     }
-        
+
     protected function registerWebsiteTemplateEventListener() {
         $websiteTemplateEventListener = new \Cx\Core_Modules\MultiSite\Model\Event\WebsiteTemplateEventListener();
         $evm = \Env::get('cx')->getEvents();
         $evm->addModelListener(\Doctrine\ORM\Events::postPersist, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\WebsiteTemplate', $websiteTemplateEventListener);
         $evm->addModelListener(\Doctrine\ORM\Events::postUpdate, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\WebsiteTemplate', $websiteTemplateEventListener);
     }
-        
+
     protected function registerContactFormEventListener() {
         $contactFormEventListener = new \Cx\Core_Modules\MultiSite\Model\Event\ContactFormEventListener();
         $evm = \Env::get('cx')->getEvents();
@@ -3055,7 +3055,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     
     public function preInit(\Cx\Core\Core\Controller\Cx $cx) {
         global $_CONFIG;
-        
+
         /**
          * This gives us the list of classes that are not loaded from codebase
          */
@@ -3394,7 +3394,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * 
      * @return integer id
      */
-    public static function getDefaultEntityId($entityClass) 
+    public static function getDefaultEntityId($entityClass)
     {
         if (empty($entityClass)) {
             return;
@@ -3442,7 +3442,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if ($objResult !== false) {
             $options = json_decode($objResult->fields['additional_data'], true);
             if (!empty($options)) {
-               return $options[$additionalType]; 
+               return $options[$additionalType];
             }
         }
         
@@ -3515,7 +3515,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * 
      * @return array products
      */
-    public static function getProductList($returntype = 'dropDownOption') 
+    public static function getProductList($returntype = 'dropDownOption')
     {
         $qb = \Env::get('em')->createQueryBuilder();
         $qb->select('p')
@@ -3540,7 +3540,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $response = implode(',', $productsList);
         }
         
-        return $response;        
+        return $response;
     }
     
     /**
@@ -3583,7 +3583,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $externalPaymentCustomerIdProfileAttributeId = false;
             }
         }
-        if (!$externalPaymentCustomerIdProfileAttributeId) {            
+        if (!$externalPaymentCustomerIdProfileAttributeId) {
             if (!$attributeName) {
                 return;
             }
@@ -3638,7 +3638,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                             $adminUsers[$user->getId()] = $user;
                         }
                     }
-                }                
+                }
                 break;
         }
         return $adminUsers;
@@ -3680,7 +3680,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Parse the message to the json output.
      * 
-     * @param  string  $message message 
+     * @param  string  $message message
      * @param  boolean $status  true | false (if status is true returns success json data)
      *                          if status is false returns error message json.
      * @param  boolean $reload  true | false
@@ -3745,7 +3745,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $objTemplate = $this->cx->getTemplate();
         $objTemplate->_blocks['__global__'] = preg_replace('/<div id="container"[^>]*>/', '\\0' . $maintenanceIndicationBar->get(), $objTemplate->_blocks['__global__']);
     }
-    
+
     /**
      * Get the account activation bar if user is not verified
      */
@@ -3813,7 +3813,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if (!($this->cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND)) {
             return;
         }
-        
+
         // Don't show powered by footer when viewing template in templateeditor
         if (isset($_GET['templateEditor'])) {
             return;
@@ -3840,14 +3840,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'TXT_MULTISITE_POWERED_BY_FOOTER'  => $_ARRAYLANG['TXT_MULTISITE_POWERED_BY_FOOTER'],
             ));
 
-            \JS::registerCSS('core_modules/MultiSite/View/Style/PoweredByFooterFrontend.css');                
+            \JS::registerCSS('core_modules/MultiSite/View/Style/PoweredByFooterFrontend.css');
             $objTemplate->_blocks['__global__'] = preg_replace(array('/<body>/', '/<\/body>/'), array('\\0' . '<div id="preview-content">', $footer->get() .'</div>' . '\\0' ), $objTemplate->_blocks['__global__']);
         }
         
     }
     
     /**
-     * load the contact information form 
+     * load the contact information form
      * 
      * @global array $_ARRAYLANG
      * @return null
@@ -4072,12 +4072,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         if (!$objUser) {
             return array();
         }
-                
+
         $subscriptionRepo = \Env::get('em')->getRepository('\Cx\Modules\Order\Model\Entity\Subscription');
         while (!$objUser->EOF) {
             $userAffiliateId = $objUser->getProfileAttribute($affiliateIdReferenceProfileAttributeId);
             if ($userAffiliateId === $affiliateId) {
-                $criteria = array('o.contactId'   => $objUser->getCrmUserId(), 
+                $criteria = array('o.contactId'   => $objUser->getCrmUserId(),
                                   'p.entityClass' => 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\WebsiteCollection');
                 $subscriptions = $subscriptionRepo->getSubscriptionsByCriteria($criteria);
                 if (!empty($subscriptions)) {
@@ -4137,13 +4137,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $websiteCollection = $website->getWebsiteCollection();
         $subscriptionRepo  = \Env::get('em')->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
-        $subscriptions     = !empty($websiteCollection) 
+        $subscriptions     = !empty($websiteCollection)
                              ? $subscriptionRepo->getSubscriptionsByCriteria(array(
                                 'in'            => array(
                                                         array('s.productEntityId', array($websiteCollection->getId()))
                                                     ),
                                 'p.entityClass' => 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\WebsiteCollection'
-                               )) 
+                               ))
                              : $subscriptionRepo->findOneBy(array(
                                 'productEntityId' => $websiteId
                                ));
