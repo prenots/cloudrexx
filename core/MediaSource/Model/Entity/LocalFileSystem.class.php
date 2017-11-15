@@ -528,7 +528,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
      * Get the file web path
      *
      * @param File $file File object
-     * @return string Web path of the given file without filename
+     * @return string Returns the file web path without filename
      */
     public function getWebPath(File $file)
     {

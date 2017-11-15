@@ -343,7 +343,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      * Get the file web path
      *
      * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
-     * @return string Web path of the given file without filename
+     * @return string Returns the file web path without filename
      */
     public function getWebPath(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
