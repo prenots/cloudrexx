@@ -44,4 +44,12 @@ interface FileSystem {
     public function getLink(File $file);
     public function createDirectory($path, $directory);
     public function getFileFromPath($path);
+
+    /**
+     * Get the file web path
+     *
+     * @param File $file File object
+     * @return string Web path of the given file without filename
+     */
+    public function getWebPath(File $file);
 }

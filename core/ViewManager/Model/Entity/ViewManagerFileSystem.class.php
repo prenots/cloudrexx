@@ -171,25 +171,46 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      * 2. server website repository
      * 3. codebase repository
      *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return string
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
+     * @return string Full path of the given file
      */
     public function getFullPath(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        $basePath = $this->getRootPath();
+        return $this->getFileBasePath($file) . $file->__toString();
+    }
+
+    /**
+     * Get base path of the given file,
+     * If file is application template then load from website/codebase path
+     * else
+     * Path will be checked in the following order
+     * 1. website repository
+     * 2. server website repository
+     * 3. codebase repository
+     *
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
+     * @return string Base path of the given file
+     */
+    public function getFileBasePath(\Cx\Core\MediaSource\Model\Entity\File $file)
+    {
         if ($file->isApplicationTemplateFile()) {
             if (file_exists($this->cx->getWebsiteDocumentRootPath() . $file->__toString())) {
                 $basePath = $this->cx->getWebsiteDocumentRootPath();
             } else {
                 $basePath = $this->cx->getCodeBaseDocumentRootPath();
             }
-        } elseif (file_exists($this->getRootPath() . $file->__toString())) {
-            $basePath = $this->getRootPath();
-        } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
-            $basePath = $path;
+            return $basePath;
         }
-        return $basePath . $file->__toString();
+
+        if (file_exists($this->getRootPath() . $file->__toString())) {
+            return $this->getRootPath();
+        }
+
+        if ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
+            return $path;
+        }
+
+        return $this->getRootPath();
     }
 
     /**
@@ -316,5 +337,17 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
             return false;
         }
         return new ViewManagerFile($filepath, $this);
+    }
+
+    /**
+     * Get the file web path
+     *
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
+     * @return string Web path of the given file without filename
+     */
+    public function getWebPath(\Cx\Core\MediaSource\Model\Entity\File $file)
+    {
+        $filePath = $this->getFileBasePath($file) . ltrim($file->getPath(), '.') . '/';
+        return substr($filePath, strlen($this->cx->getWebsitePath()));
     }
 }
