@@ -31,6 +31,10 @@
                                     },
                                     dataType: 'json',
                                     type: 'POST',
+                                    beforeSend: function () {
+                                        cx.trigger("loadingStart", "websiteBackup", {});
+                                        cx.tools.StatusMessage.showMessage("<div id=\"loading\" class = \"websiteBackup\">" + cx.jQuery('#loading').html() + "</div>");
+                                    },
                                     success: function (response) {
                                         var resp = (response.data) ? response.data : response;
                                         if (resp.status == 'success') {
@@ -40,6 +44,8 @@
                                             controllerScope.plUrl = serviceServerUrl + '/cadmin/?cmd=JsonData&object=Uploader&act=upload&id='+ serviceUploaderId;
                                             controllerScope.plInstance.settings.url = serviceServerUrl + '/cadmin/?cmd=JsonData&object=Uploader&act=upload&id='+ serviceUploaderId;
                                             $that.dialog("close");
+                                            cx.tools.StatusMessage.removeAllDialogs();
+                                            cx.trigger("loadingEnd", "websiteBackup", {});
                                             cx.jQuery('#multisite_backup_upload_btn').trigger('click');
                                         }
                                     }

@@ -1,5 +1,4 @@
 <?php
-return true;
 
 /**
  * Cloudrexx
@@ -26,7 +25,8 @@ return true;
  * our trademarks remain entirely with us.
  */
 
-global $sessionObj, $_CONFIG, $_CORELANG, $objUser, $objDatabase;
+return true;
+global $_CONFIG, $_CORELANG, $objUser, $objDatabase;
 
 if (!isset($objUser) || !isset($objDatabase) || !isset($license)) {
     require_once dirname(dirname(dirname(__FILE__))).'/core/Core/init.php';
@@ -34,11 +34,14 @@ if (!isset($objUser) || !isset($objDatabase) || !isset($license)) {
     // In mode 'minimal' we have to manually register event listeners.
     // The listener registerYamlSettingEventListener is used to update the
     // settings.php file.
-    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener();
+    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener($cx);
+}
+if (!$cx) {
+    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 }
 
 // Init user
-if (empty($sessionObj)) $sessionObj = \cmsSession::getInstance();
+$sessionObj = $cx->getComponent('Session')->getSession();
 if (!isset($objUser)) {
     $objUser = $cx->getUser()->objUser;
 }

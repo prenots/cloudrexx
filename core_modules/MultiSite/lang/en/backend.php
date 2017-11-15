@@ -111,6 +111,9 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_GOOGLECONVERSIONID'] = 'Google Adwords Co
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_TRACKFACEBOOKCONVERSION'] = 'Track Facebook Ads Conversions';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_TRACKFACEBOOKCONVERSION_TOOLTIP'] = 'Activate to track Facebook Ads Conversions for Sign-Ups';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_FACEBOOKCONVERSIONID'] = 'Facebook Ads Conversion Id';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_MODE'] = 'Website mode';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVER'] = 'Website Repository';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_SHARED_FOLDER'] = 'Shared folder';
 
 // settings status messages
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_DEFAULTCODEBASE_SUCCESSFUL_CREATION']      = "Default Code Base has been set successfully";
@@ -532,6 +535,8 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_GET_WEBSITES_SUCCESS_MSG'] = 'Websites ar
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_ERROR_MSG'] = 'Failed to update the website';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_STATUS_ERROR_MSG'] = 'Failed to send the update notification email';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UPDATE_CODEBASE_ERROR_MSG'] = 'Failed to update the website codebase';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SET_WEBSITE_DETAILS_ERROR'] = 'Failed to set the website details';
+$_ARRAYLANG['TXT_MULTISITE_SETTINGS_UPDATE_WEBSITE_SERVER_AND_MODE_ERROR_MSG'] = 'Could not update the website repository and website mode.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_PRODUCT'] = 'Product';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] = 'Copy';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Copy website %s';
@@ -551,3 +556,12 @@ If you want to buy a new subscription for the website use \'New subscription\' b
 
 //set owner user
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHANGE_OWNER_USER_ERROR'] = 'Error while switching the owner user';
+
+//get website list
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_GET_WEBSITE_LIST_ERROR']= 'Failed to get the website list.';
+
+//set the website details
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SET_WEBSITE_DETAILS_ERROR']= 'Failed to set the website details.';
+
+$_ARRAYLANG['TXT_CORE_MODULES_MULTISITE_SEARCH_WEBSITE_OR_DOMAIN'] = 'Website / Domain';
+$_ARRAYLANG['TXT_CORE_MODULES_MULTISITE_SEARCH_BUTTON'] = 'Search';

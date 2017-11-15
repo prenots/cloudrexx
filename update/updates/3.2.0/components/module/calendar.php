@@ -25,6 +25,7 @@
  * our trademarks remain entirely with us.
  */
 
+
 function _calendarUpdate()
 {
     global $objDatabase;

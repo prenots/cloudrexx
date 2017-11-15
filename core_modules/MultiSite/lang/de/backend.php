@@ -98,7 +98,7 @@ $_ARRAYLANG['TXT_MULTISITE_ADD_NEW_WEBSITE'] = 'Neue Website hinzuf&uuml;gen';
 
 // Subscription trial
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE'] = 'Webseite';
-$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION'] = 'Abo wählen';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION'] = 'Abo w&auml;hlen';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_CREATE_TRIAL'] = 'Als Trial erstellen';
 $_ARRAYLANG['TXT_MULTISITE_UNKOWN_WEBSITE'] = 'Die angeforderte Website ist unbekannt.';
 $_ARRAYLANG['TXT_MULTISITE_SUBSCRIPTION_ACTIVE'] = 'Aktiv';
@@ -362,6 +362,9 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_PROCESS_ERROR_MSG'] = 'Der
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_ERROR_MSG'] = 'Das Update der Webseite ist fehlgeschlagen';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_STATUS_ERROR_MSG'] = 'Beim Senden des Update-Informationsmails ist ein Fehler aufgetreten';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UPDATE_CODEBASE_ERROR_MSG'] = 'Das Update der Code-Basis der Webseite ist fehlgeschlagen';
+$_ARRAYLANG['TXT_CORE_MODULES_MULTISITE_SEARCH_WEBSITE_OR_DOMAIN'] = 'Website / Domain';
+$_ARRAYLANG['TXT_CORE_MODULES_MULTISITE_SEARCH_BUTTON'] = 'Suchen';
+
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] = 'Kopieren';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Website Kopie erstellen von %s';
 $_ARRAYLANG['TXT_MULTISITE_COPY_INFO'] = 'Hiermit erstellen Sie eine Kopie der Website %s';
@@ -375,7 +378,6 @@ $_ARRAYLANG['TXT_MULTISITE_NEW_SUBSCRIPTION'] = 'Neues Abo l&ouml;sen';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'Mit diesem Dialog können Sie eine Webseite mit allen Daten, Benutzern und Einstellungen kopieren.
 Bitte geben Sie den gewünschten Namen der Kopie an und wählen Sie ein Abonement.
 Um ein neues Abo zu erwerben, benutzen Sie die Schaltfläche "Neues Abo"';
-
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT']    = 'Grössenbeschränkung für Backups';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT_TOOLTIP'] = 'Maximale Grösse der Webseite für die Erstellung von Backups in Kb\'s.<br /> 0 - Keine Beschränkung';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR'] = 'Die Webseite ist zu Gross, ein Backup wird nicht empfohlen.';

@@ -164,7 +164,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * @param \Cx\Core\Html\Sigma $template Template for current CMD
      * @param array $cmd CMD separated by slashes
      */
-    public function parsePage(\Cx\Core\Html\Sigma $template, array $cmd) {
+    public function parsePage(\Cx\Core\Html\Sigma $template, array $cmd, &$isSingle = false) {
         global $_ARRAYLANG;
 
         $communicationManagementAccess = \Permission::checkAccess(self::MULTISITE_COMMUNICATION_MANAGEMENT_ACCESS_ID, 'static', true);
@@ -1324,8 +1324,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'websiteName'   => $data->websiteName,
                         'fileName'      => $data->fileName,
                         'dateAndTime'   => $data->creationDate, 
-                        'serviceServer' => $data->serviceServer,
-                        'serviceId'     => $data->serviceServerId,
+                        'serviceServer' => isset($data->serviceServer) ? $data->serviceServer : '',
+                        'serviceId'     => isset($data->serviceServerId) ? $data->serviceServerId : '',
                         'userId'        => ($objUser) ? $objUser->getId() : 0,
                         'path'          => $data->path
                     );
@@ -1347,6 +1347,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     { 
         global $_ARRAYLANG;
         $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
+        $isModeWebsite    = ($mode == ComponentController::MODE_WEBSITE);
+        $isFirstTabActive = (isset($_GET['active_tab']) && $_GET['active_tab'] == 1);
         try {
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', null, 'FileSystem');  
             //check form post
@@ -1370,6 +1372,63 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             throw new \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteException('Problem in service servers update setup process'.$errMsg);    
                         }
                     }
+                } elseif ( $isModeWebsite && $isFirstTabActive) {
+                    //get post values
+                    $savePostDataError = false;
+                    $postWebsiteMode   = isset($_POST['website_mode'])
+                        ? contrexx_input2raw($_POST['website_mode']) : '';
+                    $postWebsiteServer = isset($_POST['website_server'])
+                        ? contrexx_input2raw($_POST['website_server']) : '';
+                    //get settings value
+                    $websiteMode   = \Cx\Core\Setting\Controller\Setting::getValue(
+                        'website_mode', 'MultiSite'
+                    );
+                    $websiteServer = \Cx\Core\Setting\Controller\Setting::getValue(
+                        'website_server', 'MultiSite'
+                    );
+                    $websiteName   = \Cx\Core\Setting\Controller\Setting::getValue(
+                        'websiteName', 'MultiSite'
+                    );
+                    if (   $postWebsiteMode != $websiteMode
+                        || $postWebsiteServer != $websiteServer
+                    ) {
+                        $response = null;
+                        if ($websiteMode == ComponentController::WEBSITE_MODE_SERVER) {
+                            $response = JsonMultiSiteController::executeCommandOnMyServiceServer(
+                                'checkServerWebsiteAccessedByClient',
+                                array('websiteName' => $websiteName)
+                            );
+                        }
+                        if (   $response
+                            && (   $response->status == 'error'
+                                || $response->data->isServerAccessByclient
+                               )
+                        ) {
+                            $savePostDataError = true;
+                        } else {
+                            $params = array(
+                                'websiteName'     => $websiteName,
+                                'mode'            => $postWebsiteMode,
+                                'serverWebsiteId' => $postWebsiteServer
+                            );
+                            $response = JsonMultiSiteController::executeCommandOnManager(
+                                'setWebsiteDetails', $params
+                            );
+                            if (   !$response
+                                || $response->status == 'error'
+                                || $response->data->status == 'error'
+                            ) {
+                                $savePostDataError = true;
+                            }
+                        }
+                    }
+                    if ($savePostDataError) {
+                        \Message::warning(
+                            $_ARRAYLANG['TXT_MULTISITE_SETTINGS_UPDATE_WEBSITE_SERVER_AND_MODE_ERROR_MSG']
+                        );
+                    } else {
+                        \Cx\Core\Setting\Controller\Setting::storeFromPost();
+                    }
                 } else {
                     \Cx\Core\Setting\Controller\Setting::storeFromPost();
                 }
@@ -1378,7 +1437,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             // fetch MultiSite operation mode and set websiteController
             $websiteController = \Cx\Core\Setting\Controller\Setting::getValue('websiteController','MultiSite');
 
-            if ($mode != ComponentController::MODE_WEBSITE) {
+            if (!$isModeWebsite) {
                 \Cx\Core\Setting\Controller\Setting::setEngineType('MultiSite', 'FileSystem', 'config');    
                 \Cx\Core\Setting\Controller\Setting::show(
                     $objTemplate,
@@ -1487,7 +1546,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
             }
 
-            if ($mode == ComponentController::MODE_WEBSITE) {
+            if ($isModeWebsite) {
                 // config section if the MultiSite is run as Website
                 \Cx\Core\Setting\Controller\Setting::setEngineType('MultiSite', 'FileSystem', 'website');
                 \Cx\Core\Setting\Controller\Setting::show(
@@ -1496,6 +1555,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
                     'Website Service',
                     'TXT_CORE_MODULE_MULTISITE_'
+                );
+                \ContrexxJavascript::getInstance()->setVariable(
+                    'websiteMode',
+                    ComponentController::WEBSITE_MODE_CLIENT,
+                    'multisite/website'
                 );
             }
         } catch (\Exception $e) {
@@ -1709,7 +1773,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ) {
             return false;
         }
-        $downloadUrl = ComponentController::getApiProtocol() . $rowData['serviceServer'] . $rowData['path'] . '/' . $rowData['fileName'];
+        // Backup file will be in service server when mode manager
+        $serverUrl   =   \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER
+                       ? ComponentController::getApiProtocol() . $rowData['serviceServer']
+                       : '';
+        $downloadUrl = $serverUrl . $rowData['path'] . '/' . $rowData['fileName'];
         
         return '<a 
                     href="'. contrexx_raw2xhtml($downloadUrl) .'" 

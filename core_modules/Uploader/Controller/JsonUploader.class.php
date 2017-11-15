@@ -128,7 +128,7 @@ class JsonUploader extends SystemComponentController implements JsonAdapter
         }
         $uploader = UploaderController::handleRequest(
             array(
-                'allow_extensions' => is_array($allowedExtensions) ? explode(', ', $allowedExtensions) : $allowedExtensions,
+                'allow_extensions' => $allowedExtensions,
                 'target_dir' => $path,
                 'tmp_dir' => $tmpPath
             )
@@ -206,21 +206,20 @@ class JsonUploader extends SystemComponentController implements JsonAdapter
                     break;
                 }
             }
-            if (!$file){
-                throw new UploaderException(PLUPLOAD_TMPDIR_ERR);
-            }
-            \Cx\Lib\FileSystem\FileSystem::move(
-                $file,  rtrim($fileLocation[0], '/') .'/'. pathinfo( $file, PATHINFO_BASENAME),
-                true
-            );
+            if ($file){
+                \Cx\Lib\FileSystem\FileSystem::move(
+                    $file,  rtrim($fileLocation[0], '/') .'/'. pathinfo( $file, PATHINFO_BASENAME),
+                    true
+                );
 
-            if (isset($fileLocation[2])){
-                $uploader['name'] = $fileLocation[2];
+                if (isset($fileLocation[2])){
+                    $uploader['name'] = $fileLocation[2];
+                }
+                $fileLocation = array(
+                    rtrim($fileLocation[0], '/') .'/'. pathinfo( $file, PATHINFO_BASENAME),
+                    rtrim($fileLocation[1], '/') .'/'. pathinfo( $file, PATHINFO_BASENAME)
+                );
             }
-            $fileLocation = array(
-                rtrim($fileLocation[0], '/') .'/'. pathinfo( $file, PATHINFO_BASENAME),
-                rtrim($fileLocation[1], '/') .'/'. pathinfo( $file, PATHINFO_BASENAME)
-            );
         }
 
         if ($response->getWorstStatus()) {

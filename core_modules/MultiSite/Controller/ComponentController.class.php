@@ -38,6 +38,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     const MODE_SERVICE = 'service';
     const MODE_HYBRID = 'hybrid';
     const MODE_WEBSITE = 'website';
+    const WEBSITE_MODE_STANDALONE = 'standalone';
+    const WEBSITE_MODE_SERVER = 'server';
+    const WEBSITE_MODE_CLIENT = 'client';
     
     /**
      * Main Domain
@@ -89,7 +92,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
-    public function executeCommand($command, $arguments)
+    /**
+     * {@inheritdoc}
+     */
+    public function postComponentLoad() {
+         self::errorHandler();
+    }
+
+    public function executeCommand($command, $arguments, $dataArguments = array())
     {
         $subcommand = null;
         if (!empty($arguments[0])) {
@@ -191,6 +201,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     
                     case 'Email':
                         echo $this->executeCommandEmail($objTemplate, $arguments);
+                        break;
+                    
+                    case 'list':
+                        echo $this->executeCommandList($arguments);
                         break;
                     
                     default:
@@ -378,73 +392,80 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $website_status = isset($arguments['website_status']) ? contrexx_input2raw($arguments['website_status']) : '';
         $excludeProduct = isset($arguments['exclude_product']) ? array_map('contrexx_input2raw', $arguments['exclude_product']) : '';
         $includeProduct = isset($arguments['include_product']) ? array_map('contrexx_input2raw', $arguments['include_product']) : '';
-        //Get the orders based on CRM contact id and get params
-        $orderRepo = \Env::get('em')->getRepository('Cx\Modules\Order\Model\Entity\Order');
-        $orders    = $orderRepo->getOrdersByCriteria($crmContactId, $status, $excludeProduct, $includeProduct);
+        $searchTerm     = isset($arguments['search']) ? contrexx_input2raw($arguments['search']) : '';
+        
+        $em = $this->cx->getDb()->getEntityManager();
+        //Get the subscriptions based on CRM contact id and other parameters
+        $criteria = array(
+                        'contactId'       => $crmContactId, 
+                        'status'          => $status, 
+                        'excludeProduct'  => $excludeProduct, 
+                        'includeProduct'  => $includeProduct
+                    );
+        if (!empty($searchTerm)) {
+            $criteria['term']              = $searchTerm;
+            $criteria['filterDescription'] = $searchTerm;
+        }
+        $websiteRepo      = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+        $subscriptionRepo = $em->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
+        $subscriptions    = $subscriptionRepo->findSubscriptionsBySearchTerm($criteria);
         
         //parse the Site Details
-        if (!empty($orders)) {            
-            foreach ($orders as $order) {
-                foreach ($order->getSubscriptions() as $subscription) {
-                    if ($subscription->getState() == \Cx\Modules\Order\Model\Entity\Subscription::STATE_TERMINATED) {
-                        continue;
-                    }
-                    
-                    $product = $subscription->getProduct();
-                    if (!$product) {
-                        continue;
-                    }
-                    
-                    $description       = $subscription->getDescription();
-                    $websiteCollection = $subscription->getProductEntity();
-                    $websiteNames      = array();
-                    if (empty($description)) {
-                        if (   $websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection
-                            && $websiteCollection->getWebsites()
-                        ) {
-                            foreach ($websiteCollection->getWebsites() as $website) {
-                                $websiteNames[] = $website->getName();
-                            }
-                            $description = !empty($websiteNames) ? implode(', ', $websiteNames) : '';
-                        } elseif ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website) {
-                            $description = $websiteCollection->getName();
-                        }
-                    }
-                    
-                    $objTemplate->setGlobalVariable(array(
-                        'MULTISITE_SUBSCRIPTION_ID'          => contrexx_raw2xhtml($subscription->getId()),
-                        'MULTISITE_SUBSCRIPTION_DESCRIPTION' => contrexx_raw2xhtml($description),
-                        'MULTISITE_WEBSITE_PLAN'             => contrexx_raw2xhtml($product->getName()),
-                        'MULTISITE_WEBSITE_INVOICE_DATE'     => $subscription->getRenewalDate() ? $subscription->getRenewalDate()->format('d.m.Y') : '',
-                        'MULTISITE_WEBSITE_EXPIRE_DATE'      => $subscription->getExpirationDate() ? $subscription->getExpirationDate()->format('d.m.Y') : '',    
-                    ));
-
-                    if ($status == 'valid' && $objTemplate->blockExists('showUpgradeButton')) {
-                        $product->isUpgradable() ? $objTemplate->touchBlock('showUpgradeButton') : $objTemplate->hideBlock('showUpgradeButton');
-                    }
-
-                    if ($status != 'expired') {
-                        if ($websiteCollection) {
-                            if ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection) {
-                                foreach ($websiteCollection->getWebsites() as $website) {
-                                    if (!($website instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website)) {
-                                        continue;
-                                    }
-                                    self::parseWebsiteDetails($objTemplate, $website, $website_status);
-                                    $objTemplate->parse('showWebsites');
-                                }
-                                self::showOrHideBlock($objTemplate, 'showAddWebsiteButton', ($websiteCollection->getQuota() > count($websiteCollection->getWebsites())));
-                            } elseif ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website) {
-                                self::parseWebsiteDetails($objTemplate, $websiteCollection, $website_status);
-                                $objTemplate->parse('showWebsites');
-                            }
-                        }
-                    } else {
-                        $objTemplate->touchBlock('showWebsites');
-                    }
-
-                    $objTemplate->parse('showSiteDetails');
+        if (!empty($subscriptions)) {
+            foreach ($subscriptions as $subscription) {
+                if ($subscription->getState() == \Cx\Modules\Order\Model\Entity\Subscription::STATE_TERMINATED) {
+                    continue;
                 }
+
+                $product = $subscription->getProduct();
+                if (!$product) {
+                    continue;
+                }
+
+                $websiteNames      = array();
+                $description       = $subscription->getDescription();
+                $websiteCollection = $subscription->getProductEntity();
+                if (empty($description)) {
+                    if (   $websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection
+                        && $websiteCollection->getWebsites()
+                    ) {
+                        foreach ($websiteCollection->getWebsites() as $website) {
+                            $websiteNames[] = $website->getName();
+                        }
+                        $description = !empty($websiteNames) ? implode(', ', $websiteNames) : '';
+                    } elseif ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website) {
+                        $description = $websiteCollection->getName();
+                    }
+                }
+
+                $objTemplate->setGlobalVariable(array(
+                    'MULTISITE_SUBSCRIPTION_ID'          => contrexx_raw2xhtml($subscription->getId()),
+                    'MULTISITE_SUBSCRIPTION_DESCRIPTION' => contrexx_raw2xhtml($description),
+                    'MULTISITE_WEBSITE_PLAN'             => contrexx_raw2xhtml($product->getName()),
+                    'MULTISITE_WEBSITE_INVOICE_DATE'     => $subscription->getRenewalDate() ? $subscription->getRenewalDate()->format('d.m.Y') : '',
+                    'MULTISITE_WEBSITE_EXPIRE_DATE'      => $subscription->getExpirationDate() ? $subscription->getExpirationDate()->format('d.m.Y') : '',    
+                ));
+
+                if ($status == 'valid' && $objTemplate->blockExists('showUpgradeButton')) {
+                    $product->isUpgradable() ? $objTemplate->touchBlock('showUpgradeButton') : $objTemplate->hideBlock('showUpgradeButton');
+                }
+
+                if ($status != 'expired') {
+                    $websites = $websiteRepo->getWebsitesByTermAndSubscription($searchTerm, $subscription->getId());
+                    if ($websites) {
+                        foreach ($websites as $website) {
+                            self::parseWebsiteDetails($objTemplate, $website, $website_status);
+                            $objTemplate->parse('showWebsites');
+                        }
+                    }
+                    if ($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection) {
+                        self::showOrHideBlock($objTemplate, 'showAddWebsiteButton', ($websiteCollection->getQuota() > count($websiteCollection->getWebsites())));
+                    }
+                } else {
+                    $objTemplate->touchBlock('showWebsites');
+                }
+
+                $objTemplate->parse('showSiteDetails');
             }
         } else {
             $objTemplate->hideBlock('showSiteTable');
@@ -974,8 +995,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                                     $objUser = new \Cx\Core_Modules\MultiSite\Model\Entity\User();
                                     $objUser->assignRandomUserId();
                                     $objUser->setProfile(array(
-                                        'firstname' => array(0 => $arrData['userProfile']->getFirstname()),
-                                        'lastname'  => array(0 => $arrData['userProfile']->getLastname()),
+                                        'firstname' => array(0 => $arrData['userProfile']['firstname']),
+                                        'lastname'  => array(0 => $arrData['userProfile']['lastname']),
                                     ));
                                     return \FWUser::getParsedUserTitle($objUser);
                                 },
@@ -1053,22 +1074,27 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 );
             //display the admin users using viewgenerator
             if($websiteAdminUsers){
-                $view = new \Cx\Core\Html\Controller\ViewGenerator($websiteAdminUsers, array(
-                    'functions' => array(
-                        'add' => false,
-                        'edit' => false,
-                        'delete' => false,
-                        'sorting' => false,
-                        'baseUrl' => '',
-                        'actions' => function($rowData) {
-                            if ($rowData['email'] != \FWUser::getFWUserObject()->objUser->getEmail()) {
-                                return '<a class="entypo-tools" data-user_id= "' . $rowData['id'] . '" data-page= "Edit"></a>  '
-                                        . '<a class="entypo-trash" data-user_id= "' . $rowData['id'] . '" data-page= "Delete"></a>';
-                            }
-                        },
-                    ),
-                    'fields' => $showOverview
-                ));
+                $view = new \Cx\Core\Html\Controller\ViewGenerator(
+                    $websiteAdminUsers,
+                    array(
+                        'array' => array(
+                            'functions' => array(
+                                'add' => false,
+                                'edit' => false,
+                                'delete' => false,
+                                'sorting' => false,
+                                'baseUrl' => '',
+                                'actions' => function($rowData) {
+                                    if ($rowData['email'] != \FWUser::getFWUserObject()->objUser->getEmail()) {
+                                        return '<a class="entypo-tools" data-user_id= "' . $rowData['id'] . '" data-page= "Edit"></a>  '
+                                                . '<a class="entypo-trash" data-user_id= "' . $rowData['id'] . '" data-page= "Delete"></a>';
+                                    }
+                                },
+                            ),
+                            'fields' => $showOverview,
+                        ),
+                    )
+                );
                 $objTemplate->setVariable('ADMIN_USERS', $view->render());
             }
         }
@@ -1910,6 +1936,22 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $cron = $this->getController('Cron');
         $cron->sendNotificationMails();
     }
+    
+    public function executeCommandList($arguments) {
+        $em = $this->cx->getDb()->getEntityManager();
+        $multiSiteRepo = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+        $websites = $multiSiteRepo->findAll();
+        
+        foreach ($websites as $website) {
+            if (
+                (!isset($arguments[1]) || $arguments[1] != '--all') &&
+                $website->getStatus() != \Cx\Core_Modules\MultiSite\Model\Entity\Website::STATE_ONLINE
+            ) {
+                continue;
+            }
+            echo $website->getName() . "\n";
+        }
+    }
 
     /**
      * Create new payment (handler Payrexx)
@@ -2244,11 +2286,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return boolean
      */
     public static function isUserLoggedIn() {
-        global $sessionObj;
-        
-        if (empty($sessionObj)) {
-            $sessionObj = \cmsSession::getInstance();
-        }
+        \Cx\Core\Session\Model\Entity\Session::getInstance();
         
         $objUser = \FWUser::getFWUserObject()->objUser;
         
@@ -3012,22 +3050,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return;
         }
 
-        $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
-        if ($mode == self::MODE_SERVICE) {
-            // manager is allowed to send request to service server
-            $managerUrl = $this->getApiProtocol() . \Cx\Core\Setting\Controller\Setting::getValue('managerHostname','MultiSite');
-            $headers = array(
-                'Access-Control-Allow-Credentials' => 'true',
-                'Access-Control-Allow-Origin'      => $managerUrl,
-                'Access-Control-Allow-Methods'     => 'GET, POST, PUT, OPTIONS',
-                'Access-Control-Allow-Headers'     => 'X-Requested-With, Content-Type, Check-CSRF'
-            );
-            \Cx\Core_Modules\Uploader\Controller\UploaderController::corsHeaders($headers);
-        }
-
         // Abort in case this Contrexx installation has not been set up as a Website Service.
         // If the MultiSite module has not been configured, then 'mode' will be set to null.
-        switch ($mode) {
+        switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
             case self::MODE_MANAGER:
                 $this->verifyRequest($cx);
                 break;
@@ -3038,7 +3063,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 // we need to exit this method and proceed
                 // with the regular bootstrap process.
                 // This case is required by the cx-mode MODE_MINIMAL.
-                if ($this->deployWebsite($cx)) {
+                if ($this->deployWebsiteFromRequest($cx)) {
                     return;
                 }
                 $this->verifyRequest($cx);
@@ -3100,6 +3125,37 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             header('Location: '.$this->getApiProtocol().$marketingWebsiteDomainName, true, 301);
             exit;
         }
+        // Allow access to command-mode only through Manager domain (-> Main Domain) and Customer Panel domain
+        // Other requests will be forwarded to the Marketing Website of MultiSite.
+        if (   $cx->getMode() == $cx::MODE_COMMAND
+            && php_sapi_name() == 'cli'
+        ) {
+            global $argv;
+            
+            if (!isset($argv[1]) || $argv[1] != $this->getName()) {
+                return;
+            }
+            if (!isset($argv[2]) || $argv[2] != 'pass') {
+                return;
+            }
+            if (!isset($argv[3])) {
+                echo 'Not enough arguments' . "\n";
+                return;
+            }
+            
+            $multiSiteRepo = new \Cx\Core_Modules\MultiSite\Model\Repository\FileSystemWebsiteRepository();
+            $website = $multiSiteRepo->findByName(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/', $argv[3]);
+            
+            if (!$website) {
+                die('No such website: "' . $argv[3] . '"' . "\n");
+            }
+            
+            array_shift($argv); // MultiSite
+            array_shift($argv); // pass
+            array_shift($argv); // <websiteName>
+            $websiteCx = $this->deployWebsite($cx, $website);
+            die();
+        }
 
         // Allow access to frontend only on domain of Marketing Website and Customer Panel.
         // Other requests will be forwarded to the Marketing Website of MultiSite.
@@ -3125,44 +3181,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
-    protected function deployWebsite(\Cx\Core\Core\Controller\Cx $cx) {
+    protected function deployWebsiteFromRequest(\Cx\Core\Core\Controller\Cx $cx) {
         $multiSiteRepo = new \Cx\Core_Modules\MultiSite\Model\Repository\FileSystemWebsiteRepository();
+
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = '';
+        }
 
         // dynamic mapping of <website>.cloudrexx.website
         $_SERVER['HTTP_HOST'] = preg_replace('/\.cloudrexx\.website$/i', '.cloudrexx.com', $_SERVER['HTTP_HOST'], 1);
 
         $website = $multiSiteRepo->findByDomain(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/', $_SERVER['HTTP_HOST']);
         if ($website) {
-            // Recheck the system state of the Website Service Server (1st check
-            // has already been performed before executing the preInit-Hooks),
-            // but this time also lock the backend in case the system has been
-            // put into maintenance mode, as a Website must also not be
-            // accessable throuth the backend in case its Website Service Server
-            // has activated the maintenance-mode.
-            $cx->checkSystemState(true);
-
-            $configFile = \Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/'.$website->getName().'/config/configuration.php';
-            $requestInfo =    isset($_REQUEST['cmd']) && $_REQUEST['cmd'] == 'JsonData'
-                           && isset($_REQUEST['object']) && $_REQUEST['object'] == 'MultiSite'
-                           && isset($_REQUEST['act'])
-                                ? '(API-call: '.$_REQUEST['act'].')'
-                                : $_SERVER['REQUEST_URI'];
-            \DBG::msg("MultiSite: Loading customer Website {$website->getName()}...".$requestInfo);
-            // set SERVER_NAME to BaseDN of Website
-            $_SERVER['SERVER_NAME'] = $website->getName() . '.' . \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite');
-            \Cx\Core\Core\Controller\Cx::instanciate($cx->getMode(), true, $configFile, true);
-
-            // In cx-mode MODE_MINIMAL we must not abort
-            // script execution as the script that initialized
-            // the Cx object is most likely going to perform some
-            // additional operations after the Cx initialization
-            // has finished.
-            // To prevent that the bootstrap process of the service
-            // server is being proceeded, we must throw an
-            // InstanceException here.
-            if ($cx->getMode() == $cx::MODE_MINIMAL) {
-                throw new \Cx\Core\Core\Controller\InstanceException();
-            }
+            $this->deployWebsite($cx, $website);
             exit;
         }
 
@@ -3174,6 +3205,40 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                             : '';
         \DBG::msg("MultiSite: Loading Website Service...".$requestInfo);
         return false;
+    }
+    
+    protected function deployWebsite($cx, $website) {
+        // Recheck the system state of the Website Service Server (1st check
+        // has already been performed before executing the preInit-Hooks),
+        // but this time also lock the backend in case the system has been
+        // put into maintenance mode, as a Website must also not be
+        // accessable throuth the backend in case its Website Service Server
+        // has activated the maintenance-mode.
+        $cx->checkSystemState(true);
+
+        $configFile = \Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/'.$website->getName().'/config/configuration.php';
+        $requestInfo =    isset($_REQUEST['cmd']) && $_REQUEST['cmd'] == 'JsonData'
+                       && isset($_REQUEST['object']) && $_REQUEST['object'] == 'MultiSite'
+                       && isset($_REQUEST['act'])
+                            ? '(API-call: '.$_REQUEST['act'].')'
+                            : $_SERVER['REQUEST_URI'];
+        \DBG::msg("MultiSite: Loading customer Website {$website->getName()}...".$requestInfo);
+        \DBG::setLogPrefix($website->getName());
+        // set SERVER_NAME to BaseDN of Website
+        $_SERVER['SERVER_NAME'] = $website->getName() . '.' . \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite');
+        \Cx\Core\Core\Controller\Cx::instanciate($cx->getMode(), true, $configFile, true);
+
+        // In cx-mode MODE_MINIMAL we must not abort
+        // script execution as the script that initialized
+        // the Cx object is most likely going to perform some
+        // additional operations after the Cx initialization
+        // has finished.
+        // To prevent that the bootstrap process of the service
+        // server is being proceeded, we must throw an
+        // InstanceException here.
+        if ($cx->getMode() == $cx::MODE_MINIMAL) {
+            throw new \Cx\Core\Core\Controller\InstanceException();
+        }
     }
 
     /**
@@ -3329,7 +3394,50 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         return implode(',', $display);
     }
-    
+
+    /**
+     * Get the server website list by using website owner id
+     * 
+     * @return string list of websites seperate by comma
+     */
+    public static function getServerWebsiteList()
+    {
+        $mode = \Cx\Core\Setting\Controller\Setting::getValue(
+            'mode',
+            'MultiSite'
+        );
+        if ($mode !== self::MODE_WEBSITE) {
+            return '';
+        }
+
+        $ownerId       = \FWUser::getFWUserObject()->objUser->getId();
+        $websiteUserId = \Cx\Core\Setting\Controller\Setting::getValue(
+            'websiteUserId',
+            'MultiSite'
+        );
+        if ($ownerId != $websiteUserId) {
+            return '';
+        }
+
+        $websiteName = \Cx\Core\Setting\Controller\Setting::getValue(
+            'websiteName',
+            'MultiSite'
+        );
+        $response    = JsonMultiSiteController::executeCommandOnMyServiceServer(
+            'getServerWebsiteList',
+            array('websiteName' => $websiteName)
+        );
+
+        if (    !$response
+            ||  $response->status === 'error'
+            ||  empty($response->data->websiteList)
+        ) {
+            return '';
+        }
+
+        return implode(',', $response->data->websiteList);
+    }
+
     /**
      * Get the product list
      * 
@@ -3519,17 +3627,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $data['reload'] = $reload;
         
         if ($status) {
-            return $json->json(array(
-                        'status' => 'success',
-                        'data'   => $data
-            ));
+            return $json->json(new \Cx\Lib\Net\Model\Entity\Response(array(
+                'status' => 'success',
+                'data'   => $data,
+            )));
         }
 
         if (!$status) {
-            return $json->json(array(
-                        'status'  => 'error',
-                        'message' => $message
-            ));
+            return $json->json(new \Cx\Lib\Net\Model\Entity\Response(array(
+                'status'  => 'error',
+                'message' => $message,
+            )));
         }
     }
     
@@ -3540,9 +3648,32 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
     {
+        self::showMaintenanceIndicationBar();
         self::loadAccountActivationBar();
         self::loadPoweredByFooter();
         self::loadContactInformationForm($page);
+    }
+
+    public function showMaintenanceIndicationBar()
+    {
+        // only show in backend
+        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
+            return;
+        }
+
+        // Don't show account verification notice when in templateeditor
+        if (isset($_GET['templateEditor'])) {
+            return;
+        }
+
+        \JS::registerJS('core_modules/MultiSite/View/Script/MaintenanceIndication.js');
+        \JS::registerCSS('core_modules/MultiSite/View/Style/MaintenanceIndicationBackend.css');
+
+        $maintenanceIndicationBar = new \Cx\Core\Html\Sigma($this->cx->getCodeBaseCoreModulePath() . '/MultiSite/View/Template/Backend');
+        $maintenanceIndicationBar->loadTemplateFile('MaintenanceIndication.html');
+
+        $objTemplate = $this->cx->getTemplate();
+        $objTemplate->_blocks['__global__'] = preg_replace('/<div id="container"[^>]*>/', '\\0' . $maintenanceIndicationBar->get(), $objTemplate->_blocks['__global__']);
     }
     
     /**
@@ -3987,6 +4118,27 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         
         return $serviceServer;
+    }
+
+    /**
+     * Get the product ids by entity class
+     * 
+     * @param string $entity namespace of Website or WebsiteCollections
+     * 
+     * @return array
+     */
+    public function getProductIdsByEntityClass($entity) {
+        $em          = $this->cx->getDb()->getEntityManager();
+        $entityClass = 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\'.$entity;
+        $products    = $em->getRepository('\Cx\Modules\Pim\Model\Entity\Product')->findBy(array('entityClass' => $entityClass));
+        $productIds  = array();
+        
+        if ($products) {
+            foreach ($products as $product) {
+                $productIds[] = $product->getId();
+            }
+        }
+        return $productIds;
     }
 
     /**
