@@ -37,10 +37,10 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_IN_USE'] = 'Zu dieser E-Mail Adress
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_INVALID_EMAIL'] = 'Die angegebene E-Mail Adresse ist ung&uuml;ltig.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_LOGIN'] = 'Log in';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_CREATED'] = 'Ihre Website %s ist bereit! Überprüfen Sie Ihre Inbox (im Spam gelandet?). Wir haben Ihnen ein E-Mail mit Ihren Zugangsdaten und ersten Tipps gesendet. Viel Erfolg.';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_CREATION_ERROR'] = 'Die Erstellung Ihrer Website hat nicht geklapt. Ein Techniker wird sich umgehend um das Problem kümmern und Sie anschliessend über die E-Mail Adresse %s kontaktieren, sobald Ihre Website einsatzbereit ist.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_CREATION_ERROR'] = 'Die Erstellung Ihrer Website hat nicht geklappt. Ein Techniker wird sich umgehend um das Problem kümmern und Sie anschliessend über die E-Mail Adresse %s kontaktieren, sobald Ihre Website einsatzbereit ist.';
 $_ARRAYLANG['TXT_MULTISITE_BUILD_WEBSITE_TITLE'] = 'Ihre Website wird erstellt..';
 $_ARRAYLANG['TXT_MULTISITE_BUILD_SUCCESSFUL_TITLE'] = 'Herzlichen Gl&uuml;ckwunsch!';
-$_ARRAYLANG['TXT_MULTISITE_BUILD_ERROR_TITLE'] = 'Hopla..';
+$_ARRAYLANG['TXT_MULTISITE_BUILD_ERROR_TITLE'] = 'Hoppla..';
 $_ARRAYLANG['TXT_MULTISITE_BUILD_WEBSITE_MSG'] = 'Bitte haben Sie etwas Geduld. Der Website Erstellungsprozess kann bis zu 2 Minuten dauern. Sobald Ihre Website einsatzbereit ist, werden Sie an die hinterlegte E-Mail Adresse mit den n&auml;chsten Schritten informiert.';
 $_ARRAYLANG['TXT_MULTISITE_REDIRECT_MSG'] = 'Ihre Website wurde erfolgreich erstellt. Sie werden nun in den Administrationsbereich weitergeleitet...';
 $_ARRAYLANG['TXT_MULTISITE_BUILD_WEBSITE_MSG_AUTO_LOGIN'] = 'Vielen Dank für Ihre Anmeldung bei Cloudrexx!<br /><br />Bitte haben Sie etwas Geduld. Es kann bis zu 2 Minuten dauern, bis Ihre Website bereit ist. Danach werden Sie in den Administrationsbereich weitergeleitet. Sie sind automatisch angemeldet.<br /><br />Das Kennwort wird an %1$s gesendet. Ihre Cloudrexx-Adresse lautet %2$s.';
@@ -194,7 +194,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EMAIL_SSL'] = 'SSL';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EMAIL_USERNAME'] = 'Benutzername';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EMAIL_PASSWORD'] = 'Passwort';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EMAIL_ALIAS'] = 'E-Mail & Aliasse';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_EMAIL_ALIAS_HELP'] = 'Der Empfang und Versand von Nachrichten ist über die oben aufgeführte E-Mail und Aliasse möglich. Damit der Empfang über die Aliasse funktioniert, muss der <a target="_blank" href="https://contrexx.freshdesk.com/solution/articles/5000622145-e-mail-dienst-aktivieren">E-Mail Dienst pro Domain-Alias aktiviert werden</a>.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_EMAIL_ALIAS_HELP'] = 'Der Empfang und Versand von Nachrichten ist über die oben aufgeführte E-Mail und Aliasse möglich. Damit der Empfang über die Aliasse funktioniert, muss der <a target="_blank" href="https://support.cloudrexx.com/support/solutions/articles/5000622145">E-Mail Dienst pro Domain-Alias aktiviert werden</a>.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EMAIL_PORT'] = 'Port';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EMAIL_RESET_PASSWORD'] = 'Kennwort zur&uuml;cksetzen';
 $_ARRAYLANG['TXT_MULTISITE_RESET_EMAIL_PASS_ERROR_MSG'] = 'Die Rücksetzung Ihres E-Mail Kennworts schlug fehl. Bitte versuchen Sie es erneut.';
@@ -210,7 +210,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_WEBMAIL'] = "Webmail";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP'] = "E-Mail Client Setup";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_HOST'] = "Host";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_SECURE_CONNECTION'] = "Sichere Verbindung";
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP_INFO'] = "Diverse Anleitungen zur Einrichtung des E-Mail Kontos in Ihrem E-Mail Client finden Sie <a target='_blank' href=\"https://contrexx.freshdesk.com/solution/categories/5000113951/folders/5000166090\">hier</a>.
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP_INFO'] = "Diverse Anleitungen zur Einrichtung des E-Mail Kontos in Ihrem E-Mail Client finden Sie <a target='_blank' href=\"https://support.cloudrexx.com/support/solutions/folders/13000001604\">hier</a>.
 Die folgenden Daten benötigen Sie, um ein E-Mail Konto in Ihrem E-Mail Client einzurichten.";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIN_WEBMAIL_HELP'] = "Das Webmail ist über die folgende Adresse mit einem modernen WebBrowser von überall her mit Internet-Zugriff erreichbar:";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIN_USERNAME_HELP'] = "Als Benutzername verwenden Sie jeweils die ganze E-Mail Adresse des E-Mail Kontos.
@@ -342,7 +342,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE_INPROGRESS'] = 'Lö
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE_FAILED'] = 'Beim Löschen des Backups ist ein Fehler aufgetreten.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE_SUCCESS'] = 'Das Löschen des Backups war erfolgreich.';
 
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_SUCCESS'] = 'Erfolgreich an der Adminkonsole der Webseite %s angemeldet!<br />Die Adminkonsole öffnet sich in einem neuen Fenster. Klicken Sie <a href="https://contrexx.freshdesk.com/solution/articles/5000624941-wie-aktiviere-ich-popups-f-r-cloudrexx-" title="Anleitung" target="_blank"><strong>hier</strong></a>, sollte sich kein neues Fenster geöffnet haben.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_SUCCESS'] = 'Erfolgreich an der Adminkonsole der Webseite %s angemeldet!<br />Die Adminkonsole öffnet sich in einem neuen Fenster. Klicken Sie <a href="https://support.cloudrexx.com/support/solutions/articles/5000624941" title="Anleitung" target="_blank"><strong>hier</strong></a>, sollte sich kein neues Fenster geöffnet haben.';
 
 // Notification section
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_DEFAULT'] = 'Übersicht';
@@ -371,13 +371,14 @@ $_ARRAYLANG['TXT_MULTISITE_COPY_INFO'] = 'Hiermit erstellen Sie eine Kopie der W
 $_ARRAYLANG['TXT_MULTISITE_COPY_NAME'] = 'Name der Website-Kopie:';
 $_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION'] = 'Wählen Sie ein Abo für die neue Website:';
 $_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION_NAME'] = 'Zum Abo #%s (%s) hinzufügen';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG'] = 'Kopieren der Webseite fehlgeschlagen';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG'] = 'Kopieren der Webseite fehlgeschlagen. Bitte wenden Sie sich an den <a href="mailto:%s">Kundendienst</a> für weitere Unterstützung.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'] = 'Webseite wurde erfolgreich kopiert.';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS'] = 'Webseite wird kopiert. Bitte haben Sie kurz Geduld!';
 $_ARRAYLANG['TXT_MULTISITE_NEW_SUBSCRIPTION'] = 'Neues Abo l&ouml;sen';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'Mit diesem Dialog können Sie eine Webseite mit allen Daten, Benutzern und Einstellungen kopieren.
 Bitte geben Sie den gewünschten Namen der Kopie an und wählen Sie ein Abonement.
 Um ein neues Abo zu erwerben, benutzen Sie die Schaltfläche "Neues Abo"';
+
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT']    = 'Grössenbeschränkung für Backups';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT_TOOLTIP'] = 'Maximale Grösse der Webseite für die Erstellung von Backups in Kb\'s.<br /> 0 - Keine Beschränkung';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR'] = 'Die Webseite ist zu Gross, ein Backup wird nicht empfohlen.';

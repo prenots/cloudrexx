@@ -302,7 +302,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_WEBMAIL'] = "Webmail";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP'] = "E-Mail Client Setup";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_HOST'] = "Host";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_SECURE_CONNECTION'] = "Secure connection";
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP_INFO'] = "You can find instructions to set up your mail client in our <a target='_blank' href=\"https://contrexx.freshdesk.com/solution/categories/5000113951/folders/5000166090\">helpdesk</a>";
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP_INFO'] = "You can find instructions to set up your mail client in our <a target='_blank' href=\"https://support.cloudrexx.com/support/solutions/folders/13000001604\">helpdesk</a>";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIN_WEBMAIL_HELP'] = "The webmail is accessable over the following url from everywhere with internet access with a modern browser:";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIN_USERNAME_HELP'] = "Use the whole E-mail address as the username for the mail account.
 You can manage passwords and the other accounts in the administration.";
@@ -359,7 +359,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_DELETE_SUCCESS']  = 'Successfu
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_DELETE_FAILED']   = 'Failed to delete the selected administrator account.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_ADD_SUCCESS']     = 'The new administrator account has been added successfully.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_ADD_FAILED']      = 'The creation of the new administrator account failed.';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_SUCCESS']       = 'Successfully login to website: %s! <br />The Adminpanel opens in a new window. In case no new window has opened, please click <a href="https://contrexx.freshdesk.com/support/solutions/articles/5000624941-wie-aktiviere-ich-popups-f-r-cloudrexx-" title="Tutorial" target="_blank"><strong>here</strong></a> for help.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_SUCCESS']       = 'Successfully login to website: %s! <br />The Adminpanel opens in a new window. In case no new window has opened, please click <a href="https://support.cloudrexx.com/support/solutions/articles/5000624941" title="Tutorial" target="_blank"><strong>here</strong></a> for help.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_EDIT_SUCCESS']    = 'The new administrator account has been edited successfully.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_EDIT_FAILED']     = 'The editing of the new administrator account failed.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UNKOWN_USER_REQUEST']        = 'Invalid request.';
@@ -539,7 +539,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SET_WEBSITE_DETAILS_ERROR'] = 'Failed to 
 $_ARRAYLANG['TXT_MULTISITE_SETTINGS_UPDATE_WEBSITE_SERVER_AND_MODE_ERROR_MSG'] = 'Could not update the website repository and website mode.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_PRODUCT'] = 'Product';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] = 'Copy';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Copy website %s';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Copy website - %s';
 $_ARRAYLANG['TXT_MULTISITE_COPY_NAME'] = 'Name of website copy:';
 $_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION'] = 'Select a subscription for the new website:';
 $_ARRAYLANG['TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION'] = 'Choose subscription';
