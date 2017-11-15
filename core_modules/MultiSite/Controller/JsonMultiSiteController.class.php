@@ -4081,7 +4081,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     {
         // increase memory_limit to be able to handle huge websites
         ini_set('memory_limit', '1024M');
-        $archiveFilePath         = $websiteBackupPath . '_'.date('Y-m-d H:i:s').'.zip';
+        $archiveFilePath         = $websiteBackupPath . '_'.date('Y-m-d H-i-s').'.zip';
         $websiteZipArchive       = new \PclZip($archiveFilePath);
         $websiteArchiveFileCount = $websiteZipArchive->add($websiteBackupPath, PCLZIP_OPT_REMOVE_PATH, $websiteBackupPath);
 
@@ -4237,7 +4237,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     }
                     foreach ($websiteServiceServers as $websiteServiceServer) {
                         $paramsData = array(
-                            'searchTerm'      => $searchTerm
+                            'searchTerm'      => $searchTerm,
+                            'serviceServer'   => $websiteServiceServer->gethostname(),
+                            'serviceServerId' => $websiteServiceServer->getId(),
                         );
                         $resp = self::executeCommandOnServiceServer('getAllBackupFilesInfo', $paramsData, $websiteServiceServer);
                         if (!$resp || $resp->status == 'error' || $resp->data->status == 'error') {
@@ -4269,11 +4271,8 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $backupLocation = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite');
                     //change the backup location path to absolute location path
                     \Cx\Lib\FileSystem\FileSystem::path_absolute_to_os_root($backupLocation);
-                    $backupLocationWebPath = str_replace($this->cx->getWebsitePath(), '', $backupLocation);
-                    if (
-                           !\Cx\Lib\FileSystem\FileSystem::exists($backupLocation) 
-                        && \Cx\Lib\FileSystem\FileSystem::make_folder($backupLocation)
-                    ) {
+
+                    if (!\Cx\Lib\FileSystem\FileSystem::exists($backupLocation)) {
                         throw new MultiSiteJsonException('The backup location doesnot exists!.');
                     }
 
@@ -4288,10 +4287,14 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         $timeStamp = strtotime(str_replace('-', ':', $creationDate));
                         $backupFilesInfo[] = array(
                             'websiteName'  => $timeStamp ? $websiteName : basename($filename, '.zip'),
-                            'fileName'     => basename($filename),
-                            'creationDate' => $websiteInfoArray['backupDateTime'],
+                            'creationDate' => $timeStamp ? date('Y-m-d H:i:s', $timeStamp) : '',
                             'userEmailId'  => $userEmail,
-                            'path'         => $backupLocationWebPath,
+                            'serviceServer'=> isset($params['post']['serviceServer'])
+                                              ? contrexx_input2raw($params['post']['serviceServer'])
+                                              : '',
+                            'serviceServerId'=> isset($params['post']['serviceServerId'])
+                                              ? contrexx_input2int($params['post']['serviceServerId'])
+                                              : 0
                         );
                     }
 
@@ -4695,13 +4698,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     break;
                 case ComponentController::MODE_HYBRID:
                 case ComponentController::MODE_SERVICE:
-                    if ($websiteBackupFileName) {
-                        $websiteBackupFilePath = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite').'/'.$websiteBackupFileName;
-                    } elseif (!empty ($uploadedBackupFilePath)) {
-                        //change the backup location path to absolute location path
-                        \Cx\Lib\FileSystem\FileSystem::path_absolute_to_os_root($uploadedBackupFilePath);
-                        $websiteBackupFilePath = $uploadedBackupFilePath;
-                    }
+                    $websiteBackupFilePath = \Cx\Core\Setting\Controller\Setting::getValue('websiteBackupLocation', 'MultiSite').'/'.$websiteBackupFileName;
 
                     if (   !\Cx\Lib\FileSystem\FileSystem::exists($websiteBackupFilePath) 
                         || \Cx\Lib\FileSystem\FileSystem::exists(\Cx\Core\Setting\Controller\Setting::getValue('websitePath', 'MultiSite') . '/' . $websiteName)
@@ -4722,7 +4719,8 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     if (!$website) {
                         throw new MultiSiteJsonException('Failed to get the website.');
                     }
-                    $website->setOwner($website->getOwner());
+
+                    $this->updateUserAccountsOnRestore($website, $selectedUserId, false);
 
                     return array(
                         'status'    => 'success', 
@@ -5163,6 +5161,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         
         \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'website', 'FileSystem');
         \Cx\Core\Setting\Controller\Setting::set('websiteState', $websiteInfo['websiteState']);
+        \Cx\Core\Setting\Controller\Setting::set('websiteUserId', $websiteInfo['websiteUserId']);
         
         \Cx\Core\Setting\Controller\Setting::update('websiteState');
     }
@@ -5378,27 +5377,31 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
             }
             
+            \Cx\Lib\FileSystem\FileSystem::path_absolute_to_os_root($uploadedFilePath);
+
             switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
                 case ComponentController::MODE_MANAGER:
-                    $serviceServerId = isset($params['post']['backupedServiceServer'])
-                                       ? contrexx_input2int($params['post']['backupedServiceServer'])
-                                       : 0;
-                    $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('id' => $serviceServerId));
-                    if (!$websiteServiceServer) {
-                        throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
+                case ComponentController::MODE_HYBRID:
+                    if (!\Cx\Lib\FileSystem\FileSystem::exists($uploadedFilePath)) {
+                        throw new MultiSiteJsonException('The website backup zip file doesnot exists!.');
                     }
 
-                    $data = array(
-                        'uploadedFilePath' => $uploadedFilePath
-                    );
-                    $response = self::executeCommandOnServiceServer('getUserInfoFromBackup', $data, $websiteServiceServer);
-                    if ($response && $response->status == 'success' && $response->data->status == 'success') {
-                        $userEmailId = $response->data->userEmail;
-                        $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $userEmailId));
-                        return array('status' => 'success' , 'userId' => $objUser ? $objUser->getId() : 0);
+                    $websiteInfoArray = $this->getWebsiteInfoFromZip($uploadedFilePath, 'info/meta.yml');
+                    if (empty($websiteInfoArray)) {
+                        throw new MultiSiteJsonException('Failed to get the website Information from file');
                     }
 
-                    return array('status' => 'error');
+                    $userEmailId = isset($websiteInfoArray['website']) && isset($websiteInfoArray['website']['websiteEmail'])
+                                   ? $websiteInfoArray['website']['websiteEmail']
+                                   : '';
+                    if (empty($userEmailId)) {
+                        throw new MultiSiteJsonException('User Email not found in the backup file.');
+                    }
+
+                    $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $userEmailId));
+                    return array('status' => 'success' , 'userId' => $objUser ? $objUser->getId() : 0);
+                    break;
+                default:
                     break;
             }
         } catch (\Exception $e) {
@@ -7764,6 +7767,53 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
         \Cx\Core\Setting\Controller\Setting::set('websiteUserId', $userId);
         \Cx\Core\Setting\Controller\Setting::update('websiteUserId');
+    }
+    
+    /**
+     * This ensures that the website owner is an admin user of the site and
+     * optionally removes all other users
+     * @todo removing all other users is not implemented yet
+     * @param Website $website Website to update accounts on
+     * @param int $ownerUserId New website owner ID
+     * @param bool $keepAccountsFromBackup Wheter or not to keep the existing accounts
+     * @throws MultiSiteJsonException If user is not found or user account update fails
+     * @author Michael Ritter <michael.ritter@cloudrexx.com>
+     */
+    protected function updateUserAccountsOnRestore($website, $ownerUserId, $keepAccountsFromBackup) {
+        // ensure owner is correctly set and exists
+        $em             = $this->cx->getDb()->getEntityManager();
+        $userRepo       = $em->getRepository('Cx\Core\User\Model\Entity\User');
+        $objUser        = $userRepo->findOneBy(array('id' => $ownerUserId));
+        
+        if (!$objUser) {
+            throw new MultiSiteJsonException('updateUserAccountsOnRestore: User not found');
+        }
+        
+        $resp = self::executeCommandOnWebsite(
+            'setWebsiteOwner',
+            array(
+                'ownerEmail' => $objUser->getEmail(),
+            ),
+            $website
+        );
+
+        if (isset($resp->log)) {
+            \DBG::dump(__METHOD__ . ': setWebsiteOwner failed');
+            \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$website->getName().') '.$logEntry;}, $resp->log));
+        }
+        if (!$resp || $resp->status != 'success') {
+            throw new MultiSiteJsonException('updateUserAccountsOnRestore: Failed to set website owner');
+        }
+        if (isset($resp->data) && isset($resp->data->status) && $resp->data->status == 'error') {
+            throw new MultiSiteJsonException($resp->data->message);
+        }
+        
+        if ($keepAccountsFromBackup) {
+            return;
+        }
+        
+        // remove unused accounts
+        // TODO
     }
 
     /**

@@ -1915,39 +1915,43 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
                     }
 
-                    /*If the backuped service server is differ from destination service server, copy a file from
-                    backuped  service server to destination service server*/
-                    if (   !empty($backupedServiceServerId)
-                           && $backupedServiceServerId != $restoreServiceServerId
-                           && empty($uploadedBackupFilePath)
-                    ) {
-                        $backupedServiceServer = self::getServiceServerByCriteria(array('id' => $backupedServiceServerId));
-                        if (!$backupedServiceServer) {
-                            throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
-                        }
+                    if (empty($uploadedBackupFilePath)) {
+                        /*If the backuped service server is differ from destination service server, copy a file from
+                          backuped  service server to destination service server*/
+                        if (   !empty($backupedServiceServerId)
+                            && $backupedServiceServerId != $restoreServiceServerId
+                        ) {
+                            $backupedServiceServer = self::getServiceServerByCriteria(array('id' => $backupedServiceServerId));
+                            if (!$backupedServiceServer) {
+                                throw new MultiSiteException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_SERVICE_SERVER']);
+                            }
 
-                        $backupServiceServerParams = array(
-                            'backupFileName'  => $backupedWebsiteFileName,
-                            'serviceServerId' => $restoreInServiceServer->getId()
-                        );
+                            $backupServiceServerParams = array(
+                                'backupFileName'  => $backupedWebsiteFileName,
+                                'serviceServerId' => $restoreInServiceServer->getId()
+                            );
 
-                        //Copy a file from  $backupedServiceServer to $restoreInServiceServer
-                        $response = JsonMultiSiteController::executeCommandOnServiceServer('sendFileToRemoteServer', $backupServiceServerParams, $backupedServiceServer);
-                        if (!$response || $response->status == 'error' || $response->data->status == 'error') {
-                            throw new MultiSiteException('Failed to copy/move a file to '.$restoreInServiceServer->getHostName());
+                            //Copy a file from  $backupedServiceServer to $restoreInServiceServer
+                            $response = JsonMultiSiteController::executeCommandOnServiceServer('sendFileToRemoteServer', $backupServiceServerParams, $backupedServiceServer);
+                            if (!$response || $response->status == 'error' || $response->data->status == 'error') {
+                                throw new MultiSiteException('Failed to copy/move a file to '.$restoreInServiceServer->getHostName());
+                            }
                         }
+                    } else {
+                        $this->moveUploadedFileToServiceOnRestore($uploadedBackupFilePath, $restoreInServiceServer);
                     }
                 default:
                     break;
             }
             
             $params = array(
-                'websiteName'            => $restoreWebsiteName,
-                'websiteBackupFileName'  => !empty($backupedWebsiteFileName) ? $backupedWebsiteFileName : '',
-                'uploadedBackupFilePath' => !empty($uploadedBackupFilePath) ? $uploadedBackupFilePath : '',
-                'serviceServerId'        => $restoreServiceServerId,
-                'selectedUserId'         => $selectedUserId,
-                'subscriptionId'         => $subscriptionId
+                'websiteName'           => $restoreWebsiteName,
+                'websiteBackupFileName' => !empty($uploadedBackupFilePath)
+                                           ? basename($uploadedBackupFilePath)
+                                           : $backupedWebsiteFileName,
+                'serviceServerId'       => $restoreServiceServerId,
+                'selectedUserId'        => $selectedUserId,
+                'subscriptionId'        => $subscriptionId
             );
             $resp = JsonMultiSiteController::executeCommandOnManager('websiteRestore', $params);
             if (isset($resp->log)) {
