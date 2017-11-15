@@ -168,7 +168,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         break;
 
                     case 'SubscriptionAddWebsite':
-                        echo $this->executeCommandSubscriptionAddWebsite($objTemplate, $arguments);                        
+                        echo $this->executeCommandSubscriptionAddWebsite($objTemplate, $arguments);
+                        break;
+
+                    case 'CopyWebsite':
+                        echo $this->executeCommandCopyWebsite($objTemplate, $arguments);
                         break;
 
                     case 'Website':
@@ -928,12 +932,78 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
     
     /**
-     * Api Website command 
+     * Api Copy website command
      * 
      * @param object $objTemplate Template object \Cx\Core\Html\Sigma
      * @param array  $arguments   Array parameters
      * 
-     * @return string 
+     * @return string Content for copy website
+     * @throws MultiSiteException
+     */
+    public function executeCommandCopyWebsite($objTemplate, $arguments)
+    {
+        global $_ARRAYLANG;
+
+        if (!$this->isCrmUser()) {
+            return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_MULTISITE_USER'];
+        }
+
+        $objTemplate->setGlobalVariable($_ARRAYLANG);
+
+        $websiteId = isset($arguments['id']) ? contrexx_input2int($arguments['id']) : 0;
+        if (empty($websiteId)) {
+            return '';
+        }
+
+        $userId = \Fwuser::getFWUserObject()->objUser->getId();
+        $params = array(
+            'userId' => $userId
+        );
+        $resp = JsonMultiSiteController::executeCommandOnManager('getAvailableSubscriptionsByUserId', $params);
+        if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
+            foreach ($resp->data->subscriptionsList as $subscription) {
+                $subscriptionId = $subscriptionName = '';
+                list($subscriptionId, $subscriptionName) = explode(':', $subscription);
+                $objTemplate->setVariable(array(
+                    'MULTISITE_SUBSCRIPTION_ID'   => contrexx_raw2xhtml($subscriptionId),
+                    'MULTISITE_SUBSCRIPTION_NAME' => contrexx_raw2xhtml($subscriptionName),
+                ));
+                $objTemplate->parse('openSubscriptions');
+            }
+        }
+
+        $websiteRepo = $this->cx->getDb()->getEntityManager()->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
+        $website     = $websiteRepo->findOneById($websiteId);
+        if (!$website) {
+            throw new MultiSiteException($_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_EXISTS']);
+        }
+        $websiteNameMinLength = \Cx\Core\Setting\Controller\Setting::getValue('websiteNameMinLength','MultiSite');
+        $websiteNameMaxLength = \Cx\Core\Setting\Controller\Setting::getValue('websiteNameMaxLength','MultiSite');
+
+        $domainRepository = new \Cx\Core\Net\Model\Repository\DomainRepository();
+        $mainDomain = $domainRepository->getMainDomain()->getName();
+        $addressUrl = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getBackendFolderName() . '/index.php?cmd=JsonData&object=MultiSite&act=address');
+        $copyUrl    = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getBackendFolderName() . '/index.php?cmd=JsonData&object=MultiSite&act=copyWebsite');
+
+        $objTemplate->setVariable(array(
+            'MULTISITE_PATH'                  => ASCMS_PROTOCOL . '://' . $mainDomain . $this->cx->getWebsiteOffsetPath(),
+            'MULTISITE_DOMAIN'                => \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'),
+            'MULTISITE_ADDRESS_URL'           => $addressUrl->toString(),
+            'MULTISITE_COPY_WEBSITE_URL'      => $copyUrl->toString(),
+            'MULTISITE_WEBSITE_ID'            => $websiteId,
+            'TXT_MULTISITE_SITE_ADDRESS_INFO' => sprintf($_ARRAYLANG['TXT_MULTISITE_SITE_ADDRESS_SCHEME'], $websiteNameMinLength, $websiteNameMaxLength),
+            'MULTISITE_COPY_WEBSITE'          => sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'], contrexx_raw2xhtml($website->getName())),
+        ));
+        return $objTemplate->get();
+    }
+
+    /**
+     * Api Website command
+     * 
+     * @param object $objTemplate Template object \Cx\Core\Html\Sigma
+     * @param array  $arguments   Array parameters
+     * 
+     * @return string
      */
     public function executeCommandWebsite($objTemplate, $arguments)
     {
