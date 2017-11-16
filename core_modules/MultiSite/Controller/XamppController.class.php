@@ -24,11 +24,7 @@ namespace Cx\Core_Modules\MultiSite\Controller;
  * @subpackage  coremodule_MultiSite
  * @version     1.0.0
  */
-class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbController,
-                                 \Cx\Core_Modules\MultiSite\Controller\WebDistributionController,
-                                 \Cx\Core_Modules\MultiSite\Controller\UserStorageController,
-                                 \Cx\Core_Modules\MultiSite\Controller\DnsController,
-                                 \Cx\Core_Modules\MultiSite\Controller\MailController {
+class XamppController extends HostController {
     /*
      * Protected object for db queries
      * */

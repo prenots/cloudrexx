@@ -24,7 +24,7 @@ class AwsRoute53Exception extends DnsControllerException {}
  * @subpackage  coremodule_multisite
  */
 
-class AwsController implements DnsController {
+class AwsController extends HostController {
     /**
      * List of the available regions
      *
@@ -456,5 +456,203 @@ class AwsController implements DnsController {
         } catch (\Aws\Exception\AwsException $e) {
             throw new AwsRoute53Exception($e->getMessage());
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeEndUserAccount($userName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeEndUserAccountPassword($userName, $password) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllEndUserAccounts($extendedData = false) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createCustomer(\Cx\Core_Modules\MultiSite\Model\Entity\Customer $customer) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistribution($domain, $subscriptionId, $documentRoot = 'httpdocs') {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistribution($oldDomainName, $newDomainName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistribution($domain) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributions() {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSSLCertificates($domain) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeSSLCertificates($domain, $names = array()) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function activateSSLCertificate($certificateName, $domain) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDbUser(\Cx\Core\Model\Model\Entity\DbUser $user) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDb(\Cx\Core\Model\Model\Entity\Db $db, \Cx\Core\Model\Model\Entity\DbUser $user = null) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function revokeRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeDbUser(\Cx\Core\Model\Model\Entity\DbUser $dbUser, \Cx\Core\Model\Model\Entity\Db $db ) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeDb(\Cx\Core\Model\Model\Entity\Db $db) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enableMailService($subscriptionId) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function disableMailService($subscriptionId) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeMailDistribution($subscriptionId) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameMailDistribution($domain) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeMailDistributionPlan($subscriptionId, $planGuid) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createMailAccount($name, $password, $role, $accountId = null) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteMailAccount($userAccountId) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeMailAccountPassword($userAccountId, $password) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDomainAlias($aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameDomainAlias($oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteDomainAlias($aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableMailDistributionPlans() {
     }
 }
