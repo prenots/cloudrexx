@@ -654,7 +654,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @throws ApiRequestException on error
      * 
      */
-    public function getSubscriptionOwnerGuid()
+    protected function getSubscriptionOwnerGuid()
     {
         \DBG::msg("MultiSite (PleskController): get subscription owner GUID.");
         if (\FWValidator::isEmpty($this->webspaceId)) {
