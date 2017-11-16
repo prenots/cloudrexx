@@ -1,11 +1,14 @@
 (function ($) {
     cx.ready(function () {
+        cx.bind("loadingStart", cx.lock, "websiteBackup");
+        cx.bind("loadingEnd", cx.unlock, "websiteBackup");
+
         if ($('#serviceServerList').length > 0) {
             $.trim(cx.variables.get('serviceServers', 'multisite/lang')) == ''
             ? $J('#serviceServerOption').remove()
             : $('#serviceServerList').append(getEditOption('dropdown', 'serviceServer', 'serviceServer', '', cx.variables.get('serviceServers', 'multisite/lang')));            
         }
-        
+
         cx.bind("userSelected", MultisiteBackupAndRestore.showSubscriptionSelection, "user/live-search/restoreUserId");
         cx.bind("userCleared", function () {
             $('#subscriptionSelection').hide();
@@ -36,8 +39,6 @@
                 return false;
             }
 
-            cx.bind("loadingStart", cx.lock, "websiteBackup");
-            cx.bind("loadingEnd", cx.unlock, "websiteBackup");
             $.ajax({
                 url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=triggerWebsiteBackup",
                 data: params,
@@ -45,7 +46,7 @@
                 dataType: "json",
                 beforeSend: function () {
                     cx.trigger("loadingStart", "websiteBackup", {});
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\" class = \"websiteBackup\">" + cx.jQuery('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                     $('#loading > span').html(cx.variables.get('websiteInProgress', 'multisite/lang'));
                 },
                 success: function (response) {
@@ -71,8 +72,6 @@
                 return false;
             }
 
-            cx.bind("loadingStart", cx.lock, "deleteWebsiteBackup");
-            cx.bind("loadingEnd", cx.unlock, "deleteWebsiteBackup");
             $.ajax({
                 url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=triggerWebsiteBackup",
                 data: {serviceServerId: $(this).attr('data-serviceId'), websiteBackupFileName: $(this).attr('data-backupFile')},
@@ -80,7 +79,7 @@
                 dataType: "json",
                 beforeSend: function () {
                     cx.trigger("loadingStart", "deleteWebsiteBackup", {});
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                     $('#loading > span').html(cx.variables.get('websiteBackupDeleteInProgress', 'multisite/lang'));
                 },
                 success: function (response) {
@@ -98,16 +97,22 @@
 })(jQuery);
 
 function websiteRestoreCallbackJs(callback) {
-    if ($J.trim(callback) !== '') {
+    if ($J.trim(callback[0]) !== '') {
         var params = {uploadedFilePath: callback[0]};
         $J.ajax({
             url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=checkUserStatusOnRestore",
             data: params,
             dataType: 'json',
             type: 'POST',
+            beforeSend: function () {
+                cx.trigger("loadingStart", "websiteBackup", {});
+                cx.ui.messages.showLoad();
+            },
             success: function (response) {
                 var resp = (response.data) ? response.data : response;
                 if (resp.status === 'success') {
+                    cx.tools.StatusMessage.removeAllDialogs(true);
+                    cx.trigger("loadingEnd", "websiteBackup", {});
                     MultisiteBackupAndRestore.websiteRestore(params, true, resp.userId ? resp.userId : 0);
                 }
             }
@@ -131,9 +136,9 @@ var MultisiteBackupAndRestore = {
                     MultisiteBackupAndRestore.validateInputOnRestore('#restoreWebsite .selectUserType', '#userSelection', 'validateUserSelection');
                     MultisiteBackupAndRestore.validateInputOnRestore('#restore_websiteName .restoreWebsiteName', '#restore_websiteName', 'validateWebsiteName');
 
-                    if ($J('#restoreWebsiteForm').attr('validUserSelection') == 'false'
-                            || $J('#restoreWebsiteForm').attr('websiteNameValid') == 'false'
-                            ) {
+                    if (   $J('#restoreWebsiteForm').attr('validUserSelection') == false
+                        || $J('#restoreWebsiteForm').attr('websiteNameValid') == false
+                     ) {
                         $J('.websiteRestoreButton').attr('disabled', true);
                         $J('#restoreWebsite #restoreform_error').show();
                         return false;
@@ -164,9 +169,6 @@ var MultisiteBackupAndRestore = {
                         subscriptionId: subscriptionId
                     };
 
-                    cx.bind("loadingStart", cx.lock, "websiteRestore");
-                    cx.bind("loadingEnd", cx.unlock, "websiteRestore");
-                    cx.trigger("loadingStart", "websiteRestore", {});
                     $J.ajax({
                         url: cx.variables.get('cadminPath', 'contrexx') + "?cmd=JsonData&object=MultiSite&act=triggerWebsiteRestore",
                         data: params,
@@ -174,7 +176,8 @@ var MultisiteBackupAndRestore = {
                         dataType: "json",
                         beforeSend: function () {
                             $J('#restoreWebsite').dialog("close");
-                            cx.tools.StatusMessage.showMessage("<div id=\"loading\" class = \"websiteBackup\">" + cx.jQuery('#loading').html() + "</div>");
+                            cx.trigger("loadingStart", "websiteRestore", {});
+                            cx.ui.messages.showLoad();
                             $J('#loading > span').html(cx.variables.get('websiteRestoreInProgress', 'multisite/lang'));
                         },
                         success: function (response) {
@@ -232,8 +235,9 @@ var MultisiteBackupAndRestore = {
                         ? response.message.message
                         : '';
                 MultisiteBackupAndRestore.parseErrorMessageOnRestore($restoreForm, 'websiteNameValid', errElement, '.restoreWebsiteName', errorMessage, !errorMessage);
-
-                if (!errorMessage) {
+                if (   $J('#restoreWebsiteForm').attr('validUserSelection') == true
+                    && $J('#restoreWebsiteForm').attr('websiteNameValid')  == true
+                ) {
                     $J('.websiteRestoreButton').attr('disabled', false).trigger('click');
                 }
             }

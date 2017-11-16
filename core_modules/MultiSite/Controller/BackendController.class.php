@@ -41,7 +41,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * @return array List of acts
      */
     public function getCommands() {
-        
+
         //array structure has to be defined as follows
         //array('XY' => array('access' => $permissionAccess, 'sub_commands' => $subCommandsArray))
         //XY => act value should be defined here.
@@ -154,7 +154,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
         }
     }
-    
+
     /**
      * Use this to parse your backend page
      * 
@@ -169,7 +169,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $communicationManagementAccess = \Permission::checkAccess(self::MULTISITE_COMMUNICATION_MANAGEMENT_ACCESS_ID, 'static', true);
         $systemManagementAccess        = \Permission::checkAccess(self::MULTISITE_SYSTEM_MANAGEMENT_ACCESS_ID, 'static', true);
-        
+
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
             case ComponentController::MODE_NONE:
             case ComponentController::MODE_WEBSITE:
@@ -220,7 +220,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $config = \Env::get('config');
         $mode = \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite');
-        
+
         if (   \Permission::checkAccess(self::MULTISITE_COMMUNICATION_MANAGEMENT_ACCESS_ID, 'static', true)
             && !\Permission::checkAccess(self::MULTISITE_SYSTEM_MANAGEMENT_ACCESS_ID, 'static', true)
             && (   empty($cmd[1]) 
@@ -231,7 +231,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
            ) {
             \Permission::noAccess();
         }
-        
+
         if (!empty($cmd[1]) && $cmd[1]=='email') {   
             $template->setVariable(array(
                 'TABLE' => \Cx\Core\MailTemplate\Controller\MailTemplate::adminView('MultiSite', 'nonempty', $config['corePagingLimit'], 'settings/email')->get(),
@@ -244,7 +244,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if(empty($websiteServiceServers)){
                 $websiteServiceServers = new \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteServiceServer();
             }
-            $view = new \Cx\Core\Html\Controller\ViewGenerator($websiteServiceServers,
+            $view = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteServiceServers,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_SERVICE_SERVERS'],
                     'functions' => array(
@@ -256,7 +257,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'filtering' => false,   // this does not exist yet
                         'actions' => function($rowData) {
                                         if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID))) {
-                                            $actions  = '<a href="javascript:void(0);" class = "websiteUpdate" data-id = '.$rowData['id'].' title = "update" ></a>';
+                                            $actions  = '';//'<a href="javascript:void(0);" class = "websiteUpdate" data-id = '.$rowData['id'].' title = "update" ></a>';
                                             $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::websiteBackup($rowData, true);
                                             $actions .= \Cx\Core_Modules\MultiSite\Controller\BackendController::executeSql($rowData, true);
                                         }
@@ -353,7 +354,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
             
             $codebaseRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($codebaseRepositoryDataArray);
-            $codeBase = new \Cx\Core\Html\Controller\ViewGenerator($codebaseRepositoryDataSet,
+            $codeBase = new \Cx\Core\Html\Controller\ViewGenerator(
+                $codebaseRepositoryDataSet,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_CODEBASES'],
                     'fields' => array(
@@ -392,7 +394,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
             $hasAccess = in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID));
             $headerMessage = in_array($mode, array(ComponentController::MODE_SERVICE))? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SETTINGS_WEBSITE_TEMPLATE_HEADER_MSG']: '';
-            $websiteTemplatesView = new \Cx\Core\Html\Controller\ViewGenerator($websiteTemplates, 
+            $websiteTemplatesView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteTemplates, 
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_WEBSITE_TEMPLATES'].$headerMessage,
                     'functions' => array(
@@ -429,7 +432,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if (empty($mailServiceServers)) {
                 $mailServiceServers = new \Cx\Core_Modules\MultiSite\Model\Entity\MailServiceServer();
             }
-            $mailServiceServersView = new \Cx\Core\Html\Controller\ViewGenerator($mailServiceServers, 
+            $mailServiceServersView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $mailServiceServers,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_SETTINGS_MAIL_SERVICE_SERVERS'],
                     'functions' => array(
@@ -494,7 +498,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $cronMails = new \Cx\Core_Modules\MultiSite\Model\Entity\CronMail();
             }
 
-            $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator($cronMails,
+            $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator(
+                $cronMails,
                     array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_EMAILS'],
                         'functions' => array(
@@ -509,9 +514,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             );
             $template->setVariable('TABLE', $cronMailsView->render());
         } else {
-            $entityClassName = 'Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog';
-            $cronMailLogView = new \Cx\Core\Html\Controller\ViewGenerator($entityClassName,
-                array ($entityClassName =>
+            $cronMailLog = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog')->findAll();
+            $cronMailLogView = new \Cx\Core\Html\Controller\ViewGenerator($cronMailLog,
                     array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATION_LOGS'],
                         'functions' => array(
@@ -584,12 +588,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             )
                         )
                     )
-                )
             );
             $template->setVariable('TABLE', $cronMailLogView->render());
         }
     }
-    
+
     public function parseSectionStatistics(\Cx\Core\Html\Sigma $template, array $cmd) {
         //dynamic use websites path
         //self::errorHandler();
@@ -858,7 +861,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             }
         }
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($affiliateIds);
-        $view    = new \Cx\Core\Html\Controller\ViewGenerator($dataSet, array(
+        $view    = new \Cx\Core\Html\Controller\ViewGenerator(
+            $dataSet,
+            array(
                         'header' => 'Affiliate IDs',
                         'functions' => array(
                           'paging'  => true  
@@ -980,7 +985,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function parseFtpAccountsToMaintenanceSection($websiteArray, \Cx\Core\Html\Sigma $template, $placeholder)
     {        
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($websiteArray);
-        $view    = new \Cx\Core\Html\Controller\ViewGenerator($dataSet, array(
+        $view = new \Cx\Core\Html\Controller\ViewGenerator(
+            $dataSet,
+            array(
                         'header' => 'FTP',
                         'functions' => array(
                           'paging'  => true  
@@ -1033,7 +1040,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         $domains = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findBy(array('componentType' => 'website'));
         self::$dnsRecords = self::getDnsRecords();
-        $view = new \Cx\Core\Html\Controller\ViewGenerator($domains, array(
+        $view = new \Cx\Core\Html\Controller\ViewGenerator(
+            $domains,
+            array(
             'header' => 'Domains',
             'functions' => array(
                 'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
@@ -1103,7 +1112,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         ));
         $template->setVariable('TABLE', $view->render()); 
     }
-    
+
     /**
      * Parse the section Backups and Restore
      * List all Backups
@@ -1139,7 +1148,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $allBackupsArray = self::getAllBackupFilesInfoAsArray($term);
             $allBackupFilesInfo = !empty($allBackupsArray) ? $allBackupsArray : null;
             $websiteBackupRepositoryDataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($allBackupFilesInfo);
-            $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator($websiteBackupRepositoryDataSet,
+            $backupAndRestore = new \Cx\Core\Html\Controller\ViewGenerator(
+                $websiteBackupRepositoryDataSet,
                 array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_MAINTENANCE_BACKUPSANDRESTORE'],
                     'functions' => array(
@@ -1280,8 +1290,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $objHTTPDownload = new \HTTP_Download();
             $objHTTPDownload->setFile($resp->data->filePath);
             $objHTTPDownload->setContentDisposition(HTTP_DOWNLOAD_ATTACHMENT, $backupFileName);
-            $objHTTPDownload->setContentType();
-            $objHTTPDownload->send('application/force-download');
+            $objHTTPDownload->setContentType('application/zip');
+            $objHTTPDownload->send();
             exit();
         } catch (\Exception $e) {
             \DBG::log(__METHOD__.' Failed! : '. $e->getMessage());
@@ -1304,7 +1314,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * 
      * @return array
      */
-    public function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response) {
+    public static function uploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response)
+    {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode', 'MultiSite')) {
@@ -1353,7 +1364,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         $objUser = \FWUser::getFWUserObject()->objUser->getUsers(array('email' => $data->userEmailId));
                     }
                     $allBackupFilesInfo[] = array(
-                        'websiteName'   => $data->websiteName, 
+                        'websiteName'   => $data->websiteName,
                         'dateAndTime'   => $data->creationDate, 
                         'serviceServer' => $data->serviceServer,
                         'serviceId'     => $data->serviceServerId,
@@ -1773,8 +1784,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return false;
         }
         
-        $websiteBackupFileName = isset($rowData['dateAndTime']) 
-                                 ? $rowData['websiteName'].'_'.$rowData['dateAndTime'].'.zip'
+        $timeStamp    = strtotime($rowData['dateAndTime']);
+        $websiteBackupFileName = isset($rowData['dateAndTime']) &&  $timeStamp 
+                                 ? $rowData['websiteName'].'_'.date('Y-m-d H-i-s', $timeStamp)
                                  : $rowData['websiteName'];
         $title      = ($deleteBackupedWebsite) 
                       ? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE'] 
@@ -1788,7 +1800,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $serviceServerId = !empty($rowData['serviceId'])
                            ? 'data-serviceId ="'.$rowData['serviceId'].'"'
                            : '';
-        return '<a href="javascript:void(0);" class="'.$class.'" '.$serviceServerId.' data-backupFile = "'.$websiteBackupFileName.'"  '.$userExists.'  title = "'.$title.'"></a>';
+        return '<a href="javascript:void(0);" class="'.$class.'" '.$serviceServerId.' data-backupFile = "'.$websiteBackupFileName.'.zip"  '.$userExists.'  title = "'.$title.'"></a>';
     }
    
     /**
@@ -1807,13 +1819,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return false;
         }
         
-        $websiteBackupFileName = isset($rowData['dateAndTime']) 
-                                 ? $rowData['websiteName'].'_'.$rowData['dateAndTime'].'.zip'
+        $timeStamp    = strtotime($rowData['dateAndTime']);
+        $websiteBackupFileName = isset($rowData['dateAndTime']) &&  $timeStamp
+                                 ? $rowData['websiteName'].'_'.date('Y-m-d H-i-s', $timeStamp)
                                  : $rowData['websiteName'];
         $title = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_TITLE'];
         $downloadUrl = \Cx\Core\Core\Controller\Cx::instanciate()->getRequest()->getUrl();
         $downloadUrl->setParams(array(
-            'downloadFile' => $websiteBackupFileName,
+            'downloadFile' => $websiteBackupFileName.'.zip',
             'serviceId'    => $rowData['serviceId']
             )
         );
