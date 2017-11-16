@@ -31,7 +31,7 @@ class ApiRequestException extends DbControllerException {}
  * @version     1.0.0
  */
 class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbController,
-                                 \Cx\Core_Modules\MultiSite\Controller\SubscriptionController,
+                                 \Cx\Core_Modules\MultiSite\Controller\WebDistributionController,
                                  \Cx\Core_Modules\MultiSite\Controller\FtpController,
                                  \Cx\Core_Modules\MultiSite\Controller\DnsController,
                                  \Cx\Core_Modules\MultiSite\Controller\MailController {

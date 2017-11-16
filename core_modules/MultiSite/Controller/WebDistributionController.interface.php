@@ -12,7 +12,7 @@ namespace Cx\Core_Modules\MultiSite\Controller;
  *
  * @author ritt0r
  */
-interface SubscriptionController {
+interface WebDistributionController {
 
     /**
      * Creaye a Customer
