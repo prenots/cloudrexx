@@ -93,6 +93,10 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_PAYREXXACCOUNT'] = 'Payrexx Account';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_PAYREXXFORMID'] = 'Payrexx Form Id';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_PAYREXXAPISECRET'] = 'Payrexx API Secret';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLOCATION'] = 'Website Backup Location';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT']    = 'Website backup limit';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITEBACKUPLIMIT_TOOLTIP'] = 'Specify the website backup limit in Kb\'s. <br /> 0 - No limit';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_LIMIT_ERROR'] = 'The size of requested website is too high. So the website backup is not recommended.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_LIMIT_ERROR'] = 'This website can not be copied, please visit our <a href="http://support.cloudrexx.com" target="_blank">support page</a>';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_DOMAINBLACKLIST'] = 'Domain blacklist';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_AFFILIATEIDQUERYSTRINGKEY'] = 'Affiliate ID query string key';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_AFFILIATEIDQUERYSTRINGKEY_TOOLTIP'] = 'The query string key that shall be used to track the Affiliate ID in a request.
@@ -298,7 +302,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_WEBMAIL'] = "Webmail";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP'] = "E-Mail Client Setup";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_HOST'] = "Host";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_SECURE_CONNECTION'] = "Secure connection";
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP_INFO'] = "You can find instructions to set up your mail client in our <a target='_blank' href=\"https://contrexx.freshdesk.com/solution/categories/5000113951/folders/5000166090\">helpdesk</a>";
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIL_SETUP_INFO'] = "You can find instructions to set up your mail client in our <a target='_blank' href=\"https://support.cloudrexx.com/support/solutions/folders/13000001604\">helpdesk</a>";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIN_WEBMAIL_HELP'] = "The webmail is accessable over the following url from everywhere with internet access with a modern browser:";
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_EMAIL_INFO_MAIN_USERNAME_HELP'] = "Use the whole E-mail address as the username for the mail account.
 You can manage passwords and the other accounts in the administration.";
@@ -355,7 +359,7 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_DELETE_SUCCESS']  = 'Successfu
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_DELETE_FAILED']   = 'Failed to delete the selected administrator account.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_ADD_SUCCESS']     = 'The new administrator account has been added successfully.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_ADD_FAILED']      = 'The creation of the new administrator account failed.';
-$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_SUCCESS']       = 'Successfully login to website: %s! <br />The Adminpanel opens in a new window. In case no new window has opened, please click <a href="https://contrexx.freshdesk.com/support/solutions/articles/5000624941-wie-aktiviere-ich-popups-f-r-cloudrexx-" title="Tutorial" target="_blank"><strong>here</strong></a> for help.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_SUCCESS']       = 'Successfully login to website: %s! <br />The Adminpanel opens in a new window. In case no new window has opened, please click <a href="https://support.cloudrexx.com/support/solutions/articles/5000624941" title="Tutorial" target="_blank"><strong>here</strong></a> for help.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_EDIT_SUCCESS']    = 'The new administrator account has been edited successfully.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_EDIT_FAILED']     = 'The editing of the new administrator account failed.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UNKOWN_USER_REQUEST']        = 'Invalid request.';
@@ -498,6 +502,8 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHOOSE_USER_ERROR'] = 'Please select the 
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_TITLE'] = 'Download';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DOWNLOAD_FAILED'] = 'Failed to download the  <strong> %s </strong>  file.';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_CANCEL'] = 'Cancel';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_OK'] = 'Ok';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SERVICE_SERVER'] = 'Service server';
 
 //delete the backuped website
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_BACKUP_DELETE'] = 'Delete the website backup';
@@ -531,6 +537,22 @@ $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_UPDATE_STATUS_ERROR_MSG'] = 'Fail
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_UPDATE_CODEBASE_ERROR_MSG'] = 'Failed to update the website codebase';
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_SET_WEBSITE_DETAILS_ERROR'] = 'Failed to set the website details';
 $_ARRAYLANG['TXT_MULTISITE_SETTINGS_UPDATE_WEBSITE_SERVER_AND_MODE_ERROR_MSG'] = 'Could not update the website repository and website mode.';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_PRODUCT'] = 'Product';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY'] = 'Copy';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_COPY_WEBSITE'] = 'Copy website - %s';
+$_ARRAYLANG['TXT_MULTISITE_COPY_NAME'] = 'Name of website copy:';
+$_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION'] = 'Select a subscription for the new website:';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CHOOSE_SUBSCRIPTION'] = 'Choose subscription';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_CREATE_TRIAL'] = 'Initialize as trial website';
+$_ARRAYLANG['TXT_MULTISITE_COPY_INFO'] = 'You are about to create a copy of the website %s';
+$_ARRAYLANG['TXT_MULTISITE_COPY_SUBSCRIPTION_NAME'] = 'Assign to subscription #%s (%s)';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_ERROR_MSG'] = 'Failed to copy the website';
+$_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_COPY_SUCCESS'] = 'Website successfully copied.';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_PROGRESS'] = 'Website copy under progress. Please wait!';
+$_ARRAYLANG['TXT_MULTISITE_NEW_SUBSCRIPTION'] = 'New subscription';
+$_ARRAYLANG['TXT_MULTISITE_WEBSITE_COPY_DESCRIPTION'] = 'The \'copy\' process, copies the selected website data, users and component settings to new website.
+Please enter the new \'Website name\' and choose the \'Subscription\' to continue.
+If you want to buy a new subscription for the website use \'New subscription\' button.';
 
 //set owner user
 $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CHANGE_OWNER_USER_ERROR'] = 'Error while switching the owner user';

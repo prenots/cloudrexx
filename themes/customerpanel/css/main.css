@@ -1554,3 +1554,14 @@ button.actions:after {
     input#search + button{
         margin: 0;
     }
+
+    .no-padding {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .no-padding-left {
+        padding-left: 0 !important;        
+    }
+    .no-padding-right {
+        padding-right: 0 !important;        
+    }

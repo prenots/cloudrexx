@@ -1606,6 +1606,7 @@ namespace Cx\Core\Core\Controller {
 
             // @TODO: remove this
             $this->legacyGlobalsHook(2);                // $objInit, $_LANGID, $_CORELANG, $url;
+
             $this->postResolve();                       // Call post resolve hook scripts
 
             // load content
