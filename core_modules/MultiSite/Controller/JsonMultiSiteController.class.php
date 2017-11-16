@@ -2725,7 +2725,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 case ComponentController::MODE_SERVICE:
                 case ComponentController::MODE_HYBRID:
                     $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
-                    $ftpUserAccounts   = $hostingController->getFtpAccounts(true);
+                    $ftpUserAccounts   = $hostingController->getAllEndUserAccounts(true);
                     if ($ftpUserAccounts) {
                         return array(
                             'status' => 'success',
@@ -2794,7 +2794,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $hostingController = ComponentController::getHostingController();
                     
                     $password = \User::make_password(8, true);
-                    if ($hostingController->changeFtpAccountPassword($website->getFtpUser(), $password)) {
+                    if ($hostingController->changeEndUserAccountPassword($website->getFtpUser(), $password)) {
                         return array(
                             'status'    => 'success',
                             'password'  => $password,

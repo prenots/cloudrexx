@@ -1241,9 +1241,9 @@ throw new WebsiteException('implement secret-key algorithm first!');
                     $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
                     
                     if ($this->ftpUser) {
-                        $ftpAccounts = $hostingController->getFtpAccounts();
+                        $ftpAccounts = $hostingController->getAllEndUserAccounts();
                         if (in_array($this->ftpUser, $ftpAccounts)) {
-                            if (!$hostingController->removeFtpAccount($this->ftpUser)) {
+                            if (!$hostingController->removeEndUserAccount($this->ftpUser)) {
                                 throw new WebsiteException('Unable to delete the FTP Account');
                             }
                         }
@@ -1771,7 +1771,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
                          !preg_match('#^[a-z]#i', $websiteName) ? \Cx\Core\Setting\Controller\Setting::getValue('ftpAccountFixPrefix','MultiSite') . $websiteName : $websiteName;
 
             $maxLengthFtpAccountName = \Cx\Core\Setting\Controller\Setting::getValue('maxLengthFtpAccountName','MultiSite');
-            $existingFtpAccounts     = $this->websiteController->getFtpAccounts();
+            $existingFtpAccounts     = $this->websiteController->getAllEndUserAccounts();
             
             $tmpFtpUser = $ftpUser;
             $flag       = 1;
@@ -1790,7 +1790,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
             $ftpUser = $tmpFtpUser;
 
             $password  = \User::make_password(8, true);
-            $accountId = $this->websiteController->addFtpAccount($ftpUser, $password, \Cx\Core\Setting\Controller\Setting::getValue('websiteFtpPath','MultiSite') . '/' . $websiteName, \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite'));
+            $accountId = $this->websiteController->createEndUserAccount($ftpUser, $password, \Cx\Core\Setting\Controller\Setting::getValue('websiteFtpPath','MultiSite') . '/' . $websiteName, \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite'));
 
             if ($accountId) {
                 $this->ftpUser = $ftpUser;

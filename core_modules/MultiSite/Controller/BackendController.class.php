@@ -912,7 +912,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $ftpAccounts = array();
         if (in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') , array(ComponentController::MODE_SERVICE, ComponentController::MODE_HYBRID))) {
             $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
-            $ftpAccountsArr    = $hostingController->getFtpAccounts(true);
+            $ftpAccountsArr    = $hostingController->getAllEndUserAccounts(true);
             foreach ($ftpAccountsArr as $ftpAccount) {
                 $ftpAccounts[$ftpAccount['name']] = array(
                     'path'    => $ftpAccount['path'],

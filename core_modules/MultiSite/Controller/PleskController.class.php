@@ -32,7 +32,7 @@ class ApiRequestException extends DbControllerException {}
  */
 class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbController,
                                  \Cx\Core_Modules\MultiSite\Controller\WebDistributionController,
-                                 \Cx\Core_Modules\MultiSite\Controller\FtpController,
+                                 \Cx\Core_Modules\MultiSite\Controller\UserStorageController,
                                  \Cx\Core_Modules\MultiSite\Controller\DnsController,
                                  \Cx\Core_Modules\MultiSite\Controller\MailController {
     
@@ -1175,7 +1175,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return object
      * @throws ApiRequestException
      */
-    public function addFtpAccount($userName, $password, $homePath, $subscriptionId) {
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
         \DBG::msg("MultiSite (PleskController): Creating Ftp Account.");
         if (empty($userName) || empty($password) || empty($homePath) || empty($subscriptionId)) {
             return;
@@ -1233,7 +1233,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return object
      * @throws ApiRequestException
      */
-    public function removeFtpAccount($userName) {
+    public function removeEndUserAccount($userName) {
         \DBG::msg("MultiSite (PleskController): Deleting Ftp Account.");
         if (empty($userName)) {
             return;
@@ -1271,7 +1271,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return object
      * @throws ApiRequestException
      */
-    public function changeFtpAccountPassword($userName, $password) {
+    public function changeEndUserAccountPassword($userName, $password) {
         \DBG::msg("MultiSite (PleskController): Changing Ftp Account Password.");
         if (empty($userName) || empty($password)) {
             return;
@@ -1407,7 +1407,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return array
      * @throws ApiRequestException
      */
-    public function getFtpAccounts($extendedData = false) {
+    public function getAllEndUserAccounts($extendedData = false) {
         
         \DBG::msg("MultiSite (PleskController): get all Ftp Accounts: $this->webspaceId");
         if (empty($this->webspaceId)) {

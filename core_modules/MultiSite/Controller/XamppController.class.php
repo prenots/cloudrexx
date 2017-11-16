@@ -26,7 +26,7 @@ namespace Cx\Core_Modules\MultiSite\Controller;
  */
 class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbController,
                                  \Cx\Core_Modules\MultiSite\Controller\WebDistributionController,
-                                 \Cx\Core_Modules\MultiSite\Controller\FtpController,
+                                 \Cx\Core_Modules\MultiSite\Controller\UserStorageController,
                                  \Cx\Core_Modules\MultiSite\Controller\DnsController,
                                  \Cx\Core_Modules\MultiSite\Controller\MailController {
     /*
@@ -245,17 +245,17 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         return null;
     }
     
-    public function addFtpAccount($userName, $password, $homePath, $subscriptionId) {
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
         \DBG::msg("MultiSite (XamppController): add Ftp-Account: $userName / $password / $homePath / $subscriptionId");
         return null;
     }
     
-    public function removeFtpAccount($userName) {
+    public function removeEndUserAccount($userName) {
         \DBG::msg("MultiSite (XamppController): remove Ftp-Account: $userName");
         return true;
     }
     
-    public function changeFtpAccountPassword($userName, $password) {
+    public function changeEndUserAccountPassword($userName, $password) {
         \DBG::msg("MultiSite (XamppController): update Ftp-Account Password: $userName / $password");
         return null;
     }
@@ -272,7 +272,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function getFtpAccounts($extendedData = false) {
+    public function getAllEndUserAccounts($extendedData = false) {
         \DBG::msg("MultiSite (XamppController): get Ftp Accounts");
         return null;
     }
