@@ -3255,7 +3255,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     
                     $hostingController = ComponentController::getMailServerHostingController($mailServiceServer);
                     
-                    $plans = $hostingController->getAvailableServicePlansOfMailServer();
+                    $plans = $hostingController->getAvailableMailDistributionPlans();
                     return array(
                             'status'  => 'success',
                             'result'  => empty($plans) ? $_ARRAYLANG['TXT_MULTISITE_MAIL_SERVICE_PLAN_EMPTY'] : $plans,

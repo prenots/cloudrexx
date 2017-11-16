@@ -135,4 +135,8 @@ interface MailController {
      */
     public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role);  
     
+    /**
+     * Get the all available service plans of mail service server
+     */
+    public function getAvailableMailDistributionPlans();
 }

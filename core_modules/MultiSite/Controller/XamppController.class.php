@@ -369,8 +369,8 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
     /**
      * Get the all available service plans of mail service server
      */
-    public function getAvailableServicePlansOfMailServer() {
-        \DBG::msg("MultiSite (XamppController): getAvailableServicePlansOfMailServer");
+    public function getAvailableMailDistributionPlans() {
+        \DBG::msg("MultiSite (XamppController): getAvailableMailDistributionPlans");
         return true;
     }
     

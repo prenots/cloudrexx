@@ -1785,7 +1785,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return array
      * @throws ApiRequestException
      */
-    public function getAvailableServicePlansOfMailServer() 
+    public function getAvailableMailDistributionPlans() 
     {
         \DBG::msg("MultiSite (PleskController): get available service plans of mail service server.");
        

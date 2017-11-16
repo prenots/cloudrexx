@@ -22,11 +22,6 @@ interface WebDistributionController {
     public function createCustomer(\Cx\Core_Modules\MultiSite\Model\Entity\Customer $customer);
     
     /**
-     * Get the all available service plans of mail service server
-     */
-    public function getAvailableServicePlansOfMailServer();
-    
-    /**
      * Create new site/domain
      * 
      * @param string  $domain         Name of the site/domain to create
