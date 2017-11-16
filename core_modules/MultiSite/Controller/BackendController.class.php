@@ -1573,16 +1573,28 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     );
                 }
             }
-            
-            if (   in_array($mode, array(ComponentController::MODE_MANAGER, ComponentController::MODE_SERVICE, ComponentController::MODE_HYBRID))
-                && $websiteController == 'plesk'
+
+            if (
+                in_array(
+                    $mode,
+                    array(
+                        ComponentController::MODE_MANAGER,
+                        ComponentController::MODE_SERVICE,
+                        ComponentController::MODE_HYBRID
+                    )
+                ) &&
+                in_array($websiteController, array('plesk', 'aws'))
             ) {
-                \Cx\Core\Setting\Controller\Setting::setEngineType('MultiSite', 'FileSystem', 'plesk');
+                \Cx\Core\Setting\Controller\Setting::setEngineType(
+                    'MultiSite',
+                    'FileSystem',
+                    $websiteController
+                );
                 \Cx\Core\Setting\Controller\Setting::show(
                     $objTemplate,
                     'index.php?cmd=MultiSite&act=settings',
                     $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE'],
-                    'Plesk',
+                    ucfirst($websiteController),
                     'TXT_CORE_MODULE_MULTISITE_'
                 );
             }

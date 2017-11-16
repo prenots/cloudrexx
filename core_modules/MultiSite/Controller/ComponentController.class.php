@@ -2446,6 +2446,21 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $hostingController = new \Cx\Core_Modules\MultiSite\Controller\XamppController($dbObj, $dbUserObj);
                 break;
 
+            case 'aws':
+                $hostingController = new AwsController(
+                    \Cx\Core\Setting\Controller\Setting::getValue('credentialsKey', 'MultiSite'),
+                    \Cx\Core\Setting\Controller\Setting::getValue('credentialsSecret', 'MultiSite'),
+                    \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),
+                    \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite')
+                );
+                $hostingController->setTimeToLive(
+                    \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite')
+                );
+                $hostingController->setWebspaceId(
+                    \Cx\Core\Setting\Controller\Setting::getValue('hostedZoneId', 'MultiSite')
+                );
+                break;
+
             default:
                 throw new MultiSiteException('Unknown websiteController set!');
                 break;
@@ -2474,7 +2489,21 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         return $hostingController;
     }
-    
+
+    /**
+     * Get AWS Regions list
+     *
+     * @return string
+     */
+    public static function getAwsRegionList()
+    {
+        $regionList = array();
+        foreach (AwsController::getRegions() as $regionValue => $regionLabel) {
+            $regionList[] = $regionValue . ':' . $regionLabel;
+        }
+        return implode(',', $regionList);
+    }
+
     /**
      * Fixes database errors.
      *
@@ -2507,11 +2536,28 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
             
             // server group
-            \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'server','FileSystem');
-            if (\Cx\Core\Setting\Controller\Setting::getValue('websiteController','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('websiteController','xampp', 1,
-                \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, 'xampp:XAMPP,plesk:Plesk', 'server')){
-                    throw new MultiSiteException("Failed to add Setting entry for Database user website Controller");
+            \Cx\Core\Setting\Controller\Setting::init(
+                'MultiSite',
+                'server',
+                'FileSystem'
+            );
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'websiteController',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'websiteController',
+                    'xampp',
+                    1,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN,
+                    'xampp:XAMPP,plesk:Plesk,aws:Amazon Web Services',
+                    'server'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for Database user website Controller'
+                );
             }
             
             // setup group
@@ -2756,6 +2802,118 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'plesk')){
                     throw new MultiSiteException("Failed to add Setting entry for Database ID of master subscription");
             }
+
+            //aws group
+            \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'aws', 'FileSystem');
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'region',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'region',
+                    '',
+                    1,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN,
+                    '{src:\\'.__CLASS__.'::getAwsRegionList()}',
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS Region'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'credentialsKey',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'credentialsKey',
+                    '',
+                    2,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS access key ID'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'credentialsSecret',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'credentialsSecret',
+                    '',
+                    3,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS secret access key'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'version',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'version',
+                    'latest',
+                    4,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS version'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'timeToLive',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'timeToLive',
+                    '60',
+                    5,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS resource record cache time to live (TTL)'
+                );
+            }
+            if (
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'hostedZoneId',
+                    'MultiSite'
+                ) === null &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    'hostedZoneId',
+                    '',
+                    6,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    'aws'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add Setting entry for AWS Hosted Zone ID'
+                );
+            }
+
             //manager group
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'manager','FileSystem');
             if (!\FWValidator::isEmpty(\Env::get('db'))
