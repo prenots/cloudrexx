@@ -381,7 +381,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param integer $subscriptionId Id of the Subscription assigned for the new site/domain
      * @param string  $documentRoot   Document root to create the site/domain
      */
-    public function createSite($domain, $subscriptionId, $documentRoot = 'httpdocs') {
+    public function createWebDistribution($domain, $subscriptionId, $documentRoot = 'httpdocs') {
         \DBG::msg("MultiSite (XamppController): Create new site on existing subscription.");
         return true;
     }
@@ -392,7 +392,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string $oldDomainName old domain name
      * @param string $newDomainName new domain name
      */
-    public function renameSite($oldDomainName, $newDomainName) {
+    public function renameWebDistribution($oldDomainName, $newDomainName) {
         \DBG::msg("MultiSite (XamppController): Renaming the site on existing subscription.");
         return true;
     }
@@ -403,7 +403,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @param string $domain Domain name to remove
      */
-    public function deleteSite($domain) {
+    public function deleteWebDistribution($domain) {
         \DBG::msg("MultiSite (XamppController): Removing the site on existing subscription.");
         return true;
     }
@@ -411,7 +411,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
     /**
      * Get all the sites under the existing subscription
     */
-    public function getAllSites() {
+    public function getAllWebDistributions() {
         \DBG::msg("MultiSite (XamppController): Get all sites on existing subscription.");
         return true;
     }

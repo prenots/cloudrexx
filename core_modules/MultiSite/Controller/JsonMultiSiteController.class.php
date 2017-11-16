@@ -7612,10 +7612,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 case ComponentController::MODE_HYBRID:
                     $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
                     
-                    $siteList = $hostingController->getAllSites();
+                    $siteList = $hostingController->getAllWebDistributions();
                     
                     if (!in_array($params['post']['domainName'], $siteList)) {
-                        $siteId = $hostingController->createSite($params['post']['domainName'], $hostingController->getWebspaceId()); 
+                        $siteId = $hostingController->createWebDistribution($params['post']['domainName'], $hostingController->getWebspaceId()); 
                         if ($siteId) {
                             $hostingController->disableMailService($siteId);
                             $hostingController->disableDnsService($siteId);

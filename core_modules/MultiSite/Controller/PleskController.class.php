@@ -1831,7 +1831,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @throws ApiRequestException
      */
-    public function createSite($domain, $subscriptionId, $documentRoot = 'httpdocs')
+    public function createWebDistribution($domain, $subscriptionId, $documentRoot = 'httpdocs')
     {
         \DBG::msg("MultiSite (PleskController): Create new site on existing subscription.");
         if (empty($domain)) {
@@ -1936,7 +1936,7 @@ HTTPS;
      * 
      * @throws ApiRequestException
      */
-    public function renameSite($oldDomainName, $newDomainName)
+    public function renameWebDistribution($oldDomainName, $newDomainName)
     {        
         \DBG::msg("MultiSite (PleskController): Renaming the site on existing subscription.");
         if (empty($oldDomainName) || empty($newDomainName)) {
@@ -1989,7 +1989,7 @@ HTTPS;
      * 
      * @throws ApiRequestException
      */
-    public function deleteSite($domain)
+    public function deleteWebDistribution($domain)
     {
         \DBG::msg("MultiSite (PleskController): Removing the site on existing subscription.");
         if (empty($domain)) {
@@ -2031,7 +2031,7 @@ HTTPS;
      * 
      * @throws ApiRequestException
      */
-    public function getAllSites() {
+    public function getAllWebDistributions() {
         \DBG::msg("MultiSite (PleskController): Get all sites under the existing subscription.");
 
         $xmldoc  = $this->getXmlDocument();
