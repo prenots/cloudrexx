@@ -527,7 +527,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return subscription id
      */
-    public function createSubscription ($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) 
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) 
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);       
@@ -575,7 +575,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return subscription id
      */
-    public function renameSubscriptionName ($domain) 
+    public function renameMailDistribution($domain) 
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);       
@@ -621,7 +621,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return  id 
      */
-    function removeSubscription ($subscriptionId) 
+    function removeMailDistribution($subscriptionId) 
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
@@ -827,7 +827,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return integer
      * @throws ApiRequestException
      */
-    public function changePlanOfSubscription($subscriptionId, $planGuid)
+    public function changeMailDistributionPlan($subscriptionId, $planGuid)
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);

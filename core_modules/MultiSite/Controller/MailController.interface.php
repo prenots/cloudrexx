@@ -48,7 +48,7 @@ interface MailController {
      * 
      * @return subcription id
      */
-    public function createSubscription($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null);
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null);
     
     /**
      * Removes a subscription
@@ -57,7 +57,7 @@ interface MailController {
      * 
      * @throws MultiSiteDbException On error
      */
-    public function removeSubscription($subscriptionId);
+    public function removeMailDistribution($subscriptionId);
         
     /**
      * Rename a subscription
@@ -66,7 +66,7 @@ interface MailController {
      * 
      * @return subscription id
      */
-    public function renameSubscriptionName($domain);
+    public function renameMailDistribution($domain);
     
     /**
      * Change the plan of the subscription
@@ -74,7 +74,7 @@ interface MailController {
      * @param id     $subscriptionId  subcription id
      * @param string $planGuid        planGuid
      */
-    public function changePlanOfSubscription($subscriptionId, $planGuid);
+    public function changeMailDistributionPlan($subscriptionId, $planGuid);
     
     /**
      * Creates a user account

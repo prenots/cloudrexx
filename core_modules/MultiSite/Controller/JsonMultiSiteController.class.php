@@ -6632,7 +6632,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                 break;
                             case 'deleteDomainAlias':
                             case 'createDomainAlias':
-                            case 'renameSubscriptionName':
+                            case 'renameMailDistribution':
                                 if (!$hostingController->$methodName($params['post']['domainName'])) {
                                     \DBG::msg('Failed to process the method '.$params['post']['command'] . '().');
                                     throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
@@ -6748,7 +6748,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         return array('status' => 'error');
                     }
                     
-                    if (!$hostingController->changePlanOfSubscription($mailAccountId, $planId)) {
+                    if (!$hostingController->changeMailDistributionPlan($mailAccountId, $planId)) {
                         \DBG::log('Failed to change plan of the subscription');
                         return array('status' => 'error');
                     }

@@ -141,7 +141,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function createSubscription($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null)
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null)
     {
         \DBG::msg("MultiSite (XamppController): create a subscription: $domain / $ipAddress / $subscriptionStatus / $customerId /$planId");
         return null;
@@ -154,7 +154,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function renameSubscriptionName($domain)
+    public function renameMailDistribution($domain)
     {
         \DBG::msg("MultiSite (XamppController): rename a subscription: $domain");
         return null;
@@ -168,7 +168,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return null
      * @throws MultiSiteDbException On error
      */
-    public function removeSubscription($subscriptionId)
+    public function removeMailDistribution($subscriptionId)
     {
         \DBG::msg("MultiSite (XamppController): remove a subscription: $subscriptionId");
         return null;
@@ -349,8 +349,8 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function changePlanOfSubscription($subscriptionId, $planGuid) {
-        \DBG::msg("MultiSite (XamppController): changePlanOfSubscription");
+    public function changeMailDistributionPlan($subscriptionId, $planGuid) {
+        \DBG::msg("MultiSite (XamppController): changeMailDistributionPlan");
         return null;
     }
     
