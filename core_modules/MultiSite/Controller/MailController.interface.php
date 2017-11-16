@@ -86,7 +86,7 @@ interface MailController {
      * 
      * @return id
      */
-    public function createUserAccount($domain, $password, $role, $accountId = null);
+    public function createMailAccount($domain, $password, $role, $accountId = null);
     
     /**
      * Delete a user account
@@ -95,7 +95,7 @@ interface MailController {
      * 
      * @return id 
      */
-    public function deleteUserAccount($userAccountId);
+    public function deleteMailAccount($userAccountId);
     
     /**
      * Change the password from a user account
@@ -105,7 +105,7 @@ interface MailController {
      * 
      * @return id 
      */
-    public function changeUserAccountPassword($userAccountId, $password);
+    public function changeMailAccountPassword($userAccountId, $password);
 
     /**
      * Create new domain alias

@@ -184,7 +184,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function createUserAccount($name, $password, $role, $accountId = null)
+    public function createMailAccount($name, $password, $role, $accountId = null)
     {
         \DBG::msg("MultiSite (XamppController): create user account: $name / $password / $role / $accountId");
         return null;
@@ -197,7 +197,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function deleteUserAccount($userAccountId)
+    public function deleteMailAccount($userAccountId)
     {
         \DBG::msg("MultiSite (XamppController): delete user account: $userAccountId");
         return null;
@@ -211,7 +211,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return id 
      */
-    public function changeUserAccountPassword($userAccountId, $password)
+    public function changeMailAccountPassword($userAccountId, $password)
     {
         \DBG::msg("MultiSite (XamppController): change the password from user account: $userAccountId");
         return null;

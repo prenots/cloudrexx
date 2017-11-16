@@ -347,7 +347,7 @@ class MailServiceServer extends \Cx\Model\Base\EntityBase {
             $hostingController->renameMailDistribution($website->getMailDn()->getName());
             
             $pwd = \User::make_password(8, true);
-            $hostingController->createUserAccount('info@'.$website->getMailDn()->getName(), $pwd, $role, $subscriptionId);
+            $hostingController->createMailAccount('info@'.$website->getMailDn()->getName(), $pwd, $role, $subscriptionId);
             $domains = $website->getDomainAliases();
             
             $domains[] = $website->getBaseDn();

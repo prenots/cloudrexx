@@ -867,7 +867,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return integer id
      * @throws ApiRequestException
      */
-    public function createUserAccount($name, $password, $role, $accountId = null)
+    public function createMailAccount($name, $password, $role, $accountId = null)
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
@@ -918,7 +918,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return integer id
      * @throws ApiRequestException
      */
-    public function deleteUserAccount($userAccountId) 
+    public function deleteMailAccount($userAccountId) 
     {
 
         $xmldoc = $this->getXmlDocument();
@@ -953,7 +953,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return id 
      * @throws ApiRequestException
      */
-    public function changeUserAccountPassword($userAccountId, $password)
+    public function changeMailAccountPassword($userAccountId, $password)
     {
         $this->webspaceId = $userAccountId;
         $guid = null;

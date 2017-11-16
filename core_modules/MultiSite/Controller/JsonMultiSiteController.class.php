@@ -6109,7 +6109,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $hostingController = ComponentController::getMailServerHostingController($mailServiceServer);
                     
                     $password = \User::make_password(8, true);
-                    if ($hostingController->changeUserAccountPassword($website->getMailAccountId(), $password)) {
+                    if ($hostingController->changeMailAccountPassword($website->getMailAccountId(), $password)) {
                         return array(
                             'status'    => 'success',
                             'message'   => $_ARRAYLANG['TXT_MULTISITE_RESET_EMAIL_PASS_MSG'],
