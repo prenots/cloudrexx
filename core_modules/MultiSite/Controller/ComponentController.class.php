@@ -429,6 +429,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $websiteNames      = array();
                 $description       = $subscription->getDescription();
                 $websiteCollection = $subscription->getProductEntity();
+                if (!($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection)
+                    && !($websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website)
+                ) {
+                    continue;
+                }
                 if (empty($description)) {
                     if (   $websiteCollection instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection
                         && $websiteCollection->getWebsites()
@@ -1367,7 +1372,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         break;
                     
                     case 'Ssl':
-                        $certificateName = isset($_POST['certificate_name']) ? contrexx_input2raw($_POST['certificate_name']) : '';
+                        $certificateName = $domainName;//isset($_POST['certificate_name']) ? contrexx_input2raw($_POST['certificate_name']) : '';
                         $privateKey      = isset($_POST['private_key']) ? contrexx_input2raw($_POST['private_key']) : '';
                         if (empty($certificateName) || empty($privateKey)) {
                             return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED'], false);
@@ -1389,8 +1394,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 if (isset($command) && isset($params)) {
                     if ($submitFormAction == 'Ssl') {
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer($command, $params, $website->getWebsiteServiceServer());
-                    } else {
+                        $logPrefix = 'Service: '.$website->getWebsiteServiceServer()->getLabel();
+                    } else {                    
                         $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite($command, $params, $website);
+                        $logPrefix = 'Website: '.$website->getName();
                     }
                     if ($response && $response->status == 'success' && $response->data->status == 'success') {
                         $message = ($submitFormAction == 'Select')
@@ -1399,8 +1406,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
                         return $this->parseJsonMessage($message, true);
                     } else {
+\DBG::dump($response);
                         if (isset($response) && isset($response->data) && isset($response->data->log)) {
-                            \DBG::appendLogs(array_map(function($logEntry) {return $logEntry;}, $response->data->log));
+                            \DBG::appendLogs(array_map(function($logEntry, $prefix) {return '('.$prefix.') '.$logEntry;}, $response->data->log, array_fill(0, count($response->data->log), $logPrefix)));
                         }
                         return $this->parseJsonMessage($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_'.strtoupper($submitFormAction).'_FAILED'], false);
                     }
@@ -3751,6 +3759,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     public function showMaintenanceIndicationBar()
     {
+        // TODO add option to configure maintenance status from admin
+        return;
+
         // only show in backend
         if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
             return;

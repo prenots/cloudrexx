@@ -518,6 +518,7 @@ class Website extends \Cx\Model\Base\EntityBase {
         global $_DBCONFIG, $_ARRAYLANG, $_CORELANG;
         
         \DBG::msg('Website::setup()');
+        \DBG::msg($options);
         \DBG::msg('change Website::$status from "'.$this->status.'" to "'.self::STATE_SETUP.'"');
         $this->status = self::STATE_SETUP;
         \Env::get('em')->persist($this);
@@ -545,12 +546,16 @@ class Website extends \Cx\Model\Base\EntityBase {
             //create user account in website service server
             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('createUser', array('userId' => $this->owner->getId(), 'email'  => $this->owner->getEmail()), $this->websiteServiceServer);
             if(!$resp || $resp->status == 'error'){
+                \DBG::dump($resp);
                 $errMsg = isset($resp->message) ? $resp->message : '';
                 \DBG::dump($errMsg);
                 if (isset($resp->log)) {
                     \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->log));
                 }
-                throw new WebsiteException('Problem in creating website owner '.$errMsg);    
+                if (isset($resp->data) && isset($resp->data->log)) {
+                    \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->data->log));
+                }
+                throw new WebsiteException('Problem in creating website owner ');    
             }
             if (isset($resp->data->log)) {
                 \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->data->log));
@@ -609,9 +614,6 @@ class Website extends \Cx\Model\Base\EntityBase {
 
             \DBG::msg('Website: initializeConfig..');
             $this->initializeConfig();
-            
-            \DBG::msg('Website: initializeLanguage..');
-            $this->initializeLanguage();
 
             \DBG::msg('Website: setupTheme..');
             $this->setupTheme($websiteThemeId);
@@ -676,12 +678,42 @@ class Website extends \Cx\Model\Base\EntityBase {
                 $params = \Cx\Core_Modules\MultiSite\Model\Event\AccessUserEventListener::fetchUserData($this->owner);
                 switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
                     case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_MANAGER:
-                        \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('updateUser', $params, $this->websiteServiceServer);
+                        // update user on service server
+                        $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('updateUser', $params, $this->websiteServiceServer);
+                        if (!$resp || $resp->status == 'error') {
+                            $errMsg = isset($resp->message) ? $resp->message : '';
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->log));
+                            }
+                        }
+                        if (isset($resp->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return '(Service: '.$this->websiteServiceServer->getLabel().') '.$logEntry;}, $resp->data->log));
+                        }
+                        // update user on newly created website
+                        $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $this);
+                        if(!$resp || $resp->status == 'error'){
+                            $errMsg = isset($resp->message) ? $resp->message : '';
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
+                            }
+                        }
+                        if (isset($resp->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
+                        }
                         break;
 
                     case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_HYBRID:
                     case \Cx\Core_Modules\MultiSite\Controller\ComponentController::MODE_SERVICE:
-                        \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $this);
+                        $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('updateUser', $params, $this);
+                        if(!$resp || $resp->status == 'error'){
+                            $errMsg = isset($resp->message) ? $resp->message : '';
+                            if (isset($resp->log)) {
+                                \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
+                            }
+                        }
+                        if (isset($resp->data->log)) {
+                            \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
+                        }
                         break;
                 }
                 $mailTemplateKey = 'newWebsiteCreated';
@@ -959,7 +991,11 @@ class Website extends \Cx\Model\Base\EntityBase {
             $params = array(
                 'dashboardNewsSrc' => \Cx\Core\Setting\Controller\Setting::getValue('dashboardNewsSrc','MultiSite'),
                 'coreAdminEmail'   => $this->owner->getEmail(),
-                'contactFormEmail' => $this->owner->getEmail()
+                'contactFormEmail' => $this->owner->getEmail(),
+                // we should migrate this to locales
+                // this only works as long as the website skeleton data does use the same locale/language IDs as the website service and master
+                'defaultLocaleId'  => $this->language,
+                'defaultLanguageId'=> $this->language,
             );
             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('setupConfig', $params, $this);
             if(!$resp || $resp->status == 'error'){
@@ -1677,36 +1713,13 @@ throw new WebsiteException('implement secret-key algorithm first!');
                         \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
                     }
                     if (isset($resp->message)) {
-                        \DBG::msg('(Website: '.$this->getName().') '.$resp->message);
+                        \DBG::msg('(Website: '.$this->getName().') '.serialize($resp->message));
                     }
                     throw new WebsiteException('Unable to setup license: Error in setup license in Website');
                 }
             } catch (\Cx\Core_Modules\MultiSite\Controller\MultiSiteJsonException $e) {
                 throw new WebsiteException('Unable to setup license: '.$e->getMessage());
             }           
-        } 
-    }
-    
-    /**
-     * Initialize the language
-     */
-    public function initializeLanguage() {
-        //send the JSON Request 'setDefaultLanguage' command from service to website
-        try {
-            $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('setDefaultLanguage', array('langId' => $this->language), $this);
-            if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
-                if (isset($resp->data->log)) {
-                    \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
-                }
-                return true;
-            } else {
-                if (isset($resp->log)) {
-                    \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
-                }
-                throw new WebsiteException('Unable to initialize the language: Error in initializing language in Website');
-            }
-        } catch (\Cx\Core_Modules\MultiSite\Controller\MultiSiteJsonException $e) {
-            throw new WebsiteException('Unable to initialize the language: '.$e->getMessage());
         }        
     }
     
@@ -1729,6 +1742,8 @@ throw new WebsiteException('implement secret-key algorithm first!');
             } else {
                 if (isset($resp->log)) {
                     \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->log));
+                } elseif (isset($resp->data) && isset($resp->data->log)) {
+                    \DBG::appendLogs(array_map(function($logEntry) {return '(Website: '.$this->getName().') '.$logEntry;}, $resp->data->log));
                 }
                 throw new WebsiteException('Unable to setup the theme: Error in setting theme in Website');
             }
@@ -2055,7 +2070,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
                                         alt="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DETAIL_LINK'] . '"
                                     />
                                 </a>';
-        return '<a href="index.php?cmd=MultiSite&editid='. $this->getId() .'" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EDIT_LINK'] . '">' 
+        return '<a href="index.php?cmd=MultiSite&editid={0,'. $this->getId() .'}" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_EDIT_LINK'] . '">' 
                 . $this->getName() . 
                 '</a>' . $websiteDetailLink;
     }

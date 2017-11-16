@@ -450,4 +450,15 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         \DBG::msg("MultiSite (XamppController): Remove the SSL Certificates.");
         return true;
     }
+
+    /**
+     * Activate the SSL Certificate
+     *
+     * @param string $certificateName certificate name
+     * @param string $domain          domain name
+     */
+    public function activateSSLCertificate($certificateName, $domain) {
+        \DBG::msg("MultiSite (XamppController): Activate the SSL Certificate. $certificateName / $domain");
+        return true;
+    }
 }

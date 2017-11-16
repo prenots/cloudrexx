@@ -86,6 +86,13 @@ class OrderSubscriptionEventListener implements \Cx\Core\Event\Model\Entity\Even
             return;
         }
 
+        $productEntity = $subscription->getProductEntity();
+        if (   !($productEntity instanceof \Cx\Core_Modules\MultiSite\Model\Entity\WebsiteCollection)
+            && !($productEntity instanceof \Cx\Core_Modules\MultiSite\Model\Entity\Website)
+        ) {
+            return;
+        }
+
         // check if subscription is active 
         if ($subscription->getState() != \Cx\Modules\Order\Model\Entity\Subscription::STATE_ACTIVE) {
             return;
