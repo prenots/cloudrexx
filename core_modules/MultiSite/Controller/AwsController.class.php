@@ -129,7 +129,7 @@ class AwsController extends HostController {
      * {@inheritdoc}
      */
     public static function fromConfig() {
-        return new AwsController(
+        return new static(
             \Cx\Core\Setting\Controller\Setting::getValue('credentialsKey', 'MultiSite'),
             \Cx\Core\Setting\Controller\Setting::getValue('credentialsSecret', 'MultiSite'),
             \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),

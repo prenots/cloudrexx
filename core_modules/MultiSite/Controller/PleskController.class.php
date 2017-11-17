@@ -118,11 +118,12 @@ class PleskController extends HostController {
      * {@inheritdoc}
      */
     public static function fromConfig() {
-        $pleskHost      = \Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite');
-        $pleskLogin     = \Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite');
-        $pleskPassword  = \Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite');
-        $webspaceId     = \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite');
-        return new static($pleskHost, $pleskLogin, $pleskPassword, $webspaceId);
+        return new static(
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite')
+        );
     }
     
     /**

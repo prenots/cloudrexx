@@ -43,9 +43,10 @@ class XamppController extends HostController {
     public static function fromConfig() {
         // initialize XAMPP controller with database of Website Manager/Service Server
         global $_DBCONFIG;
-        $db = new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG);
-        $dbUser = new \Cx\Core\Model\Model\Entity\DbUser($_DBCONFIG);
-        return new \Cx\Core_Modules\MultiSite\Controller\XamppController($db, $dbUser);
+        return new static(
+            \Cx\Core\Model\Model\Entity\Db($_DBCONFIG),
+            new \Cx\Core\Model\Model\Entity\DbUser($_DBCONFIG)
+        );
     }
     
     /**
