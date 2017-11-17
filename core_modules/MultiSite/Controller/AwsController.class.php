@@ -217,6 +217,10 @@ class AwsController extends HostController {
         return $this->hostedZoneId;
     }
 
+    /*******************************/
+    /* D N S - C O N T R O L L E R */
+    /*******************************/
+
     /**
      * Add DNS Record
      *
@@ -444,29 +448,41 @@ class AwsController extends HostController {
         }
     }
 
+    /***********************************************/
+    /* U S E R S T O R A G E - C O N T R O L L E R */
+    /***********************************************/
+
     /**
      * {@inheritdoc}
      */
     public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function removeEndUserAccount($userName) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function changeEndUserAccountPassword($userName, $password) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function getAllEndUserAccounts($extendedData = false) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
+
+    /*******************************************************/
+    /* W E B D I S T R I B U T I O N - C O N T R O L L E R */
+    /*******************************************************/
 
     /**
      * {@inheritdoc}
@@ -522,123 +538,162 @@ class AwsController extends HostController {
     public function activateSSLCertificate($certificateName, $domain) {
     }
 
+    /*****************************/
+    /* D B - C O N T R O L L E R */
+    /*****************************/
+
     /**
      * {@inheritdoc}
      */
     public function createDbUser(\Cx\Core\Model\Model\Entity\DbUser $user) {
+        $this->getDbController()->createDbUser($user);
     }
 
     /**
      * {@inheritdoc}
      */
     public function createDb(\Cx\Core\Model\Model\Entity\Db $db, \Cx\Core\Model\Model\Entity\DbUser $user = null) {
+        $this->getDbController()->createDb($db, $user);
     }
 
     /**
      * {@inheritdoc}
      */
     public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+        $this->getDbController()->grantRightsToDb($user, $database);
     }
 
     /**
      * {@inheritdoc}
      */
     public function revokeRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+        $this->getDbController()->revokeRightsToDb($user, $database);
     }
 
     /**
      * {@inheritdoc}
      */
     public function removeDbUser(\Cx\Core\Model\Model\Entity\DbUser $dbUser, \Cx\Core\Model\Model\Entity\Db $db ) {
+        $this->getDbController()->removeDbUser($dbUser, $db);
     }
 
     /**
      * {@inheritdoc}
      */
     public function removeDb(\Cx\Core\Model\Model\Entity\Db $db) {
+        $this->getDbController()->removeDb($db);
     }
+
+    /**
+     * Returns the controller to route all database calls to
+     * @return HostController Host controller for database calls
+     */
+    protected function getDbController() {
+        if (!$this->dbController) {
+            $this->dbController = XamppController::fromConfig();
+        }
+        return $this->dbController;
+    }
+
+    /*********************************/
+    /* M A I L - C O N T R O L L E R */
+    /*********************************/
 
     /**
      * {@inheritdoc}
      */
     public function enableMailService($subscriptionId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function disableMailService($subscriptionId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function removeMailDistribution($subscriptionId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function renameMailDistribution($domain) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function changeMailDistributionPlan($subscriptionId, $planGuid) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function createMailAccount($name, $password, $role, $accountId = null) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function deleteMailAccount($userAccountId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function changeMailAccountPassword($userAccountId, $password) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function createDomainAlias($aliasName) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function renameDomainAlias($oldAliasName, $newAliasName) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function deleteDomainAlias($aliasName) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 
     /**
      * {@inheritdoc}
      */
     public function getAvailableMailDistributionPlans() {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 }
