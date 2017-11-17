@@ -100,13 +100,6 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      protected $version;
 
     /**
-     * RootPath
-     *
-     * @var string
-     */
-    protected $rootPath;
-
-    /**
      * Directory prefix with S3 protocol
      *
      * @var string
@@ -148,9 +141,8 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $this->cx->getCodeBaseLibraryPath() . '/Aws/aws.phar'
         );
 
-        $this->rootPath     = rtrim($directoryKey, '/');
-        $this->bucketName   = $bucketName;
-        $this->directoryKey = $directoryKey;
+        $this->bucketName        = $bucketName;
+        $this->directoryKey      = rtrim($directoryKey, '/');
         $this->region            = $region;
         $this->credentialsKey    = $credentialsKey;
         $this->credentialsSecret = $credentialsSecret;
@@ -201,12 +193,12 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             return $this->fileListCache[$directory][$recursive];
         }
 
-        $dirPath = rtrim($this->rootPath . '/' . $directory, '/');
-        if (!$this->isFileExists(new LocalFile($dirPath, $this))) {
+        if (!$this->isFileExists(new LocalFile(rtrim($directory, '/'), $this))) {
             return array();
         }
 
-        $regex = '/^((?!thumb(_[a-z]+)?).)*$/';
+        $dirPath = $this->directoryPrefix . $this->directoryKey . rtrim($directory, '/');
+        $regex   = '/^((?!thumb(_[a-z]+)?).)*$/';
         if ($recursive) {
             $iteratorIterator = new \RegexIterator(
                 new \RecursiveIteratorIterator(
@@ -262,7 +254,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                 if (
                     !$this->isFileExists(
                         new LocalFile(
-                            $this->cx->getWebsitePath() . $preview,
+                            substr($preview, strlen($this->directoryKey) + 1),
                             $this
                         )
                     )
@@ -275,7 +267,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $fileInfos = array(
                 'filepath'   => mb_strcut(
                     $file->getPath() . '/' . $file->getFilename(),
-                    mb_strlen($this->cx->getWebsitePath())
+                    mb_strlen($this->directoryPrefix) - 1
                 ),
                 // preselect in mediabrowser or mark a folder
                 'name'       => $file->getFilename(),
@@ -325,7 +317,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * @param array $array Array to encode
      * @return array UTF8 encoded array
      */
-    public function utf8EncodeArray($array)
+    protected function utf8EncodeArray($array)
     {
         $helper = array();
         foreach ($array as $key => $value) {
@@ -337,6 +329,34 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $helper[utf8_encode($key)] = $value;
         }
         return $helper;
+    }
+
+    /**
+     * \array_merge_recursive() behaves unexpected with numerical indexes
+     * Fix from http://php.net/array_merge_recursive (array_merge_recursive_new)
+     *
+     * This method behaves differently than the original since it overwrites
+     * already present keys
+     *
+     * @return array Recursively merged array
+     */
+    protected function array_merge_recursive()
+    {
+        $arrays = func_get_args();
+        $base = array_shift($arrays);
+
+        foreach ($arrays as $array) {
+            reset($base); //important
+            while (list($key, $value) = each($array)) {
+                if (is_array($value) && isset($base[$key]) && is_array($base[$key])) {
+                    $base[$key] = $this->array_merge_recursive($base[$key], $value);
+                } else {
+                    $base[$key] = $value;
+                }
+            }
+        }
+
+        return $base;
     }
 
     /**
@@ -379,27 +399,26 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                     $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
                     $filename
                 );
-            } else {
-                return sprintf(
-                    $arrLang['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
-                    $filename
-                );
             }
-        } else {
-            if (unlink($directoryPath)) {
-                // If the removing file is image then remove its thumbnail files
-                $this->removeThumbnails($file);
-                return sprintf(
-                    $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
-                    $filename
-                );
-            } else {
-                return sprintf(
-                    $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
-                    $filename
-                );
-            }
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
+                $filename
+            );
         }
+
+        if (unlink($directoryPath)) {
+            // If the removing file is image then remove its thumbnail files
+            $this->removeThumbnails($file);
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
+                $filename
+            );
+        }
+
+        return sprintf(
+            $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+            $filename
+        );
     }
 
     /**
@@ -420,10 +439,9 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $thumbnails[$thumbnail['size']] = preg_replace(
                 '/\.' . $extension . '$/i',
                 $thumbnail['value'] . '.' . strtolower($extension),
-                str_replace(
-                    $this->cx->getWebsitePath(),
-                    '',
-                    $file->getRealPath()
+                substr(
+                    $file->getPath() . '/' . $file->getFilename(),
+                    strlen($this->directoryPrefix) - 1
                 )
             );
         }
@@ -450,8 +468,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         );
         foreach ($iterator as $thumbnail) {
             unlink(
-                $this->directoryPrefix . $this->getFullPath($file) .
-                '/' . $thumbnail
+                $this->directoryPrefix . $this->getFullPath($file) . $thumbnail
             );
         }
     }
@@ -475,7 +492,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function getFullPath(File $file)
     {
-        return $this->rootPath . ltrim($file->getPath(), '.') . '/';
+        return $this->directoryKey . rtrim(ltrim($file->getPath(), '.'), '/') . '/';
     }
 
     /**
@@ -492,7 +509,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         if (
             !$this->isFileExists($file) ||
             empty($destination) ||
-            \FWValidator::is_file_ending_harmless($destination)
+            !\FWValidator::is_file_ending_harmless($destination)
         ) {
             return sprintf($errorMsg, $file->getFullName());
         }
@@ -513,12 +530,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             );
         }
 
-        $destinationFolder = realpath(pathinfo($destinationFileName, PATHINFO_DIRNAME));
-        if (!MediaSourceManager::isSubdirectory($this->rootPath, $destinationFolder)) {
-            return sprintf($errorMsg, $file->getName());
-        }
         $this->removeThumbnails($file);
-
         if (
             !rename(
                 $this->directoryPrefix . $sourceFileName,
@@ -550,14 +562,9 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                 'Unable to open file ' . $filePath . ' for writing!'
             );
         }
-        // acquire exclusive file lock
-        flock($stream, LOCK_EX);
 
         // write data to file
         $writeStatus = fwrite($stream, $content);
-
-        // release exclusive file lock
-        flock($stream, LOCK_UN);
 
         fclose($stream);
 
@@ -635,17 +642,22 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     public function createDirectory($path, $directory)
     {
         $arrLang = \Env::get('init')->loadLanguageData('MediaBrowser');
-        if (!mkdir($this->directoryPrefix . $path . '/' . $directory)) {
+        if (
+            !mkdir(
+                $this->directoryPrefix . $this->directoryKey . '/' . $path .
+                '/' . $directory ,
+                '0777'
+            )
+        ) {
             return sprintf(
                 $arrLang['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
                 $directory
             );
-        } else {
-            return sprintf(
-                $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
-                $directory
-            );
         }
+        return sprintf(
+            $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
+            $directory
+        );
     }
 
     /**
