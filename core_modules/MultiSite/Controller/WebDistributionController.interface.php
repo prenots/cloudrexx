@@ -1,21 +1,30 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+
+/**
+ * Web distribution interface for Multisite hosts
+ * 
+ * @copyright   Cloudrexx AG
+ * @author      Michael Ritter <michael.ritter@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  coremodule_multisite
  */
 
 namespace Cx\Core_Modules\MultiSite\Controller;
 
+class WebDistributionControllerException extends \Exception {}
 
 /**
- * Description of newPHPClass
- *
- * @author ritt0r
+ * Manage web distributions
+ * 
+ * @copyright   Cloudrexx AG
+ * @author      Michael Ritter <michael.ritter@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  coremodule_multisite
  */
 interface WebDistributionController {
 
     /**
-     * Creaye a Customer
+     * Create a Customer
      * @param \Cx\Core\Model\Model\Entity\Subscription
      * @throws MultiSiteDbException On error
      */
@@ -50,36 +59,27 @@ interface WebDistributionController {
     public function getAllWebDistributions();
 
     /**
-     * Install the SSL Certificate for the domain
-     * 
-     * @param string $name                      Certificate name
-     * @param string $domain                    Domain name
-     * @param string $certificatePrivateKey     certificate private key
-     * @param string $certificateBody           certificate body
-     * @param string $certificateAuthority      certificate authority
+     * Creates an alias for a distribution
+     * @param string $mainName System name of the distribution
+     * @param string $aliasName Alias FQDN
+     * @throws WebDistributionControllerException If any error occurs
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null);
-    
-    /**
-     * Fetch the SSL Certificate details
-     * 
-     * @param string $domain domain name
-     */
-    public function getSSLCertificates($domain);
-    
-    /**
-     * Remove the SSL Certificates
-     * 
-     * @param string $domain domain name
-     * @param array  $names  certificate names
-     */
-    public function removeSSLCertificates($domain, $names = array());
+    public function createWebDistributionAlias($mainName, $aliasName);
 
     /**
-     * Activate the SSL Certificate
-     *
-     * @param string $certificateName certificate name
-     * @param string $domain          domain name
+     * Renames an alias for a distribution
+     * @param string $mainName System name of the distribution
+     * @param string $oldAliasName Alias FQDN
+     * @param string $newAliasName Alias FQDN
+     * @throws WebDistributionControllerException If any error occurs
      */
-    public function activateSSLCertificate($certificateName, $domain);
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName);
+
+    /**
+     * Deletes an alias for a distribution
+     * @param string $mainName System name of the distribution
+     * @param string $aliasName Alias FQDN
+     * @throws WebDistributionControllerException If any error occurs
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName);
 }
