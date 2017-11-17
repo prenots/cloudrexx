@@ -60,7 +60,7 @@ class AwsController extends HostController {
      *
      * @var string
      */
-    protected $webspaceId;
+    protected $hostedZoneId;
 
     /**
      * Instance of a Route53Client
@@ -208,23 +208,13 @@ class AwsController extends HostController {
     }
 
     /**
-     * Set Hosted zone ID
-     *
-     * @param string $webspaceId
-     */
-    public function setWebspaceId($webspaceId)
-    {
-        $this->webspaceId = $webspaceId;
-    }
-
-    /**
-     * Get Hosted zone ID
+     * Get hosted zone ID
      *
      * @return string
      */
-    public function getWebspaceId()
+    public function getHostedZoneId()
     {
-        return $this->webspaceId;
+        return $this->hostedZoneId;
     }
 
     /**
@@ -294,13 +284,13 @@ class AwsController extends HostController {
      */
     public function removeDnsRecord($type, $host, $recordId)
     {
-        if (empty($this->webspaceId)) {
+        if (empty($this->getHostedZoneId())) {
             return;
         }
         $dnsRecords = array();
         $this->fetchDnsRecords(
             array(
-                'HostedZoneId'    => $this->webspaceId,
+                'HostedZoneId'    => $this->getHostedZoneId(),
                 'MaxItems'        => '1',
                 'StartRecordName' => $host,
                 'StartRecordType' => $type
@@ -317,7 +307,7 @@ class AwsController extends HostController {
             $dnsRecord['name'],
             $dnsRecord['value'],
             '',
-            $this->webspaceId,
+            $this->getHostedZoneId(),
             $dnsRecord['ttl']
         );
     }
@@ -330,13 +320,13 @@ class AwsController extends HostController {
      */
     public function getDnsRecords()
     {
-        if (empty($this->webspaceId)) {
+        if (empty($this->getHostedZoneId())) {
             return array();
         }
 
         $dnsRecords = array();
         $this->fetchDnsRecords(
-            array('HostedZoneId' => $this->webspaceId),
+            array('HostedZoneId' => $this->getHostedZoneId()),
             $dnsRecords
         );
         return $dnsRecords;
@@ -443,7 +433,7 @@ class AwsController extends HostController {
             }
             $this->fetchDnsRecords(
                 array(
-                    'HostedZoneId'    => $this->webspaceId,
+                    'HostedZoneId'    => $this->getHostedZoneId(),
                     'StartRecordName' => $result['NextRecordName'],
                     'StartRecordType' => $result['NextRecordType']
                 ),
@@ -487,7 +477,7 @@ class AwsController extends HostController {
     /**
      * {@inheritdoc}
      */
-    public function createWebDistribution($domain, $subscriptionId, $documentRoot = 'httpdocs') {
+    public function createWebDistribution($domain, $documentRoot = 'httpdocs') {
     }
 
     /**
