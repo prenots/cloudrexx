@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SSL interface Multisite hosts
+ * SSL interface for Multisite hosts
  * 
  * @copyright   Cloudrexx AG
  * @author      Michael Ritter <michael.ritter@cloudrexx.com>
