@@ -25,10 +25,9 @@ interface WebDistributionController {
      * Create new site/domain
      * 
      * @param string  $domain         Name of the site/domain to create
-     * @param integer $subscriptionId Id of the Subscription assigned for the new site/domain
      * @param string  $documentRoot   Document root to create the site/domain
      */
-    public function createWebDistribution($domain, $subscriptionId, $documentRoot = 'httpdocs');
+    public function createWebDistribution($domain, $documentRoot = 'httpdocs');
     
     /**
      * Renaming the site/domain

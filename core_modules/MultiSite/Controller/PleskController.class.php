@@ -1876,14 +1876,13 @@ class PleskController extends HostController {
      * Create new site/domain
      * 
      * @param string  $domain          Name of the site/domain to create
-     * @param integer $subscriptionId  Id of the Subscription assigned for the new site/domain
      * @param string  $documentRoot    Document root to create the site/domain
      * 
      * @return boolean true on success otherwise false
      * 
      * @throws ApiRequestException
      */
-    public function createWebDistribution($domain, $subscriptionId, $documentRoot = 'httpdocs')
+    public function createWebDistribution($domain, $documentRoot = 'httpdocs')
     {
         \DBG::msg("MultiSite (PleskController): Create new site on existing subscription.");
         if (empty($domain)) {
@@ -1905,7 +1904,7 @@ class PleskController extends HostController {
         $nameTag = $xmldoc->createElement('name', $domain);
         $genSetup->appendChild($nameTag);
         
-        $webspaceIdTag = $xmldoc->createElement('webspace-id', $subscriptionId);
+        $webspaceIdTag = $xmldoc->createElement('webspace-id', $this->getWebspaceId());
         $genSetup->appendChild($webspaceIdTag);
         
         $hostingTag = $xmldoc->createElement('hosting');

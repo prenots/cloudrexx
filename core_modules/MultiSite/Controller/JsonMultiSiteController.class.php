@@ -7615,7 +7615,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     $siteList = $hostingController->getAllWebDistributions();
                     
                     if (!in_array($params['post']['domainName'], $siteList)) {
-                        $siteId = $hostingController->createWebDistribution($params['post']['domainName'], $hostingController->getWebspaceId()); 
+                        $siteId = $hostingController->createWebDistribution($params['post']['domainName']); 
                         if ($siteId) {
                             $hostingController->disableMailService($siteId);
                             $hostingController->disableDnsService($siteId);
