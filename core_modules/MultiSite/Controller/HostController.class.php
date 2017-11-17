@@ -26,7 +26,7 @@ namespace Cx\Core_Modules\MultiSite\Controller;
  * @subpackage  coremodule_MultiSite
  * @version     1.0.0
  */
-abstract class HostController implements DbController, WebDistributionController, UserStorageController, DnsController, MailController {
+abstract class HostController implements DbController, WebDistributionController, UserStorageController, DnsController, MailController, SslController {
 
     /**
      * Initializes the settings for this HostController
