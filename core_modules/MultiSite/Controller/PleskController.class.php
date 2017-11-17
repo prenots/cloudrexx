@@ -58,14 +58,81 @@ class PleskController extends HostController {
      * Version of the plesk api rpc
      */
     protected $apiVersion;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function initSettings() {
+        $settings = array(
+            'pleskHost' => array(
+                'value' => 'localhost',
+            ),
+            'pleskLogin' => array(
+                'value' => '',
+            ),
+            'pleskPassword' => array(
+                'value' => '',
+                'type' => \Cx\Core\Setting\Controller\Setting::TYPE_PASSWORD,
+            ),
+            'pleskApiVersion' => array(
+                'value' => '',
+            ),
+            'pleskWebsitesSubscriptionId' => array(
+                'value' => 0,
+            ),
+            'pleskMasterSubscriptionId' => array(
+                'value' => 0,
+            ),
+        );
+        $i = 0;
+        \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'plesk', 'FileSystem');
+        foreach ($settings as $name=>$initValues) {
+            $i++;
+            if (\Cx\Core\Setting\Controller\Setting::getValue($name, 'MultiSite') !== null) {
+                continue;
+            }
+            if (!isset($initValues['type'])) {
+                $initValues['type'] = \Cx\Core\Setting\Controller\Setting::TYPE_TEXT;
+            }
+            if (!isset($initValues['values'])) {
+                $initValues['values'] = null;
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    $name,
+                    $initValues['value'],
+                    $i,
+                    $initValues['type'],
+                    $initValues['values'],
+                    'plesk'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add setting entry "' . $name . '" for ' . __CLASS__
+                );
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function fromConfig() {
+        $pleskHost      = \Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite');
+        $pleskLogin     = \Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite');
+        $pleskPassword  = \Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite');
+        $webspaceId     = \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite');
+        return new static($pleskHost, $pleskLogin, $pleskPassword, $webspaceId);
+    }
     
     /**
      * Constructor
      */
-    public function __construct($host, $login, $password, $apiVersion = null){
+    public function __construct($host, $login, $password, $webspaceId, $apiVersion = null){
         $this->host       = $host;
         $this->login      = $login;
         $this->password   = $password;
+        $this->webspaceId = $webspaceId;
         $this->apiVersion = !\FWValidator::isEmpty($apiVersion) ? $apiVersion : ''; 
     }
 
@@ -469,17 +536,6 @@ class PleskController extends HostController {
               die();
         }	
     }
-    
-    /**
-     * Static function to set default configuration 
-     */
-    public static function fromConfig() {
-        $pleskHost      = \Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite');
-        $pleskLogin     = \Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite');
-        $pleskPassword  = \Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite');
-        return new static($pleskHost, $pleskLogin, $pleskPassword);
-    }
-    
     
     /**
      * Create a Customer

@@ -27,4 +27,16 @@ namespace Cx\Core_Modules\MultiSite\Controller;
  * @version     1.0.0
  */
 abstract class HostController implements DbController, WebDistributionController, UserStorageController, DnsController, MailController {
+
+    /**
+     * Initializes the settings for this HostController
+     * This is only triggered once (on setup) of the environment
+     */
+    public static abstract function initSettings();
+
+    /**
+     * Initializes the HostController from its local configuration
+     * @return HostController Newly instanciated host controller
+     */
+    public static abstract function fromConfig();
 }

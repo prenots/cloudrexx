@@ -98,6 +98,81 @@ class AwsController extends HostController {
     protected static $clientInstance;
 
     /**
+     * {@inheritdoc}
+     */
+    public static function initSettings() {
+        $settings = array(
+            'region' => array(
+                'value' => '',
+                'type' => \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN,
+                'values' => '{src:\\'.__CLASS__.'::getRegions()}', 
+            ),
+            'credentialsKey' => array(
+                'value' => null,
+            ),
+            'credentialsSecret' => array(
+                'value' => '',
+            ),
+            'version' => array(
+                'value' => 'latest',
+            ),
+            'timeToLive' => array(
+                'value' => 60,
+            ),
+            'hostedZoneId' => array(
+                'value' => '',
+            ),
+        );
+        $i = 0;
+        \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'aws', 'FileSystem');
+        foreach ($settings as $name=>$initValues) {
+            $i++;
+            if (\Cx\Core\Setting\Controller\Setting::getValue($name, 'MultiSite') !== null) {
+                continue;
+            }
+            if (!isset($initValues['type'])) {
+                $initValues['type'] = \Cx\Core\Setting\Controller\Setting::TYPE_TEXT;
+            }
+            if (!isset($initValues['values'])) {
+                $initValues['values'] = null;
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    $name,
+                    $initValues['value'],
+                    $i,
+                    $initValues['type'],
+                    $initValues['values'],
+                    'plesk'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add setting entry "' . $name . '" for ' . __CLASS__
+                );
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function fromConfig() {
+        $hostingController = new AwsController(
+            \Cx\Core\Setting\Controller\Setting::getValue('credentialsKey', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('credentialsSecret', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite')
+        );
+        $hostingController->setTimeToLive(
+            \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite')
+        );
+        $hostingController->setWebspaceId(
+            \Cx\Core\Setting\Controller\Setting::getValue('hostedZoneId', 'MultiSite')
+        );
+        return $hostingController;
+    }
+
+    /**
      * Constructor
      *
      * @param string $credentialsKey    AWS access key ID
