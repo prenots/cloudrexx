@@ -514,6 +514,24 @@ class AwsController extends HostController {
     public function getAllWebDistributions() {
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+    }
+
     /*******************************/
     /* S S L - C O N T R O L L E R */
     /*******************************/

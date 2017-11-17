@@ -2132,6 +2132,24 @@ HTTPS;
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function createWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
      * Install the SSL Certificate for the domain
      * 
      * @param string $name                      Certificate name
