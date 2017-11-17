@@ -49,39 +49,11 @@ class AwsController extends HostController {
     );
 
     /**
-     * Region
-     *
-     * @var string
-     */
-    protected $region;
-
-    /**
-     * AWS access key ID
-     *
-     * @var string
-     */
-    protected $credentialsKey;
-
-    /**
-     * AWS secret access key
-     *
-     * @var string
-     */
-    protected $credentialsSecret;
-
-    /**
-     * AWS version
-     *
-     * @var string
-     */
-    protected $version;
-
-    /**
      * Resource record cache time to live in seconds
      *
      * @var integer
      */
-    protected $timeToLive;
+    protected $ttl;
 
     /**
      * Hosted zone ID
@@ -93,9 +65,9 @@ class AwsController extends HostController {
     /**
      * Instance of a Route53Client
      *
-     * @var static
+     * @var \Aws\Route53\Route53Client
      */
-    protected static $clientInstance;
+    protected $route53Client;
 
     /**
      * {@inheritdoc}
@@ -157,19 +129,14 @@ class AwsController extends HostController {
      * {@inheritdoc}
      */
     public static function fromConfig() {
-        $hostingController = new AwsController(
+        return new AwsController(
             \Cx\Core\Setting\Controller\Setting::getValue('credentialsKey', 'MultiSite'),
             \Cx\Core\Setting\Controller\Setting::getValue('credentialsSecret', 'MultiSite'),
             \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),
-            \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite')
-        );
-        $hostingController->setTimeToLive(
-            \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite')
-        );
-        $hostingController->setWebspaceId(
+            \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite'),
             \Cx\Core\Setting\Controller\Setting::getValue('hostedZoneId', 'MultiSite')
         );
-        return $hostingController;
     }
 
     /**
@@ -179,22 +146,35 @@ class AwsController extends HostController {
      * @param string $credentialsSecret AWS secret access key
      * @param string $region            AWS region
      * @param string $version           AWS version
+     * @param integer $ttl              Time to life
+     * @param string $hostedZoneId      AWS zone id
+     * @throws \Aws\Exception\AwsException When connection fails
      */
     public function __construct(
         $credentialsKey,
         $credentialsSecret,
         $region,
-        $version
+        $version,
+        $ttl,
+        $hostedZoneId
     ) {
         //Load the AWS SDK
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getClassLoader()->loadFile(
             $cx->getCodeBaseLibraryPath() . '/Aws/aws.phar'
         );
-        $this->region            = $region;
-        $this->credentialsKey    = $credentialsKey;
-        $this->credentialsSecret = $credentialsSecret;
-        $this->version           = $version;
+        $this->ttl = $ttl;
+        $this->hostedZoneId = $hostedZoneId;
+        $this->route53Client = new \Aws\Route53\Route53Client(
+            array(
+                'region' => $region, // please note that Route53 only has us-east-1
+                'version' => $version,
+                'credentials' => array(
+                    'key' => $credentialsKey,
+                    'secret' => $credentialsSecret,
+                )
+            )
+        );
     }
 
     /**
@@ -214,7 +194,7 @@ class AwsController extends HostController {
      */
     public function setTimeToLive($timeToLive)
     {
-        $this->timeToLive;
+        $this->ttl;
     }
 
     /**
@@ -224,7 +204,7 @@ class AwsController extends HostController {
      */
     public function getTimeToLive()
     {
-        return $this->timeToLive;
+        return $this->ttl;
     }
 
     /**
@@ -257,26 +237,19 @@ class AwsController extends HostController {
      * @param integer $zoneId Id of Hosted zone
      *
      * @return integer
+     * @throws AwsRoute53Exception
      */
     public function addDnsRecord($type = 'A', $host, $value, $zone, $zoneId)
     {
-        try {
-            return $this->manipulateDnsRecord(
-                'CREATE',
-                $type,
-                $host,
-                $value,
-                $zone,
-                $zoneId,
-                $this->timeToLive
-            );
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in adding DNS Record.',
-                '',
-                $e->getMessage()
-            );
-        }
+        return $this->manipulateDnsRecord(
+            'CREATE',
+            $type,
+            $host,
+            $value,
+            $zone,
+            $zoneId,
+            $this->getTimeToLive()
+        );
     }
 
     /**
@@ -290,6 +263,7 @@ class AwsController extends HostController {
      * @param integer $recordId DNS record ID
      *
      * @return integer
+     * @throws AwsRoute53Exception
      */
     public function updateDnsRecord(
         $type,
@@ -299,23 +273,15 @@ class AwsController extends HostController {
         $zoneId,
         $recordId
     ) {
-        try {
-            return $this->manipulateDnsRecord(
-                'UPSERT',
-                $type,
-                $host,
-                $value,
-                $zone,
-                $zoneId,
-                $this->timeToLive
-            );
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in updating DNS Record.',
-                '',
-                $e->getMessage()
-            );
-        }
+        return $this->manipulateDnsRecord(
+            'UPSERT',
+            $type,
+            $host,
+            $value,
+            $zone,
+            $zoneId,
+            $this->getTimeToLive()
+        );
     }
 
     /**
@@ -324,43 +290,36 @@ class AwsController extends HostController {
      * @param string  $type     DNS-Record type
      * @param string  $host     DNS-Record host
      * @param integer $recordId DNS record ID
+     * @throws AwsRoute53Exception
      */
     public function removeDnsRecord($type, $host, $recordId)
     {
         if (empty($this->webspaceId)) {
             return;
         }
-        try {
-            $dnsRecords = array();
-            $this->fetchDnsRecords(
-                array(
-                    'HostedZoneId'    => $this->webspaceId,
-                    'MaxItems'        => '1',
-                    'StartRecordName' => $host,
-                    'StartRecordType' => $type
-                ),
-                $dnsRecords
-            );
-            if (!isset($dnsRecords[$host])) {
-                return;
-            }
-            $dnsRecord = $dnsRecords[$host];
-            $this->manipulateDnsRecord(
-                'DELETE',
-                $dnsRecord['type'],
-                $dnsRecord['name'],
-                $dnsRecord['value'],
-                '',
-                $this->webspaceId,
-                $dnsRecord['ttl']
-            );
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in deleting DNS Record.',
-                '',
-                $e->getMessage()
-            );
+        $dnsRecords = array();
+        $this->fetchDnsRecords(
+            array(
+                'HostedZoneId'    => $this->webspaceId,
+                'MaxItems'        => '1',
+                'StartRecordName' => $host,
+                'StartRecordType' => $type
+            ),
+            $dnsRecords
+        );
+        if (!isset($dnsRecords[$host])) {
+            return;
         }
+        $dnsRecord = $dnsRecords[$host];
+        $this->manipulateDnsRecord(
+            'DELETE',
+            $dnsRecord['type'],
+            $dnsRecord['name'],
+            $dnsRecord['value'],
+            '',
+            $this->webspaceId,
+            $dnsRecord['ttl']
+        );
     }
 
     /**
@@ -375,50 +334,22 @@ class AwsController extends HostController {
             return array();
         }
 
-        try {
-            $dnsRecords = array();
-            $this->fetchDnsRecords(
-                array('HostedZoneId' => $this->webspaceId),
-                $dnsRecords
-            );
-            return $dnsRecords;
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in getting DNS Record.',
-                '',
-                $e->getMessage()
-            );
-        }
+        $dnsRecords = array();
+        $this->fetchDnsRecords(
+            array('HostedZoneId' => $this->webspaceId),
+            $dnsRecords
+        );
+        return $dnsRecords;
     }
 
     /**
      * Get Route53 client object
      *
-     * @throws AwsRoute53Exception
      * @return \Aws\Route53\Route53Client
      */
     protected function getRoute53Client()
     {
-        try {
-            if (!isset(static::$clientInstance)) {
-                static::$clientInstance = new \Aws\Route53\Route53Client(array(
-                    'version'     => $this->version,
-                    'region'      => $this->region,
-                    'credentials' => array(
-                        'key'    => $this->credentialsKey,
-                        'secret' => $this->credentialsSecret
-                    )
-                ));
-            }
-
-            return static::$clientInstance;
-        } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception(
-                'Error in creating AWS Route53 Client.',
-                '',
-                $e->getMessage()
-            );
-        }
+        return $this->route53Client;
     }
 
     /**
