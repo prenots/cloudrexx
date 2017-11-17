@@ -110,7 +110,7 @@ class AwsController extends HostController {
         $region,
         $version
     ) {
-        //Load the Aws SDK
+        //Load the AWS SDK
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getClassLoader()->loadFile(
             $cx->getCodeBaseLibraryPath() . '/Aws/aws.phar'
@@ -214,10 +214,8 @@ class AwsController extends HostController {
      */
     public function addDnsRecord($type = 'A', $host, $value, $zone, $zoneId)
     {
-        $client = $this->getRoute53Client();
         try {
             return $this->manipulateDnsRecord(
-                $client,
                 'CREATE',
                 $type,
                 $host,
@@ -255,10 +253,8 @@ class AwsController extends HostController {
         $zoneId,
         $recordId
     ) {
-        $client = $this->getRoute53Client();
         try {
             return $this->manipulateDnsRecord(
-                $client,
                 'UPSERT',
                 $type,
                 $host,
@@ -288,11 +284,9 @@ class AwsController extends HostController {
         if (empty($this->webspaceId)) {
             return;
         }
-        $client = $this->getRoute53Client();
         try {
             $dnsRecords = array();
             $this->fetchDnsRecords(
-                $client,
                 array(
                     'HostedZoneId'    => $this->webspaceId,
                     'MaxItems'        => '1',
@@ -306,7 +300,6 @@ class AwsController extends HostController {
             }
             $dnsRecord = $dnsRecords[$host];
             $this->manipulateDnsRecord(
-                $client,
                 'DELETE',
                 $dnsRecord['type'],
                 $dnsRecord['name'],
@@ -327,7 +320,6 @@ class AwsController extends HostController {
     /**
      * Manipulate DNS record
      *
-     * @param \Aws\Route53\Route53Client $client Route53Client object
      * @param string                     $action Action value(CREATE|UPSERT|DELETE)
      * @param string                     $type   DNS-Record type
      * @param string                     $host   DNS-Record host
@@ -340,7 +332,6 @@ class AwsController extends HostController {
      * @return integer
      */
     protected function manipulateDnsRecord(
-        $client,
         $action,
         $type,
         $host,
@@ -349,6 +340,7 @@ class AwsController extends HostController {
         $zoneId,
         $timeToLive
     ) {
+        $client = $this->getRoute53Client();
         try {
             // In case the record is a subdomain of the DNS-zone, then
             // we'll have to strip the DNS-zone part from the record.
@@ -398,11 +390,9 @@ class AwsController extends HostController {
             return array();
         }
 
-        $client = $this->getRoute53Client();
         try {
             $dnsRecords = array();
             $this->fetchDnsRecords(
-                $client,
                 array('HostedZoneId' => $this->webspaceId),
                 $dnsRecords
             );
@@ -419,15 +409,15 @@ class AwsController extends HostController {
     /**
      * Fetch DNS records list
      *
-     * @param \Aws\Route53\Route53Client $client     Route53Client object
      * @param array                      $options    Parameter details for
      *                                               listResourceRecordSets
      * @param array                      $dnsRecords Array of Resource Recordset
      *
      * @throws AwsRoute53Exception
      */
-    protected function fetchDnsRecords($client, $options, &$dnsRecords)
+    protected function fetchDnsRecords($options, &$dnsRecords)
     {
+        $client = $this->getRoute53Client();
         try {
             $result = $client->listResourceRecordSets($options);
             if (!isset($result['ResourceRecordSets'])) {
@@ -445,7 +435,6 @@ class AwsController extends HostController {
                 return;
             }
             $this->fetchDnsRecords(
-                $client,
                 array(
                     'HostedZoneId'    => $this->webspaceId,
                     'StartRecordName' => $result['NextRecordName'],
