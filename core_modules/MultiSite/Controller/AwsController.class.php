@@ -25,6 +25,7 @@ class AwsRoute53Exception extends DnsControllerException {}
  */
 
 class AwsController extends HostController {
+
     /**
      * List of the available regions
      *
@@ -172,36 +173,6 @@ class AwsController extends HostController {
     }
 
     /**
-     * Get Route53 client object
-     *
-     * @throws AwsRoute53Exception
-     * @return \Aws\Route53\Route53Client
-     */
-    protected function getRoute53Client()
-    {
-        try {
-            if (!isset(static::$clientInstance)) {
-                static::$clientInstance = new \Aws\Route53\Route53Client(array(
-                    'version'     => $this->version,
-                    'region'      => $this->region,
-                    'credentials' => array(
-                        'key'    => $this->credentialsKey,
-                        'secret' => $this->credentialsSecret
-                    )
-                ));
-            }
-
-            return static::$clientInstance;
-        } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception(
-                'Error in creating AWS Route53 Client.',
-                '',
-                $e->getMessage()
-            );
-        }
-    }
-
-    /**
      * Add DNS Record
      *
      * @param string  $type   DNS-Record type
@@ -318,6 +289,64 @@ class AwsController extends HostController {
     }
 
     /**
+     * Get DNS Records
+     *
+     * @throws AwsRoute53Exception
+     * @return array
+     */
+    public function getDnsRecords()
+    {
+        if (empty($this->webspaceId)) {
+            return array();
+        }
+
+        try {
+            $dnsRecords = array();
+            $this->fetchDnsRecords(
+                array('HostedZoneId' => $this->webspaceId),
+                $dnsRecords
+            );
+            return $dnsRecords;
+        } catch (AwsRoute53Exception $e) {
+            throw new AwsRoute53Exception(
+                'Error in getting DNS Record.',
+                '',
+                $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * Get Route53 client object
+     *
+     * @throws AwsRoute53Exception
+     * @return \Aws\Route53\Route53Client
+     */
+    protected function getRoute53Client()
+    {
+        try {
+            if (!isset(static::$clientInstance)) {
+                static::$clientInstance = new \Aws\Route53\Route53Client(array(
+                    'version'     => $this->version,
+                    'region'      => $this->region,
+                    'credentials' => array(
+                        'key'    => $this->credentialsKey,
+                        'secret' => $this->credentialsSecret
+                    )
+                ));
+            }
+
+            return static::$clientInstance;
+        } catch (\Aws\Exception\AwsException $e) {
+            throw new AwsRoute53Exception(
+                'Error in creating AWS Route53 Client.',
+                '',
+                $e->getMessage()
+            );
+        }
+    }
+
+    /**
      * Manipulate DNS record
      *
      * @param string                     $action Action value(CREATE|UPSERT|DELETE)
@@ -375,34 +404,6 @@ class AwsController extends HostController {
             return 0;
         } catch (\Aws\Exception\AwsException $e) {
             throw new AwsRoute53Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * Get DNS Records
-     *
-     * @throws AwsRoute53Exception
-     * @return array
-     */
-    public function getDnsRecords()
-    {
-        if (empty($this->webspaceId)) {
-            return array();
-        }
-
-        try {
-            $dnsRecords = array();
-            $this->fetchDnsRecords(
-                array('HostedZoneId' => $this->webspaceId),
-                $dnsRecords
-            );
-            return $dnsRecords;
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in getting DNS Record.',
-                '',
-                $e->getMessage()
-            );
         }
     }
 
