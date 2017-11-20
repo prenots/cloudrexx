@@ -58,46 +58,11 @@ class AwsS3FileSystemException extends \Exception {}
 
 class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     /**
-     * Bucket name
-     *
-     * @var string
-     */
-    protected $bucketName;
-
-    /**
      * Directory key
      *
      * @var string
      */
     protected $directoryKey;
-
-    /**
-      * Region
-      *
-      * @var string
-      */
-     protected $region;
-
-     /**
-      * AWS access key ID
-      *
-      * @var string
-      */
-     protected $credentialsKey;
-
-     /**
-      * AWS secret access key
-      *
-      * @var string
-      */
-     protected $credentialsSecret;
-
-     /**
-      * AWS version
-      *
-      * @var string
-      */
-     protected $version;
 
     /**
      * Directory prefix with S3 protocol
@@ -141,32 +106,35 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $this->cx->getCodeBaseLibraryPath() . '/Aws/aws.phar'
         );
 
-        $this->bucketName        = $bucketName;
-        $this->directoryKey      = rtrim($directoryKey, '/');
-        $this->region            = $region;
-        $this->credentialsKey    = $credentialsKey;
-        $this->credentialsSecret = $credentialsSecret;
-        $this->version           = $version;
-        $this->directoryPrefix   = 's3://' . $this->bucketName . '/';
+        $this->directoryKey    = rtrim($directoryKey, '/');
+        $this->directoryPrefix = 's3://' . $bucketName . '/';
 
         // Initialize the S3 Client object
-        $this->initS3Client();
+        $this->initS3Client($version, $region, $credentialsKey, $credentialsSecret);
     }
 
     /**
      * Initialize the AWS S3 Client and Register the stream wrapper
      *
+     * @param string $version           AWS version
+     * @param string $region            AWS region
+     * @param string $credentialsKey    AWS access key ID
+     * @param string $credentialsSecret AWS secret access key
      * @throws AwsS3FileSystemException
      */
-    protected function initS3Client()
-    {
+    protected function initS3Client(
+        $version,
+        $region,
+        $credentialsKey,
+        $credentialsSecret
+    ) {
         try {
             $clientInstance = new \Aws\S3\S3Client(array(
-                'version'     => $this->version,
-                'region'      => $this->region,
+                'version'     => $version,
+                'region'      => $region,
                 'credentials' => array(
-                    'key'    => $this->credentialsKey,
-                    'secret' => $this->credentialsSecret
+                    'key'    => $credentialsKey,
+                    'secret' => $credentialsSecret
                 )
             ));
             $clientInstance->registerStreamWrapper();
