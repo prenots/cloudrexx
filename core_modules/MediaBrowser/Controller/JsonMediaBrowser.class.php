@@ -200,9 +200,12 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
     }
 
     /**
-     * @param $params
+     * Rename the file
+     *
+     * @param array $params Array of input values
      */
-    public function renameFile($params) {
+    public function renameFile($params)
+    {
         \Env::get('init')->loadLanguageData('MediaBrowser');
 
         $path       = !empty($params['get']['path']) ? contrexx_input2raw(utf8_decode($params['get']['path'])) : null;
@@ -224,8 +227,12 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
             throw new \Exception('Unknown file ' . $strPath . $oldName);
         }
 
+        $toWebPath = substr(
+            $fileSystem->getFullPath($file),
+            strlen($fileSystem->getRootPath())
+        );
         $this->setMessage(
-            $fileSystem->moveFile($file, $newName)
+            $fileSystem->moveFile($file, $toWebPath . $newName)
         );
     }
 

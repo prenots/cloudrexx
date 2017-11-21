@@ -341,72 +341,70 @@ class LocalFileSystem extends EntityBase implements FileSystem
         );
     }
 
-    public function moveFile(
-        File $file, $destination
-    ) {
-        global $_ARRAYLANG;
-        if (!empty($destination) || !\FWValidator::is_file_ending_harmless($destination)) {
-            if (is_dir(
-                    $this->getFullPath($file)
-                    . $file->getFullName()
+    /**
+     * Move the file/directory
+     *
+     * @param File   $fromFile   Source file object
+     * @param string $toFilePath Destination file path
+     * @return string status message of file/directory move
+     */
+    public function moveFile(File $fromFile, $toFilePath)
+    {
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
+        $errorMsg = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
+        if (
+            empty($toFilePath) ||
+            !\FWValidator::is_file_ending_harmless($toFilePath)
+        ) {
+            return sprintf($errorMsg, $toFile->getName());
+        }
+
+        // Create the $toFile's directory if does not exists
+        $className = get_class($fromFile);
+        $toFile    = new $className($toFilePath, $fromFile->getFileSystem());
+        if (!file_exists($this->getFullPath($toFile))) {
+            if (
+                !\Cx\Lib\FileSystem\FileSystem::make_folder(
+                    $this->getFullPath($toFile)
                 )
             ) {
-                $fileName            =
-                    $this->getFullPath($file)
-                    . $file->getFullName();
-                $destinationFileName =
-                    $this->getFullPath($file)
-                    . $destination;
-            } else {
-                $fileName            =
-                    $this->getFullPath($file)
-                    . $file->getFullName();
-                $destinationFileName =
-                    $this->getFullPath($file)
-                    . $destination
-                    . '.'
-                    . $file->getExtension();
+                return sprintf($errorMsg, $toFile->getName());
             }
-            if ($fileName == $destinationFileName){
-                return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-                    $file->getName()
-                );
-            }
-            $destinationFolder = realpath(pathinfo($this->getFullPath($file) . $destination, PATHINFO_DIRNAME));
-            if (!MediaSourceManager::isSubdirectory($this->rootPath,
-                $destinationFolder))
-            {
-                return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'],
-                    $file->getName()
-                );
-            }
-            $this->removeThumbnails($file);
+        }
 
+        $destFileName = $toFile->getFullName();
+        if (!is_dir($this->getFullPath($fromFile) . $fromFile->getFullName())) {
+            $destFileName = $toFile->getName() . '.' . $fromFile->getExtension();
+        }
 
-            if (!\Cx\Lib\FileSystem\FileSystem::move(
-                $fileName, $destinationFileName
-                , false
+        // If the source and destination file path are same then return success message
+        $fromFilename = $this->getFullPath($fromFile) . $fromFile->getFullName();
+        $toFilename   = $this->getFullPath($toFile) . $destFileName;
+        if ($fromFilename == $toFilename) {
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
+                $toFile->getName()
+            );
+        }
+
+        // If the move file is image then remove its thumbnail
+        $this->removeThumbnails($fromFile);
+
+        // Move the file/directory using FileSystem
+        if (
+            !\Cx\Lib\FileSystem\FileSystem::move(
+                $fromFilename,
+                $toFilename,
+                false
             )
-            ) {
+        ) {
+            return sprintf($errorMsg, $toFile->getName());
+        }
 
-                return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'],
-                    $file->getName()
-                );
-            }
-            return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-                $file->getName()
-            );
-        }
-        else {
-            return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'],
-                $file->getName()
-            );
-        }
+        return sprintf(
+            $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
+            $toFile->getName()
+        );
     }
 
     public function writeFile(
@@ -465,12 +463,14 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
-     * @param File $file
+     * Get the file full path
      *
-     * @return string
+     * @param File $file File object
+     * @return string Returns the file full path without filename
      */
-    public function getFullPath(File $file) {
-        return $this->rootPath . ltrim($file->getPath(), '.') . '/';
+    public function getFullPath(File $file)
+    {
+        return $this->rootPath . rtrim(ltrim($file->getPath(), '.'), '/') . '/';
     }
 
     /**
