@@ -259,6 +259,54 @@ class XamppController extends HostController {
         \DBG::msg("MultiSite (XamppController): update DNS-record: $type / $host / $value / $zone / $zoneId / $id");
         return null;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createUserStorage($websiteName, $codeBase = '') {
+        // website's data repository
+        $codeBaseOfWebsite = \Env::get('cx')->getCodeBaseDocumentRootPath();
+        if (!empty($codeBase)) {
+            $codeBaseOfWebsite = \Cx\Core\Setting\Controller\Setting::getValue(
+                'codeBaseRepository',
+                'MultiSite'
+            ) . '/' . $codeBase;
+        }
+        $codeBaseWebsiteSkeletonPath = $codeBaseOfWebsite . \Env::get('cx')->getCoreModuleFolderName() . '/MultiSite/Data/WebsiteSkeleton';
+
+        if(
+            !\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                $codeBaseWebsiteSkeletonPath,
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'websitePath',
+                    'MultiSite'
+                ) . '/' . $websiteName
+            )
+        ) {
+            throw new UserStorageControllerException('Unable to setup data folder');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteUserStorage($websiteName) {
+        $storageLocation = \Cx\Core\Setting\Controller\Setting::getValue(
+            'websitePath',
+            'MultiSite'
+        ) . '/' . $websiteName;
+        if (!file_exists($storageLocation)) {
+            return;
+        }
+        if (
+            !\Cx\Lib\FileSystem\FileSystem::delete_folder(
+                $storageLocation,
+                true
+            )
+        ) {
+            throw new UserStorageControllerException('Unable to delete the website data repository');
+        }
+    }
     
     public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
         \DBG::msg("MultiSite (XamppController): add Ftp-Account: $userName / $password / $homePath / $subscriptionId");

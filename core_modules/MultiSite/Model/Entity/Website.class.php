@@ -911,15 +911,13 @@ class Website extends \Cx\Model\Base\EntityBase {
     /*
     * function setupDataFolder to create folders for 
     * website like configurations files
+    * This method is executed on ServiceServer only!
     * @param $websiteName name of the website
     * */
-    protected function setupDataFolder($websiteName){
-        // website's data repository
-        $codeBaseOfWebsite = !empty($this->codeBase) ? \Cx\Core\Setting\Controller\Setting::getValue('codeBaseRepository','MultiSite').'/'.$this->codeBase  :  \Env::get('cx')->getCodeBaseDocumentRootPath();
-        $codeBaseWebsiteSkeletonPath = $codeBaseOfWebsite . \Env::get('cx')->getCoreModuleFolderName() . '/MultiSite/Data/WebsiteSkeleton';
-        if(!\Cx\Lib\FileSystem\FileSystem::copy_folder($codeBaseWebsiteSkeletonPath, \Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/'.$websiteName)) {
-            throw new WebsiteException('Unable to setup data folder');
-        }
+    protected function setupDataFolder($websiteName) {
+        // ensure our folder exists
+        $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
+        $hostingController->createUserStorage($websiteName);
     }    
      /*
     * function setupConfiguration to create configuration
@@ -1264,11 +1262,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
                         $hostingController->removeDb($objDb);
                     }
                     //remove the website's data repository
-                    if(file_exists(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite') . '/' . $this->name)) {
-                        if (!\Cx\Lib\FileSystem\FileSystem::delete_folder(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite') . '/' . $this->name, true)) {
-                            throw new WebsiteException('Unable to delete the website data repository');
-                        }
-                    }
+                    $hostingController->deleteUserStorage($this->getName());
 
                     //unmap all the domains
                     foreach ($this->domains as $domain) {

@@ -24,6 +24,22 @@ class UserStorageControllerException extends \Exception {}
 interface UserStorageController {
 
     /**
+     * Creates the user storage for the website with the supplied name
+     * @param string $websiteName Name of the website
+     * @param string $codeBase Code base name of the website, empty for default
+     * @return todo: StorageMetadata
+     * @throws UserStorageControllerException When something goes wrong
+     */
+    public function createUserStorage($websiteName, $codeBase = '');
+
+    /**
+     * Delete the user storage for the website with the supplied name
+     * @param string $websiteName Name of the website
+     * @throws UserStorageControllerException When something goes wrong
+     */
+    public function deleteUserStorage($websiteName);
+
+    /**
      * Add the new Ftp Account
      * 
      * @param string  $userName       FTP user name

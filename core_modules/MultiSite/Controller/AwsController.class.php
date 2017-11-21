@@ -455,6 +455,20 @@ class AwsController extends HostController {
     /**
      * {@inheritdoc}
      */
+    public function createUserStorage($websiteName, $codeBase = '') {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteUserStorage($websiteName) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
         throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
