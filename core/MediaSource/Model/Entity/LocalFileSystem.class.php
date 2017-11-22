@@ -381,9 +381,9 @@ class LocalFileSystem extends EntityBase implements FileSystem
         }
 
         // If the source and destination file path are same then return success message
-        $fromFilename = $this->getFullPath($fromFile) . $fromFile->getFullName();
-        $toFilename   = $this->getFullPath($toFile) . $destFileName;
-        if ($fromFilename == $toFilename) {
+        $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
+        $toFileName   = $this->getFullPath($toFile) . $destFileName;
+        if ($fromFileName == $toFileName) {
             return sprintf(
                 $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
                 $fromFile->getName()
@@ -396,8 +396,8 @@ class LocalFileSystem extends EntityBase implements FileSystem
         // Move the file/directory using FileSystem
         if (
             !\Cx\Lib\FileSystem\FileSystem::move(
-                $fromFilename,
-                $toFilename,
+                $fromFileName,
+                $toFileName,
                 false
             )
         ) {
