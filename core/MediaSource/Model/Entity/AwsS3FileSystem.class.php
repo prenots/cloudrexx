@@ -466,51 +466,61 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     /**
      * Move the file
      *
-     * @param File   $file        File object
-     * @param string $destination Destination filename
+     * @param File   $fromFile   File object
+     * @param string $toFilePath Destination file path
      * @return string Status message of file move
      */
-    public function moveFile(File $file, $destination)
+    public function moveFile(File $fromFile, $toFilePath)
     {
         $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $errorMsg = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
         if (
-            !$this->isFileExists($file) ||
-            empty($destination) ||
-            !\FWValidator::is_file_ending_harmless($destination)
+            !$this->isFileExists($fromFile) ||
+            empty($toFilePath) ||
+            !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return sprintf($errorMsg, $file->getFullName());
+            return sprintf($errorMsg, $fromFile->getFullName());
         }
 
-        $filePath = $this->getFullPath($file);
-        if (is_dir($this->directoryPrefix . $filePath . $file->getFullName())) {
-            $sourceFileName      = $filePath . $file->getFullName();
-            $destinationFileName = $filePath . $destination;
-        } else {
-            $sourceFileName      = $filePath . $file->getFullName();
-            $destinationFileName = $filePath . $destination . '.' . $file->getExtension();
+        // Create the $toFile's directory if does not exists
+        $toFile = new LocalFile($toFilePath, $fromFile->getFileSystem());
+        if (!file_exists($this->directoryPrefix . $this->getFullPath($toFile))) {
+            if (!mkdir($this->directoryPrefix . $this->getFullPath($toFile), '0777')) {
+                return sprintf($errorMsg, $fromFile->getName());
+            }
         }
 
-        if ($sourceFileName == $destinationFileName) {
+        $destFileName = $toFile->getFullName();
+        if (!$this->isDirectory($fromFile)) {
+            $destFileName = $toFile->getName() . '.' . $fromFile->getExtension();
+        }
+
+        // If the source and destination file path are same then return success message
+        $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
+        $toFileName   = $this->getFullPath($toFile) . $destFileName;
+        if ($fromFileName == $toFileName) {
             return sprintf(
                 $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-                $file->getName()
+                $fromFile->getName()
             );
         }
 
-        $this->removeThumbnails($file);
+        // If the move file is image then remove its thumbnail
+        $this->removeThumbnails($fromFile);
+
+        // Move the file/directory using FileSystem
         if (
             !rename(
-                $this->directoryPrefix . $sourceFileName,
-                $this->directoryPrefix . $destinationFileName
+                $this->directoryPrefix . $fromFileName,
+                $this->directoryPrefix . $toFileName
             )
         ) {
-            return sprintf($errorMsg, $file->getName());
+            return sprintf($errorMsg, $fromFile->getName());
         }
 
         return sprintf(
             $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-            $file->getName()
+            $fromFile->getName()
         );
     }
 
@@ -643,4 +653,6 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         }
         return new LocalFile($filepath, $this);
     }
+
+    public function getWebPath(File $file) {}
 }
