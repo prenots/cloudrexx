@@ -353,10 +353,13 @@ class LocalFileSystem extends EntityBase implements FileSystem
         $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $errorMsg = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
         if (
+            !\Cx\Lib\FileSystem\FileSystem::exists(
+                $this->getFullPath($fromFile) . $fromFile->getFullName()
+            ) ||
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return sprintf($errorMsg, $toFile->getName());
+            return sprintf($errorMsg, $fromFile->getName());
         }
 
         // Create the $toFile's directory if does not exists
@@ -368,7 +371,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
                     $this->getFullPath($toFile)
                 )
             ) {
-                return sprintf($errorMsg, $toFile->getName());
+                return sprintf($errorMsg, $fromFile->getName());
             }
         }
 
@@ -383,7 +386,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
         if ($fromFilename == $toFilename) {
             return sprintf(
                 $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-                $toFile->getName()
+                $fromFile->getName()
             );
         }
 
@@ -398,12 +401,12 @@ class LocalFileSystem extends EntityBase implements FileSystem
                 false
             )
         ) {
-            return sprintf($errorMsg, $toFile->getName());
+            return sprintf($errorMsg, $fromFile->getName());
         }
 
         return sprintf(
             $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-            $toFile->getName()
+            $fromFile->getName()
         );
     }
 
