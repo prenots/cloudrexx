@@ -173,6 +173,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
             case ComponentController::MODE_NONE:
             case ComponentController::MODE_WEBSITE:
+                \Permission::noAccess();
                 $cmd = array('settings');
                 break;
 
@@ -304,7 +305,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'httpAuthPassword' => array(
                             'showOverview' => false,
                         ),
-                    )
+                    ),
                 )
             );
                                  
@@ -380,8 +381,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ),
                         'Path' => array(
                             'header' => 'Path'
-                        )
-                    )
+                        ),
+                    ),
                 )
             );
             $template->setVariable('TABLE', $codeBase->render());
@@ -422,7 +423,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'websiteServiceServer' => array(
                             'showOverview' => $hasAccess,
                         ),
-                    )
+                    ),
                 )
             );
             $template->setVariable('TABLE', $websiteTemplatesView->render());
@@ -478,8 +479,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ),
                         'apiVersion' => array(
                             'header' => 'Api Version',
-                        )
-                    )
+                        ),
+                    ),
                 )
             );
             $template->setVariable('TABLE', $mailServiceServersView->render());
@@ -500,94 +501,94 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
             $cronMailsView = new \Cx\Core\Html\Controller\ViewGenerator(
                 $cronMails,
-                    array(
+                array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ACT_NOTIFICATIONS_EMAILS'],
-                        'functions' => array(
-                            'edit' => true,
-                            'add' => true,
-                            'delete' => true,
-                            'sorting' => true,
-                            'paging' => true,
-                            'filtering' => false,
-                        )
-                    )
+                    'functions' => array(
+                        'edit' => true,
+                        'add' => true,
+                        'delete' => true,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false,
+                    ),
+                )
             );
             $template->setVariable('TABLE', $cronMailsView->render());
         } else {
             $cronMailLog = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\CronMailLog')->findAll();
             $cronMailLogView = new \Cx\Core\Html\Controller\ViewGenerator($cronMailLog,
-                    array(
+                array(
                     'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATION_LOGS'],
-                        'functions' => array(
-                            'edit' => false,
-                            'add' => false,
-                            'delete' => false,
-                            'sorting' => true,
-                            'paging' => true,
-                            'filtering' => false,
-                            'order' => array(
-                                'sentDate' => SORT_DESC
-                            )
+                    'functions' => array(
+                        'edit' => false,
+                        'add' => false,
+                        'delete' => false,
+                        'sorting' => true,
+                        'paging' => true,
+                        'filtering' => false,
+                        'order' => array(
+                            'sentDate' => SORT_DESC,
                         ),
-                        'fields' => array(
-                            'id' => array('showOverview' => false),
-                            'contactId' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CONTACT'],
-                                'table' => array(
-                                    'parse' => function($contactId) {
-                                        $contact = new \Cx\Modules\Crm\Model\Entity\CrmContact();
-                                        $contact->load($contactId);
-                                        return $contact->customerName . ' ' . $contact->family_name;
-                                    },
-                                ),
+                    ),
+                    'fields' => array(
+                        'id' => array('showOverview' => false),
+                        'contactId' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_CONTACT'],
+                            'table' => array(
+                                'parse' => function($contactId) {
+                                    $contact = new \Cx\Modules\Crm\Model\Entity\CrmContact();
+                                    $contact->load($contactId);
+                                    return $contact->customerName . ' ' . $contact->family_name;
+                                },
                             ),
-                            'websiteId' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE'],
-                                'table'  => array(
-                                    'parse' => function($websiteId) {
-                                        global $_ARRAYLANG;
-                                        if (empty($websiteId)) {
-                                            return $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ALL'];
-                                        }
-                                        $websiteEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Website')
-                                                ->findOneById($websiteId);
-                                        if (!$websiteEntity) {
-                                            return;
-                                        }
-                                        return $websiteEntity->getEditLink();
+                        ),
+                        'websiteId' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE'],
+                            'table'  => array(
+                                'parse' => function($websiteId) {
+                                    global $_ARRAYLANG;
+                                    if (empty($websiteId)) {
+                                        return $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ALL'];
                                     }
-                                )
-                            ),
-                            'success' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITESTATE'],
-                                'table' => array(
-                                    'parse' => function($value) {
-                                        return self::getStatusImageTag($value);
+                                    $websiteEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Website')
+                                            ->findOneById($websiteId);
+                                    if (!$websiteEntity) {
+                                        return;
                                     }
-                                )
+                                    return $websiteEntity->getEditLink();
+                                }
                             ),
-                            'sentDate' => array(
-                                'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_SENT'],
+                        ),
+                        'success' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITESTATE'],
+                            'table' => array(
+                                'parse' => function($value) {
+                                    return self::getStatusImageTag($value);
+                                }
                             ),
-                            'token' => array('showOverview' => false),
-                            'cronMail' => array(
-                                'header' => $_ARRAYLANG['TXT_MULTISITE_WEBSITE_EMAIL'],
-                                'table' => array(
-                                    'parse' => function($value) {
-                                        global $_ARRAYLANG;
-                                        $cronMailEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\CronMail')
-                                                            ->findOneById($value);
-                                        if (!$cronMailEntity) {
-                                            return;
-                                        }
-                                        return '<a href="index.php?cmd=MultiSite&amp;act=notifications/emails&amp;editid='
-                                            . $cronMailEntity->getId() . '" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_EMAIL_EDIT'] . '">'
-                                            . $cronMailEntity->getMailTemplateKey() . '</a>';
+                        ),
+                        'sentDate' => array(
+                            'header' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_SENT'],
+                        ),
+                        'token' => array('showOverview' => false),
+                        'cronMail' => array(
+                            'header' => $_ARRAYLANG['TXT_MULTISITE_WEBSITE_EMAIL'],
+                            'table' => array(
+                                'parse' => function($value) {
+                                    global $_ARRAYLANG;
+                                    $cronMailEntity = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\CronMail')
+                                                        ->findOneById($value);
+                                    if (!$cronMailEntity) {
+                                        return;
                                     }
-                                )
-                            )
-                        )
-                    )
+                                    return '<a href="index.php?cmd=MultiSite&amp;act=notifications/emails&amp;editid='
+                                        . $cronMailEntity->getId() . '" title="' . $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_NOTIFICATIONS_EMAIL_EDIT'] . '">'
+                                        . $cronMailEntity->getMailTemplateKey() . '</a>';
+                                }
+                            ),
+                        ),
+                    ),
+                )
             );
             $template->setVariable('TABLE', $cronMailLogView->render());
         }
@@ -864,31 +865,32 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $view    = new \Cx\Core\Html\Controller\ViewGenerator(
             $dataSet,
             array(
-                        'header' => 'Affiliate IDs',
-                        'functions' => array(
-                          'paging'  => true  
-                        ),
-                        'fields' => array(
-                            'affiliateId' => array('header' => 'TXT_CORE_MODULE_MULTISITE_AFFILIATEID'),
-                            'user'        => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_USER',
-                                'table' => array(
-                                    'parse' => function($userId, $arrData) {
-                                        return \FWUser::getParsedUserLink($userId);
-                                    }
-                                )
-                            ),
-                            'paypal'      => array('header' => 'TXT_CORE_MODULE_MULTISITE_PAYPAL_EMAIL'),
-                            'referrals'   => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_REFERRALS',
-                                'table' => array(
-                                    'parse' => function($affiliateId, $arrData) {
-                                        return \Cx\Core_Modules\MultiSite\Controller\BackendController::getReferralCountByAffiliateId($affiliateId);
-                                    }
-                                )
-                            ),
+                'header' => 'Affiliate IDs',
+                'functions' => array(
+                  'paging'  => true  
+                ),
+                'fields' => array(
+                    'affiliateId' => array('header' => 'TXT_CORE_MODULE_MULTISITE_AFFILIATEID'),
+                    'user'        => array(
+                        'header' => 'TXT_CORE_MODULE_MULTISITE_USER',
+                        'table' => array(
+                            'parse' => function($userId, $arrData) {
+                                return \FWUser::getParsedUserLink($userId);
+                            }
                         )
-                   ));
+                    ),
+                    'paypal'      => array('header' => 'TXT_CORE_MODULE_MULTISITE_PAYPAL_EMAIL'),
+                    'referrals'   => array(
+                        'header' => 'TXT_CORE_MODULE_MULTISITE_REFERRALS',
+                        'table' => array(
+                            'parse' => function($affiliateId, $arrData) {
+                                return \Cx\Core_Modules\MultiSite\Controller\BackendController::getReferralCountByAffiliateId($affiliateId);
+                            }
+                        ),
+                    ),
+                ),
+            )
+        );
         $domainRepository = new \Cx\Core\Net\Model\Repository\DomainRepository();
         $mainDomain       = $domainRepository->getMainDomain()->getName();
         $affiliateUrl     = \Cx\Core\Routing\Url::fromMagic(ASCMS_PROTOCOL . '://' . $mainDomain . \Env::get('cx')->getBackendFolderName() . '/index.php?cmd=JsonData&amp;object=MultiSite&amp;act=trackAffiliateId');
@@ -988,28 +990,29 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $view = new \Cx\Core\Html\Controller\ViewGenerator(
             $dataSet,
             array(
-                        'header' => 'FTP',
-                        'functions' => array(
-                          'paging'  => true  
-                        ),
-                        'fields' => array(
-                            'name'    => array('header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITENAME'),
-                            'ftpUser' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPUSER'),
-                            'ftpPath' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPPATH'),
-                            'status'  => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITESTATE',
-                                'table' => array(
-                                    'parse' => function($value, $arrData) {
-                                        return self::getStatusImageTag($value);
-                                    }
-                                )
-                            ),
-                            'websiteServiceServer' => array(
-                                'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVICE_SERVER',
-                                'showOverview' => \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER,
-                            )
+                'header' => 'FTP',
+                'functions' => array(
+                  'paging'  => true  
+                ),
+                'fields' => array(
+                    'name'    => array('header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITENAME'),
+                    'ftpUser' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPUSER'),
+                    'ftpPath' => array('header' => 'TXT_CORE_MODULE_MULTISITE_FTPPATH'),
+                    'status'  => array(
+                        'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITESTATE',
+                        'table' => array(
+                            'parse' => function($value, $arrData) {
+                                return self::getStatusImageTag($value);
+                            }
                         )
-                   ));
+                    ),
+                    'websiteServiceServer' => array(
+                        'header' => 'TXT_CORE_MODULE_MULTISITE_WEBSITE_SERVICE_SERVER',
+                        'showOverview' => \Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite') == ComponentController::MODE_MANAGER,
+                    ),
+                ),
+            )
+        );
         $template->setVariable($placeholder, $view->render());
     }
     
@@ -1043,73 +1046,74 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $view = new \Cx\Core\Html\Controller\ViewGenerator(
             $domains,
             array(
-            'header' => 'Domains',
-            'functions' => array(
-                'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                'delete' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                'sorting' => true,
-                'paging' => true, 
-                'filtering' => false,
-            ),
-            'fields' => array(
-                'id' => array('showOverview' => false),
-                'name' => array(
-                    'header' => 'Domain',
-                    'readonly' => true,
+                'header' => 'Domains',
+                'functions' => array(
+                    'edit' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                    'delete' => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                    'sorting' => true,
+                    'paging' => true, 
+                    'filtering' => false,
                 ),
-                'componentId' => array(
-                    'readonly'      => true,
-                    'showOverview'  => false,
-                ),
-                'componentType' => array(
-                    'header'       => 'Type',
-                    'readonly'     => true,
-                    'table' => array(
-                        'parse' => function($value, $arrData) {
-                            return ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN 
-                                        || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN
-                                        || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? 'A' :
-                                    ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? 'CNAME' : false);
-                        },      
+                'fields' => array(
+                    'id' => array('showOverview' => false),
+                    'name' => array(
+                        'header' => 'Domain',
+                        'readonly' => true,
+                    ),
+                    'componentId' => array(
+                        'readonly'      => true,
+                        'showOverview'  => false,
+                    ),
+                    'componentType' => array(
+                        'header'       => 'Type',
+                        'readonly'     => true,
+                        'table' => array(
+                            'parse' => function($value, $arrData) {
+                                return ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN 
+                                            || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN
+                                            || $arrData['type'] == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? 'A' :
+                                        ($arrData['type'] == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? 'CNAME' : false);
+                            },      
+                        ),
+                    ),
+                    'type' => array(
+                        'header'        => 'Value',
+                        'readonly'      => true,
+                        'table' => array(
+                            'parse' => function($value, $arrData) {
+                                try {
+                                    $domainRepo = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findOneBy(array('id' => $arrData['id']));
+                                    $website = $domainRepo->getWebsite();
+                                    if ($website) {
+                                        return ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN) ? $website->getIpAddress() :
+                                                ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? $website->getFqdn()->getName() : 
+                                                 ( ($value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN || $value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? $website->getMailServiceServer()->getIpAddress() : false));
+                                    }
+                                } catch (\Exception $e) {}
+                                return false;
+                            },
+                        ),
+                    ),
+                    'coreNetDomainId' => array(
+                        'readonly'      => true,
+                        'showOverview'  => false,
+                    ),
+                    'pleskId' => array(
+                        'header' => 'DNS status',
+                        'showOverview'  => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
+                        'table' => array(
+                            'parse' => function($value) {                           
+                               $status  = isset(self::$dnsRecords[$value]) ? true : false;
+                               if ($status) {
+                                   return '<img src="'. '../core/Core/View/Media/icons/led_green.gif"'. ' alt='."status_green".'/>';
+                               }
+                               return '<img src="'. '../core/Core/View/Media/icons/led_red.gif"'. ' alt='."status_red".'/>';
+                            },
+                        ),
                     ),
                 ),
-                'type' => array(
-                    'header'        => 'Value',
-                    'readonly'      => true,
-                    'table' => array(
-                        'parse' => function($value, $arrData) {
-                            try {
-                                $domainRepo = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Domain')->findOneBy(array('id' => $arrData['id']));
-                                $website = $domainRepo->getWebsite();
-                                if ($website) {
-                                    return ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_FQDN) ? $website->getIpAddress() :
-                                            ($value == \CX\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_BASE_DOMAIN ? $website->getFqdn()->getName() : 
-                                             ( ($value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_MAIL_DOMAIN || $value == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_WEBMAIL_DOMAIN) ? $website->getMailServiceServer()->getIpAddress() : false));
-                                }
-                            } catch (\Exception $e) {}
-                            return false;
-                        },
-                    ),
-                ),
-                'coreNetDomainId' => array(
-                    'readonly'      => true,
-                    'showOverview'  => false,
-                ),
-                'pleskId' => array(
-                    'header' => 'DNS status',
-                    'showOverview'  => in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(ComponentController::MODE_MANAGER, ComponentController::MODE_HYBRID)),
-                    'table' => array(
-                        'parse' => function($value) {                           
-                           $status  = isset(self::$dnsRecords[$value]) ? true : false;
-                           if ($status) {
-                               return '<img src="'. '../core/Core/View/Media/icons/led_green.gif"'. ' alt='."status_green".'/>';
-                           }
-                           return '<img src="'. '../core/Core/View/Media/icons/led_red.gif"'. ' alt='."status_red".'/>';
-                        },
-                    ),
-                ),
-            ),
-        ));
+            )
+        );
         $template->setVariable('TABLE', $view->render()); 
     }
 
@@ -1177,8 +1181,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'userId'      => array(
                             'readonly'     => true,
                             'showOverview' => false
-                        )
-                    )
+                        ),
+                    ),
                 )
             );
             $template->setVariable('TABLE', $backupAndRestore->render());
@@ -1730,11 +1734,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 return;
             }
             $remoteLoginType = $customerPanelLogin ? 'customerpanel' : 'website';
+            $style           = $customerPanelLogin ? 'customerPanelLogin' : 'remoteWebsiteLogin';
             $title           =  $customerPanelLogin ? $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_CUSTOMERPANELDOMAIN_TITLE'] 
                                                     : sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_REMOTE_LOGIN_TITLE'], $website->getFqdn()->getName());
         }
         
-        $websiteRemoteLogin = '<a href="javascript:void(0);" class = "remoteWebsiteLogin" data-login = "'.$remoteLoginType.'" data-id = "'.$wesiteId.'" title = "'.$title.'" ></a>';
+        $websiteRemoteLogin = '<a href="javascript:void(0);" class = "'.$style.'" data-login = "'.$remoteLoginType.'" data-id = "'.$wesiteId.'" title = "'.$title.'" ></a>';
         return $websiteRemoteLogin; 
     }
     

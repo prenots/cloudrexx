@@ -1890,6 +1890,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $website->setOwner($owner);
             }
             //Set the website mode and server website
+            $oldServerWebsite = $website->getServerWebsite();
             $serverWebsite = null;
             if (    isset($params['post']['serverWebsiteId'])
                 &&  isset($params['post']['mode'])
@@ -1916,7 +1917,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $website->setServerWebsite($serverWebsite);
             }
             $em->flush();
-            if ($updateDomainMaps) {
+            if ($updateDomainMaps || $oldServerWebsite != $serverWebsite) {
                 $domainRepository = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Domain');
                 $domainRepository->exportDomainAndWebsite();
             }
@@ -2612,7 +2613,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 && !\Cx\Core\Setting\Controller\Setting::add('defaultLanguageId', $params['post']['defaultLanguageId'], 9, \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, '{src:\\Cx\\Core\\Config\\Controller\\Config::getBackendLanguages()}', 'administrationArea')) {
             throw new MultiSiteJsonException(array(
                 'log'       => \DBG::getMemoryLogs(),
-                'message'   => "Failed to add Setting entry for defaultLanguageId",
+                'message'   => "Failed to add Setting entry for dashboardNewsSrc",
             ));
         }
         if (!\Cx\Core\Setting\Controller\Setting::isDefined('dashboardNewsSrc') 
@@ -2980,29 +2981,30 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         if (empty($params['post']['themeId'])) {
             throw new MultiSiteJsonException('JsonMultiSiteController (setWebsiteTheme): failed to set the website theme due to the empty param $themeId');
         }
-        
-        try {
-            $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
-            if (!$themeRepo->findById($params['post']['themeId'])) {
-                throw new MultiSiteJsonException('JsonMultiSiteController (setWebsiteTheme): failed to set the website theme due to no one theme exists with param $themeId');
-            }
 
-            $langId = \FWLanguage::getDefaultLangId();
-            //set the theme $themeId as standard and mobile theme
-            $objResult = $objDatabase->Execute('UPDATE ' . DBPREFIX . 'languages '
-                                                . 'SET `themesid` = ' . intval($params['post']['themeId']) . ', `mobile_themes_id` = ' . intval($params['post']['themeId'])
-                                                . ' WHERE id = ' . intval($langId));
-            if ($objResult !== false) {
-                return array(
-                    'status'    => 'success',
-                    'log'       => \DBG::getMemoryLogs(),
-                );
+        try {
+            $themeId = intval($params['post']['themeId']);
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getDb()
+                ->getEntityManager();
+            $frontendRepo = $em->getRepository('Cx\Core\View\Model\Entity\Frontend');
+            $frontends = $frontendRepo->findAll();
+            foreach ($frontends as $frontend) {
+                $frontend->setTheme($themeId);
+                $em->persist($frontend);
             }
-        } catch (\Exception $e) {
-            throw new MultiSiteJsonException(array(
+            $em->flush();
+        
+            return array(
+                'status'    => 'success',
                 'log'       => \DBG::getMemoryLogs(),
-                'message'   => 'JsonMultiSiteController (setWebsiteTheme): failed to set the website theme.' . $e->getMessage(),
-            ));
+            );
+        } catch (\Exception $e) {
+            return array(
+                'status' => 'error',
+                'message' => 'JsonMultiSiteController (setWebsiteTheme): failed to set the website theme.' . $e->getMessage(),
+                'log'    => \DBG::getMemoryLogs(),
+            );
         }
     }
     
@@ -3304,7 +3306,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $affiliateId = $urlParams[$affiliateIdQueryStringKey];
                 if (ComponentController::isValidAffiliateId($affiliateId)) {
                     $cookieLifeTime = \Cx\Core\Setting\Controller\Setting::getValue('affiliateCookieLifetime','MultiSite');
-                    setcookie('MultiSiteAffiliateId', $affiliateId, time() + (86400 * $cookieLifeTime), "/", '.cloudrexx.com');
+                    setcookie('MultiSiteAffiliateId', $affiliateId, time() + (86400 * $cookieLifeTime), "/", '.' . \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'));
                 }
             default:
                 break;
@@ -3707,7 +3709,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
 			$renewalOption = isset($params['post']['renewalOption']) ? $params['post']['renewalOption'] : 'monthly';
             list($renewalUnit, $renewalQuantifier) = self::getProductRenewalUnitAndQuantifier($renewalOption);
             $currency = ComponentController::getUserCurrency($objUser ? $objUser->getCrmUserId() : 0);
-            $productPrice = $product->getPaymentAmount($renewalUnit, $renewalQuantifier, $currency);
+            $productPrice = $product->getPaymentAmount($renewalUnit, $renewalQuantifier, $currency, true);
             $referenceId = '';
             $purpose     = '';
             if (isset($params['post']['multisite_address']) && !\FWValidator::isEmpty($params['post']['multisite_address'])) {

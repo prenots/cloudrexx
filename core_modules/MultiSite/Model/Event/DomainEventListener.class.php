@@ -378,7 +378,7 @@ class DomainEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
                 $config = \Env::get('config');
                 $params['auth'] = json_encode(array('sender' => $config['domainUrl']));
                 try {
-                    $objJsonMultiSite = new \Cx\Core_Modules\MultiSite\Controller\JsonMultiSite();
+                    $objJsonMultiSite = new \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController();
                     $objJsonMultiSite->$event(array('post' => $params));
                 } catch (\Exception $e) {
                     throw new DomainEventListenerException($e->getMessage());

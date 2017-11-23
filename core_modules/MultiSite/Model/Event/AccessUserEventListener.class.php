@@ -143,6 +143,7 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                         try {
                             $objJsonData = new \Cx\Core\Json\JsonData();
                             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('executeOnManager', array('command' => 'updateUser', 'params' => $params));
+                            \DBG::log(var_export($resp->data, true));
                             if ($resp->status == 'error' || $resp->data->status == 'error') {
                                 if (isset($resp->log)) {
                                     \DBG::appendLogs(array_map(function($logEntry) {return '(Website: './*$this->getName().*/') '.$logEntry;}, $resp->log));
