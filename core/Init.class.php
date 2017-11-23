@@ -839,6 +839,7 @@ class InitCMS
                         case 'Locale':
                         case 'Country':
                         case 'View':
+                        case 'MediaSource':
                             $this->arrModulePath[$objResult->fields['name']] = ASCMS_CORE_PATH.'/'. $objResult->fields['name'] . '/lang/';
                             break;
                         default:
