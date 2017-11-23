@@ -177,6 +177,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'getWebsiteSize' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'getServerWebsiteList' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
             'checkServerWebsiteAccessedByClient' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
+            'updateAutomaticCertificates' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array('http', 'https'), array('post'), false, null, null, array($this, 'auth')),
         );  
     }
 
@@ -6613,34 +6614,59 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         \DBG::log('JsonMultiSiteController::domainManipulation() failed: Unknown website.');
                         return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_EXISTS']);
                     }
-                    $mailServiceServer = $website->getMailServiceServer();
-                    if ( !\FWValidator::isEmpty($mailServiceServer) && !\FWValidator::isEmpty($website->getMailAccountId())) {
-                        $hostingController = ComponentController::getMailServerHostingController($mailServiceServer);
-                    
-                        if (!$hostingController) {
-                            \DBG::msg('Failed to get the hosting controller.');
-                            throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
+
+                    $methodName = $params['post']['command'];
+                    // automatically issue self-signed certificate (if supported)
+                    try {
+                        $certParams = array(
+                            'event' => $methodName,
+                            'domainName' => $params['post']['domainName'],
+                        );
+                        if (!empty($params['post']['oldDomainName'])) {
+                            $certParams['oldDomainName'] = $params['post']['oldDomainName'];
                         }
-                        $hostingController->setWebspaceId($website->getMailAccountId());
-                        $methodName = $params['post']['command'];
-                        switch ($methodName) {
-                            case 'renameDomainAlias':
-                                if (!$hostingController->$methodName($params['post']['oldDomainName'], $params['post']['domainName'])) {
-                                    \DBG::msg('Failed to process the method renameDomainAlias().');
-                                    throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
-                                }
-                                break;
-                            case 'deleteDomainAlias':
-                            case 'createDomainAlias':
-                            case 'renameMailDistribution':
-                                if (!$hostingController->$methodName($params['post']['domainName'])) {
-                                    \DBG::msg('Failed to process the method '.$params['post']['command'] . '().');
-                                    throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
-                                }
-                                break;
-                            default :
-                                break;
+                        $result = static::executeCommandOnServiceServer(
+                            'updateAutomaticCertificates',
+                            $certParams,
+                            $website->getServiceServer()
+                        );
+                    } catch (\Exception $e) {
+                        \DBG::log('SYSERROR: Could not update self-signed certificates while executing "' . $methodName . '" for website "' . $website->getName() . '"!');
+                        throw $e;
+                    }
+
+                    try {
+                        $mailServiceServer = $website->getMailServiceServer();
+                        if ( !\FWValidator::isEmpty($mailServiceServer) && !\FWValidator::isEmpty($website->getMailAccountId())) {
+                            $hostingController = ComponentController::getMailServerHostingController($mailServiceServer);
+                        
+                            if (!$hostingController) {
+                                \DBG::msg('Failed to get the hosting controller.');
+                                throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
+                            }
+                            $hostingController->setWebspaceId($website->getMailAccountId());
+                            switch ($methodName) {
+                                case 'renameDomainAlias':
+                                    if (!$hostingController->$methodName($params['post']['oldDomainName'], $params['post']['domainName'])) {
+                                        \DBG::msg('Failed to process the method renameDomainAlias().');
+                                        throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
+                                    }
+                                    break;
+                                case 'deleteDomainAlias':
+                                case 'createDomainAlias':
+                                case 'renameMailDistribution':
+                                    if (!$hostingController->$methodName($params['post']['domainName'])) {
+                                        \DBG::msg('Failed to process the method '.$params['post']['command'] . '().');
+                                        throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation(): Failed to process the method '.$params['post']['command'] . '().');
+                                    }
+                                    break;
+                                default :
+                                    break;
+                            }
                         }
+                    } catch (\Exception $e) {
+                        \DBG::log('SYSERROR: Could not update mail distribution while executing "' . $methodName . '" for website "' . $website->getName() . '"!');
+                        throw $e;
                     }
                     return array('status' => 'success');
                     break;
@@ -6669,6 +6695,82 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             \DBG::dump('JsonMultiSiteController::domainManipulation() failed:'. $e->getMessage());
             throw new MultiSiteJsonException('JsonMultiSiteController::domainManipulation() failed:');
         }
+    }
+
+    /**
+     * Updates self-signed certificates for a domain if this is supported by
+     * this service server
+     * Only executable on service server
+     * @todo Handle missing cases
+     * @param mixed $params
+     * @throws MultiSiteJsonException When executed on a non-service-server
+     */
+    public function updateAutomaticCertificates($params) {
+        if (
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'mode',
+                'MultiSite'
+            ) !== ComponentController::MODE_SERVICE
+        ) {
+            throw new MultiSiteJsonException(
+                'This method can only be used on service server'
+            );
+        }
+        $hostingController = ComponentController::getHostingController();
+        if (!$hostingController->canGenerateCertificates()) {
+            return array(
+                'status' => 'success',
+                'comment' => 'auto-certs not supported',
+            );
+        }
+
+        if (
+            !isset($params['event']) ||
+            !isset($params['domain'])
+        ) {
+            throw new MultiSiteJsonException(
+                'Not all necessary params set!'
+            );
+        }
+        try {
+            switch ($params['event']) {
+                case 'createDomainAlias':
+                    return static::executeCommand(
+                        'linkSsl',
+                        array(
+                            'post' => array(
+                                'domainName' => $params['domain'],
+                            ),
+                        )
+                    );
+                    break;
+                case 'renameDomainAlias':
+                    //SslController::removeSslCertificates();
+                    //SslController::activateSslCertificate();
+                    // do both of the above
+                    // is this case ever used?
+                    break;
+                case 'deleteDomainAlias':
+                    return static::executeCommand(
+                        'unLinkSsl',
+                        array(
+                            'post' => array(
+                                'domainName' => $params['domain'],
+                            ),
+                        )
+                    );
+                    break;
+                case 'renameMailDistribution':
+                    // ?
+                    break;
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return array(
+            'status' => 'success',
+            'comment' => 'nothing to do',
+        );
     }
     
     /**

@@ -497,6 +497,13 @@ class XamppController extends HostController {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function canGenerateCertificates() {
+        return false;
+    }
+
+    /**
      * Install the SSL Certificate for the domain
      * 
      * @param string $name                      Certificate name

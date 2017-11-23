@@ -553,6 +553,13 @@ class AwsController extends HostController {
     /**
      * {@inheritdoc}
      */
+    public function canGenerateCertificates() {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
     }
 
