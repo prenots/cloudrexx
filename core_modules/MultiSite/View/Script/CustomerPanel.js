@@ -231,7 +231,7 @@ function enableOrDisableMailService($this) {
 }
 
 function isValidEmail(mailId) {
-    var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
+    var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/i);
     
     if (pattern.test(mailId) === false) {
         return false;
@@ -249,6 +249,14 @@ function hideErrorBlock(errorBlock) {
     errorBlock
         .removeClass('has-error')
         .html('&nbsp;');
+}
+
+function enableOrDisableButton($formObj) {
+    if ($formObj.find('.errorBlock').length === 0 || $formObj.find('.help-block').length === 0) {
+        $formObj.find(".save").prop('disabled', false);
+    } else {
+        $formObj.find(".save").prop('disabled', true);
+    }
 }
 
 function pleskAutoLogin($this) {

@@ -115,7 +115,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         
         \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
         // allow access only if mode is MODE_MANAGER or MODE_HYBRID
-        if (!in_array(\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite'), array(self::MODE_MANAGER, self::MODE_HYBRID))) {
+        if (
+            php_sapi_name() != 'cli' &&
+            !in_array(
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'mode',
+                    'MultiSite'
+                ),
+                array(self::MODE_MANAGER, self::MODE_HYBRID)
+            )
+        ) {
             return;
         }
 
@@ -209,6 +218,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     
                     case 'list':
                         echo $this->executeCommandList($arguments);
+                        break;
+                    
+                    case 'exec':
+                        echo $this->executeCommandExec($arguments);
                         break;
                     
                     default:
@@ -344,21 +357,34 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return $_ARRAYLANG['TXT_MULTISITE_WEBSITE_LOGIN_NOACCESS'];
         }
         $objUser = \FWUser::getFWUserObject()->objUser;
-        
-        $blockName = 'multisite_user';
-        $placeholderPrefix = strtoupper($blockName).'_';
-        $objAccessLib = new \Cx\Core_Modules\Access\Controller\AccessLib($objTemplate);
-        $objAccessLib->setModulePrefix($placeholderPrefix);
-        $objAccessLib->setAttributeNamePrefix($blockName.'_profile_attribute');
-        $objAccessLib->setAccountAttributeNamePrefix($blockName.'_account_');
 
-        $objUser->objAttribute->first();
-        while (!$objUser->objAttribute->EOF) {
-            $objAttribute = $objUser->objAttribute->getById($objUser->objAttribute->getId());
-            $objAccessLib->parseAttribute($objUser, $objAttribute->getId(), 0, (isset($arguments[2]) && $arguments[2] == 'Edit' ? true : false), false, false, false, false);
-            $objUser->objAttribute->next();
-        }
+        $isEditMode = (isset($arguments[2]) && $arguments[2] == 'Edit') ? true : false;
+
+        if ($arguments[1] == 'Company') {
+            $this->parseCrmInfoForModal($objUser, $objTemplate, $isEditMode);
+            $objTemplate->setVariable(array(
+                'TXT_CORE_MODULE_MULTISITE_USER_ACCOUNT_INDUSTRY_TYPE' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_USER_ACCOUNT_INDUSTRY_TYPE'],
+                'TXT_CORE_MODULE_MULTISITE_USER_ACCOUNT_COMPANY_SIZE'  => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_USER_ACCOUNT_COMPANY_SIZE'],
+                'TXT_CORE_MODULE_MULTISITE_USER_ACCOUNT_CUSTOMER_TYPE' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_USER_ACCOUNT_CUSTOMER_TYPE'],
+                'TXT_CORE_MODULE_MULTISITE_USER_COMPANY_INFO_TITLE'    => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_USER_COMPANY_INFO_TITLE'],
+                'TXT_CORE_MODULE_MULTISITE_PLEASE_SELECT'              => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_PLEASE_SELECT'],
+            ));
+        } else {
+            $blockName = 'multisite_user';
+            $placeholderPrefix = strtoupper($blockName).'_';
+            $objAccessLib = new \Cx\Core_Modules\Access\Controller\AccessLib($objTemplate);
+            $objAccessLib->setModulePrefix($placeholderPrefix);
+            $objAccessLib->setAttributeNamePrefix($blockName.'_profile_attribute');
+            $objAccessLib->setAccountAttributeNamePrefix($blockName.'_account_');
+
+            $objUser->objAttribute->first();
+            while (!$objUser->objAttribute->EOF) {
+                $objAttribute = $objUser->objAttribute->getById($objUser->objAttribute->getId());
+                $objAccessLib->parseAttribute($objUser, $objAttribute->getId(), 0, $isEditMode, false, false, false, false);
+                $objUser->objAttribute->next();
+            }
         $objAccessLib->parseAccountAttributes($objUser);
+        }
         $objTemplate->setVariable(array(
             'MULTISITE_USER_PROFILE_SUBMIT_URL'         => \Env::get('cx')->getWebsiteBackendPath() . '/index.php?cmd=JsonData&object=MultiSite&act=updateOwnUser',
             'TXT_CORE_MODULE_MULTISITE_LOADING_TEXT'    => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_LOADING_TEXT'],
@@ -595,9 +621,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 continue;
             }
             $productName = contrexx_raw2xhtml($product->getName());
-            $priceMonthly = $product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_MONTH, 1, $currency);
-            $priceAnnually = number_format($product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_YEAR, 1, $currency), 2, '.', "'");
-            $priceBiannually = number_format($product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_YEAR, 2, $currency), 2, '.', "'");
+            $priceMonthly = $product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_MONTH, 1, $currency, true);
+            $priceAnnually = number_format($product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_YEAR, 1, $currency, true), 2, '.', "'");
+            $priceBiannually = number_format($product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_YEAR, 2, $currency, true), 2, '.', "'");
             $objTemplate->setVariable(array(
                 'MULTISITE_WEBSITE_PRODUCT_NAME' => $productName,
                 'MULTISITE_WEBSITE_PRODUCT_ATTRIBUTE_ID' => lcfirst($productName),
@@ -844,7 +870,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             } elseif (!\FWValidator::isEmpty($subscriptionId)) {
                 $resp = $this->createNewWebsiteInSubscription($subscriptionId, $websiteName);
             } elseif (!\FWValidator::isEmpty($productId)) {
-                $resp = $this->createNewWebsiteByProduct($productId, $websiteName);
+                $resp = $this->createNewWebsiteByProduct($productId, $websiteName, null, 0, \Cx\Modules\Pim\Model\Entity\Product::UNIT_MONTH);
             }
 
             $responseStatus  = isset($resp['status']) && $resp['status'] == 'success';
@@ -2048,6 +2074,28 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
+    public function executeCommandExec($arguments) {
+        if (!isset($arguments[1])) {
+            echo 'No valid PHP file supplied' . PHP_EOL;
+            return;
+        }
+
+        $file = $arguments[1];
+        if (!file_exists($file)) {
+            echo 'Unable to locate file ' . $file . PHP_EOL;
+            return;
+        }
+
+        echo 'Going to parse file ' . $file . PHP_EOL;
+        echo str_repeat('#', 80) . PHP_EOL;
+        if (!(include $file)) {
+            echo 'Failed to include file ' . $file . PHP_EOL;
+            return;
+        }
+
+        echo PHP_EOL . str_repeat('#', 80) . PHP_EOL;
+    }
+
     /**
      * Create new payment (handler Payrexx)
      * 
@@ -2328,7 +2376,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public static function parseProductForAddWebsite(\Cx\Core\Html\Sigma $objTemplate, \Cx\Modules\Pim\Model\Entity\Product $product, $crmContactId = 0)
     {
         $currency = self::getUserCurrency($crmContactId);
-        $productPrice = $product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_MONTH, 1, $currency);
+        $productPrice = $product->getPaymentAmount(\Cx\Modules\Pim\Model\Entity\Product::UNIT_MONTH, 1, $currency, true);
         if (\FWValidator::isEmpty($productPrice)) {
             self::showOrHideBlock($objTemplate, 'multisite_pay_button', false);
         }
@@ -2957,6 +3005,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         'externalPaymentCustomerIdProfileAttributeId', 
                         'MultiSite External Payment Customer ID',
                         5);
+                    self::addOrUpdateConfigurationOptionUserProfileAttributeId(
+                        'notificationCancelledProfileAttributeId',
+                        'Cancelled notification emails user profile attribute ID',
+                        6,
+                        'manager',
+                        false);
                 }
                 
                 //conversion group
@@ -3072,8 +3126,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         global $objInit, $_ARRAYLANG;
         
-        $langData = $objInit->loadLanguageData('MultiSite');
-        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+        if ($objInit) {
+            $langData = $objInit->loadLanguageData('MultiSite');
+            $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+        }
         
         switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
             case self::MODE_MANAGER:
@@ -3168,12 +3224,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm->addModelListener(\Doctrine\ORM\Events::preUpdate, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\User', $accessUserEventListener);
         $evm->addModelListener(\Doctrine\ORM\Events::preRemove, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\User', $accessUserEventListener);
         $evm->addModelListener(\Doctrine\ORM\Events::postUpdate, 'Cx\\Core_Modules\\MultiSite\\Model\\Entity\\User', $accessUserEventListener);
-
-// TODO: should we sync changes on Cx\Core\User\Model\Entity\User?
-        /*
-        $evm->addModelListener(\Doctrine\ORM\Events::preUpdate, 'Cx\\Core\\User\\Model\\Entity\\User', $accessUserEventListener);
-        $evm->addModelListener(\Doctrine\ORM\Events::postUpdate, 'Cx\\Core\\User\\Model\\Entity\\User', $accessUserEventListener);
-        }*/
     }
 
     protected function registerCronMailEventListener() {
@@ -3269,8 +3319,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $declaredInterfaces = array_diff(get_declared_interfaces(), $builtinInterfaces);
             
             // sort output
-            asort($declaredClasses);
-            asort($declaredInterfaces);
+            if (!isset($_GET['sort'])) {
+                asort($declaredClasses);
+                asort($declaredInterfaces);
+            }
             
             // fix array indexes
             $declaredClasses = array_values($declaredClasses);
@@ -3445,9 +3497,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     protected function deployWebsiteFromRequest(\Cx\Core\Core\Controller\Cx $cx) {
         $multiSiteRepo = new \Cx\Core_Modules\MultiSite\Model\Repository\FileSystemWebsiteRepository();
 
+        // remove port information from HTTP_HOST
         if (!isset($_SERVER['HTTP_HOST'])) {
             $_SERVER['HTTP_HOST'] = '';
         }
+        $_SERVER['HTTP_HOST'] = preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
 
         // dynamic mapping of <website>.cloudrexx.website
         $_SERVER['HTTP_HOST'] = preg_replace('/\.cloudrexx\.website$/i', '.cloudrexx.com', $_SERVER['HTTP_HOST'], 1);
@@ -3676,7 +3730,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             'websiteUserId',
             'MultiSite'
         );
-        if ($ownerId != $websiteUserId) {
+        if (
+                !JsonMultiSiteController::isIscRequest() &&
+                $ownerId != $websiteUserId
+        ) {
             return '';
         }
 
@@ -4110,15 +4167,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     'TXT_CORE_MODULE_MULTISITE_PLEASE_SELECT'                   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_PLEASE_SELECT'],
                     'TXT_CORE_PHONE'                                            => $_ARRAYLANG['TXT_CORE_PHONE'],
                     'MULTISITE_CONTACT_INFO_SUBMIT_URL'                         => \Env::get('cx')->getWebsiteBackendPath() . '/index.php?cmd=JsonData&object=MultiSite&act=updateOwnUser',
-                    'MULTISITE_COMPANY_SIZE_POST_NAME'                          => 'multisite_user_profile_attribute['.
-                                                                                        \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_company_size','Crm')
-                                                                                    .'][0]',
-                    'MULTISITE_INDUSTRY_TYPE_POST_NAME'                         => 'multisite_user_profile_attribute['.
-                                                                                        \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_industry_type','Crm')
-                                                                                    .'][0]',
-                    'MULTISITE_CUSTOMER_TYPE_POST_NAME'                         => 'multisite_user_profile_attribute['.
-                                                                                        \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_customer_type','Crm')
-                                                                                    .'][0]',
                     'MULTISITE_CUSTOMER_TYPE_ATTRIBUT_ID'                         => \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_customer_type','Crm'),
                     'MULTISITE_INDUSTRY_TYPE_ATTRIBUT_ID'                         => \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_industry_type','Crm'),
                 ));
@@ -4131,9 +4179,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * load dropdowns for industry type, company size and customer type out of crm and parse them in the
+     * If the $dropdownView is true, load dropdowns for industry type, company size and customer type out of crm and parse them in the
      * contact data modal template. If the user has already set them, we fill them in for him, so he only needs to change
-     * it if he wants to
+     * it if he wants to.
+     * if the $dropdownView is false, only parse the value of attributes industry type, company size and customer type
      *
      * @access protected
      * @author Adrian Berger <ab@comvation.com>
@@ -4141,41 +4190,48 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @global <type> $_ARRAYLANG
      * @param objUser $objUser
      * @param object $objContactTpl
+     * @param boolean $dropdownView
      */
-    protected function parseCrmInfoForModal($objUser, $objContactTpl){
+    protected function parseCrmInfoForModal($objUser, $objContactTpl, $dropdownView = true) {
         global $_ARRAYLANG;
 
         // initialize crm config, so we can get the values out of it
         \Cx\Core\Setting\Controller\Setting::init('Crm', 'config');
 
         $crmComponent = new \Cx\Modules\Crm\Controller\CrmManager('crm');
+        //get the profile attribute id of industry type, company size and customer type
+        $companySizeAttrId  = \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_company_size','Crm');
+        $industryTypeAttrId = \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_industry_type','Crm');
+        $customerTypeAttrId = \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_customer_type','Crm');
+
+        // get the value of profile attributes industry type, company size and customer type
+        $companySizeAttrValue  = $objUser->getProfileAttribute($companySizeAttrId);
+        $industryTypeAttrValue = $objUser->getProfileAttribute($industryTypeAttrId);
+        $customerTypeAttrValue = $objUser->getProfileAttribute($customerTypeAttrId);
+
+        if ($dropdownView) {
         $objContactTpl->setGlobalVariable(array(
             'CRM_INDUSTRY_DROPDOWN'     => $crmComponent->listIndustryTypes(
                                                 $crmComponent->_objTpl,
                                                 2,
-                                                // get current value as placeholder
-                                                $objUser->getProfileAttribute(
-                                                    \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_industry_type','Crm')
-                                                )
+                                                                $industryTypeAttrValue
                                             ),
             'TXT_CRM_PLEASE_SELECT'     => $_ARRAYLANG['TXT_CRM_COMMENT_DESCRIPTION'],
+                'MULTISITE_INDUSTRY_TYPE_POST_NAME' => 'multisite_user_profile_attribute['. $industryTypeAttrId .'][0]',
+                'MULTISITE_CUSTOMER_TYPE_POST_NAME' => 'multisite_user_profile_attribute['. $customerTypeAttrId .'][0]',
+                'MULTISITE_COMPANY_SIZE_POST_NAME'  => 'multisite_user_profile_attribute['. $companySizeAttrId .'][0]'
         ));
 
-        $crmComponent->getCompanySizeDropDown(
-                                                $objContactTpl,
-                                                // get current value as placeholder
-                                                $objUser->getProfileAttribute(
-                                                    \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_company_size','Crm')
-                                                )
-        );
+            $crmComponent->getCompanySizeDropDown($objContactTpl, $companySizeAttrValue);
 
-        $crmComponent->getCustomerTypeDropDown(
-                                                $objContactTpl,
-                                                // get current value as placeholder
-                                                $objUser->getProfileAttribute(
-                                                    \Cx\Core\Setting\Controller\Setting::getValue('user_profile_attribute_customer_type','Crm')
-                                                )
-        );
+            $crmComponent->getCustomerTypeDropDown($objContactTpl, $customerTypeAttrValue);
+        } else {
+            $objContactTpl->setGlobalVariable(array(
+                'MULTISITE_USER_INDUSTRY_TYPE_VALUE' => contrexx_raw2xhtml($crmComponent->getIndustryTypeNameById($industryTypeAttrValue)),
+                'MULTISITE_USER_CUSTOMER_TYPE_VALUE' => contrexx_raw2xhtml($crmComponent->getCustomerTypeNameById($customerTypeAttrValue)),
+                'MULTISITE_USER_COMPANY_SIZE_VALUE'  => contrexx_raw2xhtml($crmComponent->getCompanySizeNameById($companySizeAttrValue))
+            ));
+        }
     }
 
 
