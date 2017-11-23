@@ -27,7 +27,7 @@ interface UserStorageController {
      * Creates the user storage for the website with the supplied name
      * @param string $websiteName Name of the website
      * @param string $codeBase Code base name of the website, empty for default
-     * @return todo: StorageMetadata
+     * @return array Key=>value array with additional settings for Config.yml
      * @throws UserStorageControllerException When something goes wrong
      */
     public function createUserStorage($websiteName, $codeBase = '');

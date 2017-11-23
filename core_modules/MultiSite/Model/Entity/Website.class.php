@@ -595,7 +595,7 @@ class Website extends \Cx\Model\Base\EntityBase {
             $this->setupDatabase($langId, $this->owner, $objDb, $objDbUser);
 
             \DBG::msg('Website: setupDataFolder..');
-            $this->setupDataFolder($websiteName);
+            $additionalConfig = $this->setupDataFolder($websiteName);
 
             \DBG::msg('Website: setupFtpAccount..');
             $ftpAccountPassword = $this->setupFtpAccount($websiteName);
@@ -613,7 +613,7 @@ class Website extends \Cx\Model\Base\EntityBase {
             $this->setupLicense($options);
 
             \DBG::msg('Website: initializeConfig..');
-            $this->initializeConfig();
+            $this->initializeConfig($additionalConfig);
 
             \DBG::msg('Website: setupTheme..');
             $this->setupTheme($websiteThemeId);
@@ -908,16 +908,17 @@ class Website extends \Cx\Model\Base\EntityBase {
             throw new WebsiteException('Database data could not be initialized');
         }    
     }
-    /*
-    * function setupDataFolder to create folders for 
-    * website like configurations files
-    * This method is executed on ServiceServer only!
-    * @param $websiteName name of the website
-    * */
+    
+    /**
+     * Create the necessary files and folders for the website
+     * This method is executed on ServiceServer only!
+     * @param $websiteName name of the website
+     * @return array Key=>value array with additional settings for Config.yml
+     */
     protected function setupDataFolder($websiteName) {
         // ensure our folder exists
         $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
-        $hostingController->createUserStorage($websiteName);
+        return $hostingController->createUserStorage($websiteName);
     }    
      /*
     * function setupConfiguration to create configuration
@@ -984,16 +985,19 @@ class Website extends \Cx\Model\Base\EntityBase {
           
     }
 
-    protected function initializeConfig() {
+    protected function initializeConfig($additionalConfig = array()) {
         try {
-            $params = array(
-                'dashboardNewsSrc' => \Cx\Core\Setting\Controller\Setting::getValue('dashboardNewsSrc','MultiSite'),
-                'coreAdminEmail'   => $this->owner->getEmail(),
-                'contactFormEmail' => $this->owner->getEmail(),
-                // we should migrate this to locales
-                // this only works as long as the website skeleton data does use the same locale/language IDs as the website service and master
-                'defaultLocaleId'  => $this->language,
-                'defaultLanguageId'=> $this->language,
+            $params = array_merge(
+                array(
+                    'dashboardNewsSrc' => \Cx\Core\Setting\Controller\Setting::getValue('dashboardNewsSrc','MultiSite'),
+                    'coreAdminEmail'   => $this->owner->getEmail(),
+                    'contactFormEmail' => $this->owner->getEmail(),
+                    // we should migrate this to locales
+                    // this only works as long as the website skeleton data does use the same locale/language IDs as the website service and master
+                    'defaultLocaleId'  => $this->language,
+                    'defaultLanguageId'=> $this->language,
+                ),
+                $additionalConfig
             );
             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('setupConfig', $params, $this);
             if(!$resp || $resp->status == 'error'){
