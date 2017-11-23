@@ -839,6 +839,7 @@ class InitCMS
                         case 'Locale':
                         case 'Country':
                         case 'View':
+                        case 'MediaSource':
                             $this->arrModulePath[$objResult->fields['name']] = ASCMS_CORE_PATH.'/'. $objResult->fields['name'] . '/lang/';
                             break;
                         default:
@@ -884,7 +885,8 @@ class InitCMS
                 $langCode = $this->arrLang[\FWLanguage::getDefaultLangId()]['source_lang'];
             }
         }
-
+//         echo $module;
+//         exit();
         // check which module will be loaded
         if (empty($module)) {
             if ($this->mode == 'backend') {
@@ -893,15 +895,19 @@ class InitCMS
                 $module = isset($_REQUEST['section']) ? addslashes(strip_tags($_REQUEST['section'])) : 'core';
             }
         }
+        
         if (preg_match('/^Media\d+$/', $module)) {
             $module = 'Media';
         }
+        echo '=>>>';
         // change module for core components
         if (!array_key_exists($module, $this->arrModulePath) && $module != 'Media') {
             $module = '';
         } else {
+            echo $module . '--->';
             //load english language file first...
             $path = $this->getLangFilePathByCode($module, 'en');
+            echo $path;
             if (!empty($path)) {
                 $this->loadLangFile($path, $loadFromYaml, $module);
             }
@@ -987,6 +993,7 @@ class InitCMS
     protected function getLangFilePathByCode($module, $langCode) {
         // check whether the language file exists
         $mode = in_array($this->mode, array('backend', 'update')) ? 'backend' : 'frontend';
+//         echo $this->arrModulePath[$module].$langCode.'/'.$mode.'.php';
         $path = \Env::get('ClassLoader')->getFilePath($this->arrModulePath[$module].$langCode.'/'.$mode.'.php');
 
         if ($path) {
