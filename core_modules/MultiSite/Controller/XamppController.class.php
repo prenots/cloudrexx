@@ -49,9 +49,9 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return \Cx\Core\Model\Model\Entity\DbUser representation of the created user
      */
     public function createDbUser(\Cx\Core\Model\Model\Entity\DbUser $user){
-        $objResult = $this->db->Execute('CREATE USER \'' . $user->getName() . '\'@\'localhost\' IDENTIFIED BY \'' . $user->getPassword() . '\'');
+        $objResult = $this->db->Execute('CREATE USER \'' . $user->getName() . '\'@\'%\' IDENTIFIED BY \'' . $user->getPassword() . '\'');
         if ($objResult === false) {
-            throw new \Exception("Could not create database user (2/" . 'CREATE USER \'' . $user->getName() . '\'@\'localhost\' IDENTIFIED BY \'' . '******' . '\'' . "/" . $this->db->ErrorMsg() . ")!");
+            throw new \Exception("Could not create database user (2/" . 'CREATE USER \'' . $user->getName() . '\'@\'%\' IDENTIFIED BY \'' . '******' . '\'' . "/" . $this->db->ErrorMsg() . ")!");
         }    
     }
     
@@ -97,7 +97,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
             ON
                 `' . $databaseName . '`.*
             TO
-                "' . $user->getName() . '"@"localhost"
+                "' . $user->getName() . '"@"%"
         ');
         if ($objResult === false) {
             throw new \Exception("Could not grant database permission to user (3/" . $this->db->ErrorMsg() . ")!");
