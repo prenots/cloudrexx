@@ -274,10 +274,17 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'table' => array(
                                  'parse' => function($value) {
                                     $websiteServiceServer = ComponentController::getServiceServerByCriteria(array('hostname' => $value));
+                                    $pingPongStartTime = microtime(true);
                                     $response   = JsonMultiSiteController::executeCommandOnServiceServer('ping', array(), $websiteServiceServer);
                                     if ($response && $response->status == 'success' && $response->data->status == 'success'){
+                                        $pingPongTime = round((microtime(true) - $pingPongStartTime) * 1000);
+                                        $pingPongTimeDisplay = $pingPongTime . 'ms';
+                                        if (isset($response->data) && isset($response->data->pongTime)) {
+                                            $pingTime = $pingPongTime - $response->data->pongTime;
+                                            $pingPongTimeDisplay = $pingTime . 'ms / ' . $response->data->pongTime . 'ms';
+                                        }
                                         $statusIcon       = '<img src="'. '../core/Core/View/Media/icons/status_green.gif"'. ' alt='."status_green".'/>';
-                                        $hostNameStatus   = $statusIcon."&nbsp;".$value."&nbsp;".'<span class="'. 'icon-info tooltip-trigger"'. '></span><span class="'. 'tooltip-message"'. '> Bidirectional communication successfully established </span>';
+                                        $hostNameStatus   = $statusIcon."&nbsp;".$value."&nbsp;".'<span class="'. 'icon-info tooltip-trigger"'. '></span><span class="'. 'tooltip-message"'. '> Bidirectional communication successfully established (' . $pingPongTimeDisplay . ')</span>';
                                         return $hostNameStatus;
                                     } else {
                                        $statusIcon      = '<img src="'. '../core/Core/View/Media/icons/status_red.gif"'. ' alt='."status_red".'/>';

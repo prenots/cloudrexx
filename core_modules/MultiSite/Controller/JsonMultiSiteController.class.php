@@ -2254,18 +2254,32 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      */
     public function ping() {
         global $_CONFIG;
-        
-        //Check the system is in maintenance mode or not
-        if ($_CONFIG['systemStatus'] !='on') {
-            return array('status' => 'error', 'message' => 'Service Server is currently in maintenance mode');
+
+        // Check the system is in maintenance mode or not
+        if ($_CONFIG['systemStatus'] != 'on') {
+            return array(
+                'status' => 'error',
+                'message' => 'Service Server is currently in maintenance mode',
+            );
         }
-        
-        $resp = self::executeCommandOnManager('pong');
-        if ($resp && $resp->status == 'success' && $resp->data->status == 'success') {
-            return array('status' => 'success');
+
+        $pongStartTime = microtime(true);
+        $resp = static::executeCommandOnManager('pong');
+        if (
+            $resp &&
+            $resp->status == 'success' &&
+            $resp->data->status == 'success'
+        ) {
+            return array(
+                'status' => 'success',
+                'pongTime' => round((microtime(true) - $pongStartTime) * 1000),
+            );
         }
-        
-        return array('status' => 'error', 'message' => 'Reverse connection failed');
+
+        return array(
+            'status' => 'error',
+            'message' => 'Reverse connection failed',
+        );
     }
     
     /**
