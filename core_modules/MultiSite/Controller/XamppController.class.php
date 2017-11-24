@@ -80,8 +80,25 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param \Cx\Core\Model\Model\Entity\Db $db Database to work on
      * @throws MultiSiteDbException On error
      */
-    public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database){
-        $objResult = $this->db->Execute('GRANT ALL PRIVILEGES ON `' . $database->getName() . '` . * TO \'' . $user->getName() . '\'@\'localhost\'');
+    public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+        $databaseName = preg_replace('/([_%])/', '\\\\\1', $database->getName());
+        $objResult = $this->db->Execute('
+            GRANT
+                SELECT,
+                INSERT,
+                UPDATE,
+                DELETE,
+                LOCK TABLES,
+                CREATE,
+                DROP,
+                ALTER,
+                INDEX,
+                SHOW VIEW
+            ON
+                `' . $databaseName . '`.*
+            TO
+                "' . $user->getName() . '"@"localhost"
+        ');
         if ($objResult === false) {
             throw new \Exception("Could not grant database permission to user (3/" . $this->db->ErrorMsg() . ")!");
         }    
