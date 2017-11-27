@@ -317,4 +317,163 @@ class MediaSourceManager extends EntityBase
             'No MediaSource found for: '. $path
         );
     }
+
+    /**
+     * Move file from one filesystem to other filesystem
+     *
+     * @param string $sourcePath      Source filepath
+     * @param string $destinationPath Destination filepath
+     * @return boolean status of file move
+     */
+    public function moveFile($sourcePath, $destinationPath)
+    {
+        // Check if the source and destination path are /images, /media, /themes or /tmp folder path
+        $cxClassName = get_class($this->cx);
+        $pattern     =
+            '#^(?:' . preg_quote($cxClassName::FOLDER_NAME_IMAGES, '#') .
+            '|' . preg_quote($cxClassName::FOLDER_NAME_MEDIA, '#') .
+            '|' . preg_quote($cxClassName::FOLDER_NAME_THEMES, '#') .
+            '|' . preg_quote($cxClassName::FOLDER_NAME_TEMP, '#') . ')/#';
+        $tmpPattern = '#^' . preg_quote($cxClassName::FOLDER_NAME_TEMP, '#') . '/#';
+        if (
+            !preg_match($pattern, $sourcePath) ||
+            !preg_match($pattern, $destinationPath)
+        ) {
+            return false;
+        }
+
+        // Get source file object
+        $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
+        if (!$sourceFile) {
+            $sourceFile = $this->cx->getWebsitePath() . $sourcePath;
+        }
+
+        $isSourceLocalFile     = true;
+        $isDstinationLocalFile = true;
+        if (!preg_match($tmpPattern, $sourcePath)) {
+            // Get source file object
+            $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
+            if (!$sourceFile) {
+                return false;
+            }
+
+            $sourcePath =
+                $sourceFile->getFileSystem()->getFullPath($sourceFile) .
+                $sourceFile->getFullName();
+            if (!$sourceFile->getFileSystem()->fileExists($sourceFile)) {
+                return false;
+            }
+
+            if ($sourceFile->getFileSystem() instanceof \Cx\Core\MediaSource\Model\Entity\AwsS3FileSystem) {
+                $isSourceLocalFile = false;
+            }
+        } else {
+            $sourcePath = $this->cx->getWebsitePath() . $sourcePath;
+            if (!FileSystem::exists($sourcePath)) {
+                return false;
+            }
+        }
+
+        if (!preg_match($tmpPattern, $destinationPath)) {
+            // Get source file object
+            $destinationFile = $this->getMediaSourceFileFromPath($destinationPath);
+            if (!$destinationFile) {
+                return false;
+            }
+
+            $destinationPath =
+                $destinationFile->getFileSystem()->getFullPath($destinationFile) .
+                $destinationFile->getFullName();
+            if (!$destinationFile->getFileSystem()->fileExists($destinationFile)) {
+                $destinationFile->getFileSystem()->createDirectory(
+                    substr(
+                        $destinationFile->getFileSystem()->getFullPath($destinationFile),
+                        strlen($destinationFile->getFileSystem()->getRootPath())
+                    )
+                );
+            }
+
+            if (!$destinationFile->getFileSystem()->fileExists($destinationFile)) {
+                return false;
+            }
+
+            if ($destinationFile->getFileSystem() instanceof \Cx\Core\MediaSource\Model\Entity\AwsS3FileSystem) {
+                $isDstinationLocalFile = false;
+            }
+        } else {
+            $destinationPath = $this->cx->getWebsitePath() . $destinationPath;
+        }
+
+        // Move local File to local File
+        if ($isSourceLocalFile && $isDstinationLocalFile) {
+            return \Cx\Lib\FileSystem\FileSystem::move(
+                $sourcePath,
+                $destinationPath,
+                false
+            );
+        }
+
+        // Move s3 File to s3 File
+        if (!$isSourceLocalFile && !$isDstinationLocalFile) {
+            return rename($sourcePath, $destinationPath);
+        }
+
+        // Move local File to s3 File
+        if ($isSourceLocalFile && !$isDstinationLocalFile) {
+            return $this->uploadFileToS3($destinationFile, $sourcePath);
+        }
+
+        // Move s3 File to local FIle
+        if (!$isSourceLocalFile && $isDstinationLocalFile) {
+            return $this->downloadFileFromS3($sourceFile, $destinationPath);
+        }
+    }
+
+    /**
+     * Upload a local file into S3
+     *
+     * @param File   $destinationFile Destination file object
+     * @param string $sourcePath      Source file path
+     * @return boolean status of file upload
+     */
+    public function uploadFileToS3(File $destinationFile, $sourcePath)
+    {
+        $s3Client = $destinationFile->getFileSystem()->getS3Client();
+        try {
+            $s3Client->putObject(array(
+                'Bucket' => $destinationFile->getFileSystem()->getBucketName(),
+                'Key'    => $destinationFile->getFileSystem()->getFullPath($destinationFile) .
+                    $destinationFile->getFullName(),
+                'SourceFile' => $sourcePath
+            ));
+            return true;
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+            \DBG::log($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Download File from S3 to Local
+     *
+     * @param File   $sourceFile      Source file object
+     * @param string $destinationPath Destination file path
+     * @return boolean status of download
+     */
+    public function downloadFileFromS3(File $sourceFile, $destinationPath)
+    {
+        $s3Client = $sourceFile->getFileSystem()->getS3Client();
+        try {
+            $s3Client->getObject(array(
+                'Bucket' => $sourceFile->getFileSystem()->getBucketName(),
+                'Key'    => $sourceFile->getFileSystem()->getFullPath($sourceFile) .
+                    $sourceFile->getFullName(),
+                'SaveAs' => $destinationPath
+            ));
+            return true;
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+            \DBG::log($e->getMessage());
+            return false;
+        }
+    }
 }

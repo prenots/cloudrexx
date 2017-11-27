@@ -79,6 +79,20 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     protected $fileListCache;
 
     /**
+     * Object of AWS S3 client
+     *
+     * @var \Aws\S3\S3Client
+     */
+    protected $s3Client;
+
+    /**
+     * Name of the bucket
+     *
+     * @var string
+     */
+    protected $bucketName;
+
+    /**
      * Constructor
      *
      * @param string $bucketName        Bucket name
@@ -106,8 +120,9 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $this->cx->getCodeBaseLibraryPath() . '/Aws/aws.phar'
         );
 
+        $this->bucketName      = $bucketName;
         $this->directoryKey    = rtrim($directoryKey, '/');
-        $this->directoryPrefix = 's3://' . $bucketName . '/';
+        $this->directoryPrefix = 's3://' . $this->bucketName . '/';
 
         // Initialize the S3 Client object
         $this->initS3Client($version, $region, $credentialsKey, $credentialsSecret);
@@ -129,7 +144,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         $credentialsSecret
     ) {
         try {
-            $clientInstance = new \Aws\S3\S3Client(array(
+            $this->s3Client = new \Aws\S3\S3Client(array(
                 'version'     => $version,
                 'region'      => $region,
                 'credentials' => array(
@@ -137,7 +152,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                     'secret' => $credentialsSecret
                 )
             ));
-            $clientInstance->registerStreamWrapper();
+            $this->s3Client->registerStreamWrapper();
         } catch (\Aws\S3\Exception\S3Exception $e) {
             throw new AwsS3FileSystemException(
                 'Error in creating AWS S3 Client.',
@@ -145,6 +160,26 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                 $e->getMessage()
             );
         }
+    }
+
+    /**
+     * Get the AWS S3 client object
+     *
+     * @return \Aws\S3\S3Client
+     */
+    public function getS3Client()
+    {
+        return $this->s3Client;
+    }
+
+    /**
+     * Get the bucket name
+     *
+     * @return string
+     */
+    public function getBucketName()
+    {
+        return $this->bucketName;
     }
 
     /**
@@ -161,7 +196,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             return $this->fileListCache[$directory][$recursive];
         }
 
-        if (!$this->isFileExists(new LocalFile(rtrim($directory, '/'), $this))) {
+        if (!$this->fileExists(new LocalFile(rtrim($directory, '/'), $this))) {
             return array();
         }
 
@@ -220,7 +255,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                 );
                 $preview = current($thumbnails);
                 if (
-                    !$this->isFileExists(
+                    !$this->fileExists(
                         new LocalFile(
                             substr($preview, strlen($this->directoryKey) + 1),
                             $this
@@ -334,7 +369,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * @return boolean true if the file or directory specified by
      *                 filename exists otherwise false
      */
-    public function isFileExists(File $file)
+    public function fileExists(File $file)
     {
         return file_exists(
             $this->directoryPrefix . $this->getFullPath($file) .
@@ -475,7 +510,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $errorMsg = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
         if (
-            !$this->isFileExists($fromFile) ||
+            !$this->fileExists($fromFile) ||
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
@@ -564,7 +599,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     {
         $filePath = $this->directoryPrefix . $this->getFullPath($file) .
             $file->getFullName();
-        if (!$this->isFileExists($file)) {
+        if (!$this->fileExists($file)) {
             throw new AwsS3FileSystemException(
                 'Unable to read data from file ' . $filePath . '!'
             );
