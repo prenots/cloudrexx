@@ -2607,6 +2607,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     'Failed to add Setting entry for Database user website Controller'
                 );
             }
+            if (\Cx\Core\Setting\Controller\Setting::getValue('multiSiteProtocolIn','MultiSite') === NULL
+                && !\Cx\Core\Setting\Controller\Setting::add('multiSiteProtocolIn','mixed', 2,
+                \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN, 'mixed:Allow insecure (HTTP) and secure (HTTPS) connections,http:Allow only insecure (HTTP) connections,https:Allow only secure (HTTPS) connections', 'server')){
+                    throw new MultiSiteException("Failed to add Setting entry for Multisite IN Protocol");
+            }
             
             // setup group
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'setup','FileSystem');
