@@ -64,9 +64,9 @@ class XamppController extends HostController {
      * @return \Cx\Core\Model\Model\Entity\DbUser representation of the created user
      */
     public function createDbUser(\Cx\Core\Model\Model\Entity\DbUser $user){
-        $objResult = $this->db->Execute('CREATE USER \'' . $user->getName() . '\'@\'localhost\' IDENTIFIED BY \'' . $user->getPassword() . '\'');
+        $objResult = $this->db->Execute('CREATE USER \'' . $user->getName() . '\'@\'%\' IDENTIFIED BY \'' . $user->getPassword() . '\'');
         if ($objResult === false) {
-            throw new \Exception("Could not create database user (2/" . 'CREATE USER \'' . $user->getName() . '\'@\'localhost\' IDENTIFIED BY \'' . '******' . '\'' . "/" . $this->db->ErrorMsg() . ")!");
+            throw new \Exception("Could not create database user (2/" . 'CREATE USER \'' . $user->getName() . '\'@\'%\' IDENTIFIED BY \'' . '******' . '\'' . "/" . $this->db->ErrorMsg() . ")!");
         }    
     }
     
@@ -95,8 +95,25 @@ class XamppController extends HostController {
      * @param \Cx\Core\Model\Model\Entity\Db $db Database to work on
      * @throws MultiSiteDbException On error
      */
-    public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database){
-        $objResult = $this->db->Execute('GRANT ALL PRIVILEGES ON `' . $database->getName() . '` . * TO \'' . $user->getName() . '\'@\'localhost\'');
+    public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+        $databaseName = preg_replace('/([_%])/', '\\\\\1', $database->getName());
+        $objResult = $this->db->Execute('
+            GRANT
+                SELECT,
+                INSERT,
+                UPDATE,
+                DELETE,
+                LOCK TABLES,
+                CREATE,
+                DROP,
+                ALTER,
+                INDEX,
+                SHOW VIEW
+            ON
+                `' . $databaseName . '`.*
+            TO
+                "' . $user->getName() . '"@"%"
+        ');
         if ($objResult === false) {
             throw new \Exception("Could not grant database permission to user (3/" . $this->db->ErrorMsg() . ")!");
         }    

@@ -108,6 +108,7 @@ class WebsiteEventListener implements \Cx\Core\Event\Model\Entity\EventListener 
                     'websiteId'   => $website->getId(),
                     'status'      => $website->getStatus(),
                     'codeBase'    => $website->getCodeBase(),
+                    'ownerId'     => $website->getOwner() ? $website->getOwner()->getId() : 0,
                     'userId'      => $website->getOwner() ? $website->getOwner()->getId() : 0,
                     'email'       => $website->getOwner() ? $website->getOwner()->getEmail() : '',
                     'mode'        => $website->getMode(),
