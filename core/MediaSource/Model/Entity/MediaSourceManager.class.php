@@ -318,23 +318,35 @@ class MediaSourceManager extends EntityBase
         );
     }
 
-    /*
-     * Check file exists
+    /**
+     * Checks whether a file or directory exists
      *
-     * @param string $path Filepath
-     * @return boolean True if the file exists, false otherwise
+     * @param string $path File/directory path
+     * @return boolean True if the file/directory exists, false otherwise
      */
     public function fileExists($path)
     {
-        if (strpos($path, '/') !== 0) {
-            $path = '/' . $path;
-        }
-
         $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
-        if (!$mediaSourceFile) {
+        if (! $mediaSourceFile) {
             return \Cx\Lib\FileSystem\FileSystem::exists($path);
         } else {
             return $mediaSourceFile->getFileSystem()->fileExists($mediaSourceFile);
+        }
+    }
+
+    /**
+     * Removes the file
+     *
+     * @param string $path File path
+     * @return boolean true if file successfully deleted, otherwise false
+     */
+    public function removeFile($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (! $mediaSourceFile) {
+            return \Cx\Lib\FileSystem\FileSystem::delete_file($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile);
         }
     }
 }
