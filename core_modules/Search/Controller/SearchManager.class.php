@@ -49,7 +49,7 @@ namespace Cx\Core_Modules\Search\Controller;
  * @package     cloudrexx
  * @subpackage  coremodule_search
  */
-class SearchManager
+class SearchManager extends \Cx\Core\Core\Model\Entity\SystemComponentBackendController 
 {
     /**
      * Doctrine entity manager
@@ -146,7 +146,7 @@ class SearchManager
                 foreach ($pages as $page) {
                     // used for alias pages, because they have no language
                     if ($page->getLang() == "") {
-                        $languages = "";
+                        $languages = array();
                         foreach (\FWLanguage::getIdArray('frontend') as $langId) {
                             $languages[] = \FWLanguage::getLanguageCodeById($langId);
                         }
@@ -159,18 +159,24 @@ class SearchManager
                     $aliasLanguages = implode(', ', $languages);
 
                     $originalPage = $page;
-                    $link = 'index.php?cmd=ContentManager&amp;page=' . $page->getId();
                     if ($page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_ALIAS) {
                         $pageRepo = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
                         if ($originalPage->isTargetInternal()) {
                             // is internal target, get target page
                             $originalPage = $pageRepo->getTargetPage($page);
+                            $url= \Cx\Core\Routing\Url::fromMagic('ContentManager');
+                            $url->setParams(array('page'=> $originalPage->getId()));
+                            $link = $url->toString(false);
                         } else {
                             // is an external target, set the link to the external targets url
                             $originalPage = new \Cx\Core\ContentManager\Model\Entity\Page();
                             $originalPage->setTitle($page->getTarget());
                             $link = $page->getTarget();
                         }
+                    } else {
+                        $url= \Cx\Core\Routing\Url::fromMagic('ContentManager');
+                        $url->setParams(array('page'=> $page->getId()));
+                        $link = $url->toString(false);
                     }
 
                     $this->template->setVariable(array(
