@@ -327,7 +327,7 @@ class MediaSourceManager extends EntityBase
     public function fileExists($path)
     {
         $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
-        if (! $mediaSourceFile) {
+        if (!$mediaSourceFile) {
             return \Cx\Lib\FileSystem\FileSystem::exists($path);
         } else {
             return $mediaSourceFile->getFileSystem()->fileExists($mediaSourceFile);
@@ -343,7 +343,7 @@ class MediaSourceManager extends EntityBase
     public function removeFile($path)
     {
         $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
-        if (! $mediaSourceFile) {
+        if (!$mediaSourceFile) {
             return \Cx\Lib\FileSystem\FileSystem::delete_file($path);
         } else {
             return $mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile);

@@ -589,4 +589,17 @@ class LocalFileSystem extends EntityBase implements FileSystem
             $destination->getName()
         );
     }
+
+    /**
+     * Make a File writable
+     *
+     * @param File $file
+     * @return boolean True if file writable, false otherwise
+     */
+    public function makeWritable(File $file)
+    {
+        return \Cx\Lib\FileSystem\FileSystem::makeWritable(
+            $this->getFullPath($file) . $file->getFullName()
+        );
+    }
 }
