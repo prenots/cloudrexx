@@ -317,4 +317,24 @@ class MediaSourceManager extends EntityBase
             'No MediaSource found for: '. $path
         );
     }
+
+    /*
+     * Check file exists
+     *
+     * @param string $path Filepath
+     * @return boolean True if the file exists, false otherwise
+     */
+    public function fileExists($path)
+    {
+        if (strpos($path, '/') !== 0) {
+            $path = '/' . $path;
+        }
+
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return \Cx\Lib\FileSystem\FileSystem::exists($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->fileExists($mediaSourceFile);
+        }
+    }
 }
