@@ -50,6 +50,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @static string
      */
     static $cxMainDomain;
+    protected static $webDistributionController = null;
     
     protected $messages = '';
     protected $reminders = array(3, 14);
@@ -2483,16 +2484,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public static function getHostingController()
     {
-        if (!isset($this->webDistributionController)) {
+        if (!isset(static::$webDistributionController)) {
             \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
             $wDCName = \Cx\Core\Setting\Controller\Setting::getValue(
                 'websiteController',
                 'MultiSite'
             );
-            $wDCClass = $this->getNamespace() . '\\Controller\\' . $webDistributionController . 'Controller';
-            $this->webDistributionController = $wDCClass::fromConfig();
+            $wDCClass = $this->getNamespace() . '\\Controller\\' . ucfirst($wDCName) . 'Controller';
+            static::$webDistributionController = $wDCClass::fromConfig();
         }
-        return $this->webDistributionController;
+        return static::$webDistributionController;
     }
 
     /**
