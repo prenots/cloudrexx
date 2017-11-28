@@ -39,7 +39,7 @@
             var websiteDetails = $(this).attr('data-websiteDetails').split("-");
             if (confirm("Please confirm to change the state of website " + websiteDetails[1] + ' to ' + $(this).val())) {
                 cx.trigger("loadingStart", "websitestatus", {});
-                cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+                cx.ui.messages.showLoad();
                 cx.jQuery.ajax({
                     dataType: "json",
                     url: domainUrl,
@@ -77,7 +77,7 @@
                 data: {command: 'getLicense', websiteId: id},
                 dataType: "json",
                 beforeSend : function() {
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + $('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                 },
                 success: function(response) {
                     cx.trigger("loadingEnd", "showLicense", {});
@@ -196,7 +196,7 @@
                 data: {mailServiceServerId: id},
                 dataType: "json",
                 beforeSend: function () {
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + $('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                 },
                 success: function (response) {
                     cx.tools.StatusMessage.removeAllDialogs();
@@ -268,7 +268,7 @@
                                 cx.tools.StatusMessage.showMessage(cx.variables.get('plsInsertQuery', "multisite/lang"), null, 3000);
                                 return false;
                             } else {
-                                cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+                                cx.ui.messages.showLoad();
                                 cx.trigger('loadingStart', 'executeSql', {});
                                 $('.resultSet').html('');
                                 cx.multisite.MultisiteAjaxCall(
@@ -362,7 +362,7 @@
             switch (response.status) {
                 case 'success':
                     offset = 0;
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "<span> ( " + response.websitesDone + " / " + response.totalWebsites + " ) </span></div>");
+                    cx.tools.StatusMessage.showMessage("<div id=\"loading\"><img src=\"../lib/javascript/jquery/jstree/themes/default/throbber.gif\" alt=\"\" /><span>Loading...</span><span> ( " + response.websitesDone + " / " + response.totalWebsites + " ) </span></div>");
 
                     if (response.queryResult == null) {
                         $('.resultSet').append('<div><table cellspacing="0" cellpadding="3" border="0" class="adminlist" width="100%"><tbody><tr><th>' + response.websiteName + '</th></tr><tr class="row1"><td><div class="alertbox">' + cx.variables.get('errorMsg', 'multisite/lang') + '</div></td></tr></tbody></table></div>');
@@ -482,11 +482,11 @@
         };
         
         //Login to remote website when the following click operation is performed
-        $('.remoteWebsiteLogin').click(function() {
+        var MultiSiteRemoteLogin = function() {
             cx.bind("loadingStart", cx.lock, "remoteLogin");
             cx.bind("loadingEnd", cx.unlock, "remoteLogin");
             cx.trigger("loadingStart", "remoteLogin", {});
-            cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+            cx.ui.messages.showLoad();
             domainUrl = cx.variables.get('baseUrl', 'MultiSite') + cx.variables.get('cadminPath', 'contrexx') + "index.php?cmd=JsonData&object=MultiSite&act=remoteLogin";
             $.ajax({
                 url: domainUrl,
@@ -512,7 +512,9 @@
                     cx.trigger("loadingEnd", "remoteLogin", {});
                 }
             });
-        });
+        }
+        $('.remoteWebsiteLogin').click(MultiSiteRemoteLogin);
+        $('.customerPanelLogin').click(MultiSiteRemoteLogin);
         
     $('.websiteUpdate').click(function () {
       domainUrl = cx.variables.get('baseUrl', 'MultiSite') + cx.variables.get('cadminPath', 'contrexx') + "index.php?cmd=JsonData&object=MultiSite&act=";
@@ -524,7 +526,7 @@
         dataType: "json",
         beforeSend: function () {
           cx.trigger("loadingStart", "multiSite", {});
-          cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+          cx.ui.messages.showLoad();
           $('#loading > span').html(cx.variables.get('loadingServiceServerInfo', 'multisite/lang'));
         },
         success: function (response) {
@@ -636,7 +638,7 @@
             cx.bind("loadingStart", cx.lock, "multiSiteWebsiteConfig");
             cx.bind("loadingEnd", cx.unlock, "multiSiteWebsiteConfig");
             cx.trigger("loadingStart", "multiSiteWebsiteConfig", {});
-            cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+            cx.ui.messages.showLoad();
             domainUrl = cx.variables.get('baseUrl', 'MultiSite') + cx.variables.get('cadminPath', 'contrexx') + "index.php?cmd=JsonData&object=MultiSite&act=modifyMultisiteConfig";
             $.ajax({
                 url: domainUrl,
@@ -736,7 +738,7 @@ function triggerWebsiteUpdate(domainUrl, formData) {
     dataType: "json",
     beforeSend: function () {
       cx.trigger("loadingStart", "multiSite", {});
-      cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+      cx.ui.messages.showLoad();
       $J('#loading > span').html(cx.variables.get('triggeringWebsiteUpdate', 'multisite/lang'));
     },
     success: function (response) {
@@ -837,7 +839,7 @@ var Multisite = {
             modal: true,
             buttons: {
                 "Save": function() {
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                         var formValues = $J( "form.saveLicense" ).serialize();
                     $J.ajax({
                         url: domainUrl,
@@ -967,7 +969,7 @@ var Multisite = {
                     cx.bind("loadingStart", cx.lock, "multisiteConfigWebsite_".$operation);
                     cx.bind("loadingEnd", cx.unlock, "multisiteConfigWebsite_".$operation);
                     cx.trigger("loadingStart", "multisiteConfigWebsite_".$operation, {});
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                     $J.ajax({
                         url: domainUrl,
                         type: "POST",
@@ -1029,7 +1031,7 @@ var Multisite = {
                     cx.bind("loadingStart", cx.lock, "multisiteConfigWebsite".$operation);
                     cx.bind("loadingEnd", cx.unlock, "multisiteConfigWebsite".$operation);
                     cx.trigger("loadingStart", "multisiteConfigWebsite".$operation, {});
-                    cx.tools.StatusMessage.showMessage("<div id=\"loading\">" + cx.jQuery('#loading').html() + "</div>");
+                    cx.ui.messages.showLoad();
                     $J.ajax({
                         url: domainUrl,
                         type: "POST",

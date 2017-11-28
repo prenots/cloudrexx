@@ -60,6 +60,16 @@ a.remoteWebsiteLogin, a.websiteRestore {
     cursor: pointer;
 }
 
+a.customerPanelLogin {
+    background-image: url(../Media/CustomerPanel.png);
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin-top: 4px;
+    margin-left: 4px;
+    cursor: pointer;
+}
+
 a.downloadWebsiteBackup{
     background-image: url(../Media/download.png);
     display: inline-block;
