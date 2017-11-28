@@ -39,6 +39,7 @@ namespace Cx\Core\MediaSource\Model\Entity;
 
 use Cx\Core\Core\Controller\Cx;
 use Cx\Model\Base\EntityBase;
+use Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem;
 
 /**
  * Class MediaSourceManagerException
@@ -327,85 +328,82 @@ class MediaSourceManager extends EntityBase
      */
     public function moveFile($sourcePath, $destinationPath)
     {
-        // Check if the source and destination path are /images, /media, /themes or /tmp folder path
-        $cxClassName = get_class($this->cx);
-        $pattern     =
-            '#^(?:' . preg_quote($cxClassName::FOLDER_NAME_IMAGES, '#') .
-            '|' . preg_quote($cxClassName::FOLDER_NAME_MEDIA, '#') .
-            '|' . preg_quote($cxClassName::FOLDER_NAME_THEMES, '#') .
-            '|' . preg_quote($cxClassName::FOLDER_NAME_TEMP, '#') . ')/#';
-        $tmpPattern = '#^' . preg_quote($cxClassName::FOLDER_NAME_TEMP, '#') . '/#';
-        if (
-            !preg_match($pattern, $sourcePath) ||
-            !preg_match($pattern, $destinationPath)
-        ) {
-            return false;
-        }
-
         // Get source file object
-        $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
+        $isSourceLocalFile = true;
+        $sourceFile        = $this->getMediaSourceFileFromPath($sourcePath);
         if (!$sourceFile) {
-            $sourceFile = $this->cx->getWebsitePath() . $sourcePath;
-        }
-
-        $isSourceLocalFile     = true;
-        $isDstinationLocalFile = true;
-        if (!preg_match($tmpPattern, $sourcePath)) {
-            // Get source file object
-            $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
-            if (!$sourceFile) {
+            $sourcePath = $this->cx->getWebsitePath() . '/' . $sourcePath;
+            if (!\Cx\Lib\FileSystem\FileSystem::exists($sourcePath)) {
                 return false;
+            }
+        } else {
+            if (!$sourceFile->getFileSystem()->fileExists($sourceFile)) {
+                return false;
+            }
+
+            if ($sourceFile->getFileSystem() instanceof AwsS3FileSystem) {
+                $isSourceLocalFile = false;
             }
 
             $sourcePath =
                 $sourceFile->getFileSystem()->getFullPath($sourceFile) .
                 $sourceFile->getFullName();
-            if (!$sourceFile->getFileSystem()->fileExists($sourceFile)) {
-                return false;
-            }
-
-            if ($sourceFile->getFileSystem() instanceof \Cx\Core\MediaSource\Model\Entity\AwsS3FileSystem) {
-                $isSourceLocalFile = false;
-            }
-        } else {
-            $sourcePath = $this->cx->getWebsitePath() . $sourcePath;
-            if (!FileSystem::exists($sourcePath)) {
-                return false;
-            }
         }
 
-        if (!preg_match($tmpPattern, $destinationPath)) {
-            // Get source file object
-            $destinationFile = $this->getMediaSourceFileFromPath($destinationPath);
-            if (!$destinationFile) {
+        // Get destination file object
+        if (strpos($destinationPath, '/') !== 0) {
+            $destinationPath = '/' . $destinationPath;
+        }
+
+        try {
+            $isDestinationLocalFile = true;
+            $mediaSource     = $this->getMediaSourceByPath($destinationPath);
+            $mediaSourcePath = $mediaSource->getDirectory();
+            $filePath = substr($destinationPath, strlen($mediaSourcePath[1]));
+
+            if (!$mediaSource->getFileSystem()) {
                 return false;
+            }
+
+            if (
+                ($mediaSource->getFileSystem() instanceof AwsS3FileSystem) ||
+                ($mediaSource->getFileSystem() instanceof LocalFileSystem)
+            ) {
+                $destinationFile = new LocalFile($filePath, $mediaSource->getFileSystem());
+            } elseif ($mediaSourceOfDestination->getFileSystem() instanceof ViewManagerFileSystem) {
+                $destinationFile = new ViewManagerFile($filePath, $mediaSource->getFileSystem());
+            }
+
+            if (
+                !self::isSubdirectory(
+                    $mediaSource->getFileSystem()->getRootPath(),
+                    $destinationFile->getPath()
+                )
+            ) {
+                $destinationFile->getFileSystem()->createDirectory(
+                    $destinationFile->getPath()
+                );
+            }
+
+            if ($destinationFile->getFileSystem() instanceof AwsS3FileSystem) {
+                $isDestinationLocalFile = false;
             }
 
             $destinationPath =
                 $destinationFile->getFileSystem()->getFullPath($destinationFile) .
                 $destinationFile->getFullName();
-            if (!$destinationFile->getFileSystem()->fileExists($destinationFile)) {
-                $destinationFile->getFileSystem()->createDirectory(
-                    substr(
-                        $destinationFile->getFileSystem()->getFullPath($destinationFile),
-                        strlen($destinationFile->getFileSystem()->getRootPath())
-                    )
-                );
-            }
-
-            if (!$destinationFile->getFileSystem()->fileExists($destinationFile)) {
+        } catch(\Exception $e) {
+            $destinationPath = $this->cx->getWebsitePath() . '/' . $destinationPath;
+            if (
+                !\Cx\Lib\FileSystem\FileSystem::exists($destinationPath) ||
+                !\Cx\Lib\FileSystem\FileSystem::make_folder($destinationPath)
+            ) {
                 return false;
             }
-
-            if ($destinationFile->getFileSystem() instanceof \Cx\Core\MediaSource\Model\Entity\AwsS3FileSystem) {
-                $isDstinationLocalFile = false;
-            }
-        } else {
-            $destinationPath = $this->cx->getWebsitePath() . $destinationPath;
         }
 
         // Move local File to local File
-        if ($isSourceLocalFile && $isDstinationLocalFile) {
+        if ($isSourceLocalFile && $isDestinationLocalFile) {
             return \Cx\Lib\FileSystem\FileSystem::move(
                 $sourcePath,
                 $destinationPath,
@@ -414,17 +412,17 @@ class MediaSourceManager extends EntityBase
         }
 
         // Move s3 File to s3 File
-        if (!$isSourceLocalFile && !$isDstinationLocalFile) {
+        if (!$isSourceLocalFile && !$isDestinationLocalFile) {
             return rename($sourcePath, $destinationPath);
         }
 
         // Move local File to s3 File
-        if ($isSourceLocalFile && !$isDstinationLocalFile) {
+        if ($isSourceLocalFile && !$isDestinationLocalFile) {
             return $this->uploadFileToS3($destinationFile, $sourcePath);
         }
 
         // Move s3 File to local FIle
-        if (!$isSourceLocalFile && $isDstinationLocalFile) {
+        if (!$isSourceLocalFile && $isDestinationLocalFile) {
             return $this->downloadFileFromS3($sourceFile, $destinationPath);
         }
     }
