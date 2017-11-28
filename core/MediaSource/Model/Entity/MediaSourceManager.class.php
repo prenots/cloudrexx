@@ -39,7 +39,6 @@ namespace Cx\Core\MediaSource\Model\Entity;
 
 use Cx\Core\Core\Controller\Cx;
 use Cx\Model\Base\EntityBase;
-use Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem;
 
 /**
  * Class MediaSourceManagerException
@@ -370,8 +369,11 @@ class MediaSourceManager extends EntityBase
                 ($mediaSource->getFileSystem() instanceof LocalFileSystem)
             ) {
                 $destinationFile = new LocalFile($filePath, $mediaSource->getFileSystem());
-            } elseif ($mediaSourceOfDestination->getFileSystem() instanceof ViewManagerFileSystem) {
-                $destinationFile = new ViewManagerFile($filePath, $mediaSource->getFileSystem());
+            } else {
+                $destinationFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
             }
 
             if (
