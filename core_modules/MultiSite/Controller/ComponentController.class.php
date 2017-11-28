@@ -2490,7 +2490,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'websiteController',
                 'MultiSite'
             );
-            $wDCClass = $this->getNamespace() . '\\Controller\\' . ucfirst($wDCName) . 'Controller';
+            $wDCClass = '\\' . __NAMESPACE__ . '\\' . ucfirst($wDCName) . 'Controller';
             static::$webDistributionController = $wDCClass::fromConfig();
         }
         return static::$webDistributionController;

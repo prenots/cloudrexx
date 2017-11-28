@@ -44,7 +44,7 @@ class XamppController extends HostController {
         // initialize XAMPP controller with database of Website Manager/Service Server
         global $_DBCONFIG;
         return new static(
-            \Cx\Core\Model\Model\Entity\Db($_DBCONFIG),
+            new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG),
             new \Cx\Core\Model\Model\Entity\DbUser($_DBCONFIG)
         );
     }
