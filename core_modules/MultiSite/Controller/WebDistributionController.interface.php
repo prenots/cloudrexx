@@ -82,4 +82,11 @@ interface WebDistributionController {
      * @throws WebDistributionControllerException If any error occurs
      */
     public function deleteWebDistributionAlias($mainName, $aliasName);
+
+    /**
+     * Returns all web distributions
+     * @param string $websiteName (optional) Name of the website to get aliases for
+     * @throws WebDistributionControllerException If any error occurs
+     */
+    public function getAllWebDistributionAliases($websiteName = '');
 }

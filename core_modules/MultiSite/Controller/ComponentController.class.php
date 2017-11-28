@@ -1379,6 +1379,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         }
                         $command = 'linkSsl';
                         $params = array(
+                            'websiteName'     => $website->getName(),
                             'domainName'      => $domainName,
                             'certificateName' => $certificateName,
                             'privateKey'      => $privateKey,
@@ -1435,7 +1436,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 }
                 
                 if (($loadPageAction == 'Ssl') && $objTemplate->blockExists('showSslCertificateForm')) {
-                    $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('getDomainSslCertificate', array('domainName' => $domainName), $website->getWebsiteServiceServer());
+                    $response = JsonMultiSiteController::executeCommandOnServiceServer(
+                        'getDomainSslCertificate',
+                        array(
+                            'websiteName' => $website->getName(),
+                            'domainName' => $domainName,
+                        ),
+                        $website->getWebsiteServiceServer()
+                    );
                     $sslCertificate = ($response && $response->status == 'success' && $response->data->status == 'success') ? implode(', ', $response->data->sslCertificate) : '';
                     self::showOrHideBlock($objTemplate, 'showSslCertificate', $sslCertificate);
                     $objTemplate->setVariable(array(

@@ -6620,6 +6620,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     try {
                         $certParams = array(
                             'event' => $methodName,
+                            'websiteName' => $website->getName(),
                             'domainName' => $params['post']['domainName'],
                         );
                         if (!empty($params['post']['oldDomainName'])) {
@@ -6739,6 +6740,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         'linkSsl',
                         array(
                             'post' => array(
+                                'websiteName' => $params['website'],
                                 'domainName' => $params['domain'],
                             ),
                         )
@@ -6755,6 +6757,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         'unLinkSsl',
                         array(
                             'post' => array(
+                                'websiteName' => $params['website'],
                                 'domainName' => $params['domain'],
                             ),
                         )
@@ -7664,7 +7667,11 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
         
-        if (empty($params['post']) || empty($params['post']['domainName'])) {
+        if (
+            empty($params['post']) ||
+            empty($params['post']['websiteName']) ||
+            empty($params['post']['domainName'])
+        ) {
             \DBG::msg('JsonMultiSiteController::getDomainSslCertificate() failed: Insufficient arguments supplied: ' . var_export($params, true));
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED']);
         }
@@ -7673,7 +7680,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 case ComponentController::MODE_SERVICE:
                 case ComponentController::MODE_HYBRID:
                     $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
-                    $sslCertificates   = $hostingController->getSSLCertificates($params['post']['domainName']);
+                    $sslCertificates   = $hostingController->getSSLCertificates(
+                        $params['post']['websiteName'],
+                        $params['post']['domainName']
+                    );
                     if ($sslCertificates) {
                         return array('status' => 'success', 'sslCertificate' => $sslCertificates);
                     }
@@ -7701,6 +7711,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         if (   empty($params['post']) 
+            || empty($params['post']['websiteName']) 
             || empty($params['post']['domainName']) 
             || empty($params['post']['certificateName']) 
             || empty($params['post']['privateKey']) 
@@ -7712,33 +7723,110 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
                 case ComponentController::MODE_SERVICE:
                 case ComponentController::MODE_HYBRID:
+                    $websiteName = $params['post']['websiteName'];
                     $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
                     
-                    $siteList = $hostingController->getAllWebDistributions();
+                    $siteList = $hostingController->getAllWebDistributionAliases(
+                        $websiteName
+                    );
                     
                     if (!in_array($params['post']['domainName'], $siteList)) {
-                        $siteId = $hostingController->createWebDistribution($params['post']['domainName']); 
-                        if ($siteId) {
-                            $hostingController->disableMailService($siteId);
-                            $hostingController->disableDnsService($siteId);
-                        }
+                        // this should not happen, WebDistributionAlias should already exist!
+                        $siteId = $hostingController->createWebDistributionAlias(
+                            $websiteName,
+                            $params['post']['domainName']
+                        ); 
                     } else {
                         $siteId = array_search($params['post']['domainName'], $siteList);
-                        $sslCertificates = $hostingController->getSSLCertificates($params['post']['domainName']);
+                        $sslCertificates = $hostingController->getSSLCertificates(
+                            $websiteName,
+                            $params['post']['domainName']
+                        );
                         if (!empty($sslCertificates)) {
-                            $hostingController->removeSSLCertificates($params['post']['domainName'], $sslCertificates);
+                            $hostingController->removeSSLCertificates(
+                                $websiteName,
+                                $params['post']['domainName'],
+                                $sslCertificates
+                            );
                         }
                     }
                     
                     $installSslCertificate = $hostingController->installSSLCertificate(
-                                                                        $params['post']['certificateName'], 
-                                                                        $params['post']['domainName'], 
-                                                                        $params['post']['privateKey'],
-                                                                        $params['post']['certificate'], 
-                                                                        $params['post']['caCertificate']);  
+                        $websiteName,
+                        $params['post']['certificateName'], 
+                        $params['post']['domainName'], 
+                        $params['post']['privateKey'],
+                        $params['post']['certificate'], 
+                        $params['post']['caCertificate']
+                    );
                     if ($installSslCertificate) {
-                        if ($hostingController->activateSSLCertificate($params['post']['certificateName'], $siteId)) {
+                        if ($hostingController->activateSSLCertificate(
+                            $websiteName,
+                            $params['post']['certificateName'],
+                            $siteId
+                        )) {
                             return array('status' => 'success');
+                        }
+                    }
+                    break;
+                default :
+                    break;
+            }
+            return array(
+                'status' => 'error',
+                'log'    => \DBG::getMemoryLogs(),
+            );
+        } catch (\Exception $e) {
+            \DBG::msg($e->getMessage());
+            return array(
+                'status'  => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED'],
+                'log'     => \DBG::getMemoryLogs(),
+            );
+        }
+    }
+
+    /**
+     * Removes an SSL certificate for a domain
+     * 
+     * @param  array $params     supplied arguments from JsonData-request
+     * 
+     * @return array JsonData-response
+     * @throws MultiSiteJsonException
+     */
+    public function unlinkSsl($params) {
+        if (
+            empty($params['post']) ||
+            empty($params['post']['websiteName']) ||
+            empty($params['post']['domainName']) 
+        ) {
+            \DBG::msg('JsonMultiSiteController::unLinkSsl() failed: Insufficient arguments supplied: ' . var_export($params, true));
+            throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_DOMAIN_SSL_FAILED']);
+        }
+        try {                        
+            switch (\Cx\Core\Setting\Controller\Setting::getValue('mode','MultiSite')) {
+                case ComponentController::MODE_SERVICE:
+                case ComponentController::MODE_HYBRID:
+                    $hostingController = ComponentController::getHostingController();
+                    
+                    $certificateList = $hostingController->getSslCertificates(
+                        $params['post']['websiteName']
+                    );
+                    
+                    if (!in_array($params['post']['domainName'], $certificateList)) {
+                        // already deleted, nothing to do
+                    } else {
+                        $hostingController->removeSSLCertificates(
+                            $params['post']['websiteName'],
+                            $params['post']['domainName']
+                        );
+
+                        if (count($certificateList) == 1) {
+                            // our domain was the only one in the list, cleanup distribution
+                            $hostingController->deleteWebDistributionAlias(
+                                $params['post']['websiteName'],
+                                $params['post']['domainName']
+                            );
                         }
                     }
                     break;

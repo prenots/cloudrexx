@@ -43,35 +43,39 @@ interface SslController {
 
     /**
      * Install the SSL Certificate for the domain
-     * 
+     *
+     * @param string $websiteName               Name of the website 
      * @param string $name                      Certificate name
      * @param string $domain                    Domain name
      * @param string $certificatePrivateKey     certificate private key
      * @param string $certificateBody           certificate body
      * @param string $certificateAuthority      certificate authority
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null);
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null);
     
     /**
      * Fetch the SSL Certificate details
      * 
-     * @param string $domain domain name
+     * @param string $websiteName Name of the website 
+     * @param string $domain (optional) domain name
      */
-    public function getSSLCertificates($domain);
+    public function getSSLCertificates($websiteName, $domain = '');
     
     /**
      * Remove the SSL Certificates
      * 
+     * @param string $websiteName Name of the website 
      * @param string $domain domain name
      * @param array  $names  certificate names
      */
-    public function removeSSLCertificates($domain, $names = array());
+    public function removeSSLCertificates($websiteName, $domain, $names = array());
 
     /**
      * Activate the SSL Certificate
      *
+     * @param string $websiteName Name of the website 
      * @param string $certificateName certificate name
      * @param string $domain          domain name
      */
-    public function activateSSLCertificate($certificateName, $domain);
+    public function activateSSLCertificate($websiteName, $certificateName, $domain);
 }

@@ -1933,6 +1933,51 @@ class PleskController extends HostController {
      */
     public function createWebDistribution($domain, $documentRoot = 'httpdocs')
     {
+    }
+    
+    /**
+     * Renaming the site/domain
+     * 
+     * @param string $oldDomainName old domain name 
+     * @param string $newDomainName new domain name 
+     * 
+     * @return updated site/domain id
+     * 
+     * @throws ApiRequestException
+     */
+    public function renameWebDistribution($oldDomainName, $newDomainName)
+    {        
+    }
+    
+    /**
+     * Remove the site by the domain name.
+     * 
+     * @param string $domain Domain name to remove
+     * 
+     * @return boolean true on success false otherwise
+     * 
+     * @throws ApiRequestException
+     */
+    public function deleteWebDistribution($domain)
+    {
+    }
+    
+    /**
+     * Get all the sites under the existing subscription
+     * 
+     * @return array $siteList Name of all the sites under the subscription
+     * 
+     * @throws ApiRequestException
+     */
+    public function getAllWebDistributions() {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistributionAlias($mainName, $aliasName) {
+        $domain = $aliasName;
+        $documentRoot = 'httpdocs';
         \DBG::msg("MultiSite (PleskController): Create new site on existing subscription.");
         if (empty($domain)) {
             return false;
@@ -2023,21 +2068,19 @@ HTTPS;
             $error = (isset($systemError) ? $systemError : $resultNode->errtext);
             throw new ApiRequestException("Error in creating site on existing subscription: {$error}");
         }
+        if ($resultNode->id) {
+            $hostingController->disableMailService($resultNode->id);
+            $hostingController->disableDnsService($resultNode->id);
+        }
         return $resultNode->id;
     }
-    
+
     /**
-     * Renaming the site/domain
-     * 
-     * @param string $oldDomainName old domain name 
-     * @param string $newDomainName new domain name 
-     * 
-     * @return updated site/domain id
-     * 
-     * @throws ApiRequestException
+     * {@inheritdoc}
      */
-    public function renameWebDistribution($oldDomainName, $newDomainName)
-    {        
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+        $oldDomainName = $oldAliasName;
+        $newDomainName = $newAliasName;
         \DBG::msg("MultiSite (PleskController): Renaming the site on existing subscription.");
         if (empty($oldDomainName) || empty($newDomainName)) {
             return false;
@@ -2079,18 +2122,12 @@ HTTPS;
         }
         return $resultNode->id;
     }
-    
+
     /**
-     * Remove the site by the domain name.
-     * 
-     * @param string $domain Domain name to remove
-     * 
-     * @return boolean true on success false otherwise
-     * 
-     * @throws ApiRequestException
+     * {@inheritdoc}
      */
-    public function deleteWebDistribution($domain)
-    {
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+        $domain = $aliasName;
         \DBG::msg("MultiSite (PleskController): Removing the site on existing subscription.");
         if (empty($domain)) {
             return false;
@@ -2123,15 +2160,8 @@ HTTPS;
         }
         return true;
     }
-    
-    /**
-     * Get all the sites under the existing subscription
-     * 
-     * @return array $siteList Name of all the sites under the subscription
-     * 
-     * @throws ApiRequestException
-     */
-    public function getAllWebDistributions() {
+
+    public function getAllWebDistributionAliases($websiteName = '') {
         \DBG::msg("MultiSite (PleskController): Get all sites under the existing subscription.");
 
         $xmldoc  = $this->getXmlDocument();
@@ -2182,24 +2212,6 @@ HTTPS;
     /**
      * {@inheritdoc}
      */
-    public function createWebDistributionAlias($mainName, $aliasName) {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteWebDistributionAlias($mainName, $aliasName) {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function canGenerateCertificates() {
         return false;
     }
@@ -2213,7 +2225,7 @@ HTTPS;
      * @param string $certificateBody           certificate body
      * @param string $certificateAuthority      certificate authority
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
         \DBG::msg("MultiSite (PleskController): Install the SSL Certificate for the domain.");
         if (    empty($name) 
             ||  empty($domain) 
@@ -2277,11 +2289,8 @@ HTTPS;
      * 
      * @return array list of certificates
      */
-    public function getSSLCertificates($domain) {
+    public function getSSLCertificates($websiteName, $domain = '') {
         \DBG::msg("MultiSite (PleskController): Fetch the SSL Certificate details.");
-        if (empty($domain)) {
-            return false;
-        }
         
         $xmldoc  = $this->getXmlDocument();
         $packet  = $this->getRpcPacket($xmldoc); 
@@ -2291,12 +2300,14 @@ HTTPS;
         
         $getTag = $xmldoc->createElement('get-pool');
         $certificate->appendChild($getTag);
-        
-        $filterTag = $xmldoc->createElement('filter');
-        $getTag->appendChild($filterTag);
-        
-        $domainTag = $xmldoc->createElement('domain-name', $domain);
-        $filterTag->appendChild($domainTag);
+
+        if (!empty($domain)) {
+            $filterTag = $xmldoc->createElement('filter');
+            $getTag->appendChild($filterTag);
+            
+            $domainTag = $xmldoc->createElement('domain-name', $domain);
+            $filterTag->appendChild($domainTag);
+        }
         
         $response = $this->executeCurl($xmldoc);
         $resultNode = $response->certificate->{'get-pool'}->result;
@@ -2330,7 +2341,7 @@ HTTPS;
      * @param string $domain domain name
      * @param array  $names  certificate names
      */
-    public function removeSSLCertificates($domain, $names = array()) {
+    public function removeSSLCertificates($websiteName, $domain, $names = array()) {
         \DBG::msg("MultiSite (PleskController): Remove the SSL Certificates.");
         if (!is_array($names) || empty($names) || empty($domain)) {
             return false;
@@ -2379,7 +2390,7 @@ HTTPS;
      * @return boolean
      * @throws ApiRequestException
      */
-    public function activateSSLCertificate($certificateName, $siteId)
+    public function activateSSLCertificate($websiteName, $certificateName, $siteId)
     {
         \DBG::msg('MultiSite (PleskController): Activate the SSL Certificate.');
         if (empty($certificateName) || empty($siteId)) {

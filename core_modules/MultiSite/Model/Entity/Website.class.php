@@ -588,6 +588,9 @@ class Website extends \Cx\Model\Base\EntityBase {
         } else {
             \DBG::msg('Website: setup process..');
 
+            $hostController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
+            $hostController->createWebDistribution($websiteName);
+
             $objDb = new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG);
             $objDbUser = new \Cx\Core\Model\Model\Entity\DbUser();
 
@@ -1273,7 +1276,10 @@ throw new WebsiteException('implement secret-key algorithm first!');
                         \DBG::msg(__METHOD__.': Remove domain '.$domain->getName());
                         \Env::get('em')->remove($domain);
                         \Env::get('em')->getUnitOfWork()->computeChangeSet(\Env::get('em')->getClassMetadata('Cx\Core_Modules\MultiSite\Model\Entity\Domain'), $domain);
-                    }                    
+                    }
+
+                    // Delete web distribution
+                    $hostingController->deleteWebDistribution($this->getName());
                     break;
             }
         } catch (\Exception $e) {

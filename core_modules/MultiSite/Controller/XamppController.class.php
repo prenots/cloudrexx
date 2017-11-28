@@ -499,6 +499,12 @@ class XamppController extends HostController {
     /**
      * {@inheritdoc}
      */
+    public function getAllWebDistributionAliases($websiteName = '') {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function canGenerateCertificates() {
         return false;
     }
@@ -512,7 +518,7 @@ class XamppController extends HostController {
      * @param string $certificateBody           certificate body
      * @param string $certificateAuthority      certificate authority
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
         \DBG::msg("MultiSite (XamppController): Install the SSL Certificate for the domain.");
         return true;
     }
@@ -522,7 +528,7 @@ class XamppController extends HostController {
      * 
      * @param string $domain domain name
      */
-    public function getSSLCertificates($domain) {
+    public function getSSLCertificates($websiteName, $domain = '') {
         \DBG::msg("MultiSite (XamppController): Fetch the SSL Certificate details.");
         return true;
     }
@@ -533,7 +539,7 @@ class XamppController extends HostController {
      * @param string $domain domain name
      * @param array  $names  certificate names
      */
-    public function removeSSLCertificates($domain, $names = array()) {
+    public function removeSSLCertificates($websiteName, $domain, $names = array()) {
         \DBG::msg("MultiSite (XamppController): Remove the SSL Certificates.");
         return true;
     }
@@ -544,7 +550,7 @@ class XamppController extends HostController {
      * @param string $certificateName certificate name
      * @param string $domain          domain name
      */
-    public function activateSSLCertificate($certificateName, $domain) {
+    public function activateSSLCertificate($websiteName, $certificateName, $domain) {
         \DBG::msg("MultiSite (XamppController): Activate the SSL Certificate. $certificateName / $domain");
         return true;
     }

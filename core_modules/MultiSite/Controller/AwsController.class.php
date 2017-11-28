@@ -546,6 +546,12 @@ class AwsController extends HostController {
     public function deleteWebDistributionAlias($mainName, $aliasName) {
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributionAliases($websiteName = '') {
+    }
+
     /*******************************/
     /* S S L - C O N T R O L L E R */
     /*******************************/
@@ -560,25 +566,25 @@ class AwsController extends HostController {
     /**
      * {@inheritdoc}
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSSLCertificates($domain) {
+    public function getSSLCertificates($websiteName, $domain = '') {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeSSLCertificates($domain, $names = array()) {
+    public function removeSSLCertificates($websiteName, $domain, $names = array()) {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function activateSSLCertificate($certificateName, $domain) {
+    public function activateSSLCertificate($websiteName, $certificateName, $domain) {
     }
 
     /*****************************/
