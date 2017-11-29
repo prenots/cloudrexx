@@ -44,4 +44,5 @@ interface FileSystem {
     public function getLink(File $file);
     public function createDirectory($path, $directory);
     public function getFileFromPath($path);
+    public function fileExists(File $file);
 }
