@@ -1242,6 +1242,7 @@ class PleskController extends HostController {
         ) {
             throw new UserStorageControllerException('Unable to setup data folder');
         }
+        return array();
     }
 
     /**
