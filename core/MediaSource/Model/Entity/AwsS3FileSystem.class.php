@@ -165,7 +165,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     /**
      * Get the AWS S3 client object
      *
-     * @return \Aws\S3\S3Client
+     * @return \Aws\S3\S3Client S3 client object
      */
     public function getS3Client()
     {
@@ -175,11 +175,21 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     /**
      * Get the bucket name
      *
-     * @return string
+     * @return string Bucket name
      */
     public function getBucketName()
     {
         return $this->bucketName;
+    }
+
+    /**
+     * Get the directory prefix
+     *
+     * @return string Directory prefix
+     */
+    public function getDirectoryPrefix()
+    {
+        return $this->directoryPrefix;
     }
 
     /**
@@ -378,6 +388,18 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
+     * Check whether the file directory exists in the filesytem
+     *
+     * @param File $file LocalFile object
+     * @return boolean true if the file directory exists otherwise false
+     */
+    public function isDirectoryExists(File $file)
+    {
+        $file = rtrim($this->directoryPrefix . $this->getFullPath($file), '/');
+        return file_exists($file);
+    }
+
+    /**
      * Remove the file
      *
      * @param LocalFile $file File object
@@ -519,7 +541,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
 
         // Create the $toFile's directory if does not exists
         $toFile = new LocalFile($toFilePath, $fromFile->getFileSystem());
-        if (!file_exists($this->directoryPrefix . $this->getFullPath($toFile))) {
+        if (!$this->isDirectoryExists($toFile)) {
             if (!mkdir($this->directoryPrefix . $this->getFullPath($toFile), '0777')) {
                 return sprintf($errorMsg, $fromFile->getName());
             }

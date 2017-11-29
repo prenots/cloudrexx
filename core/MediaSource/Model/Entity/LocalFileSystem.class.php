@@ -65,6 +65,28 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
+     * Check whether file exists in the filesytem
+     *
+     * @param File $file File object
+     * @return boolean True when exists, false otherwise
+     */
+    public function fileExists(File $file)
+    {
+        return file_exists($this->getFullPath($file) . $file->getFullName());
+    }
+
+    /**
+     * Check whether the file directory exists in the filesytem
+     *
+     * @param File $file LocalFile object
+     * @return boolean true if the file directory exists otherwise false
+     */
+    public function isDirectoryExists(File $file)
+    {
+        return file_exists($this->getFullPath($file));
+    }
+
+    /**
      * @todo    Option $recursive does not work. It always acts as recursive is set to TRUE
      */
     public function getFileList($directory, $recursive = true, $readonly = false) {

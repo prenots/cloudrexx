@@ -149,6 +149,17 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     }
 
     /**
+     * Check whether the file directory exists in the filesytem
+     *
+     * @param File $file LocalFile object
+     * @return boolean true if the file directory exists otherwise false
+     */
+    public function isDirectoryExists(\Cx\Core\MediaSource\Model\Entity\File $file)
+    {
+        return file_exists($this->getFullPath($file));
+    }
+
+    /**
      * Read the contents from given file,
      * Check whether the file exists before calling this function
      *

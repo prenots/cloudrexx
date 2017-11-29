@@ -331,15 +331,19 @@ class MediaSourceManager extends EntityBase
         $isSourceLocalFile = true;
         $sourceFile        = $this->getMediaSourceFileFromPath($sourcePath);
         if (!$sourceFile) {
+            // The source file is a local file
             $sourcePath = $this->cx->getWebsitePath() . '/' . $sourcePath;
+            // Return If the source file does not exists
             if (!\Cx\Lib\FileSystem\FileSystem::exists($sourcePath)) {
                 return false;
             }
         } else {
+            // Return If the source file does not exists
             if (!$sourceFile->getFileSystem()->fileExists($sourceFile)) {
                 return false;
             }
 
+            // Check whether the source file is local file or S3 file
             if ($sourceFile->getFileSystem() instanceof AwsS3FileSystem) {
                 $isSourceLocalFile = false;
             }
@@ -359,34 +363,30 @@ class MediaSourceManager extends EntityBase
             $mediaSource     = $this->getMediaSourceByPath($destinationPath);
             $mediaSourcePath = $mediaSource->getDirectory();
             $filePath = substr($destinationPath, strlen($mediaSourcePath[1]));
-
-            if (!$mediaSource->getFileSystem()) {
-                return false;
-            }
-
-            if (
-                ($mediaSource->getFileSystem() instanceof AwsS3FileSystem) ||
-                ($mediaSource->getFileSystem() instanceof LocalFileSystem)
-            ) {
-                $destinationFile = new LocalFile($filePath, $mediaSource->getFileSystem());
-            } else {
+            // Create destination file object by the $destinationPath
+            if ($mediaSource->getFileSystem() instanceof \Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem) {
                 $destinationFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
                     $filePath,
                     $mediaSource->getFileSystem()
                 );
+            } else {
+                $destinationFile = new LocalFile($filePath, $mediaSource->getFileSystem());
             }
 
-            if (
-                !self::isSubdirectory(
-                    $mediaSource->getFileSystem()->getRootPath(),
-                    $destinationFile->getPath()
-                )
-            ) {
+            // Check if the destination file directory exists otherwise
+            // try to create the directory
+            if (!$mediaSource->getFileSystem()->isDirectoryExists($destinationFile)) {
                 $destinationFile->getFileSystem()->createDirectory(
                     $destinationFile->getPath()
                 );
             }
 
+            // Return if the destination file directory is not exists
+            if (!$mediaSource->getFileSystem()->isDirectoryExists($destinationFile)) {
+                return false;
+            }
+
+            // Check whether the destination file is local file or S3 file
             if ($destinationFile->getFileSystem() instanceof AwsS3FileSystem) {
                 $isDestinationLocalFile = false;
             }
@@ -395,12 +395,15 @@ class MediaSourceManager extends EntityBase
                 $destinationFile->getFileSystem()->getFullPath($destinationFile) .
                 $destinationFile->getFullName();
         } catch(\Exception $e) {
-            $destinationPath = $this->cx->getWebsitePath() . '/' . $destinationPath;
-            if (
-                !\Cx\Lib\FileSystem\FileSystem::exists($destinationPath) ||
-                !\Cx\Lib\FileSystem\FileSystem::make_folder($destinationPath)
-            ) {
-                return false;
+            // The Destination file is a local file
+            $destinationPath = $this->cx->getWebsitePath() . $destinationPath;
+            // Check if the destination file directory exists otherwise
+            // try to create the directory if does not then call return.
+            $dirPath = pathinfo($destinationPath, PATHINFO_DIRNAME);
+            if (!\Cx\Lib\FileSystem\FileSystem::exists($dirPath)) {
+                if (!\Cx\Lib\FileSystem\FileSystem::make_folder($dirPath)) {
+                    return false;
+                }
             }
         }
 
@@ -415,7 +418,10 @@ class MediaSourceManager extends EntityBase
 
         // Move s3 File to s3 File
         if (!$isSourceLocalFile && !$isDestinationLocalFile) {
-            return rename($sourcePath, $destinationPath);
+            return rename(
+                $sourceFile->getFileSystem()->getDirectoryPrefix() . $sourcePath,
+                $destinationFile->getFileSystem()->getDirectoryPrefix() . $destinationPath
+            );
         }
 
         // Move local File to s3 File
