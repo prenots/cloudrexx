@@ -415,30 +415,6 @@ class DomainEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
         if (\FWValidator::isEmpty($params) || !is_array($params)) {
             return;
         }
-        
-        // createDomainAlias(), renameDomainAlias(), deleteDomainAlias()
-        if (
-            $domain->getType() == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_EXTERNAL_DOMAIN
-        ) {
-            $webDistributionControllerMethodName = str_replace(
-                'DomainAlias',
-                'WebDistributionAlias',
-                $params['command']
-            );
-            $mainController = \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('MultiSite');
-            if (isset($params['oldDomainName'])) {
-                $mainController->getHostingController()->$webDistributionControllerMethodName(
-                    $params['websiteName'],
-                    $params['oldDomainName'],
-                    $params['domainName']
-                );
-            } else {
-                $mainController->getHostingController()->$webDistributionControllerMethodName(
-                    $params['websiteName'],
-                    $params['domainName']
-                );
-            }
-        }
 
         $result = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('domainManipulation', $params);
         if ($result && $result->status == 'error') {

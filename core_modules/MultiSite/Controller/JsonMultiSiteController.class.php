@@ -6628,13 +6628,31 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 case ComponentController::MODE_HYBRID:
                     $websiteRepo = \Env::get('em')->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Website');
                     $website = $websiteRepo->findOneBy(array('name' => $params['post']['websiteName']));
+                    $methodName = $params['post']['command'];
                     
                     if (!$website) {
                         \DBG::log('JsonMultiSiteController::domainManipulation() failed: Unknown website.');
                         return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_MULTISITE_WEBSITE_NOT_EXISTS']);
                     }
+        
+                    // Update domain aliases accordingly
+                    try {
+                        $aliasParams = $params['post'];
+                        $aliasParams['command'] = str_replace(
+                            'DomainAlias',
+                            'WebDistributionAlias',
+                            $params['post']['command']
+                        );
+                        static::executeCommandOnServiceServer(
+                            'updateWebDistributionAlias',
+                            $params['post'],
+                            $website->getServiceServer()
+                        );
+                    } catch (\Exception $e) {
+                        \DBG::log('SYSERROR: Could not update WebDistributionAlias while executing "' . $methodName . '" for website "' . $website->getName() . '"!');
+                        throw $e;
+                    }
 
-                    $methodName = $params['post']['command'];
                     // automatically issue self-signed certificate (if supported)
                     try {
                         $certParams = array(
@@ -6746,22 +6764,22 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         }
 
         if (
-            !isset($params['event']) ||
-            !isset($params['domain'])
+            empty($params['post']['event']) ||
+            empty($params['post']['domain'])
         ) {
             throw new MultiSiteJsonException(
                 'Not all necessary params set!'
             );
         }
         try {
-            switch ($params['event']) {
+            switch ($params['post']['event']) {
                 case 'createDomainAlias':
                     return static::executeCommand(
                         'linkSsl',
                         array(
                             'post' => array(
-                                'websiteName' => $params['website'],
-                                'domainName' => $params['domain'],
+                                'websiteName' => $params['post']['website'],
+                                'domainName' => $params['post']['domain'],
                             ),
                         )
                     );
@@ -6777,8 +6795,8 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         'unLinkSsl',
                         array(
                             'post' => array(
-                                'websiteName' => $params['website'],
-                                'domainName' => $params['domain'],
+                                'websiteName' => $params['post']['website'],
+                                'domainName' => $params['post']['domain'],
                             ),
                         )
                     );
@@ -8293,6 +8311,50 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             \DBG::log($e->getMessage());
             throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_GET_SERVER_WEBSITE_PATH_ERROR']);
         }
+    }
+
+    public function updateWebDistributionAlias($params) {
+        if (
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'mode',
+                'MultiSite'
+            ) !== ComponentController::MODE_SERVICE
+        ) {
+            throw new MultiSiteJsonException(
+                'This method can only be used on service server'
+            );
+        }
+
+        if (
+            empty($params['post']['command']) ||
+            empty($params['post']['websiteName']) ||
+            empty($params['post']['domainName']) ||
+            (
+                $params['post']['command'] == 'renameWebDistributionAlias' &&
+                empty($params['post']['oldDomainName'])
+            )
+        ) {
+            throw new MultiSiteJsonException(
+                'Not all necessary params set!'
+            );
+        }
+        $command = $params['post']['command'];
+        $hostingController = ComponentController::getHostingController();
+        if (isset($params['post']['oldDomainName'])) {
+            $hostingController->$command(
+                $params['post']['websiteName'],
+                $params['post']['oldDomainName'],
+                $params['post']['domainName']
+            );
+        } else {
+            $hostingController->$command(
+                $params['post']['websiteName'],
+                $params['post']['domainName']
+            );
+        }
+        return array(
+            'status' => 'success',
+        );
     }
 }
 
