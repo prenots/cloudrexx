@@ -1977,7 +1977,35 @@ class PleskController extends HostController {
      * {@inheritdoc}
      */
     public function createWebDistributionAlias($mainName, $aliasName) {
-        $domain = $aliasName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributionAliases($websiteName = '') {
+        // this is necessary to ensure MultiSite believes we have Aliases
+        return $this->getAllSubscriptions();
+    }
+
+    /**
+     * Internal method to create a subscription, used for SSL
+     * @param string $domain Domain of the website
+     * @return string Resulting node ID
+     * @throws ApiRequestException On API error
+     */
+    protected function createSubscription($domain) {
         $documentRoot = 'httpdocs';
         \DBG::msg("MultiSite (PleskController): Create new site on existing subscription.");
         if (empty($domain)) {
@@ -2077,11 +2105,13 @@ HTTPS;
     }
 
     /**
-     * {@inheritdoc}
+     * Internal method to rename a subscription, used for SSL
+     * @param string $oldDomainName Old domain of the website
+     * @param string $newDomainName New domain of the website
+     * @return string Resulting node ID
+     * @throws ApiRequestException On API error
      */
-    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
-        $oldDomainName = $oldAliasName;
-        $newDomainName = $newAliasName;
+    protected function renameSubscription($oldDomainName, $newDomainName) {
         \DBG::msg("MultiSite (PleskController): Renaming the site on existing subscription.");
         if (empty($oldDomainName) || empty($newDomainName)) {
             return false;
@@ -2125,10 +2155,12 @@ HTTPS;
     }
 
     /**
-     * {@inheritdoc}
+     * Internal method to delete a subscription, used for SSL
+     * @param string $domain Domain of the website
+     * @return boolean True on success
+     * @throws ApiRequestException On API error
      */
-    public function deleteWebDistributionAlias($mainName, $aliasName) {
-        $domain = $aliasName;
+    protected function deleteSubscription($domain) {
         \DBG::msg("MultiSite (PleskController): Removing the site on existing subscription.");
         if (empty($domain)) {
             return false;
@@ -2162,7 +2194,12 @@ HTTPS;
         return true;
     }
 
-    public function getAllWebDistributionAliases($websiteName = '') {
+    /**
+     * Internal method to get a list of subscription, used for SSL
+     * @return array Key value array (ID => name)
+     * @throws ApiRequestException On API error
+     */
+    protected function getAllSubscriptions() {
         \DBG::msg("MultiSite (PleskController): Get all sites under the existing subscription.");
 
         $xmldoc  = $this->getXmlDocument();
@@ -2234,6 +2271,9 @@ HTTPS;
         ) {
             return false;
         }
+
+        // create a subscription for this SSL domain
+        $this->createSubscription($domain);
         
         $xmldoc  = $this->getXmlDocument();
         $packet  = $this->getRpcPacket($xmldoc); 
@@ -2378,6 +2418,9 @@ HTTPS;
             $error = (isset($systemError) ? $systemError : $resultNode->errtext);
             throw new ApiRequestException("Error in removing the SSL Certificate: {$error}");
         }
+
+        // delete the subscription for this SSL domain
+        $this->deleteSubscription($domain);
         
         return true;
     }
