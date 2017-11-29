@@ -70,6 +70,16 @@ class AwsController extends HostController {
     protected $route53Client;
 
     /**
+     * XAMPP controller for user storage (temporary)
+     */
+    protected $userStorageController;
+
+    /**
+     * XAMPP controller for db storage
+     */
+    protected $dbController;
+
+    /**
      * {@inheritdoc}
      */
     public static function initSettings() {
@@ -456,14 +466,21 @@ class AwsController extends HostController {
      * {@inheritdoc}
      */
     public function createUserStorage($websiteName, $codeBase = '') {
-        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+        // create S3 bucket
+        return $this->getUserStorageController()->createUserStorage(
+            $websiteName,
+            $codeBase
+        );
     }
 
     /**
      * {@inheritdoc}
      */
     public function deleteUserStorage($websiteName) {
-        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+        // drop S3 bucket
+        $this->getUserStorageController()->deleteUserStorage(
+            $websiteName
+        );
     }
 
     /**
@@ -492,6 +509,17 @@ class AwsController extends HostController {
      */
     public function getAllEndUserAccounts($extendedData = false) {
         throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * Returns the controller to route user storage calls to
+     * @return HostController Host controller for user storage calls
+     */
+    protected function getUserStorageController() {
+        if (!$this->userStorageController) {
+            $this->userStorageController = XamppController::fromConfig();
+        }
+        return $this->userStorageController;
     }
 
     /*******************************************************/
