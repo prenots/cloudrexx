@@ -421,7 +421,7 @@ class DomainEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
             $domain->getType() == \Cx\Core_Modules\MultiSite\Model\Entity\Domain::TYPE_EXTERNAL_DOMAIN
         ) {
             $webDistributionControllerMethodName = str_replace(
-                'Domain',
+                'DomainAlias',
                 'WebDistributionAlias',
                 $params['command']
             );
