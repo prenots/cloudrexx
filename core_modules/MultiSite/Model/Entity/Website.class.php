@@ -588,6 +588,9 @@ class Website extends \Cx\Model\Base\EntityBase {
         } else {
             \DBG::msg('Website: setup process..');
 
+            $hostController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
+            $hostController->createWebDistribution($websiteName);
+
             $objDb = new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG);
             $objDbUser = new \Cx\Core\Model\Model\Entity\DbUser();
 
@@ -595,7 +598,7 @@ class Website extends \Cx\Model\Base\EntityBase {
             $this->setupDatabase($langId, $this->owner, $objDb, $objDbUser);
 
             \DBG::msg('Website: setupDataFolder..');
-            $this->setupDataFolder($websiteName);
+            $additionalConfig = $this->setupDataFolder($websiteName);
 
             \DBG::msg('Website: setupFtpAccount..');
             $ftpAccountPassword = $this->setupFtpAccount($websiteName);
@@ -613,7 +616,7 @@ class Website extends \Cx\Model\Base\EntityBase {
             $this->setupLicense($options);
 
             \DBG::msg('Website: initializeConfig..');
-            $this->initializeConfig();
+            $this->initializeConfig($additionalConfig);
 
             \DBG::msg('Website: setupTheme..');
             $this->setupTheme($websiteThemeId);
@@ -908,18 +911,17 @@ class Website extends \Cx\Model\Base\EntityBase {
             throw new WebsiteException('Database data could not be initialized');
         }    
     }
-    /*
-    * function setupDataFolder to create folders for 
-    * website like configurations files
-    * @param $websiteName name of the website
-    * */
-    protected function setupDataFolder($websiteName){
-        // website's data repository
-        $codeBaseOfWebsite = !empty($this->codeBase) ? \Cx\Core\Setting\Controller\Setting::getValue('codeBaseRepository','MultiSite').'/'.$this->codeBase  :  \Env::get('cx')->getCodeBaseDocumentRootPath();
-        $codeBaseWebsiteSkeletonPath = $codeBaseOfWebsite . \Env::get('cx')->getCoreModuleFolderName() . '/MultiSite/Data/WebsiteSkeleton';
-        if(!\Cx\Lib\FileSystem\FileSystem::copy_folder($codeBaseWebsiteSkeletonPath, \Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite').'/'.$websiteName)) {
-            throw new WebsiteException('Unable to setup data folder');
-        }
+    
+    /**
+     * Create the necessary files and folders for the website
+     * This method is executed on ServiceServer only!
+     * @param $websiteName name of the website
+     * @return array Key=>value array with additional settings for Config.yml
+     */
+    protected function setupDataFolder($websiteName) {
+        // ensure our folder exists
+        $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
+        return $hostingController->createUserStorage($websiteName, $this->codeBase);
     }    
      /*
     * function setupConfiguration to create configuration
@@ -986,16 +988,19 @@ class Website extends \Cx\Model\Base\EntityBase {
           
     }
 
-    protected function initializeConfig() {
+    protected function initializeConfig($additionalConfig = array()) {
         try {
-            $params = array(
-                'dashboardNewsSrc' => \Cx\Core\Setting\Controller\Setting::getValue('dashboardNewsSrc','MultiSite'),
-                'coreAdminEmail'   => $this->owner->getEmail(),
-                'contactFormEmail' => $this->owner->getEmail(),
-                // we should migrate this to locales
-                // this only works as long as the website skeleton data does use the same locale/language IDs as the website service and master
-                'defaultLocaleId'  => $this->language,
-                'defaultLanguageId'=> $this->language,
+            $params = array_merge(
+                array(
+                    'dashboardNewsSrc' => \Cx\Core\Setting\Controller\Setting::getValue('dashboardNewsSrc','MultiSite'),
+                    'coreAdminEmail'   => $this->owner->getEmail(),
+                    'contactFormEmail' => $this->owner->getEmail(),
+                    // we should migrate this to locales
+                    // this only works as long as the website skeleton data does use the same locale/language IDs as the website service and master
+                    'defaultLocaleId'  => $this->language,
+                    'defaultLanguageId'=> $this->language,
+                ),
+                $additionalConfig
             );
             $resp = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnWebsite('setupConfig', $params, $this);
             if(!$resp || $resp->status == 'error'){
@@ -1241,9 +1246,9 @@ throw new WebsiteException('implement secret-key algorithm first!');
                     $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getHostingController();
                     
                     if ($this->ftpUser) {
-                        $ftpAccounts = $hostingController->getFtpAccounts();
+                        $ftpAccounts = $hostingController->getAllEndUserAccounts();
                         if (in_array($this->ftpUser, $ftpAccounts)) {
-                            if (!$hostingController->removeFtpAccount($this->ftpUser)) {
+                            if (!$hostingController->removeEndUserAccount($this->ftpUser)) {
                                 throw new WebsiteException('Unable to delete the FTP Account');
                             }
                         }
@@ -1264,18 +1269,17 @@ throw new WebsiteException('implement secret-key algorithm first!');
                         $hostingController->removeDb($objDb);
                     }
                     //remove the website's data repository
-                    if(file_exists(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite') . '/' . $this->name)) {
-                        if (!\Cx\Lib\FileSystem\FileSystem::delete_folder(\Cx\Core\Setting\Controller\Setting::getValue('websitePath','MultiSite') . '/' . $this->name, true)) {
-                            throw new WebsiteException('Unable to delete the website data repository');
-                        }
-                    }
+                    $hostingController->deleteUserStorage($this->getName());
 
                     //unmap all the domains
                     foreach ($this->domains as $domain) {
                         \DBG::msg(__METHOD__.': Remove domain '.$domain->getName());
                         \Env::get('em')->remove($domain);
                         \Env::get('em')->getUnitOfWork()->computeChangeSet(\Env::get('em')->getClassMetadata('Cx\Core_Modules\MultiSite\Model\Entity\Domain'), $domain);
-                    }                    
+                    }
+
+                    // Delete web distribution
+                    $hostingController->deleteWebDistribution($this->getName());
                     break;
             }
         } catch (\Exception $e) {
@@ -1771,7 +1775,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
                          !preg_match('#^[a-z]#i', $websiteName) ? \Cx\Core\Setting\Controller\Setting::getValue('ftpAccountFixPrefix','MultiSite') . $websiteName : $websiteName;
 
             $maxLengthFtpAccountName = \Cx\Core\Setting\Controller\Setting::getValue('maxLengthFtpAccountName','MultiSite');
-            $existingFtpAccounts     = $this->websiteController->getFtpAccounts();
+            $existingFtpAccounts     = $this->websiteController->getAllEndUserAccounts();
             
             $tmpFtpUser = $ftpUser;
             $flag       = 1;
@@ -1790,7 +1794,7 @@ throw new WebsiteException('implement secret-key algorithm first!');
             $ftpUser = $tmpFtpUser;
 
             $password  = \User::make_password(8, true);
-            $accountId = $this->websiteController->addFtpAccount($ftpUser, $password, \Cx\Core\Setting\Controller\Setting::getValue('websiteFtpPath','MultiSite') . '/' . $websiteName, \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite'));
+            $accountId = $this->websiteController->createEndUserAccount($ftpUser, $password, \Cx\Core\Setting\Controller\Setting::getValue('websiteFtpPath','MultiSite') . '/' . $websiteName, \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite'));
 
             if ($accountId) {
                 $this->ftpUser = $ftpUser;

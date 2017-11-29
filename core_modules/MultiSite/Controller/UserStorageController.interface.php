@@ -11,17 +11,33 @@
 
 namespace Cx\Core_Modules\MultiSite\Controller;
 
-class FtpControllerException extends \Exception {}
+class UserStorageControllerException extends \Exception {}
 
 /**
- * manage the Ftp accounts
+ * manage the user storage
  * 
  * @copyright   Comvation AG
  * @author      Project Team SS4U <info@comvation.com>
  * @package     contrexx
  * @subpackage  coremodule_multisite
  */
-interface FtpController {
+interface UserStorageController {
+
+    /**
+     * Creates the user storage for the website with the supplied name
+     * @param string $websiteName Name of the website
+     * @param string $codeBase Code base name of the website, empty for default
+     * @return array Key=>value array with additional settings for Config.yml
+     * @throws UserStorageControllerException When something goes wrong
+     */
+    public function createUserStorage($websiteName, $codeBase = '');
+
+    /**
+     * Delete the user storage for the website with the supplied name
+     * @param string $websiteName Name of the website
+     * @throws UserStorageControllerException When something goes wrong
+     */
+    public function deleteUserStorage($websiteName);
 
     /**
      * Add the new Ftp Account
@@ -34,7 +50,7 @@ interface FtpController {
      * @return object
      * @throws ApiRequestException On error
      */
-    public function addFtpAccount($userName, $password, $homePath, $subscriptionId);
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId);
 
     /**
      * Delete the FTP Account
@@ -44,7 +60,7 @@ interface FtpController {
      * @return object
      * @throws ApiRequestException On error
      */
-    public function removeFtpAccount($userName);
+    public function removeEndUserAccount($userName);
 
     /**
      * Change the FTP Account password
@@ -55,7 +71,7 @@ interface FtpController {
      * @return object
      * @throws ApiRequestException On error
      */
-    public function changeFtpAccountPassword($userName, $password);
+    public function changeEndUserAccountPassword($userName, $password);
 
     /**
      * Get All the Ftp Accounts
@@ -65,5 +81,5 @@ interface FtpController {
      * @return array
      * @throws ApiRequestException On error
      */
-    public function getFtpAccounts($extendedData = false);
+    public function getAllEndUserAccounts($extendedData = false);
 }

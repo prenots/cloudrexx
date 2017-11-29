@@ -415,7 +415,7 @@ class DomainEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
         if (\FWValidator::isEmpty($params) || !is_array($params)) {
             return;
         }
-        
+
         $result = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnMyServiceServer('domainManipulation', $params);
         if ($result && $result->status == 'error') {
             \DBG::log($result->message);

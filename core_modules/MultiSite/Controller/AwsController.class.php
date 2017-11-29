@@ -24,7 +24,8 @@ class AwsRoute53Exception extends DnsControllerException {}
  * @subpackage  coremodule_multisite
  */
 
-class AwsController implements DnsController {
+class AwsController extends HostController {
+
     /**
      * List of the available regions
      *
@@ -48,53 +49,105 @@ class AwsController implements DnsController {
     );
 
     /**
-     * Region
-     *
-     * @var string
-     */
-    protected $region;
-
-    /**
-     * AWS access key ID
-     *
-     * @var string
-     */
-    protected $credentialsKey;
-
-    /**
-     * AWS secret access key
-     *
-     * @var string
-     */
-    protected $credentialsSecret;
-
-    /**
-     * AWS version
-     *
-     * @var string
-     */
-    protected $version;
-
-    /**
      * Resource record cache time to live in seconds
      *
      * @var integer
      */
-    protected $timeToLive;
+    protected $ttl;
 
     /**
      * Hosted zone ID
      *
      * @var string
      */
-    protected $webspaceId;
+    protected $hostedZoneId;
 
     /**
      * Instance of a Route53Client
      *
-     * @var static
+     * @var \Aws\Route53\Route53Client
      */
-    protected static $clientInstance;
+    protected $route53Client;
+
+    /**
+     * XAMPP controller for user storage (temporary)
+     */
+    protected $userStorageController;
+
+    /**
+     * XAMPP controller for db storage
+     */
+    protected $dbController;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function initSettings() {
+        $settings = array(
+            'region' => array(
+                'value' => '',
+                'type' => \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN,
+                'values' => '{src:\\'.__CLASS__.'::getRegions()}', 
+            ),
+            'credentialsKey' => array(
+                'value' => null,
+            ),
+            'credentialsSecret' => array(
+                'value' => '',
+            ),
+            'version' => array(
+                'value' => 'latest',
+            ),
+            'timeToLive' => array(
+                'value' => 60,
+            ),
+            'hostedZoneId' => array(
+                'value' => '',
+            ),
+        );
+        $i = 0;
+        \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'aws', 'FileSystem');
+        foreach ($settings as $name=>$initValues) {
+            $i++;
+            if (\Cx\Core\Setting\Controller\Setting::getValue($name, 'MultiSite') !== null) {
+                continue;
+            }
+            if (!isset($initValues['type'])) {
+                $initValues['type'] = \Cx\Core\Setting\Controller\Setting::TYPE_TEXT;
+            }
+            if (!isset($initValues['values'])) {
+                $initValues['values'] = null;
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    $name,
+                    $initValues['value'],
+                    $i,
+                    $initValues['type'],
+                    $initValues['values'],
+                    'plesk'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add setting entry "' . $name . '" for ' . __CLASS__
+                );
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function fromConfig() {
+        return new static(
+            \Cx\Core\Setting\Controller\Setting::getValue('credentialsKey', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('credentialsSecret', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('hostedZoneId', 'MultiSite')
+        );
+    }
 
     /**
      * Constructor
@@ -103,22 +156,35 @@ class AwsController implements DnsController {
      * @param string $credentialsSecret AWS secret access key
      * @param string $region            AWS region
      * @param string $version           AWS version
+     * @param integer $ttl              Time to life
+     * @param string $hostedZoneId      AWS zone id
+     * @throws \Aws\Exception\AwsException When connection fails
      */
     public function __construct(
         $credentialsKey,
         $credentialsSecret,
         $region,
-        $version
+        $version,
+        $ttl,
+        $hostedZoneId
     ) {
-        //Load the Aws SDK
+        //Load the AWS SDK
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getClassLoader()->loadFile(
             $cx->getCodeBaseLibraryPath() . '/Aws/aws.phar'
         );
-        $this->region            = $region;
-        $this->credentialsKey    = $credentialsKey;
-        $this->credentialsSecret = $credentialsSecret;
-        $this->version           = $version;
+        $this->ttl = $ttl;
+        $this->hostedZoneId = $hostedZoneId;
+        $this->route53Client = new \Aws\Route53\Route53Client(
+            array(
+                'region' => $region, // please note that Route53 only has us-east-1
+                'version' => $version,
+                'credentials' => array(
+                    'key' => $credentialsKey,
+                    'secret' => $credentialsSecret,
+                )
+            )
+        );
     }
 
     /**
@@ -138,7 +204,7 @@ class AwsController implements DnsController {
      */
     public function setTimeToLive($timeToLive)
     {
-        $this->timeToLive;
+        $this->ttl;
     }
 
     /**
@@ -148,58 +214,22 @@ class AwsController implements DnsController {
      */
     public function getTimeToLive()
     {
-        return $this->timeToLive;
+        return $this->ttl;
     }
 
     /**
-     * Set Hosted zone ID
-     *
-     * @param string $webspaceId
-     */
-    public function setWebspaceId($webspaceId)
-    {
-        $this->webspaceId = $webspaceId;
-    }
-
-    /**
-     * Get Hosted zone ID
+     * Get hosted zone ID
      *
      * @return string
      */
-    public function getWebspaceId()
+    public function getHostedZoneId()
     {
-        return $this->webspaceId;
+        return $this->hostedZoneId;
     }
 
-    /**
-     * Get Route53 client object
-     *
-     * @throws AwsRoute53Exception
-     * @return \Aws\Route53\Route53Client
-     */
-    protected function getRoute53Client()
-    {
-        try {
-            if (!isset(static::$clientInstance)) {
-                static::$clientInstance = new \Aws\Route53\Route53Client(array(
-                    'version'     => $this->version,
-                    'region'      => $this->region,
-                    'credentials' => array(
-                        'key'    => $this->credentialsKey,
-                        'secret' => $this->credentialsSecret
-                    )
-                ));
-            }
-
-            return static::$clientInstance;
-        } catch (\Aws\Exception\AwsException $e) {
-            throw new AwsRoute53Exception(
-                'Error in creating AWS Route53 Client.',
-                '',
-                $e->getMessage()
-            );
-        }
-    }
+    /*******************************/
+    /* D N S - C O N T R O L L E R */
+    /*******************************/
 
     /**
      * Add DNS Record
@@ -211,28 +241,19 @@ class AwsController implements DnsController {
      * @param integer $zoneId Id of Hosted zone
      *
      * @return integer
+     * @throws AwsRoute53Exception
      */
     public function addDnsRecord($type = 'A', $host, $value, $zone, $zoneId)
     {
-        $client = $this->getRoute53Client();
-        try {
-            return $this->manipulateDnsRecord(
-                $client,
-                'CREATE',
-                $type,
-                $host,
-                $value,
-                $zone,
-                $zoneId,
-                $this->timeToLive
-            );
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in adding DNS Record.',
-                '',
-                $e->getMessage()
-            );
-        }
+        return $this->manipulateDnsRecord(
+            'CREATE',
+            $type,
+            $host,
+            $value,
+            $zone,
+            $zoneId,
+            $this->getTimeToLive()
+        );
     }
 
     /**
@@ -246,6 +267,7 @@ class AwsController implements DnsController {
      * @param integer $recordId DNS record ID
      *
      * @return integer
+     * @throws AwsRoute53Exception
      */
     public function updateDnsRecord(
         $type,
@@ -255,25 +277,15 @@ class AwsController implements DnsController {
         $zoneId,
         $recordId
     ) {
-        $client = $this->getRoute53Client();
-        try {
-            return $this->manipulateDnsRecord(
-                $client,
-                'UPSERT',
-                $type,
-                $host,
-                $value,
-                $zone,
-                $zoneId,
-                $this->timeToLive
-            );
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in updating DNS Record.',
-                '',
-                $e->getMessage()
-            );
-        }
+        return $this->manipulateDnsRecord(
+            'UPSERT',
+            $type,
+            $host,
+            $value,
+            $zone,
+            $zoneId,
+            $this->getTimeToLive()
+        );
     }
 
     /**
@@ -282,52 +294,71 @@ class AwsController implements DnsController {
      * @param string  $type     DNS-Record type
      * @param string  $host     DNS-Record host
      * @param integer $recordId DNS record ID
+     * @throws AwsRoute53Exception
      */
     public function removeDnsRecord($type, $host, $recordId)
     {
-        if (empty($this->webspaceId)) {
+        if (empty($this->getHostedZoneId())) {
             return;
         }
-        $client = $this->getRoute53Client();
-        try {
-            $dnsRecords = array();
-            $this->fetchDnsRecords(
-                $client,
-                array(
-                    'HostedZoneId'    => $this->webspaceId,
-                    'MaxItems'        => '1',
-                    'StartRecordName' => $host,
-                    'StartRecordType' => $type
-                ),
-                $dnsRecords
-            );
-            if (!isset($dnsRecords[$host])) {
-                return;
-            }
-            $dnsRecord = $dnsRecords[$host];
-            $this->manipulateDnsRecord(
-                $client,
-                'DELETE',
-                $dnsRecord['type'],
-                $dnsRecord['name'],
-                $dnsRecord['value'],
-                '',
-                $this->webspaceId,
-                $dnsRecord['ttl']
-            );
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in deleting DNS Record.',
-                '',
-                $e->getMessage()
-            );
+        $dnsRecords = array();
+        $this->fetchDnsRecords(
+            array(
+                'HostedZoneId'    => $this->getHostedZoneId(),
+                'MaxItems'        => '1',
+                'StartRecordName' => $host,
+                'StartRecordType' => $type
+            ),
+            $dnsRecords
+        );
+        if (!isset($dnsRecords[$host])) {
+            return;
         }
+        $dnsRecord = $dnsRecords[$host];
+        $this->manipulateDnsRecord(
+            'DELETE',
+            $dnsRecord['type'],
+            $dnsRecord['name'],
+            $dnsRecord['value'],
+            '',
+            $this->getHostedZoneId(),
+            $dnsRecord['ttl']
+        );
+    }
+
+    /**
+     * Get DNS Records
+     *
+     * @throws AwsRoute53Exception
+     * @return array
+     */
+    public function getDnsRecords()
+    {
+        if (empty($this->getHostedZoneId())) {
+            return array();
+        }
+
+        $dnsRecords = array();
+        $this->fetchDnsRecords(
+            array('HostedZoneId' => $this->getHostedZoneId()),
+            $dnsRecords
+        );
+        return $dnsRecords;
+    }
+
+    /**
+     * Get Route53 client object
+     *
+     * @return \Aws\Route53\Route53Client
+     */
+    protected function getRoute53Client()
+    {
+        return $this->route53Client;
     }
 
     /**
      * Manipulate DNS record
      *
-     * @param \Aws\Route53\Route53Client $client Route53Client object
      * @param string                     $action Action value(CREATE|UPSERT|DELETE)
      * @param string                     $type   DNS-Record type
      * @param string                     $host   DNS-Record host
@@ -340,7 +371,6 @@ class AwsController implements DnsController {
      * @return integer
      */
     protected function manipulateDnsRecord(
-        $client,
         $action,
         $type,
         $host,
@@ -349,6 +379,7 @@ class AwsController implements DnsController {
         $zoneId,
         $timeToLive
     ) {
+        $client = $this->getRoute53Client();
         try {
             // In case the record is a subdomain of the DNS-zone, then
             // we'll have to strip the DNS-zone part from the record.
@@ -387,47 +418,17 @@ class AwsController implements DnsController {
     }
 
     /**
-     * Get DNS Records
-     *
-     * @throws AwsRoute53Exception
-     * @return array
-     */
-    public function getDnsRecords()
-    {
-        if (empty($this->webspaceId)) {
-            return array();
-        }
-
-        $client = $this->getRoute53Client();
-        try {
-            $dnsRecords = array();
-            $this->fetchDnsRecords(
-                $client,
-                array('HostedZoneId' => $this->webspaceId),
-                $dnsRecords
-            );
-            return $dnsRecords;
-        } catch (AwsRoute53Exception $e) {
-            throw new AwsRoute53Exception(
-                'Error in getting DNS Record.',
-                '',
-                $e->getMessage()
-            );
-        }
-    }
-
-    /**
      * Fetch DNS records list
      *
-     * @param \Aws\Route53\Route53Client $client     Route53Client object
      * @param array                      $options    Parameter details for
      *                                               listResourceRecordSets
      * @param array                      $dnsRecords Array of Resource Recordset
      *
      * @throws AwsRoute53Exception
      */
-    protected function fetchDnsRecords($client, $options, &$dnsRecords)
+    protected function fetchDnsRecords($options, &$dnsRecords)
     {
+        $client = $this->getRoute53Client();
         try {
             $result = $client->listResourceRecordSets($options);
             if (!isset($result['ResourceRecordSets'])) {
@@ -445,9 +446,8 @@ class AwsController implements DnsController {
                 return;
             }
             $this->fetchDnsRecords(
-                $client,
                 array(
-                    'HostedZoneId'    => $this->webspaceId,
+                    'HostedZoneId'    => $this->getHostedZoneId(),
                     'StartRecordName' => $result['NextRecordName'],
                     'StartRecordType' => $result['NextRecordType']
                 ),
@@ -456,5 +456,321 @@ class AwsController implements DnsController {
         } catch (\Aws\Exception\AwsException $e) {
             throw new AwsRoute53Exception($e->getMessage());
         }
+    }
+
+    /***********************************************/
+    /* U S E R S T O R A G E - C O N T R O L L E R */
+    /***********************************************/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createUserStorage($websiteName, $codeBase = '') {
+        // create S3 bucket
+        return $this->getUserStorageController()->createUserStorage(
+            $websiteName,
+            $codeBase
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteUserStorage($websiteName) {
+        // drop S3 bucket
+        $this->getUserStorageController()->deleteUserStorage(
+            $websiteName
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeEndUserAccount($userName) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeEndUserAccountPassword($userName, $password) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllEndUserAccounts($extendedData = false) {
+        throw new UserStorageControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * Returns the controller to route user storage calls to
+     * @return HostController Host controller for user storage calls
+     */
+    protected function getUserStorageController() {
+        if (!$this->userStorageController) {
+            $this->userStorageController = XamppController::fromConfig();
+        }
+        return $this->userStorageController;
+    }
+
+    /*******************************************************/
+    /* W E B D I S T R I B U T I O N - C O N T R O L L E R */
+    /*******************************************************/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createCustomer(\Cx\Core_Modules\MultiSite\Model\Entity\Customer $customer) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistribution($domain, $documentRoot = 'httpdocs') {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistribution($oldDomainName, $newDomainName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistribution($domain) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributions() {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributionAliases($websiteName = '') {
+    }
+
+    /*******************************/
+    /* S S L - C O N T R O L L E R */
+    /*******************************/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function canGenerateCertificates() {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSSLCertificates($websiteName, $domain = '') {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeSSLCertificates($websiteName, $domain, $names = array()) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function activateSSLCertificate($websiteName, $certificateName, $domain) {
+    }
+
+    /*****************************/
+    /* D B - C O N T R O L L E R */
+    /*****************************/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDbUser(\Cx\Core\Model\Model\Entity\DbUser $user) {
+        $this->getDbController()->createDbUser($user);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDb(\Cx\Core\Model\Model\Entity\Db $db, \Cx\Core\Model\Model\Entity\DbUser $user = null) {
+        $this->getDbController()->createDb($db, $user);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function grantRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+        $this->getDbController()->grantRightsToDb($user, $database);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function revokeRightsToDb(\Cx\Core\Model\Model\Entity\DbUser $user, \Cx\Core\Model\Model\Entity\Db $database) {
+        $this->getDbController()->revokeRightsToDb($user, $database);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeDbUser(\Cx\Core\Model\Model\Entity\DbUser $dbUser, \Cx\Core\Model\Model\Entity\Db $db ) {
+        $this->getDbController()->removeDbUser($dbUser, $db);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeDb(\Cx\Core\Model\Model\Entity\Db $db) {
+        $this->getDbController()->removeDb($db);
+    }
+
+    /**
+     * Returns the controller to route all database calls to
+     * @return HostController Host controller for database calls
+     */
+    protected function getDbController() {
+        if (!$this->dbController) {
+            $this->dbController = XamppController::fromConfig();
+        }
+        return $this->dbController;
+    }
+
+    /*********************************/
+    /* M A I L - C O N T R O L L E R */
+    /*********************************/
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enableMailService($subscriptionId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function disableMailService($subscriptionId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeMailDistribution($subscriptionId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameMailDistribution($domain) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeMailDistributionPlan($subscriptionId, $planGuid) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createMailAccount($name, $password, $role, $accountId = null) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteMailAccount($userAccountId) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeMailAccountPassword($userAccountId, $password) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDomainAlias($aliasName) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameDomainAlias($oldAliasName, $newAliasName) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteDomainAlias($aliasName) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPanelAutoLoginUrl($subscriptionId, $ipAddress, $sourceAddress, $role) {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableMailDistributionPlans() {
+        throw new MailControllerException('Method "' . __METHOD__ . '" not yet implemented in "' . __CLASS__ . '"');
     }
 }

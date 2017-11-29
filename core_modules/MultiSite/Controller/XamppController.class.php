@@ -24,15 +24,30 @@ namespace Cx\Core_Modules\MultiSite\Controller;
  * @subpackage  coremodule_MultiSite
  * @version     1.0.0
  */
-class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbController,
-                                 \Cx\Core_Modules\MultiSite\Controller\SubscriptionController,
-                                 \Cx\Core_Modules\MultiSite\Controller\FtpController,
-                                 \Cx\Core_Modules\MultiSite\Controller\DnsController,
-                                 \Cx\Core_Modules\MultiSite\Controller\MailController {
+class XamppController extends HostController {
     /*
      * Protected object for db queries
      * */
     protected $db;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function initSettings() {
+        // nothing to do
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function fromConfig() {
+        // initialize XAMPP controller with database of Website Manager/Service Server
+        global $_DBCONFIG;
+        return new static(
+            new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG),
+            new \Cx\Core\Model\Model\Entity\DbUser($_DBCONFIG)
+        );
+    }
     
     /**
      * Constructor
@@ -158,7 +173,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function createSubscription($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null)
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null)
     {
         \DBG::msg("MultiSite (XamppController): create a subscription: $domain / $ipAddress / $subscriptionStatus / $customerId /$planId");
         return null;
@@ -171,7 +186,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function renameSubscriptionName($domain)
+    public function renameMailDistribution($domain)
     {
         \DBG::msg("MultiSite (XamppController): rename a subscription: $domain");
         return null;
@@ -185,7 +200,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return null
      * @throws MultiSiteDbException On error
      */
-    public function removeSubscription($subscriptionId)
+    public function removeMailDistribution($subscriptionId)
     {
         \DBG::msg("MultiSite (XamppController): remove a subscription: $subscriptionId");
         return null;
@@ -201,7 +216,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function createUserAccount($name, $password, $role, $accountId = null)
+    public function createMailAccount($name, $password, $role, $accountId = null)
     {
         \DBG::msg("MultiSite (XamppController): create user account: $name / $password / $role / $accountId");
         return null;
@@ -214,7 +229,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function deleteUserAccount($userAccountId)
+    public function deleteMailAccount($userAccountId)
     {
         \DBG::msg("MultiSite (XamppController): delete user account: $userAccountId");
         return null;
@@ -228,7 +243,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return id 
      */
-    public function changeUserAccountPassword($userAccountId, $password)
+    public function changeMailAccountPassword($userAccountId, $password)
     {
         \DBG::msg("MultiSite (XamppController): change the password from user account: $userAccountId");
         return null;
@@ -261,18 +276,67 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         \DBG::msg("MultiSite (XamppController): update DNS-record: $type / $host / $value / $zone / $zoneId / $id");
         return null;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createUserStorage($websiteName, $codeBase = '') {
+        // website's data repository
+        $codeBaseOfWebsite = \Env::get('cx')->getCodeBaseDocumentRootPath();
+        if (!empty($codeBase)) {
+            $codeBaseOfWebsite = \Cx\Core\Setting\Controller\Setting::getValue(
+                'codeBaseRepository',
+                'MultiSite'
+            ) . '/' . $codeBase;
+        }
+        $codeBaseWebsiteSkeletonPath = $codeBaseOfWebsite . \Env::get('cx')->getCoreModuleFolderName() . '/MultiSite/Data/WebsiteSkeleton';
+
+        if(
+            !\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                $codeBaseWebsiteSkeletonPath,
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'websitePath',
+                    'MultiSite'
+                ) . '/' . $websiteName
+            )
+        ) {
+            throw new UserStorageControllerException('Unable to setup data folder');
+        }
+        return array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteUserStorage($websiteName) {
+        $storageLocation = \Cx\Core\Setting\Controller\Setting::getValue(
+            'websitePath',
+            'MultiSite'
+        ) . '/' . $websiteName;
+        if (!file_exists($storageLocation)) {
+            return;
+        }
+        if (
+            !\Cx\Lib\FileSystem\FileSystem::delete_folder(
+                $storageLocation,
+                true
+            )
+        ) {
+            throw new UserStorageControllerException('Unable to delete the website data repository');
+        }
+    }
     
-    public function addFtpAccount($userName, $password, $homePath, $subscriptionId) {
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
         \DBG::msg("MultiSite (XamppController): add Ftp-Account: $userName / $password / $homePath / $subscriptionId");
         return null;
     }
     
-    public function removeFtpAccount($userName) {
+    public function removeEndUserAccount($userName) {
         \DBG::msg("MultiSite (XamppController): remove Ftp-Account: $userName");
         return true;
     }
     
-    public function changeFtpAccountPassword($userName, $password) {
+    public function changeEndUserAccountPassword($userName, $password) {
         \DBG::msg("MultiSite (XamppController): update Ftp-Account Password: $userName / $password");
         return null;
     }
@@ -289,7 +353,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function getFtpAccounts($extendedData = false) {
+    public function getAllEndUserAccounts($extendedData = false) {
         \DBG::msg("MultiSite (XamppController): get Ftp Accounts");
         return null;
     }
@@ -366,8 +430,8 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return null
      */
-    public function changePlanOfSubscription($subscriptionId, $planGuid) {
-        \DBG::msg("MultiSite (XamppController): changePlanOfSubscription");
+    public function changeMailDistributionPlan($subscriptionId, $planGuid) {
+        \DBG::msg("MultiSite (XamppController): changeMailDistributionPlan");
         return null;
     }
     
@@ -386,8 +450,8 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
     /**
      * Get the all available service plans of mail service server
      */
-    public function getAvailableServicePlansOfMailServer() {
-        \DBG::msg("MultiSite (XamppController): getAvailableServicePlansOfMailServer");
+    public function getAvailableMailDistributionPlans() {
+        \DBG::msg("MultiSite (XamppController): getAvailableMailDistributionPlans");
         return true;
     }
     
@@ -395,10 +459,9 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * Create new site/domain
      * 
      * @param string  $domain         Name of the site/domain to create
-     * @param integer $subscriptionId Id of the Subscription assigned for the new site/domain
      * @param string  $documentRoot   Document root to create the site/domain
      */
-    public function createSite($domain, $subscriptionId, $documentRoot = 'httpdocs') {
+    public function createWebDistribution($domain, $documentRoot = 'httpdocs') {
         \DBG::msg("MultiSite (XamppController): Create new site on existing subscription.");
         return true;
     }
@@ -409,7 +472,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string $oldDomainName old domain name
      * @param string $newDomainName new domain name
      */
-    public function renameSite($oldDomainName, $newDomainName) {
+    public function renameWebDistribution($oldDomainName, $newDomainName) {
         \DBG::msg("MultiSite (XamppController): Renaming the site on existing subscription.");
         return true;
     }
@@ -420,7 +483,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @param string $domain Domain name to remove
      */
-    public function deleteSite($domain) {
+    public function deleteWebDistribution($domain) {
         \DBG::msg("MultiSite (XamppController): Removing the site on existing subscription.");
         return true;
     }
@@ -428,9 +491,40 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
     /**
      * Get all the sites under the existing subscription
     */
-    public function getAllSites() {
+    public function getAllWebDistributions() {
         \DBG::msg("MultiSite (XamppController): Get all sites on existing subscription.");
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributionAliases($websiteName = '') {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function canGenerateCertificates() {
+        return false;
     }
 
     /**
@@ -442,7 +536,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string $certificateBody           certificate body
      * @param string $certificateAuthority      certificate authority
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
         \DBG::msg("MultiSite (XamppController): Install the SSL Certificate for the domain.");
         return true;
     }
@@ -452,7 +546,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @param string $domain domain name
      */
-    public function getSSLCertificates($domain) {
+    public function getSSLCertificates($websiteName, $domain = '') {
         \DBG::msg("MultiSite (XamppController): Fetch the SSL Certificate details.");
         return true;
     }
@@ -463,7 +557,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string $domain domain name
      * @param array  $names  certificate names
      */
-    public function removeSSLCertificates($domain, $names = array()) {
+    public function removeSSLCertificates($websiteName, $domain, $names = array()) {
         \DBG::msg("MultiSite (XamppController): Remove the SSL Certificates.");
         return true;
     }
@@ -474,7 +568,7 @@ class XamppController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @param string $certificateName certificate name
      * @param string $domain          domain name
      */
-    public function activateSSLCertificate($certificateName, $domain) {
+    public function activateSSLCertificate($websiteName, $certificateName, $domain) {
         \DBG::msg("MultiSite (XamppController): Activate the SSL Certificate. $certificateName / $domain");
         return true;
     }

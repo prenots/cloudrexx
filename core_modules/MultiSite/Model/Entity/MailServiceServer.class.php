@@ -335,7 +335,7 @@ class MailServiceServer extends \Cx\Model\Base\EntityBase {
             \DBG::log('MailServiceServer(createAccount) Failed: Insufficent argument supplied.');
             return false;
         }
-        $subscriptionId = $hostingController->createSubscription($mainDomain, $this->ipAddress, 0, $customerId = null, $planId);
+        $subscriptionId = $hostingController->createMailDistribution($mainDomain, $this->ipAddress, 0, $customerId = null, $planId);
         if ($subscriptionId) {
             if ($hostingController instanceof \Cx\Core_Modules\MultiSite\Controller\PleskController) {
                 $hostingController->setWebspaceId($subscriptionId);
@@ -344,10 +344,10 @@ class MailServiceServer extends \Cx\Model\Base\EntityBase {
             
             $website->setMailDn();
             $website->setWebmailDn();
-            $hostingController->renameSubscriptionName($website->getMailDn()->getName());
+            $hostingController->renameMailDistribution($website->getMailDn()->getName());
             
             $pwd = \User::make_password(8, true);
-            $hostingController->createUserAccount('info@'.$website->getMailDn()->getName(), $pwd, $role, $subscriptionId);
+            $hostingController->createMailAccount('info@'.$website->getMailDn()->getName(), $pwd, $role, $subscriptionId);
             $domains = $website->getDomainAliases();
             
             $domains[] = $website->getBaseDn();
@@ -373,7 +373,7 @@ class MailServiceServer extends \Cx\Model\Base\EntityBase {
     {
         $hostingController = \Cx\Core_Modules\MultiSite\Controller\ComponentController::getMailServerHostingController($this);
         
-        if ($hostingController->removeSubscription($accountId)) {
+        if ($hostingController->removeMailDistribution($accountId)) {
             return true;
         }
         return false;

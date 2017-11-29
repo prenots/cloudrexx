@@ -50,6 +50,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @static string
      */
     static $cxMainDomain;
+    protected static $webDistributionController = null;
     
     protected $messages = '';
     protected $reminders = array(3, 14);
@@ -1405,6 +1406,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         }
                         $command = 'linkSsl';
                         $params = array(
+                            'websiteName'     => $website->getName(),
                             'domainName'      => $domainName,
                             'certificateName' => $certificateName,
                             'privateKey'      => $privateKey,
@@ -1461,7 +1463,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 }
                 
                 if (($loadPageAction == 'Ssl') && $objTemplate->blockExists('showSslCertificateForm')) {
-                    $response = \Cx\Core_Modules\MultiSite\Controller\JsonMultiSiteController::executeCommandOnServiceServer('getDomainSslCertificate', array('domainName' => $domainName), $website->getWebsiteServiceServer());
+                    $response = JsonMultiSiteController::executeCommandOnServiceServer(
+                        'getDomainSslCertificate',
+                        array(
+                            'websiteName' => $website->getName(),
+                            'domainName' => $domainName,
+                        ),
+                        $website->getWebsiteServiceServer()
+                    );
                     $sslCertificate = ($response && $response->status == 'success' && $response->data->status == 'success') ? implode(', ', $response->data->sslCertificate) : '';
                     self::showOrHideBlock($objTemplate, 'showSslCertificate', $sslCertificate);
                     $objTemplate->setVariable(array(
@@ -2471,50 +2480,20 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Get the Hosting Controller
      * 
-     * @return object $hostingController hostingController
-     * 
-     * @throws WebsiteException
+     * @return WebDistributionController $hostingController hostingController
      */
     public static function getHostingController()
     {
-        global $_DBCONFIG;
-
-        \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
-        switch (\Cx\Core\Setting\Controller\Setting::getValue('websiteController','MultiSite')) {
-            case 'plesk':
-                $hostingController = \Cx\Core_Modules\MultiSite\Controller\PleskController::fromConfig();
-                $hostingController->setWebspaceId(\Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite'));
-                break;
-
-            case 'xampp':
-                // initialize XAMPP controller with database of Website Manager/Service Server
-                $dbObj             = new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG);
-                $dbUserObj         = new \Cx\Core\Model\Model\Entity\DbUser($_DBCONFIG);
-                
-                $hostingController = new \Cx\Core_Modules\MultiSite\Controller\XamppController($dbObj, $dbUserObj);
-                break;
-
-            case 'aws':
-                $hostingController = new AwsController(
-                    \Cx\Core\Setting\Controller\Setting::getValue('credentialsKey', 'MultiSite'),
-                    \Cx\Core\Setting\Controller\Setting::getValue('credentialsSecret', 'MultiSite'),
-                    \Cx\Core\Setting\Controller\Setting::getValue('region', 'MultiSite'),
-                    \Cx\Core\Setting\Controller\Setting::getValue('version', 'MultiSite')
-                );
-                $hostingController->setTimeToLive(
-                    \Cx\Core\Setting\Controller\Setting::getValue('timeToLive', 'MultiSite')
-                );
-                $hostingController->setWebspaceId(
-                    \Cx\Core\Setting\Controller\Setting::getValue('hostedZoneId', 'MultiSite')
-                );
-                break;
-
-            default:
-                throw new MultiSiteException('Unknown websiteController set!');
-                break;
+        if (!isset(static::$webDistributionController)) {
+            \Cx\Core\Setting\Controller\Setting::init('MultiSite', '','FileSystem');
+            $wDCName = \Cx\Core\Setting\Controller\Setting::getValue(
+                'websiteController',
+                'MultiSite'
+            );
+            $wDCClass = '\\' . __NAMESPACE__ . '\\' . ucfirst($wDCName) . 'Controller';
+            static::$webDistributionController = $wDCClass::fromConfig();
         }
-
-        return $hostingController;
+        return static::$webDistributionController;
     }
 
     /**
@@ -2527,7 +2506,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public static function getMailServerHostingController(\Cx\Core_Modules\MultiSite\Model\Entity\MailServiceServer $mailServiceServer) {
         switch ($mailServiceServer->getType()) {
             case 'plesk':
-                $hostingController = new PleskController($mailServiceServer->getHostname(), $mailServiceServer->getAuthUsername() , $mailServiceServer->getAuthPassword(), $mailServiceServer->getApiVersion());
+                $hostingController = new PleskController(
+                    $mailServiceServer->getHostname(),
+                    $mailServiceServer->getAuthUsername(),
+                    $mailServiceServer->getAuthPassword(),
+                    null,
+                    $mailServiceServer->getApiVersion()
+                );
                 break;
 
             case 'xampp':
@@ -2536,20 +2521,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
         return $hostingController;
-    }
-
-    /**
-     * Get AWS Regions list
-     *
-     * @return string
-     */
-    public static function getAwsRegionList()
-    {
-        $regionList = array();
-        foreach (AwsController::getRegions() as $regionValue => $regionLabel) {
-            $regionList[] = $regionValue . ':' . $regionLabel;
-        }
-        return implode(',', $regionList);
     }
 
     /**
@@ -2821,150 +2792,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 && !\Cx\Core\Setting\Controller\Setting::add('managerHttpAuthPassword','', 6,
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'websiteManager')){
                     throw new MultiSiteException("Failed to add Setting entry for Database Manager HTTP Authentication Password");
-            }
-            
-            // plesk group
-            \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'plesk','FileSystem');
-            if (\Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('pleskHost','localhost', 1,
-                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'plesk')){
-                    throw new MultiSiteException("Failed to add Setting entry for Database user plesk Host");
-            }
-            if (\Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('pleskLogin','', 2,
-                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'plesk')){
-                    throw new MultiSiteException("Failed to add Setting entry for Database user plesk Login");
-            }
-            if (\Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('pleskPassword','', 3,
-                \Cx\Core\Setting\Controller\Setting::TYPE_PASSWORD,'plesk')){
-                    throw new MultiSiteException("Failed to add Setting entry for Database user plesk Password");
-            }
-            if (\Cx\Core\Setting\Controller\Setting::getValue('pleskApiVersion','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('pleskApiVersion','', 4,
-                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,'plesk')){
-                    throw new MultiSiteException("Failed to add Setting entry for Plesk Api Version");
-            }
-            if (\Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('pleskWebsitesSubscriptionId',0, 5,
-                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'plesk')){
-                    throw new MultiSiteException("Failed to add Setting entry for Database user plesk Subscription Id");
-            }
-            if (\Cx\Core\Setting\Controller\Setting::getValue('pleskMasterSubscriptionId','MultiSite') === NULL
-                && !\Cx\Core\Setting\Controller\Setting::add('pleskMasterSubscriptionId',0, 6,
-                \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'plesk')){
-                    throw new MultiSiteException("Failed to add Setting entry for Database ID of master subscription");
-            }
-
-            //aws group
-            \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'aws', 'FileSystem');
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'region',
-                    'MultiSite'
-                ) === null &&
-                !\Cx\Core\Setting\Controller\Setting::add(
-                    'region',
-                    '',
-                    1,
-                    \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN,
-                    '{src:\\'.__CLASS__.'::getAwsRegionList()}',
-                    'aws'
-                )
-            ) {
-                throw new MultiSiteException(
-                    'Failed to add Setting entry for AWS Region'
-                );
-            }
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'credentialsKey',
-                    'MultiSite'
-                ) === null &&
-                !\Cx\Core\Setting\Controller\Setting::add(
-                    'credentialsKey',
-                    '',
-                    2,
-                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
-                    null,
-                    'aws'
-                )
-            ) {
-                throw new MultiSiteException(
-                    'Failed to add Setting entry for AWS access key ID'
-                );
-            }
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'credentialsSecret',
-                    'MultiSite'
-                ) === null &&
-                !\Cx\Core\Setting\Controller\Setting::add(
-                    'credentialsSecret',
-                    '',
-                    3,
-                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
-                    null,
-                    'aws'
-                )
-            ) {
-                throw new MultiSiteException(
-                    'Failed to add Setting entry for AWS secret access key'
-                );
-            }
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'version',
-                    'MultiSite'
-                ) === null &&
-                !\Cx\Core\Setting\Controller\Setting::add(
-                    'version',
-                    'latest',
-                    4,
-                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
-                    null,
-                    'aws'
-                )
-            ) {
-                throw new MultiSiteException(
-                    'Failed to add Setting entry for AWS version'
-                );
-            }
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'timeToLive',
-                    'MultiSite'
-                ) === null &&
-                !\Cx\Core\Setting\Controller\Setting::add(
-                    'timeToLive',
-                    '60',
-                    5,
-                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
-                    null,
-                    'aws'
-                )
-            ) {
-                throw new MultiSiteException(
-                    'Failed to add Setting entry for AWS resource record cache time to live (TTL)'
-                );
-            }
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'hostedZoneId',
-                    'MultiSite'
-                ) === null &&
-                !\Cx\Core\Setting\Controller\Setting::add(
-                    'hostedZoneId',
-                    '',
-                    6,
-                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
-                    null,
-                    'aws'
-                )
-            ) {
-                throw new MultiSiteException(
-                    'Failed to add Setting entry for AWS Hosted Zone ID'
-                );
             }
 
             //manager group

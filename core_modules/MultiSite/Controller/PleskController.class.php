@@ -30,11 +30,7 @@ class ApiRequestException extends DbControllerException {}
  * @subpackage  coremodule_MultiSite
  * @version     1.0.0
  */
-class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbController,
-                                 \Cx\Core_Modules\MultiSite\Controller\SubscriptionController,
-                                 \Cx\Core_Modules\MultiSite\Controller\FtpController,
-                                 \Cx\Core_Modules\MultiSite\Controller\DnsController,
-                                 \Cx\Core_Modules\MultiSite\Controller\MailController {
+class PleskController extends HostController {
     
     /**
      * hostname for the plesk panel 
@@ -62,14 +58,82 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * Version of the plesk api rpc
      */
     protected $apiVersion;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function initSettings() {
+        $settings = array(
+            'pleskHost' => array(
+                'value' => 'localhost',
+            ),
+            'pleskLogin' => array(
+                'value' => '',
+            ),
+            'pleskPassword' => array(
+                'value' => '',
+                'type' => \Cx\Core\Setting\Controller\Setting::TYPE_PASSWORD,
+            ),
+            'pleskApiVersion' => array(
+                'value' => '',
+            ),
+            'pleskWebsitesSubscriptionId' => array(
+                'value' => 0,
+            ),
+            'pleskMasterSubscriptionId' => array(
+                'value' => 0,
+            ),
+        );
+        $i = 0;
+        \Cx\Core\Setting\Controller\Setting::init('MultiSite', 'plesk', 'FileSystem');
+        foreach ($settings as $name=>$initValues) {
+            $i++;
+            if (\Cx\Core\Setting\Controller\Setting::getValue($name, 'MultiSite') !== null) {
+                continue;
+            }
+            if (!isset($initValues['type'])) {
+                $initValues['type'] = \Cx\Core\Setting\Controller\Setting::TYPE_TEXT;
+            }
+            if (!isset($initValues['values'])) {
+                $initValues['values'] = null;
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    $name,
+                    $initValues['value'],
+                    $i,
+                    $initValues['type'],
+                    $initValues['values'],
+                    'plesk'
+                )
+            ) {
+                throw new MultiSiteException(
+                    'Failed to add setting entry "' . $name . '" for ' . __CLASS__
+                );
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function fromConfig() {
+        return new static(
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite'),
+            \Cx\Core\Setting\Controller\Setting::getValue('pleskWebsitesSubscriptionId','MultiSite')
+        );
+    }
     
     /**
      * Constructor
      */
-    public function __construct($host, $login, $password, $apiVersion = null){
+    public function __construct($host, $login, $password, $webspaceId, $apiVersion = null){
         $this->host       = $host;
         $this->login      = $login;
         $this->password   = $password;
+        $this->webspaceId = $webspaceId;
         $this->apiVersion = !\FWValidator::isEmpty($apiVersion) ? $apiVersion : ''; 
     }
 
@@ -475,17 +539,6 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
     }
     
     /**
-     * Static function to set default configuration 
-     */
-    public static function fromConfig() {
-        $pleskHost      = \Cx\Core\Setting\Controller\Setting::getValue('pleskHost','MultiSite');
-        $pleskLogin     = \Cx\Core\Setting\Controller\Setting::getValue('pleskLogin','MultiSite');
-        $pleskPassword  = \Cx\Core\Setting\Controller\Setting::getValue('pleskPassword','MultiSite');
-        return new static($pleskHost, $pleskLogin, $pleskPassword);
-    }
-    
-    
-    /**
      * Create a Customer
      * @param \Cx\Core_Modules\MultiSite\Model\Entity\Customer $customer
      * @throws $response array
@@ -527,7 +580,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return subscription id
      */
-    public function createSubscription ($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) 
+    public function createMailDistribution($domain, $ipAddress, $subscriptionStatus = 0, $customerId = null, $planId = null) 
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);       
@@ -575,7 +628,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return subscription id
      */
-    public function renameSubscriptionName ($domain) 
+    public function renameMailDistribution($domain) 
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);       
@@ -621,7 +674,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * 
      * @return  id 
      */
-    function removeSubscription ($subscriptionId) 
+    function removeMailDistribution($subscriptionId) 
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
@@ -654,7 +707,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @throws ApiRequestException on error
      * 
      */
-    public function getSubscriptionOwnerGuid()
+    protected function getSubscriptionOwnerGuid()
     {
         \DBG::msg("MultiSite (PleskController): get subscription owner GUID.");
         if (\FWValidator::isEmpty($this->webspaceId)) {
@@ -827,7 +880,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return integer
      * @throws ApiRequestException
      */
-    public function changePlanOfSubscription($subscriptionId, $planGuid)
+    public function changeMailDistributionPlan($subscriptionId, $planGuid)
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
@@ -867,7 +920,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return integer id
      * @throws ApiRequestException
      */
-    public function createUserAccount($name, $password, $role, $accountId = null)
+    public function createMailAccount($name, $password, $role, $accountId = null)
     {
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
@@ -918,7 +971,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return integer id
      * @throws ApiRequestException
      */
-    public function deleteUserAccount($userAccountId) 
+    public function deleteMailAccount($userAccountId) 
     {
 
         $xmldoc = $this->getXmlDocument();
@@ -953,7 +1006,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return id 
      * @throws ApiRequestException
      */
-    public function changeUserAccountPassword($userAccountId, $password)
+    public function changeMailAccountPassword($userAccountId, $password)
     {
         $this->webspaceId = $userAccountId;
         $guid = null;
@@ -1163,6 +1216,55 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $xmldoc->appendChild($packet);
         return $packet;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createUserStorage($websiteName, $codeBase = '') {
+        // website's data repository
+        $codeBaseOfWebsite = \Env::get('cx')->getCodeBaseDocumentRootPath();
+        if (!empty($codeBase)) {
+            $codeBaseOfWebsite = \Cx\Core\Setting\Controller\Setting::getValue(
+                'codeBaseRepository',
+                'MultiSite'
+            ) . '/' . $codeBase;
+        }
+        $codeBaseWebsiteSkeletonPath = $codeBaseOfWebsite . \Env::get('cx')->getCoreModuleFolderName() . '/MultiSite/Data/WebsiteSkeleton';
+
+        if(
+            !\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                $codeBaseWebsiteSkeletonPath,
+                \Cx\Core\Setting\Controller\Setting::getValue(
+                    'websitePath',
+                    'MultiSite'
+                ) . '/' . $websiteName
+            )
+        ) {
+            throw new UserStorageControllerException('Unable to setup data folder');
+        }
+        return array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteUserStorage($websiteName) {
+        $storageLocation = \Cx\Core\Setting\Controller\Setting::getValue(
+            'websitePath',
+            'MultiSite'
+        ) . '/' . $websiteName;
+        if (!file_exists($storageLocation)) {
+            return;
+        }
+        if (
+            !\Cx\Lib\FileSystem\FileSystem::delete_folder(
+                $storageLocation,
+                true
+            )
+        ) {
+            throw new UserStorageControllerException('Unable to delete the website data repository');
+        }
+    }
     
     /**
      * Create new FTP Account
@@ -1175,7 +1277,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return object
      * @throws ApiRequestException
      */
-    public function addFtpAccount($userName, $password, $homePath, $subscriptionId) {
+    public function createEndUserAccount($userName, $password, $homePath, $subscriptionId) {
         \DBG::msg("MultiSite (PleskController): Creating Ftp Account.");
         if (empty($userName) || empty($password) || empty($homePath) || empty($subscriptionId)) {
             return;
@@ -1233,7 +1335,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return object
      * @throws ApiRequestException
      */
-    public function removeFtpAccount($userName) {
+    public function removeEndUserAccount($userName) {
         \DBG::msg("MultiSite (PleskController): Deleting Ftp Account.");
         if (empty($userName)) {
             return;
@@ -1271,7 +1373,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return object
      * @throws ApiRequestException
      */
-    public function changeFtpAccountPassword($userName, $password) {
+    public function changeEndUserAccountPassword($userName, $password) {
         \DBG::msg("MultiSite (PleskController): Changing Ftp Account Password.");
         if (empty($userName) || empty($password)) {
             return;
@@ -1407,7 +1509,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return array
      * @throws ApiRequestException
      */
-    public function getFtpAccounts($extendedData = false) {
+    public function getAllEndUserAccounts($extendedData = false) {
         
         \DBG::msg("MultiSite (PleskController): get all Ftp Accounts: $this->webspaceId");
         if (empty($this->webspaceId)) {
@@ -1785,7 +1887,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * @return array
      * @throws ApiRequestException
      */
-    public function getAvailableServicePlansOfMailServer() 
+    public function getAvailableMailDistributionPlans() 
     {
         \DBG::msg("MultiSite (PleskController): get available service plans of mail service server.");
        
@@ -1824,15 +1926,89 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
      * Create new site/domain
      * 
      * @param string  $domain          Name of the site/domain to create
-     * @param integer $subscriptionId  Id of the Subscription assigned for the new site/domain
      * @param string  $documentRoot    Document root to create the site/domain
      * 
      * @return boolean true on success otherwise false
      * 
      * @throws ApiRequestException
      */
-    public function createSite($domain, $subscriptionId, $documentRoot = 'httpdocs')
+    public function createWebDistribution($domain, $documentRoot = 'httpdocs')
     {
+    }
+    
+    /**
+     * Renaming the site/domain
+     * 
+     * @param string $oldDomainName old domain name 
+     * @param string $newDomainName new domain name 
+     * 
+     * @return updated site/domain id
+     * 
+     * @throws ApiRequestException
+     */
+    public function renameWebDistribution($oldDomainName, $newDomainName)
+    {        
+    }
+    
+    /**
+     * Remove the site by the domain name.
+     * 
+     * @param string $domain Domain name to remove
+     * 
+     * @return boolean true on success false otherwise
+     * 
+     * @throws ApiRequestException
+     */
+    public function deleteWebDistribution($domain)
+    {
+    }
+    
+    /**
+     * Get all the sites under the existing subscription
+     * 
+     * @return array $siteList Name of all the sites under the subscription
+     * 
+     * @throws ApiRequestException
+     */
+    public function getAllWebDistributions() {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createWebDistributionAlias($mainName, $aliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameWebDistributionAlias($mainName, $oldAliasName, $newAliasName) {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteWebDistributionAlias($mainName, $aliasName) {
+        // delete the subscription for this SSL domain
+        $this->deleteSubscription($aliasName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllWebDistributionAliases($websiteName = '') {
+        // this is necessary to ensure MultiSite believes we have Aliases
+        return $this->getAllSubscriptions();
+    }
+
+    /**
+     * Internal method to create a subscription, used for SSL
+     * @param string $domain Domain of the website
+     * @return string Resulting node ID
+     * @throws ApiRequestException On API error
+     */
+    protected function createSubscription($domain) {
+        $documentRoot = 'httpdocs';
         \DBG::msg("MultiSite (PleskController): Create new site on existing subscription.");
         if (empty($domain)) {
             return false;
@@ -1853,7 +2029,7 @@ class PleskController implements \Cx\Core_Modules\MultiSite\Controller\DbControl
         $nameTag = $xmldoc->createElement('name', $domain);
         $genSetup->appendChild($nameTag);
         
-        $webspaceIdTag = $xmldoc->createElement('webspace-id', $subscriptionId);
+        $webspaceIdTag = $xmldoc->createElement('webspace-id', $this->getWebspaceId());
         $genSetup->appendChild($webspaceIdTag);
         
         $hostingTag = $xmldoc->createElement('hosting');
@@ -1923,21 +2099,21 @@ HTTPS;
             $error = (isset($systemError) ? $systemError : $resultNode->errtext);
             throw new ApiRequestException("Error in creating site on existing subscription: {$error}");
         }
+        if ($resultNode->id) {
+            $this->disableMailService($resultNode->id);
+            $this->disableDnsService($resultNode->id);
+        }
         return $resultNode->id;
     }
-    
+
     /**
-     * Renaming the site/domain
-     * 
-     * @param string $oldDomainName old domain name 
-     * @param string $newDomainName new domain name 
-     * 
-     * @return updated site/domain id
-     * 
-     * @throws ApiRequestException
+     * Internal method to rename a subscription, used for SSL
+     * @param string $oldDomainName Old domain of the website
+     * @param string $newDomainName New domain of the website
+     * @return string Resulting node ID
+     * @throws ApiRequestException On API error
      */
-    public function renameSite($oldDomainName, $newDomainName)
-    {        
+    protected function renameSubscription($oldDomainName, $newDomainName) {
         \DBG::msg("MultiSite (PleskController): Renaming the site on existing subscription.");
         if (empty($oldDomainName) || empty($newDomainName)) {
             return false;
@@ -1979,18 +2155,14 @@ HTTPS;
         }
         return $resultNode->id;
     }
-    
+
     /**
-     * Remove the site by the domain name.
-     * 
-     * @param string $domain Domain name to remove
-     * 
-     * @return boolean true on success false otherwise
-     * 
-     * @throws ApiRequestException
+     * Internal method to delete a subscription, used for SSL
+     * @param string $domain Domain of the website
+     * @return boolean True on success
+     * @throws ApiRequestException On API error
      */
-    public function deleteSite($domain)
-    {
+    protected function deleteSubscription($domain) {
         \DBG::msg("MultiSite (PleskController): Removing the site on existing subscription.");
         if (empty($domain)) {
             return false;
@@ -2023,15 +2195,13 @@ HTTPS;
         }
         return true;
     }
-    
+
     /**
-     * Get all the sites under the existing subscription
-     * 
-     * @return array $siteList Name of all the sites under the subscription
-     * 
-     * @throws ApiRequestException
+     * Internal method to get a list of subscription, used for SSL
+     * @return array Key value array (ID => name)
+     * @throws ApiRequestException On API error
      */
-    public function getAllSites() {
+    protected function getAllSubscriptions() {
         \DBG::msg("MultiSite (PleskController): Get all sites under the existing subscription.");
 
         $xmldoc  = $this->getXmlDocument();
@@ -2080,6 +2250,13 @@ HTTPS;
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function canGenerateCertificates() {
+        return false;
+    }
+
+    /**
      * Install the SSL Certificate for the domain
      * 
      * @param string $name                      Certificate name
@@ -2088,7 +2265,7 @@ HTTPS;
      * @param string $certificateBody           certificate body
      * @param string $certificateAuthority      certificate authority
      */
-    public function installSSLCertificate($name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
+    public function installSSLCertificate($websiteName, $name, $domain, $certificatePrivateKey, $certificateBody = null, $certificateAuthority = null) {
         \DBG::msg("MultiSite (PleskController): Install the SSL Certificate for the domain.");
         if (    empty($name) 
             ||  empty($domain) 
@@ -2096,6 +2273,9 @@ HTTPS;
         ) {
             return false;
         }
+
+        // create a subscription for this SSL domain
+        $this->createSubscription($domain);
         
         $xmldoc  = $this->getXmlDocument();
         $packet  = $this->getRpcPacket($xmldoc); 
@@ -2152,11 +2332,8 @@ HTTPS;
      * 
      * @return array list of certificates
      */
-    public function getSSLCertificates($domain) {
+    public function getSSLCertificates($websiteName, $domain = '') {
         \DBG::msg("MultiSite (PleskController): Fetch the SSL Certificate details.");
-        if (empty($domain)) {
-            return false;
-        }
         
         $xmldoc  = $this->getXmlDocument();
         $packet  = $this->getRpcPacket($xmldoc); 
@@ -2166,12 +2343,14 @@ HTTPS;
         
         $getTag = $xmldoc->createElement('get-pool');
         $certificate->appendChild($getTag);
-        
-        $filterTag = $xmldoc->createElement('filter');
-        $getTag->appendChild($filterTag);
-        
-        $domainTag = $xmldoc->createElement('domain-name', $domain);
-        $filterTag->appendChild($domainTag);
+
+        if (!empty($domain)) {
+            $filterTag = $xmldoc->createElement('filter');
+            $getTag->appendChild($filterTag);
+            
+            $domainTag = $xmldoc->createElement('domain-name', $domain);
+            $filterTag->appendChild($domainTag);
+        }
         
         $response = $this->executeCurl($xmldoc);
         $resultNode = $response->certificate->{'get-pool'}->result;
@@ -2205,7 +2384,7 @@ HTTPS;
      * @param string $domain domain name
      * @param array  $names  certificate names
      */
-    public function removeSSLCertificates($domain, $names = array()) {
+    public function removeSSLCertificates($websiteName, $domain, $names = array()) {
         \DBG::msg("MultiSite (PleskController): Remove the SSL Certificates.");
         if (!is_array($names) || empty($names) || empty($domain)) {
             return false;
@@ -2254,7 +2433,7 @@ HTTPS;
      * @return boolean
      * @throws ApiRequestException
      */
-    public function activateSSLCertificate($certificateName, $siteId)
+    public function activateSSLCertificate($websiteName, $certificateName, $siteId)
     {
         \DBG::msg('MultiSite (PleskController): Activate the SSL Certificate.');
         if (empty($certificateName) || empty($siteId)) {
