@@ -395,8 +395,8 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function isDirectoryExists(File $file)
     {
-        $file = rtrim($this->directoryPrefix . $this->getFullPath($file), '/');
-        return file_exists($file);
+        $filePath = rtrim($this->directoryPrefix . $this->getFullPath($file), '/');
+        return file_exists($filePath);
     }
 
     /**

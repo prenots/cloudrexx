@@ -337,6 +337,8 @@ class MediaSourceManager extends EntityBase
             if (!\Cx\Lib\FileSystem\FileSystem::exists($sourcePath)) {
                 return false;
             }
+            $sourceFileExt = pathinfo($sourcePath, PATHINFO_EXTENSION);
+            $isSourceDir   = is_dir($sourcePath);
         } else {
             // Return If the source file does not exists
             if (!$sourceFile->getFileSystem()->fileExists($sourceFile)) {
@@ -351,6 +353,8 @@ class MediaSourceManager extends EntityBase
             $sourcePath =
                 $sourceFile->getFileSystem()->getFullPath($sourceFile) .
                 $sourceFile->getFullName();
+            $sourceFileExt = $sourceFile->getExtension();
+            $isSourceDir   = $sourceFile->getFileSystem()->isDirectory($sourceFile);
         }
 
         // Get destination file object
@@ -377,7 +381,7 @@ class MediaSourceManager extends EntityBase
             // try to create the directory
             if (!$mediaSource->getFileSystem()->isDirectoryExists($destinationFile)) {
                 $destinationFile->getFileSystem()->createDirectory(
-                    $destinationFile->getPath()
+                    ltrim($destinationFile->getPath(), '/')
                 );
             }
 
@@ -391,15 +395,24 @@ class MediaSourceManager extends EntityBase
                 $isDestinationLocalFile = false;
             }
 
+            $destFileName = $destinationFile->getFullName();
+            if (!$isSourceDir) {
+                $destFileName = $destinationFile->getName() . '.' . $sourceFileExt;
+            }
             $destinationPath =
                 $destinationFile->getFileSystem()->getFullPath($destinationFile) .
-                $destinationFile->getFullName();
-        } catch(\Exception $e) {
+                $destFileName;
+        } catch(MediaSourceManagerException $e) {
             // The Destination file is a local file
             $destinationPath = $this->cx->getWebsitePath() . $destinationPath;
+            $dirPath         = pathinfo($destinationPath, PATHINFO_DIRNAME);
+            if (!is_dir($sourcePath)) {
+                $destinationPath = $dirPath . '/' .
+                    pathinfo($destinationPath, PATHINFO_FILENAME) .
+                    '.' . $sourceFileExt;
+            }
             // Check if the destination file directory exists otherwise
             // try to create the directory if does not then call return.
-            $dirPath = pathinfo($destinationPath, PATHINFO_DIRNAME);
             if (!\Cx\Lib\FileSystem\FileSystem::exists($dirPath)) {
                 if (!\Cx\Lib\FileSystem\FileSystem::make_folder($dirPath)) {
                     return false;
