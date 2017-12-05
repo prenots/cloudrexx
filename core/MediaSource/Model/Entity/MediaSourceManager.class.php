@@ -349,4 +349,20 @@ class MediaSourceManager extends EntityBase
             return $mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile);
         }
     }
+
+    /**
+     * Gets file size
+     *
+     * @param string $path Path to the file
+     * @return int|boolean size of the file in bytes, or false
+     */
+    public function getFileSize($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return filesize($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->getFileSize($mediaSourceFile);
+        }
+    }
 }
