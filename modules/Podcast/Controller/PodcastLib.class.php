@@ -508,7 +508,8 @@ class PodcastLib
             if (strpos($thumbNail, '/') !== 0) {
                 $thumbNail = '/'. $thumbNail;
             }
-            \Cx\Lib\FileSystem\FileSystem::delete_file(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $thumbNail);
+            $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()->getMediaSourceManager();
+            $mediaSourceManager->removeFile($thumbNail);
         }
 
         if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$id) !== false) {
@@ -1228,7 +1229,13 @@ EOF;
                     $mediumWidth = $this->_arrSettings['default_width'];
                     $mediumHeight = $this->_arrSettings['default_height'];
                 }
-                $mediumSize = isset($_POST['podcast_medium_local_source']) ? filesize(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$_POST['podcast_medium_local_source']) : 0;
+                $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()->getMediaSourceManager();
+                $mediumSize = 0;
+                if (isset($_POST['podcast_medium_local_source'])) {
+                    $mediumSize = $mediaSourceManager->getFileSize(
+                        contrexx_input2raw($_POST['podcast_medium_local_source'])
+                    );
+                }
                 $mediumSource = htmlentities(str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()), $mediumSource), ENT_QUOTES, CONTREXX_CHARSET);
             }
         }
