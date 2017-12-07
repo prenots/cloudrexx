@@ -466,7 +466,7 @@ class MediaSourceManager extends EntityBase
                     $destinationFile->getFullName(),
                 'SourceFile' => $sourcePath
             ));
-            return true;
+            return \Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath);
         } catch (\Aws\S3\Exception\S3Exception $e) {
             \DBG::log($e->getMessage());
             return false;

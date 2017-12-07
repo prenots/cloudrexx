@@ -547,14 +547,16 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             }
         }
 
-        $destFileName = $toFile->getFullName();
+        $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
+        $toFileName   = $this->getFullPath($toFile);
         if (!$this->isDirectory($fromFile)) {
-            $destFileName = $toFile->getName() . '.' . $fromFile->getExtension();
+            $toFileName = $toFileName . $toFile->getName() . '.' . $fromFile->getExtension();
+        } else {
+            $fromFileName = $fromFileName . '/';
+            $toFileName = $toFileName . $toFile->getFullName() . '/';
         }
 
         // If the source and destination file path are same then return success message
-        $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
-        $toFileName   = $this->getFullPath($toFile) . $destFileName;
         if ($fromFileName == $toFileName) {
             return sprintf(
                 $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
@@ -562,16 +564,70 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             );
         }
 
-        // If the move file is image then remove its thumbnail
-        $this->removeThumbnails($fromFile);
-
         // Move the file/directory using FileSystem
-        if (
-            !rename(
-                $this->directoryPrefix . $fromFileName,
-                $this->directoryPrefix . $toFileName
-            )
-        ) {
+        try {
+            // Copy the file/directory from source to destination
+            if ($this->isDirectory($fromFile)) {
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator(
+                        $this->directoryPrefix . $fromFileName
+                    ),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+
+                $hasChild = false;
+                foreach ($iterator as $file) {
+                    $hasChild = true;
+                    $filePath = $file->getPath() . '/' . $file->getFilename();
+                    if ($file->isDir()) {
+                        $filePath = $filePath . '/';
+                    }
+                    $copyFilePath = substr(
+                        $filePath,
+                        strlen($this->directoryPrefix . $fromFileName)
+                    );
+                    try {
+                        $this->s3Client->copyObject(array(
+                            'Bucket'     => $this->bucketName,
+                            'Key'        => $toFileName . $copyFilePath,
+                            'CopySource' => urlencode(
+                                $this->bucketName . '/' . $fromFileName . $copyFilePath
+                            ),
+                        ));
+
+                        $this->s3Client->deleteObject(array(
+                            'Bucket'     => $this->bucketName,
+                            'Key'        => $fromFileName . $copyFilePath,
+                        ));
+                    } catch (\Aws\S3\Exception\S3Exception $e) {
+                        \DBG::log($e->getMessage());
+                        continue;
+                    }
+                }
+                if (!$hasChild) {
+                    $this->s3Client->copyObject(array(
+                        'Bucket'     => $this->bucketName,
+                        'Key'        => $toFileName,
+                        'CopySource' => urlencode($this->bucketName . '/' . $fromFileName),
+                    ));
+                }
+            } else {
+                $this->s3Client->copyObject(array(
+                    'Bucket'     => $this->bucketName,
+                    'Key'        => $toFileName,
+                    'CopySource' => urlencode($this->bucketName . '/' . $fromFileName),
+                ));
+
+                // If the move file is image then remove its thumbnail
+                $this->removeThumbnails($fromFile);
+            }
+            // Delete the source file/directory
+            $this->s3Client->deleteObject(array(
+                'Bucket'     => $this->bucketName,
+                'Key'        => $fromFileName,
+            ));
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+            \DBG::log($e->getMessage());
             return sprintf($errorMsg, $fromFile->getName());
         }
 
