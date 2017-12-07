@@ -365,4 +365,54 @@ class MediaSourceManager extends EntityBase
             return $mediaSourceFile->getFileSystem()->getFileSize($mediaSourceFile);
         }
     }
+
+    /**
+     * Check whether the filename is a regular file
+     *
+     * @param string $path Path of the file
+     * @return boolean True if the filename exists and is a regular file, false
+     *                 otherwise
+     */
+    public function isFile($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return is_file($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->isFile($mediaSourceFile);
+        }
+    }
+
+    /**
+     * Creates the folder for the given path
+     *
+     * @param string $folderPath Path of the folder
+     * @return boolean True on success, false otherwise
+     */
+    public function createDirectory($folderPath)
+    {
+        try {
+            $mediaSource     = $this->getMediaSourceByPath($folderPath);
+            $mediaSourcePath = $mediaSource->getDirectory();
+            $filePath        = substr($folderPath, strlen($mediaSourcePath[1]));
+            if ($mediaSource->getFileSystem() instanceof \Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem) {
+                $folderPathFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            } else {
+                $folderPathFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            }
+
+            return $folderPathFile->getFileSystem()->createDirectory(
+                ltrim($folderPathFile->getPath() . '/' . $folderPathFile->getFullName(), '/')
+            );
+        } catch (MediaSourceManagerException $e) {
+            \DBG::log($e->getMessage());
+            return \Cx\Lib\FileSystem\FileSystem::make_folder($folderPath);
+        }
+    }
 }

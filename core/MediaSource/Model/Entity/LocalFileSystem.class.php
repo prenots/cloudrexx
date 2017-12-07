@@ -459,7 +459,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
         \Env::get('init')->loadLanguageData('MediaBrowser');
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                $this->rootPath . $path . '/' . $directory
+                $this->rootPath . '/' . $path . '/' . $directory
             )
         ) {
             return sprintf(
