@@ -320,6 +320,10 @@ class MediaSourceManager extends EntityBase
 
     /**
      * Move file from one filesystem to other filesystem
+     * The arguments $sourcepath and DestinationPath must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
      *
      * @param string $sourcePath      Source filepath
      * @param string $destinationPath Destination filepath
@@ -379,14 +383,15 @@ class MediaSourceManager extends EntityBase
 
             // Check if the destination file directory exists otherwise
             // try to create the directory
-            if (!$mediaSource->getFileSystem()->isDirectoryExists($destinationFile)) {
+            $destDirectory = new LocalFile($destinationFile->getPath(), $destinationFile->getFileSystem());
+            if (!$destinationFile->getFileSystem()->fileExists($destDirectory)) {
                 $destinationFile->getFileSystem()->createDirectory(
                     ltrim($destinationFile->getPath(), '/')
                 );
             }
 
             // Return if the destination file directory is not exists
-            if (!$mediaSource->getFileSystem()->isDirectoryExists($destinationFile)) {
+            if (!$destinationFile->getFileSystem()->fileExists($destDirectory)) {
                 return false;
             }
 
@@ -404,6 +409,7 @@ class MediaSourceManager extends EntityBase
                 $destinationFile->getFileSystem()->getFullPath($destinationFile) .
                 $destinationFileName;
         } catch(MediaSourceManagerException $e) {
+            \DBG::dump($e->getMessage());
             // The Destination file is a local file
             $destinationPath = $this->cx->getWebsitePath() . $destinationPath;
             $dirPath         = pathinfo($destinationPath, PATHINFO_DIRNAME);

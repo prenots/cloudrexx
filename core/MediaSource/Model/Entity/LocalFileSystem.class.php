@@ -76,17 +76,6 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
-     * Check whether the file directory exists in the filesytem
-     *
-     * @param File $file LocalFile object
-     * @return boolean true if the file directory exists otherwise false
-     */
-    public function isDirectoryExists(File $file)
-    {
-        return file_exists($this->getFullPath($file));
-    }
-
-    /**
      * @todo    Option $recursive does not work. It always acts as recursive is set to TRUE
      */
     public function getFileList($directory, $recursive = true, $readonly = false) {
@@ -471,7 +460,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
         \Env::get('init')->loadLanguageData('MediaBrowser');
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                $this->rootPath . $path . '/' . $directory
+                $this->rootPath . '/' . $path . '/' . $directory
             )
         ) {
             return sprintf(

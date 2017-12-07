@@ -388,18 +388,6 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Check whether the file directory exists in the filesytem
-     *
-     * @param File $file LocalFile object
-     * @return boolean true if the file directory exists otherwise false
-     */
-    public function isDirectoryExists(File $file)
-    {
-        $filePath = rtrim($this->directoryPrefix . $this->getFullPath($file), '/');
-        return file_exists($filePath);
-    }
-
-    /**
      * Remove the file
      *
      * @param LocalFile $file File object
@@ -539,14 +527,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             return sprintf($errorMsg, $fromFile->getFullName());
         }
 
-        // Create the $toFile's directory if does not exists
-        $toFile = new LocalFile($toFilePath, $fromFile->getFileSystem());
-        if (!$this->isDirectoryExists($toFile)) {
-            if (!mkdir($this->directoryPrefix . $this->getFullPath($toFile), '0777')) {
-                return sprintf($errorMsg, $fromFile->getName());
-            }
-        }
-
+        $toFile       = new LocalFile($toFilePath, $fromFile->getFileSystem());
         $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
         $toFileName   = $this->getFullPath($toFile);
         if (!$this->isDirectory($fromFile)) {
