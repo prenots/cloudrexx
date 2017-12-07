@@ -741,5 +741,17 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         return new LocalFile($filepath, $this);
     }
 
-    public function getWebPath(File $file) {}
+    /**
+     * Get the file web path
+     *
+     * @param File $file File object
+     * @return string Returns the file web path without filename
+     */
+    public function getWebPath(File $file)
+    {
+        return substr(
+            $this->getFullPath($file),
+            strlen($this->directoryPrefix) - 1
+        );
+    }
 }
