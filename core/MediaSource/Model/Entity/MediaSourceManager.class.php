@@ -320,6 +320,10 @@ class MediaSourceManager extends EntityBase
 
     /**
      * Checks whether a file or directory exists
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
      *
      * @param string $path File/directory path
      * @return boolean True if the file/directory exists, false otherwise
@@ -336,6 +340,10 @@ class MediaSourceManager extends EntityBase
 
     /**
      * Removes the file
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
      *
      * @param string $path File path
      * @return boolean true if file successfully deleted, otherwise false
@@ -352,8 +360,12 @@ class MediaSourceManager extends EntityBase
 
     /**
      * Gets file size
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
      *
-     * @param string $path Path to the file
+     * @param string $path Path of the file
      * @return int|boolean size of the file in bytes, or false
      */
     public function getFileSize($path)
@@ -368,6 +380,10 @@ class MediaSourceManager extends EntityBase
 
     /**
      * Check whether the filename is a regular file
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
      *
      * @param string $path Path of the file
      * @return boolean True if the filename exists and is a regular file, false
@@ -385,6 +401,10 @@ class MediaSourceManager extends EntityBase
 
     /**
      * Creates the folder for the given path
+     * The argument $folderPath must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
      *
      * @param string $folderPath Path of the folder
      * @return boolean True on success, false otherwise
