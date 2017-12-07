@@ -1,5 +1,6 @@
 SET TIME_ZONE = '+00:00';
 SET FOREIGN_KEY_CHECKS = 0;
+SET SESSION `sql_mode`=(SELECT REPLACE(REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''),'STRICT_TRANS_TABLES',''));
 INSERT INTO `contrexx_access_group_dynamic_ids` (`access_id`, `group_id`) VALUES (5,1);
 INSERT INTO `contrexx_access_group_dynamic_ids` (`access_id`, `group_id`) VALUES (6,3);
 INSERT INTO `contrexx_access_group_dynamic_ids` (`access_id`, `group_id`) VALUES (6,4);
@@ -381,6 +382,7 @@ INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_latest_reg_users_pic','',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_latest_registered_users','10',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_latest_registered_users_on','',0);
+INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('block_random_access_users','5',0);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('default_email_access','members_only',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('default_profile_access','members_only',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('max_pic_height','600',1);
