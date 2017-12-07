@@ -121,7 +121,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         );
 
         $this->bucketName      = $bucketName;
-        $this->directoryKey    = rtrim($directoryKey, '/');
+        $this->directoryKey    = ltrim(rtrim($directoryKey, '/'), '/');
         $this->directoryPrefix = 's3://' . $this->bucketName . '/';
 
         // Initialize the S3 Client object
@@ -381,10 +381,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function fileExists(File $file)
     {
-        return file_exists(
-            $this->directoryPrefix . $this->getFullPath($file) .
-            $file->getFullName()
-        );
+        return file_exists($this->getFullPath($file) . $file->getFullName());
     }
 
     /**
@@ -405,7 +402,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             );
         }
 
-        $directoryPath = $this->directoryPrefix . $this->getFullPath($file) . $filename;
+        $directoryPath = $this->getFullPath($file) . $filename;
         if (is_dir($directoryPath)) {
             if (rmdir($directoryPath)) {
                 return sprintf(
@@ -475,13 +472,13 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
 
         $iterator = new \RegexIterator(
             new \DirectoryIterator(
-                $this->directoryPrefix . $this->getFullPath($file)
+                $this->getFullPath($file)
             ),
             '/' . preg_quote($file->getName(), '/') . '.thumb_[a-z]+/'
         );
         foreach ($iterator as $thumbnail) {
             unlink(
-                $this->directoryPrefix . $this->getFullPath($file) . $thumbnail
+                $this->getFullPath($file) . $thumbnail
             );
         }
     }
@@ -505,7 +502,8 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function getFullPath(File $file)
     {
-        return $this->directoryKey . rtrim(ltrim($file->getPath(), '.'), '/') . '/';
+        return $this->directoryPrefix . $this->directoryKey .
+            rtrim(ltrim($file->getPath(), '.'), '/') . '/';
     }
 
     /**
@@ -546,12 +544,14 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         }
 
         // Move the file/directory using FileSystem
+        $toFileKey   = substr($toFileName, strlen($this->directoryPrefix));
+        $fromFileKey = substr($fromFileName, strlen($this->directoryPrefix));
         try {
             // Copy the file/directory from source to destination
             if ($this->isDirectory($fromFile)) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator(
-                        $this->directoryPrefix . $fromFileName
+                        $fromFileName
                     ),
                     \RecursiveIteratorIterator::SELF_FIRST
                 );
@@ -565,20 +565,20 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                     }
                     $copyFilePath = substr(
                         $filePath,
-                        strlen($this->directoryPrefix . $fromFileName)
+                        strlen($fromFileName)
                     );
                     try {
                         $this->s3Client->copyObject(array(
                             'Bucket'     => $this->bucketName,
-                            'Key'        => $toFileName . $copyFilePath,
+                            'Key'        => $toFileKey . $copyFilePath,
                             'CopySource' => urlencode(
-                                $this->bucketName . '/' . $fromFileName . $copyFilePath
+                                $this->bucketName . '/' . $fromFileKey . $copyFilePath
                             ),
                         ));
 
                         $this->s3Client->deleteObject(array(
                             'Bucket'     => $this->bucketName,
-                            'Key'        => $fromFileName . $copyFilePath,
+                            'Key'        => $fromFileKey . $copyFilePath,
                         ));
                     } catch (\Aws\S3\Exception\S3Exception $e) {
                         \DBG::log($e->getMessage());
@@ -588,15 +588,15 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
                 if (!$hasChild) {
                     $this->s3Client->copyObject(array(
                         'Bucket'     => $this->bucketName,
-                        'Key'        => $toFileName,
-                        'CopySource' => urlencode($this->bucketName . '/' . $fromFileName),
+                        'Key'        => $toFileKey,
+                        'CopySource' => urlencode($this->bucketName . '/' . $fromFileKey),
                     ));
                 }
             } else {
                 $this->s3Client->copyObject(array(
                     'Bucket'     => $this->bucketName,
-                    'Key'        => $toFileName,
-                    'CopySource' => urlencode($this->bucketName . '/' . $fromFileName),
+                    'Key'        => $toFileKey,
+                    'CopySource' => urlencode($this->bucketName . '/' . $fromFileKey),
                 ));
 
                 // If the move file is image then remove its thumbnail
@@ -605,7 +605,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             // Delete the source file/directory
             $this->s3Client->deleteObject(array(
                 'Bucket'     => $this->bucketName,
-                'Key'        => $fromFileName,
+                'Key'        => $fromFileKey,
             ));
         } catch (\Aws\S3\Exception\S3Exception $e) {
             \DBG::log($e->getMessage());
@@ -626,9 +626,8 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function writeFile(File $file, $content)
     {
-        $filePath =
-            $this->directoryPrefix . $this->getFullPath($file) . $file->getFullName();
-        $stream = fopen($filePath, 'w');
+        $filePath = $this->getFullPath($file) . $file->getFullName();
+        $stream   = fopen($filePath, 'w');
         if (!$stream) {
             throw new AwsS3FileSystemException(
                 'Unable to open file ' . $filePath . ' for writing!'
@@ -656,7 +655,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function readFile(File $file)
     {
-        $filePath = $this->directoryPrefix . $this->getFullPath($file) .
+        $filePath = $this->getFullPath($file) .
             $file->getFullName();
         if (!$this->fileExists($file)) {
             throw new AwsS3FileSystemException(
@@ -682,10 +681,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function isDirectory(File $file)
     {
-        return is_dir(
-            $this->directoryPrefix . $this->getFullPath($file) .
-            $file->getFullName()
-        );
+        return is_dir($this->getFullPath($file) . $file->getFullName());
     }
 
     /**
@@ -696,10 +692,7 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function isFile(File $file)
     {
-        return is_file(
-            $this->directoryPrefix . $this->getFullPath($file) .
-            $file->getFullName()
-        );
+        return is_file($this->getFullPath($file) . $file->getFullName());
     }
 
     public function getLink(File $file) {}

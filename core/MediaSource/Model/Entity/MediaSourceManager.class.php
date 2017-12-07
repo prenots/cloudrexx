@@ -438,10 +438,7 @@ class MediaSourceManager extends EntityBase
 
         // Move s3 File to s3 File
         if (!$isSourceLocalFile && !$isDestinationLocalFile) {
-            return rename(
-                $sourceFile->getFileSystem()->getDirectoryPrefix() . $sourcePath,
-                $destinationFile->getFileSystem()->getDirectoryPrefix() . $destinationPath
-            );
+            return rename($sourcePath, $destinationPath);
         }
 
         // Move local File to s3 File
@@ -466,10 +463,14 @@ class MediaSourceManager extends EntityBase
     {
         $s3Client = $destinationFile->getFileSystem()->getS3Client();
         try {
+            $destinationKey = substr(
+                $destinationFile->getFileSystem()->getFullPath($destinationFile) .
+                $destinationFile->getFullName(),
+                strlen($destinationFile->getFileSystem()->getDirectoryPrefix())
+            );
             $s3Client->putObject(array(
                 'Bucket' => $destinationFile->getFileSystem()->getBucketName(),
-                'Key'    => $destinationFile->getFileSystem()->getFullPath($destinationFile) .
-                    $destinationFile->getFullName(),
+                'Key'    => $destinationKey,
                 'SourceFile' => $sourcePath
             ));
             return \Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath);
@@ -490,10 +491,14 @@ class MediaSourceManager extends EntityBase
     {
         $s3Client = $sourceFile->getFileSystem()->getS3Client();
         try {
+            $sourceKey = substr(
+                $sourceFile->getFileSystem()->getFullPath($sourceFile) .
+                $sourceFile->getFullName(),
+                strlen($sourceFile->getFileSystem()->getDirectoryPrefix())
+            );
             $s3Client->getObject(array(
                 'Bucket' => $sourceFile->getFileSystem()->getBucketName(),
-                'Key'    => $sourceFile->getFileSystem()->getFullPath($sourceFile) .
-                    $sourceFile->getFullName(),
+                'Key'    => $sourceKey,
                 'SaveAs' => $destinationPath
             ));
             return true;
