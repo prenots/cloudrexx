@@ -435,4 +435,39 @@ class MediaSourceManager extends EntityBase
             return \Cx\Lib\FileSystem\FileSystem::make_folder($folderPath);
         }
     }
+
+    /**
+     * Make a File writable
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $path Path of the file
+     * @return boolean True if file writable, false otherwise
+     */
+    public function makeWritable($path)
+    {
+        try {
+            $mediaSource     = $this->getMediaSourceByPath($path);
+            $mediaSourcePath = $mediaSource->getDirectory();
+            $filePath        = substr($path, strlen($mediaSourcePath[1]));
+            if ($mediaSource->getFileSystem() instanceof \Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem) {
+                $file = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            } else {
+                $file = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            }
+
+            return $file->getFileSystem()->makeWritable($file);
+        } catch (MediaSourceManagerException $e) {
+            \DBG::log($e->getMessage());
+            return \Cx\Lib\FileSystem\FileSystem::makeWritable($path);
+        }
+    }
 }

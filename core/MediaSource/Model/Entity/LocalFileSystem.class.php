@@ -481,7 +481,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
      * @return string
      */
     public function getFullPath(File $file) {
-        return $this->rootPath . ltrim($file->getPath(), '.') . '/';
+        return $this->rootPath . rtrim(ltrim($file->getPath(), '.') , '/') . '/';
     }
 
     /**
