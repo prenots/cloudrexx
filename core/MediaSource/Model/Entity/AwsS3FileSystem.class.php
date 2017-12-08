@@ -745,13 +745,15 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * Get the file web path
      *
      * @param File $file File object
-     * @return string Returns the file web path without filename
+     * @return string Returns the file web path with filename
      */
     public function getWebPath(File $file)
     {
-        return substr(
-            $this->getFullPath($file),
-            strlen($this->directoryPrefix) - 1
-        );
+        return
+            'https://' . $this->bucketName . '.s3.amazonaws.com' .
+            substr(
+                $this->getFullPath($file) . $file->getFullName(),
+                strlen($this->directoryPrefix) - 1
+            );
     }
 }
