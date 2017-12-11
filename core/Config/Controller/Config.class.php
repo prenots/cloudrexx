@@ -1401,6 +1401,108 @@ class Config
                 throw new \Cx\Lib\Update_DatabaseException("Failed to add Setting entry for default language (Backend)");
             }
 
+            //s3Config group
+            $apiKeyId = '';
+            if ($existingConfig['s3ApiKeyId']) {
+                $apiKeyId = $existingConfig['s3ApiKeyId'];
+            }
+            \Cx\Core\Setting\Controller\Setting::init('Config', 's3Config','Yaml', $configPath);
+            if (
+                !\Cx\Core\Setting\Controller\Setting::isDefined('s3ApiKeyId') &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    's3ApiKeyId',
+                    $apiKeyId,
+                    1,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    's3Config'
+                )
+            ) {
+                throw new \Cx\Lib\Update_DatabaseException(
+                    'Failed to add Setting entry for S3 API key ID'
+                );
+            }
+
+            $apiSecret = '';
+            if ($existingConfig['s3ApiSecret']) {
+                $apiSecret = $existingConfig['s3ApiSecret'];
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::isDefined('s3ApiSecret') &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    's3ApiSecret',
+                    $apiSecret,
+                    2,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    's3Config'
+                )
+            ) {
+                throw new \Cx\Lib\Update_DatabaseException(
+                    'Failed to add Setting entry for S3 API secret'
+                );
+            }
+
+            $s3BaseUrl = '';
+            if ($existingConfig['s3BaseUrl']) {
+                $s3BaseUrl = $existingConfig['s3BaseUrl'];
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::isDefined('s3BaseUrl') &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    's3BaseUrl',
+                    $s3BaseUrl,
+                    3,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    's3Config'
+                )
+            ) {
+                throw new \Cx\Lib\Update_DatabaseException(
+                    'Failed to add Setting entry for S3 base URL'
+                );
+            }
+
+            $s3Region = '';
+            if ($existingConfig['s3Region']) {
+                $s3Region = $existingConfig['s3Region'];
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::isDefined('s3Region') &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    's3Region',
+                    $s3Region,
+                    4,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    's3Config'
+                )
+            ) {
+                throw new \Cx\Lib\Update_DatabaseException(
+                    'Failed to add Setting entry for S3 region'
+                );
+            }
+
+            $s3BucketName = '';
+            if ($existingConfig['s3BucketName']) {
+                $s3BucketName = $existingConfig['s3BucketName'];
+            }
+            if (
+                !\Cx\Core\Setting\Controller\Setting::isDefined('s3BucketName') &&
+                !\Cx\Core\Setting\Controller\Setting::add(
+                    's3BucketName',
+                    $s3BucketName,
+                    5,
+                    \Cx\Core\Setting\Controller\Setting::TYPE_TEXT,
+                    null,
+                    's3Config'
+                )
+            ) {
+                throw new \Cx\Lib\Update_DatabaseException(
+                    'Failed to add Setting entry for S3 Bucket name'
+                );
+            }
+
             //security group
             \Cx\Core\Setting\Controller\Setting::init('Config', 'security','Yaml', $configPath);
             if (!\Cx\Core\Setting\Controller\Setting::isDefined('coreIdsStatus')

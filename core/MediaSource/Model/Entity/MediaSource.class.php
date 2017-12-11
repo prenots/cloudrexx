@@ -92,8 +92,54 @@ class MediaSource extends DataSource {
      */
     protected $systemComponentController;
 
-    public function __construct($name,$humanName, $directory, $accessIds = array(), $position = '',FileSystem $fileSystem = null, \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController = null) {
-        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0]);
+    /**
+     * Constructor
+     *
+     * @param string                                               $name                      Name of MediaSource
+     * @param string                                               $humanName                 HumanName
+     * @param array                                                $directory                 Array of directory path
+     * @param array                                                $accessIds                 Array of access IDS
+     * @param string                                               $position                  Position
+     * @param FileSystem                                           $fileSystem                FileSystem object
+     * @param \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController systemComponentController object
+     * @throws MediaBrowserException
+     */
+    public function __construct(
+        $name,
+        $humanName,
+        $directory,
+        $accessIds = array(),
+        $position = '',
+        FileSystem $fileSystem = null,
+        \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController = null
+    ) {
+        // Check if the S3 is in use(config 'S3 API key ID', 'S3 API secret',
+        // 'S3 Bucket name' and 'S3 Region' exists)
+        // then initialize the S3 FileSystem otherwise check if the $fileSystem set
+        // then use it as $this->fileSystem otherwise initialize the localFileSystem
+        $s3ApiKeyId  = \Cx\Core\Setting\Controller\Setting::getValue('s3ApiKeyId','Config');
+        $s3ApiSecret = \Cx\Core\Setting\Controller\Setting::getValue('s3ApiSecret','Config');
+        $s3BucketName = \Cx\Core\Setting\Controller\Setting::getValue('s3BucketName','Config');
+        $s3Region     = \Cx\Core\Setting\Controller\Setting::getValue('s3Region','Config');
+        if (
+            !empty($s3ApiKeyId) &&
+            !empty($s3ApiSecret) &&
+            !empty($s3BucketName) &&
+            !empty($s3Region)
+        ) {
+            $this->fileSystem = new AwsS3FileSystem(
+                $s3BucketName,
+                $directory[0],
+                $s3ApiKeyId,
+                $s3ApiSecret,
+                $s3Region,
+                'latest'
+            );
+        } elseif ($fileSystem) {
+            $this->fileSystem = $fileSystem;
+        } else {
+            $this->fileSystem = LocalFileSystem::createFromPath($directory[0]);
+        }
         $this->name      = $name;
         $this->position  = $position;
         $this->humanName = $humanName;

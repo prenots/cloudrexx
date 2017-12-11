@@ -749,11 +749,22 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function getWebPath(File $file)
     {
-        return
-            'https://' . $this->bucketName . '.s3.amazonaws.com' .
-            substr(
-                $this->getFullPath($file) . $file->getFullName(),
-                strlen($this->directoryPrefix) - 1
-            );
+        // Check if the S3 is in use and config 'S3 Base URL' is not empty then
+        // use it for web path otherwise use base URL like 'https://<bucketName>.s3.amazonaws.com'
+        $s3BaseUrl = \Cx\Core\Setting\Controller\Setting::getValue('s3BaseUrl','Config');
+        $baseUrl   = 'https://' . $this->bucketName . '.s3.amazonaws.com';
+        $isS3InUse =
+            !empty(\Cx\Core\Setting\Controller\Setting::getValue('s3ApiKeyId','Config')) &&
+            !empty(\Cx\Core\Setting\Controller\Setting::getValue('s3ApiSecret','Config')) &&
+            !empty(\Cx\Core\Setting\Controller\Setting::getValue('s3BucketName','Config')) &&
+            !empty(\Cx\Core\Setting\Controller\Setting::getValue('s3Region','Config'));
+        if ($isS3InUse && !empty($s3BaseUrl)) {
+            $baseUrl = $s3BaseUrl;
+        }
+
+        return $baseUrl . substr(
+            $this->getFullPath($file) . $file->getFullName(),
+            strlen($this->directoryPrefix) - 1
+        );
     }
 }
