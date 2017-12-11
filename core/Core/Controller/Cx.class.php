@@ -581,6 +581,8 @@ namespace Cx\Core\Core\Controller {
         protected $websiteImagesAccessProfileWebPath;
         protected $websiteImagesAccessPhotoPath;
         protected $websiteImagesAccessPhotoWebPath;
+        protected $websiteImagesGalleryImportPath;
+        protected $websiteImagesGalleryImportWebPath;
 
         /**
          * @var \Cx\Core\MediaSource\Model\Entity\MediaSourceManager
@@ -2714,6 +2716,7 @@ namespace Cx\Core\Core\Controller {
             $this->websiteImagesBlogPath        = $this->websiteDocumentRootPath . self::FOLDER_NAME_IMAGES . '/Blog';
             $this->websiteImagesCrmPath         = $this->websiteDocumentRootPath . self::FOLDER_NAME_IMAGES . '/Crm';
             $this->websiteImagesDataPath        = $this->websiteDocumentRootPath . self::FOLDER_NAME_IMAGES . '/Data';
+            $this->websiteImagesGalleryImportPath = $this->websiteDocumentRootPath . self::FOLDER_NAME_IMAGES . '/gallery_import';
             $this->websiteImagesCrmProfilePath  = $this->websiteImagesCrmPath . '/profile';
             $this->websiteImagesAccessProfilePath = $this->websiteImagesAccessPath .'/profile';
             $this->websiteImagesAccessPhotoPath = $this->websiteImagesAccessPath .'/photo';
@@ -2739,6 +2742,7 @@ namespace Cx\Core\Core\Controller {
             $this->websiteImagesBlogWebPath     = $this->websiteOffsetPath . self::FOLDER_NAME_IMAGES . '/Blog';
             $this->websiteImagesCrmWebPath      = $this->websiteOffsetPath . self::FOLDER_NAME_IMAGES . '/Crm';
             $this->websiteImagesDataWebPath     = $this->websiteOffsetPath . self::FOLDER_NAME_IMAGES . '/Data';
+            $this->websiteImagesGalleryImportWebPath = $this->websiteOffsetPath . self::FOLDER_NAME_IMAGES . '/gallery_import';
             $this->websiteImagesCrmProfileWebPath = $this->websiteImagesCrmWebPath . '/profile';
             $this->websiteImagesAccessProfileWebPath = $this->websiteImagesAccessWebPath . '/profile';
             $this->websiteImagesAccessPhotoWebPath   = $this->websiteImagesAccessWebPath . '/photo';
@@ -3319,6 +3323,28 @@ namespace Cx\Core\Core\Controller {
          */
         public function getWebsiteMediaDirectoryWebPath() {
             return $this->websiteMediaDirectoryWebPath;
+        }
+
+        /**
+         * Return the absolute path from the website's data repository of the
+         * location of the /images/gallery_import
+         * Formerly known as ASCMS_GALLERY_IMPORT_PATH
+         * @return string
+         */
+        public function getWebsiteImagesGalleryImportPath()
+        {
+            return $this->websiteImagesGalleryImportPath;
+        }
+
+        /**
+         * Return the offset path from the website's data repository to the
+         * location of the /images/gallery_import
+         * Formerly known as ASCMS_GALLERY_IMPORT_WEB_PATH
+         * @return string
+         */
+        public function getWebsiteImagesGalleryImportWebPath()
+        {
+            return $this->websiteImagesGalleryImportWebPath;
         }
 
         /**

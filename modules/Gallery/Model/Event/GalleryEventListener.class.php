@@ -81,21 +81,35 @@ class GalleryEventListener extends DefaultEventListener {
         $search->appendResult($pictureResult);
     }
 
-
+    /**
+     * Add MediaSource
+     *
+     * @param MediaSourceManager $mediaBrowserConfiguration MediaSourceManager object
+     */
     public function mediasourceLoad(MediaSourceManager $mediaBrowserConfiguration)
     {
-        global $_ARRAYLANG;
-        \Env::get('init')->loadLanguageData('Gallery');
-        $mediaType = new MediaSource(
+        $langData = \Env::get('init')->loadLanguageData('Gallery');
+        $galleryMediaType = new MediaSource(
             'gallery',
-            $_ARRAYLANG['TXT_THUMBNAIL_GALLERY'],
+            $langData['TXT_THUMBNAIL_GALLERY'],
             array(
                 $this->cx->getWebsiteImagesGalleryPath(),
                 $this->cx->getWebsiteImagesGalleryWebPath()
             ),
             array(12, 67)
         );
-        $mediaBrowserConfiguration->addMediaType($mediaType);
+
+        $galleryImportMediaType = new MediaSource(
+            'gallery_import',
+            $langData['TXT_PICTURE_GALLERY_IMPORT'],
+            array(
+                $this->cx->getWebsiteImagesGalleryImportPath(),
+                $this->cx->getWebsiteImagesGalleryImportWebPath()
+            ),
+            array(12, 68)
+        );
+        $mediaBrowserConfiguration->addMediaType($galleryMediaType);
+        $mediaBrowserConfiguration->addMediaType($galleryImportMediaType);
     }
 
 }
