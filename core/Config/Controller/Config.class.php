@@ -1401,9 +1401,9 @@ class Config
                 throw new \Cx\Lib\Update_DatabaseException("Failed to add Setting entry for default language (Backend)");
             }
 
-            //s3Config group
+            // s3Config group
             $apiKeyId = '';
-            if ($existingConfig['s3ApiKeyId']) {
+            if (isset($existingConfig['s3ApiKeyId'])) {
                 $apiKeyId = $existingConfig['s3ApiKeyId'];
             }
             \Cx\Core\Setting\Controller\Setting::init('Config', 's3Config','Yaml', $configPath);
@@ -1424,7 +1424,7 @@ class Config
             }
 
             $apiSecret = '';
-            if ($existingConfig['s3ApiSecret']) {
+            if (isset($existingConfig['s3ApiSecret'])) {
                 $apiSecret = $existingConfig['s3ApiSecret'];
             }
             if (
@@ -1444,7 +1444,7 @@ class Config
             }
 
             $s3BaseUrl = '';
-            if ($existingConfig['s3BaseUrl']) {
+            if (isset($existingConfig['s3BaseUrl'])) {
                 $s3BaseUrl = $existingConfig['s3BaseUrl'];
             }
             if (
@@ -1464,7 +1464,7 @@ class Config
             }
 
             $s3Region = '';
-            if ($existingConfig['s3Region']) {
+            if (isset($existingConfig['s3Region'])) {
                 $s3Region = $existingConfig['s3Region'];
             }
             if (
@@ -1484,7 +1484,7 @@ class Config
             }
 
             $s3BucketName = '';
-            if ($existingConfig['s3BucketName']) {
+            if (isset($existingConfig['s3BucketName'])) {
                 $s3BucketName = $existingConfig['s3BucketName'];
             }
             if (
