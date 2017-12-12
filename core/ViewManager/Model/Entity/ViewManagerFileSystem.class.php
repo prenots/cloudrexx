@@ -316,18 +316,4 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         }
         return new ViewManagerFile($filepath, $this);
     }
-
-    /**
-     * Get the file web path
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
-     * @return string Returns the file web path with filename
-     */
-    public function getWebPath(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return substr(
-            $this->getFullPath($file) . $file->getFullName(),
-            strlen($this->cx->getWebsitePath())
-        );
-    }
 }
