@@ -121,7 +121,9 @@ class MediaSource extends DataSource {
         $s3ApiSecret = \Cx\Core\Setting\Controller\Setting::getValue('s3ApiSecret','Config');
         $s3BucketName = \Cx\Core\Setting\Controller\Setting::getValue('s3BucketName','Config');
         $s3Region     = \Cx\Core\Setting\Controller\Setting::getValue('s3Region','Config');
-        if (
+        if ($fileSystem) {
+            $this->fileSystem = $fileSystem;
+        } elseif (
             !empty($s3ApiKeyId) &&
             !empty($s3ApiSecret) &&
             !empty($s3BucketName) &&
@@ -135,11 +137,10 @@ class MediaSource extends DataSource {
                 $s3Region,
                 'latest'
             );
-        } elseif ($fileSystem) {
-            $this->fileSystem = $fileSystem;
         } else {
             $this->fileSystem = LocalFileSystem::createFromPath($directory[0]);
         }
+
         $this->name      = $name;
         $this->position  = $position;
         $this->humanName = $humanName;
