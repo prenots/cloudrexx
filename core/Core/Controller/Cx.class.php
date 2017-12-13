@@ -583,6 +583,12 @@ namespace Cx\Core\Core\Controller {
         protected $websiteImagesAccessPhotoWebPath;
 
         /**
+         * @var string The offset path from the website's data to the location
+         *             of the /media/Crm
+         */
+        protected $websiteMediaCrmWebPath;
+
+        /**
          * @var \Cx\Core\MediaSource\Model\Entity\MediaSourceManager
          */
         protected $mediaSourceManager;
@@ -2750,6 +2756,7 @@ namespace Cx\Core\Core\Controller {
             $this->websiteMediaFileSharingWebPath=$this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/FileSharing';
             $this->websiteMediaMarketWebPath     = $this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/Market';
             $this->websiteMediaDirectoryWebPath  = $this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/Directory';
+            $this->websiteMediaCrmWebPath        = $this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/Crm';
 
             $this->websitePublicTempPath        = $this->websiteTempPath    . self::FOLDER_NAME_PUBLIC_TEMP;
             $this->websitePublicTempWebPath     = $this->websiteTempWebPath . self::FOLDER_NAME_PUBLIC_TEMP;
@@ -3265,6 +3272,17 @@ namespace Cx\Core\Core\Controller {
          */
         public function getWebsiteMediaCrmPath() {
             return $this->websiteMediaCrmPath;
+        }
+
+        /**
+         * Return the offset path from the website's data repository to the
+         * location of the /media/Crm
+         *
+         * @return string
+         */
+        public function getWebsiteMediaCrmWebPath()
+        {
+            return $this->websiteMediaCrmWebPath;
         }
 
         /**
