@@ -581,9 +581,41 @@ namespace Cx\Core\Core\Controller {
         protected $websiteImagesAccessProfileWebPath;
         protected $websiteImagesAccessPhotoPath;
         protected $websiteImagesAccessPhotoWebPath;
+
+        /**
+         * The absolute path from the website's data repository to the
+         * location of the /images/gallery_import
+         * Formerly known as ASCMS_GALLERY_IMPORT_PATH
+         *
+         * @var string
+         */
         protected $websiteImagesGalleryImportPath;
+
+        /**
+         * The offset path from the website's data repository to the
+         * location of the /images/gallery_import
+         * Formerly known as ASCMS_GALLERY_IMPORT_WEB_PATH
+         *
+         * @var string
+         */
         protected $websiteImagesGalleryImportWebPath;
+
+        /**
+         * The absolute path from the website's data repository to the
+         * location of the /images/gallery_thumbs
+         * Formerly known as ASCMS_GALLERY_THUMBNAIL_PATH
+         *
+         * @var string
+         */
         protected $websiteImagesGalleryThumbsPath;
+
+        /**
+         * The offset path from the website's data repository to the
+         * location of the /images/gallery_thumbs
+         * Formerly known as ASCMS_GALLERY_THUMBNAIL_WEB_PATH
+         *
+         * @var string
+         */
         protected $websiteImagesGalleryThumbsWebPath;
 
         /**
@@ -3330,9 +3362,10 @@ namespace Cx\Core\Core\Controller {
         }
 
         /**
-         * Return the absolute path from the website's data repository of the
+         * Return the absolute path from the website's data repository to the
          * location of the /images/gallery_import
          * Formerly known as ASCMS_GALLERY_IMPORT_PATH
+         *
          * @return string
          */
         public function getWebsiteImagesGalleryImportPath()
@@ -3344,6 +3377,7 @@ namespace Cx\Core\Core\Controller {
          * Return the offset path from the website's data repository to the
          * location of the /images/gallery_import
          * Formerly known as ASCMS_GALLERY_IMPORT_WEB_PATH
+         *
          * @return string
          */
         public function getWebsiteImagesGalleryImportWebPath()
@@ -3352,9 +3386,10 @@ namespace Cx\Core\Core\Controller {
         }
 
         /**
-         * Return the absolute path from the website's data repository of the
+         * Return the absolute path from the website's data repository to the
          * location of the /images/gallery_thumbs
          * Formerly known as ASCMS_GALLERY_THUMBNAIL_PATH
+         *
          * @return string
          */
         public function getWebsiteImagesGalleryThumbsPath()
@@ -3366,6 +3401,7 @@ namespace Cx\Core\Core\Controller {
          * Return the offset path from the website's data repository to the
          * location of the /images/gallery_thumbs
          * Formerly known as ASCMS_GALLERY_THUMBNAIL_WEB_PATH
+         *
          * @return string
          */
         public function getWebsiteImagesGalleryThumbsWebPath()
