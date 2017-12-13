@@ -89,7 +89,7 @@ class GalleryEventListener extends DefaultEventListener {
     public function mediasourceLoad(MediaSourceManager $mediaBrowserConfiguration)
     {
         $langData = \Env::get('init')->loadLanguageData('Gallery');
-        $galleryMediaType = new MediaSource(
+        $mediaTypes[] = new MediaSource(
             'gallery',
             $langData['TXT_THUMBNAIL_GALLERY'],
             array(
@@ -99,17 +99,29 @@ class GalleryEventListener extends DefaultEventListener {
             array(12, 67)
         );
 
-        $galleryImportMediaType = new MediaSource(
+        $mediaTypes[] = new MediaSource(
             'gallery_import',
-            $langData['TXT_PICTURE_GALLERY_IMPORT'],
+            $langData['TXT_GALLERY_PICTURE_IMPORT'],
             array(
                 $this->cx->getWebsiteImagesGalleryImportPath(),
                 $this->cx->getWebsiteImagesGalleryImportWebPath()
             ),
             array(12, 68)
         );
-        $mediaBrowserConfiguration->addMediaType($galleryMediaType);
-        $mediaBrowserConfiguration->addMediaType($galleryImportMediaType);
+
+        $mediaTypes[] = new MediaSource(
+            'gallery_thumbs',
+            $langData['TXT_GALLERY_PICTURE_THUMBS'],
+            array(
+                $this->cx->getWebsiteImagesGalleryThumbsPath(),
+                $this->cx->getWebsiteImagesGalleryThumbsWebPath()
+            ),
+            array(12)
+         );
+
+        foreach ($mediaTypes as $mediaType) {
+            $mediaBrowserConfiguration->addMediaType($mediaType);
+        }
     }
 
 }
