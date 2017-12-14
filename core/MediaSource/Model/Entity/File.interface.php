@@ -42,4 +42,18 @@ interface File {
     public function getExtension();
     public function getMimeType();
     public function __toString();
+
+    /**
+     * Gets file size
+     *
+     * @return int the size of the file in bytes, or false
+     */
+    public function getSize();
+
+    /**
+     * Copy the file
+     *
+     * @return bool true on success or false on failure
+     */
+    public function copy();
 }

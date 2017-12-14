@@ -536,61 +536,6 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
-     * Gets file size
-     *
-     * @param File $file
-     * @return int the size of the file in bytes, or false
-     */
-    public function getFileSize(File $file)
-    {
-        return filesize($this->rootPath . '/' . $file->__toString());
-    }
-
-    /**
-     * Copy the file/directory
-     *
-     * @param File $source      Source file
-     * @param File $destination Destination file
-     * @return string status message of file/directory copy
-     */
-    public function copyFile(File $source, File $destination)
-    {
-        $arrLang = \Env::get('init')->loadLanguageData('MediaSource');
-        $sourceFile = $this->getFullPath($source) . $source->getFullName();
-        $destinationFile = $this->getFullPath($destination) . $destination->getFullName();
-
-        if (
-            $this->isDirectory($source) &&
-            !\Cx\Lib\FileSystem\FileSystem::copy_folder(
-                $sourceFile,
-                $destinationFile,
-                true
-            )
-        ) {
-            return sprintf(
-                $arrLang['TXT_MEDIASOURCE_FILE_UNSUCCESSFULLY_COPIED'],
-                $source->getName()
-            );
-        } else {
-            if (
-                !\Cx\Lib\FileSystem\FileSystem::copy_file(
-                    $sourceFile,
-                    $destinationFile
-                )
-            ) {
-                return sprintf(
-                    $arrLang['TXT_MEDIASOURCE_FILE_UNSUCCESSFULLY_COPIED'],
-                    $source->getName()
-                );
-            }
-        }
-        return sprintf(
-            $arrLang['TXT_MEDIASOURCE_FILE_SUCCESSFULLY_COPIED'],
-            $destination->getName()
-        );
-    }
-
-    /**
      * Make a File writable
      *
      * @param File $file
