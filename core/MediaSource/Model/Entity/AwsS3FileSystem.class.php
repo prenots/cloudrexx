@@ -726,18 +726,21 @@ class AwsS3FileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Get file from path
+     * Get File object from the path
      *
-     * @param string $filepath File path
-     * @return LocalFile File object
+     * @param string  $filepath File path
+     * @param boolean $force    True, return the File object also if the given file not exists or
+     *                          False, return the file object if the file exists
+     * @return LocalFile File Object
      */
-    public function getFileFromPath($filepath)
+    public function getFileFromPath($filepath, $force = false)
     {
         $fileinfo = pathinfo($filepath);
         $files    = $this->getFileList($fileinfo['dirname']);
-        if (!isset($files[$fileinfo['basename']])) {
+        if (!isset($files[$fileinfo['basename']]) && !$force) {
             return;
         }
+
         return new LocalFile($filepath, $this);
     }
 

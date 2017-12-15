@@ -42,4 +42,12 @@ interface File {
     public function getExtension();
     public function getMimeType();
     public function __toString();
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode);
 }

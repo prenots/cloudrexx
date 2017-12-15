@@ -307,13 +307,22 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         return true;
     }
 
-    public function getFileFromPath($filepath) {
+    /**
+     * Get File object from the path
+     *
+     * @param string  $filepath File path
+     * @param boolean $force    True, return the File object also if the given file not exists or
+     *                          False, return the file object if the file exists
+     * @return LocalFile File Object
+     */
+    public function getFileFromPath($filepath, $force = false)
+    {
         $fileinfo = pathinfo($filepath);
-        $path = dirname($filepath);
-        $files = $this->getFileList($fileinfo['dirname']);
-        if (!isset($files[$fileinfo['basename']])) {
+        $files    = $this->getFileList($fileinfo['dirname']);
+        if (!isset($files[$fileinfo['basename']]) && !$force) {
             return false;
         }
+
         return new ViewManagerFile($filepath, $this);
     }
 

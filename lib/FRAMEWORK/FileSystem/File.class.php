@@ -430,5 +430,27 @@ class File implements FileInterface
 
         return true;
     }
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode)
+    {
+        if (empty($mode)) {
+            $mode = 'r';
+        }
+
+        try {
+            $file = new FileSystemFile($this->file);
+            return @fopen($file->getAbsoluteFilePath(), $mode);
+        } catch (FileSystemFileException $e) {
+            \DBG::msg('FileSystemFile: ' . $e->getMessage());
+        }
+
+        return;
+    }
 }
 
