@@ -53,7 +53,8 @@ interface File {
     /**
      * Copy the file
      *
+     * @param string $destinationPath Destination file path
      * @return bool true on success or false on failure
      */
-    public function copy();
+    public function copy($destinationPath);
 }
