@@ -1768,12 +1768,7 @@ JS
                     $fileName = basename($arrImage['path']);
                     $path     = $objSession->getTempPath() .'/' . contrexx_input2raw($uploaderId) . '/' . $fileName;
 
-                    if (   !$this->fileSystem->fileExists(
-                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                    $path,
-                                    $this->fileSystem
-                                )
-                            )
+                    if (   !\Cx\Lib\FileSystem\FileSystem::exists($path)
                         || !\FWValidator::is_file_ending_harmless($path)
                     ) {
                         continue;
@@ -1841,7 +1836,7 @@ JS
             $arrSettings = \User_Setting::getSettings();
         }
 
-        $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : ASCMS_ACCESS_PHOTO_IMG_PATH;
+        $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : $cx->getWebsiteImagesAccessPhotoPath();
         $index = 0;
         $imageName = $objUser->getId().'_'.$name;
         while (
@@ -2083,40 +2078,19 @@ JS
     /*function unloadUploadedImage($tmpImageName)
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $this->fileSystem->removeFile(
-            new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                $cx->getWebsiteTempPath() . '/' . $tmpImageName,
-                $this->fileSystem
-            )
-        );
+        unlink($cx->getWebsiteTempPath() . '/' . $tmpImageName);
     }*/
 
     /*function loadUploadedImage($tmpName, $name)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $index = 0;
         $tmpImageName = $name;
-        while (
-            $this->fileSystem->fileExists(
-                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                    $cx->getWebsiteTempPath() . '/' . $tmpImageName,
-                    $this->fileSystem
-                )
-            )
-        ) {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        while (file_exists($cx->getWebsiteTempPath() . '/' . $tmpImageName)) {
             $tmpImageName = ++$index.$name;
         }
-        $tempImage = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-            $tmpName,
-            $this->fileSystem
-        );
 
-        if (
-            $this->fileSystem->moveFile(
-                $tempImage,
-                $cx->getWebsiteTempPath() . '/' . $tmpImageName
-            )
-        ) {
+        if (move_uploaded_file($tmpName, $cx->getWebsiteTempPath() . '/' . $tmpImageName)) {
             return $tmpImageName;
         } else {
             false;
