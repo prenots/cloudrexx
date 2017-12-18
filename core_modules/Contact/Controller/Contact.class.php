@@ -768,6 +768,10 @@ CODE;
             //legacy function for old uploader
             return $this->_uploadFilesLegacy($arrFields);
         } else {
+            $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaType('attach')
+                ->getFileSystem();
             //new uploader used
             if(!$this->hasFileField) //nothing to do for us, no files
                 return array();
@@ -805,18 +809,41 @@ CODE;
                     //find an unique folder name for the uploaded files
                     $folderName = date("Ymd").'_'.$fieldId;
                     $suffix = "";
-                    if(file_exists($documentRootPath.$depositionTarget.$folderName)) {
+                    if (
+                        $fileSystem->fileExists(
+                            new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                $folderName,
+                                $fileSystem
+                            )
+                        )
+                    ) {
                         $suffix = 1;
-                        while(file_exists($documentRootPath.$depositionTarget.$folderName.'-'.$suffix))
+                        while (
+                            $fileSystem->fileExists(
+                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                    $folderName . '-' . $suffix,
+                                    $fileSystem
+                                )
+                            )
+                        ) {
                             $suffix++;
-
+                        }
                         $suffix = '-'.$suffix;
                     }
                     $folderName .= $suffix;
 
                     //try to make the folder and change target accordingly on success
-                    if(\Cx\Lib\FileSystem\FileSystem::make_folder($documentRootPath.$depositionTarget.$folderName)) {
-                        \Cx\Lib\FileSystem\FileSystem::makeWritable($documentRootPath.$depositionTarget.$folderName);
+                    if (
+                        $fileSystem->createDirectory(
+                            $folderName
+                        )
+                    ) {
+                        $fileSystem->makeWritable(
+                            new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                $folderName,
+                                $fileSystem
+                            )
+                        );
                         $depositionTarget .= $folderName.'/';
                     }
                     $this->depositionTarget[$fieldId] = $depositionTarget;
@@ -836,7 +863,14 @@ CODE;
                     if($f != '..' && $f != '.') {
                         //do not overwrite existing files.
                         $prefix = '';
-                        while (file_exists($documentRootPath.$depositionTarget.$prefix.$f)) {
+                        while (
+                            $fileSystem->fileExists(
+                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                    $prefix . $f,
+                                    $fileSystem
+                                )
+                            )
+                        ) {
                             if (empty($prefix)) {
                                 $prefix = 0;
                             }

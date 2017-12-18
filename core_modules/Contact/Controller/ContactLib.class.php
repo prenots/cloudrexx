@@ -1249,6 +1249,10 @@ class ContactLib
                                             `f`.`type` IN ('multi_file', 'file')
                                         WHERE `d`.`id`=".$id);
         if ($rs) {
+            $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaType('attach')
+                ->getFileSystem();
             while (!$rs->EOF) {
                 $data = $rs->fields['formvalue'];
                 $formId = $rs->fields['id_form'];
@@ -1280,7 +1284,12 @@ class ContactLib
 
                         //nice, we have all the files. delete them.
                         foreach($arrFiles as $file) {
-                            \Cx\Lib\FileSystem\FileSystem::delete_file(\Env::get('cx')->getWebsiteDocumentRootPath().$file);
+                            $fileSystem->removeFile(
+                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                                    ltrim($file, '/images/attach'),
+                                    $fileSystem
+                                )
+                            );
                         }
                     }
                 }
