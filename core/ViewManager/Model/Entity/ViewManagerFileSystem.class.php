@@ -113,56 +113,6 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     }
 
     /**
-     * Check whether file is directory
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return boolean True on success, false otherwise
-     */
-    public function isDirectory(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return is_dir($this->getFullPath($file) . $file->getFullName());
-    }
-
-    /**
-     * Check whether file is directory
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return boolean True on success, false otherwise
-     */
-    public function isFile(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return is_file($this->getFullPath($file) . $file->getFullName());
-    }
-
-    /**
-     * Check whether file exists in the filesytem
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return boolean True when exists, false otherwise
-     */
-    public function fileExists(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return file_exists($this->getFullPath($file) . $file->getFullName());
-    }
-
-    /**
-     * Read the contents from given file,
-     * Check whether the file exists before calling this function
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return string file content
-     */
-    public function readFile(
-        \Cx\Core\MediaSource\Model\Entity\File $file
-    ) {
-        return file_get_contents($this->getFullPath($file) . $file->getFullName());
-    }
-
-    /**
      * Get full path of the given file,
      * If file is application template then load from website/codebase path
      * else
@@ -188,7 +138,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
             $basePath = $path;
         }
-        return $basePath . ltrim($file->getPath(), '.') . '/';
+        return $basePath . rtrim(ltrim($file->getPath(), '.'), '/') . '/';
     }
 
     /**
@@ -223,12 +173,11 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      * Check whether the file is read only
      * 
      * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
      * @return boolean
      */
     public function isReadOnly(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        if (file_exists($this->getRootPath() . $file->__toString())) {
+        if ($this->fileExists($file)) {
             return false;
         }
         return true;
@@ -243,9 +192,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      */
     public function isResettable(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        $isFileExistsInWebsite = file_exists($this->getRootPath() . $file->__toString());
-
-        if (!$isFileExistsInWebsite) {
+        if (!$this->fileExists($file)) {
             return false;
         }
 
@@ -278,7 +225,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     {
         // copy folder from additional file systems
         foreach ($this->additionalFileSystems as $fileSystem) {
-            if (!file_exists($fileSystem->getRootPath() . $fromFile->__toString())) {
+            if (!$fileSystem->fileExists($fromFile)) {
                 continue;
             }
 
@@ -292,7 +239,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         }
 
         // if folder does not exist in local file system, then we're all done
-        if (!file_exists($this->getRootPath() . $fromFile->__toString())) {
+        if (!$this->fileExists($fromFile)) {
             return true;
         }
 
@@ -317,23 +264,16 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      */
     public function getFileFromPath($filepath, $force = false)
     {
+        if ($force) {
+            return new ViewManagerFile($filepath, $this);
+        }
+
         $fileinfo = pathinfo($filepath);
         $files    = $this->getFileList($fileinfo['dirname']);
-        if (!isset($files[$fileinfo['basename']]) && !$force) {
+        if (!isset($files[$fileinfo['basename']])) {
             return false;
         }
 
         return new ViewManagerFile($filepath, $this);
-    }
-
-    /**
-     * Get the file web path
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
-     * @return string Returns the file web path without filename
-     */
-    public function getWebPath(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return substr($this->getFullPath($file), strlen($this->cx->getWebsitePath()));
     }
 }
