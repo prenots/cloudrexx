@@ -98,7 +98,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Check whether the file exists in the filesytem
+     * Check whether the file exists or not
      *
      * @param File $file File object
      * @return boolean True when exists, false otherwise
@@ -112,7 +112,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      * Get the file list
      *
      * @param File    $directory Directory path
-     * @param boolean $recursive If true recursively parse $directory and list all the files
+     * @param boolean $recursive If true, recursively parse $directory and list all the files
      *                           otherwise list all files under the $directory
      * @param boolean $readonly  readOnly
      * @return array Array of file list
@@ -447,6 +447,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      *
      * @param File   $file    File object
      * @param string $content File content
+     * @return boolean Status of File write
      */
     public function writeFile(File $file, $content)
     {
@@ -502,6 +503,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      *
      * @param string $path      File path
      * @param string $directory Directory name
+     * @return string Status message
      */
     public function createDirectory($path, $directory)
     {

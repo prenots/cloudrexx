@@ -172,7 +172,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     /**
      * Check whether the file is read only
      * 
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
      * @return boolean
      */
     public function isReadOnly(\Cx\Core\MediaSource\Model\Entity\File $file)
@@ -186,8 +186,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     /**
      * Check whether the file is resettable
      *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
      * @return boolean
      */
     public function isResettable(\Cx\Core\MediaSource\Model\Entity\File $file)
@@ -220,6 +219,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      *
      * @param \Cx\Core\ViewManager\Model\Entity\ViewManagerFile $fromFile
      * @param \Cx\Core\ViewManager\Model\Entity\ViewManagerFile $toFile
+     * @return boolean Status of the folder copy
      */
     public function copyFolder(ViewManagerFile $fromFile, ViewManagerFile $toFile)
     {
@@ -260,7 +260,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      * @param string  $filepath File path
      * @param boolean $force    True, return the File object also if the given file not exists or
      *                          False, return the file object if the file exists
-     * @return LocalFile File Object
+     * @return ViewManagerFile File Object
      */
     public function getFileFromPath($filepath, $force = false)
     {
