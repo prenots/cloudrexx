@@ -508,8 +508,12 @@ class PodcastLib
             if (strpos($thumbNail, '/') !== 0) {
                 $thumbNail = '/'. $thumbNail;
             }
-            $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()->getMediaSourceManager();
-            $mediaSourceManager->removeFile($thumbNail);
+            $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager();
+            $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath($thumbNail);
+            if ($mediaSourceFile) {
+                $mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile);
+            }
         }
 
         if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$id) !== false) {
@@ -1229,12 +1233,17 @@ EOF;
                     $mediumWidth = $this->_arrSettings['default_width'];
                     $mediumHeight = $this->_arrSettings['default_height'];
                 }
-                $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()->getMediaSourceManager();
+
                 $mediumSize = 0;
                 if (isset($_POST['podcast_medium_local_source'])) {
-                    $mediumSize = $mediaSourceManager->getFileSize(
-                        contrexx_input2raw($_POST['podcast_medium_local_source'])
+                    $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+                        ->getMediaSourceManager();
+                    $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
+                            contrexx_input2raw($_POST['podcast_medium_local_source'])
                     );
+                    if ($mediaSourceFile) {
+                        $mediumSize = $mediaSourceFile->getSize();
+                    }
                 }
                 $mediumSource = htmlentities(str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()), $mediumSource), ENT_QUOTES, CONTREXX_CHARSET);
             }
