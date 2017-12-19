@@ -333,14 +333,13 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function removeFile(File $file)
     {
-        global $_ARRAYLANG;
-
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $filename = $file->getFullName();
         $strPath  = $file->getPath();
         if (empty($filename) || empty($strPath)) {
             return (
                 sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+                    $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
                     $filename
                 )
             );
@@ -350,12 +349,12 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         if (is_dir($filePath)) {
             if (rmdir($filePath)) {
                 return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
                     $filename
                 );
             }
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
+                $arrLang['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
                 $filename
             );
         }
@@ -364,13 +363,13 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             // If the removing file is image then remove its thumbnail files
             $this->removeThumbnails($file);
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
+                $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
                 $filename
             );
         }
 
         return sprintf(
-            $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+            $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
             $filename
         );
     }
@@ -507,22 +506,20 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function createDirectory($path, $directory)
     {
-        global $_ARRAYLANG;
-
-        \Env::get('init')->loadLanguageData('MediaBrowser');
+        $arrLang = \Env::get('init')->loadLanguageData('MediaBrowser');
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
                 $this->rootPath . '/' . $path . '/' . $directory
             )
         ) {
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
+                $arrLang['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
                 $directory
             );
         } else {
             return
                 sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
                     $directory
                 );
         }
