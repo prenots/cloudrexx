@@ -451,8 +451,15 @@ class Downloads extends DownloadsLibrary
                 //check if file needs to be renamed
                 $newName = '';
                 $suffix = '';
-
-                if (file_exists($path . '/' . $file)) {
+                $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getMediaSourceManager()
+                    ->getMediaType('downloads')
+                    ->getFileSystem();
+                $uploadedFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $file,
+                    $fileSystem
+                );
+                if ($fileSystem->fileExists($uploadedFile)) {
                     $suffix = '_' . time();
                     $newName = $info['filename'] . $suffix . '.' . $info['extension'];
                     $arrFilesToRename[$file] = $newName;
@@ -757,14 +764,10 @@ class Downloads extends DownloadsLibrary
         }
 
         $imageSrc = $objCategory->getImage();
-        if (!empty($imageSrc) && file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().$imageSrc)) {
-            $thumb_name = \ImageManager::getThumbnailFilename($imageSrc);
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().$thumb_name)) {
-                $thumbnailSrc = $thumb_name;
-            } else {
-                $thumbnailSrc = \ImageManager::getThumbnailFilename(
-                    $this->defaultCategoryImage['src']);
-            }
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (!empty($imageSrc) && $mediaSourceManager->getMediaSourceFileFromPath($imageSrc)) {
+            $thumbnailSrc = \ImageManager::getThumbnailFilename($imageSrc);
         } else {
             $imageSrc = $this->defaultCategoryImage['src'];
             $thumbnailSrc = \ImageManager::getThumbnailFilename(
@@ -1011,14 +1014,10 @@ JS_CODE;
         }
 
         $imageSrc = $objCategory->getImage();
-        if (!empty($imageSrc) && file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().$imageSrc)) {
-            $thumb_name = \ImageManager::getThumbnailFilename($imageSrc);
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().$thumb_name)) {
-                $thumbnailSrc = $thumb_name;
-            } else {
-                $thumbnailSrc = \ImageManager::getThumbnailFilename(
-                    $this->defaultCategoryImage['src']);
-            }
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (!empty($imageSrc) && $mediaSourceManager->getMediaSourceFileFromPath($imageSrc)) {
+            $thumbnailSrc = \ImageManager::getThumbnailFilename($imageSrc);
         } else {
             $imageSrc = $this->defaultCategoryImage['src'];
             $thumbnailSrc = \ImageManager::getThumbnailFilename(
@@ -1238,17 +1237,14 @@ JS_CODE;
         }
 
         $imageSrc = $objDownload->getImage();
-        if (!empty($imageSrc) && file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/'.$imageSrc)) {
-            $thumb_name = \ImageManager::getThumbnailFilename($imageSrc);
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/'.$thumb_name)) {
-                $thumbnailSrc = $thumb_name;
-            } else {
-                $thumbnailSrc = \ImageManager::getThumbnailFilename(
-                    $this->defaultCategoryImage['src']);
-            }
 
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (!empty($imageSrc) && $mediaSourceManager->getMediaSourceFileFromPath($imageSrc)) {
+            $thumbnailSrc = contrexx_raw2encodedUrl(
+                \ImageManager::getThumbnailFilename($imageSrc)
+            );
             $imageSrc = contrexx_raw2encodedUrl($imageSrc);
-            $thumbnailSrc = contrexx_raw2encodedUrl($thumbnailSrc);
             $image = $this->getHtmlImageTag($imageSrc, htmlentities($objDownload->getName($_LANGID), ENT_QUOTES, CONTREXX_CHARSET));
             $thumbnail = $this->getHtmlImageTag($thumbnailSrc, htmlentities($objDownload->getName($_LANGID), ENT_QUOTES, CONTREXX_CHARSET));
         } else {
@@ -1405,15 +1401,11 @@ JS_CODE;
                 }
 
                 $imageSrc = $objRelatedDownload->getImage();
-                if (!empty($imageSrc) && file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().$imageSrc)) {
-                    $thumb_name = \ImageManager::getThumbnailFilename($imageSrc);
-                    if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().$thumb_name)) {
-                        $thumbnailSrc = $thumb_name;
-                    } else {
-                        $thumbnailSrc = \ImageManager::getThumbnailFilename(
-                            $this->defaultCategoryImage['src']);
-                    }
 
+                $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getMediaSourceManager();
+                if (!empty($imageSrc) && $mediaSourceManager->getMediaSourceFileFromPath($imageSrc)) {
+                    $thumbnailSrc = \ImageManager::getThumbnailFilename($imageSrc);
                     $image = $this->getHtmlImageTag($imageSrc, htmlentities($objRelatedDownload->getName($_LANGID), ENT_QUOTES, CONTREXX_CHARSET));
                     $thumbnail = $this->getHtmlImageTag($thumbnailSrc, htmlentities($objRelatedDownload->getName($_LANGID), ENT_QUOTES, CONTREXX_CHARSET));
                 } else {

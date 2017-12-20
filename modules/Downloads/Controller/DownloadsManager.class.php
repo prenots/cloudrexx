@@ -778,13 +778,10 @@ class DownloadsManager extends DownloadsLibrary
 
         // parse image attribute
         $image = $objCategory->getImage();
-        if (!empty($image) && file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/'.$image)) {
-            $thumb_name = \ImageManager::getThumbnailFilename($image);
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/'.$thumb_name)) {
-                $imageSrc = $thumb_name;
-            } else {
-                $imageSrc = $image;
-            }
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (!empty($image) && $mediaSourceManager->getMediaSourceFileFromPath($image)) {
+            $imageSrc = \ImageManager::getThumbnailFilename($image);
         } else {
             $image = '';
             $imageSrc = $this->defaultCategoryImage['src'];
@@ -1613,13 +1610,10 @@ class DownloadsManager extends DownloadsLibrary
 
         // parse image attribute
         $image = $objDownload->getImage();
-        if (!empty($image) && file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/'.$image)) {
-            $thumb_name = \ImageManager::getThumbnailFilename($image);
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteDocumentRootPath().'/'.$thumb_name)) {
-                $imageSrc = $thumb_name;
-            } else {
-                $imageSrc = $image;
-            }
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (!empty($image) && $mediaSourceManager->getMediaSourceFileFromPath($image)) {
+            $imageSrc = \ImageManager::getThumbnailFilename($image);
         } else {
             $image = '';
             $imageSrc = $this->defaultDownloadImage['src'];
