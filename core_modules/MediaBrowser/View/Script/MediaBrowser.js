@@ -216,7 +216,7 @@ cx.ready(function () {
 
                 $scope.updateSourceSearch = function () {
                     if (!$scope.searchSourceLoaded) {
-                    	$scope.updateSource(true, false);
+                        $scope.updateSource(true, false);
                     }
                     $scope.searchSourceLoaded = true;
                 };
@@ -672,7 +672,7 @@ cx.ready(function () {
                                             'X-Requested-With': 'XMLHttpRequest'
                                         }
                                     }).success(function () {
-                                    	$scope.updateSource(false, false);
+                                        $scope.updateSource(false, false);
                                     }).error(function () {
                                         bootbox.alert({
                                             className: "media-browser-modal-window",
@@ -714,7 +714,7 @@ cx.ready(function () {
                                         data: jQuery.param({dir: dirName}),
                                         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                                     }).success(function () {
-                                    	$scope.updateSource(false, false);
+                                        $scope.updateSource(false, false);
                                     }).error(function () {
                                         bootbox.alert({
                                             className: "media-browser-modal-window",
