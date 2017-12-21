@@ -61,6 +61,7 @@ class Gallery
     public $strCmd = '';
 
 
+    protected $galleryLib;
     /**
      * Constructor
      * @global ADONewConnection
@@ -72,7 +73,8 @@ class Gallery
         global $objDatabase, $_LANGID;
 
         $this->pageContent = $pageContent;
-        $this->langId= $_LANGID;
+        $this->langId      = $_LANGID;
+        $this->galleryLib  = new GalleryLibrary();
 
         $this->_objTpl = new \Cx\Core\Html\Sigma('.');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
@@ -174,8 +176,6 @@ class Gallery
             return;
         }
 
-        $galleryLib      = new GalleryLibrary();
-        $localFile       = $galleryLib->getLocalFileObject($picture->fields['path']);
         $imagePath       = $this->strImagePath . $picture->fields['path'];
         $imageReso       = getimagesize($imagePath);
         $strImagePath    = $this->strImageWebPath.$picture->fields['path'];
@@ -183,9 +183,11 @@ class Gallery
         $imageDesc       = $picture->fields['desc'];
         //show image size based on the settings of "Show image size"
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
-        $imageSize       = ($showImageSize)
-            ? round($localFile->getSize()/1024, 2)
-            : '';
+        $file            = $this->galleryLib->getFile($picture->fields['path']);
+        $imageSize       = '';
+        if ($showImageSize) {
+            $imageSize = round($file->getSize()/1024, 2);
+        }
 
         // set requested page's meta data
         if ($imageDesc) {
@@ -303,8 +305,6 @@ class Gallery
             die;
         }
 
-        $galleryLib      = new GalleryLibrary();
-        $localFile       = $galleryLib->getLocalFileObject($picture->fields['path']);
         $imagePath       = $this->strImagePath . $picture->fields['path'];
         $imageReso       = getimagesize($imagePath);
         $strImagePath    = $this->strImageWebPath.$picture->fields['path'];
@@ -312,9 +312,11 @@ class Gallery
         $imageDesc       = $picture->fields['desc'];
         //show image size based on the settings of "Show image size"
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
-        $imageSize       = ($showImageSize)
-            ? round($localFile->getSize()/1024, 2)
-            : '';
+        $file            = $this->galleryLib->getFile($picture->fields['path']);
+        $imageSize       = '';
+        if ($showImageSize) {
+            $imageSize = round($file->getSize()/1024, 2);
+        }
 
         // set requested page's meta data
         if ($imageDesc) {
@@ -482,7 +484,6 @@ class Gallery
             $this->_objTpl->addBlock('APPLICATION_DATA', 'application_data', $applicationTemplate);
         }
 
-        $galleryLib = new GalleryLibrary();
         $this->checkAccessToCategory($intParentId);
         $this->parseCategoryTree($this->_objTpl);
 
@@ -492,11 +493,13 @@ class Gallery
         
         $showImageSizeOverview   = $this->arrSettings['show_image_size'] == 'on';
         while (!$objResult->EOF) {
-            $localFile = $galleryLib->getLocalFileObject($objResult->fields['path']);
-            $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] =
-                ($showImageSizeOverview)
-                ? round($localFile->getSize()/1024, 2)
-                : '';
+            $file = $this->galleryLib->getFile($objResult->fields['path']);
+            $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] = '';
+            if ($showImageSizeOverview) {
+                $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] =
+                    round($file->getSize()/1024, 2);
+            }
+
             $arrstrImagePaths[$objResult->fields['catid']][$objResult->fields['id']] = $this->strThumbnailWebPath.$objResult->fields['path'];
             $objResult->MoveNext();
         }
@@ -708,7 +711,6 @@ class Gallery
             $imageVotingOutput = '';
             $imageCommentOutput = '';
 
-            $localFile       = $galleryLib->getLocalFileObject($objResult->fields['path']);
             $imageReso       = getimagesize($this->strImagePath.$objResult->fields['path']);
             $strImagePath    = $this->strImageWebPath.$objResult->fields['path'];
             $imageThumbPath  = $this->strThumbnailWebPath.$objResult->fields['path'];
@@ -718,7 +720,12 @@ class Gallery
             $imageDesc       = !empty($objResult->fields['desc']) ? $objResult->fields['desc'] : '-';
             $imageLink       = $objResult->fields['link'];
             $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $objResult->fields['size_show'];
-            $imageFileSize   = ($showImageSize) ? round($localFile->getSize()/1024, 2) : '';
+            $file            = $this->galleryLib->getFile($objResult->fields['path']);
+            $imageFileSize   = '';
+            if ($showImageSize) {
+                $imageFileSize = round($file->getSize()/1024, 2);
+            }
+
             $imageSizeOutput = '';
             $imageTitleTag   = '';
 

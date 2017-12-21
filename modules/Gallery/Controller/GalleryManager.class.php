@@ -404,10 +404,10 @@ class GalleryManager extends GalleryLibrary
                                                 FROM     '.DBPREFIX.'module_gallery_pictures
                                                 WHERE     validated="1"');
         while (!$objResult->EOF) {
-            $localFile = $this->getLocalFileObject($objResult->fields['path']);
+            $file = $this->getFile($objResult->fields['path']);
             if (
                 !is_file($this->strThumbnailPath.$objResult->fields['path']) ||
-                !$localFile->getFileSystem()->isFile($localFile)
+                !$file->getFileSystem()->isFile($file)
             ) {
                 $arrayPicToDel[$objResult->fields['id']] = $objResult->fields['path'];
             }
@@ -419,9 +419,9 @@ class GalleryManager extends GalleryLibrary
                    @unlink($this->strThumbnailPath.$path);
                 }
 
-                $localFile = $this->getLocalFileObject($path);
-                if ($localFile->getFileSystem()->isFile($localFile)) {
-                    $localFile->getFileSystem()->removeFile($localFile);
+                $file = $this->getFile($path);
+                if ($file->getFileSystem()->isFile($file)) {
+                    $file->getFileSystem()->removeFile($file);
                 }
                 $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_gallery_pictures WHERE id=".$id);
             }
@@ -480,8 +480,8 @@ class GalleryManager extends GalleryLibrary
                                                    WHERE     catid='.$intKey);
                 $arrImageCount[$intKey] = $objResult->RecordCount();
                 while (!$objResult->EOF) {
-                    $localFile = $this->getLocalFileObject($objResult->fields['path']);
-                    $arrImageSize[$intKey] = $arrImageSize[$intKey] + $localFile->getSize();
+                    $file = $this->getFile($objResult->fields['path']);
+                    $arrImageSize[$intKey] = $arrImageSize[$intKey] + $file->getSize();
                     $objResult->MoveNext();
                 }
                 $arrImageSize[$intKey] = round($arrImageSize[$intKey] / 1024,2);
@@ -966,8 +966,8 @@ class GalleryManager extends GalleryLibrary
                                                 WHERE     catid='.$strValue);
             while (!$objResult->EOF) {
                 @unlink($this->strThumbnailPath.$objResult->fields['path']);
-                $localFile = $this->getLocalFileObject($objResult->fields['path']);
-                $localFile->getFileSystem()->removeFile($localFile);
+                $file = $this->getFile($objResult->fields['path']);
+                $file->getFileSystem()->removeFile($file);
 
                 $objDatabase->Execute('    DELETE
                                         FROM    '.DBPREFIX.'module_gallery_votes
@@ -1479,7 +1479,7 @@ class GalleryManager extends GalleryLibrary
                     $outputLinkIconE = '';
                 }
 
-                $localFile   = $this->getLocalFileObject($objResult->fields['path']);
+                $file        = $this->getFile($objResult->fields['path']);
                 $intOutputId = $objResult->fields['id'];
                 $strOutputSorting = $objResult->fields['sorting'];
 
@@ -1493,7 +1493,7 @@ class GalleryManager extends GalleryLibrary
                 $strOutputOrigReso      = $arrOrigFileInfo[0].'x'.$arrOrigFileInfo[1];
                 $strOutputOrigWidth     = $arrOrigFileInfo[0]+20;
                 $strOutputOrigHeight    = $arrOrigFileInfo[1]+25;
-                $strOutputOrigSize      = round($localFile->getSize()/1024, 2);
+                $strOutputOrigSize      = round($file->getSize()/1024, 2);
                 $strOutputThumbReso     = $arrThumbFileInfo[0].'x'.$arrThumbFileInfo[1];
                 $strOutputThumbSize     = round(filesize($this->strThumbnailPath.$objResult->fields['path'])/1024,2);
 
@@ -2617,13 +2617,13 @@ class GalleryManager extends GalleryLibrary
                 //create thumb
                 $this->createImages_JPG_GIF_PNG($this->strImagePath, $this->strThumbnailPath, $objResult->fields['path'], "temp_".$intNewThumbRandValue."_".$objResult->fields['path'], $intNewThumWidth, $intNewThumbHeight, $intNewThumbQuality);
 
-                $localFile = $this->getLocalFileObject($objResult->fields['path']);
+                $file = $this->getFile($objResult->fields['path']);
                 $this->_objTpl->setVariable(array(
                     'DETAILS_ID'                        =>     $objResult->fields['id'],
                     'DETAILS_NAME'                      =>    $frontendLanguage['name'],
                     'DETAILS_UPLOADDATE'                =>    date('d.m.Y - h:i:s',$objResult->fields['lastedit']),
                     'DETAILS_ACTIVE_SELECTED'           =>    $strDetailsActive,
-                    'DETAILS_SIZE_ORIG'                 =>    round($localFile->getSize()/1024, 2),
+                    'DETAILS_SIZE_ORIG'                 =>    round($file->getSize()/1024, 2),
                     'DETAILS_SIZE_THUMB'                =>    round(filesize($this->strThumbnailPath.'temp_'.$intNewThumbRandValue.'_'.$objResult->fields['path'])/1024,2),
                     'DETAILS_WIDTH_ORIG'                =>    $arrImageInfos[0],
                     'DETAILS_HEIGHT_ORIG'               =>    $arrImageInfos[1],
@@ -2761,13 +2761,13 @@ class GalleryManager extends GalleryLibrary
                         $objSubResult->MoveNext();
                     }
                     $arrFileInfo = getimagesize($this->strImagePath.$objResult->fields['path']);
-                    $localFile   = $this->getLocalFileObject($objResult->fields['path']);
+                    $file        = $this->getFile($objResult->fields['path']);
 
                     $arrImageCounter[$objResult->fields['id']]                 = $objResult->fields['id'];
                     $arrImageInfo[$objResult->fields['id']]['name']         = contrexx_raw2xhtml($arrNames[$objResult->fields['id']][$this->intLangId]);
                     $arrImageInfo[$objResult->fields['id']]['random_path']     = $this->strThumbnailWebPath.'temp_'.rand().'_'.$objResult->fields['path'];
                     $arrImageInfo[$objResult->fields['id']]['uploadtime']     = date('d.m.Y',$objResult->fields['lastedit']);
-                    $arrImageInfo[$objResult->fields['id']]['size_o']         = round($localFile->getSize()/1024, 2);
+                    $arrImageInfo[$objResult->fields['id']]['size_o']         = round($file->getSize()/1024, 2);
                     $arrImageInfo[$objResult->fields['id']]['reso_o']         = $arrFileInfo[0].'x'.$arrFileInfo[1];
 
                     if ($objResult->fields['size_type'] == 'proz') { // the image sizes are proportional
@@ -3173,9 +3173,9 @@ $strFileNew = '';
         $objResult = $objDatabase->Execute('SELECT     path
                                             FROM     '.DBPREFIX.'module_gallery_pictures
                                             WHERE     id='.$intImageId);
-        $localFile = $this->getLocalFileObject($objResult->fields['path']);
-        if ($localFile->getFileSystem()->isFile($localFile)) {
-            $localFile->getFileSystem()->removeFile($localFile);
+        $file = $this->getFile($objResult->fields['path']);
+        if ($file->getFileSystem()->isFile($file)) {
+            $file->getFileSystem()->removeFile($file);
         }
 
          if (is_file($this->strThumbnailPath.$objResult->fields['path'])) {
@@ -3505,8 +3505,8 @@ $strFileNew = '';
             self::insertImage($this, $strDatabasePath,$strImportedImageName);
 
             //delete imported images
-            $localFile = $this->getLocalFileObject($strImportedImageName);
-            if ($localFile->getFileSystem()->fileExists($localFile)) {
+            $file = $this->getFile($strImportedImageName);
+            if ($file->getFileSystem()->fileExists($file)) {
                unlink($this->strImportPath.$strFile);
             }
         }
