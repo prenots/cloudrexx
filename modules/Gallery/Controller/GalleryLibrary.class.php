@@ -69,6 +69,24 @@ class GalleryLibrary
             $objResult->MoveNext();
         }
     }
+
+    /**
+     * Get LocalFile object
+     *
+     * @param string $fileName File name
+     * @return \Cx\Core\MediaSource\Model\Entity\LocalFile LocalFile object
+     */
+    public function getLocalFileObject($fileName)
+    {
+        $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaType('gallery')
+            ->getFileSystem();
+
+        return new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+            $fileName,
+            $fileSystem
+        );
+    }
 }
 
-?>

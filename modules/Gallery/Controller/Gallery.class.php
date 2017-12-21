@@ -173,6 +173,9 @@ class Gallery
         if (!$picture) {
             return;
         }
+
+        $galleryLib      = new GalleryLibrary();
+        $localFile       = $galleryLib->getLocalFileObject($picture->fields['path']);
         $imagePath       = $this->strImagePath . $picture->fields['path'];
         $imageReso       = getimagesize($imagePath);
         $strImagePath    = $this->strImageWebPath.$picture->fields['path'];
@@ -180,7 +183,9 @@ class Gallery
         $imageDesc       = $picture->fields['desc'];
         //show image size based on the settings of "Show image size"
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
-        $imageSize       = ($showImageSize) ? round(filesize($imagePath)/1024, 2) : '';
+        $imageSize       = ($showImageSize)
+            ? round($localFile->getSize()/1024, 2)
+            : '';
 
         // set requested page's meta data
         if ($imageDesc) {
@@ -297,6 +302,9 @@ class Gallery
         if (!$picture) {
             die;
         }
+
+        $galleryLib      = new GalleryLibrary();
+        $localFile       = $galleryLib->getLocalFileObject($picture->fields['path']);
         $imagePath       = $this->strImagePath . $picture->fields['path'];
         $imageReso       = getimagesize($imagePath);
         $strImagePath    = $this->strImageWebPath.$picture->fields['path'];
@@ -304,7 +312,9 @@ class Gallery
         $imageDesc       = $picture->fields['desc'];
         //show image size based on the settings of "Show image size"
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
-        $imageSize       = ($showImageSize) ? round(filesize($imagePath)/1024, 2) : '';
+        $imageSize       = ($showImageSize)
+            ? round($localFile->getSize()/1024, 2)
+            : '';
 
         // set requested page's meta data
         if ($imageDesc) {
@@ -472,6 +482,7 @@ class Gallery
             $this->_objTpl->addBlock('APPLICATION_DATA', 'application_data', $applicationTemplate);
         }
 
+        $galleryLib = new GalleryLibrary();
         $this->checkAccessToCategory($intParentId);
         $this->parseCategoryTree($this->_objTpl);
 
@@ -481,7 +492,11 @@ class Gallery
         
         $showImageSizeOverview   = $this->arrSettings['show_image_size'] == 'on';
         while (!$objResult->EOF) {
-            $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] = ($showImageSizeOverview) ? round(filesize($this->strImagePath.$objResult->fields['path'])/1024,2) : '';
+            $localFile = $galleryLib->getLocalFileObject($objResult->fields['path']);
+            $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] =
+                ($showImageSizeOverview)
+                ? round($localFile->getSize()/1024, 2)
+                : '';
             $arrstrImagePaths[$objResult->fields['catid']][$objResult->fields['id']] = $this->strThumbnailWebPath.$objResult->fields['path'];
             $objResult->MoveNext();
         }
@@ -693,6 +708,7 @@ class Gallery
             $imageVotingOutput = '';
             $imageCommentOutput = '';
 
+            $localFile       = $galleryLib->getLocalFileObject($objResult->fields['path']);
             $imageReso       = getimagesize($this->strImagePath.$objResult->fields['path']);
             $strImagePath    = $this->strImageWebPath.$objResult->fields['path'];
             $imageThumbPath  = $this->strThumbnailWebPath.$objResult->fields['path'];
@@ -702,7 +718,7 @@ class Gallery
             $imageDesc       = !empty($objResult->fields['desc']) ? $objResult->fields['desc'] : '-';
             $imageLink       = $objResult->fields['link'];
             $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $objResult->fields['size_show'];
-            $imageFileSize   = ($showImageSize) ? round(filesize($this->strImagePath.$objResult->fields['path'])/1024,2) : '';
+            $imageFileSize   = ($showImageSize) ? round($localFile->getSize()/1024, 2) : '';
             $imageSizeOutput = '';
             $imageTitleTag   = '';
 
