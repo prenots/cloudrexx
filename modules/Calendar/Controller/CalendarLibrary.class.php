@@ -1017,4 +1017,45 @@ EOF;
 
         return $placeholders;
     }
+
+    /**
+     * Get File object by the file path
+     *
+     * @param string $path File path
+     * @return \Cx\Core\MediaSource\Model\Entity\File File object
+     */
+    public function getFile($path)
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        $fileSystem = $this->cx
+            ->getMediaSourceManager()
+            ->getMediaType('calendar')
+            ->getFileSystem();
+        if (strpos($path, $fileSystem->getRootPath()) === 0) {
+            $path = substr($path, strlen($fileSystem->getRootPath()));
+        }
+        return $fileSystem->getFileFromPath($path);
+    }
+
+    /**
+     * Remove a file/folder
+     *
+     * @param string $path File path
+     * @return string status of File remove
+     */
+    public function removeFile($path)
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        if (!$file = $this->getFile($path)) {
+            return;
+        }
+
+        return $file->getFileSystem()->removeFile($file);
+    }
 }

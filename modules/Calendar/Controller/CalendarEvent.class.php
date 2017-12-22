@@ -1273,9 +1273,10 @@ class CalendarEvent extends CalendarLibrary
         }
 
         // create thumb if not exists
-        if (   !empty($placeMap)
-            && file_exists(\Env::get('cx')->getWebsitePath().$placeMap)
-            && !file_exists(\Env::get('cx')->getWebsitePath()."$placeMap.thumb")
+        if (
+            !empty($placeMap) &&
+            $this->getFile($this->cx->getWebsitePath() . $placeMap) &&
+            !$this->getFile($this->cx->getWebsitePath() . $placeMap . '.thumb')
         ) {
             $objImage = new \ImageManager();
             $objImage->_createThumb(dirname(\Env::get('cx')->getWebsitePath()."$placeMap")."/", '', basename($placeMap), 180);
@@ -1294,16 +1295,14 @@ class CalendarEvent extends CalendarLibrary
                 $picture = $this->_handleUpload($pictureUploaderId);
 
                 if (!empty($picture)) {
-                    //delete thumb
-                    if (file_exists("{$this->uploadImgPath}$pic.thumb")) {
-                        \Cx\Lib\FileSystem\FileSystem::delete_file($this->uploadImgPath."/.$pic.thumb");
-                    }
+                    if (!empty($pic)) {
+                        // delete thumb
+                        $imagePath = $this->uploadImgPath . $pic;
+                        $this->removeFile($imagePath . '.thumb');
 
-                    //delete image
-                    if (file_exists("{$this->uploadImgPath}$pic")) {
-                        \Cx\Lib\FileSystem\FileSystem::delete_file($this->uploadImgPath."/.$pic");
+                        // delete image
+                        $this->removeFile($imagePath);
                     }
-
                     $pic = $picture;
                 }
             }
@@ -1312,8 +1311,8 @@ class CalendarEvent extends CalendarLibrary
                 $attachment = $this->_handleUpload($attachmentUploaderId);
                 if ($attachment) {
                     //delete file
-                    if (file_exists("{$this->uploadImgPath}$attach")) {
-                        \Cx\Lib\FileSystem\FileSystem::delete_file($this->uploadImgPath."/.$attach");
+                    if (!empty($attach)) {
+                        $this->removeFile($this->uploadImgPath . $attach);
                     }
                     $attach = $attachment;
                 }
@@ -1321,9 +1320,10 @@ class CalendarEvent extends CalendarLibrary
 
         } else {
             // create thumb if not exists
-            if (   !empty($pic)
-                && file_exists(\Env::get('cx')->getWebsitePath().$pic)
-                && !file_exists(\Env::get('cx')->getWebsitePath()."$pic.thumb")
+            if (
+                !empty($pic) &&
+                $this->getFile($this->cx->getWebsitePath() . $pic) &&
+                $this->getFile($this->cx->getWebsitePath() . $pic . '.thumb')
             ) {
                 $objImage = new \ImageManager();
                 $objImage->_createThumb(dirname(\Env::get('cx')->getWebsitePath()."$pic")."/", '', basename($pic), 180);
