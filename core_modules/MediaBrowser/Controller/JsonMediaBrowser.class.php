@@ -269,42 +269,69 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
     /**
      * Folder widget
      *
-     * @param array $params
+     * @param array $params Array of input values
      *
-     * @return boolean|array
+     * @return array Array of file name
      */
-    public function folderWidget($params) {
+    public function folderWidget($params)
+    {
         $this->getComponent('Session')->getSession();
 
-        $folderWidgetId = isset($params['get']['id']) ? contrexx_input2int($params['get']['id']) : 0;
-        if (   empty($folderWidgetId)
-            || empty($_SESSION['MediaBrowser']['FolderWidget'][$folderWidgetId])
+        $folderWidgetId = 0;
+        if (isset($params['get']['id'])) {
+            $folderWidgetId = contrexx_input2int($params['get']['id']);
+        }
+
+        if (
+            empty($folderWidgetId) ||
+            empty($_SESSION['MediaBrowser']['FolderWidget'][$folderWidgetId])
         ) {
-            return false;
+            return array();
         }
 
         $folder = $_SESSION['MediaBrowser']['FolderWidget'][$folderWidgetId]['folder'];
 
         $arrFileNames = array();
-        if (!file_exists($folder)) {
-            return false;
+        $folderPath   = $folder;
+        \Cx\Lib\FileSystem\FileSystem::path_relative_to_root($folderPath);
+        if (strpos($folderPath, '/') !== 0) {
+            $folderPath = '/' . $folderPath;
         }
-        $h = opendir($folder);
-        while (false !== ($f = readdir($h))) {
-            // skip folders and thumbnails
-            if ($f == '.' || $f == '..'
-                || preg_match(
-                    "/(?:\.(?:thumb_thumbnail|thumb_medium|thumb_large)\.[^.]+$)|(?:\.thumb)$/i",
-                    $f
-                )
-            ) {
-                continue;
+        try {
+           $mediaSource = $this->cx->getMediaSourceManager()->getMediaSourceByPath($folderPath);
+           $files = $mediaSource->getFileSystem()->getFileList(
+               substr($folderPath, strlen($mediaSource->getDirectory()[1]))
+           );
+           foreach ($files as $file) {
+               if ($file['datainfo']['extension'] === 'Dir') {
+                   continue;
+               }
+               $arrFileNames[] = $file['datainfo']['name'];
+           }
+        } catch (\Cx\Core\MediaSource\Model\Entity\MediaSourceManagerException $e) {
+            \DBG::log($e->getMessage());
+            if (!\Cx\Lib\FileSystem\FileSystem::exists($folder)) {
+                return array();
             }
-            if (!is_dir($folder . '/' . $f)) {
-                array_push($arrFileNames, $f);
+            $h = opendir($folder);
+            while (false !== ($f = readdir($h))) {
+                // skip folders and thumbnails
+                if (
+                    $f == '.' ||
+                    $f == '..' ||
+                    preg_match(
+                        '/(?:\.(?:thumb_thumbnail|thumb_medium|thumb_large)\.[^.]+$)|(?:\.thumb)$/i',
+                        $f
+                    )
+                ) {
+                    continue;
+                }
+                if (!is_dir($folder . '/' . $f)) {
+                    array_push($arrFileNames, $f);
+                }
             }
+            closedir($h);
         }
-        closedir($h);
 
         return $arrFileNames;
     }
