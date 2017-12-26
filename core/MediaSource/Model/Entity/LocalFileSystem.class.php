@@ -435,6 +435,17 @@ class LocalFileSystem extends EntityBase implements FileSystem
         return is_file($this->rootPath . '/' . $file->__toString());
     }
 
+    /**
+     * Check whether file exists in the filesytem
+     *
+     * @param File $file
+     * @return boolean True when exists, false otherwise
+     */
+    public function fileExists(File $file)
+    {
+        return file_exists($this->getFullPath($file) . $file->getFullName());
+    }
+
     public function getLink(
         File $file
     ) {
@@ -448,7 +459,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
         \Env::get('init')->loadLanguageData('MediaBrowser');
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                $this->rootPath . $path . '/' . $directory
+                $this->rootPath . '/' . $path . '/' . $directory
             )
         ) {
             return sprintf(
@@ -470,7 +481,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
      * @return string
      */
     public function getFullPath(File $file) {
-        return $this->rootPath . ltrim($file->getPath(), '.') . '/';
+        return $this->rootPath . rtrim(ltrim($file->getPath(), '.') , '/') . '/';
     }
 
     /**
@@ -522,5 +533,18 @@ class LocalFileSystem extends EntityBase implements FileSystem
             return false;
         }
         return new LocalFile($filepath, $this);
+    }
+
+    /**
+     * Make a File writable
+     *
+     * @param File $file
+     * @return boolean True if file writable, false otherwise
+     */
+    public function makeWritable(File $file)
+    {
+        return \Cx\Lib\FileSystem\FileSystem::makeWritable(
+            $this->getFullPath($file) . $file->getFullName()
+        );
     }
 }
