@@ -89,4 +89,22 @@ class LocalFile implements File
     public function getFullName() {
         return pathinfo($this->file, PATHINFO_BASENAME);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSize()
+    {
+        return filesize(
+            $this->fileSystem->getFullPath($this) . $this->getFullName()
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function copy($destination)
+    {
+        //return $this->fileSystem->copyFile($this, $destination);
+    }
 }
