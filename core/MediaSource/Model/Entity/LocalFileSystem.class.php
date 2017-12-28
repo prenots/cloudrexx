@@ -347,7 +347,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
 
         $filePath = $this->getFullPath($file) . $filename;
         if (is_dir($filePath)) {
-            if (rmdir($filePath)) {
+            if (\Cx\Lib\FileSystem\FileSystem::delete_folder($filePath, true)) {
                 return sprintf(
                     $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
                     $filename
@@ -359,7 +359,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             );
         }
 
-        if (unlink($filePath)) {
+        if (\Cx\Lib\FileSystem\FileSystem::delete_file($filePath)) {
             // If the removing file is image then remove its thumbnail files
             $this->removeThumbnails($file);
             return sprintf(

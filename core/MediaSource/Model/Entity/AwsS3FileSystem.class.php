@@ -169,6 +169,55 @@ class AwsS3FileSystem extends LocalFileSystem {
     }
 
     /**
+     * Remove the file
+     *
+     * @param File $file File object
+     * @return string Status message of the file remove
+     */
+    public function removeFile(File $file)
+    {
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
+        $filename = $file->getFullName();
+        $strPath  = $file->getPath();
+        if (empty($filename) || empty($strPath)) {
+            return (
+                sprintf(
+                    $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+                    $filename
+                )
+            );
+        }
+    
+        $filePath = $this->getFullPath($file) . $filename;
+        if (is_dir($filePath)) {
+            if (rmdir($filePath)) {
+                return sprintf(
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
+                    $filename
+                );
+            }
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
+                $filename
+            );
+        }
+    
+        if (unlink($filePath)) {
+            // If the removing file is image then remove its thumbnail files
+            $this->removeThumbnails($file);
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
+                $filename
+            );
+        }
+    
+        return sprintf(
+            $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+            $filename
+        );
+    }
+
+    /**
      * Move the file
      *
      * @param File   $fromFile   File object
