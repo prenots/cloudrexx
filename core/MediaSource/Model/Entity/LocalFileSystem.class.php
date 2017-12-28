@@ -277,136 +277,93 @@ class LocalFileSystem extends EntityBase implements FileSystem
         return $thumbnails;
     }
 
-    public function removeFile(File $file) {
-        global $_ARRAYLANG;
+    /**
+     * Remove the file
+     *
+     * @param File $file File object
+     * @return boolean Status of the file remove
+     */
+    public function removeFile(File $file)
+    {
         $filename = $file->getFullName();
-        $strPath = $file->getPath();
         if (
-            !empty($filename)
-            && !empty($strPath)
+            \FWValidator::isEmpty($file->getFullName()) ||
+            \FWValidator::isEmpty($file->getPath()) ||
+            !$this->fileExists($file)
         ) {
-            if (
-                is_dir(
-                    $this->getFullPath($file)
-                    . $filename
-                )
-            ) {
-                if (
-                    \Cx\Lib\FileSystem\FileSystem::delete_folder(
-                        $this->getFullPath($file) . $filename, true
-                    )
-                ) {
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                } else {
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                }
-            } else {
-                if (
-                    \Cx\Lib\FileSystem\FileSystem::delete_file(
-                        $this->getFullPath($file)  . $filename
-                    )
-                ) {
-                    $this->removeThumbnails($file);
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                } else {
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                }
-            }
+            return false;
         }
-        return (
-            sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
-                $filename
-            )
-        );
+
+        $filePath = $this->getFullPath($file) . $file->getFullName();
+        if (
+            $this->isDirectory($file) &&
+            \Cx\Lib\FileSystem\FileSystem::delete_folder($filePath, true)
+        ) {
+            return true;
+        } elseif (
+            $this->isFile($file) &&
+            \Cx\Lib\FileSystem\FileSystem::delete_file($filePath)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public function moveFile(
-        File $file, $destination
-    ) {
-        global $_ARRAYLANG;
-        if (!empty($destination) || !\FWValidator::is_file_ending_harmless($destination)) {
-            if (is_dir(
-                    $this->getFullPath($file)
-                    . $file->getFullName()
-                )
-            ) {
-                $fileName            =
-                    $this->getFullPath($file)
-                    . $file->getFullName();
-                $destinationFileName =
-                    $this->getFullPath($file)
-                    . $destination;
-            } else {
-                $fileName            =
-                    $this->getFullPath($file)
-                    . $file->getFullName();
-                $destinationFileName =
-                    $this->getFullPath($file)
-                    . $destination
-                    . '.'
-                    . $file->getExtension();
-            }
-            if ($fileName == $destinationFileName){
-                return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-                    $file->getName()
-                );
-            }
-            $destinationFolder = realpath(pathinfo($this->getFullPath($file) . $destination, PATHINFO_DIRNAME));
-            if (!MediaSourceManager::isSubdirectory($this->rootPath,
-                $destinationFolder))
-            {
-                return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'],
-                    $file->getName()
-                );
-            }
-            $this->removeThumbnails($file);
+    /**
+     * Move the file/directory
+     *
+     * @param File   $fromFile   Source file object
+     * @param string $toFilePath Destination file path
+     * @return boolean status of file/directory move
+     */
+    public function moveFile(File $file, $destination)
+    {
+        if (
+            !empty($destination) ||
+            !\FWValidator::is_file_ending_harmless($destination) ||
+            !$this->fileExists($file)
+        ) {
+            return false;
+        }
 
+        if ($this->isDirectory($file)) {
+            $fileName = $this->getFullPath($file) . $file->getFullName();
+            $destinationFileName = $this->getFullPath($file) . $destination;
+        } else {
+            $fileName = $this->getFullPath($file) . $file->getFullName();
+            $destinationFileName = $this->getFullPath($file) . $destination
+                . '.' . $file->getExtension();
+        }
 
-            if (!\Cx\Lib\FileSystem\FileSystem::move(
-                $fileName, $destinationFileName
-                , false
+        if ($fileName == $destinationFileName) {
+            return true;
+        }
+
+        $destinationFolder = realpath(
+            pathinfo($this->getFullPath($file) . $destination, PATHINFO_DIRNAME)
+        );
+        if (
+            !MediaSourceManager::isSubdirectory(
+                $this->rootPath,
+                $destinationFolder
             )
-            ) {
+        ) {
+            return false;
+        }
+        $this->removeThumbnails($file);
 
-                return sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'],
-                    $file->getName()
-                );
-            }
-            return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'],
-                $file->getName()
-            );
+        if (
+            !\Cx\Lib\FileSystem\FileSystem::move(
+                $fileName,
+                $destinationFileName,
+                false
+            )
+        ) {
+            return false;
         }
-        else {
-            return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'],
-                $file->getName()
-            );
-        }
+
+        return true;
     }
 
     public function writeFile(
@@ -452,27 +409,27 @@ class LocalFileSystem extends EntityBase implements FileSystem
         // TODO: Implement getLink() method.
     }
 
-    public function createDirectory(
-        $path, $directory
-    ) {
-        global $_ARRAYLANG;
-        \Env::get('init')->loadLanguageData('MediaBrowser');
+    /**
+     * Create directory
+     *
+     * @param string  $path      File path
+     * @param string  $directory Directory name
+     * @param boolean $recursive If true then create the directory recursively
+     *                           otherwise not
+     * @return string Status message
+     */
+    public function createDirectory($path, $directory, $recursive = false)
+    {
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                $this->rootPath . '/' . $path . '/' . $directory
+                $this->rootPath . '/' . $path . '/' . $directory,
+                $recursive
             )
         ) {
-            return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
-                $directory
-            );
-        } else {
-            return
-                sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
-                    $directory
-                );
+            return false;
         }
+
+        return true;
     }
 
     /**
