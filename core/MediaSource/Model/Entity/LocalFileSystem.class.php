@@ -335,18 +335,15 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     {
         $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $filename = $file->getFullName();
-        $strPath  = $file->getPath();
-        if (empty($filename) || empty($strPath)) {
-            return (
-                sprintf(
-                    $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
-                    $filename
-                )
+        if (empty($filename) || empty($file->getPath())) {
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+                $filename
             );
         }
 
         $filePath = $this->getFullPath($file) . $filename;
-        if (is_dir($filePath)) {
+        if ($this->isDirectory($file)) {
             if (\Cx\Lib\FileSystem\FileSystem::delete_folder($filePath, true)) {
                 return sprintf(
                     $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],

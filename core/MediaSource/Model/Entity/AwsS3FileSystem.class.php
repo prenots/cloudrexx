@@ -178,18 +178,15 @@ class AwsS3FileSystem extends LocalFileSystem {
     {
         $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $filename = $file->getFullName();
-        $strPath  = $file->getPath();
-        if (empty($filename) || empty($strPath)) {
-            return (
-                sprintf(
-                    $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
-                    $filename
-                )
+        if (empty($filename) || empty($file->getPath())) {
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+                $filename
             );
         }
-    
+
         $filePath = $this->getFullPath($file) . $filename;
-        if (is_dir($filePath)) {
+        if ($this->isDirectory($file)) {
             if (rmdir($filePath)) {
                 return sprintf(
                     $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
@@ -201,7 +198,7 @@ class AwsS3FileSystem extends LocalFileSystem {
                 $filename
             );
         }
-    
+
         if (unlink($filePath)) {
             // If the removing file is image then remove its thumbnail files
             $this->removeThumbnails($file);
@@ -210,7 +207,7 @@ class AwsS3FileSystem extends LocalFileSystem {
                 $filename
             );
         }
-    
+
         return sprintf(
             $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
             $filename
