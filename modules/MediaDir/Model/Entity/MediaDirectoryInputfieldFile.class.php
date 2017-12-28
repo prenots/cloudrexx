@@ -162,7 +162,7 @@ INPUT;
         $displayName = null;
 
         $strFilePreview = null;
-        if(!empty($filePath) && file_exists(\Env::get('cx')->getWebsitePath().$filePath)) {
+        if (!empty($filePath) && $this->fileExists($filePath)) {
             $arrFileInfo = pathinfo($filePath);
             $strFileName = htmlspecialchars($arrFileInfo['basename'], ENT_QUOTES, CONTREXX_CHARSET);
 
@@ -320,15 +320,8 @@ INPUT;
 
     function deleteFile($strPathFile)
     {
-        if(!empty($strPathFile)) {
-            $objFile = new \File();
-            $arrFileInfo = pathinfo($strPathFile);
-            $fileName    = $arrFileInfo['basename'];
-
-            //delete file
-            if (file_exists(\Env::get('cx')->getWebsitePath().$strPathFile)) {
-                $objFile->delFile($this->imagePath, $this->imageWebPath, 'uploads/'.$fileName);
-            }
+        if(!empty($strPathFile) && $this->fileExists($strPathFile)) {
+            $this->removeFile($strPathFile);
         }
     }
 
@@ -359,7 +352,7 @@ INPUT;
         }
 
         //check filename
-        if (file_exists($this->imagePath.'uploads/'.$fileName)) {
+        if ($this->fileExists('uploads/' . $fileName)) {
             $fileName = $fileBasename.'_'.time().$fileExtension;
         }
 

@@ -1459,4 +1459,53 @@ EOF;
         // replace all non-url characters
         $string = preg_replace('/[^a-zA-Z0-9-_]/', '', $string);
     }
+
+    /**
+     * Get a file object
+     *
+     * @param string $path File path
+     * @return \Cx\Core\MediaSource\Model\Entity\LocalFile LocalFile object
+     */
+    protected function getFile($path)
+    {
+        return \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath($path);
+    }
+
+    /**
+     * Check whether file exists or not
+     *
+     * @param string $path File path
+     * @return boolean If file exists return True, otherwise false
+     */
+    public function fileExists($path)
+    {
+        $file = $this->getFile($path);
+        if (!$file) {
+            return;
+        }
+
+        return $file->getFileSystem()->fileExists($file);
+    }
+
+    /**
+     * Removes a file or folder
+     *
+     * @param string $path File path
+     * @return boolean True on success, otherwise false
+     */
+    public function removeFile($path)
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        $file = $this->getFile($path);
+        if (!$file) {
+            return;
+        }
+
+        return $file->getFileSystem()->removeFile($file);
+    }
 }

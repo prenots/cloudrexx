@@ -762,7 +762,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
             $catPicture =  !empty($objCategory->arrCategories[$intCategoryId]['catPicture'])
                          ? $objCategory->arrCategories[$intCategoryId]['catPicture']
                          : '';
-            if(empty($catPicture) || !file_exists($cx->getWebsitePath().$catPicture)) {
+            if(empty($catPicture) || !$this->fileExists($catPicture)) {
                 $catImage = '<img src="'. $cx->getCodeBaseOffsetPath() .'images/MediaDir/no_picture.gif" style="border: 1px solid #0A50A1; margin: 0px 0px 3px 0px;" /><br />';
             } else {
                 $thumbnail = $this->getThumbImage($catPicture);
@@ -997,7 +997,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
             $levelPicture =  !empty($objLevel->arrLevels[$intLevelId]['levelPicture'])
                            ? $objLevel->arrLevels[$intLevelId]['levelPicture']
                            : '';
-            if(empty($levelPicture) || !file_exists($cx->getWebsitePath().$levelPicture)) {
+            if(empty($levelPicture) || !$this->fileExists($levelPicture)) {
                 $levelImage = '<img src="'. $cx->getCodeBaseOffsetPath() .'images/MediaDir/no_picture.gif" style="border: 1px solid #0A50A1; margin: 0px 0px 3px 0px;" /><br />';
             } else {
                 $thumbnail = $this->getThumbImage($levelPicture);
