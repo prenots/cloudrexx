@@ -394,7 +394,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         $toFile = $this->getFileFromPath($toFilePath, true);
         if (
             !$this->fileExists(
-                $this->getFileFromPath($this->getFullPath($toFile), true)
+                $this->getFileFromPath($toFile->getPath(), true)
             ) &&
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
                 $this->getFullPath($toFile)
