@@ -535,20 +535,19 @@ CODE;
     /**
      * Create directory
      *
-     * @global     array    $_ARRAYLANG
-     * @param      string   $dir_name
+     * @param string $dirName directory name
      */
-    function _createDirectory($dir_name)
+    function _createDirectory($dirName)
     {
         global $_ARRAYLANG;
 
-        if (empty($dir_name)) {
+        if (empty($dirName)) {
             if (!isset($_GET['highlightFiles'])) {
                 \Message::error($_ARRAYLANG['TXT_MEDIA_EMPTY_DIR_NAME']);
             }
             return;
         } else {
-            $dir_name = contrexx_stripslashes($dir_name);
+            $dirName = contrexx_stripslashes($dirName);
         }
 
         if (!$this->uploadAccessGranted()) {
@@ -556,11 +555,21 @@ CODE;
             return;
         }
 
-        $obj_file = new \File();
-        $dir_name = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($dir_name);
-        $creationStatus = $obj_file->mkDir($this->path, $this->webPath, $dir_name);
-        if ($creationStatus != "error") {
-            $this->highlightName[] = $dir_name;
+        $dirName = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($dirName);
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
+            $this->webPath
+        );
+
+        if (
+            $mediaSourceFile &&
+            $mediaSourceFile->getFileSystem()->createDirectory(
+                $mediaSourceFile->getPath() . '/'. $mediaSourceFile->getFullName(),
+                $dirName
+            )
+        ) {
+            $this->highlightName[] = $dirName;
             \Message::ok($_ARRAYLANG['TXT_MEDIA_MSG_NEW_DIR']);
         } else {
             \Message::error($_ARRAYLANG['TXT_MEDIA_MSG_ERROR_NEW_DIR']);
@@ -664,11 +673,22 @@ CODE;
             return $this->handleRedirect();
         }
 
-        if (isset($_GET['newfile']) && file_exists($this->path.$this->getFile)) {
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
+            $this->webPath . $this->getFile
+        );
+        if (isset($_GET['newfile']) && $mediaSourceFile) {
             $newFile = trim(preg_replace('/[^a-z0-9_\-\. ]/i', '_', $_GET['newfile']));
             if ($newFile != "") {
-                if (!file_exists($this->path.$newFile)) {
-                    if (rename($this->path.$this->getFile, $this->path.$newFile)) {
+                if (!$mediaSourceManager->getMediaSourceFileFromPath($this->webPath . $newFile)) {
+                    $newFileinfo = pathinfo($newFile);
+                    if (
+                        $mediaSourceFile->getFileSystem()->moveFile(
+                            $mediaSourceFile,
+                            basename($newFile, '.' .$newFileinfo['extension'])
+                        )
+                    ) {
                         \Message::ok(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_RENAME_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>', '<strong>'.htmlentities($newFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>'));
                     } else {
                         \Message::error($_ARRAYLANG['TXT_MEDIA_FILE_NAME_INVALID']);
@@ -707,41 +727,35 @@ CODE;
             return $this->handleRedirect();
         }
 
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+
         if (isset($_GET['path'])) {
-            if (isset($_GET['file'])) {
-                $filePath = $this->path . $this->getFile;
-                if (unlink($filePath)) {
-                    \Message::ok(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_DELETED_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>'));
+            $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
+                $this->webPath . $this->getFile
+            );
+
+           if (!$mediaSourceFile) {
+                \Message::error(
+                    sprintf(
+                        $_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'],
+                        contrexx_raw2xhtml($this->getFile)
+                    )
+                );
+            }
+
+            if ($mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile)) {
+                if (isset($_GET['file'])) {
+                    $successMsg = sprintf(
+                        $_ARRAYLANG['TXT_MEDIA_FILE_DELETED_SUCESSFULLY'],
+                        '<strong>' . contrexx_raw2xhtml($this->getFile) . '</strong>'
+                    );
                 } else {
-                    \Message::error(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'], htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET)));
+                    $successMsg = $_ARRAYLANG['TXT_MEDIA_FOLDER_DELETED_SUCESSFULLY'];
                 }
-            } else {
-                $this->deleteDirectory($this->path);
+                \Message::ok($successMsg);
             }
         }
         return $this->handleRedirect();
     }
-
-     /**
-     * Delete Selected Folder and its contents recursively upload form
-     *
-     * @global     array    $_ARRAYLANG
-     * @param      string   $dirName
-     * @return     boolean  true if directory and its contents deleted successfully and false if it failed
-     */
-    private function deleteDirectory($dirName)
-    {
-        global $_ARRAYLANG;
-
-        try {
-            \Cx\Lib\FileSystem\FileSystem::delete_folder($dirName, true);
-            \Message::ok($_ARRAYLANG['TXT_MEDIA_FOLDER_DELETED_SUCESSFULLY']);
-        } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-            \DBG::msg($e->getMessage());
-            return false;
-        }
-
-        return true;
-    }
-
 }
