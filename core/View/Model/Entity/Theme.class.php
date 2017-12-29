@@ -363,6 +363,29 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
+     * Get File object by the given file path
+     *
+     * @param string $filePath File path
+     * @return \Cx\Core\ViewManager\Model\Entity\ViewManagerFile File object
+     */
+    public function getFileByPath($filePath)
+    {
+        if (empty($filePath)) {
+            return;
+        }
+
+        $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+        ->getMediaSourceManager()
+        ->getMediaType('themes')
+        ->getFileSystem();
+
+        return new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+            $filePath,
+            $fileSystem
+        );
+    }
+
+    /**
      * Get the themes file path
      *
      * @param type $filePath
@@ -370,16 +393,12 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      */
     public function getFilePath($filePath)
     {
-        if (empty($filePath)) {
+        $file = $this->getFileByPath($filePath);
+        if (!$file) {
             return '';
         }
-        $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager()
-            ->getMediaType('themes')
-            ->getFileSystem();
-        $file = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile($filePath, $fileSystem);
 
-        return $fileSystem->getFullPath($file) . $file->getFullName();
+        return $file->getFileSystem()->getFullPath($file) . $file->getFullName();
     }
 
     /**

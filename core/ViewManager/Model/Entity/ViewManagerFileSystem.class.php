@@ -184,7 +184,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
             } else {
                 $basePath = $this->cx->getCodeBaseDocumentRootPath();
             }
-        } elseif (file_exists($this->getRootPath() . $file->__toString())) {
+        } elseif ($this->fileExists($file)) {
             $basePath = $this->getRootPath();
         } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
             $basePath = $path;
@@ -212,7 +212,11 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         // the latest.
         $fileSystems = array_reverse($this->additionalFileSystems);
         foreach ($fileSystems as $fileSystem) {
-            if (file_exists($fileSystem->getRootPath() . $filePath)) {
+            if (
+                $fileSystem->fileExists(
+                    new ViewManagerFile($filePath, $fileSystem)
+                )
+            ) {
                 return $fileSystem->getRootPath();
             }
         }
@@ -229,7 +233,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      */
     public function isReadOnly(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        if (file_exists($this->getRootPath() . $file->__toString())) {
+        if ($this->fileExists($file)) {
             return false;
         }
         return true;
@@ -244,9 +248,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      */
     public function isResettable(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        $isFileExistsInWebsite = file_exists($this->getRootPath() . $file->__toString());
-
-        if (!$isFileExistsInWebsite) {
+        if (!$this->fileExists($file)) {
             return false;
         }
 
@@ -279,7 +281,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     {
         // copy folder from additional file systems
         foreach ($this->additionalFileSystems as $fileSystem) {
-            if (!file_exists($fileSystem->getRootPath() . $fromFile->__toString())) {
+            if (!$fileSystem->fileExists($fromFile)) {
                 continue;
             }
 
@@ -293,7 +295,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         }
 
         // if folder does not exist in local file system, then we're all done
-        if (!file_exists($this->getRootPath() . $fromFile->__toString())) {
+        if (!$this->fileExists($fromFile)) {
             return true;
         }
 

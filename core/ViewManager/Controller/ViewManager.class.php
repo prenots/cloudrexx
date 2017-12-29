@@ -864,8 +864,11 @@ CODE;
 
         // ensure that we're creating a new directory and not trying to overwrite an existing one
         $suffix = '';
-        while (file_exists($this->path.$themeDirectory.$suffix)) {
+        $theme  = new \Cx\Core\View\Model\Entity\Theme();
+        $file   = $theme->getFileByPath($themeDirectory . $suffix);
+        while ($file->getFileSystem()->fileExists($file)) {
             $suffix++;
+            $file = $theme->getFileByPath($themeDirectory . $suffix);
         }
         $themeDirectory .= $suffix;
 
@@ -906,23 +909,25 @@ CODE;
         global $_ARRAYLANG;
         //create archive structure and set permissions
         //this is an important step on hostings where the FTP user ID differs from the PHP user ID
+        $theme = new \Cx\Core\View\Model\Entity\Theme();
         foreach ($arrDirectories as $index => $directory){
             switch($index){
                 //check if theme directory already exists
                 case 0:
-                    if (file_exists($this->path.$directory)){
+                    $themeFolder = $theme->getFileByPath($directory);
+                    if ($themeFolder->getFileSystem()->fileExists($themeFolder)) {
                         // basically this should never happen, because the directory $themeDirectory should have been renamed
                         // automatically in case a directory with the same name is already present
                         $this->strErrMessage = $themeDirectory.': '.$_ARRAYLANG['TXT_THEME_FOLDER_ALREADY_EXISTS'].'! '.$_ARRAYLANG['TXT_THEME_FOLDER_DELETE_FIRST'].'.';
                         return false;
                     }
 
-                    \Cx\Lib\FileSystem\FileSystem::make_folder($this->path.$directory);
+                    $this->fileSystem->createDirectory($directory);
                     //\Cx\Lib\FileSystem\FileSystem::makeWritable($this->path.$directory);
                     break;
 
                 default:
-                    \Cx\Lib\FileSystem\FileSystem::make_folder($this->path.$themeDirectory.'/'.$directory);
+                    $this->fileSystem->createDirectory($themeDirectory . '/' . $directory);
                     //\Cx\Lib\FileSystem\FileSystem::makeWritable($this->path.$themeDirectory.'/'.$directory);
                     break;
             }
@@ -1048,18 +1053,18 @@ CODE;
                 $themeName = null;
                 $existingThemeInFilesystem = !empty($_POST['existingdirName']) ? contrexx_input2raw($_POST['existingdirName']) : null;
 
-                $themePath = $theme->getFilePath($existingThemeInFilesystem);
-
-                if (!file_exists($themePath)) {
+                $themeFolder = $theme->getFileByPath($existingThemeInFilesystem);
+                if (!$themeFolder->getFileSystem()->fileExists($themeFolder)) {
                     \Message::add($_ARRAYLANG['TXT_THEME_OPERATION_FAILED_FOR_EMPTY_PARAMS'], \Message::CLASS_ERROR);
                     return false;
                 }
 
-                $yamlFile = $theme->getFilePath($existingThemeInFilesystem . '/component.yml');
+                $yamlFile = $theme->getFileByPath($existingThemeInFilesystem . '/component.yml');
                 if ($yamlFile) {
-                    $objFile = new \Cx\Lib\FileSystem\File($yamlFile);
                     $yaml = new \Symfony\Component\Yaml\Yaml();
-                    $themeInformation = $yaml->parse($objFile->getData());
+                    $themeInformation = $yaml->parse(
+                        $yamlFile->getFileSystem()->readFile($yamlFile)
+                    );
                     $themeName = $themeInformation['DlcInfo']['name'];
                 }
 
@@ -1510,19 +1515,21 @@ CODE;
 
             // ensure that we're creating a new directory and not trying to overwrite an existing one
             $suffix = '';
-            while (file_exists($this->path.$dirName.$suffix)) {
+            $theme  = new \Cx\Core\View\Model\Entity\Theme();
+            $file   = $theme->getFileByPath($dirName . $suffix);
+            while ($file->getFileSystem()->fileExists($file)) {
                 $suffix++;
+                $file = $theme->getFileByPath($dirName . $suffix);
             }
             $dirName .= $suffix;
 
-            $theme = new \Cx\Core\View\Model\Entity\Theme();
             $theme->setThemesname($themeName);
             $theme->setFoldername($dirName);
 
             switch (true) {
                 case (empty($copyFromTheme) && empty($createFromDatabase)):
                     // Create new empty theme
-                    if (\Cx\Lib\FileSystem\FileSystem::make_folder($this->path . $theme->getFoldername())) {
+                    if ($this->fileSystem->createDirectory($theme->getFoldername())) {
                         if ($this->createDefaultFiles($theme) && $this->insertSkinIntoDb($theme)) {
                             \Message::add(contrexx_raw2xhtml($themeName).' '.$_ARRAYLANG['TXT_STATUS_SUCCESSFULLY_CREATE']);
                         } else {
@@ -1575,7 +1582,7 @@ CODE;
                 case (empty($copyFromTheme) && !empty($createFromDatabase)):
                     // TODO: remove this function -> migrate all pending themes in the update process
                     // Create new theme from database (migrate existing theme from database to filesystem)
-                    if (\Cx\Lib\FileSystem\FileSystem::make_folder($this->path . $dirName)) {
+                    if ($this->fileSystem->createDirectory($dirName)) {
                         $this->insertIntoDb($theme, $createFromDatabase);
                         $this->createFilesFromDB($dirName, intval($createFromDatabase));
                     }
@@ -1703,24 +1710,27 @@ CODE;
             if (self::isFileTypeComponent($themesPage)) {
                 $themesPage = self::getComponentFilePath($themesPage, false);
             }
-            if (!file_exists($this->websiteThemesPath.$themes.$themesPage)) {
-                $dir = str_replace(basename($themesPage),"", $themesPage);
-                \Cx\Lib\FileSystem\FileSystem::make_folder($this->websiteThemesPath.$themes.'/'.$dir, true);
+            $theme = new \Cx\Core\View\Model\Entity\Theme();
+            $themePage = $theme->getFileByPath($themes . $themesPage);
+            if (!$themePage->getFileSystem()->fileExists($themePage)) {
+                $this->fileSystem->createDirectory($themePage->getPath());
             }
-            $filePath = $this->websiteThemesPath.$themes.$themesPage;
 
-            if ($isComponentFile && file_exists($filePath)) {
+            if ($isComponentFile && $themePage->getFileSystem()->fileExists($themePage)) {
                 // override from application template, rename the file if its already exists
-                $pathInfo = pathinfo($filePath);
                 $idx = 1;
-                while (file_exists($filePath)) {
-                  $filePath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'_custom_'.$idx++.'.'.$pathInfo['extension'];
+                $fileName = $themePage->getPath() . '/' . $themePage->getName();
+                while ($themePage->getFileSystem()->fileExists($themePage)) {
+                    $themePage = $theme->getFileByPath(
+                        $fileName . '_custom_' . $idx++ . '.' . $themePage->getExtension()
+                    );
                 }
+                $filePath = $themePage->getFileSystem()->getFullPath($themePage) . $themePage->getFullName();
                 $_POST['themesPage'] = self::getThemeRelativePath(preg_replace('#' . $this->websiteThemesPath.$themes . '#', '', $filePath));
             }
 
             $objFile = new \Cx\Lib\FileSystem\File($filePath);
-            if(!file_exists($filePath)){
+            if (!$themePage->getFileSystem()->fileExists($themePage)) {
                $objFile->touch();
             }
             $objFile->write($pageContent);
@@ -2434,7 +2444,7 @@ CODE;
         global $_ARRAYLANG;
 
         foreach ($this->directories as $dir) {
-            if (!\Cx\Lib\FileSystem\FileSystem::make_folder($this->path . $theme->getFoldername() . '/' . $dir)) {
+            if (!$this->fileSystem->createDirectory($theme->getFoldername() . '/' . $dir)) {
                 \Message::add(
                     sprintf($_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'], contrexx_raw2xhtml($theme->getFoldername() .'/'. $dir)),
                     \Message::CLASS_ERROR
@@ -2445,7 +2455,10 @@ CODE;
 
         //copy "not available" preview.gif as default preview image
         $previewImage = $this->path . $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE;
-        if (!file_exists($previewImage)) {
+        $imgFile      = $theme->getFileByPath(
+            $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE
+        );
+        if (!$imgFile->getFileSystem()->fileExists($imgFile)) {
             try {
                 $objFile = new \Cx\Lib\FileSystem\File(\Env::get('cx')->getCodeBaseDocumentRootPath() . \Cx\Core\View\Model\Entity\Theme::THEME_DEFAULT_PREVIEW_FILE);
                 $objFile->copy($previewImage);
@@ -2463,7 +2476,8 @@ CODE;
             // skip component.yml, will be created later
             if ($file == 'component.yml') continue;
             $filePath = $this->path . $theme->getFoldername() .'/'. $file;
-            if (!file_exists($filePath)) {
+            $fileObj = $theme->getFileByPath($theme->getFoldername() . '/' . $file);
+            if (!$fileObj->getFileSystem()->fileExists($fileObj)) {
                 try {
                     $objFile = new \Cx\Lib\FileSystem\File($filePath);
                     $objFile->touch();
