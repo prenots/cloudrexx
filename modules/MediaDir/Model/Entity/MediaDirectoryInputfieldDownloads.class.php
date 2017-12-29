@@ -102,7 +102,7 @@ class MediaDirectoryInputfieldDownloads extends \Cx\Modules\MediaDir\Controller\
                                 $arrValue[intval($objInputfieldValue->fields['lang_id'])][$intKey]['file'] = $arrChildes[2];
 
                                 if (!empty($arrChildes[2]) &&
-                                    $this->fileExists($arrChildes[2])
+                                    $this->getFile($arrChildes[2])
                                 ) {
                                     $arrFileInfo    = pathinfo($arrChildes[2]);
                                     $strFileName    = htmlspecialchars($arrFileInfo['basename'], ENT_QUOTES, CONTREXX_CHARSET);
@@ -421,7 +421,7 @@ EOF;
         }
 
         //check filename
-        if ($this->fileExists('uploads/' . $fileName)) {
+        if ($this->getFile('uploads/' . $fileName)) {
             $fileName = $fileBasename.'_'.time().$fileExtension;
         }
 
@@ -439,8 +439,9 @@ EOF;
 
     function deleteFile($strPathFile)
     {
-        if(!empty($strPathFile) && $this->fileExists($strPathFile)) {
-            $this->removeFile($strPathFile);
+        $file = $this->getFile($strPathFile);
+        if (!empty($strPathFile) && $file) {
+            $file->getFileSystem()->removeFile($file);
         }
     }
 

@@ -1466,50 +1466,14 @@ EOF;
      * @param string $path File path
      * @return \Cx\Core\MediaSource\Model\Entity\LocalFile LocalFile object
      */
-    protected function getFile($path)
+    public function getFile($path)
     {
+        if (empty($path)) {
+            return false;
+        }
+
         return \Cx\Core\Core\Controller\Cx::instanciate()
             ->getMediaSourceManager()
             ->getMediaSourceFileFromPath($path);
-    }
-
-    /**
-     * Check whether file exists or not
-     *
-     * @param string $path File path
-     * @return boolean If file exists return True, otherwise false
-     */
-    public function fileExists($path)
-    {
-        if (empty($path)) {
-            return false;
-        }
-
-        $file = $this->getFile($path);
-        if (!$file) {
-            return false;
-        }
-
-        return $file->getFileSystem()->fileExists($file);
-    }
-
-    /**
-     * Removes a file or folder
-     *
-     * @param string $path File path
-     * @return boolean True on success, otherwise false
-     */
-    public function removeFile($path)
-    {
-        if (empty($path)) {
-            return false;
-        }
-
-        $file = $this->getFile($path);
-        if (!$file) {
-            return false;
-        }
-
-        return $file->getFileSystem()->removeFile($file);
     }
 }

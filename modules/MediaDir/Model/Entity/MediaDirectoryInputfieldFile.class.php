@@ -162,7 +162,7 @@ INPUT;
         $displayName = null;
 
         $strFilePreview = null;
-        if (!empty($filePath) && $this->fileExists($filePath)) {
+        if (!empty($filePath) && $this->getFile($filePath)) {
             $arrFileInfo = pathinfo($filePath);
             $strFileName = htmlspecialchars($arrFileInfo['basename'], ENT_QUOTES, CONTREXX_CHARSET);
 
@@ -320,8 +320,9 @@ INPUT;
 
     function deleteFile($strPathFile)
     {
-        if(!empty($strPathFile) && $this->fileExists($strPathFile)) {
-            $this->removeFile($strPathFile);
+        $file = $this->getFile($strPathFile);
+        if (!empty($strPathFile) && $file) {
+            $file->getFileSystem()->removeFile($file);
         }
     }
 
@@ -352,7 +353,7 @@ INPUT;
         }
 
         //check filename
-        if ($this->fileExists('uploads/' . $fileName)) {
+        if ($this->getFile('uploads/' . $fileName)) {
             $fileName = $fileBasename.'_'.time().$fileExtension;
         }
 
