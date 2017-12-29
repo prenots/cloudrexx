@@ -1481,9 +1481,13 @@ EOF;
      */
     public function fileExists($path)
     {
+        if (empty($path)) {
+            return false;
+        }
+
         $file = $this->getFile($path);
         if (!$file) {
-            return;
+            return false;
         }
 
         return $file->getFileSystem()->fileExists($file);
@@ -1498,12 +1502,12 @@ EOF;
     public function removeFile($path)
     {
         if (empty($path)) {
-            return;
+            return false;
         }
 
         $file = $this->getFile($path);
         if (!$file) {
-            return;
+            return false;
         }
 
         return $file->getFileSystem()->removeFile($file);
