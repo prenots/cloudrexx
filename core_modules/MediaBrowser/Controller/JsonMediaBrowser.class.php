@@ -184,26 +184,37 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
     }
 
     /**
-     * @param $params
+     * Create directory
+     *
+     * @param array $params Array of input values
      */
-    public function createDir($params) {
+    public function createDir($params)
+    {
         $pathArray                 = explode('/', $params['get']['path']);
         $mediaType = (strlen($params['get']['mediatype']) > 0)
             ? $params['get']['mediatype'] : 'files';
         $strPath = '/' . utf8_decode(join('/', $pathArray));
         $dir        = utf8_decode($params['post']['dir']) . '/';
-        $this->setMessage(
-            $this->cx->getMediaSourceManager()->getMediaType($mediaType)->getFileSystem()->createDirectory(
-                $strPath, $dir
-            )
-        );
+
+        $arrLang = \Env::get('init')->loadLanguageData('MediaBrowser');
+        $status  = $this->cx->getMediaSourceManager()->getMediaType($mediaType)
+            ->getFileSystem()->createDirectory($strPath, $dir);
+        $statusMsg = $arrLang['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'];
+        if ($status) {
+            $statusMsg = $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'];
+        }
+        $this->setMessage(sprintf($statusMsg, $dir));
     }
 
     /**
-     * @param $params
+     * Rename File
+     *
+     * @param array $params Array of input values
+     * @throws \Exception
      */
-    public function renameFile($params) {
-        \Env::get('init')->loadLanguageData('MediaBrowser');
+    public function renameFile($params)
+    {
+        $arrLang = \Env::get('init')->loadLanguageData('MediaBrowser');
 
         $path       = !empty($params['get']['path']) ? contrexx_input2raw(utf8_decode($params['get']['path'])) : null;
         $mediaType = !empty($params['get']['mediatype']) ? $params['get']['mediatype'] : 'files';
@@ -224,16 +235,22 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
             throw new \Exception('Unknown file ' . $strPath . $oldName);
         }
 
-        $this->setMessage(
-            $fileSystem->moveFile($file, $newName)
-        );
+        $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
+        if ($fileSystem->moveFile($file, $newName)) {
+            $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'];
+        }
+        $this->setMessage(sprintf($statusMessage, $file->getName()));
     }
 
     /**
-     * @param $params
+     * Remove File
+     *
+     * @param array $params Array of input values
+     * @throws \Exception
      */
-    public function removeFile($params) {
-        \Env::get('init')->loadLanguageData('MediaBrowser');
+    public function removeFile($params)
+    {
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $path     = !empty($params['get']['path']) ? contrexx_input2raw(utf8_decode($params['get']['path'])) : null;
         $mediaType = !empty($params['get']['mediatype']) ? $params['get']['mediatype'] : 'files';
         $filename = !empty($params['post']['file']['datainfo']['name']) ? contrexx_input2raw(utf8_decode($params['post']['file']['datainfo']['name'])) : null;
@@ -249,9 +266,11 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
                 throw new \Exception('Unknown file ' . $strPath . $filename);
             }
 
-            $this->setMessage(
-                $fileSystem->removeFile($file)
-            );
+            $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'];
+            if ($fileSystem->removeFile($file)) {
+                $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'];
+            }
+            $this->setMessage(sprintf($statusMessage, $file->getFullName()));
         }
     }
 
@@ -334,7 +353,12 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
         $localFileSystem = new \Cx\Core\MediaSource\Model\Entity\LocalFileSystem($folder);
         $file = $localFileSystem->getFileFromPath('/' . $path);
 
-        $this->setMessage($localFileSystem->removeFile($file));
+        $arrLang       = \Env::get('init')->loadLanguageData('MediaBrowser');
+        $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'];
+        if ($localFileSystem->removeFile($file)) {
+            $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'];
+        }
+        $this->setMessage(sprintf($statusMessage, $file->getFullName()));
 
         return array();
     }
