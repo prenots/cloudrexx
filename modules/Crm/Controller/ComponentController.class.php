@@ -88,7 +88,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * list statements like
      * $this->cx->getEvents()->addEventListener($eventName, $listener);
      */
-    public function registerEventListeners() {
+    public function registerEventListeners()
+    {
         $eventListener = new \Cx\Modules\Crm\Model\Event\CrmEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
     }

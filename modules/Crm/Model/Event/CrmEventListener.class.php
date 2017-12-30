@@ -45,7 +45,11 @@ namespace Cx\Modules\Crm\Model\Event;
  * @subpackage  module_crm
  */
 class CrmEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener {
-
+    /**
+     * Add MediaSource
+     *
+     * @param MediaSourceManager $mediaSourceManager MediaSourceManager object
+     */
     public function mediaSourceLoad(
         \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaSourceManager
     ) {
@@ -57,7 +61,7 @@ class CrmEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener 
                 $this->cx->getWebsiteMediaCrmPath(),
                 $this->cx->getWebsiteMediaCrmWebPath()
             ),
-            array(189)
+            array(194, 195)
         );
         $mediaSourceManager->addMediaType($mediaType);
     }
