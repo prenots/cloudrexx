@@ -923,12 +923,14 @@ CODE;
                     }
 
                     $this->fileSystem->createDirectory($directory);
-                    //\Cx\Lib\FileSystem\FileSystem::makeWritable($this->path.$directory);
+//                     $this->fileSystem->makeWritable($themeFolder);
                     break;
 
                 default:
                     $this->fileSystem->createDirectory($themeDirectory . '/' . $directory);
-                    //\Cx\Lib\FileSystem\FileSystem::makeWritable($this->path.$themeDirectory.'/'.$directory);
+//                     $this->fileSystem->makeWritable(
+//                         $theme->getFileByPath($themeDirectory . '/' . $directory)
+//                     );
                     break;
             }
         }
@@ -1612,37 +1614,26 @@ CODE;
     private function replaceThemeName($org, $copy, $path)
     {
         //extensions of files that could contain links still pointing to the old template
-        $regexValidExtensions = '\.css|\.htm|\.html';
+        $regexValidExtensions = array('Html', 'Css');
 
-        $dir = opendir($path);
-        $file = readdir($dir);
-        while($file)
-        {
-            if($file!='.' && $file != '..')
-            {
-                $ourFile = $path.'/'.$file;
-                if(!is_dir($ourFile))
-                {
-                    //has the file one of our extensions defined above?
-                    if(preg_match('/['.$regexValidExtensions.']$/',$ourFile))
-                    {
-                        //replace name of old template with new template's name
-                        $fileContents = file_get_contents($ourFile);
-                        $fileContents = str_replace($org,$copy,$fileContents);
-                        try {
-                            $objFile = new \Cx\Lib\FileSystem\File($ourFile);
-                            $objFile->write($fileContents);
-                        } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-                            \DBG::msg($e->getMessage());
-                        }
-                    }
-                }
-                else //directory, call this function again to process it
-                {
-                    $this->replaceThemeName($org,$copy,$ourFile);
-                }
+        $filePath = substr($path, strlen($this->websiteThemesPath));
+        $fileList = $this->fileSystem->getFileList($filePath);
+        $theme    = new \Cx\Core\View\Model\Entity\Theme();
+        foreach ($fileList as $file) {
+            if (!in_array($file['datainfo']['extension'], $regexValidExtensions)) {
+                continue;
             }
-            $file=readdir($dir);
+            $ourFilePath = substr(
+                $this->cx->getWebsiteDocumentRootPath() . $file['datainfo']['filepath'],
+                strlen($this->websiteThemesPath) - 1
+            );
+            $fileObj = $theme->getFileByPath($ourFilePath);
+            //replace name of old template with new template's name
+            $fileContents = $fileObj->getFileSystem()->readFile($fileObj);
+            $fileObj->getFileSystem()->writeFile(
+                $fileObj,
+                str_replace($org, $copy, $fileContents)
+            );
         }
     }
 
@@ -1733,7 +1724,7 @@ CODE;
             if (!$themePage->getFileSystem()->fileExists($themePage)) {
                $objFile->touch();
             }
-            $objFile->write($pageContent);
+            $themePage->getFileSystem()->writeFile($themePage, $pageContent);
 
             // temporary hotfix for google chrome
             // remove in case google chrome will no longer throw an ERR_BLOCKED_BY_XSS_AUDITOR exception
@@ -2586,28 +2577,24 @@ CODE;
             }
         }
 
-        for($x = 0; $x < count($this->filenames); $x++) {
-            $fp = fopen ($this->path.$themes.'/'.$this->filenames[$x] ,"w");
-            fwrite($fp,"");
-            fclose($fp);
+        $theme = new \Cx\Core\View\Model\Entity\Theme();
+        foreach ($this->filenames as $fileName) {
+            // check, if file exists and is writable
+            $file = $theme->getFileByPath($themes . '/' . $fileName);
+            if (isset($themePages[$fileName])) {
+                $fileContent = $themePages[$fileName];
+            } else {
+                $fileContent = '';
+            }
 
-            $filename = $this->path.$themes.'/'.$this->filenames[$x];
-
-            //check, if file exists and is writable
-            if (\Cx\Lib\FileSystem\FileSystem::makeWritable($filename)) {
-                //open file
-                if (!$handle = fopen($filename, "a")) {
-                     $this->strErrMessage = $_ARRAYLANG['TXT_STATUS_CANNOT_OPEN'];
-                }
-                //write file
-                if (!fwrite($handle, $themePages[$this->filenames[$x]])) {
-                    $this->strErrMessage =  $_ARRAYLANG['TXT_STATUS_CANNOT_WRITE'];
-                }
-                fclose($handle);
+            if (
+                !$this->fileSystem->makeWritable($file) ||
+                !$this->fileSystem->writeFile($file, $fileContent)
+            ) {
+                $this->strErrMessage = $_ARRAYLANG['TXT_STATUS_CANNOT_WRITE'];
+            } else {
                 $this->strOkMessage = $_ARRAYLANG['TXT_STATUS_SUCCESSFULLY_CREATE'];
                 $this->overview();
-            } else {
-                $this->strErrMessage = $_ARRAYLANG['TXT_STATUS_CANNOT_WRITE'];
             }
         }
     }

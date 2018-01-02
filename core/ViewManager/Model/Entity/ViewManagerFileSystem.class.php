@@ -184,7 +184,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
             } else {
                 $basePath = $this->cx->getCodeBaseDocumentRootPath();
             }
-        } elseif ($this->fileExists($file)) {
+        } elseif (file_exists($this->getRootPath() . $file->__toString())) {
             $basePath = $this->getRootPath();
         } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
             $basePath = $path;
