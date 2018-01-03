@@ -83,7 +83,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             );
         }
         $this->rootPath     = rtrim($path, '/');
-        $this->documentPath = $this->cx->getWebsitePath();
+        $this->documentPath = $this->cx->getWebsiteDocumentRootPath();
     }
 
     /**
