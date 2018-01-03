@@ -1704,7 +1704,7 @@ CODE;
             $theme = new \Cx\Core\View\Model\Entity\Theme();
             $themePage = $theme->getFileByPath($themes . $themesPage);
             if (!$themePage->getFileSystem()->fileExists($themePage)) {
-                $this->fileSystem->createDirectory($themePage->getPath());
+                $this->fileSystem->createDirectory($themePage->getPath(), '', true);
             }
 
             if ($isComponentFile && $themePage->getFileSystem()->fileExists($themePage)) {
@@ -1716,14 +1716,17 @@ CODE;
                         $fileName . '_custom_' . $idx++ . '.' . $themePage->getExtension()
                     );
                 }
-                $filePath = $themePage->getFileSystem()->getFullPath($themePage) . $themePage->getFullName();
-                $_POST['themesPage'] = self::getThemeRelativePath(preg_replace('#' . $this->websiteThemesPath.$themes . '#', '', $filePath));
+                $filePath = $themePage->getFileSystem()->getFullPath($themePage) .
+                    $themePage->getFullName();
+                $_POST['themesPage'] = self::getThemeRelativePath(
+                    preg_replace(
+                        '#' . $this->websiteThemesPath . $themes . '#',
+                        '',
+                        $filePath
+                    )
+                );
             }
 
-            $objFile = new \Cx\Lib\FileSystem\File($filePath);
-            if (!$themePage->getFileSystem()->fileExists($themePage)) {
-               $objFile->touch();
-            }
             $themePage->getFileSystem()->writeFile($themePage, $pageContent);
 
             // temporary hotfix for google chrome
@@ -2465,21 +2468,23 @@ CODE;
 
         foreach ($this->filenames as $file) {
             // skip component.yml, will be created later
-            if ($file == 'component.yml') continue;
-            $filePath = $this->path . $theme->getFoldername() .'/'. $file;
+            if ($file == 'component.yml') {
+                continue;
+            }
+
             $fileObj = $theme->getFileByPath($theme->getFoldername() . '/' . $file);
-            if (!$fileObj->getFileSystem()->fileExists($fileObj)) {
-                try {
-                    $objFile = new \Cx\Lib\FileSystem\File($filePath);
-                    $objFile->touch();
-                } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-                    \DBG::msg($e->getMessage());
-                    \Message::add(
-                        sprintf($_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'], contrexx_raw2xhtml($theme->getFoldername() .'/'. $file)),
-                        \Message::CLASS_ERROR
-                    );
-                    return false;
-                }
+            if (
+                !$fileObj->getFileSystem()->fileExists($fileObj) &&
+                $fileObj->getFileSystem()->writeFile($fileObj, '') === false
+            ) {
+                \Message::add(
+                    sprintf(
+                        $_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'],
+                        contrexx_raw2xhtml($theme->getFoldername() .'/'. $file)
+                    ),
+                    \Message::CLASS_ERROR
+                );
+                return false;
             }
         }
 
