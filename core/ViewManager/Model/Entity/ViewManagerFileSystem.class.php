@@ -189,7 +189,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
             $basePath = $path;
         }
-        return $basePath . ltrim(ltrim($file->getPath(), '.'), '/') . '/';
+        return $basePath . rtrim(ltrim($file->getPath(), '.'), '/') . '/';
     }
 
     /**

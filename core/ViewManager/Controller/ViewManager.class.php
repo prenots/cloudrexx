@@ -601,7 +601,10 @@ class ViewManager
         }
 
         if ($selectedFile == null) {
-            $selectedFile     = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile($theme->getFoldername() . '/index.html', $this->fileSystem);
+            $selectedFile     = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+                '/' . $theme->getFoldername() . '/index.html',
+                $this->fileSystem
+            );
             $themesPage = '/index.html';
             $isComponentFile  = false;
         }
@@ -865,10 +868,10 @@ CODE;
         // ensure that we're creating a new directory and not trying to overwrite an existing one
         $suffix = '';
         $theme  = new \Cx\Core\View\Model\Entity\Theme();
-        $file   = $theme->getFileByPath($themeDirectory . $suffix);
+        $file   = $theme->getFileByPath('/' . $themeDirectory . $suffix);
         while ($file->getFileSystem()->fileExists($file)) {
             $suffix++;
-            $file = $theme->getFileByPath($themeDirectory . $suffix);
+            $file = $theme->getFileByPath('/' . $themeDirectory . $suffix);
         }
         $themeDirectory .= $suffix;
 
@@ -1518,10 +1521,10 @@ CODE;
             // ensure that we're creating a new directory and not trying to overwrite an existing one
             $suffix = '';
             $theme  = new \Cx\Core\View\Model\Entity\Theme();
-            $file   = $theme->getFileByPath($dirName . $suffix);
+            $file   = $theme->getFileByPath('/' . $dirName . $suffix);
             while ($file->getFileSystem()->fileExists($file)) {
                 $suffix++;
-                $file = $theme->getFileByPath($dirName . $suffix);
+                $file = $theme->getFileByPath('/' . $dirName . $suffix);
             }
             $dirName .= $suffix;
 
@@ -1702,7 +1705,7 @@ CODE;
                 $themesPage = self::getComponentFilePath($themesPage, false);
             }
             $theme = new \Cx\Core\View\Model\Entity\Theme();
-            $themePage = $theme->getFileByPath($themes . $themesPage);
+            $themePage = $theme->getFileByPath('/' . $themes . $themesPage);
             if (!$themePage->getFileSystem()->fileExists($themePage)) {
                 $this->fileSystem->createDirectory($themePage->getPath(), '', true);
             }
@@ -2165,7 +2168,7 @@ CODE;
             if ($block == 'theme') {
                 $filePath = $theme->getFolderName() . $filePath;
             }
-            $localFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile($filePath, $this->fileSystem);
+            $localFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile('/' . $filePath, $this->fileSystem);
             $localFile->setApplicationTemplateFile($isApplicationTab);
 
             $permissionClass = $isComponentFile || $this->fileSystem->isReadOnly($localFile) ? 'protected' : '';
@@ -2450,7 +2453,7 @@ CODE;
         //copy "not available" preview.gif as default preview image
         $previewImage = $this->path . $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE;
         $imgFile      = $theme->getFileByPath(
-            $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE
+            '/' . $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE
         );
         if (!$imgFile->getFileSystem()->fileExists($imgFile)) {
             try {
@@ -2472,7 +2475,7 @@ CODE;
                 continue;
             }
 
-            $fileObj = $theme->getFileByPath($theme->getFoldername() . '/' . $file);
+            $fileObj = $theme->getFileByPath('/' . $theme->getFoldername() . '/' . $file);
             if (
                 !$fileObj->getFileSystem()->fileExists($fileObj) &&
                 $fileObj->getFileSystem()->writeFile($fileObj, '') === false
@@ -2585,7 +2588,7 @@ CODE;
         $theme = new \Cx\Core\View\Model\Entity\Theme();
         foreach ($this->filenames as $fileName) {
             // check, if file exists and is writable
-            $file = $theme->getFileByPath($themes . '/' . $fileName);
+            $file = $theme->getFileByPath('/' . $themes . '/' . $fileName);
             if (isset($themePages[$fileName])) {
                 $fileContent = $themePages[$fileName];
             } else {

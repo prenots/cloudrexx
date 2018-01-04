@@ -375,9 +375,9 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
         }
 
         $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
-        ->getMediaSourceManager()
-        ->getMediaType('themes')
-        ->getFileSystem();
+            ->getMediaSourceManager()
+            ->getMediaType('themes')
+            ->getFileSystem();
 
         return new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
             $filePath,
