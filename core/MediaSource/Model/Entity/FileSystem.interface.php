@@ -45,4 +45,11 @@ interface FileSystem {
     public function createDirectory($path, $directory);
     public function getFileFromPath($path);
     public function fileExists(File $file);
+
+    /**
+     * Make a File writable
+     *
+     * @param File $file
+     */
+    public function makeWritable(File $file);
 }
