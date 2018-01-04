@@ -107,4 +107,22 @@ class LocalFile implements File
     {
         //return $this->fileSystem->copyFile($this, $destination);
     }
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode)
+    {
+        if (empty($mode)) {
+            $mode = 'r';
+        }
+
+        return @fopen(
+            $this->fileSystem->getFullPath($this) . $this->getFullName(),
+            $mode
+        );
+    }
 }
