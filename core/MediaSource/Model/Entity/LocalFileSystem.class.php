@@ -285,7 +285,6 @@ class LocalFileSystem extends EntityBase implements FileSystem
      */
     public function removeFile(File $file)
     {
-        $filename = $file->getFullName();
         if (
             \FWValidator::isEmpty($file->getFullName()) ||
             \FWValidator::isEmpty($file->getPath()) ||
@@ -320,7 +319,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
     public function moveFile(File $file, $destination)
     {
         if (
-            !empty($destination) ||
+            empty($destination) ||
             !\FWValidator::is_file_ending_harmless($destination) ||
             !$this->fileExists($file)
         ) {
@@ -366,11 +365,18 @@ class LocalFileSystem extends EntityBase implements FileSystem
         return true;
     }
 
-    public function writeFile(
-        File $file, $content
-    ) {
-        file_put_contents(
-            $this->rootPath . '/' . $file->__toString(), $content
+    /**
+     * Write the File
+     *
+     * @param File   $file    File object
+     * @param string $content File content
+     * @return boolean Status of File write
+     */
+    public function writeFile(File $file, $content)
+    {
+        return file_put_contents(
+            $this->getFullPath($file) . $file->getFullName(),
+            $content
         );
     }
 
