@@ -435,6 +435,17 @@ class LocalFileSystem extends EntityBase implements FileSystem
         return is_file($this->rootPath . '/' . $file->__toString());
     }
 
+    /**
+     * Check whether file exists in the filesytem
+     *
+     * @param File $file
+     * @return boolean True when exists, false otherwise
+     */
+    public function fileExists(File $file)
+    {
+        return file_exists($this->getFullPath($file) . $file->getFullName());
+    }
+
     public function getLink(
         File $file
     ) {
@@ -448,7 +459,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
         \Env::get('init')->loadLanguageData('MediaBrowser');
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                $this->rootPath . $path . '/' . $directory
+                $this->rootPath . '/' . $path . '/' . $directory
             )
         ) {
             return sprintf(
@@ -470,7 +481,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
      * @return string
      */
     public function getFullPath(File $file) {
-        return $this->rootPath . ltrim($file->getPath(), '.') . '/';
+        return $this->rootPath . rtrim(ltrim($file->getPath(), '.') , '/') . '/';
     }
 
     /**
@@ -522,5 +533,73 @@ class LocalFileSystem extends EntityBase implements FileSystem
             return false;
         }
         return new LocalFile($filepath, $this);
+    }
+
+    /**
+     * Gets file size
+     *
+     * @param File $file
+     * @return int the size of the file in bytes, or false
+     */
+    public function getFileSize(File $file)
+    {
+        return filesize($this->rootPath . '/' . $file->__toString());
+    }
+
+    /**
+     * Copy the file/directory
+     *
+     * @param File $source      Source file
+     * @param File $destination Destination file
+     * @return string status message of file/directory copy
+     */
+    public function copyFile(File $source, File $destination)
+    {
+        $arrLang = \Env::get('init')->loadLanguageData('MediaSource');
+        $sourceFile = $this->getFullPath($source) . $source->getFullName();
+        $destinationFile = $this->getFullPath($destination) . $destination->getFullName();
+
+        if (
+            $this->isDirectory($source) &&
+            !\Cx\Lib\FileSystem\FileSystem::copy_folder(
+                $sourceFile,
+                $destinationFile,
+                true
+            )
+        ) {
+            return sprintf(
+                $arrLang['TXT_MEDIASOURCE_FILE_UNSUCCESSFULLY_COPIED'],
+                $source->getName()
+            );
+        } else {
+            if (
+                !\Cx\Lib\FileSystem\FileSystem::copy_file(
+                    $sourceFile,
+                    $destinationFile
+                )
+            ) {
+                return sprintf(
+                    $arrLang['TXT_MEDIASOURCE_FILE_UNSUCCESSFULLY_COPIED'],
+                    $source->getName()
+                );
+            }
+        }
+        return sprintf(
+            $arrLang['TXT_MEDIASOURCE_FILE_SUCCESSFULLY_COPIED'],
+            $destination->getName()
+        );
+    }
+
+    /**
+     * Make a File writable
+     *
+     * @param File $file
+     * @return boolean True if file writable, false otherwise
+     */
+    public function makeWritable(File $file)
+    {
+        return \Cx\Lib\FileSystem\FileSystem::makeWritable(
+            $this->getFullPath($file) . $file->getFullName()
+        );
     }
 }

@@ -322,4 +322,157 @@ class MediaSourceManager extends EntityBase
             'No MediaSource found for: '. $path
         );
     }
+
+    /**
+     * Checks whether a file or directory exists
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $path File/directory path
+     * @return boolean True if the file/directory exists, false otherwise
+     */
+    public function fileExists($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return \Cx\Lib\FileSystem\FileSystem::exists($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->fileExists($mediaSourceFile);
+        }
+    }
+
+    /**
+     * Removes the file
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $path File path
+     * @return boolean true if file successfully deleted, otherwise false
+     */
+    public function removeFile($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return \Cx\Lib\FileSystem\FileSystem::delete_file($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile);
+        }
+    }
+
+    /**
+     * Gets file size
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $path Path of the file
+     * @return int|boolean size of the file in bytes, or false
+     */
+    public function getFileSize($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return filesize($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->getFileSize($mediaSourceFile);
+        }
+    }
+
+    /**
+     * Check whether the filename is a regular file
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $path Path of the file
+     * @return boolean True if the filename exists and is a regular file, false
+     *                 otherwise
+     */
+    public function isFile($path)
+    {
+        $mediaSourceFile = $this->getMediaSourceFileFromPath($path);
+        if (!$mediaSourceFile) {
+            return is_file($path);
+        } else {
+            return $mediaSourceFile->getFileSystem()->isFile($mediaSourceFile);
+        }
+    }
+
+    /**
+     * Creates the folder for the given path
+     * The argument $folderPath must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $folderPath Path of the folder
+     * @return boolean True on success, false otherwise
+     */
+    public function createDirectory($folderPath)
+    {
+        try {
+            $mediaSource     = $this->getMediaSourceByPath($folderPath);
+            $mediaSourcePath = $mediaSource->getDirectory();
+            $filePath        = substr($folderPath, strlen($mediaSourcePath[1]));
+            if ($mediaSource->getFileSystem() instanceof \Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem) {
+                $folderPathFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            } else {
+                $folderPathFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            }
+
+            return $folderPathFile->getFileSystem()->createDirectory(
+                ltrim($folderPathFile->getPath() . '/' . $folderPathFile->getFullName(), '/')
+            );
+        } catch (MediaSourceManagerException $e) {
+            \DBG::log($e->getMessage());
+            return \Cx\Lib\FileSystem\FileSystem::make_folder($folderPath);
+        }
+    }
+
+    /**
+     * Make a File writable
+     * The argument $path must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $path Path of the file
+     * @return boolean True if file writable, false otherwise
+     */
+    public function makeWritable($path)
+    {
+        try {
+            $mediaSource     = $this->getMediaSourceByPath($path);
+            $mediaSourcePath = $mediaSource->getDirectory();
+            $filePath        = substr($path, strlen($mediaSourcePath[1]));
+            if ($mediaSource->getFileSystem() instanceof \Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem) {
+                $file = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            } else {
+                $file = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                    $filePath,
+                    $mediaSource->getFileSystem()
+                );
+            }
+
+            return $file->getFileSystem()->makeWritable($file);
+        } catch (MediaSourceManagerException $e) {
+            \DBG::log($e->getMessage());
+            return \Cx\Lib\FileSystem\FileSystem::makeWritable($path);
+        }
+    }
 }
