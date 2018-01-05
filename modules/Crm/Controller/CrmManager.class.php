@@ -5780,11 +5780,17 @@ END;
 
             //do not overwrite existing files.
             $prefix = '';
-            while (file_exists($depositionTarget . $prefix . $file)) {
+            $fileObj = self::getFileByPath(
+                $depositionTarget . $prefix . $file
+            );
+            while ($fileObj) {
                 if (empty($prefix)) {
                     $prefix = 0;
                 }
                 $prefix++;
+                $fileObj = self::getFileByPath(
+                    $depositionTarget . $prefix . $file
+                );
             }
 
             // move file
@@ -5837,11 +5843,17 @@ END;
                 if ($file != '..' && $file != '.') {
                     //do not overwrite existing files.
                     $prefix = '';
-                    while (file_exists($depositionTarget.$prefix.$file)) {
+                    $fileObj = self::getFileByPath(
+                        $depositionTarget . $prefix . $file
+                    );
+                    while ($fileObj) {
                         if (empty($prefix)) {
                             $prefix = 0;
                         }
                         $prefix ++;
+                        $fileObj = self::getFileByPath(
+                            $depositionTarget . $prefix . $file
+                        );
                     }
 
                     // move file
@@ -5952,7 +5964,10 @@ END;
                         if (!empty ($accountId) && !empty ($imageName)) {
                             $objFWUser = \FWUser::getFWUserObject();
                             $objUser  = $objFWUser->objUser->getUser($accountId);
-                            if (!file_exists($cx->getWebsiteImagesAccessProfilePath().'/'.$imageName)) {
+                            $fileObj  = self::getFileByPath(
+                                $cx->getWebsiteImagesAccessProfilePath() . '/' . $imageName
+                            );
+                            if (!$fileObj) {
                                 $file = $cx->getWebsiteImagesCrmProfilePath().'/';
                                 if (($imageName = self::moveUploadedImageInToPlace($objUser, $file.$imageName, $imageName, true)) == true) {
                                     // create thumbnail

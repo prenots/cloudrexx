@@ -2388,7 +2388,10 @@ class CrmLibrary
         $picture = $objDatabase->getOne("SELECT profile_picture FROM `".DBPREFIX."module_{$this->moduleNameLC}_contacts` WHERE id = '".$this->contact->id."'");
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($picture && !empty($picture)) {
-            if (!file_exists($cx->getWebsiteImagesAccessProfilePath().'/'.$picture)) {
+            $fileObj = self::getFileByPath(
+                $cx->getWebsiteImagesAccessProfilePath() . '/' . $picture
+            );
+            if (!$fileObj) {
                 $file = $cx->getWebsiteImagesCrmProfilePath().'/';
                 if (($picture = self::moveUploadedImageInToPlace($objUser, $file.$picture, $picture, true)) == true) {
                     // create thumbnail
@@ -2989,8 +2992,10 @@ class CrmLibrary
         $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : $cx->getWebsiteImagesAccessPhotoPath();
         $index = 0;
         $imageName = $objUser->getId().'_'.$name;
-        while (file_exists($imageRepo.'/'.$imageName)) {
+        $file = self::getFileByPath($imageRepo . '/' . $imageName);
+        while ($file) {
             $imageName = $objUser->getId().'_'.++$index.'_'.$name;
+            $file = self::getFileByPath($imageRepo . '/' . $imageName);
         }
 
         if (!$objImage->loadImage($tmpImageName)) {
@@ -3547,4 +3552,21 @@ class CrmLibrary
         return $defaultCurrencyId;
     }
 
+    /**
+     * Get a file object
+     *
+     * @param string $path File path
+     * @return boolean|\Cx\Core\MediaSource\Model\Entity\LocalFile If true returns object, otherwise false
+     */
+    public static function getFileByPath($path)
+    {
+        if (empty($path)) {
+            return false;
+        }
+
+        $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
+        $filePath = substr($path, strlen($cx->getWebsiteDocumentRootPath()));
+
+        return $cx->getMediaSourceManager()->getMediaSourceFileFromPath($filePath);
+    }
 }
