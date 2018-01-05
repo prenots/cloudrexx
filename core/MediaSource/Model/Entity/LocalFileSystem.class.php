@@ -385,9 +385,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             !$this->fileExists(
                 $this->getFileFromPath($toFile->getPath(), true)
             ) &&
-            !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                $this->getFullPath($toFile)
-            )
+            !$this->createDirectory(ltrim($toFile->getPath(), '/'), '', true)
         ) {
             return false;
         }
@@ -594,6 +592,38 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         return substr(
             $this->getFullPath($file),
             strlen($this->documentPath)
+        );
+    }
+
+    /**
+     * Copy the file
+     *
+     * @param File    $fromFile     Source file object
+     * @param string  $toFilePath   Destination file path
+     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
+     *                              otherwise file will be created with new name
+     * @return string Name of the copy file
+     */
+    public function copyFile(
+        File $fromFile,
+        $toFilePath,
+        $ignoreExists = false
+    ) {
+        if (
+            !$this->fileExists($fromFile) ||
+            empty($toFilePath) ||
+            !\FWValidator::is_file_ending_harmless($toFilePath)
+        ) {
+            return false;
+        }
+
+        $toFile = $this->getFileFromPath($toFilePath, true);
+        return \Cx\Lib\FileSystem\FileSystem::copyFile(
+            $this->getFullPath($fromFile),
+            $fromFile->getFullName(),
+            $this->getFullPath($toFile),
+            $toFile->getFullName(),
+            $ignoreExists
         );
     }
 }

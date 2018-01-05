@@ -103,9 +103,9 @@ class LocalFile implements File
     /**
      * {@inheritdoc}
      */
-    public function copy($destination)
+    public function copy($destination, $ignoreExists = false)
     {
-        //return $this->fileSystem->copyFile($this, $destination);
+        return $this->fileSystem->copyFile($this, $destination, $ignoreExists);
     }
 
     /**

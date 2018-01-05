@@ -61,6 +61,17 @@ interface FileSystem {
     public function makeWritable(File $file);
 
     /**
+     * Copy the file
+     *
+     * @param File    $file         Source file object
+     * @param string  $destination  Destination file path
+     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
+     *                              otherwise file will be created with new name
+     * @return string Name of the copy file
+     */
+    public function copyFile(File $file, $destination, $ignoreExists = false);
+
+    /**
      * Get the file web path
      *
      * @param File $file File object

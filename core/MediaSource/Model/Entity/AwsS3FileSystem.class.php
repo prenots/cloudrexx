@@ -326,4 +326,51 @@ class AwsS3FileSystem extends LocalFileSystem {
      * @return boolean True if file writable, false otherwise
      */
     public function makeWritable(File $file) { return true; }
+
+    /**
+     * Copy the file
+     *
+     * @param File    $fromFile     Source file object
+     * @param string  $toFilePath   Destination file path
+     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
+     *                              otherwise file will be created with new name
+     * @return string Name of the copy file
+     */
+    public function copyFile(
+        File $fromFile,
+        $toFilePath,
+        $ignoreExists = false
+    ) {
+        if (
+            !$this->fileExists($fromFile) ||
+            empty($toFilePath) ||
+            !\FWValidator::is_file_ending_harmless($toFilePath)
+        ) {
+            return false;
+        }
+
+        $toFile = $this->getFileFromPath($toFilePath, true);
+        if (!$ignoreExists) {
+            $toFileName = $toFile->getName();
+            while ($this->fileExists($toFile)) {
+                $toFile = $this->getFileFromPath(
+                    rtrim($toFile->getPath(), '/') . '/' . $toFileName . '_' .
+                    time() . '.' . $toFile->getExtension(),
+                    true
+                );
+            }
+        }
+
+        $newFileName = $toFile->getFullName();
+        if (
+            !copy(
+                $this->getFullPath($fromFile) . $fromFile->getFullName(),
+                $this->getFullPath($toFile) . $toFile->getFullName()
+            )
+        ) {
+            $newFileName = 'error';
+        }
+
+        return $newFileName;
+    }
 }
