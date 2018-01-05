@@ -537,7 +537,7 @@ CODE;
      *
      * @param string $dirName directory name
      */
-    function _createDirectory($dirName)
+    public function _createDirectory($dirName)
     {
         global $_ARRAYLANG;
 
@@ -555,20 +555,16 @@ CODE;
             return;
         }
 
-        $dirName = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($dirName);
-        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager();
-        $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
-            $this->webPath
+        $mediaSourceFile = $this->getMediaSourceFileByFileName($dirName, true);
+        if (!$mediaSourceFile) {
+            return;
+        }
+        $status = $mediaSourceFile->getFileSystem()->createDirectory(
+            $mediaSourceFile->getPath(),
+            $mediaSourceFile->getFullName()
         );
 
-        if (
-            $mediaSourceFile &&
-            $mediaSourceFile->getFileSystem()->createDirectory(
-                $mediaSourceFile->getPath() . '/'. $mediaSourceFile->getFullName(),
-                $dirName
-            )
-        ) {
+        if ($status) {
             $this->highlightName[] = $dirName;
             \Message::ok($_ARRAYLANG['TXT_MEDIA_MSG_NEW_DIR']);
         } else {

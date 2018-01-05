@@ -61,7 +61,14 @@ class MediaLibrary
         global $_ARRAYLANG, $objTemplate;
 
         $dirName = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($dirName);
-        $status = \Cx\Lib\FileSystem\FileSystem::make_folder($this->path.$dirName);
+        $mediaSourceFile = $this->getMediaSourceFileByFileName($dirName, true);
+        if (!$mediaSourceFile) {
+            return;
+        }
+        $status = $mediaSourceFile->getFileSystem()->createDirectory(
+            $mediaSourceFile->getPath(),
+            $mediaSourceFile->getFullName()
+        );
         if ($status) {
             $this->highlightName[] = $dirName;
             $objTemplate->setVariable('CONTENT_OK_MESSAGE',$_ARRAYLANG['TXT_MEDIA_MSG_NEW_DIR']);
@@ -133,7 +140,15 @@ class MediaLibrary
         // The file is already checked (media paths only)
         $file = $this->path.$this->getFile;
         //First, see if the file exists
-        if (!is_file($file)) { die("<b>404 File not found!</b>"); }
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (
+            !$mediaSourceManager->getMediaSourceFileFromPath(
+                $this->webPath . $this->getFile
+            )
+        ) {
+            die("<b>404 File not found!</b>");
+        }
 
         $filename = basename($file);
         $file_extension = strtolower(substr(strrchr($filename,"."),1));
@@ -1349,5 +1364,54 @@ END;
         $redirect = \FWUser::getRedirectUrl(urlencode(base64_decode(urldecode($_REQUEST['redirect']))));
         \Cx\Core\Csrf\Controller\Csrf::redirect($redirect);
         exit;
+    }
+
+    /**
+     * Get MediaSource FileSystem
+     *
+     * @return \Cx\Core\MediaSource\Model\Entity\FileSystem
+     */
+    public function getMediaSourceFileSystem()
+    {
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        try {
+            $mediaSource = $mediaSourceManager->getMediaSourceByPath(
+                $this->webPath,
+                true
+            );
+        } catch (\Exception $e) {
+            return;
+        }
+        return $mediaSource->getFileSystem();
+    }
+
+    /**
+     * Get MediaSource File from file name
+     *
+     * @param string  $file  filename
+     * @param boolean $force True, return the File object also if the given file not exists or
+     *                       False, return the file object if the file exists
+     * @return \Cx\Core\MediaSource\Model\Entity\File
+     */
+    public function getMediaSourceFileByFileName($fileName, $force = false)
+    {
+        if (empty($fileName)) {
+            return;
+        }
+
+        $fileSystem = $this->getMediaSourceFileSystem();
+        if (!$fileSystem) {
+            return;
+        }
+
+        $mediaSourceRootPath = $fileSystem->getRootPath();
+        if (strpos($this->path, $mediaSourceRootPath) === 0) {
+            $dirPath = substr($this->path, strlen($mediaSourceRootPath));
+        } else {
+            $dirPath = $this->path;
+        }
+
+        return $fileSystem->getFileFromPath($dirPath . $fileName, $force);
     }
 }
