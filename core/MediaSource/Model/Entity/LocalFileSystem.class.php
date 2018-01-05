@@ -465,17 +465,6 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
         return is_file($this->getFullPath($file) . $file->getFullName());
     }
 
-    /**
-     * Check whether file exists in the filesytem
-     *
-     * @param File $file
-     * @return boolean True when exists, false otherwise
-     */
-    public function fileExists(File $file)
-    {
-        return file_exists($this->getFullPath($file) . $file->getFullName());
-    }
-
     public function getLink(
         File $file
     ) {
