@@ -309,7 +309,7 @@ class AwsS3FileSystem extends LocalFileSystem {
         if (
             !mkdir(
                 $this->getRootPath() . '/' . $path . '/' . $directory ,
-                Cx\Lib\FileSystem\FileSystem::CHMOD_FOLDER,
+                \Cx\Lib\FileSystem\FileSystem::CHMOD_FOLDER,
                 $recursive
             )
         ) {
@@ -361,13 +361,24 @@ class AwsS3FileSystem extends LocalFileSystem {
             }
         }
 
-        $newFileName = $toFile->getFullName();
-        if (
-            !copy(
-                $this->getFullPath($fromFile) . $fromFile->getFullName(),
-                $this->getFullPath($toFile) . $toFile->getFullName()
-            )
-        ) {
+        $fromFileKey = substr(
+            $this->getFullPath($fromFile) . $fromFile->getFullName(),
+            strlen($this->documentPath) + 1
+        );
+        $toFileKey = substr(
+            $this->getFullPath($toFile) . $toFile->getFullName(),
+            strlen($this->documentPath) + 1
+        );
+
+        try {
+            $newFileName = $toFile->getFullName();
+            $this->s3Client->copyObject(array(
+                'Bucket'     => $this->bucketName,
+                'Key'        => $toFileKey,
+                'CopySource' => urlencode($this->bucketName . '/' . $fromFileKey),
+            ));
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+            \DBG::log($e->getMessage());
             $newFileName = 'error';
         }
 
