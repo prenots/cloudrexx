@@ -2805,7 +2805,13 @@ class CrmLibrary
                     if (!file_exists($cx->getWebsiteImagesCrmProfilePath().'/'.$picture)) {
                         $file    = $cx->getWebsiteImagesAccessProfilePath().'/';
                         $newFile = $cx->getWebsiteImagesCrmProfilePath().'/';
-                        if (copy($file.$picture, $newFile.$picture)) {
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        if (
+                            $mediaSourceManager->copyFile(
+                                self::makeFullPathToWebPath($file . $picture),
+                                self::makeFullPathToWebPath($newFile . $picture)
+                            )
+                        ) {
                             if ($this->createThumbnailOfPicture($picture)) {
                                 $this->contact->profile_picture = $picture;
                             }
@@ -3029,7 +3035,13 @@ class CrmLibrary
                 return false;
             }
         } else {
-            if (!copy($tmpImageName, $imageRepo.'/'.$imageName)) {
+            $mediaSourceManager = $cx->getMediaSourceManager();
+            if (
+                !$mediaSourceManager->copyFile(
+                    self::makeFullPathToWebPath($tmpImageName),
+                    self::makeFullPathToWebPath($imageRepo . '/' . $imageName)
+                )
+            ) {
                 return false;
             }
         }
@@ -3556,7 +3568,7 @@ class CrmLibrary
      * Get a file object
      *
      * @param string $path File path
-     * @return boolean|\Cx\Core\MediaSource\Model\Entity\LocalFile If true returns object, otherwise false
+     * @return \Cx\Core\MediaSource\Model\Entity\LocalFile If true returns object, otherwise null
      */
     public static function getFileByPath($path)
     {
@@ -3565,8 +3577,24 @@ class CrmLibrary
         }
 
         $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
-        $filePath = substr($path, strlen($cx->getWebsiteDocumentRootPath()));
+        $filePath = self::makeFullPathToWebPath($path);
 
         return $cx->getMediaSourceManager()->getMediaSourceFileFromPath($filePath);
+    }
+
+    /**
+     * Make a full path to web path
+     *
+     * @param string $path File path
+     * @return string The extracted part of string
+     */
+    public static function makeFullPathToWebPath($path)
+    {
+        if (empty($path)) {
+            return false;
+        }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        return substr($path, strlen($cx->getWebsiteDocumentRootPath()));
     }
 }

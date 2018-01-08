@@ -4256,7 +4256,11 @@ END;
         $json = array();
         if (!empty($customerId) && !empty($documentId)) {
             $fileName = $this->getContactFileNameById($documentId, $customerId);
-            unlink(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteMediaCrmPath().'/'.$fileName);
+            $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
+            $fileObj  = self::getFileByPath(
+                $cx->getWebsiteMediaCrmPath() . '/' . $fileName
+            );
+            $fileObj->getFileSystem()->removeFile($fileObj);
             $objDatabase->Execute("DELETE FROM `".DBPREFIX."module_{$this->moduleNameLC}_customer_documents` WHERE `id` = $documentId");
             $json['success'] = $_ARRAYLANG['TXT_CRM_DOCUMNET_DELETE_SUCCESS'];
         } else {
@@ -5743,7 +5747,8 @@ END;
     {
 
         //target folder
-        $depositionTarget = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteMediaCrmPath() . '/';
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteMediaCrmPath() . '/';
         $h = opendir($tempPath);
         if (!$h) {
             return array($tempPath, $tempWebPath);
@@ -5795,8 +5800,11 @@ END;
 
             // move file
             try {
-                $objFile = new \Cx\Lib\FileSystem\File($tempPath . '/' . $file);
-                $objFile->copy($depositionTarget . $prefix . $file, false);
+                $mediaSourceManager = $cx->getMediaSourceManager();
+                $mediaSourceManager->copyFile(
+                    self::makeFullPathToWebPath($tempPath . '/' . $file),
+                    self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                );
                 $_SESSION['importFilename'] = $prefix . $file;
             } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
                 \DBG::msg($e->getMessage());
@@ -5827,7 +5835,8 @@ END;
         global $objDatabase;
 
         $objFWUser = \FWUser::getFWUserObject();
-        $depositionTarget = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteMediaCrmPath().'/'; //target folder
+        $cx        = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteMediaCrmPath(). '/'; //target folder
         $h = opendir($tempPath);
         if ($h) {
 
@@ -5858,8 +5867,11 @@ END;
 
                     // move file
                     try {
-                        $objFile = new \Cx\Lib\FileSystem\File($tempPath.'/'.$file);
-                        $objFile->copy($depositionTarget.$prefix.$file, false);
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
+                            self::makeFullPathToWebPath($tempPath . '/' . $file),
+                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                        );
                         // write the uploaded files into database
                         $fields = array(
                             'document_name' => trim($prefix.$file),
@@ -5927,8 +5939,11 @@ END;
 
                     // move file
                     try {
-                        $objFile = new \Cx\Lib\FileSystem\File($tempPath.'/'.$file);
-                        $objFile->copy($depositionTarget.$prefix.$file, false);
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
+                            self::makeFullPathToWebPath($tempPath . '/' . $file),
+                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                        );
 
                         // create thumbnail
                         if (empty($objImage)) {
@@ -6041,8 +6056,11 @@ END;
 
                     // move file
                     try {
-                        $objFile = new \Cx\Lib\FileSystem\File($tempPath.'/'.$file);
-                        $objFile->copy($depositionTarget.$prefix.$file, false);
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
+                            self::makeFullPathToWebPath($tempPath . '/' . $file),
+                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                        );
 
                         // create thumbnail
                         if (empty($objImage)) {
@@ -6115,8 +6133,11 @@ END;
 
                     // move file
                     try {
-                        $objFile = new \Cx\Lib\FileSystem\File($tempPath.'/'.$file);
-                        $objFile->copy($depositionTarget.$prefix.$file, false);
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
+                            self::makeFullPathToWebPath($tempPath . '/' . $file),
+                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                        );
 
                         // create thumbnail
                         if (empty($objImage)) {
