@@ -2808,8 +2808,8 @@ class CrmLibrary
                         $mediaSourceManager = $cx->getMediaSourceManager();
                         if (
                             $mediaSourceManager->copyFile(
-                                self::makeFullPathToWebPath($file . $picture),
-                                self::makeFullPathToWebPath($newFile . $picture)
+                                self::getWebPath($file . $picture),
+                                self::getWebPath($newFile . $picture)
                             )
                         ) {
                             if ($this->createThumbnailOfPicture($picture)) {
@@ -3038,8 +3038,8 @@ class CrmLibrary
             $mediaSourceManager = $cx->getMediaSourceManager();
             if (
                 !$mediaSourceManager->copyFile(
-                    self::makeFullPathToWebPath($tmpImageName),
-                    self::makeFullPathToWebPath($imageRepo . '/' . $imageName)
+                    self::getWebPath($tmpImageName),
+                    self::getWebPath($imageRepo . '/' . $imageName)
                 )
             ) {
                 return false;
@@ -3577,18 +3577,18 @@ class CrmLibrary
         }
 
         $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
-        $filePath = self::makeFullPathToWebPath($path);
+        $filePath = self::getWebPath($path);
 
         return $cx->getMediaSourceManager()->getMediaSourceFileFromPath($filePath);
     }
 
     /**
-     * Make a full path to web path
+     * Get a web path
      *
      * @param string $path File path
      * @return string The extracted part of string
      */
-    public static function makeFullPathToWebPath($path)
+    public static function getWebPath($path)
     {
         if (empty($path)) {
             return false;

@@ -5802,8 +5802,8 @@ END;
             try {
                 $mediaSourceManager = $cx->getMediaSourceManager();
                 $mediaSourceManager->copyFile(
-                    self::makeFullPathToWebPath($tempPath . '/' . $file),
-                    self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                    self::getWebPath($tempPath . '/' . $file),
+                    self::getWebPath($depositionTarget . $prefix . $file)
                 );
                 $_SESSION['importFilename'] = $prefix . $file;
             } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
@@ -5869,8 +5869,8 @@ END;
                     try {
                         $mediaSourceManager = $cx->getMediaSourceManager();
                         $mediaSourceManager->copyFile(
-                            self::makeFullPathToWebPath($tempPath . '/' . $file),
-                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                            self::getWebPath($tempPath . '/' . $file),
+                            self::getWebPath($depositionTarget . $prefix . $file)
                         );
                         // write the uploaded files into database
                         $fields = array(
@@ -5941,8 +5941,8 @@ END;
                     try {
                         $mediaSourceManager = $cx->getMediaSourceManager();
                         $mediaSourceManager->copyFile(
-                            self::makeFullPathToWebPath($tempPath . '/' . $file),
-                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                            self::getWebPath($tempPath . '/' . $file),
+                            self::getWebPath($depositionTarget . $prefix . $file)
                         );
 
                         // create thumbnail
@@ -6058,8 +6058,8 @@ END;
                     try {
                         $mediaSourceManager = $cx->getMediaSourceManager();
                         $mediaSourceManager->copyFile(
-                            self::makeFullPathToWebPath($tempPath . '/' . $file),
-                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                            self::getWebPath($tempPath . '/' . $file),
+                            self::getWebPath($depositionTarget . $prefix . $file)
                         );
 
                         // create thumbnail
@@ -6135,8 +6135,8 @@ END;
                     try {
                         $mediaSourceManager = $cx->getMediaSourceManager();
                         $mediaSourceManager->copyFile(
-                            self::makeFullPathToWebPath($tempPath . '/' . $file),
-                            self::makeFullPathToWebPath($depositionTarget . $prefix . $file)
+                            self::getWebPath($tempPath . '/' . $file),
+                            self::getWebPath($depositionTarget . $prefix . $file)
                         );
 
                         // create thumbnail
