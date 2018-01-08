@@ -53,8 +53,18 @@ interface File {
     /**
      * Copy the file
      *
-     * @param string $destinationPath Destination file path
-     * @return bool true on success or false on failure
+     * @param string  $destinationPath Destination file path
+     * @param boolean $ignoreExists    True, if the destination file exists it will be overwritten
+     *                                 otherwise file will be created with new name
+     * @return string Name of the copy file
      */
-    public function copy($destinationPath);
+    public function copy($destinationPath, $ignoreExists = false);
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode);
 }
