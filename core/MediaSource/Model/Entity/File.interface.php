@@ -42,4 +42,29 @@ interface File {
     public function getExtension();
     public function getMimeType();
     public function __toString();
+
+    /**
+     * Gets file size
+     *
+     * @return int the size of the file in bytes, or false
+     */
+    public function getSize();
+
+    /**
+     * Copy the file
+     *
+     * @param string  $destinationPath Destination file path
+     * @param boolean $ignoreExists    True, if the destination file exists it will be overwritten
+     *                                 otherwise file will be created with new name
+     * @return string Name of the copy file
+     */
+    public function copy($destinationPath, $ignoreExists = false);
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode);
 }
