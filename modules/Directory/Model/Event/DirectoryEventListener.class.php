@@ -44,11 +44,7 @@ namespace Cx\Modules\Directory\Model\Event;
  * @package     cloudrexx
  * @subpackage  module_directory
  */
-class DirectoryEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
-
-    public function onEvent($eventName, array $eventArgs) {
-        $this->$eventName(current($eventArgs));
-    }
+class DirectoryEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener {
 
     public static function SearchFindContent($search) {
         $term_db = $search->getTerm();
@@ -76,4 +72,24 @@ class DirectoryEventListener implements \Cx\Core\Event\Model\Entity\EventListene
         $search->appendResult($categoryResult);
     }
 
+    /**
+     * Add MediaSource
+     *
+     * @param \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaBrowserConfiguration
+     */
+    public function mediasourceLoad(
+        \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaBrowserConfiguration
+    ) {
+        $langData = \Env::get('init')->loadLanguageData('Directory');
+        $mediaType = new \Cx\Core\MediaSource\Model\Entity\MediaSource(
+            'directory',
+            $langData['TXT_DIR_DIRECTORY'],
+            array(
+                $this->cx->getWebsiteMediaDirectoryPath(),
+                $this->cx->getWebsiteMediaDirectoryWebPath(),
+            ),
+            array(59)
+        );
+        $mediaBrowserConfiguration->addMediaType($mediaType);
+    }
 }

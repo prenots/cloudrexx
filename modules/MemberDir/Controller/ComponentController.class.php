@@ -91,6 +91,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentParse(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        $this->cx->getEvents()->addEventListener('SearchFindContent', new \Cx\Modules\Directory\Model\Event\DirectoryEventListener());
+        $this->cx->getEvents()->addEventListener(
+            'SearchFindContent',
+            new \Cx\Modules\Directory\Model\Event\DirectoryEventListener($this->cx)
+        );
    }
 }
