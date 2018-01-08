@@ -445,7 +445,12 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
 
         $sourceFile = $theme->getFileByPath($themeName . $oldFilePath);
         $destFile   = $theme->getFileByPath($sourceFile->getPath() . '/' . $newFilePath);
-        if ($sourceFile->getFileSystem()->moveFile($sourceFile, $destFile->getName())) {
+        if (
+            $sourceFile->getFileSystem()->moveFile(
+                $sourceFile,
+                $destFile->getPath() . '/' . $destFile->getName()
+            )
+        ) {
             $path     = preg_replace(
                 '#' . $currentThemeFolder . '#',
                  '',

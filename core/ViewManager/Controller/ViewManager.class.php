@@ -2451,18 +2451,18 @@ CODE;
         }
 
         //copy "not available" preview.gif as default preview image
-        $previewImage = $this->path . $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE;
-        $imgFile      = $theme->getFileByPath(
-            '/' . $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE
-        );
+        $previewImage = $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE;
+        $imgFile      = $theme->getFileByPath('/' . $previewImage);
         if (!$imgFile->getFileSystem()->fileExists($imgFile)) {
-            try {
-                $objFile = new \Cx\Lib\FileSystem\File(\Env::get('cx')->getCodeBaseDocumentRootPath() . \Cx\Core\View\Model\Entity\Theme::THEME_DEFAULT_PREVIEW_FILE);
-                $objFile->copy($previewImage);
-            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-                \DBG::msg($e->getMessage());
+            $defaultImg = $this->cx->getCodeBaseDocumentRootPath() . \Cx\Core\View\Model\Entity\Theme::THEME_DEFAULT_PREVIEW_FILE;
+            $srcPath    = substr($defaultImg, strlen($this->cx->getWebsiteDocumentRootPath()));
+            $destPath   = substr($this->path . $previewImage, strlen($this->cx->getWebsiteDocumentRootPath()));
+            if (!$this->cx->getMediaSourceManager()->copyFile($srcPath, $destPath)) {
                 \Message::add(
-                    sprintf($_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'], contrexx_raw2xhtml($theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE)),
+                    sprintf(
+                        $_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'],
+                        contrexx_raw2xhtml($previewImage)
+                    ),
                     \Message::CLASS_ERROR
                 );
                 return false;
