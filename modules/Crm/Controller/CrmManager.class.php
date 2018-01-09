@@ -4256,8 +4256,9 @@ END;
         $json = array();
         if (!empty($customerId) && !empty($documentId)) {
             $fileName = $this->getContactFileNameById($documentId, $customerId);
+            $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
             $fileObj  = self::getFileByPath(
-                self::$cx->getWebsiteMediaCrmPath() . '/' . $fileName
+                $cx->getWebsiteMediaCrmPath() . '/' . $fileName
             );
             $fileObj->getFileSystem()->removeFile($fileObj);
             $objDatabase->Execute("DELETE FROM `".DBPREFIX."module_{$this->moduleNameLC}_customer_documents` WHERE `id` = $documentId");
@@ -5746,7 +5747,8 @@ END;
     {
 
         //target folder
-        $depositionTarget = self::$cx->getWebsiteMediaCrmPath() . '/';
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteMediaCrmPath() . '/';
         $h = opendir($tempPath);
         if (!$h) {
             return array($tempPath, $tempWebPath);
@@ -5798,7 +5800,8 @@ END;
 
             // move file
             try {
-                self::$cx->getMediaSourceManager()->copyFile(
+                $mediaSourceManager = $cx->getMediaSourceManager();
+                $mediaSourceManager->copyFile(
                     self::getWebPath($tempPath . '/' . $file),
                     self::getWebPath($depositionTarget . $prefix . $file)
                 );
@@ -5832,7 +5835,8 @@ END;
         global $objDatabase;
 
         $objFWUser = \FWUser::getFWUserObject();
-        $depositionTarget = self::$cx->getWebsiteMediaCrmPath(). '/'; //target folder
+        $cx        = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteMediaCrmPath(). '/'; //target folder
         $h = opendir($tempPath);
         if ($h) {
 
@@ -5863,7 +5867,8 @@ END;
 
                     // move file
                     try {
-                        self::$cx->getMediaSourceManager()->copyFile(
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
                             self::getWebPath($tempPath . '/' . $file),
                             self::getWebPath($depositionTarget . $prefix . $file)
                         );
@@ -5934,7 +5939,8 @@ END;
 
                     // move file
                     try {
-                        self::$cx->getMediaSourceManager()->copyFile(
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
                             self::getWebPath($tempPath . '/' . $file),
                             self::getWebPath($depositionTarget . $prefix . $file)
                         );
@@ -6050,7 +6056,8 @@ END;
 
                     // move file
                     try {
-                        self::$cx->getMediaSourceManager()->copyFile(
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
                             self::getWebPath($tempPath . '/' . $file),
                             self::getWebPath($depositionTarget . $prefix . $file)
                         );
@@ -6126,7 +6133,8 @@ END;
 
                     // move file
                     try {
-                        self::$cx->getMediaSourceManager()->copyFile(
+                        $mediaSourceManager = $cx->getMediaSourceManager();
+                        $mediaSourceManager->copyFile(
                             self::getWebPath($tempPath . '/' . $file),
                             self::getWebPath($depositionTarget . $prefix . $file)
                         );
