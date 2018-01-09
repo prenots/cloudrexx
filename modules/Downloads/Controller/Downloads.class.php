@@ -451,15 +451,12 @@ class Downloads extends DownloadsLibrary
                 //check if file needs to be renamed
                 $newName = '';
                 $suffix = '';
-                $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
-                    ->getMediaSourceManager()
-                    ->getMediaType('downloads')
-                    ->getFileSystem();
-                $uploadedFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                    $file,
-                    $fileSystem
+                $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getMediaSourceManager();
+                $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
+                    $webPath . '/' . $file
                 );
-                if ($fileSystem->fileExists($uploadedFile)) {
+                if ($mediaSourceFile) {
                     $suffix = '_' . time();
                     $newName = $info['filename'] . $suffix . '.' . $info['extension'];
                     $arrFilesToRename[$file] = $newName;
@@ -480,10 +477,10 @@ class Downloads extends DownloadsLibrary
                 //move file from temp path into target folder
                 $objImage = new \ImageManager();
                 foreach ($uploadFiles as $fileName) {
-                    $objFile = new \Cx\Lib\FileSystem\File(
-                        $tempPath . '/' . $fileName
+                    $mediaSourceManager->moveFile(
+                        $tempWebPath . '/' . $fileName,
+                        $webPath . '/' .$fileName
                     );
-                    $objFile->move($path . '/' . $fileName, false);
                     \Cx\Core\Core\Controller\Cx::instanciate()
                         ->getMediaSourceManager()->getThumbnailGenerator()
                         ->createThumbnailFromPath($path . '/' . $fileName);
