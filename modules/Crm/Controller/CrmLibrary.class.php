@@ -280,6 +280,12 @@ class CrmLibrary
      */
     protected static $instance;
 
+    /**
+     * Object for cx
+     *
+     * @var object
+     */
+    protected static $cx;
 
     /**
      * Initialize a class
@@ -305,6 +311,7 @@ class CrmLibrary
         $this->moduleNameLC  = strtolower($this->moduleName);
         $this->_arrLanguages = $this->createLanguageArray();
         $this->isPmInstalled = contrexx_isModuleActive($this->pm_moduleName);
+        self::$cx            = \Cx\Core\Core\Controller\Cx::instanciate();
     }
 
     /**
@@ -2805,9 +2812,8 @@ class CrmLibrary
                     if (!file_exists($cx->getWebsiteImagesCrmProfilePath().'/'.$picture)) {
                         $file    = $cx->getWebsiteImagesAccessProfilePath().'/';
                         $newFile = $cx->getWebsiteImagesCrmProfilePath().'/';
-                        $mediaSourceManager = $cx->getMediaSourceManager();
                         if (
-                            $mediaSourceManager->copyFile(
+                            $cx->getMediaSourceManager()->copyFile(
                                 self::getWebPath($file . $picture),
                                 self::getWebPath($newFile . $picture)
                             )
@@ -3035,9 +3041,8 @@ class CrmLibrary
                 return false;
             }
         } else {
-            $mediaSourceManager = $cx->getMediaSourceManager();
             if (
-                !$mediaSourceManager->copyFile(
+                !self::$cx->getMediaSourceManager()->copyFile(
                     self::getWebPath($tmpImageName),
                     self::getWebPath($imageRepo . '/' . $imageName)
                 )
@@ -3576,10 +3581,9 @@ class CrmLibrary
             return false;
         }
 
-        $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
-        $filePath = self::getWebPath($path);
-
-        return $cx->getMediaSourceManager()->getMediaSourceFileFromPath($filePath);
+        return self::$cx
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath(self::getWebPath($path));
     }
 
     /**
@@ -3595,6 +3599,6 @@ class CrmLibrary
         }
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        return substr($path, strlen($cx->getWebsiteDocumentRootPath()));
+        return substr($path, strlen(self::$cx->getWebsiteDocumentRootPath()));
     }
 }
