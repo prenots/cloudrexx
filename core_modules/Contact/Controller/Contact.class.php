@@ -768,7 +768,8 @@ CODE;
             //legacy function for old uploader
             return $this->_uploadFilesLegacy($arrFields);
         } else {
-            $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+            $cx         = \Cx\Core\Core\Controller\Cx::instanciate();
+            $fileSystem = $cx
                 ->getMediaSourceManager()
                 ->getMediaType('attach')
                 ->getFileSystem();
@@ -777,7 +778,7 @@ CODE;
                 return array();
 
             $arrFiles = array(); //we'll collect name => path of all files here and return this
-            $documentRootPath = \Env::get('cx')->getWebsiteDocumentRootPath();
+            $documentRootPath = $cx->getWebsiteDocumentRootPath();
             foreach ($arrFields as $fieldId => $arrField) {
                 // skip non-upload fields
                 if (!in_array($arrField['type'], array('file', 'multi_file'))) {
@@ -880,8 +881,11 @@ CODE;
                         if($move) {
                             // move file
                             try {
-                                $objFile = new \Cx\Lib\FileSystem\File($tmpUploadDir.$f);
-                                $objFile->move($documentRootPath.$depositionTarget.$prefix.$f, false);
+                                $mediaSourceManager = $cx->getMediaSourceManager();
+                                $mediaSourceManager->moveFile(
+                                    $tmpUploadDir . $f,
+                                    $depositionTarget . $prefix . $f
+                                );
                             } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
                                 \DBG::msg($e->getMessage());
                             }
