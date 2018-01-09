@@ -89,11 +89,6 @@ class AccessLib
     private $arrAccountAttributes;
 
     /**
-     * @var \Cx\Core\MediaSource\Model\Entity\LocalFileSystem
-     */
-    protected $fileSystem;
-
-    /**
      * Static Access id to manage the users(add/edit)
      */
     const MANAGE_USER_ACCESS_ID = 202;
@@ -139,8 +134,6 @@ class AccessLib
             $_ARRAYLANG = array_merge($_ARRAYLANG, $objInit->loadLanguageData('Access'));
         }
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $this->fileSystem = $cx->getMediaSourceManager()->getMediaType('access')->getFileSystem();
         $this->loadAttributeTypeTemplates();
     }
 
@@ -2056,13 +2049,13 @@ JS
                     $arrImages = array_diff($arrImages, $arrImagesDb);
                 }
             }
-            array_walk($arrImages, function ($img) use ($imagePath) {
-                $this->fileSystem->removeFile(
-                    new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                        $imagePath . '/'. $img,
-                        $this->fileSystem
-                    )
+            array_walk($arrImages, function ($img) use ($imageWebPath, $cx) {
+                $imgFile = $cx->getMediaSourceManager()->getMediaSourceFileFromPath(
+                    $imageWebPath . '/' . $img
                 );
+                if ($imgFile) {
+                    $imgFile->getFileSystem()->removeFile($imgFile);
+                }
             });
         }
 
