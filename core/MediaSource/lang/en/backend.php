@@ -40,6 +40,3 @@ global $_ARRAYLANG;
 
 // Let's start with module info:
 $_ARRAYLANG['TXT_CORE_MEDIASOURCE'] = 'MediaSource';
-$_ARRAYLANG['TXT_MEDIASOURCE_FILE_SUCCESSFULLY_COPIED'] = "File %s was sucessfully copied.";
-$_ARRAYLANG['TXT_MEDIASOURCE_FILE_UNSUCCESSFULLY_COPIED'] = "File %s couldn't be copied.";
-$_ARRAYLANG['TXT_MEDIASOURCE_FILE_PROCESS_ERROR'] = "File %s couldn't be processed in %s filesytem";
