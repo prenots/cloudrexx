@@ -879,9 +879,9 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 'http://'.$_CONFIG['domainUrl'].ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH.'/index.php?cmd=Access&act=user&tpl=modify&id='.$objUser->getId()
             );
             if ($mail2load == 'reg_confirm') {
-                $imagePath = 'http://'.$_CONFIG['domainUrl']
-                    . \Cx\Core\Core\Controller\Cx::instanciate()
-                    ->getWebsiteImagesAccessProfileWebPath().'/';
+                $domainName = 'http://'.$_CONFIG['domainUrl'];
+                $cx         = \Cx\Core\Core\Controller\Cx::instanciate();
+                $imagePath  = $cx->getWebsiteImagesAccessProfileWebPath() . '/';
                 $objUser->objAttribute->first();
                 while (!$objUser->objAttribute->EOF) {
                     $objAttribute = $objUser->objAttribute->getById(
@@ -895,19 +895,15 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                         $objAttribute->getType() == 'image' &&
                         $objAttribute->getId() == 'picture'
                     ) {
-                        $imgName  = $objUser->getProfileAttribute($objAttribute->getId());
-                        $imageSrc = $imagePath . $imgName;
+                        $imgName = $objUser->getProfileAttribute($objAttribute->getId());
                         if (
-                            $this->fileSystem->fileExists(
-                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                    $imageSrc,
-                                    $this->fileSystem
-                                )
+                            $cx->getMediaSourceManager()->getMediaSourceFileFromPath(
+                                $imagePath . $imgName
                             )
                         ) {
-                            $path = $imageSrc;
+                            $path = $domainName . $imagePath . $imgName;
                         } else {
-                            $path = $imagePath . '0_noavatar.gif';
+                            $path = $domainName . $imagePath . '0_noavatar.gif';
                         }
                         $replaceHtmlTerms[] = \Html::getImageByPath($path, 'alt="'.$objUser->getEmail().'"');
                         $replaceTextTerms[] = $path;

@@ -337,16 +337,10 @@ class AccessLib
             $imageRepoWeb  = $attributeId == 'picture'
                                 ? $cx->getWebsiteImagesAccessProfileWebPath()
                                 : $cx->getWebsiteImagesAccessPhotoWebPath();
-            $imageRepoPath = $attributeId == 'picture'
-                                ? $cx->getWebsiteImagesAccessProfilePath()
-                                : $cx->getWebsiteImagesAccessPhotoPath();
             if (
-                !$edit || 
-                $this->fileSystem->fileExists(
-                    new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                        $imageRepoPath .'/'. $image,
-                        $this->fileSystem
-                    )
+                !$edit ||
+                $cx->getMediaSourceManager()->getMediaSourceFileFromPath(
+                    $imageRepoWeb . '/' . $image
                 )
             ) {
                 $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($objAttribute->getId(), $historyId), ENT_QUOTES, CONTREXX_CHARSET);
@@ -889,14 +883,12 @@ class AccessLib
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($attributeId == 'picture') {
-            $imageRepo    = $cx->getWebsiteImagesAccessProfilePath().'/';
             $imageRepoWeb = $cx->getWebsiteImagesAccessProfileWebPath().'/';
             $arrNoImage   = \User_Profile::$arrNoAvatar;
         } else {
             if ($edit) {
                 $thumbnail = true;
             }
-            $imageRepo    = $cx->getWebsiteImagesAccessPhotoPath().'/';
             $imageRepoWeb = $cx->getWebsiteImagesAccessPhotoWebPath().'/';
             $arrNoImage   = \User_Profile::$arrNoPicture;
         }
@@ -904,12 +896,10 @@ class AccessLib
         if (
             $value !== false && 
             $value !== '' && 
-            (!$edit || $this->fileSystem->fileExists(
-                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                    $imageRepo . $value,
-                    $this->fileSystem
-                )
-            ))
+            (
+                !$edit ||
+                $cx->getMediaSourceManager()->getMediaSourceFileFromPath($imageRepoWeb . $value)
+            )
         ) {
             $imageSet = true;
             $image['src'] =
@@ -1837,17 +1827,17 @@ JS
         }
 
         $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : $cx->getWebsiteImagesAccessPhotoPath();
-        $index = 0;
-        $imageName = $objUser->getId().'_'.$name;
-        while (
-                $this->fileSystem->fileExists(
-                    new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                        $imageRepo .'/'. $imageName,
-                        $this->fileSystem
-                    )
-                )
-        ) {
-            $imageName = $objUser->getId().'_'.++$index.'_'.$name;
+        $index     = 0;
+        $imageName = $objUser->getId() . '_' . $name;
+        $imgFile   = $cx->getMediaSourceManager()->getMediaSourceFileFromPath(
+            substr($imageRepo . '/' . $imageName, strlen($cx->getWebsiteDocumentRootPath()))
+        );
+        while ($imgFile && $imgFile->getFileSystem()->fileExists($imgFile)) {
+            $imageName = $objUser->getId() . '_' . ++$index . '_' . $name;
+            $imgFile   = $imgFile->getFileSystem()->getFileFromPath(
+                rtrim($imgFile->getPath(), '/') . '/' . $imageName,
+                true
+            );
         }
 
         if (!$objImage->loadImage($tmpImagePath)) {
@@ -1880,7 +1870,12 @@ JS
                 return false;
             }
         } else {
-            if (!copy($tmpImagePath, $imageRepo.'/'.$imageName)) {
+            if (
+                !$cx->getMediaSourceManager()->copyFile(
+                    $tmpImagePath,
+                    $cx->getWebsiteImagesAccessProfileWebPath() . '/' . $imageName
+                )
+            ) {
                 return false;
             }
         }
