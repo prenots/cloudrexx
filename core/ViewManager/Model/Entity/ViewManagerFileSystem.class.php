@@ -113,56 +113,6 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     }
 
     /**
-     * Check whether file is directory
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return boolean True on success, false otherwise
-     */
-    public function isDirectory(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return is_dir($this->getFullPath($file));
-    }
-
-    /**
-     * Check whether file is directory
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return boolean True on success, false otherwise
-     */
-    public function isFile(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return is_file($this->getFullPath($file));
-    }
-
-    /**
-     * Check whether file exists in the filesytem
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return boolean True when exists, false otherwise
-     */
-    public function fileExists(\Cx\Core\MediaSource\Model\Entity\File $file)
-    {
-        return file_exists($this->getFullPath($file));
-    }
-
-    /**
-     * Read the contents from given file,
-     * Check whether the file exists before calling this function
-     *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return string file content
-     */
-    public function readFile(
-        \Cx\Core\MediaSource\Model\Entity\File $file
-    ) {
-        return file_get_contents($this->getFullPath($file));
-    }
-
-    /**
      * Get full path of the given file,
      * If file is application template then load from website/codebase path
      * else
@@ -171,9 +121,8 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      * 2. server website repository
      * 3. codebase repository
      *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
-     * @return string
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
+     * @return string Full path of the given file
      */
     public function getFullPath(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
@@ -189,7 +138,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         } elseif ($path = $this->locateFileInAdditionalFileSystem($file->__toString())) {
             $basePath = $path;
         }
-        return $basePath . $file->__toString();
+        return $basePath . rtrim(ltrim($file->getPath(), '.'), '/') . '/';
     }
 
     /**
@@ -223,13 +172,12 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     /**
      * Check whether the file is read only
      * 
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
      * @return boolean
      */
     public function isReadOnly(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        if (file_exists($this->getRootPath() . $file->__toString())) {
+        if ($this->fileExists($file)) {
             return false;
         }
         return true;
@@ -238,15 +186,12 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
     /**
      * Check whether the file is resettable
      *
-     * @param \Cx\Core\MediaSource\Model\Entity\File $file
-     *
+     * @param \Cx\Core\MediaSource\Model\Entity\File $file File object
      * @return boolean
      */
     public function isResettable(\Cx\Core\MediaSource\Model\Entity\File $file)
     {
-        $isFileExistsInWebsite = file_exists($this->getRootPath() . $file->__toString());
-
-        if (!$isFileExistsInWebsite) {
+        if (!$this->fileExists($file)) {
             return false;
         }
 
@@ -274,12 +219,13 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
      *
      * @param \Cx\Core\ViewManager\Model\Entity\ViewManagerFile $fromFile
      * @param \Cx\Core\ViewManager\Model\Entity\ViewManagerFile $toFile
+     * @return boolean Status of the folder copy
      */
     public function copyFolder(ViewManagerFile $fromFile, ViewManagerFile $toFile)
     {
         // copy folder from additional file systems
         foreach ($this->additionalFileSystems as $fileSystem) {
-            if (!file_exists($fileSystem->getRootPath() . $fromFile->__toString())) {
+            if (!$fileSystem->fileExists($fromFile)) {
                 continue;
             }
 
@@ -293,7 +239,7 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         }
 
         // if folder does not exist in local file system, then we're all done
-        if (!file_exists($this->getRootPath() . $fromFile->__toString())) {
+        if (!$this->fileExists($fromFile)) {
             return true;
         }
 
@@ -308,13 +254,26 @@ class ViewManagerFileSystem extends \Cx\Core\MediaSource\Model\Entity\LocalFileS
         return true;
     }
 
-    public function getFileFromPath($filepath) {
+    /**
+     * Get File object from the path
+     *
+     * @param string  $filepath File path
+     * @param boolean $force    True, return the File object also if the given file not exists or
+     *                          False, return the file object if the file exists
+     * @return ViewManagerFile File Object
+     */
+    public function getFileFromPath($filepath, $force = false)
+    {
+        if ($force) {
+            return new ViewManagerFile($filepath, $this);
+        }
+
         $fileinfo = pathinfo($filepath);
-        $path = dirname($filepath);
-        $files = $this->getFileList($fileinfo['dirname']);
+        $files    = $this->getFileList($fileinfo['dirname']);
         if (!isset($files[$fileinfo['basename']])) {
             return false;
         }
+
         return new ViewManagerFile($filepath, $this);
     }
 }
