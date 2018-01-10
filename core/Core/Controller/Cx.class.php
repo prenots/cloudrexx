@@ -583,6 +583,18 @@ namespace Cx\Core\Core\Controller {
         protected $websiteImagesAccessPhotoWebPath;
 
         /**
+         * @var string The absolute path of the website's data repository
+         *             location /media/Ecard
+         */
+        protected $websiteMediaEcardPath;
+
+        /**
+         * @var string The offset path of the website's data repository
+         *             location /media/Ecard
+         */
+        protected $websiteMediaEcardWebPath;
+
+        /**
          * @var \Cx\Core\MediaSource\Model\Entity\MediaSourceManager
          */
         protected $mediaSourceManager;
@@ -2726,6 +2738,7 @@ namespace Cx\Core\Core\Controller {
             $this->websiteMediaMarketPath       = $this->websiteDocumentRootPath . self::FOLDER_NAME_MEDIA . '/Market';
             $this->websiteMediaCrmPath          = $this->websiteDocumentRootPath . self::FOLDER_NAME_MEDIA . '/Crm';
             $this->websiteMediaDirectoryPath    = $this->websiteDocumentRootPath . self::FOLDER_NAME_MEDIA . '/Directory';
+            $this->websiteMediaEcardPath        = $this->websiteDocumentRootPath . self::FOLDER_NAME_MEDIA . '/Ecard';
 
             $this->websiteImagesContentWebPath  = $this->websiteOffsetPath . self::FOLDER_NAME_IMAGES . '/content';
             $this->websiteImagesAttachWebPath   = $this->websiteOffsetPath . self::FOLDER_NAME_IMAGES . '/attach';
@@ -2750,6 +2763,7 @@ namespace Cx\Core\Core\Controller {
             $this->websiteMediaFileSharingWebPath=$this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/FileSharing';
             $this->websiteMediaMarketWebPath     = $this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/Market';
             $this->websiteMediaDirectoryWebPath  = $this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/Directory';
+            $this->websiteMediaEcardWebPath      = $this->websiteOffsetPath . self::FOLDER_NAME_MEDIA . '/Ecard';
 
             $this->websitePublicTempPath        = $this->websiteTempPath    . self::FOLDER_NAME_PUBLIC_TEMP;
             $this->websitePublicTempWebPath     = $this->websiteTempWebPath . self::FOLDER_NAME_PUBLIC_TEMP;
@@ -3319,6 +3333,26 @@ namespace Cx\Core\Core\Controller {
          */
         public function getWebsiteMediaDirectoryWebPath() {
             return $this->websiteMediaDirectoryWebPath;
+        }
+
+        /**
+         * Return the absolute path from the website's data repository to the
+         * location of the /media/Ecard
+         * @return string
+         */
+        public function getWebsiteMediaEcardPath()
+        {
+            return $this->websiteMediaEcardPath;
+        }
+
+        /**
+         * Return the offset path from the website's data repository to the
+         * location of the /media/Ecard
+         * @return string
+         */
+        public function getWebsiteMediaEcardWebPath()
+        {
+            return $this->websiteMediaEcardWebPath;
         }
 
         /**

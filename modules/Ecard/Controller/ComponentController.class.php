@@ -74,4 +74,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 break;
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerEventListeners() {
+        $this->cx->getEvents()->addEventListener(
+            'mediasource.load',
+            new \Cx\Modules\Ecard\Model\Event\EcardEventListener($this->cx)
+        );
+    }
 }
