@@ -1322,6 +1322,7 @@ EOF;
         $errmsg = '';
         $errno = 0;
         $s = @fsockopen('img.youtube.com', 80, $errno, $errmsg, 5);
+        $mediumThumbnail = '';
         if(is_resource($s)){
             $httpRequest =  "GET /vi/%s/default.jpg HTTP/1.1\r\n".
                             "Host: img.youtube.com\r\n".
@@ -1343,11 +1344,19 @@ EOF;
                 $response .= fread($s, 512);
             }
             @fclose($s);
-            $response = substr($response, -$contentLength);
-            $mediumThumbnail = '/images/Podcast/youtube_thumbnails/youtube_'.$youTubeID.'.jpg';
-            $hImg = fopen(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$mediumThumbnail, 'w');
-            fwrite($hImg, $response, $contentLength);
-            fclose($hImg);
+            $response   = substr($response, -$contentLength);
+            $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaType('podcast')
+                ->getFileSystem();
+            $thumbFile = $fileSystem->getFileFromPath(
+                '/youtube_thumbnails/youtube_' . $youTubeID . '.jpg',
+                true
+            );
+            if ($thumbFile->writeFile($thumbFile, $response) !== false) {
+                $mediumThumbnail = $fileSystem->getWebPath($thumbFile) .
+                    $thumbFile->getFullName();
+            }
         }
         return $mediumThumbnail;
     }
