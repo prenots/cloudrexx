@@ -768,8 +768,9 @@ CODE;
             //legacy function for old uploader
             return $this->_uploadFilesLegacy($arrFields);
         } else {
-            $cx         = \Cx\Core\Core\Controller\Cx::instanciate();
-            $fileSystem = $cx
+            $cx                 = \Cx\Core\Core\Controller\Cx::instanciate();
+            $mediaSourceManager = $cx->getMediaSourceManager();
+            $fileSystem         = $cx
                 ->getMediaSourceManager()
                 ->getMediaType('attach')
                 ->getFileSystem();
@@ -810,10 +811,14 @@ CODE;
                     //find an unique folder name for the uploaded files
                     $folderName = date("Ymd").'_'.$fieldId;
                     $suffix = "";
-                    if ($this->getFile($depositionTarget . $folderName)) {
+                    if (
+                        $mediaSourceManager->getMediaSourceFileFromPath(
+                            $depositionTarget . $folderName
+                        )
+                    ) {
                         $suffix = 1;
                         while (
-                            $this->getFile(
+                            $mediaSourceManager->getMediaSourceFileFromPath(
                                 $depositionTarget . $folderName . '-' . $suffix
                             )
                         ) {
@@ -824,12 +829,10 @@ CODE;
                     $folderName .= $suffix;
 
                     //try to make the folder and change target accordingly on success
-                    if (
-                        $fileSystem->createDirectory(
-                            $folderName
-                        )
-                    ) {
-                        $fileObj = $this->getFile($depositionTarget . $folderName);
+                    if ($fileSystem->createDirectory($folderName)) {
+                        $fileObj = $mediaSourceManager->getMediaSourceFileFromPath(
+                            $depositionTarget . $folderName
+                        );
                         $fileObj->getFileSystem()->makeWritable($fileObj);
                         $depositionTarget .= $folderName.'/';
                     }
@@ -850,7 +853,11 @@ CODE;
                     if($f != '..' && $f != '.') {
                         //do not overwrite existing files.
                         $prefix = '';
-                        while ($this->getFile($depositionTarget . $prefix . $f)) {
+                        while (
+                            $mediaSourceManager->getMediaSourceFileFromPath(
+                                $depositionTarget . $prefix . $f
+                            )
+                        ) {
                             if (empty($prefix)) {
                                 $prefix = 0;
                             }
@@ -860,7 +867,7 @@ CODE;
                         if($move) {
                             // move file
                             try {
-                                $cx->getMediaSourceManager()->moveFile(
+                                $mediaSourceManager->moveFile(
                                     $tmpUploadDir . $f,
                                     $depositionTarget . $prefix . $f
                                 );
