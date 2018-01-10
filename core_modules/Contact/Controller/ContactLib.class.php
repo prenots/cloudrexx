@@ -1249,10 +1249,6 @@ class ContactLib
                                             `f`.`type` IN ('multi_file', 'file')
                                         WHERE `d`.`id`=".$id);
         if ($rs) {
-            $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
-                ->getMediaSourceManager()
-                ->getMediaType('attach')
-                ->getFileSystem();
             while (!$rs->EOF) {
                 $data = $rs->fields['formvalue'];
                 $formId = $rs->fields['id_form'];
@@ -1284,12 +1280,8 @@ class ContactLib
 
                         //nice, we have all the files. delete them.
                         foreach($arrFiles as $file) {
-                            $fileSystem->removeFile(
-                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                    ltrim($file, '/images/attach'),
-                                    $fileSystem
-                                )
-                            );
+                            $fileObj = $this->getFile($file);
+                            $fileObj->getFileSystem()->removeFile($fileObj);
                         }
                     }
                 }
@@ -1887,5 +1879,22 @@ JS_misc;
         }
 
         return implode("\n", $sourcecode);
+    }
+
+    /**
+     * Get a file object
+     *
+     * @param string $path File path
+     * @return \Cx\Core\MediaSource\Model\Entity\LocalFile If true return file object, otherwise false
+     */
+    public function getFile($path)
+    {
+        if (empty($path)) {
+            return false;
+        }
+
+        return \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath($path);
     }
 }

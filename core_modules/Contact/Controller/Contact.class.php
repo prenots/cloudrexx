@@ -810,21 +810,11 @@ CODE;
                     //find an unique folder name for the uploaded files
                     $folderName = date("Ymd").'_'.$fieldId;
                     $suffix = "";
-                    if (
-                        $fileSystem->fileExists(
-                            new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                $folderName,
-                                $fileSystem
-                            )
-                        )
-                    ) {
+                    if ($this->getFile($depositionTarget . $folderName)) {
                         $suffix = 1;
                         while (
-                            $fileSystem->fileExists(
-                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                    $folderName . '-' . $suffix,
-                                    $fileSystem
-                                )
+                            $this->getFile(
+                                $depositionTarget . $folderName . '-' . $suffix
                             )
                         ) {
                             $suffix++;
@@ -839,12 +829,8 @@ CODE;
                             $folderName
                         )
                     ) {
-                        $fileSystem->makeWritable(
-                            new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                $folderName,
-                                $fileSystem
-                            )
-                        );
+                        $fileObj = $this->getFile($depositionTarget . $folderName);
+                        $fileObj->getFileSystem()->makeWritable($fileObj);
                         $depositionTarget .= $folderName.'/';
                     }
                     $this->depositionTarget[$fieldId] = $depositionTarget;
@@ -864,14 +850,7 @@ CODE;
                     if($f != '..' && $f != '.') {
                         //do not overwrite existing files.
                         $prefix = '';
-                        while (
-                            $fileSystem->fileExists(
-                                new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                                    $prefix . $f,
-                                    $fileSystem
-                                )
-                            )
-                        ) {
+                        while ($this->getFile($depositionTarget . $prefix . $f)) {
                             if (empty($prefix)) {
                                 $prefix = 0;
                             }
@@ -881,8 +860,7 @@ CODE;
                         if($move) {
                             // move file
                             try {
-                                $mediaSourceManager = $cx->getMediaSourceManager();
-                                $mediaSourceManager->moveFile(
+                                $cx->getMediaSourceManager()->moveFile(
                                     $tmpUploadDir . $f,
                                     $depositionTarget . $prefix . $f
                                 );
