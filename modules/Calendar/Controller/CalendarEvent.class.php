@@ -2156,7 +2156,7 @@ class CalendarEvent extends CalendarLibrary
 
                 //do not overwrite existing files.
                 $prefix = '';
-                while (file_exists($depositionTarget.$prefix.$f)) {
+                while ($this->getFile($depositionTarget.$prefix.$f)) {
                     if (empty($prefix)) {
                         $prefix = 0;
                     }
@@ -2164,24 +2164,36 @@ class CalendarEvent extends CalendarLibrary
                 }
 
                 // move file
-                try {
-                    $objFile = new \Cx\Lib\FileSystem\File($tmpUploadDir.$f);
-                    $fileInfo = pathinfo($tmpUploadDir.$f);
-                    $objFile->move($depositionTarget.$prefix.$f, false);
+                $filePath = substr(
+                    $depositionTarget . $prefix . $f,
+                    strlen($cx->getWebsiteDocumentRootPath())
+                );
+                $cx->getMediaSourceManager()->moveFile(
+                    $tmpUploadDir . $f,
+                    $filePath
+                );
+                $fileInfo = pathinfo($tmpUploadDir . $f);
 
-                    $imageName = $prefix.$f;
-                    if (in_array($fileInfo['extension'], array('gif', 'jpg', 'jpeg', 'png'))) {
-                        $objImage = new \ImageManager();
-                        $objImage->_createThumb($this->uploadImgPath, $this->uploadImgWebPath, $imageName, 180);
-                    }
-                    $pic = contrexx_input2raw($this->uploadImgWebPath.$imageName);
-
-                    // abort after one file has been fetched, as all event upload
-                    // fields do allow a single file only anyway
-                    break;
-                } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-                    \DBG::msg($e->getMessage());
+                $imageName = $prefix . $f;
+                if (
+                    in_array(
+                        $fileInfo['extension'],
+                        array('gif', 'jpg', 'jpeg', 'png')
+                    )
+                ) {
+                    $objImage = new \ImageManager();
+                    $objImage->_createThumb(
+                        $this->uploadImgPath,
+                        $this->uploadImgWebPath,
+                        $imageName,
+                        180
+                    );
                 }
+                $pic = contrexx_input2raw($this->uploadImgWebPath . $imageName);
+
+                // abort after one file has been fetched, as all event upload
+                // fields do allow a single file only anyway
+                break;
             }
         }
 
