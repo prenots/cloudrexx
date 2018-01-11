@@ -446,4 +446,48 @@ class NodeRepository extends NestedTreeRepository {
         }
         return $result;
     }
+
+    /**
+     * Adds a virtual node with pages to an existing node
+     *
+     * The structure for $pageInfo is:
+     * array(
+     *     '<pageSlug>' => '<localeObject>',
+     *     ...
+     * )
+     * @param \Cx\Core\ContentManager\Model\Entity\Node $parentPage The virtual node's parent node
+     * @param array $pageInfo Translated slugs for the virtual pages
+     * @return \Cx\Core\ContentManager\Model\Entity\Node The new virtual node
+     */
+    public function addVirtualTranslatedNode($parentNode, $pageInfo) {
+        $pageRepo = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Core\ContentManager\Model\Entity\Page'
+        );
+        $node = new \Cx\Core\ContentManager\Model\Entity\Node();
+        $node->setVirtual(true);
+        // TODO: Check if we need to set this both ways
+        $node->setParent($parentNode);
+        foreach ($pageInfo as $slug => $locale) {
+            // if page already exists: continue
+            // TODO: Check if this works as expected
+            $result = $pageRepo->getPagesAtPath(
+                $slug,
+                $parentNode->getPage($locale),
+                $locale->getId()
+            );
+            if (!isset($result['page']) || !$result['page']) {
+                unset($node);
+                $node = $result['page'];
+                continue;
+            }
+            $page = new \Cx\Core\ContentManager\Model\Entity\Page();
+            $page->setVirtual(true);
+            $page->setLang($locale->getId());
+            // TODO: Check if we need to set this both ways
+            $page->setNode($node);
+            $page->setSlug($slug);
+            $page->validate();
+        }
+        return $node;
+    }
 }
