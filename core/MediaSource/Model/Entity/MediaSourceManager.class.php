@@ -324,7 +324,7 @@ class MediaSourceManager extends EntityBase
     }
 
     /**
-     * Move file from one filesystem to other filesystem
+     * Copy file from one filesystem to other filesystem
      * The arguments $sourcepath and DestinationPath must be a relative path.
      * ie: /images/Access/photo/0_no_picture.gif,
      *     /media/archive1/preisliste_contrexx_2012.pdf,
@@ -332,9 +332,9 @@ class MediaSourceManager extends EntityBase
      *
      * @param string $sourcePath      Source filepath
      * @param string $destinationPath Destination filepath
-     * @return boolean status of file move
+     * @return boolean status of file copy
      */
-    public function moveFile($sourcePath, $destinationPath)
+    public function copyFile($sourcePath, $destinationPath)
     {
         // Get Source Stream
         $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
@@ -368,14 +368,14 @@ class MediaSourceManager extends EntityBase
                 $destFile->getPath(),
                 true
             );
-            if (!$destFile->getFileSystem()->fileExists($destDirectory)) {
-                $destFile->getFileSystem()->createDirectory(
-                    ltrim($destFile->getPath(), '/')
-                );
-            }
-
-            // Return if the destination file directory is not exists
-            if (!$destFile->getFileSystem()->fileExists($destDirectory)) {
+            if (
+                !$destFile->getFileSystem()->fileExists($destDirectory) &&
+                !$destFile->getFileSystem()->createDirectory(
+                    ltrim($destFile->getPath(), '/'),
+                    '',
+                    true
+                )
+            ) {
                 return false;
             }
         } catch(MediaSourceManagerException $e) {
@@ -394,12 +394,35 @@ class MediaSourceManager extends EntityBase
         $destStream = $destFile->getStream('w');
 
         // Copy the file from source to destination
+        $copyStatus = true;
         if (!stream_copy_to_stream($sourceStream, $destStream)) {
+            $copyStatus = false;
+        }
+
+        return $copyStatus;
+    }
+
+    /**
+     * Move file from one filesystem to other filesystem
+     * The arguments $sourcepath and DestinationPath must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *
+     * @param string $sourcePath      Source filepath
+     * @param string $destinationPath Destination filepath
+     * @return boolean status of file move
+     */
+    public function moveFile($sourcePath, $destinationPath)
+    {
+        // Copy the file from source to destination
+        if (!$this->copyFile($sourcePath, $destinationPath)) {
             return false;
         }
 
         // Delete the source file
-        if ($sourceFile instanceof \Cx\Lib\FileSystem\File) {
+        $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
+        if (!$sourceFile) {
             \Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath);
         } else {
             $sourceFile->getFileSystem()->removeFile($sourceFile);
