@@ -74,9 +74,15 @@ class ShopManager extends ShopLibrary
 
         $this->checkProfileAttributes();
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        self::$defaultImage = file_exists($cx->getWebsiteImagesShopPath() . '/' . ShopLibrary::noPictureName) ?
-                                $cx->getWebsiteImagesShopWebPath() . '/' . ShopLibrary::noPictureName :
-                                $cx->getCodeBaseOffsetPath(). '/images/Shop/' . ShopLibrary::noPictureName;
+        $defaultImg = self::getFileByPath(
+            $cx->getWebsiteImagesShopPath() . '/' . ShopLibrary::noPictureName
+        );
+        self::$defaultImage = $cx->getCodeBaseOffsetPath(). '/images/Shop/' .
+            ShopLibrary::noPictureName;
+        if ($defaultImg->getFileSystem()->fileExists($defaultImg)) {
+            self::$defaultImage = $defaultImg->getFileSystem()->getWebPath($defaultImg) .
+                $defaultImg->getFullName();
+        }
         self::$objTemplate = new \Cx\Core\Html\Sigma($cx->getCodeBaseModulePath() . '/Shop/View/Template/Backend');
         self::$objTemplate->setErrorHandling(PEAR_ERROR_DIE);
 //DBG::log("ARRAYLANG: ".var_export($_ARRAYLANG, true));
@@ -2238,36 +2244,12 @@ if ($test === NULL) {
                 ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
                 Manufacturer::getMenuoptions($objProduct->manufacturer_id()),
-            'SHOP_PICTURE1_IMG_SRC' =>
-                (   !empty($arrImages[1]['img'])
-                 && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[1]['img']))
-                        ? contrexx_raw2encodedUrl(\ImageManager::getThumbnailFilename($websiteImagesShopWebPath . $arrImages[1]['img']))
-                    : self::$defaultImage),
-            'SHOP_PICTURE2_IMG_SRC' =>
-                (   !empty($arrImages[2]['img'])
-                 && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[2]['img']))
-                        ? contrexx_raw2encodedUrl(\ImageManager::getThumbnailFilename($websiteImagesShopWebPath . $arrImages[2]['img']))
-                    : self::$defaultImage),
-            'SHOP_PICTURE3_IMG_SRC' =>
-                (   !empty($arrImages[3]['img'])
-                 && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[3]['img']))
-                    ? contrexx_raw2encodedUrl(\ImageManager::getThumbnailFilename($websiteImagesShopWebPath . $arrImages[3]['img']))
-                    : self::$defaultImage),
-            'SHOP_PICTURE1_IMG_SRC_NO_THUMB' =>
-                (   !empty($arrImages[1]['img'])
-                 && is_file($websiteImagesShopPath . $arrImages[1]['img'])
-                    ? $websiteImagesShopWebPath . $arrImages[1]['img']
-                    : self::$defaultImage),
-            'SHOP_PICTURE2_IMG_SRC_NO_THUMB' =>
-                (   !empty($arrImages[2]['img'])
-                 && is_file($websiteImagesShopPath . $arrImages[2]['img'])
-                    ? $websiteImagesShopWebPath . $arrImages[2]['img']
-                    : self::$defaultImage),
-            'SHOP_PICTURE3_IMG_SRC_NO_THUMB' =>
-                (   !empty($arrImages[3]['img'])
-                 && is_file($websiteImagesShopPath . $arrImages[3]['img'])
-                    ? $websiteImagesShopWebPath . $arrImages[3]['img']
-                    : self::$defaultImage),
+            'SHOP_PICTURE1_IMG_SRC' => $this->getPicturePath($websiteImagesShopPath . $arrImages[1]['img'], true),
+            'SHOP_PICTURE2_IMG_SRC' => $this->getPicturePath($websiteImagesShopPath . $arrImages[2]['img'], true),
+            'SHOP_PICTURE3_IMG_SRC' => $this->getPicturePath($websiteImagesShopPath . $arrImages[3]['img'], true),
+            'SHOP_PICTURE1_IMG_SRC_NO_THUMB' => $this->getPicturePath($websiteImagesShopPath . $arrImages[1]['img']),
+            'SHOP_PICTURE2_IMG_SRC_NO_THUMB' => $this->getPicturePath($websiteImagesShopPath . $arrImages[2]['img']),
+            'SHOP_PICTURE3_IMG_SRC_NO_THUMB' => $this->getPicturePath($websiteImagesShopPath . $arrImages[3]['img']),
             'SHOP_PICTURE1_IMG_WIDTH' => $arrImages[1]['width'],
             'SHOP_PICTURE1_IMG_HEIGHT' => $arrImages[1]['height'],
             'SHOP_PICTURE2_IMG_WIDTH' => $arrImages[2]['width'],
@@ -2304,6 +2286,33 @@ if ($test === NULL) {
         return true;
     }
 
+    /**
+     * Get Thumbnail image path by the given path
+     *
+     * @param string  $path           File path
+     * @param boolean $returnThumbImg True, return the thumbnail image path
+     *                                otherwise return original image path
+     * @return string Thumbnail path
+     */
+    public function getPicturePath($path, $returnThumbImg = false)
+    {
+        if (empty($path)) {
+            return self::$defaultImage;
+        }
+
+        if ($returnThumbImg) {
+            $path = \ImageManager::getThumbnailFilename($path);
+        }
+
+        $file = self::getFileByPath($path);
+        if (!$file->getFileSystem()->isFile($file)) {
+            return self::$defaultImage;
+        }
+
+        return contrexx_raw2encodedUrl(
+            $file->getFileSystem()->getWebPath($file) . $file->getFullName()
+        );
+    }
 
     /**
      * Stores the posted Product, if any
@@ -2384,12 +2393,18 @@ if ($test === NULL) {
                 continue;
             }
 
-            $picturePath = $cx->getWebsiteImagesShopPath(). '/' . $picture;
-            if (!\Cx\Lib\FileSystem\FileSystem::exists($picturePath)) {
+            $pictureFile = self::getFileByPath(
+                $cx->getWebsiteImagesShopPath(). '/' . $picture
+            );
+
+            if (!$pictureFile->getFileSystem()->fileExists($pictureFile)) {
                 continue;
             }
 
-            $pictureSize = getimagesize($picturePath);
+            $pictureSize = getimagesize(
+                $pictureFile->getFileSystem()->getFullPath($pictureFile) .
+                $pictureFile->getFullName()
+            );
             $_POST['productImage' . $i . '_width']  = $pictureSize[0];
             $_POST['productImage' . $i . '_height'] = $pictureSize[1];
         }

@@ -1087,7 +1087,8 @@ class ShopCategories
             );
         }
         // If the picture is missing, skip it.
-        if (!file_exists($imagePath)) {
+        $imgFile = \Cx\Modules\Shop\Controller\ShopLibrary::getFileByPath($imagePath);
+        if (!$imgFile->getFileSystem()->fileExists($imgFile)) {
             return sprintf(
                 $_ARRAYLANG['TXT_SHOP_MISSING_CATEGORY_IMAGES'],
                 $id, $imageName
@@ -1096,8 +1097,15 @@ class ShopCategories
         // If the thumbnail exists and is newer than the picture,
         // don't create it again.
         $thumb_name = ImageManager::getThumbnailFilename($imagePath);
-        if (file_exists($thumb_name)
-         && filemtime($thumb_name) > filemtime($imagePath)) {
+        $thumbFile = \Cx\Modules\Shop\Controller\ShopLibrary::getFileByPath(
+            \ImageManager::getThumbnailFilename($imagePath)
+        );
+        $thumbPath = $thumbFile->getFileSystem()->getFullPath($thumbFile) . $thumbFile->getFullName();
+        $imgPath   = $imgFile->getFileSystem()->getFullPath($imgFile) . $imgFile->getFullName();
+        if (
+            $thumbFile->getFileSystem()->fileExists($thumbFile) &&
+            filemtime($thumbPath) > filemtime($imgPath)
+        ) {
             return '';
         }
         // Already included by the Shop.

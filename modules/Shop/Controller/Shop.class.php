@@ -147,13 +147,16 @@ die("Shop::init(): ERROR: Shop::init() called more than once!");
             $_ARRAYLANG = array_merge($_ARRAYLANG,
                 $objInit->loadLanguageData('Shop'));
         }
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        self::$defaultImage = file_exists(
-            $cx->getWebsiteImagesShopPath() . '/' . ShopLibrary::noPictureName)
-                ? $cx->getWebsiteImagesShopWebPath() . '/' .
-                    ShopLibrary::noPictureName
-                : $cx->getCodeBaseOffsetPath(). '/images/Shop/' .
-                    ShopLibrary::noPictureName;
+        $cx         = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultImg = self::getFileByPath(
+            $cx->getWebsiteImagesShopPath() . '/' . ShopLibrary::noPictureName
+        );
+        self::$defaultImage = $cx->getCodeBaseOffsetPath(). '/images/Shop/' .
+            ShopLibrary::noPictureName;
+        if ($defaultImg->getFileSystem()->fileExists($defaultImg)) {
+            self::$defaultImage = $defaultImg->getFileSystem()->getWebPath($defaultImg) .
+                $defaultImg->getFullName();
+        }
         // Check session and user data, log in if present.
         // The Customer is required to properly calculate prices in the Cart
         self::_authenticate();
@@ -994,10 +997,15 @@ die("Failed to update the Cart!");
                         'SHOP_CATEGORY_CURRENT_IMAGE'       => $cx->getWebsiteImagesShopWebPath() . '/' . $imageName,
                         'SHOP_CATEGORY_CURRENT_IMAGE_ALT'   => $catName,
                     ));
-                    if (file_exists(\ImageManager::getThumbnailFilename($cx->getWebsiteImagesShopPath() . '/' . $imageName))) {
-                        $thumbnailPath = \ImageManager::getThumbnailFilename(
-                            $cx->getWebsiteImagesShopWebPath() . '/' . $imageName
-                        );
+                    $thumbnailFile = self::getFileByPath(
+                        \ImageManager::getThumbnailFilename(
+                            $cx->getWebsiteImagesShopPath() . '/' . $imageName
+                        )
+                    );
+                    if ($thumbnailFile->getFileSystem()->fileExists($thumbnailFile)) {
+                        $thumbnailPath =
+                            $thumbnailFile->getFileSystem()->getWebPath($thumbnailFile) .
+                            $thumbnailFile->getFullName();
                         $arrSize = getimagesize($cx->getWebsitePath() . $thumbnailPath);
                         self::scaleImageSizeToThumbnail($arrSize);
                         self::$objTemplate->setVariable(array(
@@ -1058,11 +1066,16 @@ die("Failed to update the Cart!");
                 $imageName = ShopCategories::getPictureById($id);
             }
             if ($imageName) {
-                if (file_exists(\ImageManager::getThumbnailFilename($cx->getWebsiteImagesShopPath() . '/' . $imageName))) {
+                $thumbnailFile = self::getFileByPath(
+                    \ImageManager::getThumbnailFilename(
+                        $cx->getWebsiteImagesShopPath() . '/' . $imageName
+                    )
+                );
+                if ($thumbnailFile->getFileSystem()->fileExists($thumbnailFile)) {
                     // Image found!  Use that instead of the default.
-                    $thumbnailPath = \ImageManager::getThumbnailFilename(
-                        $cx->getWebsiteImagesShopWebPath() . '/' . $imageName
-                    );
+                    $thumbnailPath =
+                        $thumbnailFile->getFileSystem()->getWebPath($thumbnailFile) .
+                        $thumbnailFile->getFullName();
                     $arrSize = getimagesize($cx->getWebsitePath() . $thumbnailPath);
                     self::scaleImageSizeToThumbnail($arrSize);
                 }
@@ -1422,7 +1435,8 @@ die("Failed to update the Cart!");
                         $arrSize = array($image['width'], $image['height']);
                     } else {
                         $pictureLink = '#';
-                        if (!file_exists($cx->getWebsitePath() . $thumbnailPath)) {
+                        $thumbnailFile = self::getFileByPath($thumbnailPath);
+                        if (!$thumbnailFile->getFileSystem()->fileExists($thumbnailFile)) {
                             continue;
                         }
                         $arrSize = getimagesize($cx->getWebsitePath() . $thumbnailPath);

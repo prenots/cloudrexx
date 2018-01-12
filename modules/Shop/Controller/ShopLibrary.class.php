@@ -254,23 +254,30 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
     {
         global $_ARRAYLANG;
 
-        $arrMatch = array();
-        $shopImageFolderRe = '/^'.preg_quote(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopWebPath().'/', '/').'/';
-        $imageFileTarget = $imageFileSource;
-        if (!preg_match($shopImageFolderRe, $imageFileSource))
-            $imageFileTarget = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopWebPath() . '/' . basename($imageFileSource);
-        // If the image is situated in or below the shop image folder,
-        // don't bother to copy it.
-        if (!preg_match($shopImageFolderRe, $imageFileSource)) {
-            if (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $imageFileTarget)
-             && preg_match('/(\.\w+)$/', $imageFileSource, $arrMatch)) {
-                $imageFileTarget = preg_replace('/\.\w+$/', uniqid().$arrMatch[1], $imageFileTarget);
+        $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
+        $pattern  = '/^' . preg_quote($cx->getWebsiteImagesShopWebPath() . '/', '/') . '/';
+        $destPath = $imageFileSource;
+        if (!preg_match($pattern, $imageFileSource)) {
+            // If the image is situated in or below the shop image folder,
+            // don't bother to copy it.
+            $destFile  = self::getFileByPath(
+                $cx->getWebsiteImagesShopWebPath() . '/' . basename($imageFileSource)
+            );
+            $destPath = $destFile->getFileSystem()->getFullPath($destFile);
+            if ($destFile->getFileSystem()->fileExists($destFile)) {
+                $destPath .=
+                    $destFile->getName() . uniqid() . '.' .
+                    pathinfo($imageFileSource, PATHINFO_EXTENSION);
                 \Message::information(sprintf(
                     $_ARRAYLANG['TXT_SHOP_IMAGE_RENAMED_FROM_TO'],
-                    basename($imageFileSource), basename($imageFileTarget)
+                    basename($imageFileSource), basename($destPath)
                 ));
+            } else {
+                $destPath .= $destFile->getFullName();
             }
-            if (!copy(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $imageFileSource, \Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $imageFileTarget)) {
+
+            $destPath = substr($destPath, strlen($cx->getWebsiteDocumentRootPath()));
+            if (!$cx->getMediaSourceManager()->copyFile($imageFileSource, $destPath)) {
                 //the function addError() declaration is missing, but defined so those lines are commented
 //                self::addError(
 //                    $imageFileSource.': '.
@@ -280,8 +287,12 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
                 return false;
             }
         }
+
         // Fix the original, absolute path to relative to the document root
-        $imageFileSource = preg_replace($shopImageFolderRe, '', $imageFileTarget);
+        $imageFileSource = substr(
+            $destPath,
+            strlen($cx->getWebsiteImagesShopWebPath()) + 1
+        );
         return true;
     }
 
@@ -410,4 +421,26 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         );
     }
 
+    /**
+     * get File object by the given path
+     *
+     * @param string $path File path
+     * @return \Cx\Core\MediaSource\Model\Entity\LocalFile File object
+     */
+    public static function getFileByPath($path)
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        if (strpos($path, $cx->getWebsiteDocumentRootPath()) !== 0 ) {
+            $path = $cx->getWebsiteDocumentRootPath() . $path;
+        }
+
+        $fileSystem = $cx->getMediaSourceManager()->getMediaType('shop')->getFileSystem();
+        $path       = substr($path, strlen($fileSystem->getRootPath()));
+
+        return new \Cx\Core\MediaSource\Model\Entity\LocalFile($path, $fileSystem);
+    }
 }
