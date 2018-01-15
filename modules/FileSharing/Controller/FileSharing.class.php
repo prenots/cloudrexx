@@ -177,16 +177,19 @@ class FileSharing extends FileSharingLib
         global $objDatabase;
         $objResult = $objDatabase->SelectLimit("SELECT `file`, `source` FROM " . DBPREFIX . "module_filesharing WHERE `hash` = '" . contrexx_raw2db($hash) . "'", 1, 0);
         if ($objResult !== false && $objResult->RecordCount() > 0) {
-            $fileName = $objResult->fields["file"];
-            $filePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath() . $objResult->fields["source"];
-            if (!file_exists($filePath))
+            $fileName = $objResult->fields['file'];
+            $file     = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaSourceFileFromPath($objResult->fields['source']);
+            if (!$file) {
                 throw new FileSharingException('file_not_found');
+            }
 
             ob_end_clean();
             header("Pragma: public");
             header("Content-Type: application/octet-stream");
             header("Content-Disposition: attachment; filename=\"" . $fileName . "\"");
-            readfile($filePath);
+            readfile($file->getFileSystem()->getFullPath($file) . $file->getFullName());
             die();
         } else {
             throw new FileSharingException('file_not_found');
@@ -215,7 +218,12 @@ class FileSharing extends FileSharingLib
         }
         if ($objResult->fields["check"] == $check) {
             // check whether the check code is the same as in the database
-            \Cx\Lib\FileSystem\FileSystem::delete_file(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath() . $objResult->fields["source"]);
+            $file = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaSourceFileFromPath($objResult->fields['source']);
+            if ($file) {
+                $file->getFileSystem()->removeFile($file);
+            }
             $objDatabase->Execute("DELETE FROM " . DBPREFIX . "module_filesharing WHERE `id` = " . intval($objResult->fields["id"]));
         }
         return true;
@@ -263,21 +271,25 @@ class FileSharing extends FileSharingLib
         global $objDatabase;
         $objResult = $objDatabase->SelectLimit("SELECT `source` FROM " . DBPREFIX . "module_filesharing WHERE `hash` = '" . contrexx_raw2db($hash) . "'", 1, 0);
         if ($objResult !== false && $objResult->RecordCount() > 0) {
-            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $path = $cx->getWebsiteOffsetPath() . $objResult->fields["source"];
-            $info = pathinfo($path);
-            $extension = strtolower($info["extension"]);
+            $file = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaSourceFileFromPath($objResult->fields['source']);
+            if (!$file) {
+                return;
+            }
+            $path = $file->getFileSystem()->getFullPath($file) . $file->getFullName();
+            $extension = strtolower($file->getExtension());
 
             // check which extension it is and show the image
             if ($extension == "jpeg" || $extension == "jpg") {
                 header("Content-Type: image/jpeg");
-                readfile($cx->getWebsitePath() . $path);
+                readfile($path);
             } elseif ($extension == "png") {
                 header("Content-Type: image/png");
-                readfile($cx->getWebsitePath() . $path);
+                readfile($path);
             } elseif ($extension == "gif") {
                 header("Content-Type: image/gif");
-                readfile($cx->getWebsitePath() . $path);
+                readfile($path);
             }
             die();
         }
@@ -453,73 +465,82 @@ class FileSharing extends FileSharingLib
      * get the shared files by upload id
      *
      * @param integer $uploadId the upload id of the upload
-     *
      * @return array with files of the last upload
-     *
      * @access private
      */
     private function getSharedFiles($uploadId)
     {
         global $objDatabase;
 
-        $cx          = \Cx\Core\Core\Controller\Cx::instanciate();
-        $fileSystem  = new \Cx\Lib\FileSystem\FileSystem();
-        $imageUrl    = clone \Env::get("Resolver")->getUrl(); // get the image url
-        $files       = array();
-        $directory   = \Env::get('Resolver')->getCmd();
+        $cx        = \Cx\Core\Core\Controller\Cx::instanciate();
+        $imageUrl  = clone \Env::get('Resolver')->getUrl(); // get the image url
+        $files     = array();
+        $directory = \Env::get('Resolver')->getCmd();
 
         if ($directory != 'Downloads') {
-            $targetPath    = $cx->getWebsiteMediaFileSharingPath() . '/' .  (!empty($directory) ? $directory .'/' : '');
-            $targetPathWeb = $cx->getWebsiteMediaFileSharingWebPath() . '/' . (!empty($directory) ? $directory .'/' : '');
+            $targetPathWeb = $cx->getWebsiteMediaFileSharingWebPath() . '/' .
+                (!empty($directory) ? $directory . '/' : '');
         } else {
-            $targetPath    = $cx->getWebsiteImagesDownloadsPath() . '/';
             $targetPathWeb = $cx->getWebsiteImagesDownloadsWebPath() . '/';
         }
 
         $tup         = FileSharingLib::getTemporaryFilePaths($uploadId);
         $dirTempPath = $tup[0] . '/' . $tup[2] . '/'; //get the tmp/$uploadId files
+        $mediaSourceManager = $cx->getMediaSourceManager();
         foreach (glob($dirTempPath . '/*') as $uploadedFile) {
-            $file = basename($uploadedFile);
+            $file     = basename($uploadedFile);
+            $filePath = $targetPathWeb . $file;
+            if ($targetFile = $mediaSourceManager->getMediaSourceFileFromPath($filePath)) {
+                $filePath = $targetPathWeb . $targetFile->getName() . '_' . time() .
+                    '.' . $targetFile->getExtension();
+            }
 
-            $uploadedFileName = $fileSystem->copyFile($dirTempPath, $file, $targetPath, $file, false);
-            if ($uploadedFileName === 'error') {
+            if (!$mediaSourceManager->moveFile($dirTempPath . $file, $filePath)) {
                 continue;
             }
-            \Cx\Lib\FileSystem\FileSystem::delete_file($dirTempPath.'/'.$file);
-            $uploadedFileSource = $targetPathWeb . $uploadedFileName;
+
+            if (!$targetFile = $mediaSourceManager->getMediaSourceFileFromPath($filePath)) {
+                continue;
+            }
+
             $hash  = self::createHash();
             $check = self::createCheck($hash);
 
-            $objResult = $objDatabase->Execute("INSERT INTO " . DBPREFIX . "module_filesharing (`file`, `source`, `cmd`, `hash`, `check`, `upload_id`)
-                                VALUES (
-                                    '" . contrexx_raw2db($uploadedFileName) . "',
-                                    '" . contrexx_raw2db($uploadedFileSource) . "',
-                                    '" . contrexx_raw2db($directory) . "',
-                                    '" . contrexx_raw2db($hash) . "',
-                                    '" . contrexx_raw2db($check) . "',
-                                    '" . contrexx_input2int($uploadId) . "'
-                                )");
+            $objResult = $objDatabase->Execute('
+                INSERT INTO `' . DBPREFIX . 'module_filesharing`
+                    SET `file` = "' . contrexx_raw2db($targetFile->getFullName()) . '",
+                        `source` = "' . contrexx_raw2db($filePath) . '",
+                        `cmd`    = "' . contrexx_raw2db($directory) . '",
+                        `hash`   = "' . contrexx_raw2db($hash) . '",
+                        `check`  = "' . contrexx_raw2db($check) . '",
+                        `upload_id` = "' . contrexx_input2int($uploadId) . '"
+            ');
             if (!$objResult) {
                 continue;
             }
 
-            $imageUrl->setParam("act", "image");
-            $imageUrl->setParam("hash", $hash);
+            $imageUrl->setParam('act', 'image');
+            $imageUrl->setParam('hash', $hash);
 
-            $info = pathinfo($cx->getWebsiteOffsetPath() . $uploadedFileSource, PATHINFO_EXTENSION);
             // if the file is an image show a thumbnail of the image
-            if (!in_array(strtoupper($info), array('JPEG', 'JPG', 'TIFF', 'GIF', 'BMP', 'PNG'))) {
+            if (
+                !in_array(
+                    strtoupper($targetFile->getExtension()),
+                    array('JPEG', 'JPG', 'TIFF', 'GIF', 'BMP', 'PNG')
+                )
+            ) {
                 $imageUrl = false;
             }
 
             $fieldId = $objDatabase->Insert_ID();
             $files[] = array(
-                "name"     => $uploadedFileName,
-                "image"    => $imageUrl ? $imageUrl->toString() : false,
-                "download" => parent::getDownloadLink($fieldId),
-                "delete"   => parent::getDeleteLink($fieldId),
+                'name'     => $targetFile->getFullName(),
+                'image'    => $imageUrl ? $imageUrl->toString() : '',
+                'download' => parent::getDownloadLink($fieldId),
+                'delete'   => parent::getDeleteLink($fieldId),
             );
         }
+
         return $files;
     }
 }

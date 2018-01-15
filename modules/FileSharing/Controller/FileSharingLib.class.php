@@ -53,6 +53,7 @@ abstract class FileSharingLib
     {
         \JS::activate('cx'); // the uploader needs the framework
 
+        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Session')->getSession();
         $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader(); //create an uploader
         $uploadId = $uploader->getId();
         $uploader->setCallback('fileSharingUploader');
@@ -225,16 +226,20 @@ CODE;
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             while (!$objFiles->EOF) {
                 // if the file is expired or does not exist
-                if (($objFiles->fields["expiration_date"] < date('Y-m-d H:i:s')
-                        && $objFiles->fields["expiration_date"] != NULL)
-                        || !file_exists($cx->getWebsitePath() . $cx->getWebsiteOffsetPath() . $objFiles->fields["source"])
+                $file = $cx->getMediaSourceManager()
+                    ->getMediaSourceFileFromPath($objFiles->fields['source']);
+                if (
+                    (
+                        $objFiles->fields["expiration_date"] < date('Y-m-d H:i:s') &&
+                        $objFiles->fields["expiration_date"] != NULL
+                    ) ||
+                    !$file
                 ) {
-                    $fileExists = file_exists($cx->getWebsitePath() . $cx->getWebsiteOffsetPath() . $objFiles->fields["source"]);
                     // if the file is only expired delete the file from directory
-                    if ($fileExists) {
-                        \Cx\Lib\FileSystem\FileSystem::delete_file($cx->getWebsitePath() . $cx->getWebsiteOffsetPath() . $objFiles->fields["source"]);
+                    if ($file) {
+                        $file->getFileSystem()->removeFile($file);
                     }
-                    $arrToDelete[] = $objFiles->fields["id"];
+                    $arrToDelete[] = $objFiles->fields['id'];
                 }
                 $objFiles->moveNext();
             }
