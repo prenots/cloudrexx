@@ -26,7 +26,7 @@
  */
 
 /**
- * Main controller for FileSharing
+ * EventListener for FileSharing
  *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
@@ -34,48 +34,36 @@
  * @subpackage  module_filesharing
  */
 
-namespace Cx\Modules\FileSharing\Controller;
+namespace Cx\Modules\FileSharing\Model\Event;
 
 /**
- * Main controller for FileSharing
+ * EventListener for FileSharing
  *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  module_filesharing
  */
-class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-    public function getControllerClasses() {
-        // Return an empty array here to let the component handler know that there
-        // does not exist a backend, nor a frontend controller of this component.
-        return array();
-    }
-
-     /**
-     * Load your component.
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
-     */
-    public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        switch ($this->cx->getMode()) {
-            case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $objFileshare = new FileSharing(\Env::get('cx')->getPage()->getContent());
-                \Env::get('cx')->getPage()->setContent($objFileshare->getPage());
-                break;
-
-            default:
-                break;
-        }
-    }
+class FileSharingEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener {
 
     /**
-     * {@inheritdoc}
+     * Add MediaSource
+     *
+     * @param \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaBrowserConfiguration Object of MediaSourceManager
      */
-    public function registerEventListeners()
-    {
-        $this->cx->getEvents()->addEventListener(
-            'mediasource.load',
-            new \Cx\Modules\FileSharing\Model\Event\FileSharingEventListener($this->cx)
+    public function mediasourceLoad(
+        \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaBrowserConfiguration
+    ) {
+        $langData  = \Env::get('init')->loadLanguageData('FileSharing');
+        $mediaType = new \Cx\Core\MediaSource\Model\Entity\MediaSource(
+            'filesharing',
+            $langData['TXT_FILESHARING_MODULE'],
+            array(
+                $this->cx->getWebsiteMediaFileSharingPath(),
+                $this->cx->getWebsiteMediaFileSharingWebPath(),
+            )
         );
+        $mediaType->setAccessIds(array(8));
+        $mediaBrowserConfiguration->addMediaType($mediaType);
     }
 }
