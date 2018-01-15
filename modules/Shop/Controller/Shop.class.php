@@ -1439,7 +1439,10 @@ die("Failed to update the Cart!");
                         if (!$thumbnailFile->getFileSystem()->fileExists($thumbnailFile)) {
                             continue;
                         }
-                        $arrSize = getimagesize($cx->getWebsitePath() . $thumbnailPath);
+                        $arrSize = getimagesize(
+                            $thumbnailFile->getFileSystem()->getFullPath($thumbnailFile) .
+                            $thumbnailFile->getFullName()
+                        );
                     }
                     self::scaleImageSizeToThumbnail($arrSize);
                     // Use the first available picture in microdata, if any

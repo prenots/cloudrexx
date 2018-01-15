@@ -1096,7 +1096,6 @@ class ShopCategories
         }
         // If the thumbnail exists and is newer than the picture,
         // don't create it again.
-        $thumb_name = ImageManager::getThumbnailFilename($imagePath);
         $thumbFile = \Cx\Modules\Shop\Controller\ShopLibrary::getFileByPath(
             \ImageManager::getThumbnailFilename($imagePath)
         );
