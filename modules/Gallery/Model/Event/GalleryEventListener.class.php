@@ -81,21 +81,47 @@ class GalleryEventListener extends DefaultEventListener {
         $search->appendResult($pictureResult);
     }
 
-
+    /**
+     * Add MediaSource
+     *
+     * @param MediaSourceManager $mediaBrowserConfiguration MediaSourceManager object
+     */
     public function mediasourceLoad(MediaSourceManager $mediaBrowserConfiguration)
     {
-        global $_ARRAYLANG;
-        \Env::get('init')->loadLanguageData('Gallery');
-        $mediaType = new MediaSource(
+        $langData = \Env::get('init')->loadLanguageData('Gallery');
+        $mediaTypes[] = new MediaSource(
             'gallery',
-            $_ARRAYLANG['TXT_THUMBNAIL_GALLERY'],
+            $langData['TXT_THUMBNAIL_GALLERY'],
             array(
                 $this->cx->getWebsiteImagesGalleryPath(),
                 $this->cx->getWebsiteImagesGalleryWebPath()
             ),
             array(12, 67)
         );
-        $mediaBrowserConfiguration->addMediaType($mediaType);
+
+        $mediaTypes[] = new MediaSource(
+            'gallery_import',
+            $langData['TXT_GALLERY_PICTURE_IMPORT'],
+            array(
+                $this->cx->getWebsiteImagesGalleryImportPath(),
+                $this->cx->getWebsiteImagesGalleryImportWebPath()
+            ),
+            array(12, 68)
+        );
+
+        $mediaTypes[] = new MediaSource(
+            'gallery_thumbs',
+            $langData['TXT_GALLERY_PICTURE_THUMBS'],
+            array(
+                $this->cx->getWebsiteImagesGalleryThumbsPath(),
+                $this->cx->getWebsiteImagesGalleryThumbsWebPath()
+            ),
+            array(12)
+         );
+
+        foreach ($mediaTypes as $mediaType) {
+            $mediaBrowserConfiguration->addMediaType($mediaType);
+        }
     }
 
 }
