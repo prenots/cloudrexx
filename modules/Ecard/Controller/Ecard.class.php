@@ -341,11 +341,14 @@ class Ecard
             $objResult = $objDatabase->SelectLimit($query, 1);
 
             // Copy motive to new file with $code as filename
-            $fileExtension = preg_replace('/^.+(\.[^\.]+)$/', '$1', $objResult->fields['setting_value']);
             $fileName = $objResult->fields['setting_value'];
 
-            $objFile = new \File();
-            if ($objFile->copyFile(ASCMS_ECARD_OPTIMIZED_PATH.'/', $fileName, ASCMS_ECARD_SEND_ECARDS_PATH.'/', $code.$fileExtension)) {
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $mediaSourceManager = $cx->getMediaSourceManager();
+            $file = $mediaSourceManager->getMediaSourceFileFromPath(
+                $cx->getWebsiteMediaEcardWebPath() . '/ecards_optimized/' . $fileName
+            );
+            if ($file && $file->copy('send_ecards/' . $code . '.' . $file->getExtension())) {
                 $objMail = new \Cx\Core\MailTemplate\Model\Entity\Mail();
 
                 // Send notification mail to ecard-recipient
@@ -395,9 +398,17 @@ class Ecard
             $recipientEmail = $objResult->fields['recipientEmail'];
             $recipientsalutation = htmlentities($objResult->fields['salutation'], ENT_QUOTES, CONTREXX_CHARSET);
             // Get right file extension
-            $globArray = glob(ASCMS_ECARD_SEND_ECARDS_PATH.'/'.$code.".*");
-            $fileextension = substr($globArray[0], -4);
-            $selectedMotive = $code.$fileextension;
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $fileSystem = $cx->getMediaSourceManager()
+                ->getMediaType('ecard')
+                ->getFileSystem();
+            $files = $fileSystem->getFilelist('send_ecards');
+            foreach ($files as $file) {
+                if (strpos($file['datainfo']['name'], $code . '.') === 0) {
+                    $selectedMotive = $file['datainfo']['name'];
+                    break;
+                }
+            }
             // Initialize DATA placeholder
             $this->_objTpl->setVariable(array(
                 'ECARD_DATA' =>

@@ -136,13 +136,14 @@ class EcardManager
         $mediaBrowser = new \Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser();
         $mediaBrowser->setCallback('mbCallback');
         $mediaBrowser->setOptions(
-                                array(
-                                'type' => 'button',
-                                'data-cx-mb-views' => 'filebrowser',
-                                'id' => 'mediabrowser_button',
-                                'style' => 'display: none;'
-                                )
-                            );
+            array(
+                'type' => 'button',
+                'data-cx-mb-views' => 'filebrowser',
+                'id' => 'mediabrowser_button',
+                'style' => 'display: none;',
+                'startmediatype' => 'ecard'
+            )
+        );
         /* Update progress */
         if (!empty($_POST['saveMotives'])) {
             $i = 0;
@@ -157,9 +158,27 @@ class EcardManager
                 $objResult = $objDatabase->Execute($query);
 
                 /* Create optimized picture for e-card dispatch */
-                if ($filepath != '' && file_exists(\Env::get('cx')->getWebsitePath().$filepath)) {
-                    $this->resizeMotive(2, \Env::get('cx')->getWebsitePath().$filepath, ASCMS_ECARD_OPTIMIZED_PATH.'/');
-                    $this->resizeMotive(1, \Env::get('cx')->getWebsitePath().$filepath, ASCMS_ECARD_THUMBNAIL_PATH.'/');
+                $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getMediaSourceManager();
+                if ($filepath != '') {
+                    $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath($filepath);
+                    if(!$mediaSourceFile) {
+                        ++$i;
+                        continue;
+                    }
+                    $filePath = $mediaSourceFile->getFileSystem()->getFullPath(
+                        $mediaSourceFile
+                    );
+                    $this->resizeMotive(
+                        2,
+                        $filePath . $mediaSourceFile->getFullName(),
+                        $filePath . 'ecards_optimized/'
+                    );
+                    $this->resizeMotive(
+                        1,
+                        $filePath . $mediaSourceFile->getFullName(),
+                        $filePath . 'thumbnails/'
+                    );
                 }
                 ++$i;
             }
@@ -268,13 +287,32 @@ class EcardManager
 
             if (!empty($unvalidEcardsArray)) {
                 /* Get the right filextension */
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $fileSystem = $cx->getMediaSourceManager()
+                    ->getMediaType('ecard')
+                    ->getFileSystem();
+                $files = $fileSystem->getFilelist('send_ecards');
                 foreach ($unvalidEcardsArray as $value) {
-                    $globArray[] = array('ecardWithPath' => glob(ASCMS_ECARD_SEND_ECARDS_PATH.'/'.$value['code'].".*"), 'code' => $value['code']);
+                    $filePath = '';
+                    foreach ($files as $file) {
+                        if (strpos($file['datainfo']['name'], $value['code'] . '.') === 0) {
+                            $filePath = 'send_ecards/'. $file['datainfo']['name'];
+                            break;
+                        }
+                    }
+                    $globArray[] = array(
+                        'ecardWithPath' => $filePath,
+                        'code'          => $value['code']
+                    );
                 }
 
                 /* Delete the files */
                 foreach ($globArray as $filename) {
-                    if (unlink($filename['ecardWithPath'][0])) {
+                    $sourceFile = $fileSystem->getFileFromPath(
+                        $filename['ecardWithPath'],
+                        true
+                    );
+                    if ($fileSystem->removeFile($sourceFile)) {
                         $unlinkOK = true;
                     } else {
                         $unlinkOK = false;
