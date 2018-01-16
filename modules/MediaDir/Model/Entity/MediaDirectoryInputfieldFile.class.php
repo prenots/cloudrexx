@@ -358,7 +358,14 @@ INPUT;
         }
 
         //upload file
-        if (\Cx\Lib\FileSystem\FileSystem::copy_file($filePath, $this->imagePath . 'uploads/' . $fileName) !== false) {
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (
+            $mediaSourceManager->copyFile(
+                $filePath,
+                $this->imageWebPath . 'uploads/' . $fileName
+            )
+        ) {
             $objFile = new \File();
             $objFile->setChmod($this->imagePath, $this->imageWebPath, 'uploads/'. $fileName);
 

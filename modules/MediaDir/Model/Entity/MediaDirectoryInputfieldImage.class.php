@@ -164,7 +164,15 @@ INPUT;
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
         $strImagePreview = null;
-        if(!empty($value) && file_exists($cx->getWebsitePath().$value.".thumb")) {
+        $fileSystem = $cx
+            ->getMediaSourceManager()
+            ->getMediaType('mediadir')
+            ->getFileSystem();
+        $localFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+            substr($value . '.thumb', strlen($this->imageWebPath)),
+            $fileSystem
+        );
+        if(!empty($value) && $localFile) {
             $strImagePreview = '<img id="'. $this->moduleNameLC . 'Inputfield_' . $id .'_'. $langId.'_preview" src="'.$value.'.thumb" alt="" style="border: 1px solid rgb(10, 80, 161); margin: 0px 0px 3px;"  width="'.intval($this->arrSettings['settingsThumbSize']).'" />&nbsp;
                                 <input
                                     data-id="'.$id.'"
@@ -311,18 +319,26 @@ INPUT;
     function deleteImage($strPathImage)
     {
         if(!empty($strPathImage)) {
-            $objFile = new \File();
             $arrImageInfo = pathinfo($strPathImage);
             $imageName    = $arrImageInfo['basename'];
 
             //delete thumb
-            if (file_exists(\Env::get('cx')->getWebsitePath().$strPathImage.".thumb")) {
-                $objFile->delFile($this->imagePath, $this->imageWebPath, 'images/'.$imageName.".thumb");
+            $fileSystem   = \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getMediaSourceManager()
+                ->getMediaType('mediadir')
+                ->getFileSystem();
+            $localFile    = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                'images/' . $imageName . '.thumb',
+                $fileSystem
+            );
+            if ($localFile) {
+                $localFile->getFileSystem()->removeFile($localFile);
             }
 
             //delete image
-            if (file_exists(\Env::get('cx')->getWebsitePath().$strPathImage)) {
-                $objFile->delFile($this->imagePath, $this->imageWebPath, 'images/'.$imageName);
+            $file = $this->getFile($strPathImage);
+            if ($file) {
+                $file->getFileSystem()->removeFile($file);
             }
         }
     }
@@ -352,11 +368,18 @@ INPUT;
             $imageName = md5($randomSum.$imageBasename).$imageExtension;
         }
         // check filename
-        if (file_exists($this->imagePath.'images/'.$imageName)) {
+        if ($this->getFile('images/' . $imageName)) {
             $imageName = $imageBasename.'_'.time().$imageExtension;
         }
         // upload file
-        if (\Cx\Lib\FileSystem\FileSystem::copy_file($imagePath, $this->imagePath.'images/'.$imageName) === false) {
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        if (
+            !$mediaSourceManager->copyFile(
+                $imagePath,
+                $this->imageWebPath . 'images/' . $imageName
+            )
+        ) {
             return false;
         }
         $imageDimension = getimagesize($this->imagePath.'images/'.$imageName);
