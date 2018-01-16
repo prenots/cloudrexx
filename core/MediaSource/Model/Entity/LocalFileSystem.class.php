@@ -26,46 +26,79 @@
  */
 
 /**
+ * LocalFileSystem
+ *
  * @copyright   Cloudrexx AG
  * @author      Robin Glauser <robin.glauser@comvation.com>
  * @package     cloudrexx
+ * @subpackage  core_mediasource
  */
 
 namespace Cx\Core\MediaSource\Model\Entity;
 
+/**
+ * LocalFileSystem
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Robin Glauser <robin.glauser@comvation.com>
+ * @package     cloudrexx
+ * @subpackage  core_mediasource
+ */
 
-use Cx\Model\Base\EntityBase;
-
-class LocalFileSystem extends EntityBase implements FileSystem
-{
+class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
 
     /**
      * The path of the file system.
      * Without ending directory separator.
+     *
+     * @var string
      */
     private $rootPath;
+
+    /**
+     * List of cached files
+     *
+     * @var array
+     */
     protected $fileListCache;
 
-    function __construct($path) {
+    /**
+     * Document root path
+     *
+     * @var string
+     */
+    protected $documentPath;
+
+    /**
+     * Constructor
+     *
+     * @param string $path File path
+     * @throws \InvalidArgumentException
+     */
+    function __construct($path)
+    {
         if (!$path) {
             throw new \InvalidArgumentException(
-                "Path shouldn't be empty: Given: " . $path
+                'Path shouldn\'t be empty: Given: ' . $path
             );
         }
-        $this->rootPath = rtrim($path, '/');
+        $this->rootPath     = rtrim($path, '/');
+        $this->documentPath = $this->cx->getWebsiteDocumentRootPath();
     }
 
     /**
-     * @param $path
+     * Create FileSystem object from path
      *
+     * @param string $path File path
      * @return LocalFileSystem
      */
-    public static function createFromPath($path) {
+    public static function createFromPath($path)
+    {
         return new self($path);
     }
 
     /**
-     * Check whether file exists in the filesytem
+     * Check whether the file exists or not
      *
      * @param File $file File object
      * @return boolean True when exists, false otherwise
@@ -76,15 +109,23 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
-     * @todo    Option $recursive does not work. It always acts as recursive is set to TRUE
+     * Get the file list
+     *
+     * @param File    $directory Directory path
+     * @param boolean $recursive If true, recursively parse $directory and list all the files
+     *                           otherwise list all files under the $directory
+     * @param boolean $readonly  readOnly
+     * @return array Array of file list
      */
-    public function getFileList($directory, $recursive = true, $readonly = false) {
-        if (isset($this->fileListCache[$directory][$recursive][$readonly])) {
-            return $this->fileListCache[$directory][$recursive][$readonly];
+    public function getFileList($directory, $recursive = true, $readonly = false)
+    {
+        $directory = $this->getFileFromPath($directory, true);
+        $dirPath   = $this->getFullPath($directory) . $directory->getFullName();
+        if (isset($this->fileListCache[$dirPath][$recursive][$readonly])) {
+            return $this->fileListCache[$dirPath][$recursive][$readonly];
         }
 
-        $dirPath = rtrim($this->rootPath . '/' . $directory,'/');
-        if (!file_exists($dirPath)) {
+        if (!$this->fileExists($directory)) {
             return array();
         }
 
@@ -92,23 +133,19 @@ class LocalFileSystem extends EntityBase implements FileSystem
         if ($recursive) {
             $iteratorIterator = new \RegexIterator(
                 new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator(
-                        $dirPath
-                    ), \RecursiveIteratorIterator::SELF_FIRST
-                ), $regex
+                    new \RecursiveDirectoryIterator($dirPath),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                ),
+                $regex
             );
         } else {
             $iteratorIterator = new \RegexIterator(
-                new \IteratorIterator(
-                    new \DirectoryIterator(
-                        $dirPath
-                    )
-                ), $regex
+                new \IteratorIterator(new \DirectoryIterator($dirPath)),
+                $regex
             );
         }
 
         $jsonFileArray = array();
-
         $thumbnailList = $this->cx->getMediaSourceManager()
             ->getThumbnailGenerator()
             ->getThumbnails();
@@ -126,46 +163,47 @@ class LocalFileSystem extends EntityBase implements FileSystem
 
             // filters
             if (
-                $file->getFilename() == '.'
-                || $file->getFilename() == 'index.php'
-                || (0 === strpos($file->getFilename(), '.'))
+                $file->getFilename() == '.' ||
+                $file->getFilename() == 'index.php' ||
+                strpos($file->getFilename(), '.') === 0
             ) {
                 continue;
             }
 
             // set preview if image
-            $preview = 'none';
-
-
+            $preview    = 'none';
             $hasPreview = false;
             $thumbnails = array();
             if ($this->isImage($extension)) {
                 $hasPreview = true;
                 $thumbnails = $this->getThumbnails(
-                    $thumbnailList, $extension, $file, $thumbnails
+                    $thumbnailList,
+                    $extension,
+                    $file
                 );
-                $preview = current($thumbnails);
-                if (!file_exists($this->cx->getWebsitePath() . $preview)) {
+                $preview     = current($thumbnails);
+                $previewPath = substr($this->documentPath . $preview, strlen($this->rootPath));
+                if (!$this->fileExists($this->getFileFromPath($previewPath, true))) {
                     $hasPreview = false;
                 }
             }
 
-            $size = \FWSystem::getLiteralSizeFormat($file->getSize());
+            $size      = \FWSystem::getLiteralSizeFormat($file->getSize());
             $fileInfos = array(
-                'filepath' => mb_strcut(
+                'filepath'   => mb_strcut(
                     $file->getPath() . '/' . $file->getFilename(),
-                    mb_strlen($this->cx->getWebsitePath())
+                    mb_strlen($this->documentPath)
                 ),
                 // preselect in mediabrowser or mark a folder
-                'name' => $file->getFilename(),
-                'size' => $size ? $size : '0 B',
-                'cleansize' => $file->getSize(),
-                'extension' => ucfirst(mb_strtolower($extension)),
-                'preview' => $preview,
+                'name'       => $file->getFilename(),
+                'size'       => $size ? $size : '0 B',
+                'cleansize'  => $file->getSize(),
+                'extension'  => ucfirst(mb_strtolower($extension)),
+                'preview'    => $preview,
                 'hasPreview' => $hasPreview,
-                'active' => false, // preselect in mediabrowser or mark a folder
-                'type' => $file->getType(),
-                'thumbnail' => $thumbnails
+                'active'     => false, // preselect in mediabrowser or mark a folder
+                'type'       => $file->getType(),
+                'thumbnail'  => $thumbnails
             );
 
             if ($readonly){
@@ -173,14 +211,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
             }
 
             // filters
-            if (
-                $fileInfos['name'] == '.'
-                || preg_match(
-                    '/\.thumb/', $fileInfos['name']
-                )
-                || $fileInfos['name'] == 'index.php'
-                || (0 === strpos($fileInfos['name'], '.'))
-            ) {
+            if (preg_match('/\.thumb/', $fileInfos['name'])) {
                 continue;
             }
 
@@ -202,16 +233,19 @@ class LocalFileSystem extends EntityBase implements FileSystem
         }
         $jsonFileArray = $this->utf8EncodeArray($jsonFileArray);
         $this->fileListCache[$directory][$recursive][$readonly] = $jsonFileArray;
+
         return $jsonFileArray;
     }
 
     /**
      * Applies utf8_encode() to keys and values of an array
      * From: http://stackoverflow.com/questions/7490105/array-walk-recursive-modify-both-keys-and-values
+     *
      * @param array $array Array to encode
      * @return array UTF8 encoded array
      */
-    public function utf8EncodeArray($array) {
+    public function utf8EncodeArray($array)
+    {
         $helper = array();
         foreach ($array as $key => $value) {
             if (is_array($value)) {
@@ -230,9 +264,11 @@ class LocalFileSystem extends EntityBase implements FileSystem
      *
      * This method behaves differently than the original since it overwrites
      * already present keys
+     *
      * @return array Recursively merged array
      */
-    protected function array_merge_recursive() {
+    protected function array_merge_recursive()
+    {
         $arrays = func_get_args();
         $base = array_shift($arrays);
 
@@ -251,104 +287,87 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
-     * @param $extension
+     * Check the given argument $extension as image extension
      *
-     * @return int
+     * @param string $extension File extenstion
+     * @return boolean True if the $extension is image extension otherwise false
      */
-    public function isImage(
-        $extension
-    ) {
-        return preg_match("/(jpg|jpeg|gif|png)/i", $extension);
+    public function isImage($extension)
+    {
+        return preg_match('/(jpg|jpeg|gif|png)/i', $extension);
     }
 
     /**
-     * @param $thumbnailList
-     * @param $extension
-     * @param $file
-     * @param $thumbnails
+     * Get Thumbnails
      *
-     * @return mixed
+     * @param array  $thumbnailList Array of thumbnails list
+     * @param string $extension     File extension
+     * @param object $file          File object
+     * @return array Array of thumbnails
      */
     public function getThumbnails(
-        $thumbnailList, $extension, $file, $thumbnails
+        $thumbnailList,
+        $extension,
+        $file
     ) {
-        foreach (
-            $thumbnailList as
-            $thumbnail
-        ) {
+        $thumbnails = array();
+        foreach ($thumbnailList as $thumbnail) {
             $thumbnails[$thumbnail['size']] = preg_replace(
                 '/\.' . $extension . '$/i',
                 $thumbnail['value'] . '.' . strtolower($extension),
-                 str_replace(
-                    $this->cx->getWebsitePath(), '',
-                    $file->getRealPath()
+                substr(
+                    $file->getPath() . '/' . $file->getFilename(),
+                    strlen($this->documentPath)
                 )
             );
         }
+
         return $thumbnails;
     }
 
-    public function removeFile(File $file) {
-        global $_ARRAYLANG;
+    /**
+     * Remove the file
+     *
+     * @param File $file File object
+     * @return string Status message of the file remove
+     */
+    public function removeFile(File $file)
+    {
+        $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $filename = $file->getFullName();
-        $strPath = $file->getPath();
-        if (
-            !empty($filename)
-            && !empty($strPath)
-        ) {
-            if (
-                is_dir(
-                    $this->getFullPath($file)
-                    . $filename
-                )
-            ) {
-                if (
-                    \Cx\Lib\FileSystem\FileSystem::delete_folder(
-                        $this->getFullPath($file) . $filename, true
-                    )
-                ) {
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                } else {
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                }
-            } else {
-                if (
-                    \Cx\Lib\FileSystem\FileSystem::delete_file(
-                        $this->getFullPath($file)  . $filename
-                    )
-                ) {
-                    $this->removeThumbnails($file);
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                } else {
-                    return (
-                        sprintf(
-                            $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
-                            $filename
-                        )
-                    );
-                }
-            }
-        }
-        return (
-            sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+        if (empty($filename) || empty($file->getPath())) {
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
                 $filename
-            )
+            );
+        }
+
+        $filePath = $this->getFullPath($file) . $filename;
+        if ($this->isDirectory($file)) {
+            if (\Cx\Lib\FileSystem\FileSystem::delete_folder($filePath, true)) {
+                return sprintf(
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_REMOVED'],
+                    $filename
+                );
+            }
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_DIRECTORY_UNSUCCESSFULLY_REMOVED'],
+                $filename
+            );
+        }
+
+        if (\Cx\Lib\FileSystem\FileSystem::delete_file($filePath)) {
+            // If the removing file is image then remove its thumbnail files
+            $this->removeThumbnails($file);
+            return sprintf(
+                $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'],
+                $filename
+            );
+        }
+
+        return sprintf(
+            $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'],
+            $filename
         );
     }
 
@@ -364,9 +383,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
         $arrLang  = \Env::get('init')->loadLanguageData('MediaBrowser');
         $errorMsg = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
         if (
-            !\Cx\Lib\FileSystem\FileSystem::exists(
-                $this->getFullPath($fromFile) . $fromFile->getFullName()
-            ) ||
+            !$this->fileExists($fromFile) ||
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
@@ -374,16 +391,16 @@ class LocalFileSystem extends EntityBase implements FileSystem
         }
 
         // Create the $toFile's directory if does not exists
-        $className = get_class($fromFile);
-        $toFile    = new $className($toFilePath, $fromFile->getFileSystem());
-        if (!file_exists($this->getFullPath($toFile))) {
-            if (
-                !\Cx\Lib\FileSystem\FileSystem::make_folder(
-                    $this->getFullPath($toFile)
-                )
-            ) {
-                return sprintf($errorMsg, $fromFile->getName());
-            }
+        $toFile = $this->getFileFromPath($toFilePath, true);
+        if (
+            !$this->fileExists(
+                $this->getFileFromPath($toFile->getPath(), true)
+            ) &&
+            !\Cx\Lib\FileSystem\FileSystem::make_folder(
+                $this->getFullPath($toFile)
+            )
+        ) {
+            return sprintf($errorMsg, $fromFile->getName());
         }
 
         $destFileName = $toFile->getFullName();
@@ -421,30 +438,54 @@ class LocalFileSystem extends EntityBase implements FileSystem
         );
     }
 
-    public function writeFile(
-        File $file, $content
-    ) {
-        file_put_contents(
-            $this->rootPath . '/' . $file->__toString(), $content
+    /**
+     * Write the File
+     *
+     * @param File   $file    File object
+     * @param string $content File content
+     * @return boolean Status of File write
+     */
+    public function writeFile(File $file, $content)
+    {
+        return file_put_contents(
+            $this->getFullPath($file) . $file->getFullName(),
+            $content
         );
     }
 
-    public function readFile(
-        File $file
-    ) {
-        return file_get_contents($this->rootPath . '/' . $file->__toString());
+    /**
+     * Read the File
+     *
+     * @param File $file File object
+     * @return string Content of the file
+     */
+    public function readFile(File $file)
+    {
+        return file_get_contents(
+            $this->getFullPath($file) . $file->getFullName()
+        );
     }
 
-    public function isDirectory(
-        File $file
-    ) {
-        return is_dir($this->rootPath . '/' . $file->__toString());
+    /**
+     * Check whether the $file is directory or not
+     *
+     * @param File $file File object
+     * @return boolean True if the $file is a directory otherwise false
+     */
+    public function isDirectory(File $file)
+    {
+        return is_dir($this->getFullPath($file) . $file->getFullName());
     }
 
-    public function isFile(
-        File $file
-    ) {
-        return is_file($this->rootPath . '/' . $file->__toString());
+    /**
+     * Check whether the $file is file or not
+     *
+     * @param File $file File object
+     * @return boolean True if the $file is a file otherwise false
+     */
+    public function isFile(File $file)
+    {
+        return is_file($this->getFullPath($file) . $file->getFullName());
     }
 
     public function getLink(
@@ -453,24 +494,29 @@ class LocalFileSystem extends EntityBase implements FileSystem
         // TODO: Implement getLink() method.
     }
 
-    public function createDirectory(
-        $path, $directory
-    ) {
-        global $_ARRAYLANG;
-        \Env::get('init')->loadLanguageData('MediaBrowser');
+    /**
+     * Create directory
+     *
+     * @param string $path      File path
+     * @param string $directory Directory name
+     * @return string Status message
+     */
+    public function createDirectory($path, $directory)
+    {
+        $arrLang = \Env::get('init')->loadLanguageData('MediaBrowser');
         if (
             !\Cx\Lib\FileSystem\FileSystem::make_folder(
                 $this->rootPath . '/' . $path . '/' . $directory
             )
         ) {
             return sprintf(
-                $_ARRAYLANG['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
+                $arrLang['TXT_FILEBROWSER_UNABLE_TO_CREATE_FOLDER'],
                 $directory
             );
         } else {
             return
                 sprintf(
-                    $_ARRAYLANG['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
+                    $arrLang['TXT_FILEBROWSER_DIRECTORY_SUCCESSFULLY_CREATED'],
                     $directory
                 );
         }
@@ -488,11 +534,12 @@ class LocalFileSystem extends EntityBase implements FileSystem
     }
 
     /**
-     * @param File $file
+     * Remove thumbnails
      *
-     * @return array
+     * @param File $file File object
      */
-    public function removeThumbnails(File $file) {
+    public function removeThumbnails(File $file)
+    {
         if (!$this->isImage($file->getExtension())) {
             return;
         }
@@ -501,9 +548,9 @@ class LocalFileSystem extends EntityBase implements FileSystem
                 $this->getFullPath($file)
             ), '/' . preg_quote($file->getName(), '/') . '.thumb_[a-z]+/'
         );
-        foreach ($iterator as $thumbnail){
+        foreach ($iterator as $thumbnail) {
             \Cx\Lib\FileSystem\FileSystem::delete_file(
-                $thumbnail
+                $thumbnail->getRealPath()
             );
         }
     }
@@ -528,13 +575,26 @@ class LocalFileSystem extends EntityBase implements FileSystem
         $this->rootPath = $rootPath;
     }
 
-    public function getFileFromPath($filepath) {
-        $fileinfo = pathinfo($filepath);
-        $path = dirname($filepath);
-        $files = $this->getFileList($fileinfo['dirname']);
-        if (!isset($files[$fileinfo['basename']])) {
-            return false;
+    /**
+     * Get File object from the path
+     *
+     * @param string  $filepath File path
+     * @param boolean $force    True, return the File object also if the given file not exists or
+     *                          False, return the file object if the file exists
+     * @return LocalFile File Object
+     */
+    public function getFileFromPath($filepath, $force = false)
+    {
+        if ($force) {
+            return new LocalFile($filepath, $this);
         }
+
+        $fileinfo = pathinfo($filepath);
+        $files    = $this->getFileList($fileinfo['dirname']);
+        if (!isset($files[$fileinfo['basename']])) {
+            return;
+        }
+
         return new LocalFile($filepath, $this);
     }
 
@@ -548,7 +608,7 @@ class LocalFileSystem extends EntityBase implements FileSystem
     {
         return substr(
             $this->getFullPath($file) . $file->getFullName(),
-            strlen($this->cx->getWebsitePath())
+            strlen($this->documentPath)
         );
     }
 }

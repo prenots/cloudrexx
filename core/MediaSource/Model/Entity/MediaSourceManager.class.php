@@ -331,180 +331,76 @@ class MediaSourceManager extends EntityBase
      */
     public function moveFile($sourcePath, $destinationPath)
     {
-        // Get source file object
-        $isSourceLocalFile = true;
-        $sourceFile        = $this->getMediaSourceFileFromPath($sourcePath);
+        // Get Source Stream
+        $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
+        $sourceExt  = pathinfo($sourcePath, PATHINFO_EXTENSION);
         if (!$sourceFile) {
-            // The source file is a local file
-            $sourcePath = $this->cx->getWebsitePath() . '/' . $sourcePath;
-            // Return If the source file does not exists
-            if (!\Cx\Lib\FileSystem\FileSystem::exists($sourcePath)) {
-                return false;
-            }
-            $sourceFileExtension = pathinfo($sourcePath, PATHINFO_EXTENSION);
-            $isSourceDir         = is_dir($sourcePath);
-        } else {
-            // Return If the source file does not exists
-            if (!$sourceFile->getFileSystem()->fileExists($sourceFile)) {
-                return false;
-            }
-
-            // Check whether the source file is local file or S3 file
-            if ($sourceFile->getFileSystem() instanceof AwsS3FileSystem) {
-                $isSourceLocalFile = false;
-            }
-
-            $sourcePath =
-                $sourceFile->getFileSystem()->getFullPath($sourceFile) .
-                $sourceFile->getFullName();
-            $sourceFileExtension = $sourceFile->getExtension();
-            $isSourceDir = $sourceFile->getFileSystem()->isDirectory($sourceFile);
+            $sourceFile = new \Cx\Lib\FileSystem\File($sourcePath);
         }
+        $sourceStream = $sourceFile->getStream('r');
 
-        // Get destination file object
-        if (strpos($destinationPath, '/') !== 0) {
-            $destinationPath = '/' . $destinationPath;
-        }
+        // Make the source and destination file extensions are same
+        $destinationPath =
+            pathinfo($destinationPath, PATHINFO_DIRNAME) . '/' .
+            pathinfo($destinationPath, PATHINFO_FILENAME) . '.' . $sourceExt;
 
+        // Get Destination Stream
         try {
-            $isDestinationLocalFile = true;
-            $mediaSource     = $this->getMediaSourceByPath($destinationPath);
-            $mediaSourcePath = $mediaSource->getDirectory();
-            $filePath = substr($destinationPath, strlen($mediaSourcePath[1]));
-            // Create destination file object by the $destinationPath
-            if ($mediaSource->getFileSystem() instanceof \Cx\Core\ViewManager\Model\Entity\ViewManagerFileSystem) {
-                $destinationFile = new \Cx\Core\ViewManager\Model\Entity\ViewManagerFile(
-                    $filePath,
-                    $mediaSource->getFileSystem()
-                );
-            } else {
-                $destinationFile = new LocalFile($filePath, $mediaSource->getFileSystem());
-            }
+            $destMediaSource = $this->getMediaSourceByPath($destinationPath);
+            $destinationPath = substr(
+                $destinationPath,
+                strlen($destMediaSource->getDirectory()[1])
+            );
+            // Create destination file object by using $destinationPath
+            $destFile = $destMediaSource->getFileSystem()->getFileFromPath(
+                $destinationPath,
+                true
+            );
 
             // Check if the destination file directory exists otherwise
             // try to create the directory
-            $destDirectory = new LocalFile($destinationFile->getPath(), $destinationFile->getFileSystem());
-            if (!$destinationFile->getFileSystem()->fileExists($destDirectory)) {
-                $destinationFile->getFileSystem()->createDirectory(
-                    ltrim($destinationFile->getPath(), '/')
+            $destDirectory = $destFile->getFileSystem()->getFileFromPath(
+                $destFile->getPath(),
+                true
+            );
+            if (!$destFile->getFileSystem()->fileExists($destDirectory)) {
+                $destFile->getFileSystem()->createDirectory(
+                    ltrim($destFile->getPath(), '/')
                 );
             }
 
             // Return if the destination file directory is not exists
-            if (!$destinationFile->getFileSystem()->fileExists($destDirectory)) {
+            if (!$destFile->getFileSystem()->fileExists($destDirectory)) {
                 return false;
             }
-
-            // Check whether the destination file is local file or S3 file
-            if ($destinationFile->getFileSystem() instanceof AwsS3FileSystem) {
-                $isDestinationLocalFile = false;
-            }
-
-            $destinationFileName = $destinationFile->getFullName();
-            if (!$isSourceDir) {
-                $destinationFileName =
-                    $destinationFile->getName() . '.' . $sourceFileExtension;
-            }
-            $destinationPath =
-                $destinationFile->getFileSystem()->getFullPath($destinationFile) .
-                $destinationFileName;
+            $destStream = $destFile->getStream('w');
         } catch(MediaSourceManagerException $e) {
             \DBG::dump($e->getMessage());
-            // The Destination file is a local file
-            $destinationPath = $this->cx->getWebsitePath() . $destinationPath;
-            $dirPath         = pathinfo($destinationPath, PATHINFO_DIRNAME);
-            if (!is_dir($sourcePath)) {
-                $destinationPath = $dirPath . '/' .
-                    pathinfo($destinationPath, PATHINFO_FILENAME) .
-                    '.' . $sourceFileExtension;
-            }
+            $destFile   = new \Cx\Lib\FileSystem\File($destinationPath);
             // Check if the destination file directory exists otherwise
             // try to create the directory if does not then call return.
-            if (!\Cx\Lib\FileSystem\FileSystem::exists($dirPath)) {
-                if (!\Cx\Lib\FileSystem\FileSystem::make_folder($dirPath)) {
-                    return false;
-                }
+            $dirPath = pathinfo($destinationPath, PATHINFO_DIRNAME);
+            if (
+                !\Cx\Lib\FileSystem\FileSystem::exists($dirPath) &&
+                !\Cx\Lib\FileSystem\FileSystem::make_folder($dirPath)
+            ) {
+                return false;
             }
+            $destStream = $destFile->getStream('w');
         }
 
-        // Move local File to local File
-        if ($isSourceLocalFile && $isDestinationLocalFile) {
-            return \Cx\Lib\FileSystem\FileSystem::move(
-                $sourcePath,
-                $destinationPath,
-                false
-            );
-        }
-
-        // Move s3 File to s3 File
-        if (!$isSourceLocalFile && !$isDestinationLocalFile) {
-            return rename($sourcePath, $destinationPath);
-        }
-
-        // Move local File to s3 File
-        if ($isSourceLocalFile && !$isDestinationLocalFile) {
-            return $this->uploadFileToS3($destinationFile, $sourcePath);
-        }
-
-        // Move s3 File to local FIle
-        if (!$isSourceLocalFile && $isDestinationLocalFile) {
-            return $this->downloadFileFromS3($sourceFile, $destinationPath);
-        }
-    }
-
-    /**
-     * Upload a local file into S3
-     *
-     * @param File   $destinationFile Destination file object
-     * @param string $sourcePath      Source file path
-     * @return boolean status of file upload
-     */
-    public function uploadFileToS3(File $destinationFile, $sourcePath)
-    {
-        $s3Client = $destinationFile->getFileSystem()->getS3Client();
-        try {
-            $destinationKey = substr(
-                $destinationFile->getFileSystem()->getFullPath($destinationFile) .
-                $destinationFile->getFullName(),
-                strlen($destinationFile->getFileSystem()->getDirectoryPrefix())
-            );
-            $s3Client->putObject(array(
-                'Bucket' => $destinationFile->getFileSystem()->getBucketName(),
-                'Key'    => $destinationKey,
-                'SourceFile' => $sourcePath
-            ));
-            return \Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath);
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-            \DBG::log($e->getMessage());
+        // Copy the file from source to destination
+        if (!stream_copy_to_stream($sourceStream, $destStream)) {
             return false;
         }
-    }
 
-    /**
-     * Download File from S3 to Local
-     *
-     * @param File   $sourceFile      Source file object
-     * @param string $destinationPath Destination file path
-     * @return boolean status of download
-     */
-    public function downloadFileFromS3(File $sourceFile, $destinationPath)
-    {
-        $s3Client = $sourceFile->getFileSystem()->getS3Client();
-        try {
-            $sourceKey = substr(
-                $sourceFile->getFileSystem()->getFullPath($sourceFile) .
-                $sourceFile->getFullName(),
-                strlen($sourceFile->getFileSystem()->getDirectoryPrefix())
-            );
-            $s3Client->getObject(array(
-                'Bucket' => $sourceFile->getFileSystem()->getBucketName(),
-                'Key'    => $sourceKey,
-                'SaveAs' => $destinationPath
-            ));
-            return true;
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-            \DBG::log($e->getMessage());
-            return false;
+        // Delete the source file
+        if ($sourceFile instanceof \Cx\Lib\FileSystem\File) {
+            \Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath);
+        } else {
+            $sourceFile->getFileSystem()->removeFile($sourceFile);
         }
+
+        return true;
     }
 }
