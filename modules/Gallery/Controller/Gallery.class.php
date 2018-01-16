@@ -60,8 +60,13 @@ class Gallery
     public $langId;
     public $strCmd = '';
 
-
+    /**
+     * object of class GalleryLibrary
+     *
+     * @var GalleryLibrary
+     */
     protected $galleryLib;
+
     /**
      * Constructor
      * @global ADONewConnection
@@ -80,8 +85,9 @@ class Gallery
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
 
-        $this->strImagePath = ASCMS_GALLERY_PATH . '/';
-        $this->strImageWebPath = ASCMS_GALLERY_WEB_PATH . '/';
+        $cx                    = \Cx\Core\Core\Controller\Cx::instanciate();
+        $this->strImagePath    = $cx->getWebsiteImagesGalleryPath() . '/';
+        $this->strImageWebPath = $cx->getWebsiteImagesGalleryWebPath() . '/';
         $this->strThumbnailPath = ASCMS_GALLERY_THUMBNAIL_PATH . '/';
         $this->strThumbnailWebPath = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/';
 
@@ -183,9 +189,9 @@ class Gallery
         $imageDesc       = $picture->fields['desc'];
         //show image size based on the settings of "Show image size"
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
-        $file            = $this->galleryLib->getFile($picture->fields['path']);
+        $file            = $this->galleryLib->getFileByPath($strImagePath);
         $imageSize       = '';
-        if ($showImageSize) {
+        if ($showImageSize && $file) {
             $imageSize = round($file->getSize()/1024, 2);
         }
 
@@ -312,9 +318,9 @@ class Gallery
         $imageDesc       = $picture->fields['desc'];
         //show image size based on the settings of "Show image size"
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
-        $file            = $this->galleryLib->getFile($picture->fields['path']);
+        $file            = $this->galleryLib->getFileByPath($strImagePath);
         $imageSize       = '';
-        if ($showImageSize) {
+        if ($showImageSize && $file) {
             $imageSize = round($file->getSize()/1024, 2);
         }
 
@@ -493,12 +499,14 @@ class Gallery
         
         $showImageSizeOverview   = $this->arrSettings['show_image_size'] == 'on';
         while (!$objResult->EOF) {
-            $file = $this->galleryLib->getFile($objResult->fields['path']);
-            $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] = '';
-            if ($showImageSizeOverview) {
-                $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] =
-                    round($file->getSize()/1024, 2);
+            $file     = $this->galleryLib->getFileByPath(
+                $this->strImageWebPath . $objResult->fields['path']
+            );
+            $fileSize = '';
+            if ($showImageSizeOverview && $file) {
+                $fileSize = round($file->getSize() / 1024, 2);
             }
+            $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] = $fileSize;
 
             $arrstrImagePaths[$objResult->fields['catid']][$objResult->fields['id']] = $this->strThumbnailWebPath.$objResult->fields['path'];
             $objResult->MoveNext();
@@ -720,9 +728,11 @@ class Gallery
             $imageDesc       = !empty($objResult->fields['desc']) ? $objResult->fields['desc'] : '-';
             $imageLink       = $objResult->fields['link'];
             $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $objResult->fields['size_show'];
-            $file            = $this->galleryLib->getFile($objResult->fields['path']);
+            $file            = $this->galleryLib->getFileByPath(
+                $this->strImageWebPath . $objResult->fields['path']
+            );
             $imageFileSize   = '';
-            if ($showImageSize) {
+            if ($showImageSize && $file) {
                 $imageFileSize = round($file->getSize()/1024, 2);
             }
 

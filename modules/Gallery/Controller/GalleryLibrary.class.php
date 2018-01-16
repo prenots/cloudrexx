@@ -71,19 +71,20 @@ class GalleryLibrary
     }
 
     /**
-     * Get LocalFile object
+     * Get File object by the given path
      *
-     * @param string $fileName File name
+     * @param string $filePath File path
      * @return \Cx\Core\MediaSource\Model\Entity\LocalFile LocalFile object
      */
-    public function getFile($fileName)
+    public function getFileByPath($filePath)
     {
-        $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager()
-            ->getMediaType('gallery')
-            ->getFileSystem();
+        if (empty($filePath)) {
+            return;
+        }
 
-        return $fileSystem->getFileFromPath($fileName);
+        return \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath($filePath);
     }
 }
 
