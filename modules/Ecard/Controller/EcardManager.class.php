@@ -162,7 +162,7 @@ class EcardManager
                     ->getMediaSourceManager();
                 if ($filepath != '') {
                     $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath($filepath);
-                    if(!$mediaSourceFile) {
+                    if (!$mediaSourceFile) {
                         ++$i;
                         continue;
                     }
