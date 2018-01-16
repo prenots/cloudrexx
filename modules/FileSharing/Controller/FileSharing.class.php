@@ -174,26 +174,32 @@ class FileSharing extends FileSharingLib
      */
     private function downloadFile($hash)
     {
-        global $objDatabase;
-        $objResult = $objDatabase->SelectLimit("SELECT `file`, `source` FROM " . DBPREFIX . "module_filesharing WHERE `hash` = '" . contrexx_raw2db($hash) . "'", 1, 0);
-        if ($objResult !== false && $objResult->RecordCount() > 0) {
-            $fileName = $objResult->fields['file'];
-            $file     = \Cx\Core\Core\Controller\Cx::instanciate()
-                ->getMediaSourceManager()
-                ->getMediaSourceFileFromPath($objResult->fields['source']);
-            if (!$file) {
-                throw new FileSharingException('file_not_found');
-            }
-
-            ob_end_clean();
-            header("Pragma: public");
-            header("Content-Type: application/octet-stream");
-            header("Content-Disposition: attachment; filename=\"" . $fileName . "\"");
-            readfile($file->getFileSystem()->getFullPath($file) . $file->getFullName());
-            die();
-        } else {
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        $objResult   = $objDatabase->SelectLimit(
+            'SELECT `file`, `source`
+                FROM `' . DBPREFIX . 'module_filesharing`
+                WHERE `hash` = "' . contrexx_raw2db($hash) . '"',
+            1,
+            0
+        );
+        if ($objResult === false || $objResult->RecordCount() == 0) {
             throw new FileSharingException('file_not_found');
         }
+
+        $fileName = $objResult->fields['file'];
+        $file     = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath($objResult->fields['source']);
+        if (!$file) {
+            throw new FileSharingException('file_not_found');
+        }
+
+        ob_end_clean();
+        header("Pragma: public");
+        header("Content-Type: application/octet-stream");
+        header("Content-Disposition: attachment; filename=\"" . $fileName . "\"");
+        readfile($file->getFileSystem()->getFullPath($file) . $file->getFullName());
+        die();
     }
 
     /**
@@ -470,8 +476,6 @@ class FileSharing extends FileSharingLib
      */
     private function getSharedFiles($uploadId)
     {
-        global $objDatabase;
-
         $cx        = \Cx\Core\Core\Controller\Cx::instanciate();
         $imageUrl  = clone \Env::get('Resolver')->getUrl(); // get the image url
         $files     = array();
@@ -486,6 +490,7 @@ class FileSharing extends FileSharingLib
 
         $tup         = FileSharingLib::getTemporaryFilePaths($uploadId);
         $dirTempPath = $tup[0] . '/' . $tup[2] . '/'; //get the tmp/$uploadId files
+        $objDatabase = $cx->getDb()->getAdoDb();
         $mediaSourceManager = $cx->getMediaSourceManager();
         foreach (glob($dirTempPath . '/*') as $uploadedFile) {
             $file     = basename($uploadedFile);
@@ -495,7 +500,7 @@ class FileSharing extends FileSharingLib
                     '.' . $targetFile->getExtension();
             }
 
-            if (!$mediaSourceManager->moveFile($dirTempPath . $file, $filePath)) {
+            if (!$mediaSourceManager->moveFile($tup[1] . $tup[2] . '/' . $file, $filePath)) {
                 continue;
             }
 
