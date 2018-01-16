@@ -1469,7 +1469,7 @@ EOF;
     public function getFileByPath($path)
     {
         if (empty($path)) {
-            return false;
+            return;
         }
 
         return \Cx\Core\Core\Controller\Cx::instanciate()

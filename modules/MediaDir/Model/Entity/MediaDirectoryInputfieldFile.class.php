@@ -320,7 +320,7 @@ INPUT;
 
     function deleteFile($strPathFile)
     {
-        if (!empty($strPathFile)) {
+        if (empty($strPathFile)) {
             return;
         }
 
