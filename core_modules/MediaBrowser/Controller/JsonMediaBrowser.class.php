@@ -235,8 +235,12 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
             throw new \Exception('Unknown file ' . $strPath . $oldName);
         }
 
+        $toWebPath = substr(
+            $fileSystem->getFullPath($file),
+            strlen($fileSystem->getRootPath())
+        );
         $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
-        if ($fileSystem->moveFile($file, $newName)) {
+        if ($fileSystem->moveFile($file, $toWebPath . $newName)) {
             $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'];
         }
         $this->setMessage(sprintf($statusMessage, $file->getName()));
