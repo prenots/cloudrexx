@@ -168,11 +168,14 @@ INPUT;
             ->getMediaSourceManager()
             ->getMediaType('mediadir')
             ->getFileSystem();
-        $localFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+        $localFile = $fileSystem->getFileFromPath(
             substr($value . '.thumb', strlen($this->imageWebPath)),
-            $fileSystem
+            true
         );
-        if(!empty($value) && $localFile) {
+        if (
+            !empty($value) &&
+            $localFile->getFileSystem()->fileExists($localFile)
+        ) {
             $strImagePreview = '<img id="'. $this->moduleNameLC . 'Inputfield_' . $id .'_'. $langId.'_preview" src="'.$value.'.thumb" alt="" style="border: 1px solid rgb(10, 80, 161); margin: 0px 0px 3px;"  width="'.intval($this->arrSettings['settingsThumbSize']).'" />&nbsp;
                                 <input
                                     data-id="'.$id.'"
@@ -327,16 +330,16 @@ INPUT;
                 ->getMediaSourceManager()
                 ->getMediaType('mediadir')
                 ->getFileSystem();
-            $localFile    = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+            $localFile    = $fileSystem->getFileFromPath(
                 'images/' . $imageName . '.thumb',
-                $fileSystem
+                true
             );
-            if ($localFile) {
+            if ($localFile->getFileSystem()->fileExists($localFile)) {
                 $localFile->getFileSystem()->removeFile($localFile);
             }
 
             //delete image
-            $file = $this->getFile($strPathImage);
+            $file = $this->getFileByPath($strPathImage);
             if ($file) {
                 $file->getFileSystem()->removeFile($file);
             }
@@ -368,7 +371,7 @@ INPUT;
             $imageName = md5($randomSum.$imageBasename).$imageExtension;
         }
         // check filename
-        if ($this->getFile('images/' . $imageName)) {
+        if ($this->getFileByPath($this->imageWebPath . 'images/' . $imageName)) {
             $imageName = $imageBasename.'_'.time().$imageExtension;
         }
         // upload file

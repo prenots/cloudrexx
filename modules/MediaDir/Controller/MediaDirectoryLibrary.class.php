@@ -1466,7 +1466,7 @@ EOF;
      * @param string $path File path
      * @return \Cx\Core\MediaSource\Model\Entity\LocalFile LocalFile object
      */
-    public function getFile($path)
+    public function getFileByPath($path)
     {
         if (empty($path)) {
             return false;
