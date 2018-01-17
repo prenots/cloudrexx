@@ -749,7 +749,7 @@ class CrmManager extends CrmLibrary
                     }
                     $this->_objTpl->setVariable(array(
                             'ENTRY_ID'                  => (int) $objResult->fields['id'],
-                            'CRM_COMPANY_NAME'          => "<a href='./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name'])."</a>",
+                            'CRM_COMPANY_NAME'          => "<a href='./?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name'])."</a>",
                             'TXT_ACTIVE_IMAGE'          => $activeImage,
                             'TXT_ACTIVE_VALUE'          => $activeValue,
                             'CRM_CUSTOMER_ID'           => contrexx_raw2xhtml($objResult->fields['customer_id']),
@@ -782,7 +782,7 @@ class CrmManager extends CrmLibrary
                     }
                     $this->_objTpl->setVariable(array(
                             'ENTRY_ID'                  => (int) $objResult->fields['id'],
-                            'CRM_CONTACT_NAME'          => "<a href='./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name']." ".$objResult->fields['contact_familyname']).'</a>',
+                            'CRM_CONTACT_NAME'          => "<a href='./?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name']." ".$objResult->fields['contact_familyname']).'</a>',
                             'CRM_COMPNAY_NAME'          => (!empty($objResult->fields['contactCustomer'])) ? $_ARRAYLANG['TXT_CRM_TITLE_COMPANY_NAME']." : <a class='crm-companyInfoCardLink personPopupTrigger' href='./index.php?cmd=Crm&act=customers&tpl=showcustdetail&id={$objResult->fields['contactCustomerId']}' rel='{$objResult->fields['contactCustomerId']}' > ". contrexx_raw2xhtml($objResult->fields['contactCustomer'])."</a>" : '',
                             'TXT_ACTIVE_IMAGE'          => $activeImage,
                             'TXT_ACTIVE_VALUE'          => $activeValue,
@@ -4258,9 +4258,12 @@ END;
             $fileName = $this->getContactFileNameById($documentId, $customerId);
             $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
             $fileObj  = self::getFileByPath(
-                $cx->getWebsiteMediaCrmPath() . '/' . $fileName
+                $cx->getWebsiteMediaCrmWebPath() . '/' . $fileName
             );
-            $fileObj->getFileSystem()->removeFile($fileObj);
+            if ($fileObj) {
+                $fileObj->getFileSystem()->removeFile($fileObj);
+            }
+
             $objDatabase->Execute("DELETE FROM `".DBPREFIX."module_{$this->moduleNameLC}_customer_documents` WHERE `id` = $documentId");
             $json['success'] = $_ARRAYLANG['TXT_CRM_DOCUMNET_DELETE_SUCCESS'];
         } else {
@@ -5747,8 +5750,8 @@ END;
     {
 
         //target folder
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $depositionTarget = $cx->getWebsiteMediaCrmPath() . '/';
+        $cx               = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteMediaCrmWebPath() . '/';
         $h = opendir($tempPath);
         if (!$h) {
             return array($tempPath, $tempWebPath);
@@ -5785,25 +5788,18 @@ END;
 
             //do not overwrite existing files.
             $prefix = '';
-            $fileObj = self::getFileByPath(
-                $depositionTarget . $prefix . $file
-            );
-            while ($fileObj) {
+            while (self::getFileByPath($depositionTarget . $prefix . $file)) {
                 if (empty($prefix)) {
                     $prefix = 0;
                 }
                 $prefix++;
-                $fileObj = self::getFileByPath(
-                    $depositionTarget . $prefix . $file
-                );
             }
 
-            // move file
+            // Copy file
             try {
-                $mediaSourceManager = $cx->getMediaSourceManager();
-                $mediaSourceManager->copyFile(
-                    self::getWebPath($tempPath . '/' . $file),
-                    self::getWebPath($depositionTarget . $prefix . $file)
+                $cx->getMediaSourceManager()->copyFile(
+                    $tempPath . '/' . $file,
+                    $depositionTarget . $prefix . $file
                 );
                 $_SESSION['importFilename'] = $prefix . $file;
             } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
@@ -5834,9 +5830,9 @@ END;
 
         global $objDatabase;
 
-        $objFWUser = \FWUser::getFWUserObject();
-        $cx        = \Cx\Core\Core\Controller\Cx::instanciate();
-        $depositionTarget = $cx->getWebsiteMediaCrmPath(). '/'; //target folder
+        $objFWUser        = \FWUser::getFWUserObject();
+        $cx               = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteMediaCrmWebPath(). '/'; //target folder
         $h = opendir($tempPath);
         if ($h) {
 
@@ -5852,25 +5848,18 @@ END;
                 if ($file != '..' && $file != '.') {
                     //do not overwrite existing files.
                     $prefix = '';
-                    $fileObj = self::getFileByPath(
-                        $depositionTarget . $prefix . $file
-                    );
-                    while ($fileObj) {
+                    while (self::getFileByPath($depositionTarget . $prefix . $file)) {
                         if (empty($prefix)) {
                             $prefix = 0;
                         }
                         $prefix ++;
-                        $fileObj = self::getFileByPath(
-                            $depositionTarget . $prefix . $file
-                        );
                     }
 
-                    // move file
+                    // Copy file
                     try {
-                        $mediaSourceManager = $cx->getMediaSourceManager();
-                        $mediaSourceManager->copyFile(
-                            self::getWebPath($tempPath . '/' . $file),
-                            self::getWebPath($depositionTarget . $prefix . $file)
+                        $cx->getMediaSourceManager()->copyFile(
+                            $tempPath . '/' . $file,
+                            $depositionTarget . $prefix . $file
                         );
                         // write the uploaded files into database
                         $fields = array(
@@ -5913,8 +5902,9 @@ END;
     {
 
         global $objDatabase;
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $depositionTarget = $cx->getWebsiteImagesCrmProfilePath().'/'; //target folder
+
+        $cx               = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteImagesCrmProfileWebPath() . '/'; //target folder
         $h = opendir($tempPath);
         if ($h) {
 
@@ -5930,19 +5920,18 @@ END;
                 if ($file != '..' && $file != '.') {
                     //do not overwrite existing files.
                     $prefix = '';
-                    while (file_exists($depositionTarget.$prefix.$file)) {
+                    while (self::getFileByPath($depositionTarget . $prefix . $file)) {
                         if (empty($prefix)) {
                             $prefix = 0;
                         }
                         $prefix ++;
                     }
 
-                    // move file
+                    // Copy file
                     try {
-                        $mediaSourceManager = $cx->getMediaSourceManager();
-                        $mediaSourceManager->copyFile(
-                            self::getWebPath($tempPath . '/' . $file),
-                            self::getWebPath($depositionTarget . $prefix . $file)
+                        $cx->getMediaSourceManager()->copyFile(
+                            $tempPath . '/' . $file,
+                            $depositionTarget . $prefix . $file
                         );
 
                         // create thumbnail
@@ -5980,7 +5969,7 @@ END;
                             $objFWUser = \FWUser::getFWUserObject();
                             $objUser  = $objFWUser->objUser->getUser($accountId);
                             $fileObj  = self::getFileByPath(
-                                $cx->getWebsiteImagesAccessProfilePath() . '/' . $imageName
+                                $cx->getWebsiteImagesAccessProfileWebPath() . '/' . $imageName
                             );
                             if (!$fileObj) {
                                 $file = $cx->getWebsiteImagesCrmProfilePath().'/';
@@ -6030,8 +6019,8 @@ END;
      */
     public static function taskUploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $depositionTarget = $cx->getWebsiteImagesCrmPath() . '/'; //target folder
+        $cx               = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteImagesCrmWebPath() . '/'; //target folder
         $h = opendir($tempPath);
         if ($h) {
 
@@ -6047,19 +6036,18 @@ END;
                 if ($file != '..' && $file != '.') {
                     //do not overwrite existing files.
                     $prefix = '';
-                    while (file_exists($depositionTarget.$prefix.$file)) {
+                    while (self::getFileByPath($depositionTarget . $prefix . $file)) {
                         if (empty($prefix)) {
                             $prefix = 0;
                         }
                         $prefix ++;
                     }
 
-                    // move file
+                    // Copy file
                     try {
-                        $mediaSourceManager = $cx->getMediaSourceManager();
-                        $mediaSourceManager->copyFile(
-                            self::getWebPath($tempPath . '/' . $file),
-                            self::getWebPath($depositionTarget . $prefix . $file)
+                        $cx->getMediaSourceManager()->copyFile(
+                            $tempPath . '/' . $file,
+                            $depositionTarget . $prefix . $file
                         );
 
                         // create thumbnail
@@ -6107,8 +6095,8 @@ END;
      */
     public static function notesUploadFinished($tempPath, $tempWebPath, $data, $uploadId, $fileInfos, $response)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $depositionTarget = $cx->getWebsiteImagesCrmPath().'/'; //target folder
+        $cx               = \Cx\Core\Core\Controller\Cx::instanciate();
+        $depositionTarget = $cx->getWebsiteImagesCrmWebPath() . '/'; //target folder
         $h = opendir($tempPath);
         if ($h) {
 
@@ -6124,19 +6112,18 @@ END;
                 if ($file != '..' && $file != '.') {
                     //do not overwrite existing files.
                     $prefix = '';
-                    while (file_exists($depositionTarget.$prefix.$file)) {
+                    while (self::getFileByPath($depositionTarget . $prefix . $file)) {
                         if (empty($prefix)) {
                             $prefix = 0;
                         }
                         $prefix ++;
                     }
 
-                    // move file
+                    // Copy file
                     try {
-                        $mediaSourceManager = $cx->getMediaSourceManager();
-                        $mediaSourceManager->copyFile(
-                            self::getWebPath($tempPath . '/' . $file),
-                            self::getWebPath($depositionTarget . $prefix . $file)
+                        $cx->getMediaSourceManager()->copyFile(
+                            $tempPath . '/' . $file,
+                            $depositionTarget . $prefix . $file
                         );
 
                         // create thumbnail

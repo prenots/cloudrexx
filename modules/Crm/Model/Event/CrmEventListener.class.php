@@ -53,16 +53,29 @@ class CrmEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener 
     public function mediaSourceLoad(
         \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaSourceManager
     ) {
-        $langData  = \Env::get('init')->loadLanguageData('Crm');
-        $mediaType = new \Cx\Core\MediaSource\Model\Entity\MediaSource(
+        $langData     = \Env::get('init')->loadLanguageData('Crm');
+        $mediaTypes[] = new \Cx\Core\MediaSource\Model\Entity\MediaSource(
             'crm',
-            $langData['TXT_CRM'],
+            $langData['TXT_CRM_IMAGES'],
+            array(
+                $this->cx->getWebsiteImagesCrmPath(),
+                $this->cx->getWebsiteImagesCrmWebPath()
+            ),
+            array(194, 195)
+        );
+
+        $mediaTypes[] = new \Cx\Core\MediaSource\Model\Entity\MediaSource(
+            'crm_media',
+            $langData['TXT_CRM_MEDIA'],
             array(
                 $this->cx->getWebsiteMediaCrmPath(),
                 $this->cx->getWebsiteMediaCrmWebPath()
             ),
             array(194, 195)
         );
-        $mediaSourceManager->addMediaType($mediaType);
+
+        foreach ($mediaTypes as $mediaType) {
+            $mediaSourceManager->addMediaType($mediaType);
+        }
     }
 }

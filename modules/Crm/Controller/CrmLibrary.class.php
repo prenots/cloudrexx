@@ -2389,7 +2389,7 @@ class CrmLibrary
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($picture && !empty($picture)) {
             $fileObj = self::getFileByPath(
-                $cx->getWebsiteImagesAccessProfilePath() . '/' . $picture
+                $cx->getWebsiteImagesAccessProfileWebPath() . '/' . $picture
             );
             if (!$fileObj) {
                 $file = $cx->getWebsiteImagesCrmProfilePath().'/';
@@ -2802,14 +2802,17 @@ class CrmLibrary
                 if (!empty ($arrFormData['picture'][0])) {
                     $picture = $arrFormData['picture'][0];
                     $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                    if (!file_exists($cx->getWebsiteImagesCrmProfilePath().'/'.$picture)) {
-                        $file    = $cx->getWebsiteImagesAccessProfilePath().'/';
-                        $newFile = $cx->getWebsiteImagesCrmProfilePath().'/';
-                        $mediaSourceManager = $cx->getMediaSourceManager();
+                    if (
+                        !self::getFileByPath(
+                            $cx->getWebsiteImagesCrmProfileWebPath() . '/' . $picture
+                        )
+                    ) {
+                        $file    = $cx->getWebsiteImagesAccessProfileWebPath() . '/';
+                        $newFile = $cx->getWebsiteImagesCrmProfileWebPath() . '/';
                         if (
-                            $mediaSourceManager->copyFile(
-                                self::getWebPath($file . $picture),
-                                self::getWebPath($newFile . $picture)
+                            $cx->getMediaSourceManager()->copyFile(
+                                $file . $picture,
+                                $newFile . $picture
                             )
                         ) {
                             if ($this->createThumbnailOfPicture($picture)) {
@@ -2994,14 +2997,16 @@ class CrmLibrary
             $arrSettings['max_profile_pic_width']['value'] = 160;
             $arrSettings['max_profile_pic_height']['value'] = 160;
         }
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : $cx->getWebsiteImagesAccessPhotoPath();
+        $cx        = \Cx\Core\Core\Controller\Cx::instanciate();
+        $imageRepo = $cx->getWebsiteImagesAccessProfileWebPath();
+        if (!$profilePic) {
+            $imageRepo = $cx->getWebsiteImagesAccessPhotoWebPath();
+        }
+
         $index = 0;
         $imageName = $objUser->getId().'_'.$name;
-        $file = self::getFileByPath($imageRepo . '/' . $imageName);
-        while ($file) {
+        while (self::getFileByPath($imageRepo . '/' . $imageName)) {
             $imageName = $objUser->getId().'_'.++$index.'_'.$name;
-            $file = self::getFileByPath($imageRepo . '/' . $imageName);
         }
 
         if (!$objImage->loadImage($tmpImageName)) {
@@ -3030,16 +3035,19 @@ class CrmLibrary
                 return false;
             }
 
+            $imageRepo = $cx->getWebsiteImagesAccessProfilePath();
+            if (!$profilePic) {
+                $imageRepo = $cx->getWebsiteImagesAccessPhotoPath();
+            }
             // copy image to the image repository
             if (!$objImage->saveNewImage($imageRepo.'/'.$imageName)) {
                 return false;
             }
         } else {
-            $mediaSourceManager = $cx->getMediaSourceManager();
             if (
-                !$mediaSourceManager->copyFile(
-                    self::getWebPath($tmpImageName),
-                    self::getWebPath($imageRepo . '/' . $imageName)
+                !$cx->getMediaSourceManager()->copyFile(
+                    $tmpImageName,
+                    $imageRepo . '/' . $imageName
                 )
             ) {
                 return false;
@@ -3573,28 +3581,11 @@ class CrmLibrary
     public static function getFileByPath($path)
     {
         if (empty($path)) {
-            return false;
+            return;
         }
 
-        $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
-        $filePath = self::getWebPath($path);
-
-        return $cx->getMediaSourceManager()->getMediaSourceFileFromPath($filePath);
-    }
-
-    /**
-     * Get a web path
-     *
-     * @param string $path File path
-     * @return string The extracted part of string
-     */
-    public static function getWebPath($path)
-    {
-        if (empty($path)) {
-            return false;
-        }
-
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        return substr($path, strlen($cx->getWebsiteDocumentRootPath()));
+        return \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath($path);
     }
 }
