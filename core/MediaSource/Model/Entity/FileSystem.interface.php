@@ -44,4 +44,38 @@ interface FileSystem {
     public function getLink(File $file);
     public function createDirectory($path, $directory);
     public function getFileFromPath($path);
+
+    /**
+     * Check whether file exists in the filesytem
+     *
+     * @param File $file
+     * @return boolean True when exists, false otherwise
+     */
+    public function fileExists(File $file);
+
+    /**
+     * Make a File writable
+     *
+     * @param File $file
+     */
+    public function makeWritable(File $file);
+
+    /**
+     * Copy the file
+     *
+     * @param File    $file         Source file object
+     * @param string  $destination  Destination file path
+     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
+     *                              otherwise file will be created with new name
+     * @return string Name of the copy file
+     */
+    public function copyFile(File $file, $destination, $ignoreExists = false);
+
+    /**
+     * Get the file web path
+     *
+     * @param File $file File object
+     * @return string Returns the file web path without filename
+     */
+    public function getWebPath(File $file);
 }

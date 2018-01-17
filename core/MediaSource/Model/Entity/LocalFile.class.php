@@ -89,4 +89,40 @@ class LocalFile implements File
     public function getFullName() {
         return pathinfo($this->file, PATHINFO_BASENAME);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSize()
+    {
+        return filesize(
+            $this->fileSystem->getFullPath($this) . $this->getFullName()
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function copy($destination, $ignoreExists = false)
+    {
+        return $this->fileSystem->copyFile($this, $destination, $ignoreExists);
+    }
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode)
+    {
+        if (empty($mode)) {
+            $mode = 'r';
+        }
+
+        return @fopen(
+            $this->fileSystem->getFullPath($this) . $this->getFullName(),
+            $mode
+        );
+    }
 }
