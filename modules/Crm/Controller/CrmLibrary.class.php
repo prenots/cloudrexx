@@ -2807,12 +2807,12 @@ class CrmLibrary
                             $cx->getWebsiteImagesCrmProfileWebPath() . '/' . $picture
                         )
                     ) {
-                        $file    = $cx->getWebsiteImagesAccessProfileWebPath() . '/';
-                        $newFile = $cx->getWebsiteImagesCrmProfileWebPath() . '/';
+                        $accessProfileWebPath = $cx->getWebsiteImagesAccessProfileWebPath() . '/';
+                        $crmProfileWebPath    = $cx->getWebsiteImagesCrmProfileWebPath() . '/';
                         if (
                             $cx->getMediaSourceManager()->copyFile(
-                                $file . $picture,
-                                $newFile . $picture
+                                $accessProfileWebPath . $picture,
+                                $crmProfileWebPath . $picture
                             )
                         ) {
                             if ($this->createThumbnailOfPicture($picture)) {

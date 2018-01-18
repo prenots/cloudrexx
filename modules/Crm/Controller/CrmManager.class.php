@@ -749,7 +749,7 @@ class CrmManager extends CrmLibrary
                     }
                     $this->_objTpl->setVariable(array(
                             'ENTRY_ID'                  => (int) $objResult->fields['id'],
-                            'CRM_COMPANY_NAME'          => "<a href='./?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name'])."</a>",
+                            'CRM_COMPANY_NAME'          => "<a href='./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name'])."</a>",
                             'TXT_ACTIVE_IMAGE'          => $activeImage,
                             'TXT_ACTIVE_VALUE'          => $activeValue,
                             'CRM_CUSTOMER_ID'           => contrexx_raw2xhtml($objResult->fields['customer_id']),
@@ -782,7 +782,7 @@ class CrmManager extends CrmLibrary
                     }
                     $this->_objTpl->setVariable(array(
                             'ENTRY_ID'                  => (int) $objResult->fields['id'],
-                            'CRM_CONTACT_NAME'          => "<a href='./?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name']." ".$objResult->fields['contact_familyname']).'</a>',
+                            'CRM_CONTACT_NAME'          => "<a href='./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$objResult->fields['id']}' title='details'>".contrexx_raw2xhtml($objResult->fields['customer_name']." ".$objResult->fields['contact_familyname']).'</a>',
                             'CRM_COMPNAY_NAME'          => (!empty($objResult->fields['contactCustomer'])) ? $_ARRAYLANG['TXT_CRM_TITLE_COMPANY_NAME']." : <a class='crm-companyInfoCardLink personPopupTrigger' href='./index.php?cmd=Crm&act=customers&tpl=showcustdetail&id={$objResult->fields['contactCustomerId']}' rel='{$objResult->fields['contactCustomerId']}' > ". contrexx_raw2xhtml($objResult->fields['contactCustomer'])."</a>" : '',
                             'TXT_ACTIVE_IMAGE'          => $activeImage,
                             'TXT_ACTIVE_VALUE'          => $activeValue,
