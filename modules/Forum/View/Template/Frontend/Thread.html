@@ -101,7 +101,7 @@
         <a name="post"></a>
         <fieldset>
             <legend>{TXT_FORUM_ADD_POST}</legend>
-            <form enctype="multipart/form-data" name="frm_thread" action="./index.php?section=Forum&amp;cmd=thread&amp;id={FORUM_THREAD_ID}" method="post" onsubmit="setScrollPos();">
+            <form enctype="multipart/form-data" name="frm_thread" action="index.php?section=Forum&amp;cmd=thread&amp;id={FORUM_THREAD_ID}" method="post" onsubmit="setScrollPos();">
                 <input type="hidden" name="post_edit_user_id" value="{FORUM_POST_EDIT_USERID}" />
                 <input type="hidden" name="post_id" value="{FORUM_EDIT_POST_ID}" />
                 <input type="hidden" name="thread_id" value="{FORUM_THREAD_ID}" />

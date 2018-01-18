@@ -147,11 +147,8 @@ class ForumLibrary
             die('Database error: '.$objDatabase->ErrorMsg());
         }
 
-        $filePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteMediaForumUploadPath() . '/';
         foreach ($deleteAttachments as $file) {
-            if (!empty($file) && file_exists($filePath . $file)) {
-                unlink($filePath . $file);
-            }
+            $this->removeAttachment($file);
         }
 
         $intAffectedRows = $objDatabase->Affected_Rows();
@@ -210,7 +207,6 @@ class ForumLibrary
         } else {
             die('Database error: '.$objDatabase->ErrorMsg());
         }
-
         //check if it's the first post in a thread, warn and exit if true
         $query = '  SELECT 1 FROM '.DBPREFIX.'module_forum_postings
                     WHERE id = '.$intPostId.'
@@ -266,10 +262,7 @@ class ForumLibrary
             if ($objRS->RecordCount() > 0) {
                 $this->_objTpl->setVariable('TXT_FORUM_ERROR', $_ARRAYLANG['TXT_FORUM_POST_STILL_ASSOCIATED'].' '.$_ARRAYLANG['TXT_FORUM_DELETE_ASSOCIATED_POSTS_FIRST']);
             } else {
-                $filePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteMediaForumUploadPath() . '/';
-                if (!empty($objRS->fields['attachment']) && file_exists($filePath . $objRS->fields['attachment'])) {
-                    unlink($filePath . $objRS->fields['attachment']);
-                }
+                $this->removeAttachment($objRS->fields['attachment']);
                 $query = '  DELETE FROM '.DBPREFIX.'module_forum_postings
                             WHERE id='.$intPostId;
                 if ($objDatabase->Execute($query) !== false) {
@@ -504,9 +497,16 @@ class ForumLibrary
      */
     function _getAttachment($file) {
         $file = contrexx_addslashes($file);
+        if (empty($file)) {
+            return false;
+        }
         $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+        $fileSystem = $cx->getMediaSourceManager()
+            ->getMediaType('forum')
+            ->getFileSystem();
         $path = $cx->getWebsiteMediaForumUploadPath() . '/';
-        if (!file_exists($path . $file) || empty($file)) {
+        $attachedFile = $fileSystem->getFileFromPath($file);
+        if (!$attachedFile) {
             return false;
         }
         $pathinfo = pathinfo($file);
@@ -517,7 +517,7 @@ class ForumLibrary
             'webpath'   => $cx->getWebsiteMediaForumUploadWebPath() . '/' . $file,
             'extension' => $pathinfo['extension'],
             'icon'      => $icon,
-            'size'      => filesize($path . $file),
+            'size'      => $attachedFile->getSize(),
         );
     }
 
@@ -557,23 +557,33 @@ class ForumLibrary
         }
 
         $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
-        $filePath = $cx->getWebsiteMediaForumUploadPath() . '/';
         $pathinfo = pathinfo($fileName);
 
+        $fileWebPath = $cx->getWebsiteMediaForumUploadWebPath() . '/';
+        $tempWebPath = $sessionObj->getWebTempPath() . '/' . $uploaderId . '/' . $fileName;
+        $filesystem  = $cx->getMediaSourceManager()
+            ->getMediaType('forum')
+            ->getFileSystem();
+        $file = $filesystem->getFileFromPath($fileName, true);
         $i = 1;
-        while (\Cx\Lib\FileSystem\FileSystem::exists($filePath . $fileName)) {
+        while ($filesystem->fileExists($file)) {
             $fileName = $pathinfo['filename'] . '_' . $i++ . '.' . $pathinfo['extension'];
+            $file     = $filesystem->getFileFromPath($fileName, true);
         }
-
-        if (\Cx\Lib\FileSystem\FileSystem::move($tempPath, $filePath . $fileName, true) === false) {
-            $this->_objTpl->setVariable('TXT_FORUM_ERROR', $filePath . $fileName . ': ' . $_ARRAYLANG['TXT_FORUM_UPLOAD_NOT_MOVABLE']);
+        if (
+            !$cx->getMediaSourceManager()->moveFile(
+                $tempWebPath,
+                $fileWebPath . $fileName
+            )
+        ) {
+            $this->_objTpl->setVariable('TXT_FORUM_ERROR', $fileWebPath . $fileName . ': ' . $_ARRAYLANG['TXT_FORUM_UPLOAD_NOT_MOVABLE']);
             return false;
         }
 
         return array(
             'name'      => contrexx_addslashes($fileName),
-            'path'      => $filePath,
-            'size'      => filesize($filePath . $fileName),
+            'path'      => $fileWebPath,
+            'size'      => $file->getSize(),
         );
     }
 
@@ -1518,5 +1528,21 @@ class ForumLibrary
             'FORUM_UPLOADER'    => $uploader->getXhtml(),
             'FORUM_UPLOADER_ID' => $uploader->getId()
         ));
+    }
+
+    /**
+     * Remove the attachment file
+     */
+    public function removeAttachment($fileName)
+    {
+        if (empty($fileName)) {
+            return;
+        }
+        $fileSystem = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaType('forum')
+            ->getFileSystem();
+        $file = $fileSystem->getFileFromPath($fileName, true);
+        $fileSystem->removeFile($file);
     }
 }

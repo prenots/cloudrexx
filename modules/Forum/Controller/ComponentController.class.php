@@ -151,7 +151,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentParse(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        $this->cx->getEvents()->addEventListener('SearchFindContent', new \Cx\Modules\Forum\Model\Event\ForumEventListener());
+        $this->cx->getEvents()->addEventListener(
+            'SearchFindContent',
+            new \Cx\Modules\Forum\Model\Event\ForumEventListener($this->cx)
+        );
    }
 
+   /**
+    * {@inheritdoc}
+    */
+   public function registerEventListeners() {
+       $this->cx->getEvents()->addEventListener(
+           'mediasource.load',
+           new \Cx\Modules\Forum\Model\Event\ForumEventListener($this->cx)
+       );
+   }
 }

@@ -44,11 +44,7 @@ namespace Cx\Modules\Forum\Model\Event;
  * @package     cloudrexx
  * @subpackage  module_forum
  */
-class ForumEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
-
-    public function onEvent($eventName, array $eventArgs) {
-        $this->$eventName(current($eventArgs));
-    }
+class ForumEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener {
 
     public static function SearchFindContent($search) {
         $term_db = $search->getTerm();
@@ -63,4 +59,24 @@ class ForumEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
         $search->appendResult($result);
     }
 
+    /**
+     * Add MediaSource
+     *
+     * @param \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaBrowserConfiguration
+     */
+    public function mediasourceLoad(
+        \Cx\Core\MediaSource\Model\Entity\MediaSourceManager $mediaBrowserConfiguration
+    ) {
+        $langData  = \Env::get('init')->loadLanguageData('core');
+        $mediaType = new \Cx\Core\MediaSource\Model\Entity\MediaSource(
+            'forum',
+            $langData['TXT_FORUM'],
+            array(
+                $this->cx->getWebsiteMediaForumUploadPath(),
+                $this->cx->getWebsiteMediaForumUploadWebPath(),
+            ),
+            array(106, 107, 108)
+        );
+        $mediaBrowserConfiguration->addMediaType($mediaType);
+    }
 }

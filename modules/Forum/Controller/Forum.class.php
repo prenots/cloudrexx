@@ -1040,7 +1040,13 @@ class Forum extends ForumLibrary {
                         $fileInfo['name'] != $_REQUEST['forum_attachment_oldname']
                     )
                 ){
-                unlink(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteMediaForumUploadPath() . '/' . str_replace(array('./', '.\\'), '', $_REQUEST['forum_attachment_oldname']));
+                $this->removeAttachment(
+                    str_replace(
+                        array('./', '.\\'),
+                        '',
+                        $_REQUEST['forum_attachment_oldname']
+                    )
+                );
             }
 
             $updateQuery = 'UPDATE '.DBPREFIX.'module_forum_postings SET
