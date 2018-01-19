@@ -255,4 +255,19 @@ class FileSystemFile implements FileInterface
     {
         return $this->filePath;
     }
+
+    /**
+     * Get File stream
+     *
+     * @param string $mode Type of access require to the stream
+     * @return resource a file handle resource on success or false on failure
+     */
+    public function getStream($mode)
+    {
+        if (empty($mode)) {
+            $mode = 'r';
+        }
+
+        return @fopen($this->filePath, $mode);
+    }
 }
