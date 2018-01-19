@@ -85,11 +85,11 @@ class Gallery
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
 
-        $cx                    = \Cx\Core\Core\Controller\Cx::instanciate();
-        $this->strImagePath    = $cx->getWebsiteImagesGalleryPath() . '/';
-        $this->strImageWebPath = $cx->getWebsiteImagesGalleryWebPath() . '/';
-        $this->strThumbnailPath = ASCMS_GALLERY_THUMBNAIL_PATH . '/';
-        $this->strThumbnailWebPath = ASCMS_GALLERY_THUMBNAIL_WEB_PATH . '/';
+        $cx                        = \Cx\Core\Core\Controller\Cx::instanciate();
+        $this->strImagePath        = $cx->getWebsiteImagesGalleryPath() . '/';
+        $this->strImageWebPath     = $cx->getWebsiteImagesGalleryWebPath() . '/';
+        $this->strThumbnailPath    = $cx->getWebsiteImagesGalleryThumbsPath() . '/';
+        $this->strThumbnailWebPath = $cx->getWebsiteImagesGalleryThumbsWebPath() . '/';
 
         $objResult = $objDatabase->Execute('SELECT name, value FROM '.DBPREFIX.'module_gallery_settings');
         while (!$objResult->EOF) {
@@ -191,8 +191,8 @@ class Gallery
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
         $file            = $this->galleryLib->getFileByPath($strImagePath);
         $imageSize       = '';
-        if ($showImageSize && $file) {
-            $imageSize = round($file->getSize()/1024, 2);
+        if ($showImageSize) {
+            $imageSize = round($file->getSize() / 1024, 2);
         }
 
         // set requested page's meta data
@@ -320,8 +320,8 @@ class Gallery
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
         $file            = $this->galleryLib->getFileByPath($strImagePath);
         $imageSize       = '';
-        if ($showImageSize && $file) {
-            $imageSize = round($file->getSize()/1024, 2);
+        if ($showImageSize) {
+            $imageSize = round($file->getSize() / 1024, 2);
         }
 
         // set requested page's meta data
@@ -503,11 +503,10 @@ class Gallery
                 $this->strImageWebPath . $objResult->fields['path']
             );
             $fileSize = '';
-            if ($showImageSizeOverview && $file) {
+            if ($showImageSizeOverview) {
                 $fileSize = round($file->getSize() / 1024, 2);
             }
             $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] = $fileSize;
-
             $arrstrImagePaths[$objResult->fields['catid']][$objResult->fields['id']] = $this->strThumbnailWebPath.$objResult->fields['path'];
             $objResult->MoveNext();
         }
@@ -732,8 +731,8 @@ class Gallery
                 $this->strImageWebPath . $objResult->fields['path']
             );
             $imageFileSize   = '';
-            if ($showImageSize && $file) {
-                $imageFileSize = round($file->getSize()/1024, 2);
+            if ($showImageSize) {
+                $imageFileSize = round($file->getSize() / 1024, 2);
             }
 
             $imageSizeOutput = '';

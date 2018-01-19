@@ -82,9 +82,19 @@ class GalleryLibrary
             return;
         }
 
-        return \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager()
-            ->getMediaSourceFileFromPath($filePath);
+        try {
+            $cx          = \Cx\Core\Core\Controller\Cx::instanciate();
+            $mediaSource = $cx->getMediaSourceManager()->getMediaSourceByPath($filePath);
+            $filePath    = substr($filePath, strlen($mediaSource->getDirectory()[1]));
+        } catch (\Cx\Core\MediaSource\Model\Entity\MediaSourceManagerException $e) {
+            \DBG::log($e->getMessage());
+            return;
+        }
+
+        return new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+            $filePath,
+            $mediaSource->getFileSystem()
+        );
     }
 }
 
