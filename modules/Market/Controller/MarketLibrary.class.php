@@ -463,15 +463,19 @@ class MarketLibrary
             //check file
 // TODO: $x is not defined
             $x = 0;
-            if (file_exists($this->mediaPath . $path . $fileName)) {
+            if ($this->getFileByPath($this->mediaWebPath . $path . $fileName)) {
                 $fileName = $rand . $part1 . '_' . (time() + $x) . $exte;
                 $fileName = md5($fileName) . $exte;
             }
 
             //Move the uploaded file to the path specified in the variable $this->mediaPath
             try {
-                $objFile = new \Cx\Lib\FileSystem\File($tmpFile);
-                if ($objFile->move($this->mediaPath . $path . $fileName, false)) {
+                if (
+                    $cx->getMediaSourceManager()->moveFile(
+                        $tmpFile,
+                        $this->mediaWebPath . $path . $fileName
+                    )
+                ) {
                     $objFile = new \File();
                     $objFile->setChmod($this->mediaPath, $this->mediaWebPath, $path . $fileName);
                     $status = $fileName;
@@ -505,13 +509,17 @@ class MarketLibrary
             //check file
             // TODO: $x is not defined
             $x = 0;
-            if(file_exists($this->mediaPath.$path.$fileName)){
+            if ($this->getFileByPath($this->mediaWebPath . $path . $fileName)) {
                 $fileName = $rand.$part1 . '_' . (time() + $x) . $exte;
                 $fileName = md5($fileName).$exte;
             }
 
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getMediaSourceManager()->copyFile(
+                $this->mediaWebPath . $path . $fileNameOri,
+                $this->mediaWebPath . $path . $fileName
+            );
             $objFile = new \File();
-            $objFile->copyFile($this->mediaPath.$path, $fileNameOri, $this->mediaPath.$path, $fileName);
             $objFile->setChmod($this->mediaPath, $this->mediaWebPath, $path.$fileName);
             return $fileName;
         } else {
@@ -523,26 +531,28 @@ class MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG;
 
-        foreach($array as $entryId) {
-               $status = "";
+        foreach ($array as $entryId) {
+               $status = true;
                $objResult = $objDatabase->Execute('SELECT picture FROM '.DBPREFIX.'module_market WHERE id = '.$entryId.' LIMIT 1');
-            if($objResult !== false){
+            if ($objResult !== false) {
                 $picture = $objResult->fields['picture'];
             }
 
-            if($picture != ''){
-                $objFile = new \File();
-                $status = $objFile->delFile($this->mediaPath, $this->mediaWebPath, "pictures/".$picture);
+            if ($picture != '') {
+                $fileObj = $this->getFileByPath(
+                    $this->mediaWebPath . 'pictures/' . $picture
+                );
+                $status = $fileObj->getFileSystem()->removeFile($fileObj);
             }
 
-            if($status != "error"){
+            if ($status) {
                 $objResultDel = $objDatabase->Execute('DELETE FROM '.DBPREFIX.'module_market WHERE id = '.$entryId.'');
-                if($objResultDel !== false){
+                if ($objResultDel !== false) {
                     $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_DELETE_SUCCESS'];
-                }else{
+                } else {
                     $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];
                 }
-            }else{
+            } else {
                 $this->strErrMessage = $_ARRAYLANG['TXT_MARKET_IMAGE_DELETE_ERROR'];
             }
         }
@@ -666,4 +676,20 @@ class MarketLibrary
         $template->setVariable($specialVariables);
     }
 
+    /**
+     * Get a file by path
+     *
+     * @param string $path File path
+     * @return \Cx\Core\MediaSource\Model\Entity\LocalFile LocalFile object
+     */
+    public function getFileByPath($path)
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        return \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager()
+            ->getMediaSourceFileFromPath($path);
+    }
 }

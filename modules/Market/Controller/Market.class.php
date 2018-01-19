@@ -1655,8 +1655,12 @@ class Market extends MarketLibrary
                 if ($_POST['uploadImage'] != "") {
                     $picture = $this->uploadPicture();
                     if ($picture != "error") {
-                        $objFile = new \File();
-                        $objFile->delFile($this->mediaPath, $this->mediaWebPath, "pictures/".$_POST['picOld']);
+                        $fileObj = $this->getFileByPath(
+                            $this->mediaWebPath . 'pictures/' . $_POST['picOld']
+                        );
+                        if ($fileObj) {
+                            $fileObj->getFileSystem()->removeFile($fileObj);
+                        }
                     }
                 }else{
                     $picture = $_POST['picOld'];
