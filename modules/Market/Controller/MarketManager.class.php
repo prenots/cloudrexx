@@ -985,8 +985,12 @@ class MarketManager extends MarketLibrary
                 $picture = $this->uploadPicture();
 /* TODO: Never used
                 if ($picture != "error") {
-                    $objFile = new \File();
-                    $status = $objFile->delFile($this->mediaPath, $this->mediaWebPath, "pictures/".$_POST['picOld']);
+                    $fileObj = $this->getFileByPath(
+                        $this->mediaWebPath . 'pictures/' . $_POST['picOld']
+                    );
+                    if ($fileObj) {
+                        $fileObj->getFileSystem()->removeFile($fileObj);
+                    }
                 }
 */
             } else {

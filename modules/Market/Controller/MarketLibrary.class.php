@@ -514,11 +514,15 @@ class MarketLibrary
                 $fileName = md5($fileName).$exte;
             }
 
-            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $cx->getMediaSourceManager()->copyFile(
-                $this->mediaWebPath . $path . $fileNameOri,
-                $this->mediaWebPath . $path . $fileName
+            // Copy a file
+            $fileObj = $this->getFileByPath(
+                $this->mediaWebPath . $path . $fileNameOri
             );
+            $fileObj->getFileSystem()->copyFile(
+                $fileObj,
+                $path . $fileName
+            );
+
             $objFile = new \File();
             $objFile->setChmod($this->mediaPath, $this->mediaWebPath, $path.$fileName);
             return $fileName;
@@ -542,7 +546,9 @@ class MarketLibrary
                 $fileObj = $this->getFileByPath(
                     $this->mediaWebPath . 'pictures/' . $picture
                 );
-                $status = $fileObj->getFileSystem()->removeFile($fileObj);
+                if ($fileObj) {
+                    $status = $fileObj->getFileSystem()->removeFile($fileObj);
+                }
             }
 
             if ($status) {
