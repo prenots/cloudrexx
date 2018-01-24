@@ -272,10 +272,7 @@ class AwsS3FileSystem extends LocalFileSystem {
                     if ($file->isDir()) {
                         $filePath = $filePath . '/';
                     }
-                    $copyFilePath = substr(
-                        $filePath,
-                        strlen($fromFileName)
-                    );
+                    $copyFilePath = substr($filePath, strlen($fromFileName));
                     try {
                         $this->s3Client->copyObject(array(
                             'Bucket'     => $this->bucketName,

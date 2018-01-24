@@ -365,7 +365,8 @@ class MediaSourceManager extends EntityBase
             );
             if (!$destFile->getFileSystem()->fileExists($destDirectory)) {
                 $destFile->getFileSystem()->createDirectory(
-                    ltrim($destFile->getPath(), '/')
+                    ltrim($destDirectory->getPath(), '/'),
+                    $destDirectory->getFullName()
                 );
             }
 
