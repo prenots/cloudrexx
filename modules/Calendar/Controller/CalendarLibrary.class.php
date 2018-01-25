@@ -1030,32 +1030,30 @@ EOF;
             return;
         }
 
-        $fileSystem = $this->cx
-            ->getMediaSourceManager()
-            ->getMediaType('calendar')
-            ->getFileSystem();
-        if (strpos($path, $fileSystem->getRootPath()) === 0) {
-            $path = substr($path, strlen($fileSystem->getRootPath()));
-        }
-        return $fileSystem->getFileFromPath($path);
+        return $this->cx->getMediaSourceManager()->getMediaSourceFileFromPath($path);
     }
 
     /**
-     * Remove a file/folder
+     * Check the Thumbnail file exists or not
      *
      * @param string $path File path
-     * @return string status of File remove
+     * @return boolean status of Thumb file exists
      */
-    public function removeFile($path)
+    public function thumbFileExists($path)
     {
         if (empty($path)) {
-            return;
+            return false;
         }
 
         if (!$file = $this->getFile($path)) {
-            return;
+            return false;
         }
 
-        return $file->getFileSystem()->removeFile($file);
+        $thumbFile = $file->getFileSystem()->getFileFromPath(
+            rtrim($file->getPath(), '/') . '/' . $file->getFullName() . '.thumb',
+            true
+        );
+
+        return $thumbFile->getFileSystem()->fileExists($thumbFile);
     }
 }

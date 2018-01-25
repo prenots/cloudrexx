@@ -791,7 +791,7 @@ class CalendarEventManager extends CalendarLibrary
         }
 
         $picThumb = $objEvent->pic;
-        if ($this->getFile($this->cx->getWebsitePath() . $objEvent->pic .'.thumb')) {
+        if ($this->thumbFileExists($objEvent->pic)) {
             $picThumb = $objEvent->pic . '.thumb';
         }
 
@@ -938,7 +938,7 @@ class CalendarEventManager extends CalendarLibrary
             //place map
             $hasPlaceMap =
                 !empty($objEvent->place_map) &&
-                $this->getFile($this->cx->getWebsitePath() . $objEvent->place_map);
+                $this->getFile($objEvent->place_map);
             if ($hasPlaceMap) {
                 $arrInfo   = getimagesize(\Env::get('cx')->getWebsitePath().$objEvent->place_map);
                 $picWidth  = $arrInfo[0]+20;
@@ -946,7 +946,7 @@ class CalendarEventManager extends CalendarLibrary
             }
 
             $mapThumbName = $objEvent->place_map;
-            if ($this->getFile($this->cx->getWebsitePath() . $objEvent->place_map .'.thumb')) {
+            if ($this->thumbFileExists($objEvent->place_map)) {
                 $mapThumbName = $objEvent->place_map . '.thumb';
             }
 
@@ -1401,7 +1401,7 @@ class CalendarEventManager extends CalendarLibrary
                     $picThumb = $objEvent->pic;
                 }
 
-                if ($this->getFile($this->cx->getWebsitePath() . $objEvent->pic . '.thumb')) {
+                if ($this->thumbFileExists($objEvent->pic)) {
                     $picThumb = $objEvent->pic . '.thumb';
                 }
 
@@ -1524,8 +1524,7 @@ class CalendarEventManager extends CalendarLibrary
 
                 $hasPlaceMap =
                     !empty($objEvent->place_map) &&
-                    $this->getFile($this->cx->getWebsitePath() . $objEvent->place_map
-                );
+                    $this->getFile($objEvent->place_map);
                 if ($hasPlaceMap) {
                     $arrInfo   = getimagesize(\Env::get('cx')->getWebsitePath().$objEvent->place_map);
                     $picWidth  = $arrInfo[0]+20;
@@ -1533,7 +1532,7 @@ class CalendarEventManager extends CalendarLibrary
                 }
 
                 $mapThumbName = $objEvent->place_map;
-                if ($this->getFile($this->cx->getWebsitePath() . $objEvent->place_map . '.thumb')) {
+                if ($this->thumbFileExists($objEvent->place_map)) {
                     $mapThumbName = $objEvent->place_map . '.thumb';
                 }
                 $objTpl->setVariable(array(

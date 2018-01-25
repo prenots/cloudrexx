@@ -1275,8 +1275,8 @@ class CalendarEvent extends CalendarLibrary
         // create thumb if not exists
         if (
             !empty($placeMap) &&
-            $this->getFile($this->cx->getWebsitePath() . $placeMap) &&
-            !$this->getFile($this->cx->getWebsitePath() . $placeMap . '.thumb')
+            $this->getFile($placeMap) &&
+            !$this->thumbFileExists($placeMap)
         ) {
             $objImage = new \ImageManager();
             $objImage->_createThumb(dirname(\Env::get('cx')->getWebsitePath()."$placeMap")."/", '', basename($placeMap), 180);
@@ -1297,11 +1297,27 @@ class CalendarEvent extends CalendarLibrary
                 if (!empty($picture)) {
                     if (!empty($pic)) {
                         // delete thumb
-                        $imagePath = $this->uploadImgPath . $pic;
-                        $this->removeFile($imagePath . '.thumb');
+                        $fileSystem = $this->cx
+                            ->getMediaSourceManager()
+                            ->getMediaType('calendar')
+                            ->getFileSystem();
+                        $thumbPath = substr(
+                            $this->cx->getWebsiteDocumentRootPath() . $pic . '.thumb',
+                            strlen($fileSystem->getRootPath())
+                        );
+                        $thumbFile = $fileSystem->getFileFromPath(
+                            $thumbPath,
+                            true
+                        );
+                        if ($fileSystem->fileExists($thumbFile)) {
+                            $fileSystem->removeFile($thumbFile);
+                        }
 
                         // delete image
-                        $this->removeFile($imagePath);
+                        $imgFile = $this->getFile($pic);
+                        if ($imgFile) {
+                            $imgFile->getFileSystem()->removeFile($imgFile);
+                        }
                     }
                     $pic = $picture;
                 }
@@ -1312,7 +1328,10 @@ class CalendarEvent extends CalendarLibrary
                 if ($attachment) {
                     //delete file
                     if (!empty($attach)) {
-                        $this->removeFile($this->uploadImgPath . $attach);
+                        $attachFile = $this->getFile($attach);
+                        if ($attachFile) {
+                            $attachFile->getFileSystem()->removeFile($attachFile);
+                        }
                     }
                     $attach = $attachment;
                 }
@@ -1320,11 +1339,7 @@ class CalendarEvent extends CalendarLibrary
 
         } else {
             // create thumb if not exists
-            if (
-                !empty($pic) &&
-                $this->getFile($this->cx->getWebsitePath() . $pic) &&
-                $this->getFile($this->cx->getWebsitePath() . $pic . '.thumb')
-            ) {
+            if (!empty($pic) && $this->getFile($pic) && !$this->thumbFileExists($pic)) {
                 $objImage = new \ImageManager();
                 $objImage->_createThumb(dirname(\Env::get('cx')->getWebsitePath()."$pic")."/", '', basename($pic), 180);
             }
@@ -2138,7 +2153,7 @@ class CalendarEvent extends CalendarLibrary
         $cx  = \Cx\Core\Core\Controller\Cx::instanciate();
         $sessionObj = $cx->getComponent('Session')->getSession();
         $tmpUploadDir     = $_SESSION->getTempPath().'/'.$id.'/'; //all the files uploaded are in here
-        $depositionTarget = $this->uploadImgPath; //target folder
+        $depositionTarget = $this->uploadImgWebPath; //target folder
         $pic              = '';
 
         //move all files
@@ -2156,7 +2171,7 @@ class CalendarEvent extends CalendarLibrary
 
                 //do not overwrite existing files.
                 $prefix = '';
-                while ($this->getFile($depositionTarget.$prefix.$f)) {
+                while ($this->getFile($depositionTarget . $prefix . $f)) {
                     if (empty($prefix)) {
                         $prefix = 0;
                     }
@@ -2164,10 +2179,7 @@ class CalendarEvent extends CalendarLibrary
                 }
 
                 // move file
-                $filePath = substr(
-                    $depositionTarget . $prefix . $f,
-                    strlen($cx->getWebsiteDocumentRootPath())
-                );
+                $filePath = $depositionTarget . $prefix . $f;
                 $cx->getMediaSourceManager()->moveFile(
                     $tmpUploadDir . $f,
                     $filePath
