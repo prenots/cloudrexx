@@ -614,7 +614,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return false;
+            return;
         }
 
         $toFile = $this->getFileFromPath($toFilePath, true);
@@ -624,7 +624,7 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             ) &&
             !$this->createDirectory(ltrim($toFile->getPath(), '/'), '', true)
         ) {
-            return false;
+            return;
         }
 
         $fileSystem = new \Cx\Lib\FileSystem\FileSystem();
