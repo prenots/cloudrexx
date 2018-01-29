@@ -119,13 +119,13 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
      */
     public function getFileList($directory, $recursive = true, $readonly = false)
     {
-        $directory = $this->getFileFromPath($directory, true);
-        $dirPath   = $this->getFullPath($directory) . $directory->getFullName();
+        $dirObj  = $this->getFileFromPath($directory, true);
+        $dirPath = $this->getFullPath($dirObj) . $dirObj->getFullName();
         if (isset($this->fileListCache[$dirPath][$recursive][$readonly])) {
             return $this->fileListCache[$dirPath][$recursive][$readonly];
         }
 
-        if (!$this->fileExists($directory)) {
+        if (!$this->fileExists($dirObj)) {
             return array();
         }
 
