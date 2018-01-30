@@ -191,7 +191,7 @@ class Gallery
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
         $file            = $this->galleryLib->getFileByPath($strImagePath);
         $imageSize       = '';
-        if ($showImageSize) {
+        if ($file && $showImageSize) {
             $imageSize = round($file->getSize() / 1024, 2);
         }
 
@@ -320,7 +320,7 @@ class Gallery
         $showImageSize   = $this->arrSettings['show_image_size'] == 'on' && $picture->fields['size_show'];
         $file            = $this->galleryLib->getFileByPath($strImagePath);
         $imageSize       = '';
-        if ($showImageSize) {
+        if ($file && $showImageSize) {
             $imageSize = round($file->getSize() / 1024, 2);
         }
 
@@ -503,7 +503,7 @@ class Gallery
                 $this->strImageWebPath . $objResult->fields['path']
             );
             $fileSize = '';
-            if ($showImageSizeOverview) {
+            if ($file && $showImageSizeOverview) {
                 $fileSize = round($file->getSize() / 1024, 2);
             }
             $arrImageSizes[$objResult->fields['catid']][$objResult->fields['id']] = $fileSize;
@@ -731,7 +731,7 @@ class Gallery
                 $this->strImageWebPath . $objResult->fields['path']
             );
             $imageFileSize   = '';
-            if ($showImageSize) {
+            if ($file && $showImageSize) {
                 $imageFileSize = round($file->getSize() / 1024, 2);
             }
 
