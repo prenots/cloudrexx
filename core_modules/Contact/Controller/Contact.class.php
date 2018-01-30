@@ -770,8 +770,7 @@ CODE;
         } else {
             $cx                 = \Cx\Core\Core\Controller\Cx::instanciate();
             $mediaSourceManager = $cx->getMediaSourceManager();
-            $fileSystem         = $cx
-                ->getMediaSourceManager()
+            $fileSystem         = $mediaSourceManager
                 ->getMediaType('attach')
                 ->getFileSystem();
             //new uploader used
@@ -829,7 +828,7 @@ CODE;
                     $folderName .= $suffix;
 
                     //try to make the folder and change target accordingly on success
-                    if ($fileSystem->createDirectory($folderName)) {
+                    if ($fileSystem->createDirectory($folderName, '')) {
                         $fileObj = $mediaSourceManager->getMediaSourceFileFromPath(
                             $depositionTarget . $folderName
                         );
