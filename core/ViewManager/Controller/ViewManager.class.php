@@ -1700,42 +1700,38 @@ CODE;
         // Change the replacement variables from [[TITLE]] into {TITLE}
         $pageContent = preg_replace('/\[\[([A-Z0-9_]*?)\]\]/', '{\\1}' ,$pageContent);
 
-        try {
-            if (self::isFileTypeComponent($themesPage)) {
-                $themesPage = self::getComponentFilePath($themesPage, false);
-            }
-            $theme     = new \Cx\Core\View\Model\Entity\Theme();
-            $themePage = $theme->getFileByPath('/' . $themes . $themesPage);
-            if (!$themePage->getFileSystem()->fileExists($themePage)) {
-                $this->fileSystem->createDirectory($themePage->getPath(), '', true);
-            }
+        if (self::isFileTypeComponent($themesPage)) {
+            $themesPage = self::getComponentFilePath($themesPage, false);
+        }
+        $theme     = new \Cx\Core\View\Model\Entity\Theme();
+        $themePage = $theme->getFileByPath('/' . $themes . $themesPage);
+        if (!$themePage->getFileSystem()->fileExists($themePage)) {
+            $this->fileSystem->createDirectory($themePage->getPath(), '', true);
+        }
 
-            if ($isComponentFile && $themePage->getFileSystem()->fileExists($themePage)) {
-                // override from application template, rename the file if its already exists
-                $idx = 1;
-                $fileName = $themePage->getPath() . '/' . $themePage->getName();
-                while ($themePage->getFileSystem()->fileExists($themePage)) {
-                    $themePage = $theme->getFileByPath(
-                        $fileName . '_custom_' . $idx++ . '.' . $themePage->getExtension()
-                    );
-                }
-                $_POST['themesPage'] = self::getThemeRelativePath(
-                    substr(
-                        $themePage->getPath() . '/' . $themePage->getFullName(),
-                        strlen('/' . $themes)
-                    )
+        if ($isComponentFile && $themePage->getFileSystem()->fileExists($themePage)) {
+            // override from application template, rename the file if its already exists
+            $idx = 1;
+            $fileName = $themePage->getPath() . '/' . $themePage->getName();
+            while ($themePage->getFileSystem()->fileExists($themePage)) {
+                $themePage = $theme->getFileByPath(
+                    $fileName . '_custom_' . $idx++ . '.' . $themePage->getExtension()
                 );
             }
-
-            $themePage->getFileSystem()->writeFile($themePage, $pageContent);
-
-            // temporary hotfix for google chrome
-            // remove in case google chrome will no longer throw an ERR_BLOCKED_BY_XSS_AUDITOR exception
-            header('X-XSS-Protection: 0');
-        } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-            \DBG::msg($e->getMessage());
+            $_POST['themesPage'] = self::getThemeRelativePath(
+                substr(
+                    $themePage->getPath() . '/' . $themePage->getFullName(),
+                    strlen('/' . $themes)
+                )
+            );
         }
-        
+
+        $themePage->getFileSystem()->writeFile($themePage, $pageContent);
+
+        // temporary hotfix for google chrome
+        // remove in case google chrome will no longer throw an ERR_BLOCKED_BY_XSS_AUDITOR exception
+        header('X-XSS-Protection: 0');
+
         // drop cache:
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getComponent('Cache')->clearCache();
