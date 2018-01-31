@@ -236,8 +236,7 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
     /**
      * Delete selected theme and its theme folder
      *
-     * @global type $_ARRAYLANG
-     * @return array status
+     * @return array Array of delete status details
      */
     function deleteThemeById()
     {
@@ -333,7 +332,7 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
      * delete the file or directory
      *
      * @param array $params supplied arguments from JsonData-request
-     * @return string
+     * @return array Array of delete status details
      */
     public function delete($params)
     {
@@ -354,15 +353,20 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
             return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_THEME_OPERATION_FAILED_FOR_EMPTY_PARAMS']);
         }
 
-        $theme = new \Cx\Core\View\Model\Entity\Theme();
+        $theme       = new \Cx\Core\View\Model\Entity\Theme();
         $themeFolder = $theme->getFileByPath($themeName . $filePath);
         if (
             !$themeFolder->getFileSystem()->fileExists($themeFolder) &&
             \Cx\Core\ViewManager\Controller\ViewManager::isFileTypeComponent($filePath)
         ) { // resolve the component file
             $componentFilePath = \Cx\Core\ViewManager\Controller\ViewManager::getComponentFilePath($filePath, false);
-            $componentFile = $theme->getFileByPath($themeName . '/' . $componentFilePath);
-            if ($componentFilePath && $componentFile->getFileSystem()->fileExists($componentFile)) { // file exists
+            $componentFile     = $theme->getFileByPath(
+                $themeName . '/' . $componentFilePath
+            );
+            if (
+                $componentFilePath &&
+                $componentFile->getFileSystem()->fileExists($componentFile)
+            ) { // file exists
                 $filePath = $componentFilePath;
             } else { // file not exists may be a folder
                 $filePath = \Cx\Core\ViewManager\Controller\ViewManager::replaceComponentFolderByItsType($filePath);
@@ -371,14 +375,13 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
 
         $themeFile = $theme->getFileByPath($themeName . '/' . $filePath);
         if ($themeFile->getFileSystem()->fileExists($themeFile)) {
-            $status = $themeFile->getFileSystem()->removeFile($themeFile);
             if ($themeFile->getFileSystem()->isDirectory($themeFile)) {
                 $succesMessage = sprintf($_ARRAYLANG['TXT_THEME_FOLDER_'. $operation .'_SUCCESS'], contrexx_input2xhtml($pathStripped));
             } else {
                 $succesMessage = sprintf($_ARRAYLANG['TXT_THEME_FILE_'. $operation .'_SUCCESS'], contrexx_input2xhtml($pathStripped));
             }
 
-            if (!$status) {
+            if (!$themeFile->getFileSystem()->removeFile($themeFile)) {
                 return array('status' => 'error', 'reload' => false, 'message' => $_ARRAYLANG['TXT_THEME_'. $operation .'_FAILED']);
             }
             return array('status' => 'success', 'reload' => true, 'message' =>  $succesMessage);
@@ -412,7 +415,6 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
         }
 
         $themeName          = '/' . contrexx_input2raw($params['post']['theme']);
-        $currentThemeFolder = \Env::get('cx')->getWebsiteThemesPath() . $themeName;
         $oldFilePath        = $params['post']['oldName'];
         $newFileName        = $params['post']['newName'];
         $isFolder           = $params['post']['isFolder'] ?: 0;
@@ -435,8 +437,13 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
             \Cx\Core\ViewManager\Controller\ViewManager::isFileTypeComponent($oldFilePath)
         ) { // resolve the component file
             $componentFilePath = \Cx\Core\ViewManager\Controller\ViewManager::getComponentFilePath($oldFilePath, false);
-            $componentFile = $theme->getFileByPath($themeName . $componentFilePath);
-            if ($componentFilePath && $componentFile->getFileSystem()->fileExists($componentFile)) { // file exists
+            $componentFile     = $theme->getFileByPath(
+                $themeName . $componentFilePath
+            );
+            if (
+                $componentFilePath &&
+                $componentFile->getFileSystem()->fileExists($componentFile)
+            ) { // file exists
                 $oldFilePath = $componentFilePath;
             } else { // file not exists may be a folder
                 $oldFilePath = \Cx\Core\ViewManager\Controller\ViewManager::replaceComponentFolderByItsType($oldFilePath);
@@ -451,11 +458,9 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
                 $destFile->getPath() . '/' . $destFile->getName()
             )
         ) {
-            $path     = preg_replace(
-                '#' . $currentThemeFolder . '#',
-                 '',
-                 $destFile->getFileSystem()->getFullPath($destFile) .
-                 $destFile->getName() . '.' . $sourceFile->getExtension()
+            $path = substr(
+                $destFile->getPath() . '/' . $destFile->getFullName(),
+                strlen($themeName)
             );
             $message = $isFolder ? $_ARRAYLANG['TXT_THEME_FOLDER_RENAME_SUCCESS'] : $_ARRAYLANG['TXT_THEME_FILE_RENAME_SUCCESS'];
             return array('status' => 'success', 'reload' => true, 'path' => \Cx\Core\ViewManager\Controller\ViewManager::getThemeRelativePath($path), 'message' =>  $message);
@@ -499,11 +504,10 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
         $theme       = new \Cx\Core\View\Model\Entity\Theme();
         $themeName   = contrexx_input2raw($params['post']['theme']);
         $themeFolder = $theme->getFileByPath('/' . $themeName);
-        $currentThemeFolderDirPath = \Env::get('cx')->getWebsiteThemesPath() . '/'. $themeName . '/';
         // Create the theme folder, if it does not exist
         if (
             !$themeFolder->getFileSystem()->fileExists($themeFolder) &&
-            !$themeFolder->getFileSystem()->createDirectory($themeName)
+            !$themeFolder->getFileSystem()->createDirectory($themeName, '')
         ) {
             return array('status' => 'error', 'reload' => false, 'message' => $_ARRAYLANG['TXT_THEME_NEWFILE_FAILED']);
         }
@@ -521,7 +525,7 @@ class JsonViewManager implements \Cx\Core\Json\JsonAdapter {
         $file = $theme->getFileByPath('/' . $themeName . '/' . $newFileName);
         if (!$file->getFileSystem()->fileExists($file)) {
             if ($params['post']['isFolder']) {
-                $status = $file->getFileSystem()->createDirectory($themeName . '/' . $newFileName);
+                $status = $file->getFileSystem()->createDirectory($themeName, $newFileName);
                 $succesMessage = sprintf($_ARRAYLANG['TXT_THEME_FOLDER_CREATE_SUCCESS'], contrexx_input2xhtml($newFileName));
             } else {
                 $status = $file->getFileSystem()->writeFile($file, '');

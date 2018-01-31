@@ -925,12 +925,12 @@ CODE;
                         return false;
                     }
 
-                    $this->fileSystem->createDirectory($directory);
+                    $this->fileSystem->createDirectory($directory, '');
 //                     $this->fileSystem->makeWritable($themeFolder);
                     break;
 
                 default:
-                    $this->fileSystem->createDirectory($themeDirectory . '/' . $directory);
+                    $this->fileSystem->createDirectory($themeDirectory, $directory);
 //                     $this->fileSystem->makeWritable(
 //                         $theme->getFileByPath($themeDirectory . '/' . $directory)
 //                     );
@@ -1534,7 +1534,7 @@ CODE;
             switch (true) {
                 case (empty($copyFromTheme) && empty($createFromDatabase)):
                     // Create new empty theme
-                    if ($this->fileSystem->createDirectory($theme->getFoldername())) {
+                    if ($this->fileSystem->createDirectory($theme->getFoldername(), '')) {
                         if ($this->createDefaultFiles($theme) && $this->insertSkinIntoDb($theme)) {
                             \Message::add(contrexx_raw2xhtml($themeName).' '.$_ARRAYLANG['TXT_STATUS_SUCCESSFULLY_CREATE']);
                         } else {
@@ -1587,7 +1587,7 @@ CODE;
                 case (empty($copyFromTheme) && !empty($createFromDatabase)):
                     // TODO: remove this function -> migrate all pending themes in the update process
                     // Create new theme from database (migrate existing theme from database to filesystem)
-                    if ($this->fileSystem->createDirectory($dirName)) {
+                    if ($this->fileSystem->createDirectory($dirName, '')) {
                         $this->insertIntoDb($theme, $createFromDatabase);
                         $this->createFilesFromDB($dirName, intval($createFromDatabase));
                     }
@@ -1704,7 +1704,7 @@ CODE;
             if (self::isFileTypeComponent($themesPage)) {
                 $themesPage = self::getComponentFilePath($themesPage, false);
             }
-            $theme = new \Cx\Core\View\Model\Entity\Theme();
+            $theme     = new \Cx\Core\View\Model\Entity\Theme();
             $themePage = $theme->getFileByPath('/' . $themes . $themesPage);
             if (!$themePage->getFileSystem()->fileExists($themePage)) {
                 $this->fileSystem->createDirectory($themePage->getPath(), '', true);
@@ -1719,13 +1719,10 @@ CODE;
                         $fileName . '_custom_' . $idx++ . '.' . $themePage->getExtension()
                     );
                 }
-                $filePath = $themePage->getFileSystem()->getFullPath($themePage) .
-                    $themePage->getFullName();
                 $_POST['themesPage'] = self::getThemeRelativePath(
-                    preg_replace(
-                        '#' . $this->websiteThemesPath . $themes . '#',
-                        '',
-                        $filePath
+                    substr(
+                        $themePage->getPath() . '/' . $themePage->getFullName(),
+                        strlen('/' . $themes)
                     )
                 );
             }
@@ -2441,7 +2438,7 @@ CODE;
         global $_ARRAYLANG;
 
         foreach ($this->directories as $dir) {
-            if (!$this->fileSystem->createDirectory($theme->getFoldername() . '/' . $dir)) {
+            if (!$this->fileSystem->createDirectory($theme->getFoldername(), $dir)) {
                 \Message::add(
                     sprintf($_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'], contrexx_raw2xhtml($theme->getFoldername() .'/'. $dir)),
                     \Message::CLASS_ERROR
@@ -2451,12 +2448,20 @@ CODE;
         }
 
         //copy "not available" preview.gif as default preview image
-        $previewImage = $theme->getFoldername() . \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE;
+        $previewImage = $theme->getFoldername() .
+            \Cx\Core\View\Model\Entity\Theme::THEME_PREVIEW_FILE;
         $imgFile      = $theme->getFileByPath('/' . $previewImage);
         if (!$imgFile->getFileSystem()->fileExists($imgFile)) {
-            $defaultImg = $this->cx->getCodeBaseDocumentRootPath() . \Cx\Core\View\Model\Entity\Theme::THEME_DEFAULT_PREVIEW_FILE;
-            $srcPath    = substr($defaultImg, strlen($this->cx->getWebsiteDocumentRootPath()));
-            $destPath   = substr($this->path . $previewImage, strlen($this->cx->getWebsiteDocumentRootPath()));
+            $defaultImg = $this->cx->getCodeBaseDocumentRootPath() .
+                \Cx\Core\View\Model\Entity\Theme::THEME_DEFAULT_PREVIEW_FILE;
+            $srcPath    = substr(
+                $defaultImg,
+                strlen($this->cx->getWebsiteDocumentRootPath())
+            );
+            $destPath   = substr(
+                $this->path . $previewImage,
+                strlen($this->cx->getWebsiteDocumentRootPath())
+            );
             if (!$this->cx->getMediaSourceManager()->copyFile($srcPath, $destPath)) {
                 \Message::add(
                     sprintf(
@@ -2475,7 +2480,9 @@ CODE;
                 continue;
             }
 
-            $fileObj = $theme->getFileByPath('/' . $theme->getFoldername() . '/' . $file);
+            $fileObj = $theme->getFileByPath(
+                '/' . $theme->getFoldername() . '/' . $file
+            );
             if (
                 !$fileObj->getFileSystem()->fileExists($fileObj) &&
                 $fileObj->getFileSystem()->writeFile($fileObj, '') === false
@@ -2483,7 +2490,7 @@ CODE;
                 \Message::add(
                     sprintf(
                         $_ARRAYLANG['TXT_UNABLE_TO_CREATE_FILE'],
-                        contrexx_raw2xhtml($theme->getFoldername() .'/'. $file)
+                        contrexx_raw2xhtml($theme->getFoldername() . '/' . $file)
                     ),
                     \Message::CLASS_ERROR
                 );
@@ -2597,7 +2604,7 @@ CODE;
 
             if (
                 !$this->fileSystem->makeWritable($file) ||
-                !$this->fileSystem->writeFile($file, $fileContent)
+                $this->fileSystem->writeFile($file, $fileContent) === false
             ) {
                 $this->strErrMessage = $_ARRAYLANG['TXT_STATUS_CANNOT_WRITE'];
             } else {
