@@ -341,6 +341,10 @@ class MediaSourceManager extends EntityBase
         $destinationPath,
         $ignoreExists = false
     ) {
+        if (empty($sourcePath) || empty($destinationPath)) {
+            return 'error';
+        }
+
         // Get Source Stream
         $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
         $sourceExt  = pathinfo($sourcePath, PATHINFO_EXTENSION);
