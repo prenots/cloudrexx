@@ -346,7 +346,7 @@ class AwsS3FileSystem extends LocalFileSystem {
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return false;
+            return;
         }
 
         $toFile = $this->getFileFromPath($toFilePath, true);
