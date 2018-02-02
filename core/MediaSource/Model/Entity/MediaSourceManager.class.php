@@ -330,12 +330,17 @@ class MediaSourceManager extends EntityBase
      *     /media/archive1/preisliste_contrexx_2012.pdf,
      *     /themes/standard_4_0/text.css
      *
-     * @param string $sourcePath      Source filepath
-     * @param string $destinationPath Destination filepath
-     * @return boolean status of file copy
+     * @param string  $sourcePath      Source filepath
+     * @param string  $destinationPath Destination filepath
+     * @param boolean $ignoreExists    True, if the destination file exists it will be overwritten
+     *                                 otherwise file will be created with new name
+     * @return string Name of the copied file
      */
-    public function copyFile($sourcePath, $destinationPath)
-    {
+    public function copyFile(
+        $sourcePath,
+        $destinationPath,
+        $ignoreExists = false
+    ) {
         // Get Source Stream
         $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
         $sourceExt  = pathinfo($sourcePath, PATHINFO_EXTENSION);
@@ -350,18 +355,43 @@ class MediaSourceManager extends EntityBase
             pathinfo($destinationPath, PATHINFO_FILENAME) . '.' . $sourceExt;
 
         // Get Destination Stream
-        try {
-            $destMediaSource = $this->getMediaSourceByPath($destinationPath);
-            $destinationPath = substr(
-                $destinationPath,
-                strlen($destMediaSource->getDirectory()[1])
-            );
-            // Create destination file object by using $destinationPath
-            $destFile = $destMediaSource->getFileSystem()->getFileFromPath(
-                $destinationPath,
-                true
-            );
+        $destFile   = $this->getDestinationFile($destinationPath, $ignoreExists);
+        if (!$destFile) {
+            return 'error';
+        }
+        $destStream = $destFile->getStream('w');
 
+        if ($destFile instanceof File) {
+            $newFileName = $destFile->getFullName();
+        } else {
+            $newFileName = pathinfo(
+                $destFile->getAbsoluteFilePath(),
+                PATHINFO_BASENAME
+            );
+        }
+
+        // Copy the file from source to destination
+        if (stream_copy_to_stream($sourceStream, $destStream) === false) {
+            $newFileName = 'error';
+        }
+
+        return $newFileName;
+    }
+
+    /**
+     * Get the File object by the given Destination path
+     *
+     * @param string  $path         Destination filepath
+     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
+     *                              otherwise file will be created with new name
+     * @return File|\Cx\Lib\FileSystem\FileSystemFile File object
+     */
+    protected function getDestinationFile($path, $ignoreExists)
+    {
+        try {
+            $mediaSource = $this->getMediaSourceByPath($path);
+            $path        = substr($path, strlen($mediaSource->getDirectory()[1]));
+            $destFile    = $mediaSource->getFileSystem()->getFileFromPath($path, true);
             // Check if the destination file directory exists otherwise
             // try to create the directory
             $destDirectory = $destFile->getFileSystem()->getFileFromPath(
@@ -376,30 +406,42 @@ class MediaSourceManager extends EntityBase
                     true
                 )
             ) {
-                return false;
+                return;
+            }
+
+            if (!$ignoreExists) {
+                $destName = $destFile->getName();
+                while ($destFile->getFileSystem()->fileExists($destFile)) {
+                    $destFile = $destFile->getFileSystem()->getFileFromPath(
+                        rtrim($destFile->getPath(), '/') . '/' . $destName . '_'
+                        . time() . '.' . $destFile->getExtension(),
+                        true
+                    );
+                }
             }
         } catch(MediaSourceManagerException $e) {
-            \DBG::dump($e->getMessage());
-            $destFile   = new \Cx\Lib\FileSystem\File($destinationPath);
+            \DBG::log($e->getMessage());
             // Check if the destination file directory exists otherwise
             // try to create the directory if does not then call return.
-            $dirPath = pathinfo($destinationPath, PATHINFO_DIRNAME);
+            $dirPath = pathinfo($path, PATHINFO_DIRNAME);
             if (
                 !\Cx\Lib\FileSystem\FileSystem::exists($dirPath) &&
                 !\Cx\Lib\FileSystem\FileSystem::make_folder($dirPath)
             ) {
-                return false;
+                return;
             }
-        }
-        $destStream = $destFile->getStream('w');
 
-        // Copy the file from source to destination
-        $copyStatus = true;
-        if (!stream_copy_to_stream($sourceStream, $destStream)) {
-            $copyStatus = false;
+            if (!$ignoreExists) {
+                $destName = pathinfo($path, PATHINFO_FILENAME);
+                while (\Cx\Lib\FileSystem\FileSystem::exists($path)) {
+                    $path = $dirPath . '/' . $destName . '_' .
+                        time() . '.' . $sourceExt;
+                }
+            }
+            $destFile = new \Cx\Lib\FileSystem\FileSystemFile($path);
         }
 
-        return $copyStatus;
+        return $destFile;
     }
 
     /**
@@ -416,7 +458,7 @@ class MediaSourceManager extends EntityBase
     public function moveFile($sourcePath, $destinationPath)
     {
         // Copy the file from source to destination
-        if (!$this->copyFile($sourcePath, $destinationPath)) {
+        if ($this->copyFile($sourcePath, $destinationPath, true) == 'error') {
             return false;
         }
 
