@@ -61,13 +61,13 @@ class MediaLibrary
         global $_ARRAYLANG, $objTemplate;
 
         $dirName = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($dirName);
-        $mediaSourceFile = $this->getMediaSourceFileByFileName($dirName, true);
-        if (!$mediaSourceFile) {
+        $file = $this->getMediaSourceFileByFileName($dirName, true);
+        if (!$file) {
             return;
         }
-        $status = $mediaSourceFile->getFileSystem()->createDirectory(
-            $mediaSourceFile->getPath(),
-            $mediaSourceFile->getFullName()
+        $status = $file->getFileSystem()->createDirectory(
+            $file->getPath(),
+            $file->getFullName()
         );
         if ($status) {
             $this->highlightName[] = $dirName;
@@ -140,13 +140,7 @@ class MediaLibrary
         // The file is already checked (media paths only)
         $file = $this->path.$this->getFile;
         //First, see if the file exists
-        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager();
-        if (
-            !$mediaSourceManager->getMediaSourceFileFromPath(
-                $this->webPath . $this->getFile
-            )
-        ) {
+        if (!$this->getMediaSourceFileByFileName($this->getFile)) {
             die("<b>404 File not found!</b>");
         }
 
@@ -249,12 +243,17 @@ class MediaLibrary
     {
         global $_ARRAYLANG, $objTemplate;
 
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
         // cut
         if (isset($_SESSION['mediaCutFile']) && !empty($_SESSION['mediaCutFile'])) {
             $check = true;
 
             foreach ($_SESSION['mediaCutFile'][2] as $name) {
                 if ($_SESSION['mediaCutFile'][0] != $this->path) {
+                    $sourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
+                        $_SESSION['mediaCutFile'][1] . $name
+                    );
                     $obj_file = new \File();
 
                     if (is_dir($_SESSION['mediaCutFile'][0].$name)) {
@@ -265,11 +264,14 @@ class MediaLibrary
                             $obj_file->delDir($_SESSION['mediaCutFile'][0], $_SESSION['mediaCutFile'][1], $name);
                         }
                     } else {
-                        $this->dirLog=$obj_file->copyFile($_SESSION['mediaCutFile'][0], $name, $this->path, $name);
+                        $this->dirLog = $mediaSourceManager->copyFile(
+                            $_SESSION['mediaCutFile'][1] . $name,
+                            $this->webPath . $name
+                        );
                         if ($this->dirLog == "error") {
                             $check = false;
                         } else {
-                            $obj_file->delFile($_SESSION['mediaCutFile'][0], $_SESSION['mediaCutFile'][1], $name);
+                            $sourceFile->getFileSystem()->removeFile($sourceFile);
                         }
                     }
 
@@ -303,7 +305,10 @@ class MediaLibrary
                         $check = false;
                     }
                 } else {
-                    $this->dirLog=$obj_file->copyFile($_SESSION['mediaCopyFile'][0], $name, $this->path, $name);
+                    $this->dirLog = $mediaSourceManager->copyFile(
+                        $_SESSION['mediaCutFile'][1] . $name,
+                        $this->webPath . $name
+                    );
                     if ($this->dirLog == "error") {
                         $check = false;
                     }
@@ -344,23 +349,17 @@ class MediaLibrary
         if (self::isIllegalFileName($file)) {
             return $_ARRAYLANG['TXT_MEDIA_FILE_DONT_DELETE'];
         }
-        $obj_file = new \File();
-        if (is_dir($this->path.$file)) {
-            $this->dirLog=$obj_file->delDir($this->path, $this->webPath, $file);
-            if ($this->dirLog != "error") {
+        $sourcefile = $this->getMediaSourceFileByFileName($file);
+        $isDir      = $sourcefile->getFileSystem()->isDirectory($sourcefile);
+        $delstatus  = $sourcefile->getFileSystem()->removeFile($sourcefile);
+        if ($isDir) {
+            if ($delstatus) {
                 $status = $_ARRAYLANG['TXT_MEDIA_MSG_DIR_DELETE'];
             } else {
                 $status = $_ARRAYLANG['TXT_MEDIA_MSG_ERROR_DIR'];
             }
          } else {
-            if ($this->_isImage($this->path.$file)) {
-                $thumb_name = basename(\ImageManager::getThumbnailFilename($this->path . $file));
-                if (file_exists($this->path.$thumb_name)) {
-                    $this->dirLog=$obj_file->delFile($this->path, $this->webPath, $thumb_name);
-                }
-            }
-            $this->dirLog=$obj_file->delFile($this->path, $this->webPath, $file);
-            if ($this->dirLog != "error") {
+             if ($delstatus) {
                 $status = $_ARRAYLANG['TXT_MEDIA_MSG_FILE_DELETE'];
             } else {
                 $status = $_ARRAYLANG['TXT_MEDIA_MSG_ERROR_FILE'];
@@ -476,15 +475,15 @@ class MediaLibrary
     {
         global $_ARRAYLANG, $objTemplate;
 
-        $objFile = new \File();
         $orgFile = $arrData['orgName'].'.'.$arrData['orgExt'];
         $newName = $arrData['newName'];
         $newFile = $newName.'.'.$arrData['orgExt'];
         \Cx\Lib\FileSystem\FileSystem::clean_path($newFile);
 
         // If new image name is set, image will be copied. Otherwise, image will be overwritten
-        if ($newName != '') {
-            $this->fileLog = $objFile->copyFile($this->path, $orgFile, $this->path, $newFile);
+        $file = $this->getMediaSourceFileByFileName($orgFile);
+        if ($file && $newName != '') {
+            $this->fileLog = $file->copy($newFile);
             if ($this->fileLog == 'error') {
                 throw new \Exception('Could not copy image');
             }
@@ -1367,26 +1366,6 @@ END;
     }
 
     /**
-     * Get MediaSource FileSystem
-     *
-     * @return \Cx\Core\MediaSource\Model\Entity\FileSystem
-     */
-    public function getMediaSourceFileSystem()
-    {
-        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager();
-        try {
-            $mediaSource = $mediaSourceManager->getMediaSourceByPath(
-                $this->webPath,
-                true
-            );
-        } catch (\Exception $e) {
-            return;
-        }
-        return $mediaSource->getFileSystem();
-    }
-
-    /**
      * Get MediaSource File from file name
      *
      * @param string  $file  filename
@@ -1396,22 +1375,23 @@ END;
      */
     public function getMediaSourceFileByFileName($fileName, $force = false)
     {
-        if (empty($fileName)) {
+        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
+            ->getMediaSourceManager();
+        try {
+            $mediaSource = $mediaSourceManager->getMediaSourceByPath(
+                $this->webPath,
+                true
+            );
+            $fileSystem = $mediaSource->getFileSystem();
+        } catch (\Exception $e) {
             return;
         }
 
-        $fileSystem = $this->getMediaSourceFileSystem();
-        if (!$fileSystem) {
-            return;
+        $mediaSourcePath = $mediaSource->getDirectory();
+        $subDirPath = '/';
+        if (strpos($this->webPath, $mediaSourcePath[1]) === 0) {
+            $subDirPath = substr($this->webPath, strlen($mediaSourcePath[1]));
         }
-
-        $mediaSourceRootPath = $fileSystem->getRootPath();
-        if (strpos($this->path, $mediaSourceRootPath) === 0) {
-            $dirPath = substr($this->path, strlen($mediaSourceRootPath));
-        } else {
-            $dirPath = $this->path;
-        }
-
-        return $fileSystem->getFileFromPath($dirPath . $fileName, $force);
+        return $fileSystem->getFileFromPath($subDirPath . $fileName, $force);
     }
 }

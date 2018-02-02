@@ -669,20 +669,15 @@ CODE;
             return $this->handleRedirect();
         }
 
-        $mediaSourceManager = \Cx\Core\Core\Controller\Cx::instanciate()
-            ->getMediaSourceManager();
-        $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
-            $this->webPath . $this->getFile
-        );
-        if (isset($_GET['newfile']) && $mediaSourceFile) {
+        $file = $this->getMediaSourceFileByFileName($this->getFile);
+        if (isset($_GET['newfile']) && $file) {
             $newFile = trim(preg_replace('/[^a-z0-9_\-\. ]/i', '_', $_GET['newfile']));
             if ($newFile != "") {
-                if (!$mediaSourceManager->getMediaSourceFileFromPath($this->webPath . $newFile)) {
-                    $newFileinfo = pathinfo($newFile);
+                if (!$this->getMediaSourceFileByFileName($newFile)) {
                     if (
-                        $mediaSourceFile->getFileSystem()->moveFile(
-                            $mediaSourceFile,
-                            basename($newFile, '.' .$newFileinfo['extension'])
+                        $file->getFileSystem()->moveFile(
+                            $file,
+                            $file->getPath() . '/' . $newFile
                         )
                     ) {
                         \Message::ok(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_RENAME_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>', '<strong>'.htmlentities($newFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>'));
@@ -727,11 +722,9 @@ CODE;
             ->getMediaSourceManager();
 
         if (isset($_GET['path'])) {
-            $mediaSourceFile = $mediaSourceManager->getMediaSourceFileFromPath(
-                $this->webPath . $this->getFile
-            );
+            $file = $this->getMediaSourceFileByFileName($this->getFile);
 
-           if (!$mediaSourceFile) {
+           if (!$file) {
                 \Message::error(
                     sprintf(
                         $_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'],
@@ -740,7 +733,7 @@ CODE;
                 );
             }
 
-            if ($mediaSourceFile->getFileSystem()->removeFile($mediaSourceFile)) {
+            if ($file->getFileSystem()->removeFile($file)) {
                 if (isset($_GET['file'])) {
                     $successMsg = sprintf(
                         $_ARRAYLANG['TXT_MEDIA_FILE_DELETED_SUCESSFULLY'],
