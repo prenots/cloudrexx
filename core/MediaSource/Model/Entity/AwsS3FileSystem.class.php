@@ -212,9 +212,9 @@ class AwsS3FileSystem extends LocalFileSystem {
     /**
      * Copy the directory and its files from source to destination
      *
-     * @param string $fromPath   Source file path
-     * @param string $toPath     Destination file path
-     * @param array  $fileLists  List of files to delete(optional)
+     * @param string $fromPath  Source file path
+     * @param string $toPath    Destination file path
+     * @param array  $fileLists List of files to delete(optional)
      * @return boolean Status of copy
      */
     public function copyDir($fromPath, $toPath, $fileLists = array())
@@ -254,7 +254,7 @@ class AwsS3FileSystem extends LocalFileSystem {
     }
 
     /**
-     * Copy the File from source to destination path
+     * Copy the file from source to destination path
      *
      * @param string $fromFileKey Source file key
      * @param string $toFileKey   Destination file key
@@ -280,7 +280,7 @@ class AwsS3FileSystem extends LocalFileSystem {
     }
 
     /**
-     * Remove the Directory
+     * Remove the directory
      *
      * @param File  $file   File object
      * @param array $files  List of files to delete(optional)
@@ -300,7 +300,7 @@ class AwsS3FileSystem extends LocalFileSystem {
             if (!isset($fileList['datainfo'])) {
                 continue;
             }
-            $dataInfo     = $fileList['datainfo'];
+            $dataInfo = $fileList['datainfo'];
             if ($dataInfo['extension'] == 'Dir') {
                 $this->removeDir($file, $fileList);
                 if (!rmdir($this->documentPath . $dataInfo['filepath'])) {
