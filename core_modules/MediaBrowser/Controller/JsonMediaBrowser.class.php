@@ -240,7 +240,7 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
             strlen($fileSystem->getRootPath())
         );
         $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_RENAMED'];
-        if ($fileSystem->moveFile($file, $toWebPath . $newName)) {
+        if ($fileSystem->move($file, $toWebPath . $newName)) {
             $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_RENAMED'];
         }
         $this->setMessage(sprintf($statusMessage, $file->getName()));
@@ -271,7 +271,7 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
             }
 
             $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'];
-            if ($fileSystem->removeFile($file)) {
+            if ($fileSystem->remove($file)) {
                 $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'];
             }
             $this->setMessage(sprintf($statusMessage, $file->getFullName()));
@@ -359,7 +359,7 @@ class JsonMediaBrowser extends SystemComponentController implements JsonAdapter
 
         $arrLang       = \Env::get('init')->loadLanguageData('MediaBrowser');
         $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_UNSUCCESSFULLY_REMOVED'];
-        if ($localFileSystem->removeFile($file)) {
+        if ($localFileSystem->remove($file)) {
             $statusMessage = $arrLang['TXT_FILEBROWSER_FILE_SUCCESSFULLY_REMOVED'];
         }
         $this->setMessage(sprintf($statusMessage, $file->getFullName()));

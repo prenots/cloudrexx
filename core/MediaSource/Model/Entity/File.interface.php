@@ -51,7 +51,7 @@ interface File {
     public function getSize();
 
     /**
-     * Copy the file
+     * Copy the file/directory
      *
      * @param string  $destinationPath Destination file path
      * @param boolean $ignoreExists    True, if the destination file exists it will be overwritten
@@ -59,6 +59,23 @@ interface File {
      * @return string Name of the copy file
      */
     public function copy($destinationPath, $ignoreExists = false);
+
+    /**
+     * Move the file/directory
+     *
+     * @param string  $destinationPath Destination file path
+     * @param boolean $ignoreExists    True, if the destination file exists it will be overwritten
+     *                                 otherwise file will be created with new name
+     * @return string Name of the moved file/directory
+     */
+    public function move($destinationPath, $ignoreExists = false);
+
+    /**
+     * Remove the file/directory
+     *
+     * @return boolean Status of the file/directory remove
+     */
+    public function remove();
 
     /**
      * Get File stream

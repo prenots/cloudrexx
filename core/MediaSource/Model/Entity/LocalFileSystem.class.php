@@ -327,12 +327,9 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Remove the file
-     *
-     * @param File $file File object
-     * @return boolean Status of the file remove
+     * {@inheritdoc}
      */
-    public function removeFile(File $file)
+    public function remove(File $file)
     {
         if (
             \FWValidator::isEmpty($file->getFullName()) ||
@@ -363,20 +360,16 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Move the file/directory
-     *
-     * @param File   $fromFile   Source file object
-     * @param string $toFilePath Destination file path
-     * @return boolean status of file/directory move
+     * {@inheritdoc}
      */
-    public function moveFile(File $fromFile, $toFilePath)
+    public function move(File $fromFile, $toFilePath, $ignoreExists = false)
     {
         if (
             !$this->fileExists($fromFile) ||
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return false;
+            return 'error';
         }
 
         // Create the $toFile's directory if does not exists
@@ -387,7 +380,19 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             ) &&
             !$this->createDirectory(ltrim($toFile->getPath(), '/'), '', true)
         ) {
-            return false;
+            return 'error';
+        }
+
+        if (!$ignoreExists) {
+            $destName = $toFile->getName();
+            while ($this->fileExists($toFile)) {
+                $filePath = rtrim($toFile->getPath(), '/') . '/' .
+                    $destName . '_' . time();
+                if (!$this->isDirectory($fromFile)) {
+                    $filePath .= '.' . $fromFile->getExtension();
+                }
+                $toFile = $this->getFileFromPath($filePath, true);
+            }
         }
 
         $destFileName = $toFile->getFullName();
@@ -395,22 +400,21 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
             $destFileName = $toFile->getName() . '.' . $fromFile->getExtension();
         }
 
-        // If the source and destination file path are same then return success message
-        $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
-        $toFileName   = $this->getFullPath($toFile) . $destFileName;
-        if ($fromFileName == $toFileName) {
-            return true;
+        // Move the file/directory using FileSystem
+        $status = 'error';
+        if (
+            \Cx\Lib\FileSystem\FileSystem::move(
+                $this->getFullPath($fromFile) . $fromFile->getFullName(),
+                $this->getFullPath($toFile) . $destFileName,
+                true
+            )
+        ) {
+            // If the move file is image then remove its thumbnail
+            $this->removeThumbnails($fromFile);
+            $status = $destFileName;
         }
 
-        // If the move file is image then remove its thumbnail
-        $this->removeThumbnails($fromFile);
-
-        // Move the file/directory using FileSystem
-        return \Cx\Lib\FileSystem\FileSystem::move(
-            $fromFileName,
-            $toFileName,
-            false
-        );
+        return $status;
     }
 
     /**
@@ -596,43 +600,46 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Copy the file
-     *
-     * @param File    $fromFile     Source file object
-     * @param string  $toFilePath   Destination file path
-     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
-     *                              otherwise file will be created with new name
-     * @return string Name of the copy file
+     * {@inheritdoc}
      */
-    public function copyFile(
-        File $fromFile,
-        $toFilePath,
-        $ignoreExists = false
-    ) {
+    public function copy(File $fromFile, $toFilePath, $ignoreExists = false)
+    {
         if (
             !$this->fileExists($fromFile) ||
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return;
+            return 'error';
         }
 
-        $toFile = $this->getFileFromPath($toFilePath, true);
+        $toFile     = $this->getFileFromPath($toFilePath, true);
+        $fileSystem = new \Cx\Lib\FileSystem\FileSystem();
+        if ($this->isDirectory($fromFile)) {
+            return $fileSystem->copyDir(
+                $this->getFullPath($fromFile),
+                substr($this->getFullPath($fromFile), strlen($this->documentPath)),
+                $fromFile->getFullName(),
+                $this->getFullPath($toFile),
+                substr($this->getFullPath($toFile), strlen($this->documentPath)),
+                $toFile->getFullName(),
+                $ignoreExists
+            );
+        }
+
         if (
             !$this->fileExists(
                 $this->getFileFromPath($toFile->getPath(), true)
             ) &&
             !$this->createDirectory(ltrim($toFile->getPath(), '/'), '', true)
         ) {
-            return;
+            return 'error';
         }
 
-        $fileSystem = new \Cx\Lib\FileSystem\FileSystem();
         return $fileSystem->copyFile(
             $this->getFullPath($fromFile),
             $fromFile->getFullName(),
             $this->getFullPath($toFile),
-            $toFile->getFullName(),
+            $toFile->getName() . '.' . $fromFile->getExtension(),
             $ignoreExists
         );
     }

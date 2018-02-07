@@ -169,12 +169,9 @@ class AwsS3FileSystem extends LocalFileSystem {
     }
 
     /**
-     * Remove the file
-     *
-     * @param File $file File object
-     * @return boolean Status of the file remove
+     * {@inheritdoc}
      */
-    public function removeFile(File $file)
+    public function remove(File $file)
     {
         if (
             \FWValidator::isEmpty($file->getFullName()) ||
@@ -185,7 +182,7 @@ class AwsS3FileSystem extends LocalFileSystem {
         }
 
         $filePath = $this->getFullPath($file) . $file->getFullName();
-        if ($this->isDirectory($file) && rmdir($filePath)) {
+        if ($this->isDirectory($file) && $this->removeDir($file)) {
             return true;
         } elseif ($this->isFile($file) && unlink($filePath)) {
             // If the removing file is image then remove its thumbnail files
@@ -197,98 +194,137 @@ class AwsS3FileSystem extends LocalFileSystem {
     }
 
     /**
-     * Move the file
-     *
-     * @param File   $fromFile   File object
-     * @param string $toFilePath Destination file path
-     * @return boolean status of file/directory move
+     * {@inheritdoc}
      */
-    public function moveFile(File $fromFile, $toFilePath)
+    public function move(File $fromFile, $toFilePath, $ignoreExists = false)
     {
-        if (
-            !$this->fileExists($fromFile) ||
-            empty($toFilePath) ||
-            !\FWValidator::is_file_ending_harmless($toFilePath)
-        ) {
+        // Copy the file/directory
+        $status = $this->copy($fromFile, $toFilePath, $ignoreExists);
+
+        // Delete the file/directory
+        if ($status != 'error' && !$this->remove($fromFile)) {
+            $status = 'error';
+        }
+
+        return $status;
+    }
+
+    /**
+     * Copy the directory and its files from source to destination
+     *
+     * @param string $fromPath   Source file path
+     * @param string $toPath     Destination file path
+     * @param array  $fileLists  List of files to delete(optional)
+     * @return boolean Status of copy
+     */
+    public function copyDir($fromPath, $toPath, $fileLists = array())
+    {
+        if (empty($fileLists)) {
+            $fileLists = $this->getFileList($fromPath);
+        }
+
+        if (!$this->fileExists($this->getFileFromPath($toPath, true))) {
+            $this->createDirectory(ltrim($toPath, '/'), '');
+        }
+
+        $directoryKey = substr($this->getRootPath(), strlen($this->documentPath));
+        $toFileKey    = $directoryKey . $toPath;
+        $fromFileKey  = $directoryKey . $fromPath;
+        foreach ($fileLists as $fileList) {
+            if (!isset($fileList['datainfo'])) {
+                continue;
+            }
+            $dataInfo     = $fileList['datainfo'];
+            $copyFilePath = substr($dataInfo['filepath'], strlen($fromFileKey));
+            $toFilePath   = $toFileKey . $copyFilePath;
+            if ($dataInfo['extension'] == 'Dir') {
+                $dirPath = substr($toFilePath, strlen($directoryKey) + 1);
+                if (!$this->createDirectory($dirPath, '')) {
+                    return false;
+                }
+                $this->copyDir($fromPath, $toPath, $fileList);
+            } else {
+                if (!$this->copyFile($fromFileKey . $copyFilePath, $toFilePath)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Copy the File from source to destination path
+     *
+     * @param string $fromFileKey Source file key
+     * @param string $toFileKey   Destination file key
+     * @return boolean Status of file copy
+     */
+    public function copyFile($fromFileKey, $toFileKey)
+    {
+        if (empty($fromFileKey) || empty($toFileKey)) {
             return false;
         }
 
-        $toFile       = new LocalFile($toFilePath, $fromFile->getFileSystem());
-        $fromFileName = $this->getFullPath($fromFile) . $fromFile->getFullName();
-        $toFileName   = $this->getFullPath($toFile);
-        if (!$this->isDirectory($fromFile)) {
-            $toFileName = $toFileName . $toFile->getName() . '.' . $fromFile->getExtension();
-        } else {
-            $fromFileName = $fromFileName . '/';
-            $toFileName = $toFileName . $toFile->getFullName() . '/';
-        }
-
-        // If the source and destination file path are same then return success message
-        if ($fromFileName == $toFileName) {
-            return true;
-        }
-
-        // Move the file/directory using FileSystem
-        $toFileKey   = substr($toFileName, strlen($this->documentPath) + 1);
-        $fromFileKey = substr($fromFileName, strlen($this->documentPath) + 1);
         try {
-            // Copy the file/directory from source to destination
-            $isDirectory = $this->isDirectory($fromFile);
-            if ($isDirectory) {
-                $iterator = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator(
-                        $fromFileName
-                    ),
-                    \RecursiveIteratorIterator::SELF_FIRST
-                );
-
-                $hasChild = false;
-                foreach ($iterator as $file) {
-                    $hasChild = true;
-                    $filePath = $file->getPath() . '/' . $file->getFilename();
-                    if ($file->isDir()) {
-                        $filePath = $filePath . '/';
-                    }
-                    $copyFilePath = substr(
-                        $filePath,
-                        strlen($fromFileName)
-                    );
-                    try {
-                        $this->s3Client->copyObject(array(
-                            'Bucket'     => $this->bucketName,
-                            'Key'        => $toFileKey . $copyFilePath,
-                            'CopySource' => urlencode(
-                                $this->bucketName . '/' . $fromFileKey . $copyFilePath
-                            ),
-                        ));
-
-                        $this->s3Client->deleteObject(array(
-                            'Bucket'     => $this->bucketName,
-                            'Key'        => $fromFileKey . $copyFilePath,
-                        ));
-                    } catch (\Aws\S3\Exception\S3Exception $e) {
-                        \DBG::log($e->getMessage());
-                        continue;
-                    }
-                }
-            }
-            if (!$isDirectory || !$hasChild) {
-                $this->s3Client->copyObject(array(
-                    'Bucket'     => $this->bucketName,
-                    'Key'        => $toFileKey,
-                    'CopySource' => urlencode($this->bucketName . '/' . $fromFileKey),
-                ));
-
-                // If the move file is image then remove its thumbnail
-                $this->removeThumbnails($fromFile);
-            }
-            // Delete the source file/directory
-            $this->s3Client->deleteObject(array(
+            $this->s3Client->copyObject(array(
                 'Bucket'     => $this->bucketName,
-                'Key'        => $fromFileKey,
+                'Key'        => ltrim($toFileKey, '/'),
+                'CopySource' => urlencode($this->bucketName . $fromFileKey),
             ));
+            return true;
         } catch (\Aws\S3\Exception\S3Exception $e) {
             \DBG::log($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Remove the Directory
+     *
+     * @param File  $file   File object
+     * @param array $files  List of files to delete(optional)
+     * @return boolean Status of the directory remove
+     */
+    public function removeDir(File $file, $files = array())
+    {
+        $removeSrcDir = false;
+        if (empty($files)) {
+            $files = $this->getFileList(
+                rtrim($file->getPath(), '/') . '/' . $file->getFullName()
+            );
+            $removeSrcDir = $this->fileExists($file);
+        }
+
+        foreach ($files as $fileList) {
+            if (!isset($fileList['datainfo'])) {
+                continue;
+            }
+            $dataInfo     = $fileList['datainfo'];
+            if ($dataInfo['extension'] == 'Dir') {
+                $this->removeDir($file, $fileList);
+                if (!rmdir($this->documentPath . $dataInfo['filepath'])) {
+                    return false;
+                }
+            } else {
+                $filePath = $this->documentPath . $dataInfo['filepath'];
+                if (!unlink($filePath)) {
+                    return false;
+                }
+                // If the removing file is image then remove its thumbnail files
+                $this->removeThumbnails(
+                    $this->getFileFromPath(
+                        substr($filePath, strlen($this->getRootPath())),
+                        true
+                    )
+                );
+            }
+        }
+
+        if (
+            $removeSrcDir &&
+            !rmdir($this->getFullPath($file) . $file->getFullName())
+        ) {
             return false;
         }
 
@@ -328,60 +364,59 @@ class AwsS3FileSystem extends LocalFileSystem {
     public function makeWritable(File $file) { return true; }
 
     /**
-     * Copy the file
-     *
-     * @param File    $fromFile     Source file object
-     * @param string  $toFilePath   Destination file path
-     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
-     *                              otherwise file will be created with new name
-     * @return string Name of the copy file
+     * {@inheritdoc}
      */
-    public function copyFile(
-        File $fromFile,
-        $toFilePath,
-        $ignoreExists = false
-    ) {
+    public function copy(File $fromFile, $toFilePath, $ignoreExists = false)
+    {
         if (
             !$this->fileExists($fromFile) ||
             empty($toFilePath) ||
             !\FWValidator::is_file_ending_harmless($toFilePath)
         ) {
-            return;
+            return 'error';
         }
 
         $toFile = $this->getFileFromPath($toFilePath, true);
+        if (
+            $this->isFile($fromFile) &&
+            $fromFile->getExtension() !== $toFile->getExtension()
+        ) {
+            $toFile = $this->getFileFromPath(
+                rtrim($toFile->getPath(), '/') . '/' . $toFile->getName()
+                . '.' . $fromFile->getExtension(),
+                true
+            );
+        }
+
         if (!$ignoreExists) {
+            // Rename the file/directory if already exists
             $toFileName = $toFile->getName();
             while ($this->fileExists($toFile)) {
-                $toFile = $this->getFileFromPath(
-                    rtrim($toFile->getPath(), '/') . '/' . $toFileName . '_' .
-                    time() . '.' . $toFile->getExtension(),
-                    true
-                );
+                $filePath = rtrim($toFile->getPath(), '/') . '/' . $toFileName .
+                    '_' . time();
+                if (!$this->isDirectory($fromFile)) {
+                    $filePath .= '.' . $toFile->getExtension();
+                }
+                $toFile = $this->getFileFromPath($filePath, true);
             }
         }
 
-        $fromFileKey = substr(
-            $this->getFullPath($fromFile) . $fromFile->getFullName(),
-            strlen($this->documentPath) + 1
-        );
-        $toFileKey = substr(
-            $this->getFullPath($toFile) . $toFile->getFullName(),
-            strlen($this->documentPath) + 1
-        );
-
-        try {
-            $newFileName = $toFile->getFullName();
-            $this->s3Client->copyObject(array(
-                'Bucket'     => $this->bucketName,
-                'Key'        => $toFileKey,
-                'CopySource' => urlencode($this->bucketName . '/' . $fromFileKey),
-            ));
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-            \DBG::log($e->getMessage());
-            $newFileName = 'error';
+        // Copy the file/directory
+        $status   = $toFile->getFullName();
+        $fromPath = $fromFile->__toString();
+        $toPath   = $toFile->__toString();
+        if ($this->isDirectory($fromFile) && !$this->copyDir($fromPath, $toPath)) {
+            $status = 'error';
         }
 
-        return $newFileName;
+        $directoryKey = substr($this->getRootPath(), strlen($this->documentPath));
+        if (
+            $this->isFile($fromFile) &&
+            !$this->copyFile($directoryKey . $fromPath, $directoryKey . $toPath)
+        ) {
+            $status = 'error';
+        }
+
+        return $status;
     }
 }
