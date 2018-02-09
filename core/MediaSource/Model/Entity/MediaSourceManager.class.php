@@ -255,10 +255,12 @@ class MediaSourceManager extends EntityBase
     /**
      * Get MediaSourceFile from the given path
      *
-     * @param string $path File path
-     * @return LocalFile
+     * @param string  $path  File path
+     * @param boolean $force True, return the File object if the file exists or not
+     *                       False, return the file object only if the file exists
+     * @return LocalFile File object
      */
-    public function getMediaSourceFileFromPath($path)
+    public function getMediaSourceFileFromPath($path, $force = false)
     {
         // If the path does not have leading backslash then add it
         if (strpos($path, '/') !== 0) {
@@ -269,8 +271,10 @@ class MediaSourceManager extends EntityBase
             // Get MediaSource and MediaSourceFile object
             $mediaSource     = $this->getMediaSourceByPath($path);
             $mediaSourcePath = $mediaSource->getDirectory();
-            $mediaSourceFile = $mediaSource->getFileSystem()
-                ->getFileFromPath(substr($path, strlen($mediaSourcePath[1])));
+            $mediaSourceFile = $mediaSource->getFileSystem()->getFileFromPath(
+                substr($path, strlen($mediaSourcePath[1])),
+                $force
+            );
         } catch (MediaSourceManagerException $e) {
             \DBG::log($e->getMessage());
             return;
@@ -324,58 +328,97 @@ class MediaSourceManager extends EntityBase
     }
 
     /**
-     * Copy file from one filesystem to other filesystem
+     * Move the file/directory from one filesystem to other filesystem
      * The arguments $sourcepath and DestinationPath must be a relative path.
      * ie: /images/Access/photo/0_no_picture.gif,
      *     /media/archive1/preisliste_contrexx_2012.pdf,
      *     /themes/standard_4_0/text.css
+     *     /tmp/session_hm6c0mte40hjsm802ipecn0176
+     *     /images/Access/photo
+     *     /media/archive1/logos
      *
      * @param string  $sourcePath      Source filepath
      * @param string  $destinationPath Destination filepath
-     * @param boolean $ignoreExists    True, if the destination file exists it will be overwritten
-     *                                 otherwise file will be created with new name
-     * @return string Name of the copied file
+     * @param boolean $ignoreExists    True, if the destination file/directory exists it will be overwritten
+     *                                 otherwise file/directory will be created with new name
+     * @return boolean status of moved file/directory
      */
-    public function copyFile(
-        $sourcePath,
-        $destinationPath,
-        $ignoreExists = false
-    ) {
-        if (empty($sourcePath) || empty($destinationPath)) {
+    public function move($sourcePath, $destinationPath, $ignoreExists = false)
+    {
+        // Copy the file/directory from source to destination
+        $status = $this->copy($sourcePath, $destinationPath, $ignoreExists);
+        if ($status == 'error') {
             return 'error';
         }
 
-        // Get Source Stream
+        // Delete the source file
         $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
-        $sourceExt  = pathinfo($sourcePath, PATHINFO_EXTENSION);
         if (!$sourceFile) {
-            $sourceFile = new \Cx\Lib\FileSystem\File($sourcePath);
+            if (!\Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath)) {
+                $status = 'error';
+            }
+        } else {
+            if (!$sourceFile->remove()) {
+                $status = 'error';
+            }
         }
-        $sourceStream = $sourceFile->getStream('r');
 
-        // Make the source and destination file extensions are same
-        $destinationPath =
-            pathinfo($destinationPath, PATHINFO_DIRNAME) . '/' .
-            pathinfo($destinationPath, PATHINFO_FILENAME) . '.' . $sourceExt;
+        return $status;
+    }
 
-        // Get Destination Stream
-        $destFile   = $this->getDestinationFile($destinationPath, $ignoreExists);
-        if (!$destFile) {
+    /**
+     * Copy the file/directory from one filesystem to other filesystem
+     * The arguments $sourcepath and DestinationPath must be a relative path.
+     * ie: /images/Access/photo/0_no_picture.gif,
+     *     /media/archive1/preisliste_contrexx_2012.pdf,
+     *     /themes/standard_4_0/text.css
+     *     /tmp/session_hm6c0mte40hjsm802ipecn0176
+     *     /images/Access/photo
+     *     /media/archive1/logos
+     *
+     * @param string  $sourcePath      Source filepath
+     * @param string  $destinationPath Destination filepath
+     * @param boolean $ignoreExists    True, if the destination file/directory exists it will be overwritten
+     *                                 otherwise file/directory will be created with new name
+     * @return string Name of the copied file/directory
+     */
+    public function copy($fromPath, $toPath, $ignoreExists = false)
+    {
+        if (empty($fromPath) || empty($toPath)) {
             return 'error';
         }
-        $destStream = $destFile->getStream('w');
 
-        if ($destFile instanceof File) {
-            $newFileName = $destFile->getFullName();
-        } else {
-            $newFileName = pathinfo(
-                $destFile->getAbsoluteFilePath(),
-                PATHINFO_BASENAME
-            );
+        // Get source file object by the given $fromPath
+        $sourceFile = $this->getMediaSourceFileFromPath($fromPath);
+        if (!$sourceFile) {
+            $sourceFile = new \Cx\Lib\FileSystem\File($fromPath);
         }
 
-        // Copy the file from source to destination
-        if (stream_copy_to_stream($sourceStream, $destStream) === false) {
+        if ($sourceFile->isFile()) {
+            $toPath = pathinfo($toPath, PATHINFO_DIRNAME) . '/' .
+                pathinfo($toPath, PATHINFO_FILENAME) . '.' .
+                pathinfo($fromPath, PATHINFO_EXTENSION);
+        }
+
+        $destFile = $this->getMediaSourceFileFromPath($toPath, true);
+        if (!$destFile) {
+            $destFile = new \Cx\Lib\FileSystem\File($toPath);
+        }
+
+        if (!$ignoreExists) {
+            $destFile = $this->getNewFileIfExists($destFile);
+        }
+
+        if (!$this->createFilePath($destFile, $sourceFile->isDirectory())) {
+            return 'error';
+        }
+
+        $newFileName = $destFile->getFullName();
+        if ($sourceFile->isFile() && !$this->copyFile($sourceFile, $destFile)) {
+            $newFileName = 'error';
+        }
+
+        if ($sourceFile->isDirectory() && !$this->copyDir($sourceFile, $destFile)) {
             $newFileName = 'error';
         }
 
@@ -383,97 +426,207 @@ class MediaSourceManager extends EntityBase
     }
 
     /**
-     * Get the File object by the given Destination path
+     * Copy the file from source to destination
      *
-     * @param string  $path         Destination filepath
-     * @param boolean $ignoreExists True, if the destination file exists it will be overwritten
-     *                              otherwise file will be created with new name
-     * @return File|\Cx\Lib\FileSystem\FileSystemFile File object
+     * @param File|Cx\Lib\FileSystem $fromFile Source file object
+     * @param File|Cx\Lib\FileSystem $toFile   Destination file object
+     * @return boolean Status of file copy
      */
-    protected function getDestinationFile($path, $ignoreExists)
+    public function copyFile($fromFile, $toFile)
     {
-        try {
-            $mediaSource = $this->getMediaSourceByPath($path);
-            $path        = substr($path, strlen($mediaSource->getDirectory()[1]));
-            $destFile    = $mediaSource->getFileSystem()->getFileFromPath($path, true);
-            // Check if the destination file directory exists otherwise
-            // try to create the directory
-            $destDirectory = $destFile->getFileSystem()->getFileFromPath(
-                $destFile->getPath(),
-                true
-            );
+        if (!$fromFile || !$toFile) {
+            return false;
+        }
+
+        if (
+            stream_copy_to_stream(
+                $fromFile->getStream('r'),
+                $toFile->getStream('w')
+            ) === false
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Copy the directory from source to destination
+     *
+     * @param File|Cx\Lib\FileSystem $fromFile Source file object
+     * @param File|Cx\Lib\FileSystem $toFile   Destination file object
+     * @return boolean Status of directory copy
+     */
+    public function copyDir($fromFile, $toFile)
+    {
+        if (!$fromFile || !$toFile) {
+            return false;
+        }
+
+        $iterator = new \RegexIterator(
+            new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator(
+                    $fromFile->getAbsolutePath()
+                ),
+                \RecursiveIteratorIterator::SELF_FIRST
+            ),
+            '/^((?!thumb(_[a-z]+)?).)*$/'
+        );
+        foreach ($iterator as $file) {
+            // filters
             if (
-                !$destFile->getFileSystem()->fileExists($destDirectory) &&
-                !$destFile->getFileSystem()->createDirectory(
-                    ltrim($destFile->getPath(), '/'),
-                    '',
-                    true
-                )
+                $file->getFilename() == '.' ||
+                $file->getFilename() == 'index.php' ||
+                strpos($file->getFilename(), '.') === 0
             ) {
-                return;
+                continue;
             }
 
-            if (!$ignoreExists) {
-                $destName = $destFile->getName();
-                while ($destFile->getFileSystem()->fileExists($destFile)) {
-                    $destFile = $destFile->getFileSystem()->getFileFromPath(
-                        rtrim($destFile->getPath(), '/') . '/' . $destName . '_'
-                        . time() . '.' . $destFile->getExtension(),
+            $filePath = $file->getPath() . '/' . $file->getFilename();
+            $copyPath = substr($filePath, strlen($fromFile->getAbsolutePath()));
+            if ($file->isDir()) {
+                if (!$this->createDirectory($toFile, $copyPath)) {
+                    return false;
+                }
+            } else {
+                if ($fromFile instanceof File) {
+                    $fileSystem = $fromFile->getFileSystem();
+                    $srcFile = $fileSystem->getFileFromPath(
+                        substr($filePath, strlen($fileSystem->getRootPath())),
                         true
                     );
+                } else {
+                    $srcFile = new \Cx\Lib\FileSystem\File($filePath);
+                }
+
+                $toPath = $toFile->getAbsolutePath() . $copyPath;
+                if ($toFile instanceof File) {
+                    $fileSystem = $toFile->getFileSystem();
+                    $destFile   = $fileSystem->getFileFromPath(
+                        substr($toPath, strlen($fileSystem->getRootPath())),
+                        true
+                    );
+                } else {
+                    $destFile = new \Cx\Lib\FileSystem\File($toPath);
+                }
+
+                if (!$this->copyFile($srcFile, $destFile)) {
+                    return false;
                 }
             }
-        } catch(MediaSourceManagerException $e) {
-            \DBG::log($e->getMessage());
-            // Check if the destination file directory exists otherwise
-            // try to create the directory if does not then call return.
-            $dirPath = pathinfo($path, PATHINFO_DIRNAME);
+        }
+
+        return true;
+    }
+
+    /**
+     * Create the directory
+     *
+     * @param File|Cx\Lib\FileSystem $file      File object
+     * @param string                 $directory Directory name
+     * @return boolean Status of directory creation
+     */
+    protected function createDirectory($file, $directory)
+    {
+        if (empty($directory)) {
+            return false;
+        }
+
+        $dirPath = $file->getAbsolutePath() . $directory;
+        if ($file instanceof File) {
+            $fileSystem = $file->getFileSystem();
+            return $fileSystem->createDirectory(
+                substr($dirPath, strlen($fileSystem->getRootPath()) + 1),
+                '',
+                true
+            );
+        } else {
+            return \Cx\Lib\FileSystem\FileSystem::make_folder($dirPath);
+        }
+    }
+
+    /**
+     * Create directory if not exists
+     *
+     * @param File|Cx\Lib\FileSystem $file File object
+     * @return boolean Status of created directory
+     */
+    protected function createFilePath($file, $isDirectory)
+    {
+        if ($file instanceof File) {
+            $dirPath    = '';
+            $fileSystem = $file->getFileSystem();
+            if ($isDirectory && !$fileSystem->fileExists($file)) {
+                $dirPath = substr(
+                    $file->getAbsolutePath(),
+                    strlen($fileSystem->getRootPath()) + 1
+                );
+            } else {
+                $directory = $fileSystem->getFileFromPath($file->getPath(), true);
+                if (!$fileSystem->fileExists($directory)) {
+                    $dirPath = ltrim($file->getPath(), '/');
+                }
+            }
+
+            if (
+                !empty($dirPath) &&
+                !$fileSystem->createDirectory($dirPath, '', true)
+            ) {
+                return false;
+            }
+        } else {
+            if (
+                $isDirectory &&
+                !\Cx\Lib\FileSystem\FileSystem::exists($file->getAbsolutePath())
+            ) {
+                $dirPath = $file->getAbsolutePath();
+            } else {
+                $dirPath = pathinfo($file->getAbsolutePath(), PATHINFO_DIRNAME);
+            }
+
             if (
                 !\Cx\Lib\FileSystem\FileSystem::exists($dirPath) &&
                 !\Cx\Lib\FileSystem\FileSystem::make_folder($dirPath)
             ) {
-                return;
+                return false;
             }
-
-            if (!$ignoreExists) {
-                $destName = pathinfo($path, PATHINFO_FILENAME);
-                while (\Cx\Lib\FileSystem\FileSystem::exists($path)) {
-                    $path = $dirPath . '/' . $destName . '_' .
-                        time() . '.' . $sourceExt;
-                }
-            }
-            $destFile = new \Cx\Lib\FileSystem\FileSystemFile($path);
-        }
-
-        return $destFile;
-    }
-
-    /**
-     * Move file from one filesystem to other filesystem
-     * The arguments $sourcepath and DestinationPath must be a relative path.
-     * ie: /images/Access/photo/0_no_picture.gif,
-     *     /media/archive1/preisliste_contrexx_2012.pdf,
-     *     /themes/standard_4_0/text.css
-     *
-     * @param string $sourcePath      Source filepath
-     * @param string $destinationPath Destination filepath
-     * @return boolean status of file move
-     */
-    public function moveFile($sourcePath, $destinationPath)
-    {
-        // Copy the file from source to destination
-        if ($this->copyFile($sourcePath, $destinationPath, true) == 'error') {
-            return false;
-        }
-
-        // Delete the source file
-        $sourceFile = $this->getMediaSourceFileFromPath($sourcePath);
-        if (!$sourceFile) {
-            \Cx\Lib\FileSystem\FileSystem::delete_file($sourcePath);
-        } else {
-            $sourceFile->getFileSystem()->removeFile($sourceFile);
         }
 
         return true;
+    }
+
+    /**
+     * Rename the file if already exists
+     *
+     * @param File|Cx\Lib\FileSystem $file File object
+     * @return File|Cx\Lib\FileSystem File object
+     */
+    protected function getNewFileIfExists($file)
+    {
+        if ($file instanceof File) {
+            $fileSystem = $file->getFileSystem();
+            $fileName   = $file->getName();
+            while ($fileSystem->fileExists($file)) {
+                $filePath = rtrim($file->getPath(), '/') . '/' . $fileName .
+                    '_' . time();
+                if ($file->isFile()) {
+                    $filePath .= '.' . $file->getExtension();
+                }
+                $file = $fileSystem->getFileFromPath($filePath, true);
+            }
+        } else {
+            $filePath = $file->getAbsolutePath();
+            $fileName = pathinfo($filePath, PATHINFO_FILENAME);
+            while (\Cx\Lib\FileSystem\FileSystem::exists($filePath)) {
+                $filePath = pathinfo($filePath, PATHINFO_DIRNAME) . '/' .
+                    $fileName . '_' . time();
+                if ($file->isFile()) {
+                    $filePath .= '.' . pathinfo($file->getAbsolutePath(), PATHINFO_EXTENSION);
+                }
+            }
+            $file = new \Cx\Lib\FileSystem\File($filePath);
+        }
+
+        return $file;
     }
 }

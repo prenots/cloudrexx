@@ -446,10 +446,10 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Check whether the $file is directory or not
+     * Tells whether the $file is a directory
      *
      * @param File $file File object
-     * @return boolean True if the $file is a directory otherwise false
+     * @return boolean true if the filename exists and is a directory, false otherwise
      */
     public function isDirectory(File $file)
     {
@@ -457,10 +457,10 @@ class LocalFileSystem extends \Cx\Model\Base\EntityBase implements FileSystem {
     }
 
     /**
-     * Check whether the $file is file or not
+     * Tells whether the $file is a regular file
      *
      * @param File $file File object
-     * @return boolean True if the $file is a file otherwise false
+     * @return boolean true if the filename exists and is a regular file, false otherwise
      */
     public function isFile(File $file)
     {

@@ -443,14 +443,73 @@ class File implements FileInterface
             $mode = 'r';
         }
 
-        try {
-            $file = new FileSystemFile($this->file);
-            return @fopen($file->getAbsoluteFilePath(), $mode);
-        } catch (FileSystemFileException $e) {
-            \DBG::msg('FileSystemFile: ' . $e->getMessage());
+        $filePath = $this->getAbsolutePath();
+        if (empty($filePath)) {
+            return;
         }
 
-        return;
+        return @fopen($filePath, $mode);
+    }
+
+    /**
+     * Get the absolute path of the file($this->file)
+     *
+     * @return string absolute path of the file
+     */
+    public function getAbsolutePath()
+    {
+        try {
+            $file = new FileSystemFile($this->file);
+            return $file->getAbsoluteFilePath();
+        } catch (FileSystemFileException $e) {
+            \DBG::msg('FileSystemFile: ' . $e->getMessage());
+            return '';
+        }
+    }
+
+    /**
+     * Tells whether the filename is a regular file
+     *
+     * @return boolean True if the filename exists and is a regular file, false otherwise
+     */
+    public function isFile()
+    {
+        $filePath = $this->getAbsolutePath();
+        if (empty($filePath)) {
+            return false;
+        }
+
+        return is_file($filePath);
+    }
+
+    /**
+     * Tells whether the filename is a directory
+     *
+     * @return boolean True if the filename exists and is a directory, false otherwise
+     */
+    public function isDirectory()
+    {
+        $filePath = $this->getAbsolutePath();
+        if (empty($filePath)) {
+            return false;
+        }
+
+        return is_dir($filePath);
+    }
+
+    /**
+     * Get basename of the file
+     *
+     * @return string Basename of file
+     */
+    public function getFullName()
+    {
+        $filePath = $this->getAbsolutePath();
+        if (empty($filePath)) {
+            return '';
+        }
+
+        return pathinfo($filePath, PATHINFO_BASENAME);
     }
 }
 

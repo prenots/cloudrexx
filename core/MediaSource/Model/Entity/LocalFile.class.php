@@ -125,6 +125,30 @@ class LocalFile implements File
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function isFile()
+    {
+        return $this->fileSystem->isFile($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDirectory()
+    {
+        return $this->fileSystem->isDirectory($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAbsolutePath()
+    {
+        return $this->fileSystem->getFullPath($this) . $this->getFullName();
+    }
+
+    /**
      * Get File stream
      *
      * @param string $mode Type of access require to the stream

@@ -78,6 +78,27 @@ interface File {
     public function remove();
 
     /**
+     * Tells whether the filename is a regular file
+     *
+     * @return boolean True if the filename exists and is a regular file, false otherwise
+     */
+    public function isFile();
+
+    /**
+     * Tells whether the filename is a directory
+     *
+     * @return boolean True if the filename exists and is a directory, false otherwise
+     */
+    public function isDirectory();
+
+    /**
+     * Get the absolute path of the file
+     *
+     * @return string Absolute path of the file
+     */
+    public function getAbsolutePath();
+
+    /**
      * Get File stream
      *
      * @param string $mode Type of access require to the stream
