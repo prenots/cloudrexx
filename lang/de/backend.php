@@ -1802,3 +1802,10 @@ $_ARRAYLANG['TXT_SURVEY_MODULE'] = "Umfragen";
 
 $_ARRAYLANG['TXT_MODULE_ACTIVATED_SUCCESSFULLY']   = "Module activated successfully";
 $_ARRAYLANG['TXT_MODULE_DEACTIVATED_SUCCESSFULLY'] = "Module deactivated successfully";
+
+$_ARRAYLANG['TXT_CORE_CONFIG_CAPTCHAMETHOD'] = 'CAPTCHA Methode';
+$_ARRAYLANG['TXT_CORE_CONFIG_RECAPTCHASITEKEY'] = 'Site key für reCAPTCHA';
+$_ARRAYLANG['TXT_CORE_CONFIG_RECAPTCHASECRETKEY'] = 'Secret key für reCAPTCHA';
+$_ARRAYLANG['TXT_CORE_CONFIG_CONTREXX_CAPTCHA_LABEL'] = 'Cloudrexx';
+$_ARRAYLANG['TXT_CORE_CONFIG_RECAPTCHA_LABEL'] = 'reCAPTCHA';
+$_ARRAYLANG['TXT_CORE_CONFIG_CAPTCHAMETHOD_TOOLTIP_HELP'] = 'Wählen Sie den CAPTCHA-Mechanismus aus, welcher zur Abwehr von SPAM eingesetzt werden soll<br /><br /><strong>Cloudrexx</strong><br />Sofort einsetzbar - Benötigt keine zusätzliche Konfiguration.<br /><br /><strong>reCAPTCHA</strong><br />reCAPTCHA ist ein CAPTCHA-Service von Google Inc. und bietet bestmöglichen Schutz gegen SPAM. Für die Nutzung wird ein Google-Konto benötigt, um die benötigten API-Schlüssel zu beantragen. <a href="https://www.google.com/recaptcha/intro/index.html" target="_blank">Mehr Informationen</a>';

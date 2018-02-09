@@ -156,7 +156,7 @@ class LoginManager {
         $confirmedPassword = isset($_POST['password2']) ? trim(contrexx_stripslashes($_POST['password2'])) : '';
 
         $this->objTemplate->setVariable(array(
-            'LOGIN_USERNAME'    => htmlentities($email, ENT_QUOTES, CONTREXX_CHARSET),
+            'LOGIN_EMAIL'       => htmlentities($email, ENT_QUOTES, CONTREXX_CHARSET),
             'LOGIN_RESTORE_KEY' => htmlentities($restoreKey, ENT_QUOTES, CONTREXX_CHARSET),
         ));
 
@@ -258,6 +258,7 @@ class LoginManager {
             $this->objTemplate->setVariable(array(
                 'TXT_LOGIN_SECURITY_CODE'   => $_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'],
                 'CAPTCHA_CODE'              => FWCaptcha::getInstance()->getCode(3),
+                'CAPTCHA_VALIDATION_CODE'   => FWCaptcha::getInstance()->getJSValidationFn(),
             ));
             $this->objTemplate->parse('captcha');
         } else {

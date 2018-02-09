@@ -25,34 +25,27 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-        
+
 /**
- * captchaLib
+ * Captcha
  *
  * @copyright   CONTREXX CMS - COMVATION AG
  * @author      COMVATION Development Team <info@comvation.com>
  * @package     contrexx
- * @subpackage  coremodule_captcha
+ * @subpackage  lib_captcha
  */
 
-/**
- * @ignore
- */
-include_once ASCMS_LIBRARY_PATH.'/spamprotection/captcha.class.php';
+namespace Cx\Core_Modules\Captcha\Controller;
 
 /**
- * captchaLib
- * Holds captcha related actions
+ * Contrexx captcha interface
  *
- * @copyright   CONTREXX CMS - COMVATION AG
- * @author      COMVATION Development Team <info@comvation.com>
- * @package     contrexx
+ * @copyright   CLOUDREXX CMS - CLOUDREXX AG
+ * @author      CLOUDREXX Development Team <info@cloudrexx.com>
+ * @package     cloudrexx
  * @subpackage  coremodule_captcha
  */
-class CaptchaLib {
-    protected function newImage() {
-        $c = new Captcha();
-        $c->printNewImage();
-        exit;
-    }
+interface CaptchaInterface {
+    public function getCode($tabIndex);
+    public function check();
 }

@@ -35,12 +35,7 @@
  * @subpackage  lib_captcha
  */
 
-namespace Cx\Lib\Captcha;
-
-/**
- * @ignore
- */
-include_once ASCMS_FRAMEWORK_PATH.'/Captcha/Captcha.interface.php';
+namespace Cx\Core_Modules\Captcha\Controller;
 
 /**
  * ContrexxCaptcha
@@ -76,8 +71,8 @@ class ContrexxCaptcha implements CaptchaInterface {
                 
         $this->strRandomString  = $this->createRandomString();
         
-        $this->strFontDir       = ASCMS_FRAMEWORK_PATH.'/Captcha/ContrexxCaptcha/fonts/';
-        $this->strBackgroundDir = ASCMS_FRAMEWORK_PATH.'/Captcha/ContrexxCaptcha/backgrounds/';
+        $this->strFontDir       = ASCMS_CORE_MODULE_PATH.'/Captcha/Data/ContrexxCaptcha/fonts/';
+        $this->strBackgroundDir = ASCMS_CORE_MODULE_PATH.'/Captcha/Data/ContrexxCaptcha/backgrounds/';
   
         $this->isFreetypeInstalled();
     }
@@ -232,6 +227,23 @@ class ContrexxCaptcha implements CaptchaInterface {
         return $code;
     }
 
+    /**
+     * Get captcha validation code
+     *
+     * @return string Returns JS code
+     */
+    public function getJSValidationFn()
+    {
+        $captchaValidationCode = <<<JSCaptchaValidation
+        if (\$J('#captcha').length) {
+            var code = \$J('#coreCaptchaCode').val();
+            if (\$J.trim(code) === '') {
+                isCaptchaOk = false;
+            }
+        }
+JSCaptchaValidation;
+        return $captchaValidationCode;
+    }
     /**
      * checks whether the entered string matches the captcha.
      * if the check is already done the result will be returned.

@@ -184,6 +184,34 @@ function toggleDebuggingFlags(show) {
                     </td>
                 </tr>
             </tr>
+           <tr class="row1">
+              <td valign="top" width="25%">
+                CAPTCHA Methode
+              </td>
+              <td valign="top" width="75%">
+                <select name="captchaMethod" id="captchaMethod" tabindex="40" style="width: 300px;">
+                    <option value="contrexxCaptcha" {SETTING_CAPTCHA_CONTREXX} >Cloudrexx</option>
+                    <option value="reCaptcha" {SETTING_CAPTCHA_RECAPTCHA} >reCAPTCHA</option>
+                    </select>
+                      <span class="icon-info tooltip-trigger"></span><span class="tooltip-message">Wählen Sie den CAPTCHA-Mechanismus aus, welcher zur Abwehr von SPAM eingesetzt werden soll<br /><br /><strong>Cloudrexx</strong><br />Sofort einsetzbar - Benötigt keine zusätzliche Konfiguration.<br /><br /><strong>reCAPTCHA</strong><br />reCAPTCHA ist ein CAPTCHA-Service von Google Inc. und bietet bestmöglichen Schutz gegen SPAM. Für die Nutzung wird ein Google-Konto benötigt, um die benötigten API-Schlüssel zu beantragen. <a href="https://www.google.com/recaptcha/intro/index.html" target="_blank">Mehr Informationen</a></span>
+              </td>
+            </tr>
+            <tr class="row2">
+              <td valign="top" width="25%">
+                Site key für reCAPTCHA
+              </td>
+              <td valign="top" width="75%">
+                <input type="text" name="recaptchaSiteKey" value="{SETTING_RECAPTCHA_SITE_KEY}" tabindex="41" style="width: 300px;" />
+              </td>
+            </tr>
+            <tr class="row1">
+              <td valign="top" width="25%">
+                Secret key für reCAPTCHA
+              </td>
+              <td valign="top" width="75%">
+                <input type="text" name="recaptchaSecretKey" value="{SETTING_RECAPTCHA_SECRET_KEY}" tabindex="42" style="width: 300px;" />
+              </td>
+            </tr>
         </table>
     </div>
     <div id="Settings4" class="setTab" style="display:none;">
