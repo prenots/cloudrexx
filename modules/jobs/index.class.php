@@ -380,7 +380,7 @@ class jobs extends jobsLibrary
             while (!$objResult->EOF) {
                 ($i % 2) ? $class  = 'row1' : $class  = 'row2';
 
-                $detailUrl = \Cx\Core\Routing\Url::fromModuleAndCmd('Jobs', 'details', FRONTEND_LANG_ID, array('id' => $objResult->fields['docid']));
+                $detailUrl = \Cx\Core\Routing\Url::fromModuleAndCmd('jobs', 'details', FRONTEND_LANG_ID, array('id' => $objResult->fields['docid']));
 
                 $this->_objTpl->setVariable(array(
                     'JOBS_STYLE'      => $class,
