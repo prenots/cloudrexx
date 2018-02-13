@@ -2013,7 +2013,13 @@ class PleskController extends HostController {
         if (empty($domain)) {
             return false;
         }
-        
+
+        $allSubscriptions = $this->getAllSubscriptions();
+        $existingKey = in_array($domain, $allSubscriptions);
+        if ($existingKey !== false) {
+            return $existingKey;
+        }
+
         $xmldoc = $this->getXmlDocument();
         $packet = $this->getRpcPacket($xmldoc);
         
