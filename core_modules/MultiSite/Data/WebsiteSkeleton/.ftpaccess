@@ -1,9 +1,9 @@
 # Deny .ftpaccess file creation
-PathDenyFilter "(\\.ftpaccess)$"
+PathDenyFilter \.ftpaccess$
 
 # Hide .ftpaccess files
 # as well as write-protected files
-HideFiles "(\\.ftpaccess|^favicon\\.ico|^robots\\.txt|^sitemap.*\.xml)$"
+HideFiles ^(\.ftpaccess|favicon\.ico|robots\.txt|sitemap.*\.xml)$
 
 # Deny any access to hidden files
 # (write-protected files from above)

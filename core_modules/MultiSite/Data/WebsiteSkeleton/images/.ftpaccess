@@ -1,5 +1,5 @@
 # Overwrite inherited list of hidden files
-HideFiles "(\\.ftpaccess)$"
+HideFiles ^\.ftpaccess$
 
 # Allow write-access
 <Limit WRITE>
