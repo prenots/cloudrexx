@@ -1,4 +1,4 @@
-# Force denial of local write-access
+# Deny any access
 <Limit ALL>
   DenyAll
 </Limit>

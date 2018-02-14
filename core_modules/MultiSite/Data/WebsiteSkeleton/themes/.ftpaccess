@@ -1,4 +1,4 @@
-# Allow local write-access
+# Allow write-access
 <Limit WRITE>
   AllowAll
 </Limit>
