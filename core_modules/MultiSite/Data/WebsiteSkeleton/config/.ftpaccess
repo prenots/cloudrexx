@@ -1,5 +1,4 @@
-<Directory>
-  <Limit ALL>
-    DenyAll
-  </Limit>
-</Directory>
+# Force denial of write-access
+<Limit ALL>
+  DenyAll
+</Limit>
