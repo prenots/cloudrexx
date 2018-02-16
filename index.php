@@ -35,9 +35,7 @@
 require_once dirname(__FILE__).'/core/Core/init.php';
 
 /**
- * If you activate debugging here, it will be activated for all normal usage
- * (front- and backend).
+ * @ignore
  */
-\DBG::activate(DBG_PHP | DBG_LOG_FILE);
 
 init();

@@ -36,9 +36,6 @@ $rootDir = dirname(dirname(__DIR__));
 
 include($rootDir . '/core/Core/init.php');
 
-// Uncomment the following line if you want to debug workbench commandline script
-//\DBG::activate(DBG_PHP);
-
 // This loads Cloudrexx in CLI mode
 $cx = init('minimal');
 
