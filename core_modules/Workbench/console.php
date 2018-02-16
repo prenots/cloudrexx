@@ -34,6 +34,9 @@
 
 $rootDir = dirname(dirname(__DIR__));
 
+/**
+ * @ignore
+ */
 include($rootDir . '/core/Core/init.php');
 
 // This loads Cloudrexx in CLI mode

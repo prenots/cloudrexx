@@ -32,7 +32,7 @@
  *
  * This is just a wrapper to load the cloudrexx class
  * It is used in order to display a proper error message on hostings without
- * PHP 5.3 or newer.
+ * PHP 7.0 or newer.
  *
  * DO NOT USE NAMESPACES WITHIN THIS FILE or else the error message won't be
  * displayed on these hostings.
@@ -47,31 +47,40 @@
  * @version     3.1.0
  */
 
-// Check php version (5.3 or newer is required)
+// Check php version (7.0 or newer is required)
 $php = phpversion();
 if (version_compare($php, '7.0.0') < 0) {
-    die('Das Cloudrexx CMS ben&ouml;tigt mindestens PHP in der Version 5.3.<br />Auf Ihrem System l&auml;uft PHP '.$php);
+    die('Das Cloudrexx CMS ben&ouml;tigt mindestens PHP in der Version 7.0.<br />Auf Ihrem System l&auml;uft PHP '.$php);
 }
 
-global $_PATHCONFIG;
-/**
- * Load config for this instance
- */
-$configFilePath = dirname(dirname(dirname(__FILE__))).'/config/configuration.php';
+// identify path of this file
+$thisFilePath = dirname(__FILE__, 3);
+
+// load default base config
+$configFilePath = $thisFilePath . '/config/configuration.php';
 if (file_exists($configFilePath)) {
+    global $_PATHCONFIG;
+    /**
+     * @ignore
+     */
     include_once $configFilePath;
 } else {
-    \header('Location: http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']. 'installer/index.php');
+    // redirect to webinstaller in case no base config was found
+    \header('Location: http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . 'installer/index.php');
     exit;
 }
 
 /**
+ * @ignore
  */
-require_once dirname(dirname(dirname(__FILE__))).'/lib/FRAMEWORK/DBG/DBG.php';
+require_once $thisFilePath . '/lib/FRAMEWORK/DBG/DBG.php';
 
 /**
  * Activate debugging to file
  */
 \DBG::activate(DBG_PHP | DBG_LOG_FILE);
 
-require_once dirname(dirname(dirname(__FILE__))).'/core/Core/Controller/Cx.class.php';
+/**
+ * @ignore
+ */
+require_once $thisFilePath . '/core/Core/Controller/Cx.class.php';

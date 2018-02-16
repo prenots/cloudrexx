@@ -28,14 +28,13 @@
 /**
  * This loads Cloudrexx in auto (/normal) mode.
  *
- * @version 3.1.0
+ * @version 5.0.0
  * @author Michael Ritter <michael.ritter@comvation.com>
  */
-
-require_once dirname(__FILE__).'/core/Core/init.php';
 
 /**
  * @ignore
  */
+require_once dirname(__FILE__).'/core/Core/init.php';
 
 init();
