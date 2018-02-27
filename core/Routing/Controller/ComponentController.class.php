@@ -59,6 +59,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $rewriteRuleRepo = $em->getRepository($this->getNamespace() . '\\Model\\Entity\\RewriteRule');
         $rewriteRules = $rewriteRuleRepo->findAll(array(), array('order'=>'asc'));
         $last = false;
+        // We want to match against original request URL instead of the URL
+        // already rewritten by .htaccess:
+        $url = \Cx\Core\Routing\Url::fromMagic(
+            $_SERVER['REQUEST_SCHEME'] . '://' .
+                $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']
+        );
         $originalUrl = clone $url;
         foreach ($rewriteRules as $rewriteRule) {
             try {
