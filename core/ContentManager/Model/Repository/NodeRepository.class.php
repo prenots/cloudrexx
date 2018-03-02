@@ -460,7 +460,7 @@ class NodeRepository extends NestedTreeRepository {
      * @return \Cx\Core\ContentManager\Model\Entity\Node The new virtual node
      */
     public function addVirtualTranslatedNode($parentNode, $pageInfo) {
-        $pageRepo = $this->cx->getDb()->getEntityManager()->getRepository(
+        $pageRepo = $this->em->getRepository(
             'Cx\Core\ContentManager\Model\Entity\Page'
         );
         $node = new \Cx\Core\ContentManager\Model\Entity\Node();
@@ -472,19 +472,21 @@ class NodeRepository extends NestedTreeRepository {
             // TODO: Check if this works as expected
             $result = $pageRepo->getPagesAtPath(
                 $slug,
-                $parentNode->getPage($locale),
+                $parentNode->getPage($locale->getId()),
                 $locale->getId()
             );
-            if (!isset($result['page']) || !$result['page']) {
+            if (isset($result['page'])) {
                 unset($node);
-                $node = $result['page'];
+                $node = $result['page']->getNode();
                 continue;
             }
             $page = new \Cx\Core\ContentManager\Model\Entity\Page();
             $page->setVirtual(true);
             $page->setLang($locale->getId());
+            $page->setTitle($slug);
             // TODO: Check if we need to set this both ways
             $page->setNode($node);
+            $node->addPage($page);
             $page->setSlug($slug);
             $page->validate();
         }
