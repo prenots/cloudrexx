@@ -1000,6 +1000,10 @@ namespace Cx\Core\Core\Controller {
             if (!isset($_CONFIG)) {
                 die('System halted: Unable to load basic configuration!');
             }
+
+            if (empty($_SERVER['SERVER_NAME'])) {
+                $_SERVER['SERVER_NAME'] = $_CONFIG['domainUrl'];
+            }
         }
 
         protected function setCustomizingPath() {
@@ -2151,7 +2155,13 @@ namespace Cx\Core\Core\Controller {
                     $extenstion = empty($pageTitle) ? null : '.pdf';
                     $objPDF     = new \Cx\Core_Modules\Pdf\Model\Entity\PdfDocument();
                     $objPDF->SetTitle($pageTitle . $extenstion);
-                    $objPDF->setContent($this->template->get());
+                    $endcode = $this->template->get();
+                    $endcode = $this->getComponent(
+                        'Cache'
+                    )->internalEsiParsing(
+                        $endcode
+                    );
+                    $objPDF->setContent($endcode);
                     $objPDF->Create();
                     exit;
                 }
