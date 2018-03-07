@@ -693,7 +693,7 @@ class MediaDirectoryEntry extends MediaDirectoryInputfield
                             }
                         }
 
-                        $arrAlphaGroups[$strAlphaIndex][] = $arrEntry;
+                        $arrAlphaGroups[$strAlphaIndex] = array($arrEntry);
                     }
 
                     if(intval($objTpl->blockExists($this->moduleNameLC.'AlphaIndex')) != 0) {
@@ -1463,6 +1463,7 @@ JSCODE;
                             $arrNewValues = $arrData[$this->moduleNameLC.'Inputfield'][$arrInputfield['id']][$intLangId][$intKey];
                             foreach ($arrValues as $strKey => $strMasterValue) {
                                 if ($intLangId == FRONTEND_LANG_ID) {
+                                    $arrDefault[$intKey] = array();
                                     if ($arrNewDefault[$strKey] != $strMasterValue) {
                                         if ($strMasterValue != $arrOldDefault[$strKey] && $arrNewDefault[$strKey] == $arrOldDefault[$strKey]) {
                                             $arrDefault[$intKey][$strKey] = $strMasterValue;
@@ -1474,6 +1475,7 @@ JSCODE;
                                     }
                                 } else {
                                     if ($arrNewValues[$strKey] == '') {
+                                        $arrDefault[$intKey] = array();
                                         $arrDefault[$intKey][$strKey] = $strMasterValue;
                                     } else {
                                         $arrDefault = $arrData[$this->moduleNameLC.'Inputfield'][$arrInputfield['id']][$intLangId];
