@@ -391,6 +391,15 @@ INPUT;
 
     function createThumbnail($strPathImage)
     {
+        if (
+            empty($strPathImage) ||
+            !\Cx\Lib\FileSystem\FileSystem::exists(
+                \Env::get('cx')->getWebsitePath() . $strPathImage
+            )
+        ) {
+            return;
+        }
+
         $arrImageInfo = getimagesize(\Env::get('cx')->getWebsitePath().$strPathImage);
 
         if (   $arrImageInfo['mime'] == "image/gif"

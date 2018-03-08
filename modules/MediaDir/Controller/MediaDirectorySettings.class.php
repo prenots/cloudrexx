@@ -1489,7 +1489,7 @@ EOF;
 
             //load inputfields data
             $objInputfields = new MediaDirectoryInputfield($intFormId, false, null, $this->moduleName);
-            $objInputfields->listInputfields($objTpl, 1);
+            $objInputfields->listInputfields($objTpl, 1, 0);
             $objInputfields->listPlaceholders($objTpl);
         } else {
             $pageTitle = $_ARRAYLANG['TXT_MEDIADIR_NEW_FORM_TEMPLATE'];
@@ -1587,6 +1587,7 @@ EOF;
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
+        $oldActiveLanguage = array();
         foreach ($arrSettings as $strName => $varValue) {
             switch ($strName) {
                 case 'settingsNumEntries':
