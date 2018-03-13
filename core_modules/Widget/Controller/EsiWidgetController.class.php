@@ -262,6 +262,19 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
                 // this should return a currency object
                 return $currencyCode;
             },
+            'path' => function($base64Path) {
+                return $this->getSystemComponentController()->decode(
+                    $base64Path
+                );
+            },
+            'query' => function($base64Query) {
+                $queryParams = array();
+                parse_str(
+                    $this->getSystemComponentController()->decode($base64Query),
+                    $queryParams
+                );
+                return $queryParams;
+            },
             'ref' => function($originalUrl) use ($params) {
                 $headers = $params['response']->getRequest()->getHeaders();
                 $originalUrl = str_replace(
