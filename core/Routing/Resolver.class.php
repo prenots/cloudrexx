@@ -57,6 +57,12 @@ class ResolverException extends \Exception {};
 class Resolver {
     protected $em = null;
     protected $url = null;
+
+    /**
+     * @var Cx\Core\Routing\Url
+     */
+    protected $originalUrl = null;
+
     /**
      * language id.
      * @var integer
@@ -86,7 +92,7 @@ class Resolver {
 
     /**
      * Remembers if we've come across a redirection while resolving the URL.
-     * This allow to properly redirect via 302.
+     * This allow to properly redirect.
      * @var boolean
      */
     protected $isRedirection = false;
@@ -140,7 +146,7 @@ class Resolver {
      * @param $entityManager
      * @param string $pathOffset ASCMS_PATH_OFFSET
      * @param array $fallbackLanguages (languageId => fallbackLanguageId)
-     * @param boolean $forceInternalRedirection does not redirect by 302 for internal redirections if set to true.
+     * @param boolean $forceInternalRedirection does not redirect for internal redirections if set to true.
      *                this is used mainly for testing currently.
      *                IMPORTANT: Do insert new parameters before this one if you need to and correct the tests.
      */
@@ -155,12 +161,13 @@ class Resolver {
      * @param $entityManager
      * @param string $pathOffset ASCMS_PATH_OFFSET
      * @param array $fallbackLanguages (languageId => fallbackLanguageId)
-     * @param boolean $forceInternalRedirection does not redirect by 302 for internal redirections if set to true.
+     * @param boolean $forceInternalRedirection does not redirect for internal redirections if set to true.
      *                this is used mainly for testing currently.
      *                IMPORTANT: Do insert new parameters before this one if you need to and correct the tests.
      */
     public function init($url, $lang, $entityManager, $pathOffset, $fallbackLanguages, $forceInternalRedirection=false) {
         $this->url = $url;
+        $this->originalUrl = clone $url;
         $this->em = $entityManager;
         $this->lang = $lang;
         $this->pathOffset = $pathOffset;
@@ -185,7 +192,7 @@ class Resolver {
         } else {
             // if the current URL points to a file:
             if (
-                empty($this->url->getLangDir()) &&
+                empty($this->url->getLangDir(true)) &&
                 preg_match('/^[^?]*\.[a-z0-9]{2,4}$/', $this->url->toString())
             ) {
                 global $url;
@@ -224,6 +231,10 @@ class Resolver {
 
         // used for LinkGenerator
         define('FRONTEND_LANG_ID', $this->lang);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getDb()->getTranslationListener()->setTranslatableLocale(
+            \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID)
+        );
         // used to load template file
         \Env::get('init')->setFrontendLangId($this->lang);
 
@@ -253,7 +264,6 @@ class Resolver {
                         if ($isRegularPageRequest) {
                         // TODO: history (empty($history) ? )
                             if (isset($_GET['pagePreview']) && $_GET['pagePreview'] == 1 && empty($_SESSION)) {
-                                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
                                 $sessionObj = $cx->getComponent('Session')->getSession();
                             }
                             $this->init($url, $this->lang, \Env::get('em'), ASCMS_INSTANCE_OFFSET.\Env::get('virtualLanguageDirectory'), \FWLanguage::getFallbackLanguageArray());
@@ -402,7 +412,7 @@ class Resolver {
             $this->page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION
         ) {
             // does this work for fallback(/aliases)?
-            $additionalPath = substr('/' . $this->url->getSuggestedTargetPath(), strlen($this->page->getPath()));
+            $additionalPath = substr('/' . $this->originalUrl->getSuggestedTargetPath(), strlen($this->page->getPath()));
             $componentController = $this->em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent')->findOneBy(array('name'=>$this->page->getModule()));
             if ($componentController) {
                 $parts = array();
@@ -478,9 +488,25 @@ class Resolver {
             throw new ResolverException('Alias found, but it is not active.');
         }
 
-        $langDir = $this->url->getLangDir();
+        $langDir = $this->url->getLangDir(true);
         $frontendLang = defined('FRONTEND_LANG_ID') ? FRONTEND_LANG_ID : null;
-        if (!empty($langDir) && $this->pageRepo->getPagesAtPath($langDir.'/'.$path, null, $frontendLang, false, \Cx\Core\ContentManager\Model\Repository\PageRepository::SEARCH_MODE_PAGES_ONLY)) {
+
+        // In case the request does contain a virtual language directory,
+        // we have to ensure that there does not exist a page by the requested path.
+        // Pages do have a higher precidence than aliases, if a virtual language directory
+        // is set.
+        // If the request does not contain a virtual language directory, but
+        // the request does contain a slash (/), then the request does most
+        // likely point to a page, as an alias can not contain a slash
+        // character. In such case, we also have to check if the request might
+        // match an actual page.
+        if (
+            (
+                !empty($langDir) ||
+                strpos($path, '/')
+            ) &&
+            $this->pageRepo->getPagesAtPath($langDir.'/'.$path, null, $frontendLang, false, \Cx\Core\ContentManager\Model\Repository\PageRepository::SEARCH_MODE_PAGES_ONLY)
+        ) {
             return null;
         }
 
@@ -510,9 +536,10 @@ class Resolver {
             // TODO: Cache this redirect. This is not done yet since we would
             // need to drop the complete page cache (since we don't know which
             // is the correct cache file for this redirect)
-            header('HTTP/1.1 301 Moved Permanently');
-            header('Location: ' . $target);
-            header('Connection: close');
+            header('Location: ' . $target, true, 301);
+            if (!$this->page->isTargetInternal()) {
+                header('Connection: close');
+            }
             exit;
         }
 
@@ -529,13 +556,10 @@ class Resolver {
             }
             // set query params (like /de/alias1?foo=bar)
             $correctUrl->setParams($this->url->getParamArray());
-            // 301 redirect
             // TODO: Cache this redirect. This is not done yet since we would
             // need to drop the complete page cache (since we don't know which
             // is the correct cache file for this redirect)
-            header('HTTP/1.1 301 Moved Permanently');
-            header('Location: ' . $correctUrl->toString());
-            header('Connection: close');
+            header('Location: ' . $correctUrl->toString(), true, 301);
             exit();
         }
         return $this->page;
@@ -575,7 +599,11 @@ class Resolver {
             }
 
             //(I) see what the model has for us
-            $result = $this->pageRepo->getPagesAtPath($this->url->getLangDir().'/'.$path, null, $this->lang, false, \Cx\Core\ContentManager\Model\Repository\PageRepository::SEARCH_MODE_PAGES_ONLY);
+            $langDirPath = '';
+            if (\Cx\Core\Routing\Url::isVirtualLanguageDirsActive()) {
+                $langDirPath = $this->url->getLangDir().'/';
+            }
+            $result = $this->pageRepo->getPagesAtPath($langDirPath . $path, null, $this->lang, false, \Cx\Core\ContentManager\Model\Repository\PageRepository::SEARCH_MODE_PAGES_ONLY);
             if (isset($result['page']) && $result['page'] && $this->pagePreview) {
                 if (empty($this->sessionPage)) {
                     if (\Permission::checkAccess(6, 'static', true)) {
@@ -710,14 +738,15 @@ class Resolver {
                 $this->url->setPath($targetPath.$qs);
                 $this->isRedirection = true;
                 $this->resolvePage(true);
-            } else { //external target - redirect via HTTP 302
+            } else { //external target - redirect via HTTP redirect
                 if (\FWValidator::isUri($target)) {
                     $this->headers['Location'] = $target;
                     $emptyString = '';
                     \Env::set('Resolver', $this);
                     \Env::set('Page', $this->page);
                     \Env::get('cx')->getComponent('Cache')->postFinalize($emptyString);
-                    header('Location: ' . $target);
+                    header('Location: ' . $target, true, 301);
+                    header('Connection: close');
                     exit;
                 } else {
                     if ($target[0] == '/') {
@@ -740,13 +769,13 @@ class Resolver {
                     \Env::set('Resolver', $this);
                     \Env::set('Page', $this->page);
                     \Env::get('cx')->getComponent('Cache')->postFinalize($emptyString);
-                    header('Location: ' . $target);
+                    header('Location: ' . $target, true, 301);
                     exit;
                 }
             }
         }
 
-        //if we followed one or more redirections, the user shall be redirected by 302.
+        //if we followed one or more redirections, the user shall be redirected.
         if ($this->isRedirection && !$this->forceInternalRedirection) {
             $params = $this->url->getSuggestedParams();
             $target = $this->page->getURL($this->pathOffset, array());
@@ -756,7 +785,7 @@ class Resolver {
             \Env::set('Resolver', $this);
             \Env::set('Page', $this->page);
             \Env::get('cx')->getComponent('Cache')->postFinalize($emptyString);
-            header('Location: ' . $target);
+            header('Location: ' . $target, true, 301);
             exit;
         }
 
@@ -885,10 +914,17 @@ class Resolver {
             // if this page is protected, we do not follow fallback
             $this->checkPageFrontendProtection($page);
 
-            if ($page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_SYMLINK) {
-                $fallbackPage = $this->pageRepo->getTargetPage($page);
-            } else {
-                $fallbackPage = $this->getFallbackPage($page);
+            try {
+                if ($page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_SYMLINK) {
+                    $fallbackPage = $this->pageRepo->getTargetPage($page);
+                } else {
+                    $fallbackPage = $this->getFallbackPage($page);
+                }
+            } catch (\Exception $e) {
+                \DBG::msg(__METHOD__ . ': '. $e->getMessage());
+                //page not found, redirect to error page.
+                \Cx\Core\Csrf\Controller\Csrf::header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('Error'));
+                exit;
             }
 
             // due that the fallback is located within a different language
