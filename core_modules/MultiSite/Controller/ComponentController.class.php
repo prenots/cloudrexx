@@ -1645,7 +1645,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 }
 
                 $successMsg = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_' . strtoupper($submitFormAction) . '_SUCCESS'];
-                $errorMsg = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_' . strtoupper($submitFormAction) . '_FAILED'];
+                $errorMsg   = $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADMIN_USER_' . strtoupper($submitFormAction) . '_FAILED'];
+                $params     = array();
                 switch ($submitFormAction) {
 
                     case 'Edit':
@@ -1663,8 +1664,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         $params['multisite_user_account_email']                     = $_POST['adminUser']['email'];
                         $params['multisite_user_account_password']                  = contrexx_input2raw($_POST['adminUser']['password']);
                         $params['multisite_user_account_password_confirmed']        = contrexx_input2raw($_POST['adminUser']['confirm_password']);
-                        $params['multisite_user_profile_attribute']['lastname']     = array(contrexx_input2raw($_POST['adminUser']['userProfile']['lastname']));
-                        $params['multisite_user_profile_attribute']['firstname']    = array(contrexx_input2raw($_POST['adminUser']['userProfile']['firstname']));
+                        $params['multisite_user_profile_attribute']                 = array(
+                            'lastname'  => array(contrexx_input2raw($_POST['adminUser']['userProfile']['lastname'])),
+                            'firstname' => array(contrexx_input2raw($_POST['adminUser']['userProfile']['firstname']))
+                        );
                         break;
                     case 'Delete':
                         $command = 'removeUser';
