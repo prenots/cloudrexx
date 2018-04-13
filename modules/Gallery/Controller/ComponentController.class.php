@@ -153,10 +153,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * list statements like
      * $this->cx->getEvents()->addEventListener($eventName, $listener);
      */
-    public function registerEventListeners() {
+    public function registerEventListeners()
+    {
         $eventListener = new \Cx\Modules\Gallery\Model\Event\GalleryEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent', $eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+        // Locale event register
+        $evm                       = $this->cx->getEvents();
+        $localeLocaleEventListener = new \Cx\Modules\Gallery\Model\Event\LocaleLocaleEventListener($this->cx);
+        $evm->addModelListener(
+            'postPersist',
+            'Cx\\Core\\Locale\\Model\\Entity\\Locale',
+            $localeLocaleEventListener
+        );
+        $evm->addModelListener(
+            'preRemove',
+            'Cx\\Core\\Locale\\Model\\Entity\\Locale',
+            $localeLocaleEventListener
+        );
     }
 
 }
