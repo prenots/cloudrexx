@@ -3976,6 +3976,7 @@ INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES 
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (17,'downloads_sorting_order','newestToOldest');
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (18,'categories_sorting_order','alphabetic');
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (19,'list_downloads_current_lang','0');
+INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (20,'integrate_into_search_component','1');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('emailText','[[ECARD_SENDER_NAME]] hat Ihnen eine E-Card geschickt.<br />\r\nSie können diese während den nächsten [[ECARD_VALID_DAYS]] Tagen unter [[ECARD_URL]] abrufen.');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('maxCharacters','100');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('maxHeight','300');
@@ -4389,7 +4390,7 @@ INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`,
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (22,'relation',0,0,0,0,'developed for OSEC (unstable)');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (23,'relation_group',0,0,0,0,'developed for OSEC (unstable)');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (24,'accounts',0,0,0,0,'developed for OSEC (unstable)');
-INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (25,'country',1,0,0,0,'');
+INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (25,'country',1,0,1,0,'');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (26,'productAttributes',0,0,1,0,'');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (27,'downloads',0,1,0,1,'developed for CADexchange.ch (unstable)');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (28,'responsibles',0,1,0,1,'developed for CADexchange.ch (unstable)');
@@ -4734,6 +4735,8 @@ INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('news_use_
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('recent_news_message_limit','5');
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_related_news','0');
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('news_use_tags','0');
+INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_previous_next_news_link', '0');
+INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_thumbnails', '1');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_description',1,'Informationen rund um Cloudrexx');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_description',2,'Informationen rund um Cloudrexx');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_title',1,'Cloudrexx WCMS');
