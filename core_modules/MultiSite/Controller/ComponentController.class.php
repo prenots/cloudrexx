@@ -3264,6 +3264,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // Allow access to command-mode only through Manager domain (-> Main Domain) and Customer Panel domain
         // Other requests will be forwarded to the Marketing Website of MultiSite.
         if (   $cx->getMode() == $cx::MODE_COMMAND
+            && php_sapi_name() != 'cli'
             && $requestedDomainName != $managerDomain->getName()
             && $requestedDomainName != $customerPanelDomainName
         ) {
