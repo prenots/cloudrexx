@@ -116,6 +116,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 
                 switch ($outputModule) {
                     case 'Plain':
+                        if ($data['status'] == 'error') {
+                            http_response_code(400);
+                            echo $data['message'];
+                            break;
+                        }
                         echo $data['data']['content'];
                         break;
                     case 'Json':
