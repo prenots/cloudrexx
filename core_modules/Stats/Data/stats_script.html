@@ -15,9 +15,6 @@
     'screen':      screen.width + 'x' + screen.height,
     'color_depth': c
   };
-  if ('[SEARCHTERM_PLAIN]' != '') {
-    stats_data['searchTerm'] = '[SEARCHTERM_PLAIN]';
-  }
 
   // load counter.php
   var script_opener = '%3Cscript type="text/javascript" ';
@@ -26,10 +23,10 @@
     decodeURI(script_opener) + 
     ' src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=script&amp;referer=' +
     referer + '&amp;pageId=[PAGEID]&amp;screen=' + screen.width + 'x' + screen.height +
-    '&amp;color_depth=' + c + '[SEARCHTERM]" >' + decodeURI(script_closer)
+    '&amp;color_depth=' + c + '" >' + decodeURI(script_closer)
   );
 })();
 // ]]>
 </script>
-<noscript><div><img src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=noscript&amp;referer=$(HTTP_REFERER)&amp;pageId=[PAGEID].[SEARCHTERM]" title="counter" alt="counter" width="1" height="1" /></div></noscript>
+<noscript><div><img src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=noscript&amp;referer=$(HTTP_REFERER)&amp;pageId=[PAGEID]" title="counter" alt="counter" width="1" height="1" /></div></noscript>
 <!-- Counter Code END -->

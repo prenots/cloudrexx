@@ -119,16 +119,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function postInit(\Cx\Core\Core\Controller\Cx $cx)
     {
         $widgetController = $this->getComponent('Widget');
-        $params = array();
-
-        if (isset($_GET['term']) && !empty($_GET['term'])) {
-            $params['term'] = contrexx_input2raw($_GET['term']);
-        }
-
-        if (isset($_GET['section']) && !empty($_GET['section'])) {
-            $params['section'] = contrexx_input2raw($_GET['section']);
-        }
-
         $widget = new \Cx\Core_Modules\Widget\Model\Entity\FinalStringWidget(
             $this,
             'VISITOR_NUMBER',
@@ -143,17 +133,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'GOOGLE_ANALYTICS'
             ) as $widgetName
         ) {
-            $parameter = array();
-            if ($widgetName == 'COUNTER') {
-                $parameter = $params;
-            }
             $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                 $this,
                 $widgetName,
                 \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::TYPE_PLACEHOLDER,
                 '',
-                '',
-                $parameter
+                ''
             );
             $widget->setEsiVariable(
                 \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_LOCALE |

@@ -123,6 +123,15 @@ class Counter
     public $externalSearchTerm = "";
 
     public $searchTerm = "";
+
+    /**
+     * Whether or not the request is of an application page of the Search
+     * component
+     *
+     * @type    boolean
+     */
+    protected $onSearchApplication = false;
+
     public $mobilePhone = "";
 
     protected $cx;
@@ -210,7 +219,11 @@ class Counter
                     }
 
                     // count internal search term
-                    if ($this->arrConfig['count_search_terms']['status'] && strlen($this->searchTerm)>0) {
+                    if (
+                        $this->arrConfig['count_search_terms']['status'] &&
+                        $this->onSearchApplication &&
+                        strlen($this->searchTerm)>0
+                    ) {
                         $this->_countSearchquery($this->searchTerm, '0');
                     }
 
@@ -284,8 +297,18 @@ class Counter
                 $this->javascriptEnabled = 1;
             }
         }
-        if (isset($_GET['searchTerm']) && !empty($_GET['searchTerm'])) {
-            $this->searchTerm = urldecode($_GET['searchTerm']);
+
+        // register search-keyword of Search application page
+        if (!isset($_SERVER['HTTP_REFERER'])) {
+            return;
+        }
+        $query = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_QUERY);
+        if (!$query) {
+            return;
+        }
+        parse_str($query, $arguments);
+        if (!empty($arguments['term'])) {
+            $this->searchTerm = contrexx_input2raw($arguments['term']);
         }
     }
 
@@ -749,6 +772,12 @@ class Counter
         if (!$page) {
             return;
         }
+
+        // check if request was made on to Search application page
+        if ($page->getModule() == 'Search') {
+            $this->onSearchApplication = true;
+        }
+
         $url = \Cx\Core\Routing\Url::fromPage($page);
         if ($page) {
             $objDb->Execute('

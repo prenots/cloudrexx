@@ -129,13 +129,6 @@ class StatsLibrary
         if ($this->arrConfig['make_statistics']['status']) {
             // don't activate jquery if not necessary due to performance
             //JS::activate('jquery');
-            $searchTerm = '';
-            $searchTermPlain = '';
-            $searchTermNoScript = '';
-            if (isset($_REQUEST['term']) && !empty($_REQUEST['term']) && $_REQUEST['section'] == "Search") {
-                $searchTerm = "&amp;searchTerm=".urlencode($_REQUEST['term'])."' + '";
-                $searchTermPlain = contrexx_addslashes($_REQUEST['term']);
-            }
 
             $referer = '';
             if (isset($_GET['referer']) && !empty($_GET['referer'])) {
@@ -147,8 +140,6 @@ class StatsLibrary
             $replaces = array(
                 '[CORE_MODULE_URL]' => $ascms_core_module_web_path,
                 '[PAGEID]'          => $pageId,
-                '[SEARCHTERM]'      => $searchTerm,
-                '[SEARCHTERM_PLAIN]'=> $searchTermPlain,
                 '[REFERER]'         => $referer,
             );
             foreach ($replaces as $from => $to) {
