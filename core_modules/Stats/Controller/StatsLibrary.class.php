@@ -127,9 +127,6 @@ class StatsLibrary
         $counterTag = '';
 
         if ($this->arrConfig['make_statistics']['status']) {
-            // don't activate jquery if not necessary due to performance
-            //JS::activate('jquery');
-
             $ascms_core_module_web_path = $this->cx->getCodeBaseCoreModuleWebPath();
             $counterTag = file_get_contents(dirname(dirname(__FILE__)).'/Data/stats_script.html');
             $replaces = array(

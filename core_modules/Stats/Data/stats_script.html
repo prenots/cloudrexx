@@ -7,13 +7,6 @@
   if (v != 'Netscape') { c = screen.colorDepth; }
   else                 { c = screen.pixelDepth; }
 
-  var stats_data = {
-    'mode':        'script',
-    'pageId':      '[PAGEID]',
-    'screen':      screen.width + 'x' + screen.height,
-    'color_depth': c
-  };
-
   // load counter.php
   var script_opener = '%3Cscript type="text/javascript" ';
   var script_closer = '%3C/script%3E';
