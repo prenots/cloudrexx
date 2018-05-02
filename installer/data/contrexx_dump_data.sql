@@ -239,7 +239,6 @@ INSERT INTO `contrexx_access_group_static_ids` (`access_id`, `group_id`) VALUES 
 INSERT INTO `contrexx_access_group_static_ids` (`access_id`, `group_id`) VALUES (194,6);
 INSERT INTO `contrexx_access_group_static_ids` (`access_id`, `group_id`) VALUES (195,1);
 INSERT INTO `contrexx_access_group_static_ids` (`access_id`, `group_id`) VALUES (204,1);
-INSERT INTO `contrexx_access_id` (`id`, `entity_class_name`, `entity_class_id`) VALUES (0,'','');
 INSERT INTO `contrexx_access_id` (`id`, `entity_class_name`, `entity_class_id`) VALUES (1,'','');
 INSERT INTO `contrexx_access_id` (`id`, `entity_class_name`, `entity_class_id`) VALUES (2,'','');
 INSERT INTO `contrexx_access_id` (`id`, `entity_class_name`, `entity_class_id`) VALUES (3,'','');
@@ -413,24 +412,6 @@ INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('user_
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('user_config_email_access','',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('user_config_profile_access','',1);
 INSERT INTO `contrexx_access_settings` (`key`, `value`, `status`) VALUES ('user_delete_account','',1);
-INSERT INTO `contrexx_access_user_attribute` (`id`, `parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`) VALUES (1,NULL,'textarea','0','asc',0,'',56);
-INSERT INTO `contrexx_access_user_attribute` (`id`, `parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`) VALUES (2,NULL,'text','0','asc',0,'',57);
-INSERT INTO `contrexx_access_user_attribute` (`id`, `parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`) VALUES (3,NULL,'uri','0','asc',0,'',0);
-INSERT INTO `contrexx_access_user_attribute` (`id`, `parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`) VALUES (17,0,'text','0','asc',0,'',0);
-INSERT INTO `contrexx_access_user_attribute` (`id`, `parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`) VALUES (18,0,'text','0','asc',0,'',0);
-INSERT INTO `contrexx_access_user_attribute` (`id`, `parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`) VALUES (19,0,'text','0','asc',0,'',0);
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (1,1,'Notizen');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (1,2,'Notes');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (2,1,'Kundenrabattgruppe');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (2,2,'Discount group');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (3,1,'Facebook');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (3,2,'Facebook');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (17,1,'MultiSite External Payment Customer ID');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (17,2,'MultiSite External Payment Customer ID');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (18,1,'Affiliate ID user profile attribute ID');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (18,2,'Affiliate ID user profile attribute ID');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (19,1,'Affiliate ID (reference) user profile attribute ID');
-INSERT INTO `contrexx_access_user_attribute_name` (`attribute_id`, `lang_id`, `name`) VALUES (19,2,'Affiliate ID (reference) user profile attribute ID');
 INSERT INTO `contrexx_access_user_groups` (`group_id`, `group_name`, `group_description`, `is_active`, `type`, `homepage`) VALUES (1,'Manager','Administrator',1,'backend','');
 INSERT INTO `contrexx_access_user_groups` (`group_id`, `group_name`, `group_description`, `is_active`, `type`, `homepage`) VALUES (3,'Community','Community',1,'frontend','');
 INSERT INTO `contrexx_access_user_groups` (`group_id`, `group_name`, `group_description`, `is_active`, `type`, `homepage`) VALUES (9,'Moderator','Inhaltspflege und Statistiken',1,'backend','');
@@ -3976,6 +3957,7 @@ INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES 
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (17,'downloads_sorting_order','newestToOldest');
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (18,'categories_sorting_order','alphabetic');
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (19,'list_downloads_current_lang','0');
+INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (20,'integrate_into_search_component','1');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('emailText','[[ECARD_SENDER_NAME]] hat Ihnen eine E-Card geschickt.<br />\r\nSie können diese während den nächsten [[ECARD_VALID_DAYS]] Tagen unter [[ECARD_URL]] abrufen.');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('maxCharacters','100');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('maxHeight','300');
@@ -4114,7 +4096,7 @@ INSERT INTO `contrexx_module_gallery_settings` (`id`, `name`, `value`) VALUES (2
 INSERT INTO `contrexx_module_gallery_settings` (`id`, `name`, `value`) VALUES (23,'slide_show','slideshow');
 INSERT INTO `contrexx_module_gallery_settings` (`id`, `name`, `value`) VALUES (24,'slide_show_seconds','3');
 INSERT INTO `contrexx_module_gallery_settings` (`id`, `name`, `value`) VALUES (25,'show_image_size','off');
-INSERT INTO `contrexx_module_guestbook` (`id`, `status`, `name`, `forename`, `gender`, `url`, `email`, `comment`, `ip`, `location`, `lang_id`, `datetime`) VALUES (1,1,'COMVATION','Internet Solutions AG','M','http://www.contrexx.com/','nospam@example.com','This is a sample entry.\r\n\r\nsincerely yours\r\nCOMVATION AG','127.0.0.1','Schweiz',2,'2010-12-13 09:00:10');
+INSERT INTO `contrexx_module_guestbook` (`id`, `status`, `name`, `forename`, `gender`, `url`, `email`, `comment`, `location`, `lang_id`, `datetime`) VALUES (1,1,'COMVATION','Internet Solutions AG','M','http://www.contrexx.com/','nospam@example.com','This is a sample entry.\r\n\r\nsincerely yours\r\nCOMVATION AG','Schweiz',2,'2010-12-13 09:00:10');
 INSERT INTO `contrexx_module_guestbook_settings` (`name`, `value`) VALUES ('guestbook_send_notification_email','0');
 INSERT INTO `contrexx_module_guestbook_settings` (`name`, `value`) VALUES ('guestbook_activate_submitted_entries','0');
 INSERT INTO `contrexx_module_guestbook_settings` (`name`, `value`) VALUES ('guestbook_replace_at','1');
@@ -4389,7 +4371,7 @@ INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`,
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (22,'relation',0,0,0,0,'developed for OSEC (unstable)');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (23,'relation_group',0,0,0,0,'developed for OSEC (unstable)');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (24,'accounts',0,0,0,0,'developed for OSEC (unstable)');
-INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (25,'country',1,0,0,0,'');
+INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (25,'country',1,0,1,0,'');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (26,'productAttributes',0,0,1,0,'');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (27,'downloads',0,1,0,1,'developed for CADexchange.ch (unstable)');
 INSERT INTO `contrexx_module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES (28,'responsibles',0,1,0,1,'developed for CADexchange.ch (unstable)');
@@ -4734,6 +4716,8 @@ INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('news_use_
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('recent_news_message_limit','5');
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_related_news','0');
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('news_use_tags','0');
+INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_previous_next_news_link', '0');
+INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_thumbnails', '1');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_description',1,'Informationen rund um Cloudrexx');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_description',2,'Informationen rund um Cloudrexx');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_title',1,'Cloudrexx WCMS');
