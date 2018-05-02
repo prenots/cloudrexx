@@ -130,17 +130,11 @@ class StatsLibrary
             // don't activate jquery if not necessary due to performance
             //JS::activate('jquery');
 
-            $referer = '';
-            if (isset($_GET['referer']) && !empty($_GET['referer'])) {
-                $referer = urlencode($_GET['referer']);
-            }
-
             $ascms_core_module_web_path = $this->cx->getCodeBaseCoreModuleWebPath();
             $counterTag = file_get_contents(dirname(dirname(__FILE__)).'/Data/stats_script.html');
             $replaces = array(
                 '[CORE_MODULE_URL]' => $ascms_core_module_web_path,
                 '[PAGEID]'          => $pageId,
-                '[REFERER]'         => $referer,
             );
             foreach ($replaces as $from => $to) {
                 $counterTag = str_replace($from, $to, $counterTag);

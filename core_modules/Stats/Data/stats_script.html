@@ -2,7 +2,6 @@
 <script type="text/javascript">
 // <![CDATA[
 (function() {//don't pollute global namespace
-  var referer = document.referrer ? encodeURI(document.referrer) : '';
   var c = 0;
   var v = navigator.appName;
   if (v != 'Netscape') { c = screen.colorDepth; }
@@ -10,7 +9,6 @@
 
   var stats_data = {
     'mode':        'script',
-    'referer':     referer,
     'pageId':      '[PAGEID]',
     'screen':      screen.width + 'x' + screen.height,
     'color_depth': c
@@ -21,12 +19,13 @@
   var script_closer = '%3C/script%3E';
   document.write(
     decodeURI(script_opener) + 
-    ' src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=script&amp;referer=' +
-    referer + '&amp;pageId=[PAGEID]&amp;screen=' + screen.width + 'x' + screen.height +
+    ' src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=script' +
+    '&amp;referer=$url_encode(\'$(HTTP_REFERER)\')' +
+    '&amp;pageId=[PAGEID]&amp;screen=' + screen.width + 'x' + screen.height +
     '&amp;color_depth=' + c + '" >' + decodeURI(script_closer)
   );
 })();
 // ]]>
 </script>
-<noscript><div><img src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=noscript&amp;referer=$(HTTP_REFERER)&amp;pageId=[PAGEID]" title="counter" alt="counter" width="1" height="1" /></div></noscript>
+<noscript><div><img src="[CORE_MODULE_URL]/Stats/Controller/Counter.php?mode=noscript&amp;referer=$url_encode('$(HTTP_REFERER)')&amp;pageId=[PAGEID]" title="counter" alt="counter" width="1" height="1" /></div></noscript>
 <!-- Counter Code END -->
