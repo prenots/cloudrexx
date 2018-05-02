@@ -1814,28 +1814,34 @@ class StatsLibrary
     }
 
     /**
-     * sets a script for 'GOOGLE_ANALYTICS' placeholder
+     * Generate the JavaScript code used to initialize Google Analytics
      *
-     * @return string
+     * @todo    Source script code into a template file
+     * @return string   Google Analytics script code
      */
     public function getGoogleAnalyticsScript()
     {
+        // fetch registered Google Analytics tracking ID
         \Cx\Core\Setting\Controller\Setting::init('Config', 'otherConfigurations','Yaml');
         $trackingId = \Cx\Core\Setting\Controller\Setting::getValue('googleAnalyticsTrackingId', 'Config');
 
-        return '<script type="text/javascript">
-            var _gaq = _gaq || [];
-            _gaq.push([\'_setAccount\', \''.(isset($trackingId) ? contrexx_raw2xhtml($trackingId) : '').'\']);
-            _gaq.push([\'_trackPageview\']);
+        // abort in case no Google Analytics tracking ID has been registered
+        if (empty($trackingId)) {
+            return '';
+        }
 
-            (function() {
-                var ga = document.createElement(\'script\');
-                ga.type = \'text/javascript\';
-                ga.async = true;
-                ga.src = (\'https:\' == document.location.protocol ? \'https://ssl\' : \'http://www\') + \'.google-analytics.com/ga.js\';
-                var s = document.getElementsByTagName(\'script\')[0];
-                s.parentNode.insertBefore(ga, s);
-            })();
-        </script>';
+        // pseudo anonymise the personal data (if option to do so is set)
+        $anonymize = '';
+        if ($this->arrConfig['exclude_identifying_info']['status']) {
+            $anonymize = 'ga(\'set\', \'anonymizeIp\', true);';
+        }
+
+        return '<script>
+            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+            ga(\'create\', \'' . $trackingId . '\', \'auto\');
+            ' . $anonymize . '
+            ga(\'send\', \'pageview\');
+            </script>
+            <script async src=\'https://www.google-analytics.com/analytics.js\'></script>';
     }
 }
