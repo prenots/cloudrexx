@@ -1136,9 +1136,11 @@ class Stats extends StatsLibrary
 
         if (isset($_POST['save_stats_settings']) && !empty($_POST['save_stats_settings'])) {
             $this->strErrMessage .= $this->_saveSettings();
+            $this->cx->getComponent('Cache')->clearCache();
         }
         if (isset($_POST['delete_statistics']) && !empty($_POST['delete_statistics'])) {
             $this->strOkMessage .= $this->_deleteStatistics();
+            $this->cx->getComponent('Cache')->clearCache();
         }
 
         $this->_objTpl->loadTemplateFile('module_stats_settings.html',true,true);
