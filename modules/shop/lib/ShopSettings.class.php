@@ -280,6 +280,13 @@ class ShopSettings
         Payment::reset();
         if (empty ($_POST['bpayment'])) return;
 // NOTE: All the following could be handled by Payment::settings()
+        SettingDb::set('payrexx_instance_name',
+            trim(strip_tags(contrexx_input2raw($_POST['payrexx_instance_name']))));
+        SettingDb::set('payrexx_api_secret',
+            trim(strip_tags(contrexx_input2raw($_POST['payrexx_api_secret']))));
+        SettingDb::set('payrexx_active',
+            !empty($_POST['payrexx_active']));
+
         SettingDb::set('postfinance_shop_id',
             trim(strip_tags(contrexx_input2raw($_POST['postfinance_shop_id']))));
         SettingDb::set('postfinance_active',
@@ -791,6 +798,12 @@ class ShopSettings
         SettingDb::add('paypal_default_currency', 'CHF', ++$i,
             SettingDb::TYPE_TEXT, null, 'config');
         // Also see Yellowpay.class
+        SettingDb::add('payrexx_instance_name', 'Instanz Name', ++$i,
+            SettingDb::TYPE_TEXT);
+        SettingDb::add('payrexx_api_secret', 'API Secret', ++$i,
+            SettingDb::TYPE_TEXT);
+        SettingDb::add('payrexx_active', '0', ++$i,
+            SettingDb::TYPE_CHECKBOX, '1');
         SettingDb::add('postfinance_shop_id', 'Ihr Kontoname', ++$i,
             SettingDb::TYPE_TEXT);
         SettingDb::add('postfinance_active', '0', ++$i,
