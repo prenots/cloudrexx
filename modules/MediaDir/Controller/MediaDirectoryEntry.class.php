@@ -237,9 +237,16 @@ class MediaDirectoryEntry extends MediaDirectoryInputfield
             $this->strBlockName = $this->moduleNameLC."EntryList";
         }
 
-        if ($objInit->mode == 'frontend') {
-            if (intval($this->arrSettings['settingsShowEntriesInAllLang']) == 0) {
-                $strWhereLangId = "AND (entry.`lang_id` = ".$langId.") ";
+        if($objInit->mode == 'frontend') {
+            // only list entries in their primary (or translated) locale
+            if (!$this->arrSettings['settingsShowEntriesInAllLang']) {
+                if ($this->arrSettings['settingsTranslationStatus']) {
+                    // only list entries in their translated locale
+                    $strWhereLangId = 'AND entry.`translation_status` REGEXP "(^|,)' . $langId . '(,|$)"';
+                } else {
+                    // only list entries in their primary locale
+                    $strWhereLangId = "AND (entry.`lang_id` = ".$langId.") ";
+                }
             }
         }
 
@@ -408,8 +415,15 @@ class MediaDirectoryEntry extends MediaDirectoryInputfield
         	$strFromCategory = " ,".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories AS category";
         }
 
+        // only find entry by its primary (or translated) locale
         if (!$this->arrSettings['settingsShowEntriesInAllLang']) {
-            $strWhereLangId = "AND (entry.`lang_id` = ". static::getOutputLocale()->getId() .") ";
+            if ($this->arrSettings['settingsTranslationStatus']) {
+                // only find entry by its translated locale
+                $strWhereLangId = 'AND entry.`translation_status` REGEXP "(^|,)' . static::getOutputLocale()->getId() . '(,|$)"';
+            } else {
+                // only find entry by its primary locale
+                $strWhereLangId = "AND (entry.`lang_id` = ". static::getOutputLocale()->getId() .") ";
+            }
         }
 
         $query = "
@@ -1208,7 +1222,10 @@ JSCODE;
         $strCreateDate = time();
         $strUpdateDate = time();
         $intUserId = intval($objFWUser->objUser->getId());
-        $strLastIp = contrexx_addslashes($_SERVER['REMOTE_ADDR']);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $strLastIp = contrexx_addslashes(
+            $cx->getComponent('Stats')->getCounterInstance()->getUniqueUserId()
+        );
         $strTransStatus = contrexx_addslashes(join(",", $translationStatus));
 
 
@@ -1634,7 +1651,10 @@ JSCODE;
         $strPopularDate = $this->arrEntries[intval($intEntryId)]['entryPopularDate'];
         $intPopularDays = intval($this->arrSettings['settingsPopularNumRestore']);
         $strLastIp      = $this->arrEntries[intval($intEntryId)]['entryLastIp'];
-        $strNewIp       = contrexx_addslashes($_SERVER['REMOTE_ADDR']);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $strNewIp       = contrexx_addslashes(
+            $cx->getComponent('Stats')->getCounterInstance()->getUniqueUserId()
+        );
 
         $strToday  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
         $tempDays  = date("d",$strPopularDate);
