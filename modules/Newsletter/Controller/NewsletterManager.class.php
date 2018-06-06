@@ -1955,8 +1955,9 @@ class NewsletterManager extends NewsletterLib
                                  WHEN "notificationSubscribe" THEN "'. contrexx_input2int($_POST["mailSendSubscribe"]) .'"
                                  WHEN "notificationUnsubscribe" THEN "'. contrexx_input2int($_POST["mailSendUnsubscribe"]) .'"
                                  WHEN "statistics" THEN "'. contrexx_input2int($_POST["statistics"]) .'"
+                                 WHEN "agbTermsConditions" THEN "'. contrexx_input2int($_POST["agbTermsConditions"]) .'"
                                  END
-                WHERE `setname` IN("sender_mail", "sender_name", "reply_mail", "mails_per_run", "overview_entries_limit", "test_mail", "text_break_after", "rejected_mail_operation", "defUnsubscribe", "notificationSubscribe", "notificationUnsubscribe", "statistics")';
+                WHERE `setname` IN("sender_mail", "sender_name", "reply_mail", "mails_per_run", "overview_entries_limit", "test_mail", "text_break_after", "rejected_mail_operation", "defUnsubscribe", "notificationSubscribe", "notificationUnsubscribe", "statistics", "agbTermsConditions")';
             $objDatabase->Execute($queryUpdateSetting);
             if (
                 isset($_POST['statistics_drop']) &&
@@ -2083,6 +2084,11 @@ class NewsletterManager extends NewsletterLib
             'NEWSLETTER_STATISTICS_OFF' =>
                 ($arrSettings['statistics'] == 0
                     ? 'checked="checked"' : ''),
+            'TXT_NEWSLETTER_DATA_PRIVACY_STATEMENT' => $_ARRAYLANG['TXT_NEWSLETTER_DATA_PRIVACY_STATEMENT'],
+            'NEWSLETTER_AGB_TERMS_CONDITIONS_ON'    => $arrSettings['agbTermsConditions'] == 1
+                ? 'checked="checked"' : '',
+            'NEWSLETTER_AGB_TERMS_CONDITIONS_OFF'   => $arrSettings['agbTermsConditions'] != 1
+            ? 'checked="checked"' : '',
         ));
     }
 

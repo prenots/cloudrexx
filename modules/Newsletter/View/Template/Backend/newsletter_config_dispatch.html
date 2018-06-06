@@ -128,7 +128,17 @@
       <input type="hidden" name="statistics_drop" value="0" />
     </td>
   </tr>
-
+  <tr class="row2">
+    <td>{TXT_NEWSLETTER_DATA_PRIVACY_STATEMENT}</td>
+    <td>
+        <label>
+            <input type="radio" name="agbTermsConditions" value="1" {NEWSLETTER_AGB_TERMS_CONDITIONS_ON} />{TXT_NEWSLETTER_NOTIFICATION_ACTIVATE}
+        </label>
+        <label>
+            <input type="radio" name="agbTermsConditions" value="0" {NEWSLETTER_AGB_TERMS_CONDITIONS_OFF} />{TXT_NEWSLETTER_NOTIFICATION_DEACTIVATE}
+        </label>
+    </td>
+  </tr>
 </table>
 <br />
 <input type="submit" value="{TXT_SAVE}" />
