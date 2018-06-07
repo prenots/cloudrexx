@@ -5,7 +5,6 @@ cx.jQuery(document).ready(function(){
     if (
         form.find('#agbPrivacyStatement').length &&
         !jQuery('#agbPrivacyStatement').is(':checked')
-        
     ) {
       e.preventDefault();
       if (jQuery('#termsConditionsError').length === 0) {
