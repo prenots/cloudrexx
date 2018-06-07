@@ -549,11 +549,26 @@ class NewsletterLib
         return $result !== false ? $result->fields['setvalue'] : false;
     }
 
-
-    function _getHTML($onlyId=false)
+    /**
+     * Get the newsletter subscribe form as HTML
+     *
+     * @param boolean $onlyId if $onlyId is true assign 1 as list name index
+     *                        otherwise the category id as index of the list name
+     * @param integer $langId Language id
+     * @return string
+     */
+    function _getHTML($onlyId=false, $langId = null)
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $objDatabase, $_ARRAYLANG, $_LANGID;
 
+        if (empty($langId)) {
+            $langId = $_LANGID;
+        }
+        $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+            'Newsletter',
+            'subscribe',
+            $langId
+        );
         $html = '';
         if ($onlyId) {
             $objResult = true;
@@ -562,7 +577,7 @@ class NewsletterLib
         }
 
         if ($objResult !== false) {
-            $html .= '<form name="newsletter" action="'.CONTREXX_DIRECTORY_INDEX.'?section=Newsletter&amp;act=subscribe" method="post">'."\n";
+            $html .= '<form name="newsletter" action="'.$url->toString().'" method="post">'."\n";
 
             if ($onlyId || $objResult->RecordCount() == 1) {
                 $html .= '<input type="hidden" name="list['.($onlyId ? $onlyId : $objResult->fields['id']).']" value="1" />'."\n";
