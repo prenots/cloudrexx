@@ -569,7 +569,8 @@ class NewsletterLib
             'subscribe',
             $langId
         );
-        $html = '';
+        $html   = '';
+        $script = '';
         if ($onlyId) {
             $objResult = true;
         } else {
@@ -593,11 +594,28 @@ class NewsletterLib
             }
 
             $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" /><br /><br />'."\n";
+            // Show a AGB terms and conditions based on settings
+            $arrSettings = $this->_getSettings();
+            if ($arrSettings['agbTermsConditions']['setvalue'] == 1) {
+                $html .= '<input type="checkbox" name="agbPrivacyStatement" id="agbPrivacyStatement" /><label>'. $_ARRAYLANG['TXT_NEWSLETTER_AGB'] ."</label><br />\n";
+                $script .=
+                "<script>
+jQuery('input[name=\"recipient_save\"]').click(function(e){
+    var form = jQuery('form[name=\"newsletter\"]');
+    if (!jQuery('#agbPrivacyStatement').is(':checked')) {
+      e.preventDefault();
+      if (jQuery('#termsConditionsError').length == 0) {
+        form.parent('div').before('<div class=\"form-group\" id=\"termsConditionsError\"><div class=\"text-danger\">Please confirm the terms and conditions</div></div>');
+      }
+    }
+});
+</script>";
+            }
             $html .= '<input type="submit" name="recipient_save" value="'.$_ARRAYLANG['TXT_NEWSLETTER_SUBSCRIBE'].'" />'."\n";
             $html .= "</form>\n";
         }
 
-        return $html;
+        return $html . $script;
     }
 
 
