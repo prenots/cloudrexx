@@ -224,9 +224,14 @@ class Newsletter extends NewsletterLib
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
+        \JS::activate('cx');
+        \JS::activate('jqueryui');
+        \JS::registerJS('modules/Newsletter/View/Script/Frontend.js');
+
         $this->_objTpl->setTemplate($this->pageContent);
 
-        $showForm = true;
+        $arrSettings      = $this->_getSettings();
+        $showForm         = true;
         $arrStatusMessage = array('ok' => array(), 'error' => array());
 
         $isNewsletterRecipient = false;
@@ -421,6 +426,13 @@ class Newsletter extends NewsletterLib
                     $arrAssociatedInactiveLists = array_intersect($arrPreAssociatedInactiveLists, $arrAssociatedLists);
 
                     $objValidator = new \FWValidator();
+                if (
+                    (
+                        isset($_POST['agbPrivacyStatement']) &&
+                        $arrSettings['agbTermsConditions']['setvalue'] == 1
+                    ) ||
+                    $arrSettings['agbTermsConditions']['setvalue'] == 0
+                ) {
                     if ($objValidator->isEmail($recipientEmail)) {
 
                         // Let's check if a user account with the provided email address is already present
@@ -520,6 +532,12 @@ class Newsletter extends NewsletterLib
                     } else {
                         array_push($arrStatusMessage['error'], $_ARRAYLANG['TXT_NOT_VALID_EMAIL']);
                     }
+                } else {
+                    array_push(
+                        $arrStatusMessage['error'],
+                        $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS']
+                    );
+                }
             } else if ($captchaOk) {
                 // update subscribed lists of access user
                 $arrAssociatedLists = array_unique($arrAssociatedLists);
@@ -727,6 +745,27 @@ class Newsletter extends NewsletterLib
                 ));
                 $this->_objTpl->parse('newsletter_lists');
             }
+
+            // Show a AGB terms and conditions based on settings
+            if (
+                $this->_objTpl->blockExists('module_newsletter_agb') &&
+                $arrSettings['agbTermsConditions']['setvalue'] == 1
+            ) {
+                $this->_objTpl->setVariable(array(
+                    'TXT_NEWSLETTER_LABEL_AGB' => $_ARRAYLANG['TXT_NEWSLETTER_LABEL_AGB'],
+                    'TXT_NEWSLETTER_AGB'       => $_ARRAYLANG['TXT_NEWSLETTER_AGB'],
+                    'NEWSLETTER_AGB_CHECKED'   => isset($_POST['agbPrivacyStatement'])
+                        ? 'checked="checked"' : '',
+                ));
+                $this->_objTpl->parse('module_newsletter_agb');
+            }
+
+            // Set variable to show a message based on language in javascript
+            \ContrexxJavascript::getInstance()->setVariable(
+                'NEWSLETTER_AGB_ERROR',
+                $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS'],
+                'Newsletter'
+            );
 
             $this->_objTpl->setVariable(array(
                 'NEWSLETTER_PROFILE_MAIL' => contrexx_raw2xhtml($requestedMail),

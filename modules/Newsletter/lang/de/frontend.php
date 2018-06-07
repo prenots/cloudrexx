@@ -131,4 +131,6 @@ $_ARRAYLANG['TXT_NEWSLETTER_RECIPIENT_DATE'] = "Tag";
 $_ARRAYLANG['TXT_NEWSLETTER_RECIPIENT_MONTH'] = "Monat";
 $_ARRAYLANG['TXT_NEWSLETTER_RECIPIENT_YEAR'] = "Jahr";
 $_ARRAYLANG['TXT_NEWSLETTER_UNSUBSCRIBE_IF_ONLY_ONE_LIST_ACTIVE'] = "Sie müssen mindestens eine Newsletter-Liste selektieren! Wenn Sie keine Newsletter mehr empfangen möchten, dann können Sie sich vom %s.";
-?>
+$_ARRAYLANG['TXT_NEWSLETTER_LABEL_AGB']     = 'AGB';
+$_ARRAYLANG['TXT_NEWSLETTER_AGB']           = 'Ich akzeptiere die <a href="index.php?section=Agb" target="_blank">allgemeinen Geschäftsbedingungen</a> und die <a href="index.php?section=Privacy" target="_blank">Datenschutzerklärung</a>.';
+$_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS'] = 'Bitte bestätigen Sie die Allgemeinen Geschäftsbedingungen';
