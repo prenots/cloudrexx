@@ -115,7 +115,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm->addModelListener(
             'postFlush',
             'Cx\Core\Routing\Model\Entity\RewriteRule',
-            new \Cx\Core_Modules\Cache\Model\Event\RewriteRuleEventListener($this->cx)
+            new \Cx\Core_Modules\Cache\Model\Event\RewriteRuleEventListener(
+                $this->cx
+            )
         );
 
         // TODO: This is a workaround for Doctrine's result query cache.
@@ -123,7 +125,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm->addModelListener(
             'postFlush',
             'Cx\Core\Model\Entity\EntityBase',
-            new \Cx\Core_Modules\Cache\Model\Event\CoreEntityBaseEventListener($this->cx)
+            new \Cx\Core_Modules\Cache\Model\Event\CoreEntityBaseEventListener(
+                $this->cx
+            )
+        );
+        $evm->addModelListener(
+            'postFlush',
+            'Cx\Core\Locale\Model\Entity\Locale',
+            new \Cx\Core_Modules\Cache\Model\Event\LocaleChangeListener(
+                $this->cx
+            )
         );
     }
 
@@ -211,11 +222,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *     <adapterMethod>,
      *     <params>,
      * )
-     * @param array $esiContentInfos
-     * @return string ESI random include tag
+     * @param array $esiContentInfos List of ESI content info arrays
+     * @param int $count (optional) Number of unique random entries to parse
+     * @return string ESI randomized include code
      */
-    public function getRandomizedEsiContent($esiContentInfos) {
-        return $this->cache->getRandomizedEsiContent($esiContentInfos);
+    public function getRandomizedEsiContent($esiContentInfos, $count = 1) {
+        return $this->cache->getRandomizedEsiContent($esiContentInfos, $count);
     }
 
     /**
@@ -411,10 +423,17 @@ Cache clear all';
                             CacheLib::CACHE_ENGINE_MEMCACHE,
                             CacheLib::CACHE_ENGINE_MEMCACHED,
                             CacheLib::CACHE_ENGINE_XCACHE,
-                            CacheLib::CACHE_ENGINE_FILESYSTEM,
                         )
                     )) {
                         echo 'Unknown cache engine' . "\n";
+                        return;
+                    }
+                    if ($options == CacheLib::CACHE_ENGINE_MEMCACHED) {
+                        if (!extension_loaded('memcached')) {
+                            dl('memcached');
+                        }
+                        $droppedKeys = $this->cache->clearMemcached();
+                        echo $droppedKeys . ' keys dropped from Memcached' . "\n";
                         return;
                     }
                     $this->cache->_deleteAllFiles($options);
@@ -424,10 +443,9 @@ Cache clear all';
                 break;
             case 'page':
                 if (!empty($options)) {
-                    $this->cache>_deleteSingleFile($options);
+                    $this->cache->deleteSingleFile($options);
                     break;
                 }
-                // @TODO: this will drop ESI cache too
                 $this->cache->_deleteAllFiles('cxPages');
                 break;
             case 'esi':
@@ -479,5 +497,17 @@ Cache clear all';
      */
     public function setCachePrefix($prefix = '') {
         $this->cache->setCachePrefix($prefix);
+    }
+
+    /**
+     * Sets the cached locale data
+     *
+     * Default locale and the following hashtables are cached:
+     * <localeCode> to <localeId>
+     * <localeCountryCode> to <localeCodes>
+     * @param \Cx\Core\Core\Controller\Cx $cx Cx instance
+     */
+    public function setCachedLocaleData($cx) {
+        $this->cache->setCachedLocaleData($cx);
     }
 }
