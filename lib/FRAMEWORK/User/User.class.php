@@ -2254,13 +2254,22 @@ class User extends User_Profile
     {
 
         if ($this->loggedIn) return true;
-        if(isset($_SESSION)
-            && is_object($_SESSION)
-            && $_SESSION->userId
-            && $this->load($_SESSION->userId)
-            && $this->getActiveStatus()
-            && $this->hasModeAccess($backend)
-            && $this->updateLastActivityTime()) {
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $session = $cx->getComponent('Session');
+
+        if (
+            $session &&
+            $session->getSession(false) &&
+            $session->isInitialized() &&
+            isset($_SESSION) &&
+            is_object($_SESSION) &&
+            $_SESSION->userId &&
+            $this->load($_SESSION->userId) &&
+            $this->getActiveStatus() &&
+            $this->hasModeAccess($backend) &&
+            $this->updateLastActivityTime()
+        ) {
             $this->loggedIn = true;
             return true;
         }
@@ -2422,15 +2431,22 @@ class User extends User_Profile
         
         $this->updateLastAuthTime();
         
-        // drop user specific ESI cache:
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $esiFiles = glob($cx->getWebsiteTempPath() . '/cache/*u' . session_id() . '*');
-        foreach ($esiFiles as $esiFile) {
-            try {
-                $file = new \Cx\Lib\FileSystem\File($esiFile);
-                $file->delete();
-            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {}
-        }
+
+        // Flush all esi widgets attached to the current session.
+        // This is required as after the sign-in, the user might have a
+        // greater access level which provides access to more or different
+        // content.
+        $cx->getComponent('Cache')->clearUserBasedEsiCache(session_id());
+
+        // flush access block widgets (currently signed-in users, etc.)
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array(
+                'Widget',
+                 $cx->getComponent('Access')->getSessionBasedWidgetNames(),
+            )
+        );
 
         return $objDatabase->Execute("
             UPDATE `".DBPREFIX."access_users`
