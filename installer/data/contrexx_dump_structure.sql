@@ -1928,6 +1928,7 @@ CREATE TABLE `contrexx_module_jobs` (
   `status` tinyint(4) NOT NULL DEFAULT '1',
   `changelog` int(14) NOT NULL DEFAULT '0',
   `hot` tinyint(4) NOT NULL DEFAULT '0',
+  `paid` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `newsindex` (`title`,`text`)
 ) ENGINE=MyISAM;

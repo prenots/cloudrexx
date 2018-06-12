@@ -412,7 +412,9 @@ class jobsManager extends jobsLibrary
                 'TXT_ACTIVE'          => $_ARRAYLANG['TXT_ACTIVE'],
                 'TXT_AUTHOR'          => $_ARRAYLANG['TXT_AUTHOR'],
                 'TXT_JOBS_NO_CATEGORY'=> $_ARRAYLANG['TXT_JOBS_NO_CATEGORY'],
-                'TXT_JOBS_NO_TITLE'   => $_ARRAYLANG['TXT_JOBS_NO_TITLE']
+                'TXT_JOBS_NO_TITLE'   => $_ARRAYLANG['TXT_JOBS_NO_TITLE'],
+                'TXT_JOBS_PAID'       => $_ARRAYLANG['TXT_JOBS_PAID'],
+                'TXT_JOBS_PAID_LABEL' => $_ARRAYLANG['TXT_JOBS_PAID_LABEL'],
             ));
             $this->getLocationTable($id);
             $query = "SELECT `catid`,
@@ -428,7 +430,8 @@ class jobsManager extends jobsLibrary
                                `startdate`,
                                `enddate`,
                                `status`,
-                               `hot`
+                               `hot`,
+                               `paid`
                           FROM `".DBPREFIX."module_jobs`
                          WHERE id = '$id'
                          LIMIT 1";
@@ -462,7 +465,8 @@ class jobsManager extends jobsLibrary
                     'JOBS_ENDDATE'    => $endDate,
                     'JOBS_STATUS'        => $status,
                     'JOBS_DATE'       => date(ASCMS_DATE_FORMAT, $objResult->fields['date']),
-                    'JOBS_MODIFY_HOT_OFFER' => ($objResult->fields['hot'] == 1) ? 'checked=checked' : ''
+                    'JOBS_MODIFY_HOT_OFFER' => ($objResult->fields['hot'] == 1) ? 'checked=checked' : '',
+                    'JOBS_PAID' => ($objResult->fields['paid'] == 1) ? 'checked=checked' : ''
                 ));
             }
 
@@ -504,6 +508,8 @@ class jobsManager extends jobsLibrary
                 'JOBS_DATE'  => date(ASCMS_DATE_FORMAT, time()),
                 'TXT_AUTHOR' => $_ARRAYLANG['TXT_AUTHOR'],
                 'JOBS_AUTHOR' => htmlentities($objFWUser->objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET),
+                'TXT_JOBS_PAID'       => $_ARRAYLANG['TXT_JOBS_PAID'],
+                'TXT_JOBS_PAID_LABEL' => $_ARRAYLANG['TXT_JOBS_PAID_LABEL'],
             ));
             $this->getLocationTable('');
 
@@ -622,7 +628,9 @@ class jobsManager extends jobsLibrary
             'TXT_ACTIVE'=> $_ARRAYLANG['TXT_ACTIVE'],
             'TXT_AUTHOR' => $_ARRAYLANG['TXT_AUTHOR'],
             'TXT_JOBS_MODIFY_HOT_OFFER_LABEL' => $_ARRAYLANG['TXT_JOBS_MODIFY_HOT_OFFER_LABEL'],
-            'TXT_JOBS_MODIFY_HOT_OFFER'       => $_ARRAYLANG['TXT_JOBS_MODIFY_HOT_OFFER']
+            'TXT_JOBS_MODIFY_HOT_OFFER'       => $_ARRAYLANG['TXT_JOBS_MODIFY_HOT_OFFER'],
+            'TXT_JOBS_PAID'       => $_ARRAYLANG['TXT_JOBS_PAID'],
+            'TXT_JOBS_PAID_LABEL' => $_ARRAYLANG['TXT_JOBS_PAID_LABEL'],
         ));
 
         $this->getLocationTable($id);
@@ -630,7 +638,7 @@ class jobsManager extends jobsLibrary
             SELECT `catid`, `lang`, `date`, `id`,
                    `title`, `author`, `text`,
                    `workloc`, `workload`, `work_start`,
-                   `startdate`, `enddate`, `status`, `hot`
+                   `startdate`, `enddate`, `status`, `hot`, `paid`
               FROM `".DBPREFIX."module_jobs`
              WHERE id=$id";
         $objResult = $objDatabase->Execute($query);
@@ -665,7 +673,8 @@ class jobsManager extends jobsLibrary
                 'JOBS_ENDDATE'    => $endDate,
                 'JOBS_STATUS'        => $status,
                 'JOBS_DATE'       => date(ASCMS_DATE_FORMAT, $objResult->fields['date']),
-                'JOBS_MODIFY_HOT_OFFER' => ($objResult->fields['hot'] == 1) ? 'checked=checked' : ''
+                'JOBS_MODIFY_HOT_OFFER' => ($objResult->fields['hot'] == 1) ? 'checked=checked' : '',
+                'JOBS_PAID' => ($objResult->fields['paid'] == 1) ? 'checked=checked' : ''
             ));
         }
 
@@ -717,6 +726,7 @@ class jobsManager extends jobsLibrary
         $workloc    = get_magic_quotes_gpc() ? strip_tags($_POST['workloc']) : addslashes(strip_tags($_POST['workloc']));
         $workload = get_magic_quotes_gpc() ? strip_tags($_POST['workload']) : addslashes(strip_tags($_POST['workload']));
         $hotOffer = isset($_POST['hotOffer']) ? contrexx_input2int($_POST['hotOffer']) : 0;
+        $paid = isset($_POST['paid']) ? contrexx_input2int($_POST['paid']) : 0;
         if (empty($_POST['work_start']))
             $work_start = "0000-00-00";
         else
@@ -795,6 +805,7 @@ class jobsManager extends jobsLibrary
             'changelog' => array('val' => $date, 'omitEmpty' => true),
             'catId' => array('val' => $catId, 'omitEmpty' => true),
             'hot' => array('val' => $hotOffer, 'omitEmpty' => true),
+            'paid' => array('val' => $paid, 'omitEmpty' => true),
         ))." WHERE id = $id;";
       
         if (!$objDatabase->Execute($query) or $dberr) {
@@ -973,6 +984,7 @@ class jobsManager extends jobsLibrary
         $workloc = get_magic_quotes_gpc() ? strip_tags($_POST['workloc']) : addslashes(strip_tags($_POST['workloc']));
         $workload = get_magic_quotes_gpc() ? strip_tags($_POST['workload']) : addslashes(strip_tags($_POST['workload']));
         $hotOffer = isset($_POST['hotOffer']) ? contrexx_input2int($_POST['hotOffer']) : 0;
+        $paid = isset($_POST['paid']) ? contrexx_input2int($_POST['paid']) : 0;
         if (empty($_POST['work_start']))
              $work_start = "0000-00-00";
         else
@@ -1014,6 +1026,7 @@ class jobsManager extends jobsLibrary
             'userid' => array('val' => $userid, 'omitEmpty' => true),
             'changelog' => array('val' => $date, 'omitEmpty' => true),
             'hot' => array('val' => $hotOffer, 'omitEmpty' => true),
+            'paid' => array('val' => $paid, 'omitEmpty' => true),
         ));
 
         if ($objDatabase->Execute($query)) {
