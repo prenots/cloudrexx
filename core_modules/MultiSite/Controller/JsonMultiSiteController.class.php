@@ -4597,7 +4597,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 throw new MultiSiteJsonException('Failed to create the website databse backup location Folder');
             }
             $sqlFilePath = $websiteBackupPath.'/database/sql_dump.sql';
-            $exportDbCommand = 'mysqldump -h '. $dbHost . ' -u ' . $dbUserName . ' -p\'' . $dbPassword . '\' '.$dbName.' > '.$sqlFilePath;
+            $exportDbCommand = 'mysqldump --skip-extended-insert -h '. $dbHost . ' -u ' . $dbUserName . ' -p\'' . $dbPassword . '\' '.$dbName.' > '.$sqlFilePath;
 
             //create database sql dump for the website
             exec($exportDbCommand, $output, $error);
