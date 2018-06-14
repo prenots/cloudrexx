@@ -3103,13 +3103,17 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                             switch(true) {
                                 case preg_match('/^(SELECT|DESC|SHOW|EXPLAIN|CHECK|OPTIMIZE|REPAIR|ANALYZE|CACHE INDEX)/', (strtoupper($query))):
                                     $objResult = $objDatabase->GetAll($query);
-                                    $resultSet[$key]['query'] = $query;
-                                    $resultSet[$key]['resultValue'] = (count($objResult) > 0) ? $objResult : $_ARRAYLANG['TXT_MULTISITE_NO_RECORD_FOUND'];
+                                    $resultSet[$key] = array(
+                                        'query'       => $query,
+                                        'resultValue' => (count($objResult) > 0) ? $objResult : $_ARRAYLANG['TXT_MULTISITE_NO_RECORD_FOUND']
+                                    );
                                     break;
                                 case preg_match('/^(UPDATE|DELETE|REPLACE|INSERT)/', (strtoupper($query))):
                                     $objResult = $objDatabase->Execute($query);
-                                    $resultSet[$key]['query'] = $query;
-                                    $resultSet[$key]['resultValue'] = '';
+                                    $resultSet[$key] = array(
+                                        'query'       => $query,
+                                        'resultValue' => ''
+                                    );
                                     if ($objResult) {
                                         switch (true) {
                                             case preg_match('/^INSERT/', (strtoupper($query))):
@@ -3126,8 +3130,10 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                     break;
                                 default :
                                     $objResult = $objDatabase->Execute($query);
-                                    $resultSet[$key]['query'] = $query;
-                                    $resultSet[$key]['resultValue'] =  '';
+                                    $resultSet[$key] = array(
+                                        'query'       => $query,
+                                        'resultValue' => ''
+                                    );
                                     break;
                             }
                             if ($objResult !== false) {
@@ -7271,9 +7277,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         if (!empty($websiteObj)) {
                             //Send the asynchronous call to instances
                             foreach ($websiteObj as $website) {
-                                $arg = array();
-                                $arg['post']['websiteId'] = $website->getId();
-                                $this->websiteBackup($arg);
+                                $this->websiteBackup(array('post' => array('websiteId' => $website->getId())));
                                 self::executeCommandOnWebsite('websiteUpdate', $params, $website, array(), true);
                             }
                             //Update the Website CodeBase in manager
