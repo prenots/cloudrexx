@@ -94,7 +94,8 @@ class UpdateUtil
         'media/forum'       =>  'media/Forum',
         'media/market'      =>  'media/Market',
         'media/shop'        =>  'media/Shop',
-        'webcam'            =>  'media/Webcam',
+        'media/memberdir'   =>  'media/MemberDir',
+        'webcam'            =>  'images/Livecam',
     );
     /**
      * Creates or modifies a table to the given specification.
