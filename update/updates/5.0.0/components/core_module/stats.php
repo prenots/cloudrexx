@@ -109,7 +109,7 @@ function _statsUpdate()
 
     ) as $table => $arrUnique) {
         do {
-            if (in_array($table, $_SESSION['contrexx_update']['update']['update_stats'])) {
+            if (in_array($table, ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['update_stats']))) {
                 break;
             } elseif (!checkTimeoutLimit()) {
                 return 'timeout';
@@ -122,20 +122,37 @@ function _statsUpdate()
                 }
             }
 
-            $arrIndexes = $objDatabase->MetaIndexes(DBPREFIX.$table);
-            if ($arrIndexes !== false) {
-                if (isset($arrIndexes['unique'])) {
-                    $_SESSION['contrexx_update']['update']['update_stats'][] = $table;
-                    break;
-                } elseif (isset($arrUnique['obsoleteIndex']) && isset($arrIndexes[$arrUnique['obsoleteIndex']])) {
-                    $query = 'ALTER TABLE `'.DBPREFIX.$table.'` DROP INDEX `'.$arrUnique['obsoleteIndex'].'`';
-                    if ($objDatabase->Execute($query) === false) {
-                        return _databaseError($query, $objDatabase->ErrorMsg());
-                    }
-                }
-            } else {
+            try {
+                $structure = \Cx\Lib\UpdateUtil::sql('SHOW INDEX FROM `'.DBPREFIX.$table.'`');
+            } catch (\Cx\Lib\UpdateException $e) {
+                return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+            }
+            if ($structure === false) {
                 setUpdateMsg(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], DBPREFIX.$table));
                 return false;
+            }
+
+            $keys = array();
+            while (!$structure->EOF) {
+                if (empty($structure->fields['Key_name'])) {
+                    $structure->MoveNext();
+                    continue;
+                }
+
+                if ($structure->fields['Key_name'] == 'unique') {
+                    $_SESSION['contrexx_update']['update']['update_stats'][] = $table;
+                    break 2;
+                }
+
+                $keys[] = $structure->fields['Key_name'];
+                $structure->MoveNext();
+            }
+
+            if (isset($arrUnique['obsoleteIndex']) && in_array($arrUnique['obsoleteIndex'], $keys)) {
+                $query = 'ALTER TABLE `'.DBPREFIX.$table.'` DROP INDEX `'.$arrUnique['obsoleteIndex'].'`';
+                if ($objDatabase->Execute($query) === false) {
+                    return _databaseError($query, $objDatabase->ErrorMsg());
+                }
             }
 
             #DBG::msg("table = $table");
@@ -169,7 +186,7 @@ function _statsUpdate()
             }
 
             if ($objEntry->RecordCount() == 0 || $lastRedundancyCount < 2) {
-                $query = 'ALTER IGNORE TABLE `'.DBPREFIX.$table.'` ADD UNIQUE `unique` (`'.implode('`,`', $arrUnique['unique']).'`)';
+                $query = 'ALTER TABLE `'.DBPREFIX.$table.'` ADD UNIQUE `unique` (`'.implode('`,`', $arrUnique['unique']).'`)';
                 if ($objDatabase->Execute($query) == false) {
                     return _databaseError($query, $objDatabase->ErrorMsg());
                 }
@@ -180,30 +197,53 @@ function _statsUpdate()
     }
 
 
-    $arrIndexes = $objDatabase->MetaIndexes(DBPREFIX.'stats_search');
-    if ($arrIndexes !== false) {
-        if (isset($arrIndexes['unique'])) {
+    try {
+        $structure = \Cx\Lib\UpdateUtil::sql('SHOW INDEX FROM `'.DBPREFIX.'stats_search`');
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+    }
+    if ($structure === false) {
+        setUpdateMsg(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], DBPREFIX.'stats_search'));
+        return false;
+    }
+
+    while (!$structure->EOF) {
+        if (empty($structure->fields['Key_name'])) {
+            $structure->MoveNext();
+            continue;
+        }
+
+        if ($structure->fields['Key_name'] == 'unique') {
             $query = 'ALTER TABLE `'.DBPREFIX.'stats_search` DROP INDEX `unique`';
             if ($objDatabase->Execute($query) === false) {
                 return _databaseError($query, $objDatabase->ErrorMsg());
             }
+            break;
         }
-        if(empty($_SESSION['contrexx_update']['update']['update_stats']['utf8'])){
-            $query = "ALTER IGNORE TABLE `".DBPREFIX."stats_search` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL";
-            if($objDatabase->Execute($query)){
-                $_SESSION['contrexx_update']['update']['update_stats']['utf8'] = 1;
-                $query = "ALTER IGNORE TABLE `".DBPREFIX."stats_search` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET binary NOT NULL";
-                if($_SESSION['contrexx_update']['update']['update_stats']['utf8'] == 1 && $objDatabase->Execute($query)){
-                    $_SESSION['contrexx_update']['update']['update_stats']['utf8'] = 2;
-                    $query = "ALTER IGNORE TABLE `".DBPREFIX."stats_search` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL";
-                    if($_SESSION['contrexx_update']['update']['update_stats']['utf8'] == 2 && $objDatabase->Execute($query)){
-                        $_SESSION['contrexx_update']['update']['update_stats']['utf8'] = 3;
-                        $query = 'ALTER IGNORE TABLE `'.DBPREFIX.'stats_search` ADD UNIQUE `unique` (`name`, `external`)';
-                        if ($objDatabase->Execute($query) === false) {
-                            return _databaseError($query, $objDatabase->ErrorMsg());
-                        }
-                    }else{
-                        return _databaseError($query, $objDatabase->ErrorMsg());
+
+        $structure->MoveNext();
+    }
+
+    if(empty($_SESSION['contrexx_update']['update']['update_stats']['utf8'])){
+        $query = "ALTER TABLE `".DBPREFIX."stats_search` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL";
+        if($objDatabase->Execute($query)){
+            $_SESSION['contrexx_update']['update']['update_stats']['utf8'] = 1;
+            $query = "ALTER TABLE `".DBPREFIX."stats_search` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET binary NOT NULL";
+            if($_SESSION['contrexx_update']['update']['update_stats']['utf8'] == 1 && $objDatabase->Execute($query)){
+                $_SESSION['contrexx_update']['update']['update_stats']['utf8'] = 2;
+                $query = "ALTER TABLE `".DBPREFIX."stats_search` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL";
+                if($_SESSION['contrexx_update']['update']['update_stats']['utf8'] == 2 && $objDatabase->Execute($query)){
+                    $_SESSION['contrexx_update']['update']['update_stats']['utf8'] = 3;
+                    try{
+                        \Cx\Lib\UpdateUtil::sql('CREATE TABLE `' . DBPREFIX . 'stats_search_unique` LIKE `' . DBPREFIX . 'stats_search`');
+                        \Cx\Lib\UpdateUtil::sql('ALTER TABLE `' . DBPREFIX . 'stats_search_unique` ADD UNIQUE `unique` (`name`, `external`)');
+                        \Cx\Lib\UpdateUtil::sql('INSERT IGNORE `' . DBPREFIX . 'stats_search_unique` SELECT * FROM `' . DBPREFIX . 'stats_search`');
+                        \Cx\Lib\UpdateUtil::sql('DROP TABLE `' . DBPREFIX . 'stats_search`');
+                        \Cx\Lib\UpdateUtil::sql('RENAME TABLE `' . DBPREFIX . 'stats_search_unique` TO `' . DBPREFIX . 'stats_search`');
+                    }
+                    catch (\Cx\Lib\UpdateException $e) {
+                        // we COULD do something else here..
+                        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
                     }
                 }else{
                     return _databaseError($query, $objDatabase->ErrorMsg());
@@ -211,10 +251,9 @@ function _statsUpdate()
             }else{
                 return _databaseError($query, $objDatabase->ErrorMsg());
             }
+        }else{
+            return _databaseError($query, $objDatabase->ErrorMsg());
         }
-    } else {
-        setUpdateMsg(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], DBPREFIX.'stats_search'));
-        return false;
     }
 
     try {
@@ -260,6 +299,7 @@ function _statsUpdate()
             ON DUPLICATE KEY UPDATE `id` = `id`
         ');
 
+        \Cx\Lib\UpdateUtil::sql('UPDATE `' . DBPREFIX. 'stats_config` SET `value` = 0 WHERE `name` LIKE \'count_referer\'');
     }
     catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

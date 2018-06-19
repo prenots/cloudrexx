@@ -44,10 +44,11 @@ function _jobsUpdate() {
                 'catid'      => array('type' => 'INT(2)',       'notnull' => true,  'default' => 0, 'unsigned' => true),
                 'lang'       => array('type' => 'INT(2)',       'notnull' => true,  'default' => 0, 'unsigned' => true),
                 'userid'     => array('type' => 'INT(6)',       'notnull' => true,  'default' => 0, 'unsigned' => true),
-                'startdate'  => array('type' => 'DATE',         'notnull' => true,  'default' => '0000-00-00'),
-                'enddate'    => array('type' => 'DATE',         'notnull' => true,  'default' => '0000-00-00'),
+                'startdate'  => array('type' => 'TIMESTAMP',    'notnull' => true,  'default' => '0000-00-00 00:00:00'),
+                'enddate'    => array('type' => 'TIMESTAMP',    'notnull' => true,  'default' => '0000-00-00 00:00:00'),
                 'status'     => array('type' => 'TINYINT(4)',       'notnull' => true,  'default' => 1),
-                'changelog'  => array('type' => 'INT(14)',      'notnull' => true,  'default' => 0)
+                'changelog'  => array('type' => 'INT(14)',      'notnull' => true,  'default' => 0),
+                'hot'        => array('type' => 'TINYINT(4)',   'notnull' => true,  'default' => 0),
             ),
             array(
                 'newsindex'  => array('fields' => array('title', 'text'), 'type' => 'fulltext')
@@ -108,7 +109,19 @@ function _jobsUpdate() {
         array(
             'name'  => 'show_location_fe',
             'value' => '1'
-        )
+        ),
+        array(
+            'name'  => 'templateIntegration',
+            'value' => '0'
+        ),
+        array(
+            'name'  => 'sourceOfJobs',
+            'value' => 'latest'
+        ),
+        array(
+            'name'  => 'listingLimit',
+            'value' => '0'
+        ),
     );
     foreach ($arrSettings as $arrSetting) {
         $query = "SELECT 1 FROM `".DBPREFIX."module_jobs_settings` WHERE `name` = '".$arrSetting['name']."'";
@@ -123,21 +136,6 @@ function _jobsUpdate() {
         } else {
             return _databaseError($query, $objDatabase->ErrorMsg());
         }
-    }
-
-
-    /********************************
-     * EXTENSION:   Timezone        *
-     * ADDED:       Contrexx v3.0.0 *
-     ********************************/
-    try {
-        \Cx\Lib\UpdateUtil::sql('
-            ALTER TABLE `'.DBPREFIX.'module_jobs`
-            CHANGE `startdate` `startdate` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00",
-            CHANGE `enddate` `enddate` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00"
-        ');
-    } catch (\Cx\Lib\UpdateException $e) {
-        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 
     // migrate path to images and media

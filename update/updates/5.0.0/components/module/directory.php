@@ -276,6 +276,20 @@ function _directoryUpdate() {
     }
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            if (\Cx\Lib\UpdateUtil::column_exist(DBPREFIX.'module_directory_dir', 'ip')) {
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_directory_dir` DROP COLUMN `ip`');
+            }
+            if (\Cx\Lib\UpdateUtil::column_exist(DBPREFIX.'module_directory_dir', 'provider')) {
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_directory_dir` DROP COLUMN `provider`');
+            }
+            \Cx\Lib\UpdateUtil::sql('UPDATE `' . DBPREFIX. 'module_directory_dir` SET `lastip` = MD5(`lastip`) WHERE CHAR_LENGTH(`lastip`) < 30 AND `lastip` != \'\'');
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         //Update script for moving the folder
         $mediaPath       = ASCMS_DOCUMENT_ROOT . '/media';
         $sourceMediaPath = $mediaPath . '/directory';

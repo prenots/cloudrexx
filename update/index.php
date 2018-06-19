@@ -37,12 +37,21 @@
  */
 
 $php = phpversion();
-if ($php < '5.3') {
-    die('Das Cloudrexx CMS ben&ouml;tigt mindestens PHP in der Version 5.3.<br />Auf Ihrem System l&auml;uft PHP '.$php);
+// TODO: change to 7.0
+if ($php < '7.0') {
+    die('Das Cloudrexx CMS ben&ouml;tigt mindestens PHP in der Version 7.0.<br />Auf Ihrem System l&auml;uft PHP '.$php);
 }
 
 // Debugging include
 require_once dirname(__FILE__).'/lib/FRAMEWORK/DBG/DBG.php';
+//\DBG::activate();
+
+// the update has some issues when not directly requesting
+// the index.php script
+if (strpos($_SERVER['REQUEST_URI'], 'index.php') === false) {
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
 
 // Check effective maximum execution time
 if (!empty($_GET['check_timeout'])) {

@@ -37,6 +37,7 @@ require_once(UPDATE_PATH . '/lib/FRAMEWORK/DBG/DoctrineSQLLogger.class.php');
 $config = new \Doctrine\ORM\Configuration();
 
 $cache = new \Doctrine\Common\Cache\ArrayCache();
+$config->setResultCacheImpl($cache);
 $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
 
@@ -44,29 +45,25 @@ $config->setProxyDir(ASCMS_MODEL_PROXIES_PATH);
 $config->setProxyNamespace('Cx\Model\Proxies');
 $config->setAutoGenerateProxyClasses(false);
 
-$connection = new \PDO(
-    'mysql:dbname=' . $_DBCONFIG['database'] . ';' . (!empty($_DBCONFIG['charset']) ? 'charset=' . $_DBCONFIG['charset'] . ';' : '') . 'host='.$_DBCONFIG['host'],
-    $_DBCONFIG['user'],
-    $_DBCONFIG['password'],
-    array(
-        // Setting the connection character set in the DSN (see below new \PDO()) prior to PHP 5.3.6 did not work.
-        // We will have to manually do it by executing the SET NAMES query when connection to the database.
-        \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.$_DBCONFIG['charset'],
-    )
-);
-$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
-
+global $pdoConnectionUpdate;
+$pdoConnectionUpdate->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('Doctrine\DBAL\Driver\PDOStatement', array()));
 $connectionOptions = array(
-    'pdo' => $connection,
+    'pdo' => $pdoConnectionUpdate,
+    'dbname'    => $_DBCONFIG['database'],
 );
 
 $evm = new \Doctrine\Common\EventManager();
 
 $chainDriverImpl = new \Doctrine\ORM\Mapping\Driver\DriverChain();
 $driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(ASCMS_MODEL_PATH.'/yml');
-$chainDriverImpl->addDriver($driverImpl, 'Cx\Model');
-$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(ASCMS_CORE_PATH.'/ContentManager/Model/Yaml');
-$chainDriverImpl->addDriver($driverImpl, 'Cx\Core\ContentManager');
+$chainDriverImpl->addDriver($driverImpl, 'Cx');
+$chainDriverImpl->getDrivers()['Cx']->getLocator()->addPaths(array(
+    ASCMS_CORE_PATH.'/ContentManager/Model/Yaml',
+    ASCMS_CORE_PATH.'/Core/Model/Yaml',
+    ASCMS_CORE_PATH.'/View/Model/Yaml',
+    ASCMS_CORE_PATH.'/Locale/Model/Yaml',
+    ASCMS_CORE_PATH.'/Net/Model/Yaml',
+));
 
 //loggable stuff
 $loggableDriverImpl = $config->newDefaultAnnotationDriver(array(
@@ -92,16 +89,14 @@ $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, $prefixListener)
 $pageListener = new PageEventListener();
 $evm->addEventListener(\Doctrine\ORM\Events::preUpdate, $pageListener);
 $evm->addEventListener(\Doctrine\ORM\Events::onFlush, $pageListener);
-$evm->addEventListener(\Doctrine\ORM\Events::postPersist, $pageListener);
 $evm->addEventListener(\Doctrine\ORM\Events::preRemove, $pageListener);
 
 $config->setSqlLogger(new \Cx\Lib\DBG\DoctrineSQLLogger());
 
-$em = \Doctrine\ORM\EntityManager::create($connectionOptions, $config, $evm);
+$em = \Cx\Core\Model\Controller\EntityManager::create($connectionOptions, $config, $evm);
 
 //resolve enum, set errors
 $conn = $em->getConnection();
-$conn->setCharset($_DBCONFIG['charset']);
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
 

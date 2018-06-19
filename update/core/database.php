@@ -38,6 +38,14 @@
  * @ignore
  */
 require_once UPDATE_LIB.'/adodb/adodb.inc.php';
+/**
+ * @ignore
+ */
+require_once UPDATE_LIB.'/adodb/drivers/adodb-pdo.inc.php';
+/**
+ * @ignore
+ */
+require_once(UPDATE_CORE . '/CustomAdodbPdo.class.php');
 
 /**
  * Returns the database object.
@@ -58,17 +66,32 @@ require_once UPDATE_LIB.'/adodb/adodb.inc.php';
  */
 function getDatabaseObject(&$errorMsg, $newInstance = false)
 {
-    global $_DBCONFIG, $ADODB_FETCH_MODE, $_CONFIG;
+    global $_DBCONFIG, $_CONFIG, $pdoConnectionUpdate;
     static $objDatabase;
 
     if (is_object($objDatabase) && !$newInstance) {
         return $objDatabase;
     } else {
+        if (!isset($pdoConnectionUpdate)) {
+            $pdoConnectionUpdate = new \PDO(
+                'mysql:dbname=' . $_DBCONFIG['database'] . ';' . (!empty($_DBCONFIG['charset']) ? 'charset=' . $_DBCONFIG['charset'] . ';' : '') . 'host='.$_DBCONFIG['host'],
+                $_DBCONFIG['user'],
+                $_DBCONFIG['password'],
+                array(
+                    // Setting the connection character set in the DSN (see below new \PDO()) prior to PHP 5.3.6 did not work.
+                    // We will have to manually do it by executing the SET NAMES query when connection to the database.
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.$_DBCONFIG['charset'],
+                )
+            );
+            $pdoConnectionUpdate->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+        }
+
+        global $ADODB_FETCH_MODE, $ADODB_NEWCONNECTION;
+
         // open db connection
         $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-
-        $objDb = ADONewConnection($_DBCONFIG['dbType']);
-        @$objDb->Connect($_DBCONFIG['host'], $_DBCONFIG['user'], $_DBCONFIG['password'], $_DBCONFIG['database']);
+        $ADODB_NEWCONNECTION = 'cxAdodbPdoConnectionFactoryUpdate';
+        $objDb = \ADONewConnection('pdo');
 
         $errorNo = $objDb->ErrorNo();
         if ($errorNo != 0) {
@@ -80,20 +103,6 @@ function getDatabaseObject(&$errorMsg, $newInstance = false)
             unset($objDb);
             return false;
         }
-
-        if (!empty($_CONFIG['timezone'])) {
-            if (!$objDb->Execute('SET TIME_ZONE="'.$_CONFIG['timezone'].'"') && array_search($_CONFIG['timezone'], timezone_identifiers_list())) {
-                //calculate and set the timezone offset if the mysql timezone tables aren't loaded
-                $objDateTimeZone = new DateTimeZone($_CONFIG['timezone']);
-                $objDateTime = new DateTime('now', $objDateTimeZone);
-                $offset = $objDateTimeZone->getOffset($objDateTime);
-                $offsetHours = round(abs($offset)/3600);
-                $offsetMinutes = round((abs($offset)-$offsetHours*3600) / 60);
-                $offsetString = ($offset > 0 ? '+' : '-').($offsetHours < 10 ? '0' : '').$offsetHours.':'.($offsetMinutes < 10 ? '0' : '').$offsetMinutes;
-                $objDb->Execute('SET TIME_ZONE="'.$offsetString.'"');
-            }
-        }
-
         // Disable STRICT_TRANS_TABLES mode:
         $res = $objDb->Execute('SELECT @@sql_mode');
         if ($res->EOF) {
@@ -107,7 +116,7 @@ function getDatabaseObject(&$errorMsg, $newInstance = false)
         }
         $objDb->Execute('SET sql_mode = \'' . implode(',', $sqlModes) . '\'');
 
-        if (empty($_DBCONFIG['charset']) || $objDb->Execute('SET NAMES '.$_DBCONFIG['charset']) && $objDb) {
+        if ($objDb) {
             if ($newInstance) {
                 return $objDb;
             } else {
@@ -120,6 +129,11 @@ function getDatabaseObject(&$errorMsg, $newInstance = false)
         }
         return false;
     }
+}
+
+function cxAdodbPdoConnectionFactoryUpdate() {
+    global $pdoConnectionUpdate;
+    return new \Cx\Core\Model\CustomAdodbPdoUpdate($pdoConnectionUpdate);
 }
 
 ?>

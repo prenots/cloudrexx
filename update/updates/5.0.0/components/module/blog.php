@@ -187,6 +187,9 @@ function _blogUpdate() {
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
+            \Cx\Lib\UpdateUtil::sql('UPDATE `' . DBPREFIX . 'module_blog_comments` SET `ip_address` = MD5(`ip_address`) WHERE CHAR_LENGTH(`ip_address`) < 30 AND `ip_address` != \'\'');
+            \Cx\Lib\UpdateUtil::sql('UPDATE `' . DBPREFIX . 'module_blog_votes` SET `ip_address` = MD5(`ip_address`) WHERE CHAR_LENGTH(`ip_address`) < 30 AND `ip_address` != \'\'');
+
             //following queries for changing the path from images/blog into images/Blog
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_blog_messages_lang`
                                      SET `image` = REPLACE(`image`, 'images/blog', 'images/Blog')

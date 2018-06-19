@@ -679,6 +679,7 @@ function migrateSettingsToSettingDb() {
         try {
             // init new config
             \Cx\Core\Config\Controller\Config::init();
+            \Cx\Core\Setting\Controller\Setting::set('coreCmsVersion', $_CONFIG['coreCmsVersion']);
             \Cx\Core\Config\Controller\Config::updatePhpCache();
             \Cx\Lib\UpdateUtil::drop_table(DBPREFIX . 'settings');
         } catch (\Cx\Lib\UpdateException $e) {

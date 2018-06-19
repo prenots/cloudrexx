@@ -430,7 +430,7 @@ function _newsUpdate() {
                     'date'           => array('type' => 'INT(14)', 'notnull' => false, 'default' => NULL,'after' => 'newsid'),
                     'poster_name'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'date'),
                     'userid'         => array('type' => 'INT(5)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'poster_name'),
-                    'ip_address'     => array('type' => 'VARCHAR(15)', 'notnull' => true, 'default' => '0.0.0.0', 'after' => 'userid'),
+                    'ip_address'     => array('type' => 'VARCHAR(32)', 'notnull' => true, 'default' => '', 'after' => 'userid'),
                     'is_active'      => array('type' => 'ENUM(\'0\',\'1\')', 'notnull' => true, 'default' => '1', 'after' => 'ip_address')
                 )
             );
@@ -928,7 +928,8 @@ NEWS;
             'INSERT INTO `'.DBPREFIX.'module_news_settings` (`name`, `value`)
             VALUES  ("use_related_news", "0"),
                     ("news_use_tags", "0"),
-                    ("use_previous_next_news_link", "0")
+                    ("use_previous_next_news_link", "0"),
+                    ("use_thumbnails", "1")
             ON DUPLICATE KEY UPDATE `name` = `name`'
         );
 
@@ -966,6 +967,22 @@ NEWS;
                     'redirect_new_window'            => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'enable_tags'),
                 )
             );
+
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_news_comments',
+                array(
+                    'id'             => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'primary' => true, 'auto_increment' => true),
+                    'title'          => array('type' => 'VARCHAR(250)', 'notnull' => true, 'default' => '', 'after' => 'id'),
+                    'text'           => array('type' => 'mediumtext', 'notnull' => true, 'after' => 'title'),
+                    'newsid'         => array('type' => 'INT(6)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'text'),
+                    'date'           => array('type' => 'INT(14)', 'notnull' => false, 'default' => NULL,'after' => 'newsid'),
+                    'poster_name'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'date'),
+                    'userid'         => array('type' => 'INT(5)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'poster_name'),
+                    'ip_address'     => array('type' => 'VARCHAR(32)', 'notnull' => true, 'default' => '', 'after' => 'userid'),
+                    'is_active'      => array('type' => 'ENUM(\'0\',\'1\')', 'notnull' => true, 'default' => '1', 'after' => 'ip_address')
+                )
+            );
+
 
             // migrate path to images and media
             $pathsToMigrate = \Cx\Lib\UpdateUtil::getMigrationPaths();

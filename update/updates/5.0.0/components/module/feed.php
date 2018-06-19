@@ -27,24 +27,32 @@
 
 function _feedUpdate()
 {
-    global $objDatabase, $_ARRAYLANG;
-
-    $query = "ALTER TABLE `".DBPREFIX."module_feed_newsml_documents` CHANGE `publicIdentifier` `publicIdentifier` VARCHAR( 255 ) NOT NULL DEFAULT ''";
-    if (!$objDatabase->Execute($query)) {
-        return _databaseError($query, $objDatabase->ErrorMsg());
-    }
-
-    $arrIndexes = $objDatabase->MetaIndexes(DBPREFIX.'module_feed_newsml_documents');
-    if ($arrIndexes !== false) {
-        if (!isset($arrIndexes['unique'])) {
-            $query = "ALTER TABLE `".DBPREFIX."module_feed_newsml_documents` ADD UNIQUE `unique` (`publicIdentifier`)";
-            if (!$objDatabase->Execute($query)) {
-                return _databaseError($query, $objDatabase->ErrorMsg());
-            }
-        }
-    } else {
-        setUpdateMsg(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], DBPREFIX.'module_feed_newsml_documents'));
-        return false;
+    try {
+        \Cx\Lib\UpdateUtil::table(
+            DBPREFIX.'module_feed_newsml_documents',
+            array(
+                'id'                     => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                'publicIdentifier'       => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'id'),
+                'providerId'             => array('type' => 'text', 'after' => 'publicIdentifier'),
+                'dateId'                 => array('type' => 'INT(8)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'providerId'),
+                'newsItemId'             => array('type' => 'text', 'after' => 'dateId'),
+                'revisionId'             => array('type' => 'INT(5)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'newsItemId'),
+                'thisRevisionDate'       => array('type' => 'INT(14)', 'notnull' => true, 'default' => '0', 'after' => 'revisionId'),
+                'urgency'                => array('type' => 'SMALLINT(5)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'thisRevisionDate'),
+                'subjectCode'            => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'urgency'),
+                'headLine'               => array('type' => 'VARCHAR(67)', 'notnull' => true, 'default' => '', 'after' => 'subjectCode'),
+                'dataContent'            => array('type' => 'text', 'after' => 'headLine'),
+                'is_associated'          => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'dataContent'),
+                'media_type'             => array('type' => 'ENUM(\'Text\',\'Graphic\',\'Photo\',\'Audio\',\'Video\',\'ComplexData\')', 'notnull' => true, 'default' => 'Text', 'after' => 'is_associated'),
+                'source'                 => array('type' => 'text', 'after' => 'media_type'),
+                'properties'             => array('type' => 'text', 'after' => 'source')
+            ),
+            array(
+                'unique'                 => array('fields' => array('publicIdentifier'), 'type' => 'UNIQUE')
+            )
+        );
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 
     return true;

@@ -155,6 +155,13 @@ function _galleryUpdate()
         }
     }
 
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_gallery_settings` (`id`, `name`, `value`) VALUES (25,'show_image_size','off')");
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         //Update script for moving the folder

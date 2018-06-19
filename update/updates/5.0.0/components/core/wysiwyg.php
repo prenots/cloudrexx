@@ -45,6 +45,18 @@ function _wysiwygUpdate()
             \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `'. DBPREFIX .'core_wysiwyg_template` (`id`, `title`, `description`, `imagePath`, `htmlContent`, `active`) VALUES (1,\'Bild und Titel\',\'Bild mit einem Titel und Text, der das Bild umfliesst.\',\'/images/Wysiwyg/template1.gif\',\'<h3><img src=\" \" alt=\"\" style=\"margin-right: 10px\" height=\"100\" width=\"100\" align=\"left\" />Hier den Titel einfügen</h3><p>Hier den Text einfügen</p>\',1)');
             \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `'. DBPREFIX .'core_wysiwyg_template` (`id`, `title`, `description`, `imagePath`, `htmlContent`, `active`) VALUES (2,\'Zwei Spalten mit Titel\',\'Zwei Spalten, die beide einen Titel und Text beinhalten.\',\'/images/Wysiwyg/template2.gif\',\'<div class=\"row\"><div class=\"col-md-6\"><h2>Hier den Titel einfügen</h2>Hier den Text einfügen <br/> </div><div class=\"col-md-6\"><h2 >Title</h2>Hier den Text einfügen <br/></div></div>Text goes here\',1)');
             \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `'. DBPREFIX .'core_wysiwyg_template` (`id`, `title`, `description`, `imagePath`, `htmlContent`, `active`) VALUES (3,\'Text und Tabelle\',\'Ein Titel mit Text und einer Tabelle.\',\'/images/Wysiwyg/template3.gif\',\'<div style=\"width: 80%\"><h3>Hier den Titel einfügen</h3><table style=\"width:150px;float: right\" cellspacing=\"0\" cellpadding=\"0\" border=\"1\"><caption style=\"border:solid 1px black\"><strong> Hier den Tabellentitel einfügen</strong></caption><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table><p>Type the text here</p></div>\',1)');
+
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'core_wysiwyg_toolbar',
+                array(
+                    'id'                     => array('type' => 'INT(6)',   'notnull' => true,  'auto_increment' => true,   'primary' => true),
+                    'available_functions'    => array('type' => 'TEXT',     'notnull' => true,  'after' => 'id'),
+                    'removed_buttons'        => array('type' => 'TEXT',     'notnull' => true,  'after' => 'available_functions'),
+                    'is_default'             => array('type' => 'INT(1)',   'notnull' => true,  'default' => '0',   'after' => 'removed_buttons')
+                )
+            );
+
+            \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `contrexx_core_wysiwyg_toolbar` (`id`, `available_functions`, `removed_buttons`, `is_default`) VALUES (1,\'[[\"Source\",\"-\",\"NewPage\",\"Templates\"],[\"Cut\",\"Copy\",\"Paste\",\"PasteText\",\"PasteFromWord\",\"-\",\"Scayt\"],[\"Undo\",\"Redo\",\"-\",\"CopyFormatting\",\"-\",\"Find\",\"Replace\",\"-\",\"SelectAll\",\"RemoveFormat\"],[\"Bold\",\"Italic\",\"Underline\",\"Strike\",\"-\",\"Subscript\",\"Superscript\"],[\"NumberedList\",\"BulletedList\",\"-\",\"Outdent\",\"Indent\",\"Blockquote\"],[\"JustifyLeft\",\"JustifyCenter\",\"JustifyRight\",\"JustifyBlock\"],[],[\"Link\",\"Unlink\",\"Anchor\"],[\"Image\",\"Flash\",\"Table\",\"HorizontalRule\",\"SpecialChar\"],[\"Format\"],[\"TextColor\",\"BGColor\"],[\"ShowBlocks\"],[\"Div\",\"CreateDiv\"],[\"Maximize\"]]\',\'autoFormat,CommentSelectedRange,UncommentSelectedRange,AutoComplete,searchCode,Styles,Font,FontSize,BidiLtr,BidiRtl\',1)');
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }

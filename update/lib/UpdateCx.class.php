@@ -52,7 +52,7 @@ class UpdateCx extends \Cx\Core\Core\Controller\Cx {
      * @global array            $_CONFIG
      */
     public function minimalInit() {
-        global $connection, $_DBCONFIG, $_CONFIG;
+        global $pdoConnectionUpdate, $objDatabase, $_DBCONFIG, $_CONFIG;
 
         // Set database connection details
         $objDb = new \Cx\Core\Model\Model\Entity\Db($_DBCONFIG);
@@ -61,7 +61,7 @@ class UpdateCx extends \Cx\Core\Core\Controller\Cx {
         $objDbUser = new \Cx\Core\Model\Model\Entity\DbUser($_DBCONFIG);
 
         // Initialize database connection
-        $this->db = \Cx\Core\Model\Db::fromExistingConnection($objDb, $objDbUser, $connection, \Env::get('db'), \Env::get('em'));
+        $this->db = \Cx\Core\Model\Db::fromExistingConnection($objDb, $objDbUser, $pdoConnectionUpdate, $objDatabase, \Env::get('em'));
 
         // initialize event manager
         $this->eventManager = new \Cx\Core\Event\Controller\EventManager($this);
@@ -69,5 +69,40 @@ class UpdateCx extends \Cx\Core\Core\Controller\Cx {
 
         // initialize license
         $this->license = \Cx\Core_Modules\License\License::getCached($_CONFIG, $this->getDb()->getAdoDb());
+
+        $this->cl = \Env::get('ClassLoader');
+    }
+
+    public function getMediaSourceManager(){
+        if (!$this->mediaSourceManager){
+            // register events required for MediaSourceManager initialization
+            $this->getEvents()->addEvent('preComponent');
+            $this->getEvents()->addEvent('postComponent');
+            $this->getEvents()->addEvent('mediasource.load');
+            $this->getEvents()->addEventListener(
+            'mediasource.load', new \Cx\Core\ViewManager\Model\Event\ViewManagerEventListener($this)
+        );
+
+            $this->mediaSourceManager = new \Cx\Core\MediaSource\Model\Entity\MediaSourceManager($this);
+        }
+        return $this->mediaSourceManager;
+    }
+
+    public function getComponent($component) {
+        switch ($component) {
+            case 'Cache':
+                return new class {
+                    public function clearCache() {}
+                    public function delete() {}
+                    public function fetch() {}
+                    public function save() {}
+                };
+                break;
+
+            default;
+                break;
+        }
+
+        return parent::getComponent($component);
     }
 }

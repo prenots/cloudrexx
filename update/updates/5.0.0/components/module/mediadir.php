@@ -66,8 +66,7 @@ function _mediadirUpdate()
                   'entry_id'           => array('type' => 'INT(7)', 'after' => 'id'),
                   'added_by'           => array('type' => 'VARCHAR(255)', 'after' => 'entry_id'),
                   'date'               => array('type' => 'VARCHAR(100)', 'after' => 'added_by'),
-                  'ip'                 => array('type' => 'VARCHAR(100)', 'after' => 'date'),
-                  'name'               => array('type' => 'VARCHAR(255)', 'after' => 'ip'),
+                  'name'               => array('type' => 'VARCHAR(255)', 'after' => 'date'),
                   'mail'               => array('type' => 'VARCHAR(255)', 'after' => 'name'),
                   'url'                => array('type' => 'VARCHAR(255)', 'after' => 'mail'),
                   'notification'       => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'url'),
@@ -624,6 +623,13 @@ Diese Nachricht wurde am [[DATE]] automatisch von Contrexx auf http://[[URL]] ge
             \Cx\Lib\UpdateUtil::sql("UPDATE `" . DBPREFIX . "module_mediadir_rel_entry_inputfields`
                                      SET `value` = REPLACE(`value`, 'images/mediadir', 'images/MediaDir')
                                      WHERE `value` LIKE ('" . ASCMS_PATH_OFFSET . "/images/mediadir%')");
+
+            // implement GDPR
+            \Cx\Lib\UpdateUtil::sql('UPDATE `'. DBPREFIX. 'module_mediadir_votes` SET `ip` = MD5(`ip`) WHERE CHAR_LENGTH(`ip`) < 30 AND `ip` != \'\'');
+            \Cx\Lib\UpdateUtil::sql('UPDATE `'. DBPREFIX. 'module_mediadir_entries` SET `last_ip` = MD5(`last_ip`) WHERE CHAR_LENGTH(`last_ip`) < 30 AND `last_ip` != \'\'');
+            if (\Cx\Lib\UpdateUtil::column_exist(DBPREFIX.'module_mediadir_comments', 'ip')) {
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'. DBPREFIX .'module_mediadir_comments` DROP COLUMN `ip`');
+            }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }

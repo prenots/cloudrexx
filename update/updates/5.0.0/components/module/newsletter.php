@@ -902,7 +902,7 @@ function insertMailTemplate($key, $textId, $langId, $name, $title, $content)
     \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_bcc\', \'\')');
     \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_cc\', \'\')');
     \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_from\', \'\')');
-    \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_message\', "'. $mailContent .'")');
+    \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_message\', "'. addslashes($mailContent) .'")');
     \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_name\', "'. $name . '")');
     \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_reply\', \'\')');
     \Cx\Lib\UpdateUtil::sql('INSERT INTO `' . DBPREFIX . 'core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES('. $textId .', '. $langId .', \'Newsletter\', \'core_mail_template_sender\', \'\')');

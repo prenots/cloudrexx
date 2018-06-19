@@ -791,6 +791,7 @@ class UpdateUtil
                 }
             }
             $em->flush();
+            $em->getConfiguration()->getResultCacheImpl()->deleteAll();
         }
     }
 
@@ -853,6 +854,7 @@ class UpdateUtil
                 }
             }
             $em->flush();
+            $em->getConfiguration()->getResultCacheImpl()->deleteAll();
         }
     }
 
@@ -900,6 +902,7 @@ class UpdateUtil
                 }
             }
             $em->flush();
+            $em->getConfiguration()->getResultCacheImpl()->deleteAll();
         }
     }
 
@@ -928,6 +931,7 @@ class UpdateUtil
                 }
             }
             $em->flush();
+            $em->getConfiguration()->getResultCacheImpl()->deleteAll();
         }
     }
 

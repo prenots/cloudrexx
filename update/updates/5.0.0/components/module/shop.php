@@ -1475,6 +1475,8 @@ HTML;
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."core_text` SET `section` = 'Shop' WHERE `section` = 'shop'");
 
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_shop_payment_processors` SET `picture` = 'logo_postfinance.png' WHERE `picture` = 'logo_postfinance.gif'");
+
+            \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."core_setting` SET `type` = 'checkbox' WHERE `section` ='Shop' AND `name` = 'weight_enable'");
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
@@ -1804,7 +1806,7 @@ function _shopInstall()
             DBPREFIX.'core_mail_template',
             array(
                 'key' => array('type' => 'tinytext'),
-                'section' => array('type' => 'tinytext', 'after' => 'key'),
+                'section' => array('type' => 'tinytext', 'notnull' => true, 'after' => 'key'),
                 'text_id' => array('type' => 'INT(10)', 'unsigned' => true, 'after' => 'section'),
                 'html' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'text_id'),
                 'protected' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'html'),
@@ -1903,7 +1905,7 @@ function _shopInstall()
                     ('Shop', 'vat_included_home_customer', 'config', 'text', '1', '', 39),
                     ('Shop', 'vat_included_home_reseller', 'config', 'text', '1', '', 40),
                     ('Shop', 'vat_other_id', 'config', 'text', '1', '', 42),
-                    ('Shop', 'weight_enable', 'config', 'text', '0', '', 24),
+                    ('Shop', 'weight_enable', 'config', 'checkbox', '0', '', 24),
                     ('Egov', 'postfinance_shop_id', 'config', 'text', 'Ihr Kontoname', '', 1),
                     ('Egov', 'postfinance_active', 'config', 'checkbox', '0', '1', 2),
                     ('Egov', 'postfinance_authorization_type', 'config', 'dropdown', 'SAL', 'RES:Reservation,SAL:Verkauf', 3),

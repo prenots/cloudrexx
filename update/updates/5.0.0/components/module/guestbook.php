@@ -66,7 +66,6 @@ function _guestbookUpdate()
                 'url'       => array('type' => 'TINYTEXT'),
                 'email'     => array('type' => 'TINYTEXT'),
                 'comment'   => array('type' => 'TEXT'),
-                'ip'        => array('type' => 'VARCHAR(15)'),
                 'location'  => array('type' => 'TINYTEXT'),
                 'lang_id'   => array('type' => 'TINYINT(2)', 'default' => '1'),
                 'datetime'  => array('type' => 'DATETIME', 'default' => '0000-00-00 00:00:00')            ),

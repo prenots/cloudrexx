@@ -61,7 +61,7 @@ function _crmUpdate() {
                     'profile_picture'        => array('type' => 'VARCHAR(256)', 'after' => 'datasource'),
                     'status'                 => array('type' => 'TINYINT(2)', 'notnull' => true, 'default' => '1', 'after' => 'profile_picture'),
                     'added_date'             => array('type' => 'date', 'after' => 'status'),
-                    'email_delivery'         => array('type' => 'TINYINT(2)', 'notnull' => true, 'default' => '1', 'after' => 'added_date'),
+                    //'email_delivery'         => array('type' => 'TINYINT(2)', 'notnull' => true, 'default' => '1', 'after' => 'added_date'),
                 ),
                 array(
                     'contact_customer'       => array('fields' => array('contact_customer')),

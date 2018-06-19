@@ -454,7 +454,7 @@ function _contactUpdate()
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.1.0')) {
             $em = \Env::get('em');
             $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
-            $Contact = new \Cx\Core_Modules\Contact\Controller\ContactManager();
+            $Contact = new \Cx\Core_Modules\Contact\Controller\ContactLib();
             $Contact->initContactForms();
 
             foreach ($Contact->arrForms as $id => $form) {
@@ -462,7 +462,7 @@ function _contactUpdate()
                     if ($lang['is_active'] == true) {
                         $page = $pageRepo->findOneByModuleCmdLang('contact', $id, $langId);
                         if ($page) {
-                            $page->setContent($Contact->getSourceCode($id, $langId));
+                            $page->setContent('{APPLICATION_DATA}');
                             $page->setUpdatedAtToNow();
                             $em->persist($page);
                         }
@@ -493,6 +493,8 @@ function _contactUpdate()
                     //'crm_customer_groups'    => array('type' => 'text', 'notnull' => false, 'after' => 'send_attachment'),
                 )
             );
+            \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `' . DBPREFIX . 'module_contact_settings` (`setid`, `setname`, `setvalue`, `status`) VALUES (\'7\', \'fieldMetaBrowser\', \'1\', \'1\')');
+            \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `' . DBPREFIX . 'module_contact_settings` (`setid`, `setname`, `setvalue`, `status`) VALUES (\'8\', \'storeFormSubmissions\', \'1\', \'1\')');
 
             // migrate path to images and media
             $pathsToMigrate = \Cx\Lib\UpdateUtil::getMigrationPaths();

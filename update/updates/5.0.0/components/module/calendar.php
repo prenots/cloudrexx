@@ -267,8 +267,9 @@ function _calendarUpdate()
                         'place_mediadir_id'                  => array('type' => 'INT(11)', 'after' => 'attach'),
                         'catid'                              => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'place_mediadir_id'),
                         'show_in'                            => array('type' => 'VARCHAR(255)', 'after' => 'catid'),
-                        'invited_groups'                     => array('type' => 'VARCHAR(45)', 'notnull' => false, 'after' => 'show_in'),
-                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'invited_groups'),
+                        'invited_groups'                     => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'show_in'),
+                        'invited_crm_groups'                 => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_groups'),
+                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'invited_crm_groups'),
                         'invitation_sent'                    => array('type' => 'INT(1)', 'after' => 'invited_mails'),
                         'invitation_email_template'          => array('type' => 'VARCHAR(255)', 'after' => 'invitation_sent'),
                         'registration'                       => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'invitation_email_template'),
@@ -452,7 +453,8 @@ function _calendarUpdate()
                         'catid'                              => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'place_mediadir_id'),
                         'show_in'                            => array('type' => 'VARCHAR(255)', 'after' => 'catid'),
                         'invited_groups'                     => array('type' => 'VARCHAR(45)', 'notnull' => false, 'after' => 'show_in'),
-                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'invited_groups'),
+                        'invited_crm_groups'                 => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_groups'),
+                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'invited_crm_groups'),
                         'invitation_sent'                    => array('type' => 'INT(1)', 'after' => 'invited_mails'),
                         'invitation_email_template'          => array('type' => 'VARCHAR(255)', 'after' => 'invitation_sent'),
                         'registration'                       => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'invitation_email_template'),
@@ -538,6 +540,83 @@ function _calendarUpdate()
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_calendar_settings` SET `order`= 9 WHERE `name` = 'showEndTimeDetail' AND `section_id` = 17");
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_calendar_settings` SET `order`= 8 WHERE `name` = 'showStartTimeList' AND `section_id` = 16");
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_calendar_settings` SET `order`= 9 WHERE `name` = 'showEndTimeList' AND `section_id` = 16");
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_calendar_invite',
+                array(
+                    'id'                 => array('type' => 'int', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'event_id'           => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'id'),
+                    'date'               => array('type' => 'bigint', 'unsigned' => true, 'notnull' => true, 'after' => 'event_id'),
+                    'invitee_type'       => array('type' => 'ENUM(\'-\', \'AccessUser\',\'CrmContact\')', 'notnull' => true, 'after' => 'date'),
+                    'invitee_id'         => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'invitee_type'),
+                    'email'              => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invitee_id'),
+                    'token'              => array('type' => 'VARCHAR(32)', 'notnull' => true, 'after' => 'email')
+                ),
+                array(),
+                'InnoDB'
+            );
+            \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_calendar_host` CHANGE `key` `key` varchar(32) NOT NULL');
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_calendar_registration',
+                array(
+                    'id'                 => array('type' => 'INT(7)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'event_id'           => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'id'),
+                    'date'               => array('type' => 'INT(15)', 'notnull' => true, 'after' => 'event_id'),
+                    'submission_date'    => array('type' => 'timestamp', 'notnull' => true, 'default' => '0000-00-00 00:00:00', 'after' => 'date'),
+                    'type'               => array('type' => 'INT(1)', 'notnull' => true, 'after' => 'submission_date'),
+                    'invite_id'          => array('type' => 'int', 'notnull' => false, 'after' => 'type'),
+                    'key'                => array('type' => 'VARCHAR(45)', 'notnull' => true, 'after' => 'invite_id'),
+                    'user_id'            => array('type' => 'INT(7)', 'notnull' => true, 'after' => 'key'),
+                    'lang_id'            => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'user_id'),
+                    'export'             => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'lang_id'),
+                    'payment_method'     => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'export'),
+                    'paid'               => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'payment_method')
+                ),
+                array(),
+                'MyISAM'
+            );
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            $result = \Cx\Lib\UpdateUtil::sql("SELECT 1 FROM `".DBPREFIX."module_calendar_mail_action` WHERE `name` NOT IN ('invitationTemplate', 'confirmationRegistration', 'notificationRegistration', 'notificationNewEntryFE')");
+            if ($result->RecordCount() > 0) {
+                // TODO: implement proper user interaction
+                return false;
+            }
+                
+            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX.'module_calendar_mail_action');
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_calendar_events_categories',
+                array(
+                    'event_id'       => array('type' => 'INT(11)', 'notnull' => true, 'primary' => true),
+                    'category_id'    => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'event_id', 'primary' => true)
+                ),
+                array(
+                    'category_id'    => array('fields' => array('category_id'))
+                ),
+                'InnoDB'
+            );
+            if (\Cx\Lib\UpdateUtil::column_exist(DBPREFIX.'module_calendar_event', 'catid')) {
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'module_calendar_events_categories` (event_id, category_id) SELECT id, catid FROM `'.DBPREFIX.'module_calendar_event` WHERE catid > 0');
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_calendar_event` DROP `catid`');
+            }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
@@ -779,9 +858,7 @@ class CalendarUpdate
                         'event_id' => array('type' => 'INT(7)', 'after' => 'id'),
                         'date' => array('type' => 'INT(15)', 'after' => 'event_id'),
                         'submission_date' => array('type' => 'TIMESTAMP', 'notnull' => false, 'default' => '0000-00-00 00:00:00', 'after' => 'date'),
-                        'host_name' => array('type' => 'VARCHAR(255)', 'after' => 'submission_date'),
-                        'ip_address' => array('type' => 'VARCHAR(15)', 'after' => 'host_name'),
-                        'type' => array('type' => 'INT(1)', 'after' => 'ip_address'),
+                        'type' => array('type' => 'INT(1)', 'after' => 'submission_date'),
                         'key' => array('type' => 'VARCHAR(45)', 'after' => 'type'),
                         'user_id' => array('type' => 'INT(7)', 'after' => 'key'),
                         'lang_id' => array('type' => 'INT(11)', 'after' => 'user_id'),
@@ -1705,19 +1782,17 @@ class CalendarUpdate
     protected function addRegistrationData($oldEventId, $newEventId, $langId, $formFieldMap)
     {
         $resultRegistrations = \Cx\Lib\UpdateUtil::sql("
-                SELECT `id`, `note_date`, `time`, `host`, `ip_address`, `type` FROM `" . CALENDAR_OLD_REGISTRATIONS_TABLE . "`
+                SELECT `id`, `note_date`, `time`, `type` FROM `" . CALENDAR_OLD_REGISTRATIONS_TABLE . "`
                     WHERE `note_id` = " . $oldEventId . "
             ");
         while (!$resultRegistrations->EOF) {
             $key = $this->generateRandomKey();
             \Cx\Lib\UpdateUtil::sql("
                     INSERT IGNORE INTO `" . CALENDAR_NEW_REGISTRATION_TABLE . "`
-                        (`event_id`, `date`, `host_name`, `ip_address`, `type`, `key`, `user_id`, `lang_id`, `export`, `payment_method`, `paid`)
+                        (`event_id`, `date`, `type`, `key`, `user_id`, `lang_id`, `export`, `payment_method`, `paid`)
                     VALUES (
                         " . $newEventId . ",
                         '" . contrexx_raw2db($resultRegistrations->fields['time']) . "',
-                        '" . contrexx_raw2db($resultRegistrations->fields['host']) . "',
-                        '" . contrexx_raw2db($resultRegistrations->fields['ip_address']) . "',
                         '" . contrexx_raw2db($resultRegistrations->fields['type']) . "',
                         '" . contrexx_raw2db($key) . "',
                         0,

@@ -28,7 +28,7 @@
 
 function _egovUpdate()
 {
-    global $objDatabase, $_ARRAYLANG;
+    global $objDatabase, $_ARRAYLANG, $objUpdate, $_CONFIG;
 
     // Check required tables..
     $arrTables = $objDatabase->MetaTables('TABLES');
@@ -261,6 +261,13 @@ function _egovUpdate()
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::sql('UPDATE `' . DBPREFIX . 'module_egov_orders` SET `order_ip` = MD5(`order_ip`) WHERE CHAR_LENGTH(`order_ip`) < 30 AND `order_ip` != \'\'');
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
 
     // migrate path to images and media
     $pathsToMigrate = \Cx\Lib\UpdateUtil::getMigrationPaths();

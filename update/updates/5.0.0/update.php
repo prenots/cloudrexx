@@ -735,6 +735,9 @@ function executeContrexxUpdate() {
 
         $_SESSION['contrexx_update']['update']['done'][] = 'migrateComponents';
         unset($_SESSION['contrexx_update']['update']['migrateComponentsDone']);
+
+        setUpdateMsg(1, 'timeout');
+        return false;
     }
 
 
@@ -1026,6 +1029,8 @@ function executeContrexxUpdate() {
             return false;
         } else {
             $_SESSION['contrexx_update']['update']['done'][] = 'pageApplicationNames';
+            setUpdateMsg(1, 'timeout');
+            return false;
         }
     }
 
@@ -1079,7 +1084,35 @@ function executeContrexxUpdate() {
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    /******************** STAGE 22 - SETTINGS 2 SETTINGDB MIGRATION ****************/
+    /******************** STAGE 22 - INSTALL DOMAIN REPOSITORY *********************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    if (
+        !in_array('installDomainRepo', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) &&
+        $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')
+    ) {
+        \DBG::msg('update: install config/DomainRepository.yml');
+        $result = installDomainRepository();
+        if ($result === false) {
+            if (empty($objUpdate->arrStatusMsg['title'])) {
+                setUpdateMsg('Bei der Installation des Domain Repository trat ein Fehler auf', 'title');
+            }
+            return false;
+        } else {
+            $_SESSION['contrexx_update']['update']['done'][] = 'installDomainRepo';
+
+            // let's force a reload here
+            setUpdateMsg(1, 'timeout');
+            return false;
+        }
+    }
+    
+
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /******************** STAGE 23 - SETTINGS 2 SETTINGDB MIGRATION ****************/
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1104,11 +1137,28 @@ function executeContrexxUpdate() {
     }
 
 
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /******************** STAGE 24 - UPDATE CONFIGURATION.PHP FILE *****************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    // Update config/configuration.php
+    \DBG::msg('update: update config/configuration.php');
+    if (!in_array('updateConfigurationFile', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+        // update configuration.php (migrate to new format)
+        if (!_writeNewConfigurationFile()) {
+            return false;
+        }
+        $_SESSION['contrexx_update']['update']['done'][] = 'updateConfigurationFile';
+    }
+
 
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    /******************** STAGE 23 - INSTALL NEW .HTACCESS FILE ********************/
+    /******************** STAGE 25 - INSTALL NEW .HTACCESS FILE ********************/
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1131,64 +1181,39 @@ function executeContrexxUpdate() {
     }
 
 
-
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    /*********************** STAGE 24 - INSTALL LOCALIZATION ***********************/
+    /*********************** STAGE 26 - FINISH LOCALIZATION ************************/
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    \DBG::msg('update: install localization');
+    \DBG::msg('update: finish localization');
     if (
-        !in_array('installLocalization', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) &&
+        !in_array('finishLocalization', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) &&
         $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')
     ) {
-        // load localization installation script; execution will be manually called later by _localeInstall()
-        if (!include_once(dirname(__FILE__) . '/components/core/locale.php')) {
-            setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/locale.php'));
-            return false;
-        }
-        if (!in_array('installLocale', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
-            if (!_localeInstall()) {
-                setUpdateMsg('Locale konnte nicht installiert werden.');
-                return false;
-            }
-            $_SESSION['contrexx_update']['update']['done'][] = 'installLocale';
-        }
-        if (!in_array('installView', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
-            if (!include_once(dirname(__FILE__) . '/components/core/view.php')) {
-                setUpdateMsg(sprintf($_CORELANG['TXT_UPDATE_UNABLE_LOAD_UPDATE_COMPONENT'], dirname(__FILE__) . '/components/core/view.php'));
-                return false;
-            }
-            if (!_viewInstall()) {
-                setUpdateMsg('View konnte nicht installiert werden.');
-                return false;
-            }
-            $_SESSION['contrexx_update']['update']['done'][] = 'installView';
-        }
         if(!dropOldLangTable()) {
             setUpdateMsg(DBPREFIX . 'languages konnte nicht gelöscht werden.');
             return false;
         }
-        $_SESSION['contrexx_update']['update']['done'][] = 'installLocalization';
+        $_SESSION['contrexx_update']['update']['done'][] = 'finishLocalization';
         // force reload to load new FWLanguage
         setUpdateMsg(1, 'timeout');
         return false;
     }
 
 
-
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
-    /******************** STAGE 25 - INSTALL NEW LICENSE ***************************/
+    /******************** STAGE 27 - INSTALL NEW LICENSE ***************************/
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
     // Update license
     \DBG::msg('update: update license');
-    $arrUpdate = $objUpdate->getLoadedVersionInfo();
+    /*$arrUpdate = $objUpdate->getLoadedVersionInfo();
 
     if (
         !in_array('coreLicense', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done'])) ||
@@ -1202,7 +1227,11 @@ function executeContrexxUpdate() {
             return false;
         }
         $_SESSION['contrexx_update']['update']['done'][] = 'coreLicense';
-    }
+    }*/
+    // activate all modules
+    \Cx\Lib\UpdateUtil::sql('UPDATE `'. DBPREFIX .'modules` SET `is_licensed` = 1');
+    // deactivate blog
+    \Cx\Lib\UpdateUtil::sql('UPDATE `'. DBPREFIX .'modules` SET `is_licensed` = 0 WHERE `name` = \'Blog\'');
 
     ////////////////
     // END UPDATE //
@@ -2462,19 +2491,20 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
 
     // list of core components who's update script will be executed independently
     $specialComponents2skip = array(
-        'backendAreas', 'componentmanager', 'contentmanager', 'core', 'modules', 'repository', 'settings', 'utf8', 'locale', 'view'
+        'backendAreas', 'componentmanager', 'contentmanager', 'core', 'modules', 'repository', 'settings', 'utf8'
     );
 
     // component update scripts that introduce changes for all versions (pre and post v3)
     $genericMigrationScripts = array(
         // core
-        'routing', 'wysiwyg', 'country',
+        'routing', 'wysiwyg', 'locale',
         // core module
         'access', 'contact',
-        'cron', 'linkmanager', 'news',
+        'cron', 'linkmanager', 'news', 'stats',
         // module
         'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',
         'forum', 'gallery', 'market', 'mediadir', 'memberdir', 'newsletter', 'podcast', 'shop',
+        'livecam', 'guestbook', 'egov'
     );
 
     foreach ($components as $dir) {
@@ -2921,7 +2951,7 @@ function _migrateTemplateMediaPaths($themeRepository = null) {
 function migratePageApplicationNames() {
         $componentNames = getNewComponentNames();
         $em = \Env::get('em');
-        $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy(array('type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION), true);
+        $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy(array('type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION), null, null, null, true);
         foreach ($pages as $page) {
             if ($page) {
                 if (!checkMemoryLimit()) {
@@ -2972,7 +3002,7 @@ function installContentApplicationTemplates() {
             $_SESSION['contrexx_update']['update']['migratedApplicationContentPages'] = array();
         }
 
-        $virtualComponents = array('Agb', 'Ids', 'Imprint', 'Privacy');
+        $virtualComponents = array('Home', 'Agb', 'Ids', 'Imprint', 'Privacy');
         //migrating custom application template
         $pageRepo   = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $themeRepo  = new \Cx\Core\View\Model\Repository\ThemeRepository();
@@ -3119,6 +3149,17 @@ function detectCx3Version() {
         return $version;
     } catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+    }
+}
+
+function installDomainRepository() {
+    // copy update/updates/5.0/data/DomainRepository.yml config/DomainRepository
+    try {
+        $objFile = new \Cx\Lib\FileSystem\File(dirname(__FILE__) .'/data/DomainRepository.yml');
+        $objFile->copy(ASCMS_DOCUMENT_ROOT.'/config/DomainRepository.yml', true);
+    } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
+        \DBG::msg($e->getMessage());
+        return false;
     }
 }
 

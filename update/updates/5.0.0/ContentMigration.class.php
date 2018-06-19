@@ -166,7 +166,8 @@ class ContentMigration
                         'metadesc'                           => array('type' => 'text', 'after' => 'metatitle'),
                         'metakeys'                           => array('type' => 'text', 'after' => 'metadesc'),
                         'metarobots'                         => array('type' => 'VARCHAR(7)', 'notnull' => false, 'after' => 'metakeys'),
-                        'start'                              => array('type' => 'timestamp', 'notnull' => false, 'after' => 'metarobots'),
+                        'metaimage'                          => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'metarobots'),
+                        'start'                              => array('type' => 'timestamp', 'notnull' => false, 'after' => 'metaimage'),
                         'end'                                => array('type' => 'timestamp', 'notnull' => false, 'after' => 'start'),
                         'editingStatus'                      => array('type' => 'VARCHAR(16)', 'after' => 'end'),
                         'protection'                         => array('type' => 'INT(11)', 'after' => 'editingStatus'),
@@ -379,15 +380,15 @@ class ContentMigration
                     }
 
                     $page = null;
-                    if (!empty($_SESSION['contrexx_update']['pages'][$catId])) {
-                        $pageId = $_SESSION['contrexx_update']['pages'][$catId];
-                        $page   = $pageRepo->find($pageId);
-                    }
 
                     if (!isset($_SESSION['contrexx_update']['pages'])) {
                         $_SESSION['contrexx_update']['pages'] = array();
                     }
-
+                    if (!empty($_SESSION['contrexx_update']['pages'][$catId])) {
+                        $pageId = $_SESSION['contrexx_update']['pages'][$catId];
+                        $page   = $pageRepo->find($pageId);
+                    }
+                    
                     // CREATE PAGE
                     switch ($objResult->fields['action']) {
                         case 'new':
@@ -562,7 +563,7 @@ class ContentMigration
 
         return true;
     }
-
+    
     function _setCmd($page, $cmd) {
         $origCmd = $cmd;
         $cmd = preg_replace('/[^-A-Za-z0-9_]+/', '_', $origCmd);
