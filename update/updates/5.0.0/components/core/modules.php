@@ -57,7 +57,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 0
+			'is_active'				=> 0
 		),
 		array(
 			'id'					=> 1,
@@ -66,7 +66,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 2,
@@ -75,7 +75,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 3,
@@ -84,7 +84,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 4,
@@ -93,7 +93,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 5,
@@ -102,7 +102,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 6,
@@ -111,7 +111,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 7,
@@ -120,7 +120,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 8,
@@ -129,7 +129,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 9,
@@ -138,7 +138,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 10,
@@ -147,7 +147,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 11,
@@ -156,7 +156,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 12,
@@ -165,7 +165,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 13,
@@ -174,7 +174,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 14,
@@ -183,7 +183,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 15,
@@ -192,7 +192,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 16,
@@ -201,7 +201,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 17,
@@ -210,7 +210,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 18,
@@ -219,7 +219,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 19,
@@ -228,7 +228,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 20,
@@ -237,7 +237,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 21,
@@ -246,7 +246,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 22,
@@ -255,7 +255,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 23,
@@ -264,7 +264,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 24,
@@ -273,7 +273,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 25,
@@ -282,7 +282,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 26,
@@ -291,7 +291,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 27,
@@ -300,7 +300,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 30,
@@ -309,7 +309,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 31,
@@ -318,7 +318,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 33,
@@ -327,7 +327,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 35,
@@ -336,7 +336,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 38,
@@ -345,7 +345,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 39,
@@ -354,7 +354,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 41,
@@ -363,7 +363,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 44,
@@ -372,7 +372,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 45,
@@ -381,7 +381,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 46,
@@ -390,16 +390,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
-		),
-		array(
-			'id'					=> 47,
-			'name'					=> 'Blog',
-			'description_variable'	=> 'TXT_BLOG_MODULE_DESCRIPTION',
-			'status'				=> 'y',
-			'is_required'			=> 0,
-			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 48,
@@ -408,7 +399,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 49,
@@ -417,7 +408,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 52,
@@ -426,7 +417,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 53,
@@ -435,7 +426,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 54,
@@ -444,7 +435,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 56,
@@ -453,7 +444,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 57,
@@ -462,7 +453,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 60,
@@ -471,7 +462,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 61,
@@ -480,7 +471,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 63,
@@ -489,25 +480,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
-		),
-		array(
-			'id'					=> 64,
-			'name'					=> 'language',
-			'description_variable'	=> 'TXT_LANGUAGE_SETTINGS',
-			'status'				=> 'n',
-			'is_required'			=> 1,
-			'is_core'				=> 1,
-                        'is_active'                             => 1
-		),
-		array(
-			'id'					=> 65,
-			'name'					=> 'fulllanguage',
-			'description_variable'	=> 'TXT_LANGUAGE_SETTINGS',
-			'status'				=> 'n',
-			'is_required'			=> 1,
-			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 66,
@@ -516,7 +489,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 67,
@@ -525,7 +498,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 68,
@@ -534,7 +507,7 @@ function getModules()
 			'status'				=> 'y',
 			'is_required'			=> 0,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 69,
@@ -543,7 +516,7 @@ function getModules()
 			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 0,
-                        'is_active'                             => 1
+			'is_active'				=> 1
 		),
 		array(
 			'id'					=> 71,
@@ -558,6 +531,24 @@ function getModules()
 			'id'					=> 72,
 			'name'					=> 'ContentManager',
 			'description_variable'	=> 'TXT_CONTENTMANAGER_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 73,
+			'name'					=> 'DatabaseManager',
+			'description_variable'	=> 'TXT_DATABASEMANAGER_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 74,
+			'name'					=> 'SystemInfo',
+			'description_variable'	=> 'TXT_SYSTEMINFO_MODULE_DESCRIPTION',
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
@@ -582,15 +573,6 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
-			'id'					=> 77,
-			'name'					=> 'LanguageManager',
-			'description_variable'	=> 'TXT_LANGUAGEMANAGER_MODULE_DESCRIPTION',
-			'status'				=> 'n',
-			'is_required'			=> 0,
-			'is_core'				=> 1,
-			'is_active'				=> 1
-		),
-		array(
 			'id'					=> 78,
 			'name'					=> 'ContentWorkflow',
 			'description_variable'	=> 'TXT_CONTENTWORKFLOW_MODULE_DESCRIPTION',
@@ -600,9 +582,27 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
+			'id'					=> 79,
+			'name'					=> 'SystemLog',
+			'description_variable'	=> 'TXT_SYSTEMLOG_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
 			'id'					=> 80,
 			'name'					=> 'Config',
 			'description_variable'	=> 'TXT_CONFIG_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 81,
+			'name'					=> 'Cache',
+			'description_variable'	=> '',
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
@@ -636,6 +636,15 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
+			'id'					=> 87,
+			'name'					=> 'Message',
+			'description_variable'	=> 'TXT_MESSAGE_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
 			'id'					=> 88,
 			'name'					=> 'JavaScript',
 			'description_variable'	=> 'TXT_JAVASCRIPT_MODULE_DESCRIPTION',
@@ -650,6 +659,15 @@ function getModules()
 			'description_variable'	=> 'TXT_NET_MODULE_DESCRIPTION',
 			'status'				=> 'n',
 			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 92,
+			'name'					=> 'Shell',
+			'description_variable'	=> 'TXT_CORE_SHELL_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 0,
 			'is_core'				=> 1,
 			'is_active'				=> 1
 		),
@@ -699,6 +717,15 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
+			'id'					=> 104,
+			'name'					=> 'SysLog',
+			'description_variable'	=> 'TXT_CORE_MODULE_SYSLOG_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
 			'id'					=> 105,
 			'name'					=> 'NetManager',
 			'description_variable'	=> 'TXT_NETMANAGER_MODULE_DESCRIPTION',
@@ -739,6 +766,114 @@ function getModules()
 			'name'					=> 'MediaSource',
 			'description_variable'	=> 'TXT_CORE_MEDIASOURCE_DESCRIPTION',
 			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 110,
+			'name'					=> 'TemplateEditor',
+			'description_variable'	=> 'TXT_CORE_MODULE_TEMPLATEEDITOR_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 111,
+			'name'					=> 'GeoIp',
+			'description_variable'	=> 'TXT_CORE_MODULE_GEOIP_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 112,
+			'name'					=> 'DateTime',
+			'description_variable'	=> 'TXT_CORE_DATETIME_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 113,
+			'name'					=> 'DataAccess',
+			'description_variable'	=> 'TXT_CORE_MODULE_DATAACCESS_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 114,
+			'name'					=> 'DataSource',
+			'description_variable'	=> 'TXT_CORE_MODULE_DATASOURCE_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 0,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 116,
+			'name'					=> 'Model',
+			'description_variable'	=> 'TXT_CORE_MODEL_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 117,
+			'name'					=> 'Pdf',
+			'description_variable'	=> 'TXT_CORE_MODULES_PDF_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 118,
+			'name'					=> 'Setting',
+			'description_variable'	=> 'TXT_CORE_SETTING_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 119,
+			'name'					=> 'Country',
+			'description_variable'	=> 'TXT_CORE_COUNTRY_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 120,
+			'name'					=> 'View',
+			'description_variable'	=> 'TXT_CORE_VIEW_DESCRIPTION',
+			'status'				=> 'y',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 121,
+			'name'					=> 'Locale',
+			'description_variable'	=> 'TXT_CORE_LOCALE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 1,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 122,
+			'name'					=> 'Widget',
+			'description_variable'	=> 'TXT_CORE_MODULES_WIDGET_DESCRIPTION',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
