@@ -1032,7 +1032,7 @@ class ContentMigration
                         $pageRepo = self::$em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
                         $pages = $pageRepo->findBy(array(
                             'lang' => $langId,
-                        ), true);
+                        ), null, null, null, true);
                         foreach ($pages as $page) {
                             $pageIds[$langId][] = $page->getId();
                         }

@@ -793,7 +793,7 @@ class UpdateUtil
 
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], $changeVersion)) {
             $em = \Env::get('em');
-            $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy($criteria, true);
+            $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy($criteria, null, null, null, true);
             foreach ($pages as $page) {
                 if ($page) {
                     if (!checkMemoryLimit()) {
@@ -840,7 +840,7 @@ class UpdateUtil
 
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], $changeVersion)) {
             $em = \Env::get('em');
-            $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy($criteria, true);
+            $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy($criteria, null, null, null, true);
             foreach ($pages as $page) {
                 if ($page) {
                     if (!checkMemoryLimit()) {
@@ -879,7 +879,7 @@ class UpdateUtil
 
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], $changeVersion)) {
             $em = \Env::get('em');
-            $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy($criteria, true);
+            $pages = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findBy($criteria, null, null, null, true);
             foreach ($pages as $page) {
                 if ($page) {
                     if (!checkMemoryLimit()) {
