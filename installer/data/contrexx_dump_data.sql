@@ -1684,13 +1684,8 @@ INSERT INTO `contrexx_core_country_country` (`alpha2`, `alpha3`, `ord`) VALUES (
 INSERT INTO `contrexx_core_country_country` (`alpha2`, `alpha3`, `ord`) VALUES ('ZR','ZAR',0);
 INSERT INTO `contrexx_core_country_country` (`alpha2`, `alpha3`, `ord`) VALUES ('ZM','ZMB',0);
 INSERT INTO `contrexx_core_country_country` (`alpha2`, `alpha3`, `ord`) VALUES ('ZW','ZWE',0);
-<<<<<<< HEAD
-INSERT INTO `contrexx_core_locale_backend` (`iso_1`) VALUES ('de');
-INSERT INTO `contrexx_core_locale_backend` (`iso_1`) VALUES ('en');
-=======
 INSERT INTO `contrexx_core_locale_backend` (`id`, `iso_1`) VALUES (1, 'de');
 INSERT INTO `contrexx_core_locale_backend` (`id`, `iso_1`) VALUES (2, 'en');
->>>>>>> master
 INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('aa','aar',0);
 INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('ab','abk',0);
 INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('ae','ave',0);
@@ -1874,13 +1869,8 @@ INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('
 INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('za','zha',0);
 INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('zh','zho',0);
 INSERT INTO `contrexx_core_locale_language` (`iso_1`,`iso_3`,`source`) VALUES ('zu','zul',0);
-<<<<<<< HEAD
-INSERT INTO `contrexx_core_locale_locale` (`iso_1`,`label`,`country`,`fallback`,`source_language`) VALUES ('de','Deutsch',NULL,NULL,'de');
-INSERT INTO `contrexx_core_locale_locale` (`iso_1`,`label`,`country`,`fallback`,`source_language`) VALUES ('en','English',NULL,1,'en');
-=======
 INSERT INTO `contrexx_core_locale_locale` (`id`, `iso_1`,`label`,`country`,`fallback`,`source_language`) VALUES (1, 'de', 'Deutsch', NULL, NULL, 'de');
 INSERT INTO `contrexx_core_locale_locale` (`id`, `iso_1`,`label`,`country`,`fallback`,`source_language`) VALUES (2, 'en', 'English', NULL, 1, 'en');
->>>>>>> master
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('customer_login','Shop',1,1,1);
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('order_complete','Shop',2,1,1);
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('order_confirmation','Shop',3,1,1);
