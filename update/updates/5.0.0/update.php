@@ -489,7 +489,7 @@ function executeContrexxUpdate() {
         }
 
         // Page grouping
-        if (empty($_SESSION['contrexx_update']['pages_grouped'])) {
+        /*if (empty($_SESSION['contrexx_update']['pages_grouped'])) {
             DBG::msg('Group pages');
             $pageGrouping = $contentMigration->pageGrouping();
 
@@ -515,10 +515,10 @@ function executeContrexxUpdate() {
                 setUpdateMsg($arrDialogData, 'dialog');
                 return false;
             }
-        }
+        }*/
 
         // Migrate aliases
-        if (empty($_SESSION['contrexx_update']['aliases_migrated'])) {
+        /*if (empty($_SESSION['contrexx_update']['aliases_migrated'])) {
             DBG::msg('Migrate aliases');
             if ($contentMigration->migrateAliases()) {
                 $_SESSION['contrexx_update']['aliases_migrated'] = true;
@@ -529,7 +529,7 @@ function executeContrexxUpdate() {
             } else {
                 return false;
             }
-        }
+        }*/
 
         // Migrate blocks
         if (empty($_SESSION['contrexx_update']['blocks_migrated'])) {

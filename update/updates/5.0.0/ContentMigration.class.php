@@ -333,9 +333,13 @@ class ContentMigration
                 $objResult = \Cx\Lib\UpdateUtil::sql('
                     SELECT
                         cn.page_id, cn.content, cn.title, cn.metatitle, cn.metadesc, cn.metakeys, cn.metarobots, cn.css_name, cn.redirect, cn.expertmode,
+                        # pre 3 discontinued
+                        cn.useContentFromLang,
                         nav.catid, nav.parcat, nav.catname, nav.target, nav.displayorder, nav.displaystatus, nav.activestatus,
                         nav.cachingstatus, nav.username, nav.changelog, nav.cmd, nav.lang, nav.module, nav.startdate, nav.enddate, nav.protected,
                         nav.frontend_access_id, nav.backend_access_id, nav.themes_id, nav.css_name AS css_nav_name, '.($hasCustomContent ? 'nav.custom_content,' : '').'
+                        # pre 3 discontinued
+                        nav.editstatus,
                         cnlog.action, cnlog.history_id, cnlog.is_validated
                     FROM       `' . DBPREFIX . 'content_history` AS cn
                     INNER JOIN `' . DBPREFIX . 'content_navigation_history` AS nav
@@ -362,6 +366,7 @@ class ContentMigration
                     }
 
                     $catId = $objResult->fields['catid'];
+                    $langId = $objResult->fields['lang'];
 
                     // Skip ghosts
                     if (!in_array($catId, $visiblePageIDs)) {
@@ -384,8 +389,11 @@ class ContentMigration
                     if (!isset($_SESSION['contrexx_update']['pages'])) {
                         $_SESSION['contrexx_update']['pages'] = array();
                     }
-                    if (!empty($_SESSION['contrexx_update']['pages'][$catId])) {
-                        $pageId = $_SESSION['contrexx_update']['pages'][$catId];
+                    if (!isset($_SESSION['contrexx_update']['pages'][$catId])) {
+                        $_SESSION['contrexx_update']['pages'][$catId] = array();
+                    }
+                    if (!empty($_SESSION['contrexx_update']['pages'][$catId][$langId])) {
+                        $pageId = $_SESSION['contrexx_update']['pages'][$catId][$langId];
                         $page   = $pageRepo->find($pageId);
                     }
                     
@@ -400,14 +408,14 @@ class ContentMigration
                             $this->_setPageRecords($objResult, $this->nodeArr[$catId], $page);
                             self::$em->persist($page);
                             self::$em->flush();
-                            $_SESSION['contrexx_update']['pages'][$catId] = $page->getId();
+                            $_SESSION['contrexx_update']['pages'][$catId][$langId] = $page->getId();
                             break;
                         case 'delete':
                             if (!empty($page)) {
                                 self::$em->remove($page);
                                 self::$em->flush();
-                                if (isset($_SESSION['contrexx_update']['pages'][$catId])) {
-                                    unset($_SESSION['contrexx_update']['pages'][$catId]);
+                                if (isset($_SESSION['contrexx_update']['pages'][$catId][$langId])) {
+                                    unset($_SESSION['contrexx_update']['pages'][$catId][$langId]);
                                 }
                             }
                             break;
@@ -437,8 +445,12 @@ class ContentMigration
 
                 $objRecords = \Cx\Lib\UpdateUtil::sql('
                     SELECT cn.id, cn.content, cn.title, cn.metatitle, cn.metadesc, cn.metakeys, cn.metarobots, cn.css_name, cn.redirect, cn.expertmode,
+                           # pre 3 discontinued
+                           cn.useContentFromLang,
                            nav.catid, nav.parcat, nav.catname, nav.target, nav.displayorder, nav.displaystatus, nav.activestatus,
                            nav.cachingstatus, nav.username, nav.changelog, nav.cmd, nav.lang, nav.module, nav.startdate, nav.enddate, nav.protected,
+                           # pre 3 discontinued
+                           nav.editstatus,
                            nav.frontend_access_id, nav.backend_access_id, nav.themes_id, nav.css_name AS css_nav_name '.($hasCustomContent ? ', nav.custom_content' : '').'
                     FROM       `' . DBPREFIX . 'content` AS cn
                     INNER JOIN `' . DBPREFIX . 'content_navigation` AS nav
@@ -463,6 +475,7 @@ class ContentMigration
                     }
 
                     $catId = $objRecords->fields['catid'];
+                    $langId = $objRecords->fields['lang'];
 
                     // Skip ghosts
                     if(!in_array($catId, $visiblePageIDs)) {
@@ -494,19 +507,26 @@ class ContentMigration
                     $nodeRepo->moveDown($this->nodeArr[$catId], true);
                     self::$em->persist($this->nodeArr[$catId]);
 
-                    if (!empty($_SESSION['contrexx_update']['pages'][$catId])) {
-                        $pageId = $_SESSION['contrexx_update']['pages'][$catId];
+                    if (!empty($_SESSION['contrexx_update']['pages'][$catId][$langId])) {
+                        $pageId = $_SESSION['contrexx_update']['pages'][$catId][$langId];
                         $page   = $pageRepo->find($pageId);
                     } else {
                         $page = new \Cx\Core\ContentManager\Model\Entity\Page();
                     }
 
                     $this->_setPageRecords($objRecords, $this->nodeArr[$catId], $page);
-                    $page->setAlias(array('legacy_page_' . $catId));
+
+                    $aliasList = $page->getAliases();
+                    $aliases = array();
+                    foreach ($aliasList as $alias) {
+                        $aliases[] = $alias->getSlug();
+                    }
+                    $aliases[] = 'legacy_page_' . $catId;
+                    $page->setAlias($aliases);
 
                     self::$em->persist($page);
                     self::$em->flush();
-                    $_SESSION['contrexx_update']['pages'][$catId] = $page->getId();
+                    $_SESSION['contrexx_update']['pages'][$catId][$langId] = $page->getId();
 
                     $pagesIndex ++;
                     $objRecords->MoveNext();
@@ -615,6 +635,25 @@ class ContentMigration
         $page->setBackendAccessId($objResult->fields['backend_access_id']);
         $page->setTarget(substr($objResult->fields['redirect'], 0, 255));
 
+        if (!empty($objResult->fields['editstatus'])) {
+            $editStatus = '';
+            switch ($objResult->fields['editstatus']) {
+                case 'draft':
+                    $editStatus = 'hasDraft';
+                    break;
+                case 'ready_for_translation':
+                case 'translated':
+                case 'controlled':
+                    $editStatus = 'hasDraftWaiting';
+                    break;
+                case 'published':
+                    $editStatus = '';
+                    break;
+            }
+            // not in use at vask.ch
+            //$page->setEditingStatus($editStatus);
+        }
+
         $updatedAt = new \DateTime();
         $updatedAt->setTimestamp($objResult->fields['changelog']);
         $page->setUpdatedAt($updatedAt);
@@ -636,7 +675,9 @@ class ContentMigration
         $page->setLinkTarget($linkTarget);
 
         $page->setType(\Cx\Core\ContentManager\Model\Entity\Page::TYPE_CONTENT);
-        if ($objResult->fields['module'] && isset($this->moduleNames[$objResult->fields['module']])) {
+        if (!empty($objResult->fields['useContentFromLang'])) {
+            $page->setType(\Cx\Core\ContentManager\Model\Entity\Page::TYPE_FALLBACK);
+        } elseif ($objResult->fields['module'] && isset($this->moduleNames[$objResult->fields['module']])) {
             $page->setType(\Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION);
             $page->setModule($this->moduleNames[$objResult->fields['module']]);
         }
@@ -1496,7 +1537,7 @@ class ContentMigration
                     \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'stats_requests` ADD `pageTitle` varchar(250) NOT NULL AFTER `sid`');
                 }
                 //fill pageTitle with current titles
-                \Cx\Lib\UpdateUtil::sql('UPDATE '.DBPREFIX.'stats_requests SET pageTitle = ( SELECT title FROM '.DBPREFIX.'content WHERE id=pageId ) WHERE EXISTS ( SELECT title FROM '.DBPREFIX.'content WHERE id=pageId ) AND pageTitle = \'\'');
+                \Cx\Lib\UpdateUtil::sql('UPDATE '.DBPREFIX.'stats_requests SET pageTitle = ( SELECT title FROM '.DBPREFIX.'content WHERE id=pageId LIMIT 1) WHERE EXISTS ( SELECT title FROM '.DBPREFIX.'content WHERE id=pageId LIMIT 1) AND pageTitle = \'\'');
             }
             catch (\Cx\Lib\UpdateException $e) {
                 return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
