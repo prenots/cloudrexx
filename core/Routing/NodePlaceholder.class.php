@@ -65,15 +65,26 @@ class NodePlaceholderException extends \Exception {}
 class NodePlaceholder {
 
     /**
-     * Prefex used in placeholders for Node-Urls:
-     * [[ NODE_(<node_id>|<module>[_<cmd>])[_<lang_id>] ]]
+     * Prefix used in placeholders for Node-Urls:
+     * func_node(<node_id_or_module>[,<cmd>[,<lang_id>]])
      */
-    const PLACEHOLDER_PREFIX = 'NODE_';
+    const PLACEHOLDER_PREFIX = 'func_node(';
 
     /**
-     * Regular expression to match a node-url in placeholder notation
+     * Suffix used in placeholders for Node-Urls:
+     * func_node(<node_id_or_module>[,<cmd>[,<lang_id>]])
      */
-    const NODE_URL_PCRE = '(
+    const PLACEHOLDER_SUFFIX = ')';
+
+    /**
+     * Separator used for arguments in placeholder
+     */
+    const PLACEHOLDER_ARGUMENT_SEPARATOR = ',';
+
+    /**
+     * Regular expression to match a node-url in legacy placeholder notation
+     */
+    const LEGACY_NODE_URL_PCRE = '(
         # placeholder prefix
         NODE_
         (?:
@@ -90,6 +101,29 @@ class NodePlaceholder {
             # Language-id (optional)
             (?-U)(?:_(\d+))?
         )
+     )';
+
+    /**
+     * Regular expression to match a node-url in placeholder notation
+     */
+    const NODE_URL_PCRE = '(
+        # placeholder prefix
+        func_node\(
+        (?:
+            (?:
+                # REFERENCE BY NODE-ID
+                # node-id
+                (\d+)
+            |   # REFERENCE BY MODULE & CMD
+                # module name
+                ([A-Z1-9]+)
+                # module cmd (optional)
+                (?U)(?:,([-\w]+))?
+            )
+            # Language-id (optional)
+            (?-U)(?:,(\d+))?
+        )
+        \)
      )';
 
     /**
@@ -152,14 +186,16 @@ class NodePlaceholder {
         $placeholder = preg_replace('/\\}/', ']]', $placeholder);
         $matches = array();
 
-        if (!preg_match('/\[\['.self::NODE_URL_PCRE.'\]\](\S*)?/ix', $placeholder, $matches)) {
-            throw new NodePlaceholderException('Invalid placeholder format: ' . $placeholder);
+        if (!preg_match('/' . static::NODE_URL_PCRE.'(\S*)?/ix', $placeholder, $matches)) {
+            if (!preg_match('/\[\['.static::LEGACY_NODE_URL_PCRE.'\]\](\S*)?/ix', $placeholder, $matches)) {
+                throw new NodePlaceholderException('Invalid placeholder format: ' . $placeholder);
+            }
         }
 
-        $nodeId      = empty($matches[self::NODE_URL_NODE_ID]) ? 0   : $matches[self::NODE_URL_NODE_ID];
-        $module      = empty($matches[self::NODE_URL_MODULE])  ? ''  : $matches[self::NODE_URL_MODULE];
-        $cmd         = empty($matches[self::NODE_URL_CMD])     ? ''  : $matches[self::NODE_URL_CMD];
-        $langId      = empty($matches[self::NODE_URL_LANG_ID]) ? 0   : $matches[self::NODE_URL_LANG_ID];
+        $nodeId      = empty($matches[static::NODE_URL_NODE_ID]) ? 0   : $matches[static::NODE_URL_NODE_ID];
+        $module      = empty($matches[static::NODE_URL_MODULE])  ? ''  : $matches[static::NODE_URL_MODULE];
+        $cmd         = empty($matches[static::NODE_URL_CMD])     ? ''  : $matches[static::NODE_URL_CMD];
+        $langId      = empty($matches[static::NODE_URL_LANG_ID]) ? 0   : $matches[static::NODE_URL_LANG_ID];
         $queryString = empty($matches[6]) ? '' : $matches[6];
 
         return static::fromInfo($nodeId, $module, $cmd, $langId, $queryString);
@@ -379,14 +415,14 @@ class NodePlaceholder {
      */
     public function getPlaceholder($forceNodeId = false, $parsedStyle = false) {
         // PREFIX
-        $placeholder = self::PLACEHOLDER_PREFIX;
+        $placeholder = static::PLACEHOLDER_PREFIX;
 
         // NODE IDENTIFICATOR
         if ($this->hasModule() && !$forceNodeId) {
             // NODE_MODULE_CMD_LANG
             $placeholder .= $this->getModule();
             if ($this->hasCmd()) {
-                $placeholder .= '_' . $this->getCmd();
+                $placeholder .= static::PLACEHOLDER_ARGUMENT_SEPARATOR . $this->getCmd();
             }
         } else {
             // NODE_NODEID_LANG
@@ -395,16 +431,10 @@ class NodePlaceholder {
 
         // LANGUAGE
         if ($this->hasLang()) {
-            $placeholder .= '_' . $this->getLangId();
+            $placeholder .= static::PLACEHOLDER_ARGUMENT_SEPARATOR . $this->getLangId();
         }
 
-        // COMMON
-        $placeholder = strtoupper($placeholder);
-        if ($parsedStyle) {
-            $placeholder = '{' . $placeholder . '}';
-        } else {
-            $placeholder = '[[' . $placeholder . ']]';
-        }
+        $placeholder .= static::PLACEHOLDER_SUFFIX;
 
         // ARGUMENTS
         if ($this->hasArguments()) {
