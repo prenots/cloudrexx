@@ -169,19 +169,19 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
         \LinkGenerator::parseTemplate($widgetContent);
         $this->cx->parseGlobalPlaceholders($widgetContent);
         $widgetTemplate->setTemplate($widgetContent);
-        $this->getComponent('Widget')->parseWidgets(
-            $widgetTemplate,
-            $params['get']['targetComponent'],
-            $params['get']['targetEntity'],
-            $params['get']['targetId'],
-            array($params['get']['name'])
-        );
         $params = $this->objectifyParams($params);
         $this->parseWidget(
             $params['get']['name'],
             $widgetTemplate,
             $params['response'],
             $params['get']
+        );
+        $this->getComponent('Widget')->parseWidgets(
+            $widgetTemplate,
+            $params['get']['targetComponent'],
+            $params['get']['targetEntity'],
+            $params['get']['targetId'],
+            array($params['get']['name'])
         );
         $_GET = $backupGetParams;
         $_REQUEST = $backupRequestParams;
