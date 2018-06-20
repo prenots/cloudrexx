@@ -112,7 +112,7 @@ class LinkGenerator {
         if (!preg_match_all($regex, $content, $matches)) {
             return;
         }
-
+        \DBG::msg('WARNING: Parsing legacy NODE placeholder!');
         for($i = 0; $i < count($matches[0]); $i++) {
             $nodeId = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_NODE_ID][$i]) ?$matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_NODE_ID][$i] : 0;
             $module = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_MODULE][$i]) ? strtolower($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_MODULE][$i]) : '';
