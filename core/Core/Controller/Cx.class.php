@@ -1668,7 +1668,7 @@ namespace Cx\Core\Core\Controller {
          * @param int $no Hook number
          */
         protected function legacyGlobalsHook($no) {
-            global $objFWUser, $objTemplate, $cl, $objInit, $_LANGID, $_CORELANG, $url;
+            global $objFWUser, $objTemplate, $cl, $objInit, $_LANGID, $_CORELANG, $url, $themesPages, $page_template, $section;
 
             switch ($no) {
                 case 1:
@@ -1681,6 +1681,34 @@ namespace Cx\Core\Core\Controller {
                     break;
 
                 case 2:
+                    //replace the {NODE_<ID>_<LANG>}- placeholders
+                    $themesPages = \Env::get('init')->getTemplates($this->resolvedPage);
+
+                    foreach ($themesPages as $key=>&$themesPage) {
+                        $template = new \Cx\Core_Modules\Widget\Model\Entity\Sigma(); 
+                        $template->setTemplate($themesPage);
+                        $this->getComponent('Widget')->parseWidgets(
+                            $template,
+                            '',
+                            '',
+                            ''
+                        );
+                        $themesPage = $template->get();
+                        \LinkGenerator::parseTemplate($themesPage);
+                    }
+
+                    //$page_access_id = $objResult->fields['frontend_access_id'];
+                    $page_template  = $themesPages['content'];
+
+                    // Start page or default page for no section
+                    if ($section == 'Home') {
+                        if (!\Env::get('init')->hasCustomContent()){
+                            $page_template = $themesPages['home'];
+                        } else {
+                            $page_template = $themesPages['content'];
+                        }
+                    }
+
                     // Code to set language
                     // @todo: move this to somewhere else
                     // in backend it's in Language->postResolve
