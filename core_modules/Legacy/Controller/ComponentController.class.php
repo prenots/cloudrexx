@@ -84,7 +84,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $eventArgs['content']
         );
         if ($eventName == 'View.Sigma:setVariable') {
-            // parse widgets (again)
+            // parse widgets again as Sigma does not parse placeholders /
+            // callbacks on parse()
             $template = new \Cx\Core_Modules\Widget\Model\Entity\Sigma();
             $template->setTemplate($eventArgs['content']);
             $targetComponent = '';
@@ -103,5 +104,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             );
             $eventArgs['content'] = $template->get();
         }
+        // no need to parse widgets for View.Sigma:loadContent again as
+        // Sigma parses callback functions in content on parse().
     }
 }
