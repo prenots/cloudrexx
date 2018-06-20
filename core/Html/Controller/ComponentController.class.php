@@ -71,8 +71,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @{inheritdoc}
      */
     public function registerEvents() {
-        $this->cx->getEvents()->addEvent(
+        $evm = $this->cx->getEvents();
+        $evm->addEvent(
             $this->getName() . '.ViewGenerator:initialize'
         );
+        $evm->addEvent('View.Sigma:loadContent');
+        $evm->addEvent('View.Sigma:setVariable');
     }
 }
