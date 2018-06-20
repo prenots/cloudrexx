@@ -123,3 +123,4 @@ $_ARRAYLANG['TXT_JOBS_OVERVIEW_HOT'] = "Hot";
 $_ARRAYLANG['TXT_JOBS_RECORD_UPDATE_FAILED'] = "Failed to update the changes.";
 $_ARRAYLANG['TXT_JOBS_PAID'] = "Publishing";
 $_ARRAYLANG['TXT_JOBS_PAID_LABEL'] = "Paid job offer";
+$_ARRAYLANG['TXT_JOBS_NON_PAID_LABEL'] = "Regular job offer";
