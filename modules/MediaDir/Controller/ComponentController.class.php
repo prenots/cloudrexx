@@ -378,27 +378,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $page->setContentOf($detailPage, true);
 
 
-                // ------------------------------------------------------------
-                // ------------------------------------------------------------
-                // TODO: this code snipped is taken from \Cx\Core\Routing\Resolver
-                //       the relevant code in the Resolver should be moved further down in the resolving process
-                //       so that the following code snipped can be omitted
-                global $themesPages, $page_template;
-
-                \Env::get('init')->setCustomizedTheme($page->getSkin(), $page->getCustomContent(), $page->getUseSkinForAllChannels());
-
-                $themesPages = \Env::get('init')->getTemplates($page);
-
-                //replace the {NODE_<ID>_<LANG>}- placeholders
-                \LinkGenerator::parseTemplate($themesPages);
-
-                //$page_access_id = $objResult->fields['frontend_access_id'];
-                $page_template  = $themesPages['content'];
-                // END TODO
-                // ------------------------------------------------------------
-                // ------------------------------------------------------------
-
-
                 //$page->getFallbackContentFrom($detailPage);
                 // TODO: the system should not access superglobals directly.
                 // Instead they should only be accessed by the Request object
