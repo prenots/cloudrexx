@@ -107,6 +107,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 )
             );
         }
+        $nodeWidget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
+            $this,
+            'NODE',
+            \Cx\Core_Modules\Widget\Model\Entity\Widget::TYPE_CALLBACK
+        );
+        $widgetController->registerWidget($nodeWidget);
     }
 
     /**
