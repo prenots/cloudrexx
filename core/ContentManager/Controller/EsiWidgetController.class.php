@@ -183,7 +183,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                     }
                     $filter[$key] = $value;
                 }
-                var_dump($filter) . '<br />';
                 $lang = '';
                 try {
                     if (!count($filter)) {
