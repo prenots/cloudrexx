@@ -152,7 +152,12 @@ cx.ready(function() {
 <tr class="{JOBS_CLASS}">
   <td nowrap="nowrap"><input type="checkbox" value="{JOBS_ID}" name="selectedId[]" /></td>
   <td nowrap="nowrap">{JOBS_ID}</td>
-  <td nowrap="nowrap"><img border="0" title="{JOBS_STATUS}" alt="{JOBS_STATUS}" src="images/icons/{JOBS_STATUS_PICTURE}" /></td>
+  <td nowrap="nowrap">
+    <img border="0" title="{JOBS_STATUS}" alt="{JOBS_STATUS}" src="images/icons/{JOBS_STATUS_PICTURE}" />
+    <!-- BEGIN jobs_overview_paid -->
+    <img border="0" title="{TXT_JOBS_PAID_LABEL}" alt="{TXT_JOBS_PAID_LABEL}" src="images/icons/Money.png" style="width:14px; height:14px;" />
+    <!-- END jobs_overview_paid -->
+  </td>
   <td nowrap="nowrap">{JOBS_DATE}&nbsp;</td>
   <td><a href="?cmd=jobs&act=edit&id={JOBS_ID}">{JOBS_TITLE}</a>&nbsp;</td>
   <!-- BEGIN jobs_overview_show_hot_offer -->

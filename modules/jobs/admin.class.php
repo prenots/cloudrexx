@@ -253,7 +253,7 @@ class jobsManager extends jobsLibrary
                          n.title, n.status, n.author,
                          l.name,
                          nc.name AS catname,
-                         n.userid, n.hot
+                         n.userid, n.hot, n.paid
                     FROM ".DBPREFIX."module_jobs_categories AS nc,
                          ".DBPREFIX."module_jobs AS n,
                          ".DBPREFIX."languages AS l
@@ -296,6 +296,14 @@ class jobsManager extends jobsLibrary
             ));
             if (!$isHotOfferAvailable) {
                 $this->_objTpl->hideBlock('jobs_overview_show_hot_offer');
+            }
+            if ($objResult->fields['paid']) {
+                $this->_objTpl->setVariable(array(
+                    'TXT_JOBS_PAID_LABEL' => $_ARRAYLANG['TXT_JOBS_PAID_LABEL'],
+                ));
+                $this->_objTpl->touchBlock('jobs_overview_paid');
+            } else {
+                $this->_objTpl->hideBlock('jobs_overview_paid');
             }
             $this->_objTpl->parse('row');
             $objResult->MoveNext();
