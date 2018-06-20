@@ -619,14 +619,3 @@ function getLocaleLanguageList() {
 		array('iso_1' => 'zu',	'iso_3' => 'zul',	'source' => 0),
     );
 }
-
-function dropOldLangTable() {
-    try {
-        if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
-            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX.'languages');
-        }
-    } catch (\Cx\Lib\UpdateException $e) {
-        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
-    }
-    return true;
-}

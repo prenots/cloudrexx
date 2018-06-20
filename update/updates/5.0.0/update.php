@@ -1057,6 +1057,7 @@ function executeContrexxUpdate() {
         }
     }
 
+
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1232,6 +1233,7 @@ function executeContrexxUpdate() {
     \Cx\Lib\UpdateUtil::sql('UPDATE `'. DBPREFIX .'modules` SET `is_licensed` = 1');
     // deactivate blog
     \Cx\Lib\UpdateUtil::sql('UPDATE `'. DBPREFIX .'modules` SET `is_licensed` = 0 WHERE `name` = \'Blog\'');
+
 
     ////////////////
     // END UPDATE //
@@ -3169,6 +3171,17 @@ function moduleExists($name) {
         return true;
     }
     return false;
+}
+
+function dropOldLangTable() {
+    try {
+        if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'languages')) {
+            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX.'languages');
+        }
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+    }
+    return true;
 }
 
 class License {

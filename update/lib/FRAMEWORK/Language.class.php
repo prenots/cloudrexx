@@ -106,23 +106,23 @@ class FWLanguage
             $objFrontendResult = $objDatabase->Execute('SELECT theme, channel FROM '.DBPREFIX.'core_view_frontend WHERE language = '.$objLocaleResult->fields['id']);
             while (!$objFrontendResult->EOF) {
                 switch ($objFrontendResult->fields['channel']) {
-                    case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_MOBILE:
+                    case 'mobile':
                         $mobileThemeId = $objFrontendResult->fields['theme'];
                         break;
-                    case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_PRINT:
+                    case 'print':
                         $printThemeId = $objFrontendResult->fields['theme'];
                         break;
-                    case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_PDF:
+                    case 'pdf':
                         $pdfThemeId = $objFrontendResult->fields['theme'];
                         break;
-                    case \Cx\Core\View\Model\Entity\Theme::THEME_TYPE_APP:
+                    case 'app':
                         $appThemeId = $objFrontendResult->fields['theme'];
                         break;
                     default: // web
                         $themeId = $objFrontendResult->fields['theme'];
                         break;
                 }
-                $objLocaleResult->moveNext();
+                $objFrontendResult->moveNext();
             }
             // check if locale is default
             $isFrontendDefault = $objLocaleResult->fields['id'] == $_CONFIG['defaultLocaleId'];
