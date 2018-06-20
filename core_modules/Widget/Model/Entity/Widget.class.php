@@ -96,9 +96,6 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
                     if (!$template) {
                         throw new \Exception('Wrong argument list for callback for widget "' . $this->getName() . '"');
                     }
-                    if (!$template->getParseTarget()) {
-                        throw new \Exception('In order to use widgets of type "callback" you need to set a parse target to your Sigma template');
-                    }
                     // Since we parse callback Widgets as placeholders we
                     // need to supply an appropriate template
                     $parseTemplate = new \Cx\Core\Html\Sigma();
@@ -106,9 +103,9 @@ abstract class Widget extends \Cx\Model\Base\EntityBase {
                     $this->parse(
                         $parseTemplate,
                         $this->cx->getResponse(),
-                        $template->getParseTarget()->getSystemComponent()->getName(),
-                        get_class($template->getParseTarget()),
-                        $template->getParseTarget()->getId(),
+                        null,
+                        '',
+                        '',
                         $args
                     );
                     return $parseTemplate->get();
