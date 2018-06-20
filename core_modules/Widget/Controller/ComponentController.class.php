@@ -42,7 +42,7 @@ namespace Cx\Core_Modules\Widget\Controller;
  * @package cloudrexx
  * @subpackage coremodules_widget
  */
-class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController implements \Cx\Core\Event\Model\Entity\EventListener {
 
     /**
      * List of widgets
@@ -50,6 +50,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @var array
      */
     protected $widgets = array();
+
+    /**
+     * Used to prevent endless recursion
+     * @var bool
+     */
+    protected $lock = false;
 
     /**
      * get controller classes
@@ -251,5 +257,37 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     {
         $eventListener = new \Cx\Core_Modules\Widget\Model\Event\WidgetEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('clearEsiCache', $eventListener);
+        $this->cx->getEvents()->addEventListener('View.Sigma:loadContent', $this);
+        $this->cx->getEvents()->addEventListener('View.Sigma:setVariable', $this);
+    }
+
+    /**
+     * Triggered on View.Sigma:loadContent and View.Sigma:setVariable
+     * @param string $eventName Name of the event
+     * @param array $eventArgs Arguments supplied by the event
+     */
+    public function onEvent($eventName, array $eventArgs) {
+        if ($this->lock) {
+            return;
+        }
+        $this->lock = true;
+        $template = new \Cx\Core_Modules\Widget\Model\Entity\Sigma();
+        $template->setTemplate($eventArgs['content']);
+        $targetComponent = '';
+        $targetEntity = '';
+        $targetId = '';
+        if ($template->getParseTarget()) {
+            $targetComponent = $template->getParseTarget()->getSystemComponent()->getName();
+            $targetEntity = get_class($template->getParseTarget());
+            $targetId = $template->getParseTarget()->getId();
+        }
+        $this->getComponent('Widget')->parseWidgets(
+            $template,
+            $targetComponent,
+            $targetEntity,
+            $targetId
+        );
+        $eventArgs['content'] = $template->get();
+        $this->lock = false;
     }
 }
