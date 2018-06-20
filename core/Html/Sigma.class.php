@@ -186,7 +186,7 @@ class Sigma extends \HTML_Template_Sigma {
         }
 
         // Renew variable list
-        return $this->_buildBlockVariables();
+        return $this->_buildBlockVariables($block);
     }
 
     /**
