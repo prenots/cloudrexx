@@ -1685,14 +1685,17 @@ namespace Cx\Core\Core\Controller {
                         //replace the {NODE_<ID>_<LANG>}- placeholders
                         $themesPages = \Env::get('init')->getTemplates($this->resolvedPage);
 
+                        $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
+                        $themeId = \Env::get('init')->getCurrentThemeId();
+                        $theme = $themeRepo->findById($themeId);
                         foreach ($themesPages as $key=>&$themesPage) {
                             $template = new \Cx\Core_Modules\Widget\Model\Entity\Sigma(); 
                             $template->setTemplate($themesPage);
                             $this->getComponent('Widget')->parseWidgets(
                                 $template,
-                                '',
-                                '',
-                                ''
+                                $theme->getSystemComponent()->getName(),
+                                get_class($theme),
+                                $theme->getId()
                             );
                             $themesPage = $template->get();
                             \LinkGenerator::parseTemplate($themesPage);
