@@ -219,6 +219,37 @@ class jobsManager extends jobsLibrary
                 '</select>';
         }
 
+        // parse paid filter
+        $jobsPaidOptions = array(
+            ''          => $_ARRAYLANG['TXT_JOBS_PAID'],
+            'paid'      => $_ARRAYLANG['TXT_JOBS_PAID_LABEL'],
+            'non_paid'  => $_ARRAYLANG['TXT_JOBS_NON_PAID_LABEL'],
+        );
+        $paidFilter = '';
+        $jobsPaidSelection = '';
+        if (
+            !empty($_REQUEST['jobs_paid']) &&
+            in_array($_REQUEST['jobs_paid'], array_keys($jobsPaidOptions))
+        ) {
+            $jobsPaidSelection = $_REQUEST['jobs_paid'];
+
+            if ($jobsPaidSelection == 'paid') {
+                $paidFilter = " n.paid='1' AND ";
+            } else {
+                $paidFilter = " n.paid='0' AND ";
+            }
+        }
+        $paidForm = '<select name="jobs_paid">';
+        foreach ($jobsPaidOptions as $option => $label) {
+            $selected = '';
+            if ($jobsPaidSelection == $option) {
+                $selected = ' selected="selected" ';
+            }
+            $paidForm .= '<option value="' . $option . '"' . $selected . '>' .
+                $label . '</option>';
+        }
+        $paidForm .= '</select>';
+
         //Hide the column 'Hot' if the settings options 'templateIntegration' and 'sourceOfJobs' are active
         $isHotOfferAvailable = (    isset($settings['templateIntegration']) 
                                 &&  ($settings['templateIntegration'] == 1) 
@@ -244,6 +275,7 @@ class jobsManager extends jobsLibrary
         $this->_objTpl->setVariable(array(
             'JOBS_CATEGORY_FORM' => $jobscategoryform,
             'JOBS_LOCATION_FORM' => $jobslocationform,
+            'JOBS_PAID_FORM' => $paidForm,
             'TXT_SUBMIT' => $_ARRAYLANG['TXT_SUBMIT']
         ));
         $this->_objTpl->setGlobalVariable(array(
@@ -253,19 +285,19 @@ class jobsManager extends jobsLibrary
                          n.title, n.status, n.author,
                          l.name,
                          nc.name AS catname,
-                         n.userid, n.hot
+                         n.userid, n.hot, n.paid
                     FROM ".DBPREFIX."module_jobs_categories AS nc,
                          ".DBPREFIX."module_jobs AS n,
                          ".DBPREFIX."languages AS l
                          $locationFilter
                          n.lang=l.id
                      AND n.lang=$this->langId
-                     AND $docFilter nc.catid=n.catid
+                     AND $docFilter $paidFilter nc.catid=n.catid
                    ORDER BY " . ($isHotOfferAvailable ? 'n.hot DESC,' : '') . " n.id DESC";
         $objResult = $objDatabase->Execute($query);
         $count = $objResult->RecordCount();
         $pos = (isset($_GET['pos'])) ? intval($_GET['pos']) : 0;
-        $paging = ($count>intval($_CONFIG['corePagingLimit'])) ? getPaging($count, $pos, "&cmd=jobs&location=".$location."&category=".$category."&", $_ARRAYLANG['TXT_DOCUMENTS '],true) : "";
+        $paging = ($count>intval($_CONFIG['corePagingLimit'])) ? getPaging($count, $pos, "&cmd=jobs&location=".$location."&category=".$category."&jobs_paid=".$jobsPaidSelection."&", $_ARRAYLANG['TXT_DOCUMENTS '],true) : "";
         $objResult = $objDatabase->SelectLimit($query, $_CONFIG['corePagingLimit'],$pos);
         if (!$objResult || $objResult->EOF) {
             $this->_objTpl->hideBlock('row');
@@ -296,6 +328,14 @@ class jobsManager extends jobsLibrary
             ));
             if (!$isHotOfferAvailable) {
                 $this->_objTpl->hideBlock('jobs_overview_show_hot_offer');
+            }
+            if ($objResult->fields['paid']) {
+                $this->_objTpl->setVariable(array(
+                    'TXT_JOBS_PAID_LABEL' => $_ARRAYLANG['TXT_JOBS_PAID_LABEL'],
+                ));
+                $this->_objTpl->touchBlock('jobs_overview_paid');
+            } else {
+                $this->_objTpl->hideBlock('jobs_overview_paid');
             }
             $this->_objTpl->parse('row');
             $objResult->MoveNext();
