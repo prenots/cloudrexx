@@ -1688,7 +1688,7 @@ namespace Cx\Core\Core\Controller {
                         $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
                         $themeId = \Env::get('init')->getCurrentThemeId();
                         $theme = $themeRepo->findById($themeId);
-                        foreach ($themesPages as $key=>&$themesPage) {
+                        foreach ($themesPages as &$themesPage) {
                             $template = new \Cx\Core_Modules\Widget\Model\Entity\Sigma(); 
                             $template->setTemplate($themesPage);
                             $this->getComponent('Widget')->parseWidgets(
