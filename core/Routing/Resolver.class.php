@@ -431,7 +431,9 @@ class Resolver {
                 $componentController->resolve($parts, $this->page);
             }
         }
-        \Env::get('init')->setCustomizedTheme($page->getSkin(), $page->getCustomContent(), $page->getUseSkinForAllChannels());
+        if ($isRegularPageRequest) {
+            \Env::get('init')->setCustomizedTheme($page->getSkin(), $page->getCustomContent(), $page->getUseSkinForAllChannels());
+        }
         $canonicalPage = $this->page;
         if (
             $this->urlPage &&
