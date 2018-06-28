@@ -177,6 +177,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                 $widgetValue  = $modifiedDate->format(ASCMS_DATE_FORMAT_DATE);
                 break;
             case 'NODE':
+                $filter = array();
                 foreach ($params as $key=>$value) {
                     if (!is_int($key)) {
                         continue;
@@ -188,46 +189,22 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                     if (!count($filter)) {
                         throw new \Exception();
                     }
-                    // [[NODE_17]]
-                    if (is_numeric($filter[0])) {
-                        if (count($filter) != 1) {
-                            throw new \Exception();
-                        }
-                        $url = \Cx\Core\Routing\Url::fromNodeId($filter[0]);
-
-                    // [[NODE_CALENDAR(...)]]
-                    } else {
-                        if (count($filter) < 1) {
-                            throw new \Exception();
-                        }
-                        $module = $filter[0];
-                        $cmd = '';
-                        if (
-                            isset($filter[1]) &&
-                            (
-                                !is_numeric($filter[1]) ||
-                                isset($filter[2])
-                            )
-                        ) {
-                            $cmd = $filter[1];
-                        }
-                        // lang
-                        if (isset($filter[2])) {
-                            $lang = $filter[2];
-                        } else if (
-                            isset($filter[1]) &&
-                            is_numeric($filter[1]) &&
-                            !isset($filter[2])
-                        ) {
-                            $lang = $filter[1];
-                        }
-                        $url = \Cx\Core\Routing\Url::fromModuleAndCmd($module, $cmd, $lang);
+                    $placeholder = \Cx\Core\Routing\NodePlaceholder::fromPlaceholder(
+                        \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_PREFIX .
+                        implode(',', $filter) .
+                        \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_SUFFIX
+                    );
+                    $page = $placeholder->getPage();
+                    if (!$page) {
+                        throw new \Exception('nopage');
                     }
+                    $widgetValue = \Cx\Core\Routing\Url::fromPage($page)->toString();
                 } catch (\Exception $e) {
-                    throw $e;
-                    $url = \Cx\Core\Routing\Url::fromModuleAndCms('Error', '', $lang);
+                    $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Error'
+                    );
+                    $widgetValue = $url->toString();
                 }
-                $widgetValue = $url->toString();
                 break;
         }
         $template->setVariable($name, $widgetValue);
