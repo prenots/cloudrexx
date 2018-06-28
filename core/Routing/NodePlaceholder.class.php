@@ -186,10 +186,12 @@ class NodePlaceholder {
         $placeholder = preg_replace('/\\}/', ']]', $placeholder);
         $matches = array();
 
+        $legacy = false;
         if (!preg_match('/' . static::NODE_URL_PCRE.'(\S*)?/ix', $placeholder, $matches)) {
             if (!preg_match('/\[\['.static::LEGACY_NODE_URL_PCRE.'\]\](\S*)?/ix', $placeholder, $matches)) {
                 throw new NodePlaceholderException('Invalid placeholder format: ' . $placeholder);
             }
+            $legacy = true;
         }
 
         $nodeId      = empty($matches[static::NODE_URL_NODE_ID]) ? 0   : $matches[static::NODE_URL_NODE_ID];
@@ -198,7 +200,16 @@ class NodePlaceholder {
         $langId      = empty($matches[static::NODE_URL_LANG_ID]) ? 0   : $matches[static::NODE_URL_LANG_ID];
         $queryString = empty($matches[6]) ? '' : $matches[6];
 
-        return static::fromInfo($nodeId, $module, $cmd, $langId, $queryString);
+        if ($legacy && empty($cmd) && $langId > 0) {
+            $cmd = $langId;
+            $langId = 0;
+        }
+
+        try {
+            return static::fromInfo($nodeId, $module, $cmd, $langId, $queryString);
+        } catch (NodePlaceholderException $e) {
+            return static::fromInfo(0, 'Error');
+        }
     }
 
     /**
@@ -241,19 +252,24 @@ class NodePlaceholder {
         if (!$nodeId && empty($module)) {
             throw new NodePlaceholderException('You have to specify at least a node ID or a module name');
         }
+        //echo 'Find node for nodeId=' . $nodeId . ', module=' . $module . ', cmd=' . $cmd . ', lang=' . $lang . PHP_EOL;
         $em = \Env::get('cx')->getDb()->getEntityManager();
         $nodeRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Node');
         $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         if ($nodeId) {
             $node = $nodeRepo->findOneById($nodeId);
         } else {
+            if (!$lang) {
+                $lang = FRONTEND_LANG_ID;
+            }
             $page = $pageRepo->findOneBy(array(
                 'module' => $module,
                 'cmd' => $cmd,
+                'lang' => $lang,
             ));
             if (!$page) {
                 // if ignore errors: create virtual node (virtual nodes do not exist yet)
-                throw new NodePlaceholderException('Could not find node for ' . $module . '/' . $cmd);
+                throw new NodePlaceholderException('Could not find node for module=' . $module . ', cmd=' . $cmd . ', lang=' . $lang);
             }
             $node = $page->getNode();
         }
