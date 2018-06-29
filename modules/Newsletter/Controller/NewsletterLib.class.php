@@ -593,11 +593,11 @@ class NewsletterLib
                 $html .= "<br />";
             }
 
-            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" /><br /><br />'."\n";
+            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" />'."\n";
             // Show a AGB terms and conditions based on settings
             $arrSettings = $this->_getSettings();
             if ($arrSettings['agbTermsConditions']['setvalue'] == 1) {
-                $html .= '<input type="checkbox" name="agbPrivacyStatement" id="agbPrivacyStatement" /><label>'. $_ARRAYLANG['TXT_NEWSLETTER_AGB'] ."</label><br />\n";
+                $html .= '<label><input type="checkbox" name="agbPrivacyStatement" id="agbPrivacyStatement" />'. $_ARRAYLANG['TXT_NEWSLETTER_AGB'] ."</label><br />\n";
                 $script .=
                 "<script>
 jQuery('input[name=\"recipient_save\"]').click(function(e){
