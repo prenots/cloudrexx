@@ -272,9 +272,9 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
     }
 
     /**
-     * @todo Use param $page (to update a page without prividing an id per GET)
+     * @todo Use param $page (to update a page without providing an id per GET)
      */
-    function _modifyAlias($array, $page = null)
+    function _modifyAlias(array $array, $page = null)
     {
         global $_ARRAYLANG, $_CONFIG;
 
@@ -300,7 +300,11 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
             }
 
             // set target and -type
-            $newtype   = preg_match('/\[\['.\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_PCRE.'\]\](\S*)?/ix', $array['alias_target']) ? 'local' : 'url';
+            $newtype = 'url';
+            if (\Cx\Core\Routing\NodePlaceholder::containsPlaceholder($array['alias_target'])) {
+                $newtype = 'local';
+            }
+
             $newtarget = !empty($array['alias_target']) ? trim(contrexx_stripslashes($array['alias_target'])) : '';
 
             // handle existing slugs pointing to the target
@@ -427,8 +431,26 @@ class AliasManager extends \Cx\Core_Modules\Alias\Controller\AliasLib
             // alias points to a local webpage
             $targetPage = $this->_fetchTarget($alias);
             if ($targetPage) {
-                preg_match('/\[\['.\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_PCRE.'\]\](\S*)?/ix', $target, $matches);
-                $targetURL = ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] . ASCMS_PATH_OFFSET . $this->_getURL($targetPage) . $matches[6];
+                $placeholder = \Cx\Core\Routing\NodePlaceholder::fromPlaceholder(
+                    $target
+                );
+                $targetURL = ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] .
+                    ASCMS_PATH_OFFSET . $this->_getURL($targetPage);
+                if ($placeholder->hasArguments()) {
+                    $targetURL .= '?';
+                    $fist = true;
+                    foreach ($placeholder->getArguments() as $key=>$value) {
+                        if (!$first) {
+                            $targetUrl .= '&';
+                        } else {
+                            $first = false;
+                        }
+                        $targetUrl .= $key . '=' . $value;
+                    }
+                }
+                if ($placeholder->hasAnchor()) {
+                    $targetUrl .= '#' . $placeholder->getAnchor();
+                }
             }
         } else {
             $targetURL = $target;
