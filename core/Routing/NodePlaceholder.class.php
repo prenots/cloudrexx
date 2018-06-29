@@ -181,6 +181,20 @@ class NodePlaceholder {
     protected $anchor;
 
     /**
+     * Tells whether a string contains a node placeholder
+     * @return boolean True if $string contains a node placeholder
+     */
+    public static function containsPlaceholder(string $string) : bool {
+        return preg_match(
+            '/' . static::NODE_URL_PCRE . '/ix',
+            $this->target
+        ) || preg_match(
+            '/' . static::LEGACY_NODE_URL_PCRE . '/ix',
+            $this->target
+        );
+    }
+
+    /**
      * Create instance from string placeholder ([[NODE_...]] or {NODE_...})
      *
      * @param string $placeholder Any placeholder according to specification
