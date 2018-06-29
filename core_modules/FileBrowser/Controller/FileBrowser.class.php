@@ -431,18 +431,17 @@ class FileBrowser {
                         }
                     }
 
-                    $url = "'" . '[[' . \Cx\Core\ContentManager\Model\Entity\Page::PLACEHOLDER_PREFIX;
+                    $url = '\'' . \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_PREFIX;
 
 // TODO: This only works for regular application pages. Pages of type fallback that are linked to an application
 //       will be parsed using their node-id ({NODE_<ID>})
                     if (($arrPage['type'] == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION) && ($this->_mediaMode !== 'alias')) {
                         $url .= $arrPage['modulename'];
                         if (!empty($arrPage['cmd'])) {
-                            $url .= '_' . $arrPage['cmd'];
+                            $url .= \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_ARGUMENT_SEPARATOR . $arrPage['cmd'];
                         }
 
-                        $url = strtoupper($url);
-                    } else {
+                        $url = strtoupper($url); } else {
                         $url .= $arrPage['node_id'];
                     }
 
@@ -450,9 +449,9 @@ class FileBrowser {
                     if ($this->_frontendLanguageId != $_FRONTEND_LANGID ||
                             (isset($_GET['alwaysReturnLanguage']) &&
                             $_GET['alwaysReturnLanguage'] == 'true')) {
-                        $url .= '_' . $this->_frontendLanguageId;
+                        $url .= \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_ARGUMENT_SEPARATOR . $this->_frontendLanguageId;
                     }
-                    $url .= "]]'";
+                    $url .= \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_SUFFIX . '\'';
 
                     $this->_objTpl->setVariable(array(
                         'FILEBROWSER_ROW_CLASS'         => $rowNr%2 == 0 ? "row1" : "row2",
