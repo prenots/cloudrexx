@@ -175,6 +175,12 @@ class NodePlaceholder {
     protected $arguments;
 
     /**
+     * Anchor
+     * @var string
+     */
+    protected $anchor;
+
+    /**
      * Create instance from string placeholder ([[NODE_...]] or {NODE_...})
      *
      * @param string $placeholder Any placeholder according to specification
@@ -216,10 +222,11 @@ class NodePlaceholder {
      * Create a placeholder for a page object
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page Page to get placeholder for
      * @param array $arguments (optional) Query arguments in the form array($key=>$value)
+     * @param string $anchor Anchor
      * @return \Cx\Core\Routing\NodePlaceholder
      */
-    public static function fromPage(\Cx\Core\ContentManager\Model\Entity\Page$page, array $arguments = array()) {
-        return new static ($page->getNode(), $page->getLang(), $arguments);
+    public static function fromPage(\Cx\Core\ContentManager\Model\Entity\Page $page, array $arguments = array(), string $anchor = '') {
+        return new static ($page->getNode(), $page->getLang(), $arguments, $anchor);
     }
 
     /**
@@ -229,10 +236,11 @@ class NodePlaceholder {
      * @param \Cx\Core\ContentManager\Model\Entity\Node $node Node to get placeholder for
      * @param int $lang (optional) Language ID or 0, default 0
      * @param array $arguments (optional) Query arguments in the form array($key=>$value)
+     * @param string $anchor Anchor
      * @return \Cx\Core\Routing\NodePlaceholder
      */
-    public static function fromNode(\Cx\Core\ContentManager\Model\Entity\Node $node, $lang = 0, array $arguments = array()) {
-        return new static($node, $lang, $arguments);
+    public static function fromNode(\Cx\Core\ContentManager\Model\Entity\Node $node, $lang = 0, array $arguments = array(), string $anchor = '') {
+        return new static($node, $lang, $arguments, $anchor);
     }
 
     /**
@@ -278,11 +286,16 @@ class NodePlaceholder {
             throw new NodePlaceholderException('Could not find node');
         }
         $arguments = array();
+        $anchor = '';
         if (!empty($queryString)) {
             if (substr($queryString, 0, 1) == '?') {
                 $queryString = substr($queryString, 1);
             }
-            $parts = explode('&', $queryString);
+            $anchorParts = explode('#', $queryString, 2);
+            if (count($anchorParts) == 2) {
+                $anchor = $anchorParts[1];
+            }
+            $parts = explode('&', $anchorParts[0]);
             foreach ($parts as $part) {
                 $part = explode('=', $part);
                 if (!isset($part[1])) {
@@ -291,7 +304,7 @@ class NodePlaceholder {
                 $arguments[$part[0]] = $part[1];
             }
         }
-        return new static($node, $lang, $arguments);
+        return new static($node, $lang, $arguments, $anchor);
     }
 
     /**
@@ -300,10 +313,11 @@ class NodePlaceholder {
      * @param int $lang Language ID or 0
      * @param array $arguments Query arguments in the form array($key=>$value)
      */
-    protected function __construct(\Cx\Core\ContentManager\Model\Entity\Node $node, $lang, array $arguments) {
+    protected function __construct(\Cx\Core\ContentManager\Model\Entity\Node $node, $lang, array $arguments, string $anchor) {
         $this->node = $node;
         $this->lang = $lang;
         $this->arguments = $arguments;
+        $this->anchor = $anchor;
     }
 
     /**
@@ -413,6 +427,22 @@ class NodePlaceholder {
     }
 
     /**
+     * Tells whether an anchor was captured
+     * @return bool True if this NodePlaceholder contains an anchor
+     */
+    public function hasAnchor() : bool {
+        return empty($this->anchor);
+    }
+
+    /**
+     * Returns the captured anchor. If there's none, an empty string is returned
+     * @return string Captured anchor
+     */
+    public function getAnchor() : string {
+        return $this->anchor;
+    }
+
+    /**
      * Returns the Url pointing to the same location as this placeholder
      * @return \Cx\Core\Routing\Url Url pointing the same location as this placeholder
      */
@@ -459,6 +489,9 @@ class NodePlaceholder {
                 $parts[] = $key . '=' . $value;
             }
             $placeholder .= '?' . implode('&', $parts);
+        }
+        if ($this->hasAnchor()) {
+            $placeholder .= '#' . $this->getAnchor();
         }
         return $placeholder;
     }
