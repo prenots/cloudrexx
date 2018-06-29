@@ -202,12 +202,12 @@ class NodePlaceholder {
      * @throws NodePlaceholderException If format is not valid
      */
     public static function fromPlaceholder($placeholder) {
-        $placeholder = preg_replace('/\\{/', '[[', $placeholder);
-        $placeholder = preg_replace('/\\}/', ']]', $placeholder);
         $matches = array();
 
         $legacy = false;
         if (!preg_match('/' . static::NODE_URL_PCRE.'(\S*)?/ix', $placeholder, $matches)) {
+            $placeholder = preg_replace('/\\{/', '[[', $placeholder);
+            $placeholder = preg_replace('/\\}/', ']]', $placeholder);
             if (!preg_match('/\[\['.static::LEGACY_NODE_URL_PCRE.'\]\](\S*)?/ix', $placeholder, $matches)) {
                 throw new NodePlaceholderException('Invalid placeholder format: ' . $placeholder);
             }
