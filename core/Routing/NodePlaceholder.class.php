@@ -158,7 +158,7 @@ class NodePlaceholder {
 
     /**
      * Node this placeholder points to
-     * @var Cx\Core\ContentManager\Model\Entity\Node
+     * @var \Cx\Core\ContentManager\Model\Entity\Node
      */
     protected $node;
 
