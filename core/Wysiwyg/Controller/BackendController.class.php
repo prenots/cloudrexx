@@ -328,9 +328,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'title' => array(
                     'header' => $_ARRAYLANG['TXT_' . strtoupper($this->getType() . '_' . $this->getName() . '_ACT_' . $classIdentifier) . '_TITLE'],
                     'table' => array(
-                        'parse' => function($data, $rows, $options) {
+                        'parse' => function($data, $rows) {
                             $editUrl = clone \Env::get('cx')->getRequest()->getUrl();
-                            $editUrl->setParam('editid', '{' . $options['functions']['vg_increment_number'] . ',' . $rows['id'] . '}');
+                            // TODO: instead of passing 0 as VG instance-ID, do
+                            // use the actual instance-ID.
+                            // Fix todo as soon as the instance-ID is avaiable
+                            $editUrl->setParam('editid', '{0,' . $rows['id'] . '}');
                             $data = '<a href="' . $editUrl . '" title="'.$data.'">'.$data.'</a>';
                             return $data;
                         },
