@@ -1840,6 +1840,13 @@ class Config
     public static function init($configPath = null, $forceMigration = false) {
         // fetch $_CONFIG data from settings.php file will be used for migration
         // of basic configuration from contrexx_settings to \Cx\Core\Setting
+        // TODO: only perform this operation not before the preInit hook
+        //       has been completed to ensure the correct settings.php file
+        //       will be loaded.
+        //       Extend call to fetchConfigFromSettingsFile() by ensuring
+        //       that static::getSettingsFile() is related to $configPath.
+        //       Meaning that both files (configuration.php and settings.php)
+        //       must be located in the same directory.
         $existingConfig = static::fetchConfigFromSettingsFile(
             static::getSettingsFile()
         );
