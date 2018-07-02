@@ -461,7 +461,12 @@ function executeContrexxUpdate() {
         // Migrate content
         if (empty($_SESSION['contrexx_update']['content_migrated'])) {
             DBG::msg('Migrate content');
-            $status = $contentMigration->migrate();
+            try {
+                $status = $contentMigration->migrate();
+            } catch (\Exception $e) {
+                \DBG::dump($e->getMessage());
+                return false;
+            }
 
             if ($status === true) {
                 $_SESSION['contrexx_update']['content_migrated'] = true;
