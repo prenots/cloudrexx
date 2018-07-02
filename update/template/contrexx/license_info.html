@@ -49,7 +49,7 @@
     <h1 class="first">{TXT_UPDATE_LICENSE_MODEL}</h1>
     Zurzeit verwenden Sie Contrexx <strong>{UPDATE_EDITION}</strong> Version <strong>{UPDATE_VERSION}</strong>.<br />
     <br />
-    Mit der Ausführung dieses Updatevorgangs wird Ihre aktuelle Contrexx Installation auf die Edition <strong>Contrexx 4</strong> (entspricht vollem Leistungsumfang) migriert.<br /><br />
+    Mit der Ausführung dieses Updatevorgangs wird Ihre aktuelle Contrexx Installation auf die Software <strong>Cloudrexx Download</strong> (Version: {UPDATE_NEW_VERSION}) migriert.<br /><br />
     
     <!-- BEGIN update_license_choose -->
     <script type="text/javascript">
@@ -195,11 +195,11 @@ der Cloudrexx AG<br /> gelesen und akzeptiere diese<strong class="is_required">*
     
     <!-- BEGIN update_license_existing -->
     <p>
-        Ihre existierende Non-Profit- oder Business-Lizenz wird auf diese Installation
+        Ihre existierende Non-Profit- oder Business-Lizenz wird in eine <a href="https://www.cloudrexx.com/de/Preise/Download">EULA</a> umgewandelt und auf diese Installation
         übernommen.
     </p>
     <p>
-        <input class="contactFormClass_checkbox" id="agb" type="checkbox" name="agb" value="1" />
+        <input class="contactFormClass_checkbox" id="agb" type="checkbox" name="agb" value="1" {UPDATE_LICENSE_INFO_CHECKED} />
         <label for="agb">Ich habe die vorliegenden Informationen verstanden und bin damit einverstanden.</label> 
     </p>
 

@@ -97,7 +97,20 @@ $em = \Cx\Core\Model\Controller\EntityManager::create($connectionOptions, $confi
 
 //resolve enum, set errors
 $conn = $em->getConnection();
-$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-$conn->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
+foreach (array('enum', 'timestamp') as $type) {
+    \Doctrine\DBAL\Types\Type::addType(
+        $type,
+        'Cx\Core\Model\Model\Entity\\' . ucfirst($type) . 'Type'
+    );
+    $conn->getDatabasePlatform()->registerDoctrineTypeMapping(
+        $type,
+        $type
+    );
+}
+$conn->getDatabasePlatform()->registerDoctrineTypeMapping(
+    'set',
+    'string'
+);
+\Cx\Core\Model\Controller\YamlDriver::registerKnownEnumTypes($conn);
 
 Env::setEm($em);

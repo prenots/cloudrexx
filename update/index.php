@@ -49,7 +49,10 @@ require_once dirname(__FILE__).'/lib/FRAMEWORK/DBG/DBG.php';
 // the update has some issues when not directly requesting
 // the index.php script
 if (strpos($_SERVER['REQUEST_URI'], 'index.php') === false) {
-    header('Location: ' . $_SERVER['PHP_SELF']);
+    // strip double slashes from script path
+    // (this is a bugfix for legacy cx rewrite rules)
+    $uri = preg_replace('#/+#', '/', $_SERVER['PHP_SELF']);
+    header('Location: ' . $uri);
     exit;
 }
 
@@ -60,28 +63,120 @@ if (!empty($_GET['check_timeout'])) {
     die('1');
 }
 
-// Try to enable APC
-$apcEnabled = false;
-if (extension_loaded('apc')) {
-    if (ini_get('apc.enabled')) {
-        $apcEnabled = true;
-    } else {
-        ini_set('apc.enabled', 1);
-        if (ini_get('apc.enabled')) {
-            $apcEnabled = true;
-        }
+function updateCheckOPCache($engine, $disable = false) {
+    $opCacheEnabled = false;
+    switch ($engine) {
+        case 'opcache':
+            if (
+                // check if extension is loaded
+                (
+                    extension_loaded('opcache') ||
+                    extension_loaded('Zend OPcache')
+                ) &&
+                // try to enable extension if it's not enabled yet
+                (
+                    ini_get('opcache.enable') ||
+                    ini_set('opcache.enable', 1)
+                ) &&
+                // check if extension is enabled
+                ini_get('opcache.enable') &&
+                // check if extension is properly configured
+                ini_get('opcache.save_comments') &&
+                (
+                    ini_get('opcache.load_comments') === false || 
+                    ini_get('opcache.load_comments')
+                )
+            ) {
+                $opCacheEnabled = true;
+            } elseif (ini_get('opcache.enable')) {
+                updateDisableOPCache($engine);
+            }
+            break;
+
+        case 'apc':
+            if (extension_loaded('apc')) {
+                if (ini_get('apc.enabled')) {
+                    $opCacheEnabled = true;
+                } else {
+                    ini_set('apc.enabled', 1);
+                    if (ini_get('apc.enabled')) {
+                        $opCacheEnabled = true;
+                    }
+                }
+            }
+            break;
+
+        case 'xcache':
+            if (
+                extension_loaded('xcache') &&
+                (
+                    ini_get('xcache.cacher') ||
+                    ini_set('xcache.cacher', 1)
+                ) &&
+                ini_get('xcache.cacher') &&
+                ini_get('xcache.size') > 0
+            ) {
+                $opCacheEnabled = true;
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return $opCacheEnabled;
+}
+
+function updateDisableOPCache($engine) {
+    switch ($engine) {
+        case 'eaccelerator':
+            if (extension_loaded('eaccelerator')) {
+                ini_set('eaccelerator.enable', 0);
+                ini_set('eaccelerator.optimizer', 0);
+            }
+            break;
+
+        case 'opcache':
+            ini_set('opcache.enable', 0);
+            break;
+
+        case 'apc':
+            ini_set('apc.cache_by_default', 0);
+            break;
+
+        case 'xcache':
+            ini_set('xcache.cacher', 0);
+            break;
     }
 }
 
-// Disable eAccelerator if active
-if (extension_loaded('eaccelerator')) {
-    ini_set('eaccelerator.enable', 0);
-    ini_set('eaccelerator.optimizer', 0);
+// init op cache config
+global $opCacheEnabled, $opCacheEngine;
+$opCacheEnabled = false;
+$opCacheEngine = '';
+$opCacheEngineList = array('eaccelerator', 'opcache', 'apc', 'xcache');
+
+// check if any op cache is available and can be used
+foreach ($opCacheEngineList as $engine) {
+    $opCacheEnabled = updateCheckOPCache($engine);
+    if ($opCacheEnabled) {
+        $opCacheEngine = $engine;
+        break;
+    }
+}
+
+// disable unused caches
+foreach ($opCacheEngineList as $engine) {
+    // skip enabled op cache
+    if ($engine == $opCacheEnabled) {
+        continue;
+    }
+    updateDisableOPCache($engine);
 }
 
 // Try to set required memory_limit if not enough
 preg_match('/^\d+/', ini_get('memory_limit'), $memoryLimit);
-if ($apcEnabled) {
+if ($opCacheEnabled) {
     if ($memoryLimit[0] < 32) {
         ini_set('memory_limit', '32M');
     }

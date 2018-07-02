@@ -130,6 +130,28 @@ function _mediadirUpdate()
                     'cmd'                        => array('type' => 'VARCHAR(50)', 'after' => 'entries_per_page')
                 )
             );
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_mediadir_entry_associated_entry',
+                array(
+                    'source_entry_id'    => array('type' => 'INT(11)', 'unsigned' => true),
+                    'target_entry_id'    => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'source_entry_id'),
+                    'ord'                => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'target_entry_id')
+                ),
+                array(
+                    'ord'                => array('fields' => array('ord'))
+                )
+            );
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_mediadir_form_associated_form',
+                array(
+                    'source_form_id'     => array('type' => 'INT(11)', 'unsigned' => true),
+                    'target_form_id'     => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'source_form_id'),
+                    'ord'                => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'target_form_id')
+                ),
+                array(
+                    'ord'                => array('fields' => array('ord'))
+                )
+            );
         }
 
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
@@ -602,7 +624,7 @@ Diese Nachricht wurde am [[DATE]] automatisch von Contrexx auf http://[[URL]] ge
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('22', 'relation', '0', '0', '0', '0', 'developed for OSEC (unstable)')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('23', 'relation_group', '0', '0', '0', '0', 'developed for OSEC (unstable)')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('24', 'accounts', '0', '0', '0', '0', 'developed for OSEC (unstable)')");
-            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('25', 'country', '1', '0', '0', '0', '')");
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('25', 'country', '1', '0', '1', '0', '')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('26', 'productAttributes', '0', '0', '1', '0', '')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('27', 'downloads', '0', '1', '0', '1', 'developed for CADexchange.ch (unstable)')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_mediadir_inputfield_types` (`id`, `name`, `active`, `multi_lang`, `exp_search`, `dynamic`, `comment`) VALUES ('28', 'responsibles', '0', '1', '0', '1', 'developed for CADexchange.ch (unstable)')");

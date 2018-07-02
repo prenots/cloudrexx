@@ -154,6 +154,15 @@ class FWLanguage
         return self::$defaultLangId;
     }
 
+    /**
+     * Returns the ID of the default backend language
+     * @return integer Language ID
+     */
+    public static function getDefaultBackendLangId()
+    {
+        return static::getDefaultLangId();
+    }
+
 
     /**
      * Returns the complete language data

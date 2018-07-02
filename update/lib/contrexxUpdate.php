@@ -46,7 +46,7 @@ function doUpdate(goBack, viaPost, debug, timeout)
 {
     getDebugInfo = debug;
     type = viaPost ? 'POST' : 'GET';
-    var inputTimeout = $J("input#checkTimeout").length;
+    var inputTimeout = !goBack && $J("input#checkTimeout").length;
 
     if (useAjax) {
         if (request_active) {
@@ -57,7 +57,10 @@ function doUpdate(goBack, viaPost, debug, timeout)
 
         formData = getFormData(goBack);
 
-        if ($J("#processUpdate").length || $J("#doGroup").length || inputTimeout || timeout) {
+        if (
+            !goBack &&
+            ($J("#processUpdate").length || $J("#doGroup").length || inputTimeout || timeout)
+        ) {
             if (!getDebugInfo) {
                 setContent('<div style="margin: 180px 0 0 155px;">Bitte haben Sie einen Moment Geduld.<br /><?php $txt = 'Das Update wird durchgeführt...';print UPDATE_UTF8 ? $txt : utf8_decode($txt);?><br /><br /><img src="template/contrexx/images/content/loading_animation.gif" width="208" height="13" alt="" /></div>');
                 setNavigation('');
@@ -559,7 +562,7 @@ var checkTimeout = function() {
                 $J.ajax({
                     url: 'index.php',
                     type: type,
-                    data: {'ajax': formData, 'debug_update': getDebugInfo},
+                    data: {'ajax': formData, 'debug_update': getDebugInfo, 'executeUpdate': true},
                     success: parseResponse,
                     error: cxUpdateErrorHandler,
                 });

@@ -22,14 +22,14 @@ body {
     top: 0;
     width: 100%;
     height: 53px;
-    background: #0873bb url(../images/design/gradient.jpg) left top repeat-y;
+    background-color: #0071bc;
 }
 
 #header .logo {
     position: absolute;
     left: 12px;
     top: 14px;
-    width: 137px;
+    width: 145px;
     height: 25px;
     background: url(../images/design/contrexx_logo.png) no-repeat;
     outline: 0;
@@ -85,7 +85,7 @@ body {
     bottom: 0;
     width: 100%;
     height: 24px;
-    background: #0873bb url(../images/design/gradient.jpg) repeat-y left top;
+    background-color: #0071bc;
 }
 
 #footer a {
@@ -224,7 +224,7 @@ table.adminlist {
 table.adminlist th {
     height: 25px;
     line-height: 25px;
-    background: #0a85c8;
+    background: #0071bc;
     padding: 0 5px;
     font-weight: bold;
     color: #ffffff;
@@ -337,7 +337,7 @@ table.adminlist td {
 }
 
 .page-grouping-info a {
-    color: #0A85C8 !important;
+    color: #0071bc !important;
 }
 
 .page-grouping-h3 {
@@ -382,7 +382,7 @@ table.adminlist td {
 .page-option-button {
     padding: 2px 10px 2px 10px;
     margin: 0 0 5px 0;
-    color: #0A85C8;
+    color: #0071bc;
     font-size: 12px;
     font-weight: bold;
     line-height: 1.6;
@@ -409,8 +409,8 @@ table.adminlist td {
 .page-grouping-button:hover,
 .page-option-button:hover {
     color: #FFFFFF;
-    border: 1px solid #0A85C8;
-    background: #0A85C8 url(../images/content/bg-blue-hover.png) 50% 50% repeat-x;
+    border: 1px solid #0071bc;
+    background: #0071bc url(../images/content/bg-blue-hover.png) 50% 50% repeat-x;
 }
 
 .page-grouping-button.disabled:hover,
