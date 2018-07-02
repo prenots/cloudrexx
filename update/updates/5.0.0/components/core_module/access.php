@@ -242,7 +242,7 @@ function _accessUpdate()
      * ADD USER PROFILE
      *
      *******************/
-    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.3')) {
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX . 'access_user_profile',

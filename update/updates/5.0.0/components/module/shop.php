@@ -30,7 +30,7 @@ function _shopUpdate()
 {
     global $objDatabase, $_ARRAYLANG, $objUpdate, $_CONFIG, $_CORELANG;
 
-    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         if (!defined('MODULE_INDEX')) define('MODULE_INDEX', '');
 
         try {
@@ -884,6 +884,7 @@ function _shopUpdate()
                 return false;
             }
 
+            \DBG::msg('shop: trigger error handlers');
             \Cx\Modules\Shop\Controller\Product::errorHandler();
             // Prerequisites:
             //        Text::errorHandler();

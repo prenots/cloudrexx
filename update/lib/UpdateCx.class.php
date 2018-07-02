@@ -96,6 +96,9 @@ class UpdateCx extends \Cx\Core\Core\Controller\Cx {
                     public function delete() {}
                     public function fetch() {}
                     public function save() {}
+                    public function getCacheDriver() {
+                        return new \Doctrine\Common\Cache\ArrayCache();
+                    }
                 };
                 break;
 

@@ -71,15 +71,15 @@
             <h3 style="padding-top:0px;">Daylight Saving Time Hotfix</h3>
             Das System hat während dem Update festgestellt, dass Sie den "Daylight Saving Time Hotfix" noch nicht installiert hatten.<br />
             Folglich bitten wir Sie noch die nachstehenden SQL-Statements in der Datenbank Ihrer Cloudrexx-Installation auszuführen.
-            <ul class="tab">
+            <!-- <ul class="tab">
                 <li><a href="javascript:void(0)" class="tablinks" onclick="switchTab(event, 'tab1')">Neue Komponente hinzufügen</a></li>
                 <li><a href="javascript:void(0)" class="tablinks" onclick="switchTab(event, 'tab2')">Bestehende Einträge anpassen</a></li>
-            </ul>
-            <div id="tab1" class="tabcontent">
+            </ul> -->
+            <!-- <div id="tab1" class="tabcontent">
                 <div class="code">INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (112, 'DateTime', 'core');
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`) VALUES (112,'DateTime','Cloudrexx AG','TXT_CORE_DATETIME_DESCRIPTION','n',1,1,1,1);</div>
-            </div>
-            <div id="tab2" class="tabcontent">
+            </div> -->
+            <div id="tab2" class="tabcontent" style="border-top:1px solid #ccc; display:block">
                 <p>Bitte führen Sie nur die SQL-Statements von einem der nachstehenden Codefelder aus. D.h. entweder die Statements für "während der Winterzeit" oder für "während der Sommerzeit", auf keinen Fall aber beide!</p>
                 <p>Die folgenden Abfragen beheben das Problem für im Sommer stattfindende Einträge der nächsten 10 Jahre, die <strong>während der Winterzeit erfasst</strong> wurden:</p>
                 <div class="code">UPDATE
@@ -183,7 +183,7 @@ WHERE
                 }
 
                 // Open "tab1" by default
-                document.getElementsByClassName("tablinks")[0].click();
+                //document.getElementsByClassName("tablinks")[0].click();
             </script>
         </div>
         <!-- END daylight_saving_time -->

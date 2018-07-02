@@ -31,16 +31,16 @@
  * This is the configuration of the version to upgrade to.
  */
 $arrUpdate = array(
-    'cmsName'          => 'Contrexx',
+    'cmsName'          => 'Cloudrexx',
     'cmsVersion'       => '5.0.0',
     'cmsStatus'        => 'Stable',
     'cmsEdition'       => 'Standard',
     'cmsCodeName'      => 'Nandri',
     'cmsReleaseDate'   => '29.06.2018',
     'cmsFromVersion'   => '1.2.0',
-    'cmsRequiredPHP'   => '5.3',
-    'cmsRequiredMySQL' => '5.0',
-    'cmsRequiredGD'    => '1.6',
+    'cmsRequiredPHP'   => '5.6',
+    'cmsRequiredMySQL' => '5.6',
+    'cmsRequiredGD'    => '2.0',
     'lang'             => array('de'),
     'script'           => 'update.php'
 );

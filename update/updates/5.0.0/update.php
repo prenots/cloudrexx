@@ -990,6 +990,8 @@ function executeContrexxUpdate() {
             return false;
         } else {
             $_SESSION['contrexx_update']['update']['done'][] = 'coreComponent';
+            setUpdateMsg(1, 'timeout');
+            return false;
         }
     }
 
@@ -1005,6 +1007,10 @@ function executeContrexxUpdate() {
     if (!in_array('pageLogs', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
         \DBG::msg('update: migrate page logs');
         $result = _migratePageLogs();
+        if ($result === 'timeout') {
+            setUpdateMsg(1, 'timeout');
+            return false;
+        }
         if ($result === false) {
             if (empty($objUpdate->arrStatusMsg['title'])) {
                 setUpdateMsg($_CORELANG['TXT_UPDATE_PAGE_LOG'], 'title');
@@ -1012,6 +1018,10 @@ function executeContrexxUpdate() {
             return false;
         } else {
             $_SESSION['contrexx_update']['update']['done'][] = 'pageLogs';
+            unset($_SESSION['contrexx_update']['update']['pageLogsDone']);
+
+            setUpdateMsg(1, 'timeout');
+            return false;
         }
     }
 
@@ -2501,10 +2511,10 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
         // core
         'routing', 'wysiwyg', 'locale',
         // core module
-        'access', 'contact',
+        'access', 'contact', 'pdf',
         'cron', 'linkmanager', 'news', 'stats',
         // module
-        'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',
+        'block', 'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',
         'forum', 'gallery', 'market', 'mediadir', 'memberdir', 'newsletter', 'podcast', 'shop',
         'livecam', 'guestbook', 'egov'
     );
@@ -2857,8 +2867,14 @@ function getNewComponentNames() {
  * @return boolean true on success false on failure
  */
 function _migratePageLogs() {
+    if (!isset($_SESSION['contrexx_update']['update']['pageLogsDone'])) {
+        $_SESSION['contrexx_update']['update']['pageLogsDone'] = array();
+    }
     $componentNames = getNewComponentNames();
     foreach ($componentNames as $componentName) {
+        if (in_array($componentName, ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['pageLogsDone']))) {
+            continue;
+        }
         try {
             $nameLength = strlen($componentName);
             $nameLower = strtolower($componentName);
@@ -2872,6 +2888,8 @@ function _migratePageLogs() {
             \DBG::log('Update::_migratePageLogs(): Failed to Migrate logs for component ' . $componentName);
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
+        $_SESSION['contrexx_update']['update']['pageLogsDone'][] = $componentName;
+        return 'timeout';
     }
 
     return true;

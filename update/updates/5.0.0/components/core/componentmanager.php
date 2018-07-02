@@ -339,6 +339,11 @@ function getComponents()
 			'type'					=> 'core',
 		),
 		array(
+			'id'					=> 77,
+			'name'					=> 'LanguageManager',
+			'type'					=> 'core',
+		),
+		array(
 			'id'					=> 78,
 			'name'					=> 'ContentWorkflow',
 			'type'					=> 'core',

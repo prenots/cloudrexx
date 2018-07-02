@@ -499,6 +499,24 @@ function _newsletterUpdate()
         }
     }
 
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_newsletter_rel_crm_membership_newsletter',
+                array(
+                    'membership_id'      => array('type' => 'INT(10)', 'unsigned' => true),
+                    'newsletter_id'      => array('type' => 'INT(10)', 'unsigned' => true, 'after' => 'membership_id'),
+                    'type'               => array('type' => 'ENUM(\'include\',\'exclude\')', 'after' => 'newsletter_id')
+                ),
+                array(
+                    'uniq'               => array('fields' => array('membership_id','newsletter_id','type'), 'type' => 'UNIQUE')
+                )
+            );
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
     // migrate path to images and media
     $pathsToMigrate = \Cx\Lib\UpdateUtil::getMigrationPaths();
     $attributes = array(

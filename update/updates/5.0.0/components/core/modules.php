@@ -573,6 +573,15 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
+			'id'					=> 77,
+			'name'					=> 'LanguageManager',
+			'description_variable'	=> 'TXT_LANGUAGEMANAGER_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
 			'id'					=> 78,
 			'name'					=> 'ContentWorkflow',
 			'description_variable'	=> 'TXT_CONTENTWORKFLOW_MODULE_DESCRIPTION',

@@ -254,11 +254,22 @@ function migrateSettingsToSettingDb() {
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             // init new config
-            \Cx\Core\Config\Controller\Config::init();
+            $config = new \Cx\Core\Config\Controller\Config();
+
+            // load config for manual overwrite below
+            \Cx\Core\Setting\Controller\Setting::init('Config',null,'Yaml');
+
+            // reset version to current version
             \Cx\Core\Setting\Controller\Setting::set('coreCmsVersion', $_CONFIG['coreCmsVersion']);
+            \Cx\Core\Setting\Controller\Setting::update('coreCmsVersion');
+            // force disabling of customizings
+            \Cx\Core\Setting\Controller\Setting::set('useCustomizings', 'off');
+            \Cx\Core\Setting\Controller\Setting::update('useCustomizings');
+
+            // manually update config/settings.php
             \Cx\Core\Config\Controller\Config::updatePhpCache();
-            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX . 'settings');
-        } catch (\Cx\Lib\UpdateException $e) {
+        } catch (\Exception $e) {
+            \DBG::msg($e->getMessage());
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
     }
