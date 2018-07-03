@@ -47,6 +47,7 @@ class LinkGeneratorException extends \Exception {}
 /**
  * Handles the node-Url placeholders: [[ NODE_(<node_id>|<module>[_<cmd>])[_<lang_id>] ]]
  *
+ * @deprecated This class is deprecated in favor of func_node() widget
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      CLOUDREXX Development Team <info@cloudrexx.com>
  * @package     cloudrexx
@@ -71,7 +72,7 @@ class LinkGenerator {
      * URL-representation.
      * @param   mixed $content  Either a string or an array of strings in which the node-placeholders shall be replaced by their URL-representation.
      * @param   boolean $absoluteUris   Set to TRUE to replace the node-placeholders by absolute URLs.
-     * @param   Cx\Core\Net\Model\Entity\Domain $domain Set the domain that shall be used when absolute URLs shall be generated.
+     * @param   ?\Cx\Core\Net\Model\Entity\Domain $domain Set the domain that shall be used when absolute URLs shall be generated.
      */
     public static function parseTemplate(&$content, $absoluteUris = false, \Cx\Core\Net\Model\Entity\Domain $domain = null)
     {
@@ -106,7 +107,7 @@ class LinkGenerator {
     public function scan(&$content) {
         $this->fetchingDone = false;
 
-        $regex = '/\{'.\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_PCRE.'\}/xi';
+        $regex = '/\{'.\Cx\Core\Routing\NodePlaceholder::LEGACY_NODE_URL_PCRE.'\}/xi';
 
         $matches = array();
         if (!preg_match_all($regex, $content, $matches)) {
@@ -114,14 +115,14 @@ class LinkGenerator {
         }
         \DBG::msg('WARNING: Parsing legacy NODE placeholder!');
         for($i = 0; $i < count($matches[0]); $i++) {
-            $nodeId = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_NODE_ID][$i]) ?$matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_NODE_ID][$i] : 0;
-            $module = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_MODULE][$i]) ? strtolower($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_MODULE][$i]) : '';
-            $cmd = isset($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_CMD][$i]) ? strtolower($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_CMD][$i]) : '';
+            $nodeId = isset($matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_NODE_ID][$i]) ?$matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_NODE_ID][$i] : 0;
+            $module = isset($matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_MODULE][$i]) ? strtolower($matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_MODULE][$i]) : '';
+            $cmd = isset($matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_CMD][$i]) ? strtolower($matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_CMD][$i]) : '';
 
-            if (empty($matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_LANG_ID][$i])) {
+            if (empty($matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_LANG_ID][$i])) {
                 $langId = FRONTEND_LANG_ID;
             } else {
-                $langId = $matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_LANG_ID][$i];
+                $langId = $matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_LANG_ID][$i];
             }
 
             if ($nodeId) {
@@ -132,7 +133,7 @@ class LinkGenerator {
                 $type = 'module';
             }
 
-            $this->placeholders[$matches[\Cx\Core\ContentManager\Model\Entity\Page::NODE_URL_PLACEHOLDER][$i]] = array(
+            $this->placeholders[$matches[\Cx\Core\Routing\NodePlaceholder::NODE_URL_PLACEHOLDER][$i]] = array(
                 'type'      => $type,
                 'nodeid'    => $nodeId,
                 'module'    => $module,
@@ -211,13 +212,13 @@ class LinkGenerator {
                 $url = \Cx\Core\Routing\Url::fromPage($page);
 
                 $placeholderByApp = '';
-                $placeholderById = \Cx\Core\ContentManager\Model\Entity\Page::PLACEHOLDER_PREFIX.$page->getNode()->getId();
+                $placeholderById = 'NODE_'.$page->getNode()->getId();
                 $this->placeholders[$placeholderById.'_'.$page->getLang()] = $url;
 
                 if ($page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION) {
                     $module = $page->getModule();
                     $cmd = $page->getCmd();
-                    $placeholderByApp = \Cx\Core\ContentManager\Model\Entity\Page::PLACEHOLDER_PREFIX;
+                    $placeholderByApp = 'NODE_';
                     $placeholderByApp .= strtoupper($module.(empty($cmd) ? '' : '_'.$cmd));
                     $this->placeholders[$placeholderByApp.'_'.$page->getLang()] = $url;
                 }
