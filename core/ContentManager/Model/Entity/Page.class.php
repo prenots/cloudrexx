@@ -894,10 +894,10 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
      * Whether target references an internal page
      * @return boolean
      */
-    public function isTargetInternal() {
-        //internal targets are formed like [[ NODE_(<node_id>|<module>[_<cmd>])[_<lang_id>] ]]<querystring>
-        $matches = array();
-        return preg_match('/\[\['.self::NODE_URL_PCRE.'\]\](\S*)?/ix', $this->target, $matches);
+    public function isTargetInternal(): bool {
+        return \Cx\Core\Routing\NodePlaceholder::containsPlaceholder(
+            $this->target
+        );
     }
 
     /**
@@ -913,32 +913,26 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
     }
 
     protected function cutTarget() {
-        $t = $this->getTarget();
-        $matches = array();
-
-        if (!preg_match('/\[\['.self::NODE_URL_PCRE.'\]\](\S*)?/ix', $t, $matches)) {
+        try {
+            $placeholder = \Cx\Core\Routing\NodePlaceholder::fromPlaceholder(
+                $this->getTarget()
+            );
+            return array(
+                'nodeId'      => $placeholder->getNodeId(),
+                'module'      => $placeholder->getModule(),
+                'cmd'         => $placeholder->getCmd(),
+                'langId'      => $placeholder->getLangId(),
+                'queryString' => $placeholder->getArguments(),
+            );
+        } catch (\Cx\Core\Routing\NodePlaceholderException $e) {
             return array(
                 'nodeId'      => null,
                 'module'      => null,
                 'cmd'         => null,
                 'langId'      => null,
-                'queryString' => $t,
+                'queryString' => $this->getTarget(),
             );
         }
-
-        $nodeId      = empty($matches[self::NODE_URL_NODE_ID]) ? 0                : $matches[self::NODE_URL_NODE_ID];
-        $module      = empty($matches[self::NODE_URL_MODULE])  ? ''               : $matches[self::NODE_URL_MODULE];
-        $cmd         = empty($matches[self::NODE_URL_CMD])     ? ''               : $matches[self::NODE_URL_CMD];
-        $langId      = empty($matches[self::NODE_URL_LANG_ID]) ? FRONTEND_LANG_ID : $matches[self::NODE_URL_LANG_ID];
-        $queryString = empty($matches[6]) ? '' : $matches[6];
-
-        return array(
-            'nodeId'      => $nodeId,
-            'module'      => $module,
-            'cmd'         => $cmd,
-            'langId'      => $langId,
-            'queryString' => $queryString,
-        );
     }
 
     /**
@@ -1781,7 +1775,11 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
         foreach ($data as $alias) {
             if (!in_array($alias, $aliases)) {
                 // new alias
-                $lib->_saveAlias($alias, '[[' . self::PLACEHOLDER_PREFIX . $this->getNode()->getId() . '_' . $this->getLang() . ']]', true);
+                $placeholder = new \Cx\Core\Routing\Placeholder(
+                    $this->getNode(),
+                    $this->getLang()
+                );
+                $lib->_saveAlias($alias, $placeholder->getPlaceholder(), true);
             }
         }
     }
@@ -1794,14 +1792,21 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
     {
         $aliases = array();
         // find aliases without specified language
-        $target = '[[' . self::PLACEHOLDER_PREFIX . $this->getNode()->getId() . ']]';
+        $placeholder = \Cx\Core\Routing\Placeholder::fromInfo(
+            $this->getNode()->getId()
+        );
+        $target = $placeholder->getPlaceholder();
         $crit1 = array(
             'type' => self::TYPE_ALIAS,
             'target' => $target,
         );
 
         // find aliases with language specified
-        $target = '[[' . self::PLACEHOLDER_PREFIX . $this->getNode()->getId() . '_' . $this->getLang() . ']]';
+        $placeholder = \Cx\Core\Routing\Placeholder::fromInfo(
+            $this->getNode()->getId(),
+            $this->getLang()
+        );
+        $target = $placeholder->getPlaceholder();
         $crit2 = array(
             'type' => self::TYPE_ALIAS,
             'target' => $target,
