@@ -81,54 +81,6 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
     const TYPE_ALIAS = 'alias';
 
     /**
-     * Prefex used in placeholders for Node-Urls:
-     * [[ NODE_(<node_id>|<module>[_<cmd>])[_<lang_id>] ]]
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const PLACEHOLDER_PREFIX = \Cx\Core\Routing\NodePlaceholder::PLACEHOLDER_PREFIX;
-
-    /**
-     * Regular expression to match a node-url in placeholder notation
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const NODE_URL_PCRE = \Cx\Core\Routing\NodePlaceholder::NODE_URL_PCRE;
-
-    /**
-     * Node Url regular expression back reference
-     * index for the whole placeholder
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const NODE_URL_PLACEHOLDER = \Cx\Core\Routing\NodePlaceholder::NODE_URL_PLACEHOLDER;
-
-    /**
-     * Node Url regular expression back reference
-     * index for the node id
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const NODE_URL_NODE_ID = \Cx\Core\Routing\NodePlaceholder::NODE_URL_NODE_ID;
-
-    /**
-     * Node Url regular expression back reference
-     * index for the module
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const NODE_URL_MODULE = \Cx\Core\Routing\NodePlaceholder::NODE_URL_MODULE;
-
-    /**
-     * Node Url regular expression back reference
-     * index for the module cmd
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const NODE_URL_CMD = \Cx\Core\Routing\NodePlaceholder::NODE_URL_CMD;
-
-    /**
-     * Node Url regular expression back reference
-     * index for the language id
-     * @deprecated Use NodePlaceholder::... directly instead
-     */
-    const NODE_URL_LANG_ID = \Cx\Core\Routing\NodePlaceholder::NODE_URL_LANG_ID;
-
-    /**
      * @var integer $id
      */
     protected $id;
