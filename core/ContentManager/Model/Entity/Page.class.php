@@ -901,7 +901,7 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
     }
 
     /**
-     * Gets the target nodes' id.
+     * Gets the target node's id.
      * @return integer id for internal targets, 0 else.
      */
     public function getTargetNodeId() {
@@ -1788,7 +1788,7 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
 
     /**
      * Returns an array of alias pages for a page
-     * @return Array<Cx\Core\ContentManager\Model\Entity\Page>
+     * @return array<Cx\Core\ContentManager\Model\Entity\Page>
      */
     public function getAliases()
     {
@@ -1811,8 +1811,8 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
 
         // merge both resultsets
         $aliases = array_merge(
-                $pageRepo->findBy($crit1, null, null, null, true),
-                $pageRepo->findBy($crit2, null, null, null, true)
+            $pageRepo->findBy($crit1, null, null, null, true),
+            $pageRepo->findBy($crit2, null, null, null, true)
         );
         return $aliases;
     }
