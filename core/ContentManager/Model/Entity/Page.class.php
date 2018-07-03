@@ -1821,9 +1821,8 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
         foreach ($newData as $key => $value) {
             try {
                 call_user_func(array($this, "set".ucfirst($key)), $value);
-            }
-            catch (Exception $e) {
-                DBG::log("\r\nskipped ".$key);
+            } catch (\Exception $e) {
+                \DBG::log("\r\nskipped ".$key);
             }
         }
     }
