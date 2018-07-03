@@ -218,8 +218,7 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                 $extUrl = '';
                 if (!empty($objResult->fields['redirect'])) {
                     if (
-                        preg_match(
-                            '/\[\['.\Cx\Core\Routing\NodePlaceholder::NODE_URL_PCRE.'\]\]/ix',
+                        \Cx\Core\Routing\NodePlaceholder::containsPlaceholder(
                             $objResult->fields['redirect']
                         )
                     ) {
