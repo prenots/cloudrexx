@@ -2061,13 +2061,6 @@ namespace Cx\Core\Core\Controller {
                 return;
             }
 
-            $objCounter              = null;
-            $componentRepo           = $this->getDb()->getEntityManager()->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
-            $statsComponentContoller = $componentRepo->findOneBy(array('name' => 'Stats'));
-            if ($statsComponentContoller) {
-                $objCounter = $statsComponentContoller->getCounterInstance();
-            }
-
             // set global template variables
             $boolShop = \Cx\Modules\Shop\Controller\Shop::isInitialized();
             $objNavbar = new \Navigation($this->resolvedPage->getId(), $this->resolvedPage);
@@ -2076,19 +2069,6 @@ namespace Cx\Core\Core\Controller {
                 $googleAnalyticsId = contrexx_raw2xhtml(
                     $_CONFIG['googleAnalyticsTrackingId']
                 );
-            }
-            $googleAnalyticsCode = 'window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-                ga(\'create\', \'' . $googleAnalyticsId . '\', \'auto\');
-                ' . ($objCounter->arrConfig['exclude_identifying_info']['status'] ? 'ga(\'set\', \'anonymizeIp\', true);' : '') . '
-                ga(\'send\', \'pageview\');';
-            if (
-                \Cx\Core\Setting\Controller\Setting::getValue(
-                    'cookieNote',
-                    'Config'
-                ) == 'on'
-            ) {
-                $googleAnalyticsCode = ' function cxCookieNoteAccepted() {' .
-                    $googleAnalyticsCode . '}';
             }
 
             $this->template->setVariable(array(
@@ -2112,20 +2092,6 @@ namespace Cx\Core\Core\Controller {
                 'TXT_SEARCH'                     => $_CORELANG['TXT_SEARCH'],
                 'MODULE_INDEX'                   => MODULE_INDEX,
                 'LOGIN_URL'                      => '<a href="' . contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'Login')) . '" class="start-frontend-editing">' . $_CORELANG['TXT_FRONTEND_EDITING_LOGIN'] . '</a>',
-                'GOOGLE_ANALYTICS'               => '<script>
-                                                        var gaProperty = \'' . $googleAnalyticsId . '\';
-                                                        var disableStr = \'ga-disable-\' + gaProperty; 
-                                                        if (document.cookie.indexOf(disableStr + \'=true\') > -1) { 
-                                                            window[disableStr] = true;
-                                                        } 
-                                                        function gaOptout(successMsg) { 
-                                                            document.cookie = disableStr + \'=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/\'; 
-                                                            window[disableStr] = true; 
-                                                            alert(successMsg);
-                                                        }
-                                                        ' . $googleAnalyticsCode . '
-                                                    </script>
-                                                    <script async src=\'https://www.google-analytics.com/analytics.js\'></script>',
             ));
         }
 

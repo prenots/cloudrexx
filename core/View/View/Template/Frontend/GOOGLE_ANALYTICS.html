@@ -1,11 +1,24 @@
-<script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '{GOOGLE_ANALYTICS_TRACKING_ID}']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+<script>
+    function cxCookieNoteAccepted() {
+        var gaProperty = '{GOOGLE_ANALYTICS_TRACKING_ID}';
+        var disableStr = 'ga-disable-' + gaProperty; 
+        if (document.cookie.indexOf(disableStr + '=true') > -1) { 
+            window[disableStr] = true;
+        } 
+        function gaOptout(successMsg) { 
+            document.cookie = disableStr + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/'; 
+            window[disableStr] = true; 
+            alert(successMsg);
+        }
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', gaProperty, 'auto');
+        <!-- BEGIN exclude_identifying_info -->
+        ga('set', 'anonymizeIp', true);
+        <!-- END exclude_identifying_info -->
+        ga('send', 'pageview');
+    }
+    <!-- BEGIN no_cookie_note -->
+    cxCookieNoteAccepted();
+    <!-- END no_cookie_note -->
 </script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>

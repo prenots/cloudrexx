@@ -95,6 +95,29 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
                     'LANG_CODE_UPPERCASE' => strtoupper($params['lang']),
                     'CURRENT_PAGE_URL' => $params['ref'],
                 ));
+                $objCounter = null;
+                $statsComponentContoller = $this->getComponent('Stats');
+                if ($statsComponentContoller) {
+                    $objCounter = $statsComponentContoller->getCounterInstance();
+                }
+                if (
+                    $objCounter &&
+                    $objCounter->arrConfig['exclude_identifying_info']['status']
+                ) {
+                    $widgetTemplate->touchBlock('exclude_identifying_info');
+                } else {
+                    $widgetTemplate->hideBlock('exclude_identifying_info');
+                }
+                if (
+                    \Cx\Core\Setting\Controller\Setting::getValue(
+                        'cookieNote',
+                        'Config'
+                    ) != 'on'
+                ) {
+                    $widgetTemplate->touchBlock('no_cookie_note');
+                } else {
+                    $widgetTemplate->hideBlock('no_cookie_note');
+                }
                 $template->setVariable($name, $widgetTemplate->get());
                 break;
             case 'SIDEBAR_FILE':
