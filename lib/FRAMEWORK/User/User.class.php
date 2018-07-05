@@ -555,6 +555,17 @@ class User extends User_Profile
                 WHERE tblU.`id` = '.$this->id) !== false
             ) {
                 \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
+                //Clear cache
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $cx->getEvents()->triggerEvent(
+                    'clearEsiCache',
+                    array(
+                        'Widget',
+                        $cx->getComponent('Access')->getUserDataBasedWidgetNames(),
+                    )
+                );
+                \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Access');
+
                 return true;
                 } else {
                     $this->error_msg[] = sprintf($_CORELANG['TXT_ACCESS_USER_DELETE_FAILED'], $this->username);
@@ -685,6 +696,10 @@ class User extends User_Profile
 
     public function getBackendLanguage()
     {
+        if (!$this->backend_language) {
+            global $_LANGID;
+            $this->backend_language = $_LANGID;
+        }
         return $this->backend_language;
     }
 
@@ -736,6 +751,7 @@ class User extends User_Profile
         $arrConditions = array();
         $arrSearchConditions = array();
         $tblCoreAttributes = false;
+        $tblCustomAttributes = false;
         $tblGroup = false;
         $groupTables = false;
 
@@ -759,6 +775,7 @@ class User extends User_Profile
             if (count($arrCustomAttributeConditions = $this->parseAttributeSearchConditions($search, false))) {
                 $groupTables = true;
                 $arrSearchConditions[] = implode(' OR ', $arrCustomAttributeConditions);
+                $tblCustomAttributes = true;
             }
             if (count($arrSearchConditions)) {
                 $arrConditions[] = implode(' OR ', $arrSearchConditions);
@@ -768,6 +785,9 @@ class User extends User_Profile
         $arrTables = array();
         if (!empty($tblCoreAttributes)) {
             $arrTables[] = 'core';
+        }
+        if (!empty($tblCustomAttributes)) {
+            $arrTables[] = 'custom';
         }
         if ($tblGroup) {
             $arrTables[] = 'group';
@@ -1105,7 +1125,7 @@ class User extends User_Profile
         $arrSelectCoreExpressions = array();
         $arrSelectCustomExpressions = null;
         $this->filtered_search_count = 0;
-        $sqlCondition = '';
+        $sqlCondition = array();
 
         // set filter
         if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
@@ -1162,6 +1182,7 @@ class User extends User_Profile
             .(count($arrSelectCoreExpressions) ? ', tblP.`'.implode('`, tblP.`', $arrSelectCoreExpressions).'`' : '')
             .'FROM `'.DBPREFIX.'access_users` AS tblU'
             .(count($arrSelectCoreExpressions) || $arrQuery['tables']['core'] ? ' INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id` = tblU.`id`' : '')
+            .($arrQuery['tables']['custom'] ? ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id` = tblU.`id`' : '')
             .($arrQuery['tables']['group']
                 ? (isset($filter['group_id']) && $filter['group_id'] == 'groupless'
                     ? ' LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id` = tblU.`id`'
@@ -1240,6 +1261,11 @@ class User extends User_Profile
             // parse filter arguments (generate SQL statements)
             foreach ($filterArguments as $argument) {
                 $filterConditions = $this->parseFilterConditions($argument, $tblCoreAttributes, $tblGroup, $customAttributeJoins, $groupTables);
+
+                // don't add empty arguments to SQL query (through $arrConditions)
+                if (!$filterConditions) {
+                    continue;
+                }
                 $arrConditions[] = implode(' AND ', $filterConditions);
             }
 
@@ -1349,13 +1375,14 @@ class User extends User_Profile
 
 
     private function setSortedUserIdList(
-        $arrSort, $sqlCondition=null, $limit=null, $offset=null, $groupless=false, $crmUser=false
+        $arrSort, $sqlCondition=array(), $limit=null, $offset=null, $groupless=false, $crmUser=false
     ) {
         global $objDatabase;
 
         $arrCustomJoins = array();
         $arrCustomSelection = array();
         $joinCoreTbl = false;
+        $joinCustomTbl = false;
         $joinGroupTbl = false;
         $arrUserIds = array();
         $arrSortExpressions = array();
@@ -1365,6 +1392,9 @@ class User extends User_Profile
             if (isset($sqlCondition['tables'])) {
                 if (in_array('core', $sqlCondition['tables'])) {
                     $joinCoreTbl = true;
+                }
+                if (in_array('custom', $sqlCondition['tables'])) {
+                    $joinCustomTbl = true;
                 }
                 if (in_array('group', $sqlCondition['tables'])) {
                     $joinGroupTbl = true;
@@ -1411,6 +1441,7 @@ class User extends User_Profile
             SELECT SQL_CALC_FOUND_ROWS DISTINCT tblU.`id`
               FROM `'.DBPREFIX.'access_users` AS tblU'.
             ($joinCoreTbl ? ' INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id`=tblU.`id`' : '').
+            ($joinCustomTbl ? ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id`=tblU.`id`' : '').
             ($joinGroupTbl
                 ? ($groupless
                     ? ' LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id`=tblU.`id`'
@@ -1443,6 +1474,7 @@ class User extends User_Profile
         return array(
             'tables' => array(
                 'core'      => $joinCoreTbl,
+                'custom'    => $joinCustomTbl,
                 'group'     => $joinGroupTbl
             ),
             'joins'         => $arrCustomJoins,
@@ -1795,14 +1827,10 @@ class User extends User_Profile
                     'clearEsiCache',
                     array(
                         'Widget',
-                        array(
-                            'access_currently_online_member_list',
-                            'access_last_active_member_list',
-                            'access_latest_registered_member_list',
-                            'access_birthday_member_list',
-                        ),
+                        $cx->getComponent('Access')->getUserDataBasedWidgetNames(),
                     )
                 );
+                \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Access');
             }
         } else {
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
@@ -1813,14 +1841,10 @@ class User extends User_Profile
                 'clearEsiCache',
                 array(
                     'Widget',
-                    array(
-                        'access_currently_online_member_list',
-                        'access_last_active_member_list',
-                        'access_latest_registered_member_list',
-                        'access_birthday_member_list',
-                    ),
+                    $cx->getComponent('Access')->getUserDataBasedWidgetNames(),
                 )
             );
+            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Access');
         }
 
 
@@ -1853,7 +1877,8 @@ class User extends User_Profile
                             '[[EMAIL]]',
                             '[[PASSWORD]]',
                             '[[LINK]]',
-                            '[[SENDER]]'
+                            '[[SENDER]]',
+                            '[[YEAR]]',
                         );
             $domainRepository = new \Cx\Core\Net\Model\Repository\DomainRepository();
             $mainDomain = $domainRepository->getMainDomain()->getName();
@@ -1864,7 +1889,8 @@ class User extends User_Profile
                             $this->getEmail(),
                             $generatedPassword,
                             ASCMS_PROTOCOL . '://'.$mainDomain.\Cx\Core\Core\Controller\Cx::getBackendFolderName(),
-                            contrexx_raw2xhtml($objUserMail->getSenderName())
+                            contrexx_raw2xhtml($objUserMail->getSenderName()),
+                            date('Y'),
                         );
 
             if (in_array($objUserMail->getFormat(), array('multipart', 'text'))) {
@@ -1938,7 +1964,9 @@ class User extends User_Profile
         }
         if ($passwordHasChanged) {
             // deletes all sessions which are using this user (except the session changing the password)
-            $_SESSION->cmsSessionDestroyByUserId($this->id);
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $session = $cx->getComponent('Session')->getSession();
+            $session->cmsSessionDestroyByUserId($this->id);
         }
     }
 
@@ -2241,13 +2269,22 @@ class User extends User_Profile
     {
 
         if ($this->loggedIn) return true;
-        if(isset($_SESSION)
-            && is_object($_SESSION)
-            && $_SESSION->userId
-            && $this->load($_SESSION->userId)
-            && $this->getActiveStatus()
-            && $this->hasModeAccess($backend)
-            && $this->updateLastActivityTime()) {
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $session = $cx->getComponent('Session');
+
+        if (
+            $session &&
+            $session->getSession(false) &&
+            $session->isInitialized() &&
+            isset($_SESSION) &&
+            is_object($_SESSION) &&
+            $session->getSession()->userId &&
+            $this->load($session->getSession()->userId) &&
+            $this->getActiveStatus() &&
+            $this->hasModeAccess($backend) &&
+            $this->updateLastActivityTime()
+        ) {
             $this->loggedIn = true;
             return true;
         }
@@ -2288,12 +2325,20 @@ class User extends User_Profile
      * In the case that the specified language isn't valid, the ID 0 is taken instead.
      * $scope could either be 'frontend' or 'backend'
      *
+     * @throws UserException
      * @param string $scope
      */
     private function validateLanguageId($scope)
     {
+        if ($scope == 'frontend') {
+            $paramMethod = 'getLanguageParameter';
+        } elseif ($scope == 'backend') {
+            $paramMethod = 'getBackendLanguageParameter';
+        } else {
+            throw new UserException("User->validateLanguageId(): Scope is neither front- nor backend");
+        }
         $this->{$scope.'_language'} =
-            (FWLanguage::getLanguageParameter(
+            (FWLanguage::$paramMethod(
                 $this->{$scope.'_language'}, $scope)
                   ? $this->{$scope.'_language'} : 0);
     }
@@ -2401,15 +2446,23 @@ class User extends User_Profile
         
         $this->updateLastAuthTime();
         
-        // drop user specific ESI cache:
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $esiFiles = glob($cx->getWebsiteTempPath() . '/cache/*u' . session_id() . '*');
-        foreach ($esiFiles as $esiFile) {
-            try {
-                $file = new \Cx\Lib\FileSystem\File($esiFile);
-                $file->delete();
-            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {}
-        }
+
+        // Flush all cache attached to the current session.
+        // This is required as after the sign-in, the user might have a
+        // greater access level which provides access to more or different
+        // content.
+        $cx->getComponent('Cache')->clearUserBasedPageCache(session_id());
+        $cx->getComponent('Cache')->clearUserBasedEsiCache(session_id());
+
+        // flush access block widgets (currently signed-in users, etc.)
+        $cx->getEvents()->triggerEvent(
+            'clearEsiCache',
+            array(
+                'Widget',
+                 $cx->getComponent('Access')->getSessionBasedWidgetNames(),
+            )
+        );
 
         return $objDatabase->Execute("
             UPDATE `".DBPREFIX."access_users`
