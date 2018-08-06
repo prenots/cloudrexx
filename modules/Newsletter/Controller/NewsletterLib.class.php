@@ -593,7 +593,7 @@ class NewsletterLib
                 $html .= "<br />";
             }
 
-            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" /><br /><br />'."\n";
+            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" />'."\n";
             // Show a AGB terms and conditions based on settings
             $arrSettings = $this->_getSettings();
             if ($arrSettings['agbTermsConditions']['setvalue'] == 1) {
@@ -605,7 +605,7 @@ jQuery('input[name=\"recipient_save\"]').click(function(e){
     if (!jQuery('#agbPrivacyStatement').is(':checked')) {
       e.preventDefault();
       if (jQuery('#termsConditionsError').length == 0) {
-        form.parent('div').before('<div class=\"form-group\" id=\"termsConditionsError\"><div class=\"text-danger\">Please confirm the terms and conditions</div></div>');
+      form.parent('div').before('<div class=\"form-group\" id=\"termsConditionsError\"><div class=\"text-danger\">" . $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS'] . "</div></div>');
       }
     }
 });

@@ -511,3 +511,4 @@ $_ARRAYLANG['TXT_NEWSLETTER_STATISTICS_TOOLTIP'] = 'Bitte beachten Sie, dass mit
 $_ARRAYLANG['TXT_NEWSLETTER_STATISTICS_DROP'] = 'Möchten Sie die bisher erfassten Statistik-Daten löschen?';
 $_ARRAYLANG['TXT_NEWSLETTER_DATA_PRIVACY_STATEMENT'] = 'Datenschutzhinweis anzeigen';
 $_ARRAYLANG['TXT_NEWSLETTER_AGB']                    = 'Ich akzeptiere die <a href="index.php?section=Agb" target="_blank">allgemeinen Geschäftsbedingungen</a> und die <a href="index.php?section=Privacy" target="_blank">Datenschutzerklärung</a>.';
+$_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS']          = 'Bitte bestätigen Sie die Allgemeinen Geschäftsbedingungen';

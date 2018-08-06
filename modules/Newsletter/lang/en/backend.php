@@ -512,3 +512,4 @@ $_ARRAYLANG['TXT_NEWSLETTER_STATISTICS_TOOLTIP'] = 'Please note that the informa
 $_ARRAYLANG['TXT_NEWSLETTER_STATISTICS_DROP'] = 'Do you want to delete the tracked data?';
 $_ARRAYLANG['TXT_NEWSLETTER_DATA_PRIVACY_STATEMENT'] = 'Show terms and conditions when user register in frontend';
 $_ARRAYLANG['TXT_NEWSLETTER_AGB']                    = 'I accept the <a href="index.php?section=Agb" target="_blank">general terms and conditions</a> and the <a href="index.php?section=Privacy" target="_blank">data privacy statement</a>.';
+$_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS']          = 'Please confirm the terms and conditions.';
