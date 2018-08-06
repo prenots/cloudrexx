@@ -70,7 +70,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         if ($name == 'ACTIVE_LANGUAGE_NAME') {
             $template->setVariable(
                 $name,
-                \FWLanguage::getLanguageCodeById($params['lang'])
+                $params['locale']->getShortForm()
             );
             return;
         }
@@ -78,13 +78,13 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         $matches = null;
         if (
             preg_match(
-                '/^LANG_SELECTED_([A-Z]{1,2}(?:-[A-Z]{2,4})?)$/',
+                '/^LANG_SELECTED_([A-Z]{1,2}(?:_[A-Z]{2,4})?)$/',
                 $name,
                 $matches
             )
         ) {
             $selected = '';
-            $langCode = \FWLanguage::getLanguageCodeById($params['lang']);
+            $langCode = $params['locale']->getShortForm();
             if ($matches[1] === strtoupper($langCode)) {
                 $selected = 'selected';
             }
@@ -111,15 +111,28 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         $langMatches = null;
         if (
             preg_match(
-                '/^LANG_CHANGE_([A-Z]{1,2}(?:-[A-Z]{2,4})?)$/',
+                '/^LANG_CHANGE_([A-Z]{1,2}(?:_[A-Z]{2,4})?)$/',
                 $name,
                 $langMatches
             )
         ) {
-            $langId = \FWLanguage::getLanguageIdByCode($langMatches[1]);
+            // make iso1 part of code lowercase (e.g DE-CH --> de-CH)
+            $code = explode('_', $langMatches[1]);
+            $code[0] = strtolower($code[0]);
+            $code = implode('-', $code);
+
+            $locale = $this->cx->getDb()->getEntityManager()
+                ->getRepository('\Cx\Core\Locale\Model\Entity\Locale')
+                ->findOneByCode($code);
+
+            // return early and don't set variable if locale doesn't exist
+            if (!$locale) {
+                return;
+            }
+
             $template->setVariable(
                 $name,
-                $navbar->getLanguageLinkById($page, $langId)
+                $navbar->getLanguageLinkById($page, $locale->getId())
             );
         }
     }
