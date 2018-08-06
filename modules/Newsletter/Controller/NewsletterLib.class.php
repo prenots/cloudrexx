@@ -597,7 +597,7 @@ class NewsletterLib
             // Show a AGB terms and conditions based on settings
             $arrSettings = $this->_getSettings();
             if ($arrSettings['agbTermsConditions']['setvalue'] == 1) {
-                $html .= '<input type="checkbox" name="agbPrivacyStatement" id="agbPrivacyStatement" /><label>'. $_ARRAYLANG['TXT_NEWSLETTER_AGB'] ."</label><br />\n";
+                $html .= '<label><input type="checkbox" name="agbPrivacyStatement" id="agbPrivacyStatement" />'. $_ARRAYLANG['TXT_NEWSLETTER_AGB'] ."</label><br />\n";
                 $script .=
                 "<script>
 jQuery('input[name=\"recipient_save\"]').click(function(e){
