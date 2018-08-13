@@ -224,10 +224,6 @@ class Newsletter extends NewsletterLib
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
-        \JS::activate('cx');
-        \JS::activate('jqueryui');
-        \JS::registerJS('modules/Newsletter/View/Script/Frontend.js');
-
         $this->_objTpl->setTemplate($this->pageContent);
 
         $arrSettings      = $this->_getSettings();

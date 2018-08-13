@@ -570,7 +570,6 @@ class NewsletterLib
             $langId
         );
         $html   = '';
-        $script = '';
         if ($onlyId) {
             $objResult = true;
         } else {
@@ -598,24 +597,12 @@ class NewsletterLib
             $arrSettings = $this->_getSettings();
             if ($arrSettings['agbTermsConditions']['setvalue'] == 1) {
                 $html .= '<label><input type="checkbox" name="agbPrivacyStatement" id="agbPrivacyStatement" />'. $_ARRAYLANG['TXT_NEWSLETTER_AGB'] ."</label><br />\n";
-                $script .=
-                "<script>
-jQuery('input[name=\"recipient_save\"]').click(function(e){
-    var form = jQuery('form[name=\"newsletter\"]');
-    if (!jQuery('#agbPrivacyStatement').is(':checked')) {
-      e.preventDefault();
-      if (jQuery('#termsConditionsError').length == 0) {
-      form.parent('div').before('<div class=\"form-group\" id=\"termsConditionsError\"><div class=\"text-danger\">" . $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS'] . "</div></div>');
-      }
-    }
-});
-</script>";
             }
             $html .= '<input type="submit" name="recipient_save" value="'.$_ARRAYLANG['TXT_NEWSLETTER_SUBSCRIBE'].'" />'."\n";
             $html .= "</form>\n";
         }
 
-        return $html . $script;
+        return $html;
     }
 
 
