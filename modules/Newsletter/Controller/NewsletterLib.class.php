@@ -592,7 +592,7 @@ class NewsletterLib
                 $html .= "<br />";
             }
 
-            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" />'."\n";
+            $html .= '<input type="text" onfocus="this.value=\'\'" name="email" value="'.$_ARRAYLANG['TXT_NEWSLETTER_EMAIL_ADDRESS'].'" style="width: 165px;" maxlength="255" /><br /><br />'."\n";
             // Show a AGB terms and conditions based on settings
             $arrSettings = $this->_getSettings();
             if ($arrSettings['agbTermsConditions']['setvalue'] == 1) {
