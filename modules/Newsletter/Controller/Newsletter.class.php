@@ -756,13 +756,6 @@ class Newsletter extends NewsletterLib
                 $this->_objTpl->parse('module_newsletter_agb');
             }
 
-            // Set variable to show a message based on language in javascript
-            \ContrexxJavascript::getInstance()->setVariable(
-                'NEWSLETTER_AGB_ERROR',
-                $_ARRAYLANG['TXT_NEWSLETTER_CONFIRM_TERMS'],
-                'Newsletter'
-            );
-
             $this->_objTpl->setVariable(array(
                 'NEWSLETTER_PROFILE_MAIL' => contrexx_raw2xhtml($requestedMail),
                 'NEWSLETTER_USER_CODE'    => $code,
