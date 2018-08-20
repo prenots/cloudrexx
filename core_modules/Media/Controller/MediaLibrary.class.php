@@ -1192,13 +1192,6 @@ END;
                     $arrFilesToRename[$file] = $newName;
                 }
 
-                // Add index
-                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                $cx->getEvents()->triggerEvent('MediaSource:Add', array(
-                    'path' => $path . $newName,
-                    'oldPath' => $tempPath . '/' . $tempName,
-                ));
-
                 array_push($arrFiles, $newName);
             }
         }
