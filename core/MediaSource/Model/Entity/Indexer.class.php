@@ -128,11 +128,7 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
         }
         $indexerEntry->setPath($path);
         $indexerEntry->setIndexer(get_class($this));
-        if (!empty($oldPath)) {
-            $content = $this->getText($oldPath);
-        } else {
-            $content = $this->getText($path);
-        }
+        $content = $this->getText($path);
         $indexerEntry->setContent(
             $content
         );
@@ -159,9 +155,8 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             '\Cx\Core\MediaSource\Model\Entity\IndexerEntry'
         );
         if (!empty($path)) {
-
             $indexerEntries = $indexerEntryRepo->findBy(
-                array('path' => $path, 'indexer' => $this->getName())
+                array('path' => $path, 'indexer' => get_class($this))
             );
         } else {
             $indexerEntries = $indexerEntryRepo->findBy(

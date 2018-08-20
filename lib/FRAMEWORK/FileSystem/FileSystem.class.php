@@ -1086,6 +1086,12 @@ class FileSystem
             \Env::get('cx')->getWebsiteDocumentRootPath().'/'.$to_path)) {
             if (!self::move_ftp($from_path, $to_path, $force)) return false;
         }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        self::callUpdateEvent($cx->getWebsiteDocumentRootPath() . '/' .
+            pathinfo($to_path, PATHINFO_DIRNAME) . '/',
+            pathinfo($to_path, PATHINFO_BASENAME),
+            $from_path
+        );
         return self::chmod(
             $to_path,
             (is_file(\Env::get('cx')->getWebsiteDocumentRootPath().'/'.$from_path)
