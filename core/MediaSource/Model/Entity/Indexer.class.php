@@ -26,7 +26,7 @@
 
 /**
  * @copyright   Cloudrexx AG
- * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
  */
 
@@ -36,14 +36,17 @@ namespace Cx\Core\MediaSource\Model\Entity;
  * Handling Indexer Exception
  *
  * @copyright   Cloudrexx AG
- * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_mediasource
  */
 class IndexerException extends \Exception {}
 
 /**
- * Indexer
+ * Abstract class for Indexer
+ *
+ * Add, remove or search index entries. With this class you get the possibility
+ * to write an indexer for searching other files
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <sam.hawkes@comvation.com>
