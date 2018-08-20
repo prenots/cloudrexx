@@ -1196,7 +1196,7 @@ END;
                 $cx = \Cx\Core\Core\Controller\Cx::instanciate();
                 $cx->getEvents()->triggerEvent('MediaSource:Add', array(
                     'path' => $path . $newName,
-                    'tmpPath' => $tempPath . '/' . $tempName,
+                    'oldPath' => $tempPath . '/' . $tempName,
                 ));
 
                 array_push($arrFiles, $newName);
