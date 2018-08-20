@@ -51,9 +51,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @return array name of the controller classes
      */
-    public function getControllerClasses() {
+    public function getControllerClasses() : array
+    {
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
-        return array('Frontend');
+        return array('Frontend', 'Backend');
     }
 }
