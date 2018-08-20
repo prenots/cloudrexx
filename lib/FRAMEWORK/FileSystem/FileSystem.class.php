@@ -247,7 +247,7 @@ class FileSystem
         }
         if (copy($orgPath.$orgFileName, $newPath.$newFileName)) {
             \Cx\Lib\FileSystem\FileSystem::makeWritable($newPath.$newFileName);
-            $this->addIndex($newPath, $newFileName);
+            $this->callAddEvent($newPath, $newFileName);
         } else {
             $newFileName = 'error';
         }
@@ -291,7 +291,7 @@ class FileSystem
 
         if ($_FTPCONFIG['is_activated'] && empty(self::$connection))
             self::init();
-        $this->deleteIndex($path, $dirName);
+        $this->callDeleteEvent($path, $dirName);
         $webPath=$this->checkWebPath($webPath);
         $directory = @opendir($path.$dirName);
         $file = @readdir($directory);
@@ -337,7 +337,7 @@ class FileSystem
         $delFile = $_FTPCONFIG['path'].$webPath.$fileName;
         if ($_FTPCONFIG['is_activated']) {
             if (@ftp_delete(self::$connection, $delFile)) {
-                $this->deleteIndex($path, $fileName);
+                $this->callDeleteEvent($path, $fileName);
                 return $delFile;
             }
             return 'error';
@@ -348,7 +348,7 @@ class FileSystem
 
             if (@file_exists($path.$fileName))  return 'error';
         }
-        $this->deleteIndex($path, $fileName);
+        $this->callDeleteEvent($path, $fileName);
         return $fileName;
     }
 
@@ -463,7 +463,7 @@ class FileSystem
                     $status = $newFileName;
                 }
             }
-            $this->updateIndex($path, $status, $oldFileName);
+            $this->callUpdateEvent($path, $status, $oldFileName);
         } else {
             $status = $oldFileName;
         }
@@ -475,7 +475,7 @@ class FileSystem
     {
         global $_FTPCONFIG;
 
-        $this->updateIndex($path, $newDirName, $oldDirName);
+        $this->callUpdateEvent($path, $newDirName, $oldDirName);
         if ($_FTPCONFIG['is_activated'] && empty(self::$connection))
             self::init();
         $webPath = $this->checkWebPath($webPath);
@@ -530,7 +530,7 @@ class FileSystem
      * @throws \Cx\Core\Event\Controller\EventManagerException
      * @return void
      */
-    protected function deleteIndex($path, $name)
+    protected function callDeleteEvent($path, $name)
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
@@ -551,7 +551,7 @@ class FileSystem
      * @throws \Cx\Core\Event\Controller\EventManagerException
      * @return void
      */
-    protected function updateIndex($path, $name, $oldname)
+    protected function callUpdateEvent($path, $name, $oldname)
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
@@ -571,7 +571,7 @@ class FileSystem
      * @throws \Cx\Core\Event\Controller\EventManagerException
      * @return void
      */
-    protected function addIndex($path, $name)
+    protected function callAddEvent($path, $name)
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
