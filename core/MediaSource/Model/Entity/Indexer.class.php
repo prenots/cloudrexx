@@ -32,8 +32,24 @@
 
 namespace Cx\Core\MediaSource\Model\Entity;
 
+/**
+ * Handling Indexer Exception
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @package     cloudrexx
+ * @subpackage  core_mediasource
+ */
 class IndexerException extends \Exception {}
 
+/**
+ * Indexer
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @package     cloudrexx
+ * @subpackage  core_mediasource
+ */
 abstract class Indexer extends \Cx\Model\Base\EntityBase
 {
     /**
@@ -80,15 +96,14 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
 
     /** Index all files matching the indexer type
      *
-     * @param $mediaSource \Cx\Core\MediaSource\Model\Entity\MediaSource
-     * @param $path        string path to index
-     * @param $oldPath     string old path to index used for update
-     *
+     * @param $path    string path to indexing file
+     * @param $oldPath string path of the previous location, to get the right
+     *                        database entry
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      * @return void
      */
-    public function index($path, $oldPath = '', $tmpPath = '')
+    public function index($path, $oldPath = '')
     {
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $em->getRepository(
@@ -109,10 +124,8 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             $indexerEntry = new \Cx\Core\MediaSource\Model\Entity\IndexerEntry();
         }
         $indexerEntry->setPath($path);
-        $indexerEntry->setIndexer($this->getName());
-        if (!empty($tmpPath)) {
-            $content = $this->getText($tmpPath);
-        } else if (!empty($oldPath)) {
+        $indexerEntry->setIndexer(get_class($this));
+        if (!empty($oldPath)) {
             $content = $this->getText($oldPath);
         } else {
             $content = $this->getText($path);

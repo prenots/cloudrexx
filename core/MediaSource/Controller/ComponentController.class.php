@@ -48,9 +48,9 @@ class ComponentController
     extends SystemComponentController
 {
     /**
-     * Includ all registered indexes
+     * Include all registered indexes
      */
-    protected $indexes = array();
+    protected $indexers = array();
 
     /**
      * Register your events here
@@ -58,21 +58,37 @@ class ComponentController
      * Do not do anything else here than list statements like
      * $this->cx->getEvents()->addEvent($eventName);
      */
-    public function registerEvents() {
+    public function registerEvents()
+    {
         $eventHandlerInstance = $this->cx->getEvents();
-        $mediaSourceEventListener = new \Cx\Core\MediaSource\Model\Event\MediaSourceEventListener($this->cx);
         $eventHandlerInstance->addEvent('mediasource.load');
         $eventHandlerInstance->addEvent('MediaSource:Remove');
+        $eventHandlerInstance->addEvent('MediaSource:Add');
+        $eventHandlerInstance->addEvent('MediaSource:Edit');
+    }
+
+    /**
+     * Register your event listeners here
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * Keep in mind, that you can also register your events later.
+     * Do not do anything else here than initializing your event listeners and
+     * list statements like
+     * $this->cx->getEvents()->addEventListener($eventName, $listener);
+     */
+    public function registerEventListeners()
+    {
+        $eventHandlerInstance = $this->cx->getEvents();
+        $mediaSourceEventListener = new \Cx\Core\MediaSource\Model\Event\MediaSourceEventListener($this->cx);
         $eventHandlerInstance->addEventListener(
             'MediaSource:Remove',
             $mediaSourceEventListener
         );
-        $eventHandlerInstance->addEvent('MediaSource:Add');
         $eventHandlerInstance->addEventListener(
             'MediaSource:Add',
             $mediaSourceEventListener
         );
-        $eventHandlerInstance->addEvent('MediaSource:Edit');
         $eventHandlerInstance->addEventListener(
             'MediaSource:Edit',
             $mediaSourceEventListener
@@ -88,8 +104,7 @@ class ComponentController
     /**
      * Register a new indexer.
      *
-     * @param $indexer OBJECT class name
-     * @param $type    string type of indexer
+     * @param $indexer \Cx\Core\MediaSource\Model\Entity\Indexer indexer
      *
      * @throws \Exception if an index already exists with this extension type
      * @return void
@@ -100,12 +115,12 @@ class ComponentController
 
         $extensions = $indexer->getExtensions();
         foreach ($extensions as $extension) {
-            if (!empty($this->indexes[$extension])) {
+            if (!empty($this->indexers[$extension])) {
                 throw new \Cx\Core\MediaSource\Model\Entity\IndexerException(
                     $_ARRAYLANG['TXT_INDEX_ALREADY_EXISTS']
                 );
             }
-            $this->indexes[$extension] = $indexer;
+            $this->indexers[$extension] = $indexer;
         }
     }
 
@@ -116,7 +131,7 @@ class ComponentController
      */
     public function listIndexers()
     {
-        return $this->indexes;
+        return $this->indexers;
     }
 
     /**
@@ -128,6 +143,6 @@ class ComponentController
      */
     public function getIndexer($type)
     {
-        return $this->indexes[$type];
+        return $this->indexers[$type];
     }
 }

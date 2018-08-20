@@ -311,7 +311,9 @@ class MediaSource extends DataSource {
      */
     public function getFileSystemMatches($searchterm, $path)
     {
-        $config = \Env::get('config');
+        $searchLength = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchDescriptionLength'
+        );
         $fullPath = $this->getDirectory()[0] . $path;
         $fileList = array();
         $searchResult = array();
@@ -337,23 +339,24 @@ class MediaSource extends DataSource {
                     $match = $indexer->getMatch($searchterm, $filePath);
                     if (!empty($match)) {
                         $content = substr(
-                            $match->getContent(), 0, $config[
-                            'searchDescriptionLength'
-                            ]
+                            $match->getContent(), 0, $searchLength
                         ).'...';
                     }
                 }
             }
 
-            if (strpos(strtolower($file->getName()), strtolower($searchterm))
-                === false && empty($content)) {
+            if (strpos(
+                    strtolower($file->getName()), strtolower($searchterm)
+                ) === false && empty($content)) {
                 continue;
             }
+
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
             $fileInformation['Score'] = 100;
             $fileInformation['Title'] = ucfirst($file->getName());
             $fileInformation['Content'] = $content;
-            $link = explode('/var/www/html', $fileWebPath);
+            $link = explode($cx->getWebsiteDocumentRootPath(), $fileWebPath);
             $fileInformation['Link'] = $link[1];
             $fileInformation['Component'] = $this->getHumanName();
             array_push($searchResult, $fileInformation);
