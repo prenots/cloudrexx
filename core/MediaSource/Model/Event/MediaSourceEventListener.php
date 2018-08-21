@@ -26,13 +26,22 @@
 
 /**
  * @copyright   Cloudrexx AG
- * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
  */
 
-
 namespace Cx\Core\MediaSource\Model\Event;
 
+/**
+ * Event Listener for Media Source Events
+ *
+ * Handle all events that affect the MediaSource module.
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  core_mediasource
+ */
 class MediaSourceEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 {
     /**

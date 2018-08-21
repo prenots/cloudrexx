@@ -35,7 +35,7 @@ namespace Cx\Core\MediaSource\Model\Entity;
  * IndexEntry
  *
  * @copyright   Cloudrexx AG
- * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_mediasource
  */

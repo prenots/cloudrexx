@@ -49,7 +49,7 @@ class IndexerException extends \Exception {}
  * to write an indexer for searching other files
  *
  * @copyright   Cloudrexx AG
- * @author      Sam Hawkes <sam.hawkes@comvation.com>
+ * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_mediasource
  */
