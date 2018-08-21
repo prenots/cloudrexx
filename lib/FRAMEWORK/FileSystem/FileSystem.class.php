@@ -1087,7 +1087,8 @@ class FileSystem
             if (!self::move_ftp($from_path, $to_path, $force)) return false;
         }
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        self::callUpdateEvent($cx->getWebsiteDocumentRootPath() . '/' .
+        $fileSystem = new \Cx\Lib\FileSystem\FileSystem();
+        $fileSystem->callUpdateEvent($cx->getWebsiteDocumentRootPath() . '/' .
             pathinfo($to_path, PATHINFO_DIRNAME) . '/',
             pathinfo($to_path, PATHINFO_BASENAME),
             $from_path
