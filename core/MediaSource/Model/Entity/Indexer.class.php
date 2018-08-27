@@ -82,7 +82,7 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
         return $this->extensions;
     }
 
-    /** Index all files that match the indexer type
+    /** Index all files which match the indexer type
      *
      * @param $path    string path to indexing file
      * @param $oldPath string (optional) path of the previous location, to get
