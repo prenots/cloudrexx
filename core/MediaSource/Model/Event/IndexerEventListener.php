@@ -102,7 +102,6 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
         $fullPath = $fileInfo['path'];
         $fullOldPath = $fileInfo['oldPath'];
         $path = $fullPath;
-        $tmpPath = $fileInfo['tmpPath'];
 
         if (!empty($fullOldPath)) {
             $path = $fullOldPath;
@@ -139,7 +138,7 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
 
             $filePath = str_replace($fullOldPath, $fullPath, $path);
 
-            $indexer->index($filePath, $path, $tmpPath);
+            $indexer->index($filePath, $path);
         }
     }
 
