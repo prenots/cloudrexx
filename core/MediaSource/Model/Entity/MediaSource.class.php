@@ -90,7 +90,7 @@ class MediaSource extends DataSource {
     /**
      * @var bool if indexer is activated
      */
-    protected $isIndexActivated;
+    protected $isIndexerActivated;
 
     /**
      * @var \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController
@@ -98,13 +98,13 @@ class MediaSource extends DataSource {
     protected $systemComponentController;
 
     public function __construct($name,$humanName, $directory, $accessIds = array(), $position = '',FileSystem $fileSystem = null, \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController = null) {
-        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0], $isIndexActivated = true);
+        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0], $isIndexerActivated = true);
         $this->name      = $name;
         $this->position  = $position;
         $this->humanName = $humanName;
         $this->directory = $directory;
         $this->accessIds = $accessIds;
-        $this->setIndexerActivated($isIndexActivated);
+        $this->setIndexerActivated($isIndexerActivated);
 
         // Sets provided SystemComponentController
         $this->systemComponentController = $systemComponentController;
@@ -134,7 +134,7 @@ class MediaSource extends DataSource {
      */
     public function setIndexerActivated($activated)
     {
-        $this->isIndexActivated = $activated;
+        $this->isIndexerActivated = $activated;
     }
 
     /**
@@ -144,7 +144,7 @@ class MediaSource extends DataSource {
      */
     public function isIndexerActivated()
     {
-        return $this->isIndexActivated;
+        return $this->isIndexerActivated;
     }
 
     /**
