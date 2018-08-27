@@ -351,11 +351,10 @@ class MediaSource extends DataSource {
                 continue;
             }
 
-            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             $fileInformation['Score'] = 100;
             $fileInformation['Title'] = ucfirst($file->getName());
             $fileInformation['Content'] = $content;
-            $link = explode($cx->getWebsiteDocumentRootPath(), $fileWebPath);
+            $link = explode($this->cx->getWebsiteDocumentRootPath(), $fileWebPath);
             $fileInformation['Link'] = $link[1];
             $fileInformation['Component'] = $this->getHumanName();
             array_push($searchResult, $fileInformation);
