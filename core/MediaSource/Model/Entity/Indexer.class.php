@@ -178,13 +178,10 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             $qb->expr()->like('ie.path', ':path')
         )->andWhere(
             $qb->expr()->like(
-                'ie.content', array(':searchterm')
+                'ie.content', ':searchterm'
             )
         )->setParameters(
-            array(
-                'path' => $path,
-                'searchterm' => '%'.$searchterm.'%'
-            )
+            array('path' => $path, 'searchterm' => '%'.$searchterm.'%')
         )->getQuery();
 
         return $query->getOneOrNullResult();
