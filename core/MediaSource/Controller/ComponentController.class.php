@@ -62,9 +62,9 @@ class ComponentController
     {
         $eventHandlerInstance = $this->cx->getEvents();
         $eventHandlerInstance->addEvent('mediasource.load');
-        $eventHandlerInstance->addEvent('MediaSource:Remove');
-        $eventHandlerInstance->addEvent('MediaSource:Add');
-        $eventHandlerInstance->addEvent('MediaSource:Edit');
+        $eventHandlerInstance->addEvent('Indexer:ToRemove');
+        $eventHandlerInstance->addEvent('Indexer:ToAdd');
+        $eventHandlerInstance->addEvent('Indexer:ToEdit');
     }
 
     /**
@@ -80,18 +80,18 @@ class ComponentController
     public function registerEventListeners()
     {
         $eventHandlerInstance = $this->cx->getEvents();
-        $mediaSourceEventListener = new \Cx\Core\MediaSource\Model\Event\MediaSourceEventListener($this->cx);
+        $indexerEventListener = new \Cx\Core\MediaSource\Model\Event\IndexerEventListener($this->cx);
         $eventHandlerInstance->addEventListener(
-            'MediaSource:Remove',
-            $mediaSourceEventListener
+            'Indexer:ToRemove',
+            $indexerEventListener
         );
         $eventHandlerInstance->addEventListener(
-            'MediaSource:Add',
-            $mediaSourceEventListener
+            'Indexer:ToAdd',
+            $indexerEventListener
         );
         $eventHandlerInstance->addEventListener(
-            'MediaSource:Edit',
-            $mediaSourceEventListener
+            'Indexer:ToEdit',
+            $indexerEventListener
         );
     }
 
@@ -106,7 +106,8 @@ class ComponentController
      *
      * @param $indexer \Cx\Core\MediaSource\Model\Entity\Indexer indexer
      *
-     * @throws \Exception if an index already exists with this extension type
+     * @throws  \Cx\Core\MediaSource\Model\Entity\IndexerException if an index
+     *          already exists with this extension type
      * @return void
      */
     public function registerIndexer($indexer)
@@ -139,7 +140,7 @@ class ComponentController
      *
      * @param $type string type of indexer
      *
-     * @return string
+     * @return \Cx\Core\MediaSource\Model\Entity\Indexer
      */
     public function getIndexer($type)
     {

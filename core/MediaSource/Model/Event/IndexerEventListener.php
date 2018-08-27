@@ -42,7 +42,7 @@ namespace Cx\Core\MediaSource\Model\Event;
  * @package     cloudrexx
  * @subpackage  core_mediasource
  */
-class MediaSourceEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
+class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 {
     /**
      *  Add event - add new index
@@ -51,7 +51,7 @@ class MediaSourceEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventL
      *
      * @return void
      */
-    protected function mediaSourceAdd($info)
+    protected function indexerToAdd($info)
     {
         $this->index($info);
     }
@@ -63,7 +63,7 @@ class MediaSourceEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventL
      *
      * @return void
      */
-    protected function mediaSourceEdit($info)
+    protected function indexerToEdit($info)
     {
         $this->index($info);
     }
@@ -75,7 +75,7 @@ class MediaSourceEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventL
      *
      * @return void
      */
-    protected function mediaSourceRemove($fileInfo)
+    protected function indexerToRemove($fileInfo)
     {
         $fullPath = $fileInfo['path'] . $fileInfo['name'];
         $file = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
