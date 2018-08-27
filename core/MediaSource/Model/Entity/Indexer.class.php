@@ -56,12 +56,7 @@ class IndexerException extends \Exception {}
 abstract class Indexer extends \Cx\Model\Base\EntityBase
 {
     /**
-     * @var $type string extension type
-     */
-    protected $type;
-
-    /**
-     * Extension array
+     * @var $extensions array extension array
      */
     protected $extensions;
 
@@ -80,33 +75,25 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
     /**
      * Get extensions of indexer
      *
-     * @return string
+     * @return array
      */
     public function getExtensions()
     {
         return $this->extensions;
     }
 
-    /**
-     * Get type of indexer
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
     /** Index all files that match the indexer type
      *
      * @param $path    string path to indexing file
-     * @param $oldPath string path of the previous location, to get the right
-     *                        database entry
+     * @param $oldPath string (optional) path of the previous location, to get
+     *                        the right database entry.
+     *                        example use-case: used if an entry is moved.
+     * @param $flush   bool   if you want to flush or not
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      * @return void
      */
-    public function index($path, $oldPath = '')
+    public function index($path, $oldPath = '', $flush = true)
     {
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $em->getRepository(
@@ -136,8 +123,9 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
 
         $em->persist($indexerEntry);
 
-
-        $em->flush();
+        if ($flush) {
+            $em->flush();
+        }
     }
 
     /**
@@ -174,6 +162,7 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
      * Return all index entries that match
      *
      * @param $searchterm string term to search
+     * @param $path       string path to search in
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
      * @return \Cx\Core\MediaSource\Model\Entity\IndexerEntry
@@ -189,9 +178,14 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             $qb->expr()->like('ie.path', ':path')
         )->andWhere(
             $qb->expr()->like(
-                'ie.content', $qb->expr()->literal('%'.$searchterm.'%')
+                'ie.content', array(':searchterm')
             )
-        )->setParameter('path', $path)->getQuery();
+        )->setParameters(
+            array(
+                'path' => $path,
+                'searchterm' => '%'.$searchterm.'%'
+            )
+        )->getQuery();
 
         return $query->getOneOrNullResult();
     }
@@ -199,7 +193,7 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
     /**
      * Get text from an indexed file
      *
-     * @param $filepath    string path to file
+     * @param $filepath string path to file
      *
      * @return string
      */

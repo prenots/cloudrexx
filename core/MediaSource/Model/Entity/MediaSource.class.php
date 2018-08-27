@@ -104,7 +104,7 @@ class MediaSource extends DataSource {
         $this->humanName = $humanName;
         $this->directory = $directory;
         $this->accessIds = $accessIds;
-        $this->setIsIndexerActivated($isIndexActivated);
+        $this->setIndexerActivated($isIndexActivated);
 
         // Sets provided SystemComponentController
         $this->systemComponentController = $systemComponentController;
@@ -132,7 +132,7 @@ class MediaSource extends DataSource {
      *
      * @return void
      */
-    public function setIsIndexerActivated($activated)
+    public function setIndexerActivated($activated)
     {
         $this->isIndexActivated = $activated;
     }
@@ -142,7 +142,7 @@ class MediaSource extends DataSource {
      *
      * @return bool
      */
-    public function getIsIndexerActivated()
+    public function isIndexerActivated()
     {
         return $this->isIndexActivated;
     }
@@ -305,9 +305,10 @@ class MediaSource extends DataSource {
      * Get all matches from search term.
      *
      * @param $searchterm string term to search
+     * @param $path       string path to search in
      *
      * @throws \Cx\Core\Core\Model\Entity\SystemComponentException
-     * @return array all file names that match
+     * @return array all search results
      */
     public function getFileSystemMatches($searchterm, $path)
     {
@@ -325,13 +326,13 @@ class MediaSource extends DataSource {
             array_push($fileList, $fileEntry);
         }
 
-        $files = $this->getAllFilesAsObject($fileList, $fullPath, array());
+        $files = $this->getAllFilesAsObjects($fileList, $fullPath, array());
         foreach ($files as $file) {
             $fileInformation = array();
             $filePath = $file->getPath() . '/' . $file->getFullName();
             $fileWebPath = $file->getPath() . '/' . $file->getFullName();
             $content = '';
-            if ($this->isIndexActivated) {
+            if ($this->isIndexerActivated()) {
                 $indexer = $this->getComponentController()->getIndexer(
                     $file->getExtension()
                 );
@@ -345,14 +346,12 @@ class MediaSource extends DataSource {
                 }
             }
 
-            if (strpos(
-                    strtolower($file->getName()), strtolower($searchterm)
-                ) === false && empty($content)) {
+            if (strpos(strtolower($file->getName()), strtolower($searchterm))
+                === false && empty($content)) {
                 continue;
             }
 
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-
             $fileInformation['Score'] = 100;
             $fileInformation['Title'] = ucfirst($file->getName());
             $fileInformation['Content'] = $content;
@@ -366,21 +365,22 @@ class MediaSource extends DataSource {
 
     /**
      * Returns an array with all file paths of all files in this directory,
-     * including files located in another directory.
+     * including files located in subdirectories.
      *
-     * @param $fileList array  all files and directorys
+     * @param $fileList array  all files and directories
      * @param $path     string path from this directory
      * @param $result   array  existing result
      *
-     * @return array
+     * @return array with all files as
+     *               \Cx\Core\MediaSource\Model\Entity\LocalFile
      */
-    protected function getAllFilesAsObject($fileList, $path, $result)
+    protected function getAllFilesAsObjects($fileList, $path, $result)
     {
         foreach ($fileList as $fileEntryKey => $fileListEntry) {
             $newPath = $path  . $fileEntryKey;
             if (is_dir($newPath)) {
                 $newPath = $path . $fileEntryKey;
-                $result = $this->getAllFilesAsObject(
+                $result = $this->getAllFilesAsObjects(
                     $fileListEntry, $newPath .'/', $result
                 );
             } else if (is_file($newPath)) {
