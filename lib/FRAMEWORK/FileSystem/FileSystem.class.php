@@ -522,7 +522,7 @@ class FileSystem
     }
 
     /**
-     * Call MediaSource event delete
+     * Call Indexer event to delete
      *
      * @param $path string path to file or directory
      * @param $name string name of file or directory
@@ -534,7 +534,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'MediaSource:Remove', array(
+            'Indexer:ToRemove', array(
             'path' => $path,
             'name' => $name
             )
@@ -542,7 +542,7 @@ class FileSystem
     }
 
     /**
-     * Call MediaSource event delete
+     * Call Indexer event to update
      *
      * @param $path    string path to file or directory
      * @param $name    string name of file or directory
@@ -555,7 +555,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'MediaSource:Edit', array(
+            'Indexer:ToEdit', array(
             'path' => $path . $name,
             'oldPath' => $path . $oldname,
             )
@@ -563,7 +563,7 @@ class FileSystem
     }
 
     /**
-     * Call MediaSource event add
+     * Call Indexer event to add
      *
      * @param $path string path to file or directory
      * @param $name string name of file or directory
@@ -575,7 +575,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'MediaSource:Add', array(
+            'Indexer:ToAdd', array(
             'path' => $path . $name
             )
         );
