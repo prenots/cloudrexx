@@ -1185,7 +1185,7 @@ END;
                         $newName = $part1 . '_' . time() . $exte;
                     }
                 }
-                
+
                 //if the name has changed, the file needs to be renamed afterwards
                 if ($newName != $file) {
                     $arrFilesToRename[$file] = $newName;
