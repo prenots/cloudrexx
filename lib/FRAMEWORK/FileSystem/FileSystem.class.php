@@ -534,9 +534,10 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'Indexer:ToRemove', array(
-            'path' => $path,
-            'name' => $name
+            'Indexer:ToRemove',
+            array(
+                'path' => $path,
+                'name' => $name
             )
         );
     }
@@ -555,9 +556,10 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'Indexer:ToEdit', array(
-            'path' => $path . $name,
-            'oldPath' => $path . $oldname,
+            'Indexer:ToEdit',
+            array(
+                'path' => $path . $name,
+                'oldPath' => $path . $oldname,
             )
         );
     }
@@ -575,8 +577,9 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'Indexer:ToAdd', array(
-            'path' => $path . $name
+            'Indexer:ToAdd',
+            array(
+                'path' => $path . $name
             )
         );
     }
@@ -1088,7 +1091,8 @@ class FileSystem
         }
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $fileSystem = new \Cx\Lib\FileSystem\FileSystem();
-        $fileSystem->callUpdateEvent($cx->getWebsiteDocumentRootPath() . '/' .
+        $fileSystem->callUpdateEvent(
+            $cx->getWebsiteDocumentRootPath() . '/' .
             pathinfo($to_path, PATHINFO_DIRNAME) . '/',
             pathinfo($to_path, PATHINFO_BASENAME),
             $from_path
