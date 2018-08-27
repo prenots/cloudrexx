@@ -32,14 +32,15 @@
 namespace Cx\Core\MediaSource\Model\Entity;
 
 /**
- * IndexEntry
+ * Index entries for the indexer. Stores the converted content.
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_mediasource
  */
-class IndexerEntry extends \Cx\Model\Base\EntityBase {
+class IndexerEntry extends \Cx\Model\Base\EntityBase
+{
     /**
      * @var integer
      */
@@ -80,13 +81,10 @@ class IndexerEntry extends \Cx\Model\Base\EntityBase {
      * Set path
      *
      * @param string $path
-     * @return IndexerEntry
      */
     public function setPath($path)
     {
         $this->path = $path;
-
-        return $this;
     }
 
     /**
@@ -103,13 +101,10 @@ class IndexerEntry extends \Cx\Model\Base\EntityBase {
      * Set indexer
      *
      * @param string $indexer
-     * @return IndexerEntry
      */
     public function setIndexer($indexer)
     {
         $this->indexer = $indexer;
-
-        return $this;
     }
 
     /**
@@ -126,13 +121,10 @@ class IndexerEntry extends \Cx\Model\Base\EntityBase {
      * Set content
      *
      * @param string $content
-     * @return IndexerEntry
      */
     public function setContent($content)
     {
         $this->content = $content;
-
-        return $this;
     }
 
     /**
@@ -149,13 +141,10 @@ class IndexerEntry extends \Cx\Model\Base\EntityBase {
      * Set lastUpdate
      *
      * @param \DateTime $lastUpdate
-     * @return IndexerEntry
      */
     public function setLastUpdate($lastUpdate)
     {
         $this->lastUpdate = $lastUpdate;
-
-        return $this;
     }
 
     /**
