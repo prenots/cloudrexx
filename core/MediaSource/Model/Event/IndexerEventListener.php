@@ -169,17 +169,16 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
         return $result;
     }
 
+    /**
+     * Call event method. This method is overwritten to get the whole array
+     * of $eventArgs as parameter in the event method, not only the first
+     * element.
+     *
+     * @param $eventName
+     * @param array $eventArgs
+     */
     public function onEvent($eventName, array $eventArgs)
     {
-        $methodName = $eventName;
-        if (!method_exists($this, $eventName)) {
-            $eventNameParts = preg_split('/[.:\/]/', $eventName);
-            $methodName = lcfirst(
-                implode(
-                    '', array_map('ucfirst', $eventNameParts)
-                )
-            );
-        }
-        $this->$methodName($eventArgs);
+        parent::onEvent($eventName, array($eventArgs));
     }
 }
