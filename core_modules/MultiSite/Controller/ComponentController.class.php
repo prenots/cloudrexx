@@ -3236,9 +3236,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     break;
                 }
 
-// TODO: this offline mode has been caused by the MultiSite Manager -> Therefore, we should not return the Website's custom offline page.
-//       Instead we shall show the Cloudrexx offline page
-                throw new \Exception('Website is currently not online');
+                // show website offline message
+                \header($_SERVER['SERVER_PROTOCOL'] . ' 500 Server Error');
+                // remove CSRF token
+                output_reset_rewrite_vars();
+                echo file_get_contents($this->getDirectory() . '/View/Template/Generic/offline.html');
+                \DBG::log('Website is currently not online');
+                throw new \Cx\Core\Core\Controller\InstanceException();
                 break;
 
             default:
