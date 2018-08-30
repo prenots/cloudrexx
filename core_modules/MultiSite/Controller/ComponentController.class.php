@@ -3237,7 +3237,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 }
 
                 // show website offline message
-                \header($_SERVER['SERVER_PROTOCOL'] . ' 500 Server Error');
+                \header($_SERVER['SERVER_PROTOCOL'] . ' 503 Service Unavailable');
                 // remove CSRF token
                 output_reset_rewrite_vars();
                 echo file_get_contents($this->getDirectory() . '/View/Template/Generic/offline.html');
