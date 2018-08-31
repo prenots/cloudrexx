@@ -59,3 +59,10 @@ Cx\Modules\Shop\Model\Entity\Pricelists:
     categories:
       targetEntity: Cx\Modules\Shop\Model\Entity\Categories
       mappedBy: pricelists
+  manyToOne:
+    lang:
+      targetEntity: Cx\Core\Locale\Model\Entity\Locale
+      mappedBy: pricelists
+      joinColumn:
+        name: lang_id
+        referencedColumnName: id

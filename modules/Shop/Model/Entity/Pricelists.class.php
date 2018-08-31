@@ -64,6 +64,11 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
     protected $categories;
 
     /**
+     * @var \Cx\Core\Locale\Model\Entity\Locale
+     */
+    protected $lang;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -319,5 +324,28 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Set currencies
+     *
+     * @param \Cx\Core\Locale\Model\Entity\Locale $lang
+     * @return Pricelists
+     */
+    public function setLang(\Cx\Core\Locale\Model\Entity\Locale $lang = null)
+    {
+        $this->currencies = $lang;
+
+        return $this;
+    }
+
+    /**
+     * Get lang
+     *
+     * @return \Cx\Core\Locale\Model\Entity\Locale
+     */
+    public function getLang()
+    {
+        return $this->lang;
     }
 }

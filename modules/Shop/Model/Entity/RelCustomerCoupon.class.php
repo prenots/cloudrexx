@@ -38,6 +38,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      */
     protected $orders;
 
+    /**
+     * @var \Cx\Core\User\Model\Entity\User
+     */
+    protected $customer;
 
     /**
      * Set code
@@ -175,5 +179,28 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
     public function getOrders()
     {
         return $this->orders;
+    }
+
+    /**
+     * Set customer
+     *
+     * @param \Cx\Core\User\Model\Entity\User $customer
+     * @return CustomerGroup
+     */
+    public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }

@@ -73,6 +73,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      */
     protected $products;
 
+    /**
+     * @var \Cx\Core\User\Model\Entity\User
+     */
+    protected $customer;
 
     /**
      * Set code
@@ -371,5 +375,28 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     public function getProducts()
     {
         return $this->products;
+    }
+
+    /**
+     * Set customer
+     *
+     * @param \Cx\Core\User\Model\Entity\User $customer
+     * @return DiscountCoupon
+     */
+    public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }

@@ -144,6 +144,16 @@ class Products extends \Cx\Model\Base\EntityBase {
     protected $manufacturer;
 
     /**
+     * @var \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName
+     */
+    protected $discountgroupCountName;
+
+    /**
+     * @var \Cx\Modules\Shop\Model\Entity\ArticleGroup
+     */
+    protected $articleGroup;
+
+    /**
      * @var \Cx\Modules\Shop\Model\Entity\Vat
      */
     protected $vat;
@@ -154,6 +164,11 @@ class Products extends \Cx\Model\Base\EntityBase {
     protected $categories;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    protected $userGroups;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -162,6 +177,7 @@ class Products extends \Cx\Model\Base\EntityBase {
         $this->orderItems = new \Doctrine\Common\Collections\ArrayCollection();
         $this->relProductAttributes = new \Doctrine\Common\Collections\ArrayCollection();
         $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->userGroups = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -803,6 +819,52 @@ class Products extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+     * Set discountgroup count name
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName$discountgroupCountName
+     * @return Products
+     */
+    public function setDiscountgroupCountName(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName = null)
+    {
+        $this->discountgroupCountName = $discountgroupCountName;
+
+        return $this;
+    }
+
+    /**
+     * Get discountgroup count name
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName
+     */
+    public function getDiscountgroupCountName()
+    {
+        return $this->discountgroupCountName;
+    }
+
+    /**
+     * Set article group
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup
+     * @return Products
+     */
+    public function setArticleGroup(\Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup = null)
+    {
+        $this->articleGroup = $articleGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get article group
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\ArticleGroup
+     */
+    public function getArticleGroup()
+    {
+        return $this->articleGroup;
+    }
+
+    /**
      * Set vat
      *
      * @param \Cx\Modules\Shop\Model\Entity\Vat $vat
@@ -856,5 +918,38 @@ class Products extends \Cx\Model\Base\EntityBase {
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Add user group
+     *
+     * @param \Cx\Core\User\Model\Entity\Group $userGroup
+     * @return Products
+     */
+    public function addUserGroup(\Cx\Core\User\Model\Entity\Group $userGroup)
+    {
+        $this->userGroups[] = $userGroup;
+
+        return $this;
+    }
+
+    /**
+     * Remove user group
+     *
+     * @param \Cx\Core\User\Model\Entity\Group $userGroup
+     */
+    public function removeUserGroup(\Cx\Core\User\Model\Entity\Group $userGroup)
+    {
+        $this->userGroups->removeElement($userGroup);
+    }
+
+    /**
+     * Get categories
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getUserGroups()
+    {
+        return $this->userGroups;
     }
 }

@@ -49,6 +49,11 @@ class Categories extends \Cx\Model\Base\EntityBase {
     protected $products;
 
     /**
+     * @var \Cx\Modules\Shop\Model\Entity\Categories
+     */
+    protected $category;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -246,5 +251,28 @@ class Categories extends \Cx\Model\Base\EntityBase {
     public function getProducts()
     {
         return $this->products;
+    }
+
+    /**
+     * Set parent category
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\Categories $category
+     * @return Categories
+     */
+    public function setCategory(\Cx\Modules\Shop\Model\Entity\Categories $category = null)
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\Categories
+     */
+    public function getCategory()
+    {
+        return $this->category;
     }
 }

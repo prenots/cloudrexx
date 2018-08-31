@@ -204,6 +204,11 @@ class Orders extends \Cx\Model\Base\EntityBase {
     protected $relCustomerCoupons;
 
     /**
+     * @var \Cx\Core\Locale\Model\Entity\Locale
+     */
+    protected $lang;
+
+    /**
      * @var \Cx\Modules\Shop\Model\Entity\Currencies
      */
     protected $currencies;
@@ -217,6 +222,11 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * @var \Cx\Modules\Shop\Model\Entity\Payment
      */
     protected $payment;
+
+    /**
+     * @var \Cx\Core\User\Model\Entity\User
+     */
+    protected $customer;
 
     /**
      * Constructor
@@ -1145,6 +1155,29 @@ class Orders extends \Cx\Model\Base\EntityBase {
     /**
      * Set currencies
      *
+     * @param \Cx\Core\Locale\Model\Entity\Locale $lang
+     * @return Orders
+     */
+    public function setLang(\Cx\Core\Locale\Model\Entity\Locale $lang = null)
+    {
+        $this->currencies = $lang;
+
+        return $this;
+    }
+
+    /**
+     * Get lang
+     *
+     * @return \Cx\Core\Locale\Model\Entity\Locale
+     */
+    public function getLang()
+    {
+        return $this->lang;
+    }
+
+    /**
+     * Set currencies
+     *
      * @param \Cx\Modules\Shop\Model\Entity\Currencies $currencies
      * @return Orders
      */
@@ -1209,5 +1242,28 @@ class Orders extends \Cx\Model\Base\EntityBase {
     public function getPayment()
     {
         return $this->payment;
+    }
+
+    /**
+     * Set customer
+     *
+     * @param \Cx\Core\User\Model\Entity\User $customer
+     * @return Orders
+     */
+    public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }
