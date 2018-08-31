@@ -11,6 +11,8 @@ Cx\Modules\Shop\Model\Entity\Products:
       columns: [ manufacturer_id ]
     fk_contrexx_module_shop_product_contrexx_module_shop_vat1_idx:
       columns: [ vat_id ]
+    flags:
+      columns: [ flags ]
   id:
     id:
       type: integer
