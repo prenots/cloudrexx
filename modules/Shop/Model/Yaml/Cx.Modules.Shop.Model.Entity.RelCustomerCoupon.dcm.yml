@@ -42,3 +42,9 @@ Cx\Modules\Shop\Model\Entity\RelCustomerCoupon:
       joinColumn:
         name: order_id
         referencedColumnName: id
+    customer:
+      targetEntity: Cx\Core\User\Model\Entity\User
+      inversedBy: relCustomerCoupons
+      joinColumn:
+        name: customer_id
+        referencedColumnName: id

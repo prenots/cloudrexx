@@ -117,6 +117,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      */
     protected $products;
 
+    /**
+     * @var \Cx\Core\User\Model\Entity\User
+     */
+    protected $customer;
 
     /**
      * Set id

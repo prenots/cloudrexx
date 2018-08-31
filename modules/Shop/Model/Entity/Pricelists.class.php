@@ -103,6 +103,11 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
     protected $categories;
 
     /**
+     * @var \Cx\Core\Locale\Model\Entity\Locale
+     */
+    protected $lang;
+
+    /**
      * Constructor
      */
     public function __construct()

@@ -98,6 +98,11 @@ class Categories extends \Cx\Model\Base\EntityBase {
     protected $products;
 
     /**
+     * @var \Cx\Modules\Shop\Model\Entity\Categories
+     */
+    protected $category;
+
+    /**
      * Constructor
      */
     public function __construct()

@@ -75,6 +75,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      */
     protected $orders;
 
+    /**
+     * @var \Cx\Core\User\Model\Entity\User
+     */
+    protected $customer;
 
     /**
      * Set code

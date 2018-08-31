@@ -243,6 +243,11 @@ class Orders extends \Cx\Model\Base\EntityBase {
     protected $relCustomerCoupons;
 
     /**
+     * @var \Cx\Core\Locale\Model\Entity\Locale
+     */
+    protected $lang;
+
+    /**
      * @var \Cx\Modules\Shop\Model\Entity\Currencies
      */
     protected $currencies;
@@ -256,6 +261,11 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * @var \Cx\Modules\Shop\Model\Entity\Payment
      */
     protected $payment;
+
+    /**
+     * @var \Cx\Core\User\Model\Entity\User
+     */
+    protected $customer;
 
     /**
      * Constructor
@@ -1157,6 +1167,7 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set customer
      *
      * @param \Cx\Core\User\Model\Entity\User $customer
+     * @return Orders
      */
     public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
     {

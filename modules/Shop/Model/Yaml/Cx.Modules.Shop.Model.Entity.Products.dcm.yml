@@ -99,7 +99,7 @@ Cx\Modules\Shop\Model\Entity\Products:
     ord:
       type: integer
       options:
-        default: '0'
+        default: 0
     vatId:
       type: integer
       nullable: true
@@ -130,7 +130,7 @@ Cx\Modules\Shop\Model\Entity\Products:
     minimumOrderQuantity:
       type: integer
       options:
-        default: '0'
+        default: 0
       column: minimum_order_quantity
     uri:
       type: string
@@ -200,6 +200,20 @@ Cx\Modules\Shop\Model\Entity\Products:
         name: manufacturer_id
         referencedColumnName: id
         nullable: true
+    discountgroupCountName:
+      targetEntity: Cx\Modules\Shop\Model\Entity\DiscountgroupCountName
+      inversedBy: products
+      joinColumn:
+        name: group_id
+        referencedColumnName: id
+        nullable: true
+    articleGroup:
+          targetEntity: Cx\Modules\Shop\Model\Entity\ArticleGroup
+          inversedBy: products
+          joinColumn:
+            name: article_id
+            referencedColumnName: id
+            nullable: true
     vat:
       targetEntity: Cx\Modules\Shop\Model\Entity\Vat
       inversedBy: products
@@ -210,4 +224,7 @@ Cx\Modules\Shop\Model\Entity\Products:
   manyToMany:
     categories:
       targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      mappedBy: products
+    userGroups:
+      targetEntity: Cx\Core\User\Model\Entity\Group
       mappedBy: products

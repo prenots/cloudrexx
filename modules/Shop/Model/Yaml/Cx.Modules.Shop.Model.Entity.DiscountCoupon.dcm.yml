@@ -89,3 +89,9 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       joinColumn:
         name: product_id
         referencedColumnName: id
+    customer:
+      targetEntity: Cx\Core\User\Model\Entity\User
+      inversedBy: discountCoupons
+      joinColumn:
+        name: customer_id
+        referencedColumnName: id

@@ -216,6 +216,16 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     protected $manufacturer;
 
     /**
+     * @var \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName
+     */
+    protected $discountgroupCountName;
+
+    /**
+     * @var \Cx\Modules\Shop\Model\Entity\ArticleGroup
+     */
+    protected $articleGroup;
+
+    /**
      * @var \Cx\Modules\Shop\Model\Entity\Vat
      */
     protected $vat;
@@ -226,6 +236,11 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     protected $categories;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    protected $userGroups;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -234,6 +249,7 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
         $this->orderItems = new \Doctrine\Common\Collections\ArrayCollection();
         $this->relProductAttributes = new \Doctrine\Common\Collections\ArrayCollection();
         $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->userGroups = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -929,7 +945,7 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     /**
      * Set discountgroup count name
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName$discountgroupCountName
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName
      */
     public function setDiscountgroupCountName(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName = null)
     {

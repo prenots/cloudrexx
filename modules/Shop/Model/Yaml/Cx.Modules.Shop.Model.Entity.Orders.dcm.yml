@@ -219,6 +219,12 @@ Cx\Modules\Shop\Model\Entity\Orders:
         name: id
         referencedColumnName: order_id
   manyToOne:
+    lang:
+      targetEntity: Cx\Core\Locale\Model\Entity\Locale
+      mappedBy: orders
+      joinColumn:
+        name: lang_id
+        referencedColumnName: id
     currencies:
       targetEntity: Cx\Modules\Shop\Model\Entity\Currencies
       inversedBy: orders
@@ -238,4 +244,10 @@ Cx\Modules\Shop\Model\Entity\Orders:
       inversedBy: orders
       joinColumn:
         name: payment_id
+        referencedColumnName: id
+    customer:
+      targetEntity: Cx\Core\User\Model\Entity\User
+      inversedBy: orders
+      joinColumn:
+        name: customer_id
         referencedColumnName: id

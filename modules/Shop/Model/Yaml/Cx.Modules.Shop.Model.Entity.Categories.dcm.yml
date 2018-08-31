@@ -67,3 +67,10 @@ Cx\Modules\Shop\Model\Entity\Categories:
         inverseJoinColumns:
           product_id:
             referencedColumnName: id
+  oneToMany:
+    category:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      mappedBy: categories
+      joinColumn:
+        name: id
+        referencedColumnName: parent_id
