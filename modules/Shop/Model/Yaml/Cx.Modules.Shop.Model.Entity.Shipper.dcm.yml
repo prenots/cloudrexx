@@ -1,0 +1,39 @@
+Cx\Modules\Shop\Model\Entity\Shipper:
+  type: entity
+  table: module_shop_shipper
+  repositoryClass: Cx\Modules\Shop\Model\Repository\ShipperRepository
+  id:
+    id:
+      type: integer
+      options:
+        unsigned: true
+      generator:
+        strategy: AUTO
+  fields:
+    active:
+      type: boolean
+      options:
+        unsigned: true
+        default: 1
+    ord:
+      type: integer
+      options:
+        unsigned: true
+        default: 0
+  oneToMany:
+    orders:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+      mappedBy: shipper
+      joinColumn:
+        name: id
+        referencedColumnName: shipment_id
+    shipmentCosts:
+      targetEntity: Cx\Modules\Shop\Model\Entity\ShipmentCost
+      mappedBy: shipper
+      joinColumn:
+        name: id
+        referencedColumnName: shipper_id
+  manyToMany:
+    zones:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Zones
+      mappedBy: shippers

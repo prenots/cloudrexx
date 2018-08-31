@@ -1,0 +1,18 @@
+Cx\Modules\Shop\Model\Entity\Manufacturer:
+  type: entity
+  table: module_shop_manufacturer
+  repositoryClass: Cx\Modules\Shop\Model\Repository\ManufacturerRepository
+  id:
+    id:
+      type: integer
+      options:
+        unsigned: true
+      generator:
+        strategy: AUTO
+  oneToMany:
+    products:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+      mappedBy: manufacturer
+      joinColumn:
+        name: id
+        referencedColumnName: manufacturer_id

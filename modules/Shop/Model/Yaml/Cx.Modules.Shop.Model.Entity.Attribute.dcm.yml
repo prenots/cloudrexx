@@ -1,0 +1,24 @@
+Cx\Modules\Shop\Model\Entity\Attribute:
+  type: entity
+  table: module_shop_attribute
+  repositoryClass: Cx\Modules\Shop\Model\Repository\AttributeRepository
+  id:
+    id:
+      type: integer
+      options:
+        unsigned: true
+      generator:
+        strategy: AUTO
+  fields:
+    type:
+      type: boolean
+      options:
+        unsigned: true
+        default: 1
+  oneToMany:
+    options:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Option
+      mappedBy: attribute
+      joinColumn:
+        name: id
+        referencedColumnName: attribute_id

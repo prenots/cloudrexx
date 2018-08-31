@@ -1,0 +1,70 @@
+Cx\Modules\Shop\Model\Entity\Payment:
+  type: entity
+  table: module_shop_payment
+  repositoryClass: Cx\Modules\Shop\Model\Repository\PaymentRepository
+  indexes:
+    fk_module_shop_payment_module_shop_payment_processors1_idx:
+      columns: [ processor_id ]
+  id:
+    id:
+      type: integer
+      options:
+        unsigned: true
+      generator:
+        strategy: AUTO
+  fields:
+    processorId:
+      type: integer
+      options:
+        unsigned: true
+        default: '0'
+      column: processor_id
+    fee:
+      type: decimal
+      precision: 9
+      scale: 2
+      options:
+        unsigned: true
+        default: 0.00
+    freeFrom:
+      type: decimal
+      precision: 9
+      scale: 2
+      options:
+        unsigned: true
+        default: 0.00
+      column: free_from
+    ord:
+      type: integer
+      options:
+        unsigned: true
+        default: 0
+    active:
+      type: boolean
+      options:
+        unsigned: true
+        default: 1
+  oneToMany:
+    discountCoupons:
+      targetEntity: Cx\Modules\Shop\Model\Entity\DiscountCoupon
+      mappedBy: payment
+      joinColumn:
+        name: id
+        referencedColumnName: payment_id
+    orders:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+      mappedBy: payment
+      joinColumn:
+        name: id
+        referencedColumnName: payment_id
+  manyToOne:
+    paymentProcessors:
+      targetEntity: Cx\Modules\Shop\Model\Entity\PaymentProcessors
+      inversedBy: payments
+      joinColumn:
+        name: processor_id
+        referencedColumnName: id
+  manyToMany:
+    zones:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Zones
+      mappedBy: payments

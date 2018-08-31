@@ -1,0 +1,31 @@
+Cx\Modules\Shop\Model\Entity\Importimg:
+  type: entity
+  table: module_shop_importimg
+  repositoryClass: Cx\Modules\Shop\Model\Repository\ImportimgRepository
+  id:
+    imgId:
+      type: integer
+      generator:
+        strategy: AUTO
+      options:
+        unsigned: true
+      column: img_id
+  fields:
+    imgName:
+      type: string
+      length: 255
+      options:
+        default: ''
+      column: img_name
+    imgCats:
+      type: text
+      column: img_cats
+    imgFieldsFile:
+      type: text
+      column: img_fields_file
+    imgFieldsDb:
+      type: string
+      length: 255
+      options:
+        default: ''
+      column: img_fields_db

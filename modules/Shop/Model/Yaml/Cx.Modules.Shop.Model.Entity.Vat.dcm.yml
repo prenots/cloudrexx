@@ -1,0 +1,26 @@
+Cx\Modules\Shop\Model\Entity\Vat:
+  type: entity
+  table: module_shop_vat
+  repositoryClass: Cx\Modules\Shop\Model\Repository\VatRepository
+  id:
+    id:
+      type: integer
+      options:
+        unsigned: true
+      generator:
+        strategy: AUTO
+  fields:
+    rate:
+      type: decimal
+      precision: 5
+      scale: 2
+      options:
+        unsigned: true
+        default: 0.00
+  oneToMany:
+    products:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+      mappedBy: vat
+      joinColumn:
+        name: id
+        referencedColumnName: vat_id
