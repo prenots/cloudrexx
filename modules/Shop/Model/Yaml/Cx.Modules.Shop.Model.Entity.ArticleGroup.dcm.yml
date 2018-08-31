@@ -1,0 +1,18 @@
+Cx\Modules\Shop\Model\Entity\ArticleGroup:
+  type: entity
+  table: module_shop_article_group
+  repositoryClass: Cx\Modules\Shop\Model\Repository\ArticleGroupRepository
+  id:
+    id:
+      type: integer
+      options:
+        unsigned: true
+      generator:
+        strategy: AUTO
+  oneToMany:
+    relDiscountGroups:
+      targetEntity: Cx\Modules\Shop\Model\Entity\RelDiscountGroup
+      mappedBy: articleGroup
+      joinColumn:
+        name: id
+        referencedColumnName: article_group_id
