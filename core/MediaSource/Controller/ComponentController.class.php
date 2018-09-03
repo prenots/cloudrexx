@@ -62,9 +62,9 @@ class ComponentController
     {
         $eventHandlerInstance = $this->cx->getEvents();
         $eventHandlerInstance->addEvent('mediasource.load');
-        $eventHandlerInstance->addEvent('Indexer:ToRemove');
-        $eventHandlerInstance->addEvent('Indexer:ToAdd');
-        $eventHandlerInstance->addEvent('Indexer:ToEdit');
+        $eventHandlerInstance->addEvent('Indexer:Remove');
+        $eventHandlerInstance->addEvent('Indexer:Add');
+        $eventHandlerInstance->addEvent('Indexer:Edit');
     }
 
     /**
@@ -82,15 +82,15 @@ class ComponentController
         $eventHandlerInstance = $this->cx->getEvents();
         $indexerEventListener = new \Cx\Core\MediaSource\Model\Event\IndexerEventListener($this->cx);
         $eventHandlerInstance->addEventListener(
-            'Indexer:ToRemove',
+            'Indexer:Remove',
             $indexerEventListener
         );
         $eventHandlerInstance->addEventListener(
-            'Indexer:ToAdd',
+            'Indexer:Add',
             $indexerEventListener
         );
         $eventHandlerInstance->addEventListener(
-            'Indexer:ToEdit',
+            'Indexer:Edit',
             $indexerEventListener
         );
     }
