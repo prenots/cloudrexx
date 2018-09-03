@@ -463,7 +463,7 @@ class FileSystem
                     $status = $newFileName;
                 }
             }
-            $this->callUpdateEvent($path, $status, $oldFileName);
+            $this->callUpdateEvent($path, $newFileName, $oldFileName);
         } else {
             $status = $oldFileName;
         }
