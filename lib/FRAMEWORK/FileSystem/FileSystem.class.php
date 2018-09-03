@@ -534,7 +534,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'Indexer:ToRemove',
+            'Indexer:Remove',
             array(
                 'path' => $path,
                 'name' => $name
@@ -556,7 +556,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'Indexer:ToEdit',
+            'Indexer:Edit',
             array(
                 'path' => $path . $name,
                 'oldPath' => $path . $oldname,
@@ -577,7 +577,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'Indexer:ToAdd',
+            'Indexer:Add',
             array(
                 'path' => $path . $name
             )
