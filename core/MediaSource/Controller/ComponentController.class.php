@@ -48,7 +48,7 @@ class ComponentController
     extends SystemComponentController
 {
     /**
-     * Include all registered indexes
+     * Include all registered indexers
      */
     protected $indexers = array();
 
@@ -118,7 +118,7 @@ class ComponentController
         foreach ($extensions as $extension) {
             if (!empty($this->indexers[$extension])) {
                 throw new \Cx\Core\MediaSource\Model\Entity\IndexerException(
-                    $_ARRAYLANG['TXT_INDEX_ALREADY_EXISTS']
+                    $_ARRAYLANG['TXT_INDEXER_ALREADY_EXISTS']
                 );
             }
             $this->indexers[$extension] = $indexer;
@@ -136,7 +136,7 @@ class ComponentController
     }
 
     /**
-     * Get indexer by id
+     * Get indexer by type
      *
      * @param $type string type of indexer
      *

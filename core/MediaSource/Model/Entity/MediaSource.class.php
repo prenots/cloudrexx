@@ -90,7 +90,7 @@ class MediaSource extends DataSource {
     /**
      * @var bool if indexer is activated
      */
-    protected $isIndexerActivated;
+    protected $isIndexingActivated;
 
     /**
      * @var \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController
@@ -98,13 +98,13 @@ class MediaSource extends DataSource {
     protected $systemComponentController;
 
     public function __construct($name,$humanName, $directory, $accessIds = array(), $position = '',FileSystem $fileSystem = null, \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController = null) {
-        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0], $isIndexerActivated = true);
+        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0], $isIndexingActivated = true);
         $this->name      = $name;
         $this->position  = $position;
         $this->humanName = $humanName;
         $this->directory = $directory;
         $this->accessIds = $accessIds;
-        $this->setIndexerActivated($isIndexerActivated);
+        $this->setIndexingActivated($isIndexerActivated);
 
         // Sets provided SystemComponentController
         $this->systemComponentController = $systemComponentController;
@@ -132,9 +132,9 @@ class MediaSource extends DataSource {
      *
      * @return void
      */
-    public function setIndexerActivated($activated)
+    public function setIndexingActivated($activated)
     {
-        $this->isIndexerActivated = $activated;
+        $this->isIndexingActivated = $activated;
     }
 
     /**
@@ -142,9 +142,9 @@ class MediaSource extends DataSource {
      *
      * @return bool
      */
-    public function isIndexerActivated()
+    public function isIndexingActivated()
     {
-        return $this->isIndexerActivated;
+        return $this->isIndexingActivated;
     }
 
     /**
@@ -332,7 +332,7 @@ class MediaSource extends DataSource {
             $filePath = $file->getPath() . '/' . $file->getFullName();
             $fileWebPath = $file->getPath() . '/' . $file->getFullName();
             $content = '';
-            if ($this->isIndexerActivated()) {
+            if ($this->isIndexingActivated()) {
                 $indexer = $this->getComponentController()->getIndexer(
                     $file->getExtension()
                 );
