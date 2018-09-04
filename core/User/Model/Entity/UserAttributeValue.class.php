@@ -1,173 +1,161 @@
 <?php
 
-/**
- * Cloudrexx
- *
- * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2015
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Cloudrexx" is a registered trademark of Cloudrexx AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
-
-
 namespace Cx\Core\User\Model\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * Cx\Core\User\Model\Entity\UserAttributeValue
+ * UserAttributeValue
  */
 class UserAttributeValue extends \Cx\Model\Base\EntityBase {
-    
     /**
-     * The attribute this value belongs to
-     *
-     * @var \Cx\Core\User\Model\Entity\UserAttribute
+     * @var integer
      */
     protected $attributeId;
 
     /**
-     * The attribute this value belongs to
-     *
-     * @var \Cx\Core\User\Model\Entity\UserAttribute
-     */
-    protected $attribute;
-    
-    /**
-     * The user this value belongs to
-     *
-     * @var \Cx\Core\User\Model\Entity\User
+     * @var integer
      */
     protected $userId;
 
     /**
-     * The user this value belongs to
-     *
-     * @var \Cx\Core\User\Model\Entity\User
-     */
-    protected $user;
-
-    /**
-     * Version number
-     *
      * @var integer
      */
-    protected $history;
+    protected $history = 0;
 
     /**
-     * The value
-     *
      * @var string
      */
     protected $value;
 
     /**
-     * Returns the associated attribute
-     * @return \Cx\Core\User\Model\Entity\UserAttribute
+     * @var \Cx\Core\User\Model\Entity\User
      */
-    public function getAttribute() {
-        return $this->attribute;
+    protected $user;
+
+    /**
+     * @var \Cx\Core\User\Model\Entity\UserAttribute
+     */
+    protected $userAttribute;
+
+
+    /**
+     * Set attributeId
+     *
+     * @param integer $attributeId
+     */
+    public function setAttributeId($attributeId)
+    {
+        $this->attributeId = $attributeId;
     }
 
     /**
-     * Sets the associated attribute
-     * @param \Cx\Core\User\Model\Entity\UserAttribute $attribute
+     * Get attributeId
+     *
+     * @return integer 
      */
-    public function setAttribute($attribute) {
-        $this->attribute = $attribute;
-    }
-
-    /**
-     * Returns the associated attribute
-     * @return \Cx\Core\User\Model\Entity\UserAttribute
-     */
-    public function getAttributeId() {
+    public function getAttributeId()
+    {
         return $this->attributeId;
     }
 
     /**
-     * Sets the associated attribute
-     * @param \Cx\Core\User\Model\Entity\UserAttribute $attribute
+     * Set userId
+     *
+     * @param integer $userId
      */
-    public function setAttributeId($attribute) {
-        $this->attributeId = $attribute;
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
     }
 
     /**
-     * Returns the associated user
-     * @return \Cx\Core\User\Model\Entity\User
+     * Get userId
+     *
+     * @return integer 
      */
-    public function getUser() {
-        return $this->user;
-    }
-
-    /**
-     * Sets the associated user
-     * @param \Cx\Core\User\Model\Entity\User $user
-     */
-    public function setUser($user) {
-        $this->user = $user;
-    }
-
-    /**
-     * Returns the associated user
-     * @return \Cx\Core\User\Model\Entity\User
-     */
-    public function getUserId() {
+    public function getUserId()
+    {
         return $this->userId;
     }
 
     /**
-     * Sets the associated user
-     * @param \Cx\Core\User\Model\Entity\User $user
-     */
-    public function setUserId($user) {
-        $this->userId = $user;
-    }
-
-    /**
-     * Returns the version ID
-     * @return integer
-     */
-    public function getHistory() {
-        return $this->history;
-    }
-
-    /**
-     * Sets the version ID
+     * Set history
+     *
      * @param integer $history
      */
-    public function setHistory($history) {
+    public function setHistory($history)
+    {
         $this->history = $history;
     }
 
     /**
-     * Returns the value
-     * @return string
+     * Get history
+     *
+     * @return integer 
      */
-    public function getValue() {
+    public function getHistory()
+    {
+        return $this->history;
+    }
+
+    /**
+     * Set value
+     *
+     * @param string $value
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * Get value
+     *
+     * @return string 
+     */
+    public function getValue()
+    {
         return $this->value;
     }
 
     /**
-     * Sets the value
-     * @param string $value
+     * Set user
+     *
+     * @param \Cx\Core\User\Model\Entity\User $user
      */
-    public function setValue($value) {
-        $this->value = $value;
+    public function setUser(\Cx\Core\User\Model\Entity\User $user = null)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set userAttribute
+     *
+     * @param \Cx\Core\User\Model\Entity\UserAttribute $userAttribute
+     */
+    public function setUserAttribute(\Cx\Core\User\Model\Entity\UserAttribute $userAttribute = null)
+    {
+        $this->userAttribute = $userAttribute;
+    }
+
+    /**
+     * Get userAttribute
+     *
+     * @return \Cx\Core\User\Model\Entity\UserAttribute
+     */
+    public function getUserAttribute()
+    {
+        return $this->userAttribute;
     }
 }

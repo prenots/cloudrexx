@@ -1,192 +1,150 @@
 <?php
 
-/**
- * Cloudrexx
- *
- * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2015
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Cloudrexx" is a registered trademark of Cloudrexx AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
-
-
 namespace Cx\Core\User\Model\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * Cx\Core\User\Model\Entity\User
+ * User
  */
 class User extends \Cx\Model\Base\EntityBase {
     /**
-     * @var integer $id
+     * @var integer
      */
-    private $id;
+    protected $id;
 
     /**
-     * @var integer $isAdmin
+     * @var boolean
      */
-    private $isAdmin;
+    protected $isAdmin = false;
 
     /**
-     * @var string $username
+     * @var string
      */
-    private $username;
+    protected $username;
 
     /**
-     * @var string $password
+     * @var string
      */
-    private $password;
+    protected $password;
 
     /**
-     * @var string $authToken
+     * @var string
      */
-    private $authToken;
+    protected $authToken;
 
     /**
-     * @var integer $authTokenTimeout
+     * @var integer
      */
-    private $authTokenTimeout;
+    protected $authTokenTimeout = 0;
 
     /**
-     * @var integer $regdate
+     * @var integer
      */
-    private $regdate;
+    protected $regdate = 0;
 
     /**
-     * @var integer $expiration
+     * @var integer
      */
-    private $expiration;
+    protected $expiration = 0;
 
     /**
-     * @var integer $validity
+     * @var integer
      */
-    private $validity;
+    protected $validity = 0;
 
     /**
-     * @var integer $lastAuth
+     * @var integer
      */
-    private $lastAuth;
+    protected $lastAuth = 0;
 
     /**
-     * @var integer $lastAuthStatus
+     * @var integer
      */
-    private $lastAuthStatus;
+    protected $lastAuthStatus = 1;
 
     /**
-     * @var integer $lastActivity
+     * @var integer
      */
-    private $lastActivity;
+    protected $lastActivity = 0;
 
     /**
-     * @var string $email
+     * @var string
      */
-    private $email;
+    protected $email;
 
     /**
-     * @var string $emailAccess
+     * @var enum_user_user_emailaccess
      */
-    private $emailAccess;
+    protected $emailAccess = 'nobody';
 
     /**
-     * @var integer $frontendLangId
+     * @var integer
      */
-    private $frontendLangId;
+    protected $frontendLangId = 0;
 
     /**
-     * @var integer $backendLangId
+     * @var integer
      */
-    private $backendLangId;
+    protected $backendLangId = 0;
 
     /**
-     * @var integer $active
+     * @var boolean
      */
-    private $active;
+    protected $active = false;
 
     /**
-     * @var integer $verified
+     * @var boolean
      */
-    private $verified;
+    protected $verified = true;
 
     /**
-     * @var integer $primaryGroup
+     * @var integer
      */
-    private $primaryGroup;
+    protected $primaryGroup = 0;
 
     /**
-     * @var string $profileAccess
+     * @var enum_user_user_profileaccess
      */
-    private $profileAccess;
+    protected $profileAccess = 'members_only';
 
     /**
-     * @var string $restoreKey
+     * @var string
      */
-    private $restoreKey;
+    protected $restoreKey = '';
 
     /**
-     * @var integer $restoreKeyTime
+     * @var integer
      */
-    private $restoreKeyTime;
+    protected $restoreKeyTime = 0;
 
     /**
-     * @var string $u2uActive
+     * @var enum_user_user_u2uactive
      */
-    private $u2uActive;
-
-    /**
-     * @var \Cx\Core\User\Model\Entity\UserProfile
-     */
-    private $userProfile;
+    protected $u2uActive = '1';
 
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
-    private $group;
+    protected $group;
 
+    /**
+     * @var \Cx\Core\User\Model\Entity\UserAttributeValue
+     */
+    protected $userAttributeValue;
+
+    /**
+     * Constructor
+     */
     public function __construct()
     {
-        $arrSettings = \FWUser::getSettings();
-        $this->isAdmin = 0;
-        $this->authToken = 0;
-        $this->authTokenTimeout = 0;
-        $this->regdate = 0;
-        $this->expiration = 0;
-        $this->validity = 0;
-        $this->lastAuth = 0;
-        $this->lastAuthStatus = 0;
-        $this->lastActivity = 0;
-        $this->emailAccess = $arrSettings['default_email_access']['value'];
-        $this->frontendLangId = 0;
-        $this->backendLangId = 0;
-        $this->active = false;
-        $this->verified = true;
-        $this->primaryGroup = 0;
-        $this->profileAccess = $arrSettings['default_profile_access']['value'];
-        $this->restoreKey = '';
-        $this->restoreKeyTime = '';
-        $this->u2uActive = 0;
-
         $this->group = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
      * Get id
      *
-     * @return integer $id
+     * @return integer 
      */
     public function getId()
     {
@@ -194,28 +152,22 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * set id
-     *
-     * @param integer $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-    /**
      * Set isAdmin
      *
-     * @param integer $isAdmin
+     * @param boolean $isAdmin
+     * @return User
      */
     public function setIsAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin;
+
+        return $this;
     }
 
     /**
      * Get isAdmin
      *
-     * @return integer $isAdmin
+     * @return boolean 
      */
     public function getIsAdmin()
     {
@@ -226,16 +178,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set username
      *
      * @param string $username
+     * @return User
      */
     public function setUsername($username)
     {
         $this->username = $username;
+
+        return $this;
     }
 
     /**
      * Get username
      *
-     * @return string $username
+     * @return string 
      */
     public function getUsername()
     {
@@ -246,16 +201,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set password
      *
      * @param string $password
+     * @return User
      */
     public function setPassword($password)
     {
         $this->password = $password;
+
+        return $this;
     }
 
     /**
      * Get password
      *
-     * @return string $password
+     * @return string 
      */
     public function getPassword()
     {
@@ -266,16 +224,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set authToken
      *
      * @param string $authToken
+     * @return User
      */
     public function setAuthToken($authToken)
     {
         $this->authToken = $authToken;
+
+        return $this;
     }
 
     /**
      * Get authToken
      *
-     * @return string $authToken
+     * @return string 
      */
     public function getAuthToken()
     {
@@ -283,19 +244,22 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set $authTokenTimeout
+     * Set authTokenTimeout
      *
      * @param integer $authTokenTimeout
+     * @return User
      */
     public function setAuthTokenTimeout($authTokenTimeout)
     {
         $this->authTokenTimeout = $authTokenTimeout;
+
+        return $this;
     }
 
     /**
      * Get authTokenTimeout
      *
-     * @return integer $authTokenTimeout
+     * @return integer 
      */
     public function getAuthTokenTimeout()
     {
@@ -306,16 +270,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set regdate
      *
      * @param integer $regdate
+     * @return User
      */
     public function setRegdate($regdate)
     {
         $this->regdate = $regdate;
+
+        return $this;
     }
 
     /**
      * Get regdate
      *
-     * @return integer $regdate
+     * @return integer 
      */
     public function getRegdate()
     {
@@ -326,16 +293,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set expiration
      *
      * @param integer $expiration
+     * @return User
      */
     public function setExpiration($expiration)
     {
         $this->expiration = $expiration;
+
+        return $this;
     }
 
     /**
      * Get expiration
      *
-     * @return integer $expiration
+     * @return integer 
      */
     public function getExpiration()
     {
@@ -346,16 +316,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set validity
      *
      * @param integer $validity
+     * @return User
      */
     public function setValidity($validity)
     {
         $this->validity = $validity;
+
+        return $this;
     }
 
     /**
      * Get validity
      *
-     * @return integer $validity
+     * @return integer 
      */
     public function getValidity()
     {
@@ -366,16 +339,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set lastAuth
      *
      * @param integer $lastAuth
+     * @return User
      */
     public function setLastAuth($lastAuth)
     {
         $this->lastAuth = $lastAuth;
+
+        return $this;
     }
 
     /**
      * Get lastAuth
      *
-     * @return integer $lastAuth
+     * @return integer 
      */
     public function getLastAuth()
     {
@@ -386,16 +362,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set lastAuthStatus
      *
      * @param integer $lastAuthStatus
+     * @return User
      */
     public function setLastAuthStatus($lastAuthStatus)
     {
         $this->lastAuthStatus = $lastAuthStatus;
+
+        return $this;
     }
 
     /**
      * Get lastAuthStatus
      *
-     * @return integer $lastAuthStatus
+     * @return integer 
      */
     public function getLastAuthStatus()
     {
@@ -406,16 +385,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set lastActivity
      *
      * @param integer $lastActivity
+     * @return User
      */
     public function setLastActivity($lastActivity)
     {
         $this->lastActivity = $lastActivity;
+
+        return $this;
     }
 
     /**
      * Get lastActivity
      *
-     * @return integer $lastActivity
+     * @return integer 
      */
     public function getLastActivity()
     {
@@ -426,16 +408,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set email
      *
      * @param string $email
+     * @return User
      */
     public function setEmail($email)
     {
         $this->email = $email;
+
+        return $this;
     }
 
     /**
      * Get email
      *
-     * @return string $email
+     * @return string 
      */
     public function getEmail()
     {
@@ -445,17 +430,20 @@ class User extends \Cx\Model\Base\EntityBase {
     /**
      * Set emailAccess
      *
-     * @param string $emailAccess
+     * @param enum_user_user_emailaccess $emailAccess
+     * @return User
      */
     public function setEmailAccess($emailAccess)
     {
         $this->emailAccess = $emailAccess;
+
+        return $this;
     }
 
     /**
      * Get emailAccess
      *
-     * @return string $emailAccess
+     * @return enum_user_user_emailaccess 
      */
     public function getEmailAccess()
     {
@@ -466,16 +454,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set frontendLangId
      *
      * @param integer $frontendLangId
+     * @return User
      */
     public function setFrontendLangId($frontendLangId)
     {
         $this->frontendLangId = $frontendLangId;
+
+        return $this;
     }
 
     /**
      * Get frontendLangId
      *
-     * @return integer $frontendLangId
+     * @return integer 
      */
     public function getFrontendLangId()
     {
@@ -486,16 +477,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set backendLangId
      *
      * @param integer $backendLangId
+     * @return User
      */
     public function setBackendLangId($backendLangId)
     {
         $this->backendLangId = $backendLangId;
+
+        return $this;
     }
 
     /**
      * Get backendLangId
      *
-     * @return integer $backendLangId
+     * @return integer 
      */
     public function getBackendLangId()
     {
@@ -505,17 +499,20 @@ class User extends \Cx\Model\Base\EntityBase {
     /**
      * Set active
      *
-     * @param integer $active
+     * @param boolean $active
+     * @return User
      */
     public function setActive($active)
     {
         $this->active = $active;
+
+        return $this;
     }
 
     /**
      * Get active
      *
-     * @return integer $active
+     * @return boolean 
      */
     public function getActive()
     {
@@ -525,17 +522,20 @@ class User extends \Cx\Model\Base\EntityBase {
     /**
      * Set verified
      *
-     * @param integer $verified
+     * @param boolean $verified
+     * @return User
      */
     public function setVerified($verified)
     {
         $this->verified = $verified;
+
+        return $this;
     }
 
     /**
      * Get verified
      *
-     * @return integer $verified
+     * @return boolean 
      */
     public function getVerified()
     {
@@ -546,16 +546,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set primaryGroup
      *
      * @param integer $primaryGroup
+     * @return User
      */
     public function setPrimaryGroup($primaryGroup)
     {
         $this->primaryGroup = $primaryGroup;
+
+        return $this;
     }
 
     /**
      * Get primaryGroup
      *
-     * @return integer $primaryGroup
+     * @return integer 
      */
     public function getPrimaryGroup()
     {
@@ -565,17 +568,20 @@ class User extends \Cx\Model\Base\EntityBase {
     /**
      * Set profileAccess
      *
-     * @param string $profileAccess
+     * @param enum_user_user_profileaccess $profileAccess
+     * @return User
      */
     public function setProfileAccess($profileAccess)
     {
         $this->profileAccess = $profileAccess;
+
+        return $this;
     }
 
     /**
      * Get profileAccess
      *
-     * @return string $profileAccess
+     * @return enum_user_user_profileaccess 
      */
     public function getProfileAccess()
     {
@@ -586,18 +592,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set restoreKey
      *
      * @param string $restoreKey
+     * @return User
      */
-    public function setRestoreKey($restoreKey = null)
+    public function setRestoreKey($restoreKey)
     {
-        $this->restoreKey = !empty($restoreKey)
-                            ? $restoreKey
-                            : md5($this->email . $this->regdate . time());
+        $this->restoreKey = $restoreKey;
+
+        return $this;
     }
 
     /**
      * Get restoreKey
      *
-     * @return string $restoreKey
+     * @return string 
      */
     public function getRestoreKey()
     {
@@ -608,16 +615,19 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set restoreKeyTime
      *
      * @param integer $restoreKeyTime
+     * @return User
      */
     public function setRestoreKeyTime($restoreKeyTime)
     {
         $this->restoreKeyTime = $restoreKeyTime;
+
+        return $this;
     }
 
     /**
      * Get restoreKeyTime
      *
-     * @return integer $restoreKeyTime
+     * @return integer 
      */
     public function getRestoreKeyTime()
     {
@@ -627,17 +637,20 @@ class User extends \Cx\Model\Base\EntityBase {
     /**
      * Set u2uActive
      *
-     * @param string $u2uActive
+     * @param enum_user_user_u2uactive $u2uActive
+     * @return User
      */
     public function setU2uActive($u2uActive)
     {
         $this->u2uActive = $u2uActive;
+
+        return $this;
     }
 
     /**
      * Get u2uActive
      *
-     * @return string $u2uActive
+     * @return enum_user_user_u2uactive 
      */
     public function getU2uActive()
     {
@@ -645,72 +658,55 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set userProfile
-     *
-     * @param \Cx\Core\User\Model\Entity\UserProfile $userProfile
-     */
-    public function setUserProfile(\Cx\Core\User\Model\Entity\UserProfile $userProfile)
-    {
-        $this->userProfile = $userProfile;
-    }
-
-    /**
-     * Get userProfile
-     *
-     * @return \Cx\Core\User\Model\Entity\UserProfile $userProfile
-     */
-    public function getUserProfile()
-    {
-        return $this->userProfile;
-    }
-
-    /**
      * Add group
      *
      * @param \Cx\Core\User\Model\Entity\Group $group
+     * @return User
      */
     public function addGroup(\Cx\Core\User\Model\Entity\Group $group)
     {
-        $group->addUser($this);
         $this->group[] = $group;
+
+        return $this;
     }
 
     /**
-     * Remove the group
-     * 
+     * Remove group
+     *
      * @param \Cx\Core\User\Model\Entity\Group $group
      */
-    public function removeGroup(\Cx\Core\User\Model\Entity\Group $group) {
-        $group->removeUser($this);
+    public function removeGroup(\Cx\Core\User\Model\Entity\Group $group)
+    {
         $this->group->removeElement($group);
     }
-    
+
     /**
      * Get group
      *
-     * @return \Doctrine\Common\Collections\Collection $group
+     * @return \Doctrine\Common\Collections\Collection 
      */
     public function getGroup()
     {
         return $this->group;
     }
-    
+
     /**
-     * Check if the user is backend group 
-     * 
-     * @return boolean
+     * Set userAttributeValue
+     *
+     * @param \Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue
      */
-    public function isBackendGroupUser()
+    public function setUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue = null)
     {
-        if (!$this->group) {
-            return false;
-        }
-        
-        foreach ($this->group as $group) {
-            if ($group->getType() === 'backend') {
-                return true;
-            }
-        }
-        return false;
+        $this->userAttributeValue = $userAttributeValue;
+    }
+
+    /**
+     * Get userAttributeValue
+     *
+     * @return \Cx\Core\User\Model\Entity\UserAttributeValue
+     */
+    public function getUserAttributeValue()
+    {
+        return $this->userAttributeValue;
     }
 }

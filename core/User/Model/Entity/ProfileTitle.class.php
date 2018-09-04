@@ -1,57 +1,36 @@
 <?php
 
-/**
- * Cloudrexx
- *
- * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2015
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Cloudrexx" is a registered trademark of Cloudrexx AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
-
-
 namespace Cx\Core\User\Model\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * \Cx\Core\User\Model\Entity\ProfileTitle
+ * ProfileTitle
  */
 class ProfileTitle extends \Cx\Model\Base\EntityBase {
     /**
-     * @var integer $id
+     * @var integer
      */
-    private $id;
+    protected $id;
 
     /**
-     * @var string $title
+     * @var string
      */
-    private $title;
+    protected $title = '';
 
     /**
-     * @var integer $orderId
+     * @var integer
      */
-    private $orderId;
+    protected $orderId = 0;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
-    private $userProfile;
+    protected $userProfile;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->userProfile = new \Doctrine\Common\Collections\ArrayCollection();
@@ -60,7 +39,7 @@ class ProfileTitle extends \Cx\Model\Base\EntityBase {
     /**
      * Get id
      *
-     * @return integer $id
+     * @return integer 
      */
     public function getId()
     {
@@ -71,16 +50,19 @@ class ProfileTitle extends \Cx\Model\Base\EntityBase {
      * Set title
      *
      * @param string $title
+     * @return ProfileTitle
      */
     public function setTitle($title)
     {
         $this->title = $title;
+
+        return $this;
     }
 
     /**
      * Get title
      *
-     * @return string $title
+     * @return string 
      */
     public function getTitle()
     {
@@ -91,16 +73,19 @@ class ProfileTitle extends \Cx\Model\Base\EntityBase {
      * Set orderId
      *
      * @param integer $orderId
+     * @return ProfileTitle
      */
     public function setOrderId($orderId)
     {
         $this->orderId = $orderId;
+
+        return $this;
     }
 
     /**
      * Get orderId
      *
-     * @return integer $orderId
+     * @return integer 
      */
     public function getOrderId()
     {
@@ -111,10 +96,13 @@ class ProfileTitle extends \Cx\Model\Base\EntityBase {
      * Add userProfile
      *
      * @param \Cx\Core\User\Model\Entity\UserProfile $userProfile
+     * @return ProfileTitle
      */
     public function addUserProfile(\Cx\Core\User\Model\Entity\UserProfile $userProfile)
     {
         $this->userProfile[] = $userProfile;
+
+        return $this;
     }
 
     /**
@@ -130,7 +118,7 @@ class ProfileTitle extends \Cx\Model\Base\EntityBase {
     /**
      * Get userProfile
      *
-     * @return \Doctrine\Common\Collections\Collection $userProfile
+     * @return \Doctrine\Common\Collections\Collection 
      */
     public function getUserProfile()
     {

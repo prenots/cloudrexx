@@ -5,7 +5,6 @@ Cx\Core\User\Model\Entity\UserAttribute:
     id:
       id: true
       type: integer
-      unsigned: true
       generator:
         strategy: AUTO
     type:
@@ -27,7 +26,6 @@ Cx\Core\User\Model\Entity\UserAttribute:
     orderId:
       type: integer
       nullable: false
-      unsigned: true
       column: order_id
       options:
         default: 0
@@ -44,6 +42,12 @@ Cx\Core\User\Model\Entity\UserAttribute:
     readAccessId:
       type: integer
       column: read_access_id
+    isDefault:
+      type: enum
+      column: is_default
+      values: ['0','1']
+      options:
+        default: "0"
   oneToMany:
     parent:
       targetEntity: Cx\Core\User\Model\Entity\UserAttribute
@@ -51,9 +55,9 @@ Cx\Core\User\Model\Entity\UserAttribute:
     userAttributeName:
       targetEntity: Cx\Core\User\Model\Entity\UserAttributeName
       mappedBy: userAttribute
-#    userAttributeValue:
-#      targetEntity: Cx\Core\User\Model\Entity\UserAttributeValue
-#      mappedBy: attribute
+    userAttributeName:
+          targetEntity: Cx\Core\User\Model\Entity\UserAttributeValue
+          mappedBy: userAttribute
   manyToOne:
     children:
       targetEntity: Cx\Core\User\Model\Entity\UserAttribute
@@ -61,17 +65,3 @@ Cx\Core\User\Model\Entity\UserAttribute:
       joinColumns:
         parent_id:
           referencedColumnName: id
-#    accessId:
-#      targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
-#      inversedBy: contrexxAccessUserAttribute
-#      joinColumns:
-#        access_id:
-#          referencedColumnName: id
-#          nullable: false
-#    readAccessId:
-#      targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
-#      inversedBy: contrexxAccessUserAttributeRead
-#      joinColumns:
-#        read_access_id:
-#          referencedColumnName: id
-#          nullable: false

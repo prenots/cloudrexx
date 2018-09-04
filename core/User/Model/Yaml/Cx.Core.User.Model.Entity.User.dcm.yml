@@ -5,7 +5,6 @@ Cx\Core\User\Model\Entity\User:
     id:
       id: true
       type: integer
-      unsigned: true
       generator:
         strategy: AUTO
     isAdmin:
@@ -30,32 +29,27 @@ Cx\Core\User\Model\Entity\User:
       type: integer
       length: 14
       nullable: false
-      unsigned: true
       column: auth_token_timeout
       options:
         default: 0
     regdate:
       type: integer
       nullable: false
-      unsigned: true
       options:
         default: 0
     expiration:
       type: integer
       nullable: false
-      unsigned: true
       options:
         default: 0
     validity:
       type: integer
       nullable: false
-      unsigned: true
       options:
         default: 0
     lastAuth:
       type: integer
       nullable: false
-      unsigned: true
       column: last_auth
       options:
         default: 0
@@ -68,7 +62,6 @@ Cx\Core\User\Model\Entity\User:
     lastActivity:
       type: integer
       nullable: false
-      unsigned: true
       column: last_activity
       options:
         default: 0
@@ -85,14 +78,12 @@ Cx\Core\User\Model\Entity\User:
     frontendLangId:
       type: integer
       nullable: false
-      unsigned: true
       column: frontend_lang_id
       options:
         default: 0
     backendLangId:
       type: integer
       nullable: false
-      unsigned: true
       column: backend_lang_id
       options:
         default: 0
@@ -107,7 +98,6 @@ Cx\Core\User\Model\Entity\User:
     primaryGroup:
       type: integer
       nullable: false
-      unsigned: true
       column: primary_group
       options:
         default: 0
@@ -127,7 +117,6 @@ Cx\Core\User\Model\Entity\User:
     restoreKeyTime:
       type: integer
       nullable: false
-      unsigned: true
       column: restore_key_time
       options:
         default: 0
@@ -140,10 +129,6 @@ Cx\Core\User\Model\Entity\User:
   indexes:
     username:
       columns: [username]
-  oneToOne:
-    userProfile:
-      targetEntity: Cx\Core\User\Model\Entity\UserProfile
-      mappedBy: users
   manyToMany:
     group:
       targetEntity: Cx\Core\User\Model\Entity\Group
@@ -158,3 +143,7 @@ Cx\Core\User\Model\Entity\User:
           group_id:
             referencedColumnName: group_id
             nullable: false
+  oneToMany:
+    userAttributeValue:
+      targetEntity: Cx\Core\User\Model\Entity\UserAttributeValue
+      mappedBy: user

@@ -1,98 +1,65 @@
 <?php
 
-/**
- * Cloudrexx
- *
- * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2015
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Cloudrexx" is a registered trademark of Cloudrexx AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
-
-
 namespace Cx\Core\User\Model\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * Cx\Core\User\Model\Entity\Group
+ * Group
  */
 class Group extends \Cx\Model\Base\EntityBase {
     /**
-     * @var integer $groupId
+     * @var integer
      */
-    private $groupId;
+    protected $groupId;
 
     /**
-     * @var string $groupName
+     * @var string
      */
-    private $groupName;
+    protected $groupName = '';
 
     /**
-     * @var string $groupDescription
+     * @var string
      */
-    private $groupDescription;
+    protected $groupDescription = '';
 
     /**
-     * @var integer $isActive
+     * @var integer
      */
-    private $isActive;
+    protected $isActive = 1;
 
     /**
-     * @var string $type
+     * @var enum_user_group_type
      */
-    private $type;
+    protected $type = 'frontend';
 
     /**
-     * @var string $homepage
+     * @var string
      */
-    private $homepage;
+    protected $homepage = '';
+
+    /**
+     * @var integer
+     */
+    protected $toolbar = 0;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
-    private $user;
+    protected $user;
 
     /**
-     * @var Cx\Core_Modules\Access\Model\Entity\AccessId
+     * Constructor
      */
-    private $accessId2;
-
-    /**
-     * @var Cx\Core_Modules\Access\Model\Entity\AccessId
-     */
-    private $accessId;
-
-    /**
-     * @var 
-     */
-    protected $toolbar;
-
     public function __construct()
     {
         $this->user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->accessId2 = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->accessId = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
      * Get groupId
      *
-     * @return integer $groupId
+     * @return integer 
      */
     public function getGroupId()
     {
@@ -103,16 +70,19 @@ class Group extends \Cx\Model\Base\EntityBase {
      * Set groupName
      *
      * @param string $groupName
+     * @return Group
      */
     public function setGroupName($groupName)
     {
         $this->groupName = $groupName;
+
+        return $this;
     }
 
     /**
      * Get groupName
      *
-     * @return string $groupName
+     * @return string 
      */
     public function getGroupName()
     {
@@ -123,16 +93,19 @@ class Group extends \Cx\Model\Base\EntityBase {
      * Set groupDescription
      *
      * @param string $groupDescription
+     * @return Group
      */
     public function setGroupDescription($groupDescription)
     {
         $this->groupDescription = $groupDescription;
+
+        return $this;
     }
 
     /**
      * Get groupDescription
      *
-     * @return string $groupDescription
+     * @return string 
      */
     public function getGroupDescription()
     {
@@ -143,16 +116,19 @@ class Group extends \Cx\Model\Base\EntityBase {
      * Set isActive
      *
      * @param integer $isActive
+     * @return Group
      */
     public function setIsActive($isActive)
     {
         $this->isActive = $isActive;
+
+        return $this;
     }
 
     /**
      * Get isActive
      *
-     * @return integer $isActive
+     * @return integer 
      */
     public function getIsActive()
     {
@@ -162,17 +138,20 @@ class Group extends \Cx\Model\Base\EntityBase {
     /**
      * Set type
      *
-     * @param string $type
+     * @param enum_user_group_type $type
+     * @return Group
      */
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
     }
 
     /**
      * Get type
      *
-     * @return string $type
+     * @return enum_user_group_type 
      */
     public function getType()
     {
@@ -183,16 +162,19 @@ class Group extends \Cx\Model\Base\EntityBase {
      * Set homepage
      *
      * @param string $homepage
+     * @return Group
      */
     public function setHomepage($homepage)
     {
         $this->homepage = $homepage;
+
+        return $this;
     }
 
     /**
      * Get homepage
      *
-     * @return string $homepage
+     * @return string 
      */
     public function getHomepage()
     {
@@ -200,91 +182,58 @@ class Group extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add user
-     *
-     * @param \Cx\Core\User\Model\Entity\User $user
-     */
-    public function addUser(\Cx\Core\User\Model\Entity\User $user)
-    {
-        $this->user[] = $user;
-    }
-
-    /**
-     * Remove the User
-     * 
-     * @param \Cx\Core\User\Model\Entity\User $user
-     */
-    public function removeUser(\Cx\Core\User\Model\Entity\User $user) {
-        $this->user->removeElement($user);
-    }
-    
-    /**
-     * Get user
-     *
-     * @return \Doctrine\Common\Collections\Collection $user
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * Add accessId2
-     *
-     * @param Cx\Core_Modules\Access\Model\Entity\AccessId $accessId2
-     */
-    public function addAccessId2(\Cx\Core_Modules\Access\Model\Entity\AccessId $accessId2)
-    {
-        $this->accessId2[] = $accessId2;
-    }
-
-    /**
-     * Get accessId2
-     *
-     * @return Doctrine\Common\Collections\Collection $accessId2
-     */
-    public function getAccessId2()
-    {
-        return $this->accessId2;
-    }
-
-    /**
-     * Add accessId
-     *
-     * @param Cx\Core_Modules\Access\Model\Entity\AccessId $accessId
-     */
-    public function addAccessId(\Cx\Core_Modules\Access\Model\Entity\AccessId $accessId)
-    {
-        $this->accessId[] = $accessId;
-    }
-
-    /**
-     * Get accessId
-     *
-     * @return Doctrine\Common\Collections\Collection $accessId
-     */
-    public function getAccessId()
-    {
-        return $this->accessId;
-    }
-
-    /**
      * Set toolbar
      *
-     * @param string $toolbar
+     * @param integer $toolbar
+     * @return Group
      */
     public function setToolbar($toolbar)
     {
         $this->toolbar = $toolbar;
+
+        return $this;
     }
 
     /**
      * Get toolbar
      *
-     * @return string $toolbar
+     * @return integer 
      */
     public function getToolbar()
     {
         return $this->toolbar;
+    }
+
+    /**
+     * Add user
+     *
+     * @param \Cx\Core\User\Model\Entity\User $user
+     * @return Group
+     */
+    public function addUser(\Cx\Core\User\Model\Entity\User $user)
+    {
+        $this->user[] = $user;
+
+        return $this;
+    }
+
+    /**
+     * Remove user
+     *
+     * @param \Cx\Core\User\Model\Entity\User $user
+     */
+    public function removeUser(\Cx\Core\User\Model\Entity\User $user)
+    {
+        $this->user->removeElement($user);
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

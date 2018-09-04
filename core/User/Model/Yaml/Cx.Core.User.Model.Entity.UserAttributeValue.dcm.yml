@@ -28,15 +28,17 @@ Cx\Core\User\Model\Entity\UserAttributeValue:
       length: 65535
       nullable: false
   manyToOne:
-#    attribute:
-#      targetEntity: Cx\Core\User\Model\Entity\UserAttribute
-#      inversedBy: userAttributeValue
-#      joinColumns:
-#        attribute_id:
-#          referencedColumnName: id
-    user:
-      targetEntity: Cx\Core\User\Model\Entity\UserProfile
-      inversedBy: userAttributeValues
+    userAttribute:
+      targetEntity: Cx\Core\User\Model\Entity\UserAttribute
+      inversedBy: userAttributeName
       joinColumns:
-        user_id:
-          referencedColumnName: user_id
+        attribute_id:
+          referencedColumnName: id
+    user:
+      targetEntity: Cx\Core\User\Model\Entity\User
+      inversedBy: userAttributeValue
+      joinColumns:
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        name: user_id:
+        referencedColumnName: id
