@@ -40,4 +40,4 @@ global $_ARRAYLANG;
 
 // Let's start with module info:
 $_ARRAYLANG['TXT_CORE_MEDIASOURCE'] = 'MediaSource';
-$_ARRAYLANG['TXT_INDEX_ALREADY_EXISTS'] = 'An index with this extension type already exists!';
+$_ARRAYLANG['TXT_INDEXER_ALREADY_EXISTS'] = 'An index with this extension type already exists!';
