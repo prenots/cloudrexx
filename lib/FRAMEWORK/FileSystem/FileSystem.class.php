@@ -532,9 +532,8 @@ class FileSystem
      */
     protected function callDeleteEvent($path, $name)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $cx->getEvents()->triggerEvent(
-            'MediaSource.File:Remove',
+        $this->callEvent(
+            'Remove',
             array(
                 'path' => $path,
                 'name' => $name
@@ -554,9 +553,8 @@ class FileSystem
      */
     protected function callUpdateEvent($path, $name, $oldname)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $cx->getEvents()->triggerEvent(
-            'MediaSource.File:Edit',
+        $this->callEvent(
+            'Update',
             array(
                 'path' => $path . $name,
                 'oldPath' => $path . $oldname,
@@ -575,13 +573,18 @@ class FileSystem
      */
     protected function callAddEvent($path, $name)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $cx->getEvents()->triggerEvent(
-            'MediaSource.File:Add',
+        $this->callEvent(
+            'Add',
             array(
                 'path' => $path . $name
             )
         );
+    }
+
+    protected function callEvent($event, $params)
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $cx->getEvents()->triggerEvent('MediaSource.File:' . $event, $params);
     }
 
 
