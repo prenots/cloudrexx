@@ -71,7 +71,7 @@ class ComponentController
         $eventHandlerInstance->addEvent('mediasource.load');
         foreach ($this->fileEvents as $fileEvent) {
             $eventHandlerInstance->addEvent(
-                'MediaSourceFile:' . $fileEvent
+                'MediaSource.File:' . $fileEvent
             );
         }
     }
@@ -93,7 +93,7 @@ class ComponentController
 
         foreach ($this->fileEvents as $fileEvent) {
             $eventHandlerInstance->addEventListener(
-                'MediaSourceFile:' . $fileEvent,
+                'MediaSource.File:' . $fileEvent,
                 $indexerEventListener
             );
         }
