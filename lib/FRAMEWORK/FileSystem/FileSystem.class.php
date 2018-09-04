@@ -534,7 +534,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'MediaSourceFile:Remove',
+            'MediaSource.File:Remove',
             array(
                 'path' => $path,
                 'name' => $name
@@ -556,7 +556,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'MediaSourceFile:Edit',
+            'MediaSource.File:Edit',
             array(
                 'path' => $path . $name,
                 'oldPath' => $path . $oldname,
@@ -577,7 +577,7 @@ class FileSystem
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $cx->getEvents()->triggerEvent(
-            'MediaSourceFile:Add',
+            'MediaSource.File:Add',
             array(
                 'path' => $path . $name
             )
