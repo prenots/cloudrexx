@@ -53,6 +53,13 @@ class ComponentController
     protected $indexers = array();
 
     /**
+     * All file events. The indexer reacts to the events of a file
+     *
+     * @var array
+     */
+    protected $fileEvents = array('Remove', 'Add', 'Edit');
+
+    /**
      * Register your events here
      *
      * Do not do anything else here than list statements like
@@ -62,9 +69,11 @@ class ComponentController
     {
         $eventHandlerInstance = $this->cx->getEvents();
         $eventHandlerInstance->addEvent('mediasource.load');
-        $eventHandlerInstance->addEvent('Indexer:Remove');
-        $eventHandlerInstance->addEvent('Indexer:Add');
-        $eventHandlerInstance->addEvent('Indexer:Edit');
+        foreach ($this->fileEvents as $fileEvent) {
+            $eventHandlerInstance->addEvent(
+                'MediaSourceFile:' . $fileEvent
+            );
+        }
     }
 
     /**
@@ -81,18 +90,13 @@ class ComponentController
     {
         $eventHandlerInstance = $this->cx->getEvents();
         $indexerEventListener = new \Cx\Core\MediaSource\Model\Event\IndexerEventListener($this->cx);
-        $eventHandlerInstance->addEventListener(
-            'Indexer:Remove',
-            $indexerEventListener
-        );
-        $eventHandlerInstance->addEventListener(
-            'Indexer:Add',
-            $indexerEventListener
-        );
-        $eventHandlerInstance->addEventListener(
-            'Indexer:Edit',
-            $indexerEventListener
-        );
+
+        foreach ($this->fileEvents as $fileEvent) {
+            $eventHandlerInstance->addEventListener(
+                'MediaSourceFile:' . $fileEvent,
+                $indexerEventListener
+            );
+        }
     }
 
     public function getControllerClasses() {
