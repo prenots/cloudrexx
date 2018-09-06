@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * RelProductAttribute
  */
@@ -38,13 +36,10 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
      * Set productId
      *
      * @param integer $productId
-     * @return RelProductAttribute
      */
     public function setProductId($productId)
     {
         $this->productId = $productId;
-
-        return $this;
     }
 
     /**
@@ -61,13 +56,10 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
      * Set optionId
      *
      * @param integer $optionId
-     * @return RelProductAttribute
      */
     public function setOptionId($optionId)
     {
         $this->optionId = $optionId;
-
-        return $this;
     }
 
     /**
@@ -84,13 +76,10 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
      * Set ord
      *
      * @param integer $ord
-     * @return RelProductAttribute
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -107,13 +96,10 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
      * Set products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return RelProductAttribute
      */
     public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = null)
     {
         $this->products = $products;
-
-        return $this;
     }
 
     /**
@@ -130,13 +116,10 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
      * Set option
      *
      * @param \Cx\Modules\Shop\Model\Entity\Option $option
-     * @return RelProductAttribute
      */
     public function setOption(\Cx\Modules\Shop\Model\Entity\Option $option = null)
     {
         $this->option = $option;
-
-        return $this;
     }
 
     /**

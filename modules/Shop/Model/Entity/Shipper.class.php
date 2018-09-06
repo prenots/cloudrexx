@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Shipper
  */
@@ -62,13 +60,10 @@ class Shipper extends \Cx\Model\Base\EntityBase {
      * Set active
      *
      * @param boolean $active
-     * @return Shipper
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -85,13 +80,10 @@ class Shipper extends \Cx\Model\Base\EntityBase {
      * Set ord
      *
      * @param integer $ord
-     * @return Shipper
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -108,13 +100,10 @@ class Shipper extends \Cx\Model\Base\EntityBase {
      * Add orders
      *
      * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
-     * @return Shipper
      */
     public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
     {
         $this->orders[] = $orders;
-
-        return $this;
     }
 
     /**
@@ -141,13 +130,10 @@ class Shipper extends \Cx\Model\Base\EntityBase {
      * Add shipmentCosts
      *
      * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts
-     * @return Shipper
      */
     public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
     {
         $this->shipmentCosts[] = $shipmentCosts;
-
-        return $this;
     }
 
     /**
@@ -174,13 +160,10 @@ class Shipper extends \Cx\Model\Base\EntityBase {
      * Add zones
      *
      * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
-     * @return Shipper
      */
     public function addZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
     {
         $this->zones[] = $zones;
-
-        return $this;
     }
 
     /**

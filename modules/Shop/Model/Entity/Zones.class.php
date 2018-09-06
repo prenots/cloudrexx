@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Zones
  */
@@ -57,13 +55,10 @@ class Zones extends \Cx\Model\Base\EntityBase {
      * Set active
      *
      * @param boolean $active
-     * @return Zones
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -80,13 +75,10 @@ class Zones extends \Cx\Model\Base\EntityBase {
      * Add relCountries
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelCountries $relCountries
-     * @return Zones
      */
     public function addRelCountry(\Cx\Modules\Shop\Model\Entity\RelCountries $relCountries)
     {
         $this->relCountries[] = $relCountries;
-
-        return $this;
     }
 
     /**
@@ -113,13 +105,10 @@ class Zones extends \Cx\Model\Base\EntityBase {
      * Add payments
      *
      * @param \Cx\Modules\Shop\Model\Entity\Payment $payments
-     * @return Zones
      */
     public function addPayment(\Cx\Modules\Shop\Model\Entity\Payment $payments)
     {
         $this->payments[] = $payments;
-
-        return $this;
     }
 
     /**
@@ -146,13 +135,10 @@ class Zones extends \Cx\Model\Base\EntityBase {
      * Add shippers
      *
      * @param \Cx\Modules\Shop\Model\Entity\Shipper $shippers
-     * @return Zones
      */
     public function addShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shippers)
     {
         $this->shippers[] = $shippers;
-
-        return $this;
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Vat
  */
@@ -50,8 +48,6 @@ class Vat extends \Cx\Model\Base\EntityBase {
     public function setRate($rate)
     {
         $this->rate = $rate;
-
-        return $this;
     }
 
     /**
@@ -73,8 +69,6 @@ class Vat extends \Cx\Model\Base\EntityBase {
     public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {
         $this->products[] = $products;
-
-        return $this;
     }
 
     /**

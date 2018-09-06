@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * ArticleGroup
  */
@@ -40,13 +38,10 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase {
      * Add relDiscountGroups
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
-     * @return ArticleGroup
      */
     public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
     {
         $this->relDiscountGroups[] = $relDiscountGroups;
-
-        return $this;
     }
 
     /**

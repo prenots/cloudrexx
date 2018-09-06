@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * DiscountgroupCountName
  */
@@ -45,13 +43,10 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
      * Set cumulative
      *
      * @param integer $cumulative
-     * @return DiscountgroupCountName
      */
     public function setCumulative($cumulative)
     {
         $this->cumulative = $cumulative;
-
-        return $this;
     }
 
     /**
@@ -68,13 +63,10 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
      * Add discountgroupCountRates
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates
-     * @return DiscountgroupCountName
      */
     public function addDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates)
     {
         $this->discountgroupCountRates[] = $discountgroupCountRates;
-
-        return $this;
     }
 
     /**

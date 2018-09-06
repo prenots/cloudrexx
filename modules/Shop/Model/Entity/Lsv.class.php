@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Lsv
  */
@@ -38,13 +36,10 @@ class Lsv extends \Cx\Model\Base\EntityBase {
      * Set orderId
      *
      * @param integer $orderId
-     * @return Lsv
      */
     public function setOrderId($orderId)
     {
         $this->orderId = $orderId;
-
-        return $this;
     }
 
     /**
@@ -61,13 +56,10 @@ class Lsv extends \Cx\Model\Base\EntityBase {
      * Set holder
      *
      * @param string $holder
-     * @return Lsv
      */
     public function setHolder($holder)
     {
         $this->holder = $holder;
-
-        return $this;
     }
 
     /**
@@ -84,13 +76,10 @@ class Lsv extends \Cx\Model\Base\EntityBase {
      * Set bank
      *
      * @param string $bank
-     * @return Lsv
      */
     public function setBank($bank)
     {
         $this->bank = $bank;
-
-        return $this;
     }
 
     /**
@@ -107,13 +96,10 @@ class Lsv extends \Cx\Model\Base\EntityBase {
      * Set blz
      *
      * @param string $blz
-     * @return Lsv
      */
     public function setBlz($blz)
     {
         $this->blz = $blz;
-
-        return $this;
     }
 
     /**
@@ -130,13 +116,10 @@ class Lsv extends \Cx\Model\Base\EntityBase {
      * Set orders
      *
      * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
-     * @return Lsv
      */
     public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = null)
     {
         $this->orders = $orders;
-
-        return $this;
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Categories
  */
@@ -76,13 +74,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Set parentId
      *
      * @param integer $parentId
-     * @return Categories
      */
     public function setParentId($parentId)
     {
         $this->parentId = $parentId;
-
-        return $this;
     }
 
     /**
@@ -99,13 +94,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Set ord
      *
      * @param integer $ord
-     * @return Categories
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -122,13 +114,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Set active
      *
      * @param boolean $active
-     * @return Categories
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -145,13 +134,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Set picture
      *
      * @param string $picture
-     * @return Categories
      */
     public function setPicture($picture)
     {
         $this->picture = $picture;
-
-        return $this;
     }
 
     /**
@@ -168,13 +154,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Set flags
      *
      * @param string $flags
-     * @return Categories
      */
     public function setFlags($flags)
     {
         $this->flags = $flags;
-
-        return $this;
     }
 
     /**
@@ -191,13 +174,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Add pricelists
      *
      * @param \Cx\Modules\Shop\Model\Entity\Pricelists $pricelists
-     * @return Categories
      */
     public function addPricelist(\Cx\Modules\Shop\Model\Entity\Pricelists $pricelists)
     {
         $this->pricelists[] = $pricelists;
-
-        return $this;
     }
 
     /**
@@ -224,13 +204,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Add products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return Categories
      */
     public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {
         $this->products[] = $products;
-
-        return $this;
     }
 
     /**
@@ -257,13 +234,10 @@ class Categories extends \Cx\Model\Base\EntityBase {
      * Set parent category
      *
      * @param \Cx\Modules\Shop\Model\Entity\Categories $category
-     * @return Categories
      */
     public function setCategory(\Cx\Modules\Shop\Model\Entity\Categories $category = null)
     {
         $this->category = $category;
-
-        return $this;
     }
 
     /**

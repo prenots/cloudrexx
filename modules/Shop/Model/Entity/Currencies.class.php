@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Currencies
  */
@@ -75,13 +73,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set code
      *
      * @param string $code
-     * @return Currencies
      */
     public function setCode($code)
     {
         $this->code = $code;
-
-        return $this;
     }
 
     /**
@@ -98,13 +93,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set symbol
      *
      * @param string $symbol
-     * @return Currencies
      */
     public function setSymbol($symbol)
     {
         $this->symbol = $symbol;
-
-        return $this;
     }
 
     /**
@@ -121,13 +113,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set rate
      *
      * @param string $rate
-     * @return Currencies
      */
     public function setRate($rate)
     {
         $this->rate = $rate;
-
-        return $this;
     }
 
     /**
@@ -144,13 +133,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set ord
      *
      * @param integer $ord
-     * @return Currencies
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -167,13 +153,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set active
      *
      * @param boolean $active
-     * @return Currencies
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -190,13 +173,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set default
      *
      * @param boolean $default
-     * @return Currencies
      */
     public function setDefault($default)
     {
         $this->default = $default;
-
-        return $this;
     }
 
     /**
@@ -213,13 +193,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Set increment
      *
      * @param string $increment
-     * @return Currencies
      */
     public function setIncrement($increment)
     {
         $this->increment = $increment;
-
-        return $this;
     }
 
     /**
@@ -236,13 +213,10 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      * Add orders
      *
      * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
-     * @return Currencies
      */
     public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
     {
         $this->orders[] = $orders;
-
-        return $this;
     }
 
     /**

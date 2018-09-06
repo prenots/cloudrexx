@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Manufacturer
  */
@@ -40,13 +38,10 @@ class Manufacturer extends \Cx\Model\Base\EntityBase {
      * Add products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return Manufacturer
      */
     public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {
         $this->products[] = $products;
-
-        return $this;
     }
 
     /**

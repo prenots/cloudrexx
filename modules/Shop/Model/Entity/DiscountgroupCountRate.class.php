@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * DiscountgroupCountRate
  */
@@ -33,13 +31,10 @@ class DiscountgroupCountRate extends \Cx\Model\Base\EntityBase {
      * Set groupId
      *
      * @param integer $groupId
-     * @return DiscountgroupCountRate
      */
     public function setGroupId($groupId)
     {
         $this->groupId = $groupId;
-
-        return $this;
     }
 
     /**
@@ -56,13 +51,10 @@ class DiscountgroupCountRate extends \Cx\Model\Base\EntityBase {
      * Set count
      *
      * @param integer $count
-     * @return DiscountgroupCountRate
      */
     public function setCount($count)
     {
         $this->count = $count;
-
-        return $this;
     }
 
     /**
@@ -79,13 +71,10 @@ class DiscountgroupCountRate extends \Cx\Model\Base\EntityBase {
      * Set rate
      *
      * @param string $rate
-     * @return DiscountgroupCountRate
      */
     public function setRate($rate)
     {
         $this->rate = $rate;
-
-        return $this;
     }
 
     /**
@@ -102,13 +91,10 @@ class DiscountgroupCountRate extends \Cx\Model\Base\EntityBase {
      * Set discountgroupCountName
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName
-     * @return DiscountgroupCountRate
      */
     public function setDiscountgroupCountName(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName = null)
     {
         $this->discountgroupCountName = $discountgroupCountName;
-
-        return $this;
     }
 
     /**

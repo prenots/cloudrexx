@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Products
  */
@@ -194,13 +192,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set picture
      *
      * @param string $picture
-     * @return Products
      */
     public function setPicture($picture)
     {
         $this->picture = $picture;
-
-        return $this;
     }
 
     /**
@@ -217,13 +212,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set distribution
      *
      * @param string $distribution
-     * @return Products
      */
     public function setDistribution($distribution)
     {
         $this->distribution = $distribution;
-
-        return $this;
     }
 
     /**
@@ -240,13 +232,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set normalprice
      *
      * @param string $normalprice
-     * @return Products
      */
     public function setNormalprice($normalprice)
     {
         $this->normalprice = $normalprice;
-
-        return $this;
     }
 
     /**
@@ -263,13 +252,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set resellerprice
      *
      * @param string $resellerprice
-     * @return Products
      */
     public function setResellerprice($resellerprice)
     {
         $this->resellerprice = $resellerprice;
-
-        return $this;
     }
 
     /**
@@ -286,13 +272,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set stock
      *
      * @param integer $stock
-     * @return Products
      */
     public function setStock($stock)
     {
         $this->stock = $stock;
-
-        return $this;
     }
 
     /**
@@ -309,13 +292,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set stockVisible
      *
      * @param boolean $stockVisible
-     * @return Products
      */
     public function setStockVisible($stockVisible)
     {
         $this->stockVisible = $stockVisible;
-
-        return $this;
     }
 
     /**
@@ -332,13 +312,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set discountprice
      *
      * @param string $discountprice
-     * @return Products
      */
     public function setDiscountprice($discountprice)
     {
         $this->discountprice = $discountprice;
-
-        return $this;
     }
 
     /**
@@ -355,13 +332,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set discountActive
      *
      * @param boolean $discountActive
-     * @return Products
      */
     public function setDiscountActive($discountActive)
     {
         $this->discountActive = $discountActive;
-
-        return $this;
     }
 
     /**
@@ -378,13 +352,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set active
      *
      * @param boolean $active
-     * @return Products
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -401,13 +372,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set b2b
      *
      * @param boolean $b2b
-     * @return Products
      */
     public function setB2b($b2b)
     {
         $this->b2b = $b2b;
-
-        return $this;
     }
 
     /**
@@ -424,13 +392,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set b2c
      *
      * @param boolean $b2c
-     * @return Products
      */
     public function setB2c($b2c)
     {
         $this->b2c = $b2c;
-
-        return $this;
     }
 
     /**
@@ -447,13 +412,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set dateStart
      *
      * @param \DateTime $dateStart
-     * @return Products
      */
     public function setDateStart($dateStart)
     {
         $this->dateStart = $dateStart;
-
-        return $this;
     }
 
     /**
@@ -470,13 +432,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set dateEnd
      *
      * @param \DateTime $dateEnd
-     * @return Products
      */
     public function setDateEnd($dateEnd)
     {
         $this->dateEnd = $dateEnd;
-
-        return $this;
     }
 
     /**
@@ -493,13 +452,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set manufacturerId
      *
      * @param integer $manufacturerId
-     * @return Products
      */
     public function setManufacturerId($manufacturerId)
     {
         $this->manufacturerId = $manufacturerId;
-
-        return $this;
     }
 
     /**
@@ -516,13 +472,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set ord
      *
      * @param integer $ord
-     * @return Products
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -539,13 +492,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set vatId
      *
      * @param integer $vatId
-     * @return Products
      */
     public function setVatId($vatId)
     {
         $this->vatId = $vatId;
-
-        return $this;
     }
 
     /**
@@ -562,13 +512,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set weight
      *
      * @param integer $weight
-     * @return Products
      */
     public function setWeight($weight)
     {
         $this->weight = $weight;
-
-        return $this;
     }
 
     /**
@@ -585,13 +532,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set flags
      *
      * @param string $flags
-     * @return Products
      */
     public function setFlags($flags)
     {
         $this->flags = $flags;
-
-        return $this;
     }
 
     /**
@@ -608,13 +552,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set groupId
      *
      * @param integer $groupId
-     * @return Products
      */
     public function setGroupId($groupId)
     {
         $this->groupId = $groupId;
-
-        return $this;
     }
 
     /**
@@ -631,13 +572,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set articleId
      *
      * @param integer $articleId
-     * @return Products
      */
     public function setArticleId($articleId)
     {
         $this->articleId = $articleId;
-
-        return $this;
     }
 
     /**
@@ -654,13 +592,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set usergroupIds
      *
      * @param string $usergroupIds
-     * @return Products
      */
     public function setUsergroupIds($usergroupIds)
     {
         $this->usergroupIds = $usergroupIds;
-
-        return $this;
     }
 
     /**
@@ -677,13 +612,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set minimumOrderQuantity
      *
      * @param integer $minimumOrderQuantity
-     * @return Products
      */
     public function setMinimumOrderQuantity($minimumOrderQuantity)
     {
         $this->minimumOrderQuantity = $minimumOrderQuantity;
-
-        return $this;
     }
 
     /**
@@ -700,13 +632,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Add discountCoupons
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
-     * @return Products
      */
     public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
     {
         $this->discountCoupons[] = $discountCoupons;
-
-        return $this;
     }
 
     /**
@@ -733,13 +662,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Add orderItems
      *
      * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
-     * @return Products
      */
     public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
     {
         $this->orderItems[] = $orderItems;
-
-        return $this;
     }
 
     /**
@@ -766,13 +692,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Add relProductAttributes
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
-     * @return Products
      */
     public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
     {
         $this->relProductAttributes[] = $relProductAttributes;
-
-        return $this;
     }
 
     /**
@@ -799,13 +722,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set manufacturer
      *
      * @param \Cx\Modules\Shop\Model\Entity\Manufacturer $manufacturer
-     * @return Products
      */
     public function setManufacturer(\Cx\Modules\Shop\Model\Entity\Manufacturer $manufacturer = null)
     {
         $this->manufacturer = $manufacturer;
-
-        return $this;
     }
 
     /**
@@ -822,13 +742,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set discountgroup count name
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName$discountgroupCountName
-     * @return Products
      */
     public function setDiscountgroupCountName(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName = null)
     {
         $this->discountgroupCountName = $discountgroupCountName;
-
-        return $this;
     }
 
     /**
@@ -845,13 +762,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set article group
      *
      * @param \Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup
-     * @return Products
      */
     public function setArticleGroup(\Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup = null)
     {
         $this->articleGroup = $articleGroup;
-
-        return $this;
     }
 
     /**
@@ -868,13 +782,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Set vat
      *
      * @param \Cx\Modules\Shop\Model\Entity\Vat $vat
-     * @return Products
      */
     public function setVat(\Cx\Modules\Shop\Model\Entity\Vat $vat = null)
     {
         $this->vat = $vat;
-
-        return $this;
     }
 
     /**
@@ -891,13 +802,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Add categories
      *
      * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
-     * @return Products
      */
     public function addCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
     {
         $this->categories[] = $categories;
-
-        return $this;
     }
 
     /**
@@ -924,13 +832,10 @@ class Products extends \Cx\Model\Base\EntityBase {
      * Add user group
      *
      * @param \Cx\Core\User\Model\Entity\Group $userGroup
-     * @return Products
      */
     public function addUserGroup(\Cx\Core\User\Model\Entity\Group $userGroup)
     {
         $this->userGroups[] = $userGroup;
-
-        return $this;
     }
 
     /**

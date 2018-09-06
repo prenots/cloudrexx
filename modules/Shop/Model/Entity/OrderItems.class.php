@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * OrderItems
  */
@@ -85,13 +83,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set orderId
      *
      * @param integer $orderId
-     * @return OrderItems
      */
     public function setOrderId($orderId)
     {
         $this->orderId = $orderId;
-
-        return $this;
     }
 
     /**
@@ -108,13 +103,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set productId
      *
      * @param integer $productId
-     * @return OrderItems
      */
     public function setProductId($productId)
     {
         $this->productId = $productId;
-
-        return $this;
     }
 
     /**
@@ -131,13 +123,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set productName
      *
      * @param string $productName
-     * @return OrderItems
      */
     public function setProductName($productName)
     {
         $this->productName = $productName;
-
-        return $this;
     }
 
     /**
@@ -154,13 +143,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set price
      *
      * @param string $price
-     * @return OrderItems
      */
     public function setPrice($price)
     {
         $this->price = $price;
-
-        return $this;
     }
 
     /**
@@ -177,13 +163,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set quantity
      *
      * @param integer $quantity
-     * @return OrderItems
      */
     public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
-
-        return $this;
     }
 
     /**
@@ -200,13 +183,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set vatRate
      *
      * @param string $vatRate
-     * @return OrderItems
      */
     public function setVatRate($vatRate)
     {
         $this->vatRate = $vatRate;
-
-        return $this;
     }
 
     /**
@@ -223,13 +203,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set weight
      *
      * @param integer $weight
-     * @return OrderItems
      */
     public function setWeight($weight)
     {
         $this->weight = $weight;
-
-        return $this;
     }
 
     /**
@@ -246,13 +223,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Add orderAttributes
      *
      * @param \Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes
-     * @return OrderItems
      */
     public function addOrderAttribute(\Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes)
     {
         $this->orderAttributes[] = $orderAttributes;
-
-        return $this;
     }
 
     /**
@@ -279,13 +253,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set orders
      *
      * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
-     * @return OrderItems
      */
     public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = null)
     {
         $this->orders = $orders;
-
-        return $this;
     }
 
     /**
@@ -302,13 +273,10 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
      * Set products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return OrderItems
      */
     public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = null)
     {
         $this->products = $products;
-
-        return $this;
     }
 
     /**
