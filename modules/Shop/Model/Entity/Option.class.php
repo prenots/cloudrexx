@@ -22,6 +22,11 @@ class Option extends \Cx\Model\Base\EntityBase {
     protected $price;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $relProductAttributes;
@@ -87,6 +92,26 @@ class Option extends \Cx\Model\Base\EntityBase {
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

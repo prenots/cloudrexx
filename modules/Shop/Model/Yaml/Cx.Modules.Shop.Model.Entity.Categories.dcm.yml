@@ -39,6 +39,15 @@ Cx\Modules\Shop\Model\Entity\Categories:
       length: 255
       options:
         default: ''
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
+    description:
+      type: text
+      options:
+        default: ''
   manyToMany:
     pricelists:
       targetEntity: Cx\Modules\Shop\Model\Entity\Pricelists

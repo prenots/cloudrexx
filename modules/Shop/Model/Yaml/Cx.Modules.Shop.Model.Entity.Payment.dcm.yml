@@ -44,6 +44,11 @@ Cx\Modules\Shop\Model\Entity\Payment:
       options:
         unsigned: true
         default: 1
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
   oneToMany:
     discountCoupons:
       targetEntity: Cx\Modules\Shop\Model\Entity\DiscountCoupon

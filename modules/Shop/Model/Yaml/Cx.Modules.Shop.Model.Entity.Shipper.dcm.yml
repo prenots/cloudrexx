@@ -20,6 +20,11 @@ Cx\Modules\Shop\Model\Entity\Shipper:
       options:
         unsigned: true
         default: 0
+    name:
+      type: string
+      length: 30
+      options:
+        default: ''
   oneToMany:
     orders:
       targetEntity: Cx\Modules\Shop\Model\Entity\Orders

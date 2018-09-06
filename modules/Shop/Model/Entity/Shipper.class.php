@@ -22,6 +22,11 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     protected $ord;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $orders;
@@ -94,6 +99,26 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     public function getOrd()
     {
         return $this->ord;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

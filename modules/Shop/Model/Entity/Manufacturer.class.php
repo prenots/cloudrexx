@@ -12,6 +12,16 @@ class Manufacturer extends \Cx\Model\Base\EntityBase {
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $uri;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $products;
@@ -32,6 +42,46 @@ class Manufacturer extends \Cx\Model\Base\EntityBase {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set uri
+     *
+     * @param string $uri
+     */
+    public function setUri($uri)
+    {
+        $this->uri = $uri;
+    }
+
+    /**
+     * Get uri
+     *
+     * @return string
+     */
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

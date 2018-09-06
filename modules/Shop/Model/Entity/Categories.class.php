@@ -37,6 +37,16 @@ class Categories extends \Cx\Model\Base\EntityBase {
     protected $flags;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $description;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $pricelists;
@@ -168,6 +178,46 @@ class Categories extends \Cx\Model\Base\EntityBase {
     public function getFlags()
     {
         return $this->flags;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**

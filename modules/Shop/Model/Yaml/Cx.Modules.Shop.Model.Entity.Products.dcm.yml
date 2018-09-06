@@ -136,6 +136,33 @@ Cx\Modules\Shop\Model\Entity\Products:
       options:
         default: 0
       column: minimum_order_quantity
+    uri:
+      type: string
+      length: 55
+      options:
+        default: ''
+    short:
+      type: text
+      options:
+        default: ''
+    long:
+      type: text
+      options:
+        default: ''
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
+    keys:
+      type: text
+      options:
+        default: ''
+    code:
+      type: string
+      length: 45
+      options:
+        default: ''
   oneToMany:
     discountCoupons:
       targetEntity: Cx\Modules\Shop\Model\Entity\DiscountCoupon

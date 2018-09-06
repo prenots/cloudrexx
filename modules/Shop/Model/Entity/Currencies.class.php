@@ -47,6 +47,11 @@ class Currencies extends \Cx\Model\Base\EntityBase {
     protected $increment;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $orders;
@@ -207,6 +212,26 @@ class Currencies extends \Cx\Model\Base\EntityBase {
     public function getIncrement()
     {
         return $this->increment;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
