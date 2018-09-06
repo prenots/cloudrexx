@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Manufacturer contains a name and uri. Products are related to a manufacturer.
  *
@@ -145,13 +143,10 @@ class Manufacturer extends \Cx\Model\Base\EntityBase implements \Gedmo\Translata
      * Add products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return Manufacturer
      */
     public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {
         $this->products[] = $products;
-
-        return $this;
     }
 
     /**

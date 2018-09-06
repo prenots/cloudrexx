@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * A group of customers. Can be assigned to a discount group.
  *
@@ -119,13 +117,10 @@ class CustomerGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translat
      * Add relDiscountGroups
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
-     * @return CustomerGroup
      */
     public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
     {
         $this->relDiscountGroups[] = $relDiscountGroups;
-
-        return $this;
     }
 
     /**

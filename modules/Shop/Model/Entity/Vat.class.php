@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * The VAT is assigned to products. It contains a class name and rate.
  *
@@ -108,8 +106,6 @@ class Vat extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Trans
     public function setRate($rate)
     {
         $this->rate = $rate;
-
-        return $this;
     }
 
     /**
@@ -150,8 +146,6 @@ class Vat extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Trans
     public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {
         $this->products[] = $products;
-
-        return $this;
     }
 
     /**

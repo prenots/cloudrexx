@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Option for an attribut. This attribut option can be assigned to products.
  * A price can be assigned to an option.
@@ -115,13 +113,10 @@ class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tr
      * Set attributeId
      *
      * @param integer $attributeId
-     * @return Option
      */
     public function setAttributeId($attributeId)
     {
         $this->attributeId = $attributeId;
-
-        return $this;
     }
 
     /**
@@ -138,13 +133,10 @@ class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tr
      * Set price
      *
      * @param string $price
-     * @return Option
      */
     public function setPrice($price)
     {
         $this->price = $price;
-
-        return $this;
     }
 
     /**
@@ -181,13 +173,10 @@ class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tr
      * Add relProductAttributes
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
-     * @return Option
      */
     public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
     {
         $this->relProductAttributes[] = $relProductAttributes;
-
-        return $this;
     }
 
     /**
@@ -214,13 +203,10 @@ class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tr
      * Set attribute
      *
      * @param \Cx\Modules\Shop\Model\Entity\Attribute $attribute
-     * @return Option
      */
     public function setAttribute(\Cx\Modules\Shop\Model\Entity\Attribute $attribute = null)
     {
         $this->attribute = $attribute;
-
-        return $this;
     }
 
     /**

@@ -35,8 +35,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * A Coupon which was used by a customer in an order.
  *
@@ -82,13 +80,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      * Set code
      *
      * @param string $code
-     * @return RelCustomerCoupon
      */
     public function setCode($code)
     {
         $this->code = $code;
-
-        return $this;
     }
 
     /**
@@ -105,13 +100,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      * Set customerId
      *
      * @param integer $customerId
-     * @return RelCustomerCoupon
      */
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
-
-        return $this;
     }
 
     /**
@@ -128,13 +120,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      * Set orderId
      *
      * @param integer $orderId
-     * @return RelCustomerCoupon
      */
     public function setOrderId($orderId)
     {
         $this->orderId = $orderId;
-
-        return $this;
     }
 
     /**
@@ -151,13 +140,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      * Set count
      *
      * @param integer $count
-     * @return RelCustomerCoupon
      */
     public function setCount($count)
     {
         $this->count = $count;
-
-        return $this;
     }
 
     /**
@@ -174,13 +160,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      * Set amount
      *
      * @param string $amount
-     * @return RelCustomerCoupon
      */
     public function setAmount($amount)
     {
         $this->amount = $amount;
-
-        return $this;
     }
 
     /**
@@ -197,13 +180,10 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      * Set orders
      *
      * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
-     * @return RelCustomerCoupon
      */
     public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = null)
     {
         $this->orders = $orders;
-
-        return $this;
     }
 
     /**
@@ -214,5 +194,25 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
     public function getOrders()
     {
         return $this->orders;
+    }
+
+    /**
+     * Set customer
+     *
+     * @param \Cx\Core\User\Model\Entity\User $customer
+     */
+    public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
+    {
+        $this->customer = $customer;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }

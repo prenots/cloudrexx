@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * This is the option selected by the product options. So that the attribute
  * options can be changed, but the ordered option is still present in the
@@ -95,13 +93,10 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
      * Set itemId
      *
      * @param integer $itemId
-     * @return OrderAttributes
      */
     public function setItemId($itemId)
     {
         $this->itemId = $itemId;
-
-        return $this;
     }
 
     /**
@@ -118,13 +113,10 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
      * Set attributeName
      *
      * @param string $attributeName
-     * @return OrderAttributes
      */
     public function setAttributeName($attributeName)
     {
         $this->attributeName = $attributeName;
-
-        return $this;
     }
 
     /**
@@ -141,13 +133,10 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
      * Set optionName
      *
      * @param string $optionName
-     * @return OrderAttributes
      */
     public function setOptionName($optionName)
     {
         $this->optionName = $optionName;
-
-        return $this;
     }
 
     /**
@@ -164,13 +153,10 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
      * Set price
      *
      * @param string $price
-     * @return OrderAttributes
      */
     public function setPrice($price)
     {
         $this->price = $price;
-
-        return $this;
     }
 
     /**
@@ -187,13 +173,10 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
      * Set orderItems
      *
      * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
-     * @return OrderAttributes
      */
     public function setOrderItems(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems = null)
     {
         $this->orderItems = $orderItems;
-
-        return $this;
     }
 
     /**

@@ -37,8 +37,6 @@
 
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Attribute
  *
@@ -115,13 +113,10 @@ class Attribute extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable
      * Set type
      *
      * @param boolean $type
-     * @return Attribute
      */
     public function setType($type)
     {
         $this->type = $type;
-
-        return $this;
     }
 
     /**
@@ -158,13 +153,10 @@ class Attribute extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable
      * Add options
      *
      * @param \Cx\Modules\Shop\Model\Entity\Option $options
-     * @return Attribute
      */
     public function addOption(\Cx\Modules\Shop\Model\Entity\Option $options)
     {
         $this->options[] = $options;
-
-        return $this;
     }
 
     /**

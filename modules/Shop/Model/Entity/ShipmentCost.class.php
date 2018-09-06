@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * The shipment cost has a maximal weight, up to this weight the fee is charged.
  * With freeFrom a fee can be defined from which the shipment is free of charge.
@@ -94,13 +92,10 @@ class ShipmentCost extends \Cx\Model\Base\EntityBase {
      * Set shipperId
      *
      * @param integer $shipperId
-     * @return ShipmentCost
      */
     public function setShipperId($shipperId)
     {
         $this->shipperId = $shipperId;
-
-        return $this;
     }
 
     /**
@@ -117,13 +112,10 @@ class ShipmentCost extends \Cx\Model\Base\EntityBase {
      * Set maxWeight
      *
      * @param integer $maxWeight
-     * @return ShipmentCost
      */
     public function setMaxWeight($maxWeight)
     {
         $this->maxWeight = $maxWeight;
-
-        return $this;
     }
 
     /**
@@ -140,13 +132,10 @@ class ShipmentCost extends \Cx\Model\Base\EntityBase {
      * Set freeFrom
      *
      * @param string $freeFrom
-     * @return ShipmentCost
      */
     public function setFreeFrom($freeFrom)
     {
         $this->freeFrom = $freeFrom;
-
-        return $this;
     }
 
     /**
@@ -163,13 +152,10 @@ class ShipmentCost extends \Cx\Model\Base\EntityBase {
      * Set fee
      *
      * @param string $fee
-     * @return ShipmentCost
      */
     public function setFee($fee)
     {
         $this->fee = $fee;
-
-        return $this;
     }
 
     /**
@@ -186,13 +172,10 @@ class ShipmentCost extends \Cx\Model\Base\EntityBase {
      * Set shipper
      *
      * @param \Cx\Modules\Shop\Model\Entity\Shipper $shipper
-     * @return ShipmentCost
      */
     public function setShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shipper = null)
     {
         $this->shipper = $shipper;
-
-        return $this;
     }
 
     /**

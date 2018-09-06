@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * ArticleGroup contains products and are related to DiscountGroups
  *
@@ -124,13 +122,10 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translata
      * Add relDiscountGroups
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
-     * @return ArticleGroup
      */
     public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
     {
         $this->relDiscountGroups[] = $relDiscountGroups;
-
-        return $this;
     }
 
     /**

@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * An Order contains all information from the customer as well as all ordered
  * products. It contains also the shipper and payment.
@@ -283,13 +281,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set customerId
      *
      * @param integer $customerId
-     * @return Orders
      */
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
-
-        return $this;
     }
 
     /**
@@ -306,13 +301,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set currencyId
      *
      * @param integer $currencyId
-     * @return Orders
      */
     public function setCurrencyId($currencyId)
     {
         $this->currencyId = $currencyId;
-
-        return $this;
     }
 
     /**
@@ -329,13 +321,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set sum
      *
      * @param string $sum
-     * @return Orders
      */
     public function setSum($sum)
     {
         $this->sum = $sum;
-
-        return $this;
     }
 
     /**
@@ -398,13 +387,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set gender
      *
      * @param string $gender
-     * @return Orders
      */
     public function setGender($gender)
     {
         $this->gender = $gender;
-
-        return $this;
     }
 
     /**
@@ -421,13 +407,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set company
      *
      * @param string $company
-     * @return Orders
      */
     public function setCompany($company)
     {
         $this->company = $company;
-
-        return $this;
     }
 
     /**
@@ -444,13 +427,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set firstname
      *
      * @param string $firstname
-     * @return Orders
      */
     public function setFirstname($firstname)
     {
         $this->firstname = $firstname;
-
-        return $this;
     }
 
     /**
@@ -467,13 +447,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set lastname
      *
      * @param string $lastname
-     * @return Orders
      */
     public function setLastname($lastname)
     {
         $this->lastname = $lastname;
-
-        return $this;
     }
 
     /**
@@ -490,13 +467,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set address
      *
      * @param string $address
-     * @return Orders
      */
     public function setAddress($address)
     {
         $this->address = $address;
-
-        return $this;
     }
 
     /**
@@ -513,13 +487,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set city
      *
      * @param string $city
-     * @return Orders
      */
     public function setCity($city)
     {
         $this->city = $city;
-
-        return $this;
     }
 
     /**
@@ -536,13 +507,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set zip
      *
      * @param string $zip
-     * @return Orders
      */
     public function setZip($zip)
     {
         $this->zip = $zip;
-
-        return $this;
     }
 
     /**
@@ -559,13 +527,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set countryId
      *
      * @param integer $countryId
-     * @return Orders
      */
     public function setCountryId($countryId)
     {
         $this->countryId = $countryId;
-
-        return $this;
     }
 
     /**
@@ -582,13 +547,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set phone
      *
      * @param string $phone
-     * @return Orders
      */
     public function setPhone($phone)
     {
         $this->phone = $phone;
-
-        return $this;
     }
 
     /**
@@ -605,13 +567,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set vatAmount
      *
      * @param string $vatAmount
-     * @return Orders
      */
     public function setVatAmount($vatAmount)
     {
         $this->vatAmount = $vatAmount;
-
-        return $this;
     }
 
     /**
@@ -628,13 +587,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set shipmentAmount
      *
      * @param string $shipmentAmount
-     * @return Orders
      */
     public function setShipmentAmount($shipmentAmount)
     {
         $this->shipmentAmount = $shipmentAmount;
-
-        return $this;
     }
 
     /**
@@ -651,13 +607,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set shipmentId
      *
      * @param integer $shipmentId
-     * @return Orders
      */
     public function setShipmentId($shipmentId)
     {
         $this->shipmentId = $shipmentId;
-
-        return $this;
     }
 
     /**
@@ -674,13 +627,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set paymentId
      *
      * @param integer $paymentId
-     * @return Orders
      */
     public function setPaymentId($paymentId)
     {
         $this->paymentId = $paymentId;
-
-        return $this;
     }
 
     /**
@@ -697,13 +647,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set paymentAmount
      *
      * @param string $paymentAmount
-     * @return Orders
      */
     public function setPaymentAmount($paymentAmount)
     {
         $this->paymentAmount = $paymentAmount;
-
-        return $this;
     }
 
     /**
@@ -720,13 +667,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set ip
      *
      * @param string $ip
-     * @return Orders
      */
     public function setIp($ip)
     {
         $this->ip = $ip;
-
-        return $this;
     }
 
     /**
@@ -743,13 +687,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set langId
      *
      * @param integer $langId
-     * @return Orders
      */
     public function setLangId($langId)
     {
         $this->langId = $langId;
-
-        return $this;
     }
 
     /**
@@ -766,13 +707,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set note
      *
      * @param string $note
-     * @return Orders
      */
     public function setNote($note)
     {
         $this->note = $note;
-
-        return $this;
     }
 
     /**
@@ -789,13 +727,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set modifiedOn
      *
      * @param \DateTime $modifiedOn
-     * @return Orders
      */
     public function setModifiedOn($modifiedOn)
     {
         $this->modifiedOn = $modifiedOn;
-
-        return $this;
     }
 
     /**
@@ -812,13 +747,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set modifiedBy
      *
      * @param string $modifiedBy
-     * @return Orders
      */
     public function setModifiedBy($modifiedBy)
     {
         $this->modifiedBy = $modifiedBy;
-
-        return $this;
     }
 
     /**
@@ -835,13 +767,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingGender
      *
      * @param string $billingGender
-     * @return Orders
      */
     public function setBillingGender($billingGender)
     {
         $this->billingGender = $billingGender;
-
-        return $this;
     }
 
     /**
@@ -858,13 +787,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingCompany
      *
      * @param string $billingCompany
-     * @return Orders
      */
     public function setBillingCompany($billingCompany)
     {
         $this->billingCompany = $billingCompany;
-
-        return $this;
     }
 
     /**
@@ -881,19 +807,16 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingFirstname
      *
      * @param string $billingFirstname
-     * @return Orders
      */
     public function setBillingFirstname($billingFirstname)
     {
         $this->billingFirstname = $billingFirstname;
-
-        return $this;
     }
 
     /**
      * Get billingFirstname
      *
-     * @return string 
+     * @return string
      */
     public function getBillingFirstname()
     {
@@ -904,13 +827,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingLastname
      *
      * @param string $billingLastname
-     * @return Orders
      */
     public function setBillingLastname($billingLastname)
     {
         $this->billingLastname = $billingLastname;
-
-        return $this;
     }
 
     /**
@@ -927,13 +847,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingAddress
      *
      * @param string $billingAddress
-     * @return Orders
      */
     public function setBillingAddress($billingAddress)
     {
         $this->billingAddress = $billingAddress;
-
-        return $this;
     }
 
     /**
@@ -950,13 +867,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingCity
      *
      * @param string $billingCity
-     * @return Orders
      */
     public function setBillingCity($billingCity)
     {
         $this->billingCity = $billingCity;
-
-        return $this;
     }
 
     /**
@@ -973,13 +887,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingZip
      *
      * @param string $billingZip
-     * @return Orders
      */
     public function setBillingZip($billingZip)
     {
         $this->billingZip = $billingZip;
-
-        return $this;
     }
 
     /**
@@ -996,13 +907,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingCountryId
      *
      * @param integer $billingCountryId
-     * @return Orders
      */
     public function setBillingCountryId($billingCountryId)
     {
         $this->billingCountryId = $billingCountryId;
-
-        return $this;
     }
 
     /**
@@ -1019,13 +927,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingPhone
      *
      * @param string $billingPhone
-     * @return Orders
      */
     public function setBillingPhone($billingPhone)
     {
         $this->billingPhone = $billingPhone;
-
-        return $this;
     }
 
     /**
@@ -1042,13 +947,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingFax
      *
      * @param string $billingFax
-     * @return Orders
      */
     public function setBillingFax($billingFax)
     {
         $this->billingFax = $billingFax;
-
-        return $this;
     }
 
     /**
@@ -1065,13 +967,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set billingEmail
      *
      * @param string $billingEmail
-     * @return Orders
      */
     public function setBillingEmail($billingEmail)
     {
         $this->billingEmail = $billingEmail;
-
-        return $this;
     }
 
     /**
@@ -1088,13 +987,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Add lsvs
      *
      * @param \Cx\Modules\Shop\Model\Entity\Lsv $lsvs
-     * @return Orders
      */
     public function addLsv(\Cx\Modules\Shop\Model\Entity\Lsv $lsvs)
     {
         $this->lsvs[] = $lsvs;
-
-        return $this;
     }
 
     /**
@@ -1121,13 +1017,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Add orderItems
      *
      * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
-     * @return Orders
      */
     public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
     {
         $this->orderItems[] = $orderItems;
-
-        return $this;
     }
 
     /**
@@ -1154,13 +1047,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Add relCustomerCoupons
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupons
-     * @return Orders
      */
     public function addRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupons)
     {
         $this->relCustomerCoupons[] = $relCustomerCoupons;
-
-        return $this;
     }
 
     /**
@@ -1186,14 +1076,31 @@ class Orders extends \Cx\Model\Base\EntityBase {
     /**
      * Set currencies
      *
+     * @param \Cx\Core\Locale\Model\Entity\Locale $lang
+     */
+    public function setLang(\Cx\Core\Locale\Model\Entity\Locale $lang = null)
+    {
+        $this->lang = $lang;
+    }
+
+    /**
+     * Get lang
+     *
+     * @return \Cx\Core\Locale\Model\Entity\Locale
+     */
+    public function getLang()
+    {
+        return $this->lang;
+    }
+
+    /**
+     * Set currencies
+     *
      * @param \Cx\Modules\Shop\Model\Entity\Currencies $currencies
-     * @return Orders
      */
     public function setCurrencies(\Cx\Modules\Shop\Model\Entity\Currencies $currencies = null)
     {
         $this->currencies = $currencies;
-
-        return $this;
     }
 
     /**
@@ -1210,13 +1117,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set shipper
      *
      * @param \Cx\Modules\Shop\Model\Entity\Shipper $shipper
-     * @return Orders
      */
     public function setShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shipper = null)
     {
         $this->shipper = $shipper;
-
-        return $this;
     }
 
     /**
@@ -1233,13 +1137,10 @@ class Orders extends \Cx\Model\Base\EntityBase {
      * Set payment
      *
      * @param \Cx\Modules\Shop\Model\Entity\Payment $payment
-     * @return Orders
      */
     public function setPayment(\Cx\Modules\Shop\Model\Entity\Payment $payment = null)
     {
         $this->payment = $payment;
-
-        return $this;
     }
 
     /**
@@ -1250,5 +1151,25 @@ class Orders extends \Cx\Model\Base\EntityBase {
     public function getPayment()
     {
         return $this->payment;
+    }
+
+    /**
+     * Set customer
+     *
+     * @param \Cx\Core\User\Model\Entity\User $customer
+     */
+    public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
+    {
+        $this->customer = $customer;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }

@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Country available in the shop. Can be limited per zone.
  *
@@ -68,13 +66,10 @@ class RelCountries extends \Cx\Model\Base\EntityBase {
      * Set zoneId
      *
      * @param integer $zoneId
-     * @return RelCountries
      */
     public function setZoneId($zoneId)
     {
         $this->zoneId = $zoneId;
-
-        return $this;
     }
 
     /**
@@ -91,13 +86,10 @@ class RelCountries extends \Cx\Model\Base\EntityBase {
      * Set countryId
      *
      * @param integer $countryId
-     * @return RelCountries
      */
     public function setCountryId($countryId)
     {
         $this->countryId = $countryId;
-
-        return $this;
     }
 
     /**
@@ -114,13 +106,10 @@ class RelCountries extends \Cx\Model\Base\EntityBase {
      * Set zones
      *
      * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
-     * @return RelCountries
      */
     public function setZones(\Cx\Modules\Shop\Model\Entity\Zones $zones = null)
     {
         $this->zones = $zones;
-
-        return $this;
     }
 
     /**

@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * With the discount coupon, an order can be discounted. This coupon can be
  * restricted to a product, payment, customer or minimum amount.  The code must
@@ -144,13 +142,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set code
      *
      * @param string $code
-     * @return DiscountCoupon
      */
     public function setCode($code)
     {
         $this->code = $code;
-
-        return $this;
     }
 
     /**
@@ -167,13 +162,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set customerId
      *
      * @param integer $customerId
-     * @return DiscountCoupon
      */
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
-
-        return $this;
     }
 
     /**
@@ -190,13 +182,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set paymentId
      *
      * @param integer $paymentId
-     * @return DiscountCoupon
      */
     public function setPaymentId($paymentId)
     {
         $this->paymentId = $paymentId;
-
-        return $this;
     }
 
     /**
@@ -213,13 +202,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set productId
      *
      * @param integer $productId
-     * @return DiscountCoupon
      */
     public function setProductId($productId)
     {
         $this->productId = $productId;
-
-        return $this;
     }
 
     /**
@@ -236,13 +222,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set startTime
      *
      * @param integer $startTime
-     * @return DiscountCoupon
      */
     public function setStartTime($startTime)
     {
         $this->startTime = $startTime;
-
-        return $this;
     }
 
     /**
@@ -259,13 +242,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set endTime
      *
      * @param integer $endTime
-     * @return DiscountCoupon
      */
     public function setEndTime($endTime)
     {
         $this->endTime = $endTime;
-
-        return $this;
     }
 
     /**
@@ -282,13 +262,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set uses
      *
      * @param integer $uses
-     * @return DiscountCoupon
      */
     public function setUses($uses)
     {
         $this->uses = $uses;
-
-        return $this;
     }
 
     /**
@@ -305,13 +282,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set global
      *
      * @param boolean $global
-     * @return DiscountCoupon
      */
     public function setGlobal($global)
     {
         $this->global = $global;
-
-        return $this;
     }
 
     /**
@@ -328,13 +302,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set minimumAmount
      *
      * @param string $minimumAmount
-     * @return DiscountCoupon
      */
     public function setMinimumAmount($minimumAmount)
     {
         $this->minimumAmount = $minimumAmount;
-
-        return $this;
     }
 
     /**
@@ -351,13 +322,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set discountAmount
      *
      * @param string $discountAmount
-     * @return DiscountCoupon
      */
     public function setDiscountAmount($discountAmount)
     {
         $this->discountAmount = $discountAmount;
-
-        return $this;
     }
 
     /**
@@ -374,13 +342,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set discountRate
      *
      * @param string $discountRate
-     * @return DiscountCoupon
      */
     public function setDiscountRate($discountRate)
     {
         $this->discountRate = $discountRate;
-
-        return $this;
     }
 
     /**
@@ -397,13 +362,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set payment
      *
      * @param \Cx\Modules\Shop\Model\Entity\Payment $payment
-     * @return DiscountCoupon
      */
     public function setPayment(\Cx\Modules\Shop\Model\Entity\Payment $payment = null)
     {
         $this->payment = $payment;
-
-        return $this;
     }
 
     /**
@@ -420,13 +382,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Set products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return DiscountCoupon
      */
     public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = null)
     {
         $this->products = $products;
-
-        return $this;
     }
 
     /**
@@ -437,5 +396,25 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     public function getProducts()
     {
         return $this->products;
+    }
+
+    /**
+     * Set customer
+     *
+     * @param \Cx\Core\User\Model\Entity\User $customer
+     */
+    public function setCustomer(\Cx\Core\User\Model\Entity\User $customer = null)
+    {
+        $this->customer = $customer;
+    }
+
+    /**
+     * Get customer
+     *
+     * @return \Cx\Core\User\Model\Entity\User
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }

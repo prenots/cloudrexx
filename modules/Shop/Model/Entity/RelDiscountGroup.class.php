@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Contains related article and customer group.
  *
@@ -78,13 +76,10 @@ class RelDiscountGroup extends \Cx\Model\Base\EntityBase {
      * Set customerGroupId
      *
      * @param integer $customerGroupId
-     * @return RelDiscountGroup
      */
     public function setCustomerGroupId($customerGroupId)
     {
         $this->customerGroupId = $customerGroupId;
-
-        return $this;
     }
 
     /**
@@ -101,13 +96,10 @@ class RelDiscountGroup extends \Cx\Model\Base\EntityBase {
      * Set articleGroupId
      *
      * @param integer $articleGroupId
-     * @return RelDiscountGroup
      */
     public function setArticleGroupId($articleGroupId)
     {
         $this->articleGroupId = $articleGroupId;
-
-        return $this;
     }
 
     /**
@@ -124,13 +116,10 @@ class RelDiscountGroup extends \Cx\Model\Base\EntityBase {
      * Set rate
      *
      * @param string $rate
-     * @return RelDiscountGroup
      */
     public function setRate($rate)
     {
         $this->rate = $rate;
-
-        return $this;
     }
 
     /**
@@ -147,13 +136,10 @@ class RelDiscountGroup extends \Cx\Model\Base\EntityBase {
      * Set customerGroup
      *
      * @param \Cx\Modules\Shop\Model\Entity\CustomerGroup $customerGroup
-     * @return RelDiscountGroup
      */
     public function setCustomerGroup(\Cx\Modules\Shop\Model\Entity\CustomerGroup $customerGroup = null)
     {
         $this->customerGroup = $customerGroup;
-
-        return $this;
     }
 
     /**
@@ -170,13 +156,10 @@ class RelDiscountGroup extends \Cx\Model\Base\EntityBase {
      * Set articleGroup
      *
      * @param \Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup
-     * @return RelDiscountGroup
      */
     public function setArticleGroup(\Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup = null)
     {
         $this->articleGroup = $articleGroup;
-
-        return $this;
     }
 
     /**

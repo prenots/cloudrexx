@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Product which available in the Shop.
  *
@@ -262,13 +260,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set picture
      *
      * @param string $picture
-     * @return Products
      */
     public function setPicture($picture)
     {
         $this->picture = $picture;
-
-        return $this;
     }
 
     /**
@@ -285,13 +280,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set distribution
      *
      * @param string $distribution
-     * @return Products
      */
     public function setDistribution($distribution)
     {
         $this->distribution = $distribution;
-
-        return $this;
     }
 
     /**
@@ -308,13 +300,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set normalprice
      *
      * @param string $normalprice
-     * @return Products
      */
     public function setNormalprice($normalprice)
     {
         $this->normalprice = $normalprice;
-
-        return $this;
     }
 
     /**
@@ -331,13 +320,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set resellerprice
      *
      * @param string $resellerprice
-     * @return Products
      */
     public function setResellerprice($resellerprice)
     {
         $this->resellerprice = $resellerprice;
-
-        return $this;
     }
 
     /**
@@ -354,13 +340,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set stock
      *
      * @param integer $stock
-     * @return Products
      */
     public function setStock($stock)
     {
         $this->stock = $stock;
-
-        return $this;
     }
 
     /**
@@ -377,13 +360,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set stockVisible
      *
      * @param boolean $stockVisible
-     * @return Products
      */
     public function setStockVisible($stockVisible)
     {
         $this->stockVisible = $stockVisible;
-
-        return $this;
     }
 
     /**
@@ -400,13 +380,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set discountprice
      *
      * @param string $discountprice
-     * @return Products
      */
     public function setDiscountprice($discountprice)
     {
         $this->discountprice = $discountprice;
-
-        return $this;
     }
 
     /**
@@ -423,13 +400,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set discountActive
      *
      * @param boolean $discountActive
-     * @return Products
      */
     public function setDiscountActive($discountActive)
     {
         $this->discountActive = $discountActive;
-
-        return $this;
     }
 
     /**
@@ -446,13 +420,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set active
      *
      * @param boolean $active
-     * @return Products
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -469,13 +440,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set b2b
      *
      * @param boolean $b2b
-     * @return Products
      */
     public function setB2b($b2b)
     {
         $this->b2b = $b2b;
-
-        return $this;
     }
 
     /**
@@ -492,13 +460,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set b2c
      *
      * @param boolean $b2c
-     * @return Products
      */
     public function setB2c($b2c)
     {
         $this->b2c = $b2c;
-
-        return $this;
     }
 
     /**
@@ -515,13 +480,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set dateStart
      *
      * @param \DateTime $dateStart
-     * @return Products
      */
     public function setDateStart($dateStart)
     {
         $this->dateStart = $dateStart;
-
-        return $this;
     }
 
     /**
@@ -538,13 +500,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set dateEnd
      *
      * @param \DateTime $dateEnd
-     * @return Products
      */
     public function setDateEnd($dateEnd)
     {
         $this->dateEnd = $dateEnd;
-
-        return $this;
     }
 
     /**
@@ -561,13 +520,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set manufacturerId
      *
      * @param integer $manufacturerId
-     * @return Products
      */
     public function setManufacturerId($manufacturerId)
     {
         $this->manufacturerId = $manufacturerId;
-
-        return $this;
     }
 
     /**
@@ -584,13 +540,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set ord
      *
      * @param integer $ord
-     * @return Products
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -607,13 +560,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set vatId
      *
      * @param integer $vatId
-     * @return Products
      */
     public function setVatId($vatId)
     {
         $this->vatId = $vatId;
-
-        return $this;
     }
 
     /**
@@ -630,13 +580,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set weight
      *
      * @param integer $weight
-     * @return Products
      */
     public function setWeight($weight)
     {
         $this->weight = $weight;
-
-        return $this;
     }
 
     /**
@@ -653,13 +600,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set flags
      *
      * @param string $flags
-     * @return Products
      */
     public function setFlags($flags)
     {
         $this->flags = $flags;
-
-        return $this;
     }
 
     /**
@@ -676,13 +620,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set groupId
      *
      * @param integer $groupId
-     * @return Products
      */
     public function setGroupId($groupId)
     {
         $this->groupId = $groupId;
-
-        return $this;
     }
 
     /**
@@ -699,13 +640,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set articleId
      *
      * @param integer $articleId
-     * @return Products
      */
     public function setArticleId($articleId)
     {
         $this->articleId = $articleId;
-
-        return $this;
     }
 
     /**
@@ -722,13 +660,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set usergroupIds
      *
      * @param string $usergroupIds
-     * @return Products
      */
     public function setUsergroupIds($usergroupIds)
     {
         $this->usergroupIds = $usergroupIds;
-
-        return $this;
     }
 
     /**
@@ -745,13 +680,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set minimumOrderQuantity
      *
      * @param integer $minimumOrderQuantity
-     * @return Products
      */
     public function setMinimumOrderQuantity($minimumOrderQuantity)
     {
         $this->minimumOrderQuantity = $minimumOrderQuantity;
-
-        return $this;
     }
 
     /**
@@ -888,13 +820,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Add discountCoupons
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
-     * @return Products
      */
     public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
     {
         $this->discountCoupons[] = $discountCoupons;
-
-        return $this;
     }
 
     /**
@@ -921,13 +850,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Add orderItems
      *
      * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
-     * @return Products
      */
     public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
     {
         $this->orderItems[] = $orderItems;
-
-        return $this;
     }
 
     /**
@@ -954,13 +880,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Add relProductAttributes
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
-     * @return Products
      */
     public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
     {
         $this->relProductAttributes[] = $relProductAttributes;
-
-        return $this;
     }
 
     /**
@@ -987,13 +910,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Set manufacturer
      *
      * @param \Cx\Modules\Shop\Model\Entity\Manufacturer $manufacturer
-     * @return Products
      */
     public function setManufacturer(\Cx\Modules\Shop\Model\Entity\Manufacturer $manufacturer = null)
     {
         $this->manufacturer = $manufacturer;
-
-        return $this;
     }
 
     /**
@@ -1007,16 +927,53 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     }
 
     /**
+     * Set discountgroup count name
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName$discountgroupCountName
+     */
+    public function setDiscountgroupCountName(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName = null)
+    {
+        $this->discountgroupCountName = $discountgroupCountName;
+    }
+
+    /**
+     * Get discountgroup count name
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName
+     */
+    public function getDiscountgroupCountName()
+    {
+        return $this->discountgroupCountName;
+    }
+
+    /**
+     * Set article group
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup
+     */
+    public function setArticleGroup(\Cx\Modules\Shop\Model\Entity\ArticleGroup $articleGroup = null)
+    {
+        $this->articleGroup = $articleGroup;
+    }
+
+    /**
+     * Get article group
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\ArticleGroup
+     */
+    public function getArticleGroup()
+    {
+        return $this->articleGroup;
+    }
+
+    /**
      * Set vat
      *
      * @param \Cx\Modules\Shop\Model\Entity\Vat $vat
-     * @return Products
      */
     public function setVat(\Cx\Modules\Shop\Model\Entity\Vat $vat = null)
     {
         $this->vat = $vat;
-
-        return $this;
     }
 
     /**
@@ -1033,13 +990,10 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
      * Add categories
      *
      * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
-     * @return Products
      */
     public function addCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
     {
         $this->categories[] = $categories;
-
-        return $this;
     }
 
     /**
@@ -1060,5 +1014,35 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Add user group
+     *
+     * @param \Cx\Core\User\Model\Entity\Group $userGroup
+     */
+    public function addUserGroup(\Cx\Core\User\Model\Entity\Group $userGroup)
+    {
+        $this->userGroups[] = $userGroup;
+    }
+
+    /**
+     * Remove user group
+     *
+     * @param \Cx\Core\User\Model\Entity\Group $userGroup
+     */
+    public function removeUserGroup(\Cx\Core\User\Model\Entity\Group $userGroup)
+    {
+        $this->userGroups->removeElement($userGroup);
+    }
+
+    /**
+     * Get categories
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getUserGroups()
+    {
+        return $this->userGroups;
     }
 }

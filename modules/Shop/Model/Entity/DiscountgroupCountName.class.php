@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * DiscountgroupCountName contains of a name, an unit and if it is cumulative.
  * If it isn't cumulative, the discount group can only be used on one product.
@@ -110,13 +108,10 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo
      * Set cumulative
      *
      * @param integer $cumulative
-     * @return DiscountgroupCountName
      */
     public function setCumulative($cumulative)
     {
         $this->cumulative = $cumulative;
-
-        return $this;
     }
 
     /**
@@ -173,13 +168,10 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo
      * Add discountgroupCountRates
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates
-     * @return DiscountgroupCountName
      */
     public function addDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates)
     {
         $this->discountgroupCountRates[] = $discountgroupCountRates;
-
-        return $this;
     }
 
     /**

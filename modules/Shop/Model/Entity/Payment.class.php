@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * A payment is used to pay for an order. It contains a payment processor which
  * handle the payment. Additional charges can be defined for a payment. It can
@@ -148,8 +146,6 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     public function setProcessorId($processorId)
     {
         $this->processorId = $processorId;
-
-        return $this;
     }
 
     /**
@@ -171,8 +167,6 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     public function setFee($fee)
     {
         $this->fee = $fee;
-
-        return $this;
     }
 
     /**
@@ -189,13 +183,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Set freeFrom
      *
      * @param string $freeFrom
-     * @return Payment
      */
     public function setFreeFrom($freeFrom)
     {
         $this->freeFrom = $freeFrom;
-
-        return $this;
     }
 
     /**
@@ -212,13 +203,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Set ord
      *
      * @param integer $ord
-     * @return Payment
      */
     public function setOrd($ord)
     {
         $this->ord = $ord;
-
-        return $this;
     }
 
     /**
@@ -235,13 +223,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Set active
      *
      * @param boolean $active
-     * @return Payment
      */
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -278,13 +263,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Add discountCoupons
      *
      * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
-     * @return Payment
      */
     public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
     {
         $this->discountCoupons[] = $discountCoupons;
-
-        return $this;
     }
 
     /**
@@ -311,13 +293,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Add orders
      *
      * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
-     * @return Payment
      */
     public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
     {
         $this->orders[] = $orders;
-
-        return $this;
     }
 
     /**
@@ -344,13 +323,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Set paymentProcessors
      *
      * @param \Cx\Modules\Shop\Model\Entity\PaymentProcessors $paymentProcessors
-     * @return Payment
      */
     public function setPaymentProcessors(\Cx\Modules\Shop\Model\Entity\PaymentProcessors $paymentProcessors = null)
     {
         $this->paymentProcessors = $paymentProcessors;
-
-        return $this;
     }
 
     /**
@@ -367,13 +343,10 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      * Add zones
      *
      * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
-     * @return Payment
      */
     public function addZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
     {
         $this->zones[] = $zones;
-
-        return $this;
     }
 
     /**

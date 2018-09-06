@@ -36,8 +36,6 @@
  */
 namespace Cx\Modules\Shop\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * A pricelist lists all products from selected categories. Header and footer
  * are editable.
@@ -126,13 +124,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set name
      *
      * @param string $name
-     * @return Pricelists
      */
     public function setName($name)
     {
         $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -149,13 +144,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set langId
      *
      * @param integer $langId
-     * @return Pricelists
      */
     public function setLangId($langId)
     {
         $this->langId = $langId;
-
-        return $this;
     }
 
     /**
@@ -172,13 +164,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set borderOn
      *
      * @param boolean $borderOn
-     * @return Pricelists
      */
     public function setBorderOn($borderOn)
     {
         $this->borderOn = $borderOn;
-
-        return $this;
     }
 
     /**
@@ -195,13 +184,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set headerOn
      *
      * @param boolean $headerOn
-     * @return Pricelists
      */
     public function setHeaderOn($headerOn)
     {
         $this->headerOn = $headerOn;
-
-        return $this;
     }
 
     /**
@@ -218,13 +204,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set headerLeft
      *
      * @param string $headerLeft
-     * @return Pricelists
      */
     public function setHeaderLeft($headerLeft)
     {
         $this->headerLeft = $headerLeft;
-
-        return $this;
     }
 
     /**
@@ -241,13 +224,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set headerRight
      *
      * @param string $headerRight
-     * @return Pricelists
      */
     public function setHeaderRight($headerRight)
     {
         $this->headerRight = $headerRight;
-
-        return $this;
     }
 
     /**
@@ -264,13 +244,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set footerOn
      *
      * @param boolean $footerOn
-     * @return Pricelists
      */
     public function setFooterOn($footerOn)
     {
         $this->footerOn = $footerOn;
-
-        return $this;
     }
 
     /**
@@ -287,13 +264,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set footerLeft
      *
      * @param string $footerLeft
-     * @return Pricelists
      */
     public function setFooterLeft($footerLeft)
     {
         $this->footerLeft = $footerLeft;
-
-        return $this;
     }
 
     /**
@@ -310,13 +284,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Set footerRight
      *
      * @param string $footerRight
-     * @return Pricelists
      */
     public function setFooterRight($footerRight)
     {
         $this->footerRight = $footerRight;
-
-        return $this;
     }
 
     /**
@@ -333,13 +304,10 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
      * Add categories
      *
      * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
-     * @return Pricelists
      */
     public function addCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
     {
         $this->categories[] = $categories;
-
-        return $this;
     }
 
     /**
@@ -360,5 +328,25 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Set currencies
+     *
+     * @param \Cx\Core\Locale\Model\Entity\Locale $lang
+     */
+    public function setLang(\Cx\Core\Locale\Model\Entity\Locale $lang = null)
+    {
+        $this->lang = $lang;
+    }
+
+    /**
+     * Get lang
+     *
+     * @return \Cx\Core\Locale\Model\Entity\Locale
+     */
+    public function getLang()
+    {
+        return $this->lang;
     }
 }
