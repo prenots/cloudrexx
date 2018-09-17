@@ -38,9 +38,10 @@ ALTER TABLE `contrexx_access_user_attribute_value` DROP PRIMARY KEY, ADD PRIMARY
 
 ALTER TABLE `contrexx_access_user_attribute_value` DROP PRIMARY KEY, ADD PRIMARY KEY (`history_id`) USING BTREE;
 
-ALTER TABLE dev.contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
+ALTER TABLE contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
 
-ALTER TABLE ``contrexx_access_user_attribute_value`` DROP PRIMARY KEY;
+ALTER TABLE `contrexx_access_user_attribute_value` DROP PRIMARY KEY;
+
 
 INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`, `user_id`, `value`) SELECT `tmp_name`, `user_id`, `gender` FROM `contrexx_access_user_profile`;
 
@@ -52,6 +53,13 @@ UPDATE `contrexx_access_user_profile` SET `tmp_name` = 'title';
 INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`, `user_id`, `value`) SELECT `tmp_name`, `user_id`, `title` FROM `contrexx_access_user_profile`;
 
 UPDATE `contrexx_access_user_attribute_value` SET `attribute_id` = (SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title') WHERE `tmp_name` = 'title';
+
+
+UPDATE `contrexx_access_user_profile` SET `tmp_name` = 'designation';
+
+INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`, `user_id`, `value`) SELECT `tmp_name`, `user_id`, `title` FROM `contrexx_access_user_profile`;
+
+UPDATE `contrexx_access_user_attribute_value` SET `attribute_id` = (SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'designation') WHERE `tmp_name` = 'designation';
 
 
 UPDATE `contrexx_access_user_profile` SET `tmp_name` = 'firstname';
@@ -172,7 +180,6 @@ INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`, `user_id`, `value
 
 UPDATE `contrexx_access_user_attribute_value` SET `attribute_id` = (SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'picture') WHERE `tmp_name` = 'picture';
 
-ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name, CHANGE attribute_id attribute_id INT NOT NULL, ADD PRIMARY KEY (attribute_id, user_id, history_id);
 ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323B6E62EFA FOREIGN KEY (attribute_id) REFERENCES contrexx_access_user_attribute (id);
 ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395A76ED395A76ED395A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
 
@@ -227,6 +234,8 @@ UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Madame' WHERE `valu
 
 UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Monsieur' WHERE `value` = 6 AND `tmp_name` = 'title';
 
+ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name, CHANGE attribute_id attribute_id INT NOT NULL, ADD PRIMARY KEY (attribute_id, user_id, history_id);
+
 /*Drop tables*/
 ALTER TABLE `contrexx_access_user_attribute` DROP `tmp_name`;
 
@@ -235,10 +244,11 @@ DROP TABLE contrexx_access_user_title;
 DROP TABLE contrexx_access_user_core_attribute;
 
 /*View for user title*/
-CREATE VIEW `contrexx_access_user_title` AS SELECT `value`.`value` 
-FROM `contrexx_access_user_attribute_name` AS `name` 
-JOIN `contrexx_access_user_attribute_value` AS `value` 
-ON `name`.`attribute_id`=`value`.`attribute_id` WHERE `name`.`name` = 'title';
+CREATE VIEW `contrexx_access_user_title` AS SELECT user.id, value.value, 0 as order_id FROM contrexx_access_users AS user
+JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
+JOIN `contrexx_access_user_attribute_name` AS `name`
+  ON `name`.`attribute_id`=`value`.`attribute_id`
+  WHERE `name`.`name` = 'title';
 
 /*View for user core attribute*/
 CREATE VIEW `contrexx_access_user_core_attribute` AS SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`
@@ -256,6 +266,10 @@ WHERE name.name = 'gender' AND lang_id = 0 AND value.user_id = users.id) AS 'gen
 JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
 JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
 WHERE name.name = 'title' AND lang_id = 0 AND value.user_id = users.id) AS 'title',
+(SELECT value.value FROM contrexx_access_users AS user
+JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
+JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
+WHERE name.name = 'designation' AND lang_id = 0 AND value.user_id = users.id) AS 'designation',
 (SELECT value.value FROM contrexx_access_users AS user 
 JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
 JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
