@@ -347,7 +347,8 @@ class MediaSource extends DataSource {
             }
 
             if (strpos(strtolower($file->getName()), strtolower($searchterm))
-                === false && empty($content)) {
+                === false && empty($content)
+            ) {
                 continue;
             }
 
