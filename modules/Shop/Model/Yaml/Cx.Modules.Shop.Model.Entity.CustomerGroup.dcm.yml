@@ -9,6 +9,12 @@ Cx\Modules\Shop\Model\Entity\CustomerGroup:
         unsigned: true
       generator:
         strategy: AUTO
+  fields:
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
   oneToMany:
     relDiscountGroups:
       targetEntity: Cx\Modules\Shop\Model\Entity\RelDiscountGroup

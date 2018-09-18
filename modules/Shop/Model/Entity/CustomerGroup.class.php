@@ -52,6 +52,11 @@ class CustomerGroup extends \Cx\Model\Base\EntityBase {
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $relDiscountGroups;
@@ -72,6 +77,26 @@ class CustomerGroup extends \Cx\Model\Base\EntityBase {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

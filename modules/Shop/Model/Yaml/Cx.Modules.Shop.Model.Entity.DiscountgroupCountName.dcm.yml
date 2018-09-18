@@ -15,6 +15,16 @@ Cx\Modules\Shop\Model\Entity\DiscountgroupCountName:
       options:
         unsigned: true
         default: 0
+    unit:
+      type: string
+      length: 30
+      options:
+        default: ''
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
   oneToMany:
     discountgroupCountRates:
       targetEntity: Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate

@@ -58,6 +58,16 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
     protected $cumulative;
 
     /**
+     * @var string
+     */
+    protected $unit;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $discountgroupCountRates;
@@ -98,6 +108,46 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
     public function getCumulative()
     {
         return $this->cumulative;
+    }
+
+    /**
+     * Set unit
+     *
+     * @param string $unit
+     */
+    public function setUnit($unit)
+    {
+        $this->unit = $unit;
+    }
+
+    /**
+     * Get unit
+     *
+     * @return string
+     */
+    public function getUnit()
+    {
+        return $this->unit;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
