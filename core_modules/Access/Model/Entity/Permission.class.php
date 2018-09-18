@@ -125,12 +125,20 @@ class Permission extends \Cx\Model\Base\EntityBase {
      * @param Boolean $requiresLogin
      */
     public function __construct($allowedProtocols = array('http', 'https'), $allowedMethods = array('get', 'post'), $requiresLogin = true, $validUserGroups = array(), $validAccessIds = array(), $callback = null) {
+        // sanitize arguments
         if (!$allowedProtocols) {
             $allowedProtocols = array('http', 'https');
         }
         if (!$allowedMethods) {
             $allowedMethods = array('get', 'post');
         }
+        if (!$validUserGroups) {
+            $validUserGroups = array();
+        }
+        if (!$validAccessIds) {
+            $validAccessIds = array();
+        }
+
         $this->allowedProtocols = array_map('strtolower', $allowedProtocols);
         $this->allowedMethods   = array_map('strtolower', $allowedMethods);
         $this->validUserGroups  = $validUserGroups;
