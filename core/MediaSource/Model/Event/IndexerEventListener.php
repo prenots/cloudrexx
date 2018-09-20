@@ -51,7 +51,7 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
      *
      * @return void
      */
-    protected function mediasourcefileAdd($info)
+    protected function mediaSourceFileAdd($info)
     {
         $this->index($info);
     }
@@ -63,7 +63,7 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
      *
      * @return void
      */
-    protected function mediasourcefileEdit($info)
+    protected function mediaSourceFileEdit($info)
     {
         $this->index($info);
     }
@@ -75,7 +75,7 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
      *
      * @return void
      */
-    protected function mediasourcefileRemove($fileInfo)
+    protected function mediaSourceFileRemove($fileInfo)
     {
         $fullPath = $fileInfo['path'] . $fileInfo['name'];
         $file = new \Cx\Core\MediaSource\Model\Entity\LocalFile(

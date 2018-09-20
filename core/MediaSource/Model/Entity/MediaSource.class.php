@@ -97,14 +97,15 @@ class MediaSource extends DataSource {
      */
     protected $systemComponentController;
 
-    public function __construct($name,$humanName, $directory, $accessIds = array(), $position = '',FileSystem $fileSystem = null, \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController = null) {
-        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0], $isIndexingActivated = true);
+
+    public function __construct($name,$humanName, $directory, $accessIds = array(), $position = '',FileSystem $fileSystem = null, \Cx\Core\Core\Model\Entity\SystemComponentController $systemComponentController = null, $isIndexingActivated = true) {
+        $this->fileSystem = $fileSystem ? $fileSystem : LocalFileSystem::createFromPath($directory[0]);
         $this->name      = $name;
         $this->position  = $position;
         $this->humanName = $humanName;
         $this->directory = $directory;
         $this->accessIds = $accessIds;
-        $this->setIndexingActivated($isIndexerActivated);
+        $this->setIndexingActivated($isIndexingActivated);
 
         // Sets provided SystemComponentController
         $this->systemComponentController = $systemComponentController;
