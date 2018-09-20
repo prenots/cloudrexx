@@ -475,6 +475,12 @@ class MarketManager extends MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+
         $this->_pageTitle = $_ARRAYLANG['TXT_ENTRIES'];
         $this->_objTpl->loadTemplateFile('module_market_entries.html',true,true);
         if (isset($_POST['market_store_order'])) {
@@ -576,10 +582,15 @@ class MarketManager extends MarketLibrary
                    $this->entries[$entryId]['status'] == 1 ? $led = 'led_green' : $led = 'led_red';
                    $this->entries[$entryId]['type'] == 'offer' ? $type = $_ARRAYLANG['TXT_MARKET_OFFER'] : $type = $_ARRAYLANG['TXT_MARKET_SEARCH'];
                    $i%2 ? $row = 2 : $row = 1;
-                   $objResult = $objDatabase->Execute('SELECT username FROM '.DBPREFIX.'access_users WHERE id = '.$this->entries[$entryId]['userid'].' LIMIT 1');
-                if ($objResult !== false) {
-                    $addedby = $objResult->fields['username'];
-                }
+                   $user = $qb->select('u.username')
+                       ->from('\Cx\Core\User\Model\Entity\User', 'u')
+                       ->where('u.id = :userId')
+                       ->setParameter('userId', $this->entries[$entryId]['userid'])
+                       ->getQuery()
+                       ->getResult();
+                   if (!empty($user)) {
+                       $addedby = $user[0]['username'];
+                   }
 
                 $this->entries[$entryId]['regdate'] == '' ? $date = 'KEY: '.$this->entries[$entryId]['regkey'] : $date = date("d.m.Y", $this->entries[$entryId]['regdate']);
 
@@ -807,6 +818,12 @@ class MarketManager extends MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+
         $this->_pageTitle = $copy ? $_ARRAYLANG['TXT_COPY_ADVERTISEMENT'] : $_ARRAYLANG['TXT_EDIT_ADVERTISEMENT'];
         $this->_objTpl->loadTemplateFile('module_market_entry.html',true,true);
         //initialize and get uploader object
@@ -879,9 +896,14 @@ class MarketManager extends MarketLibrary
                         $agreement     = '';
                     }
                     //entry user
-                    $objResultUser = $objDatabase->Execute('SELECT username FROM '.DBPREFIX.'access_users WHERE id = '.$objResult->fields['userid'].' LIMIT 1');
-                    if ($objResultUser !== false) {
-                        $addedby = $objResultUser->fields['username'];
+                    $user = $qb->select('u.username')
+                        ->from('\Cx\Core\User\Model\Entity\User', 'u')
+                        ->where('u.id = :userId')
+                        ->setParameter('userId', $objResult->fields['userid'])
+                        ->getQuery()
+                        ->getResult();
+                    if (!empty($user)) {
+                        $addedby = $user[0]['username'];
                     }
                     //entry userdetails
                     if ($objResult->fields['userdetails'] == '1') {

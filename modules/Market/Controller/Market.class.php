@@ -1482,6 +1482,12 @@ class Market extends MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG, $_CONFIG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+
         $this->_objTpl->setTemplate($this->pageContent, true, true);
 
         if (!$this->settings['editEntry'] == '1' || (!$this->communityModul && $this->settings['addEntry_only_community'] == '1')) {
@@ -1566,9 +1572,14 @@ class Market extends MarketLibrary
                         }
 
                         //entry user
-                        $objResultUser = $objDatabase->Execute('SELECT username FROM '.DBPREFIX.'access_users WHERE id = '.$objResult->fields['userid'].' LIMIT 1');
-                        if ($objResultUser !== false) {
-                            $addedby = $objResultUser->fields['username'];
+                        $user = $qb->select('u.username')
+                            ->from('\Cx\Core\User\Model\Entity\User', 'u')
+                            ->where('u.id = :userId')
+                            ->setParameter('userId', $objResult->fields['userid'])
+                            ->getQuery()
+                            ->getResult();
+                        if (!empty($user)) {
+                            $addedby = $user[0]['username'];
                         }
 
                         //entry userdetails

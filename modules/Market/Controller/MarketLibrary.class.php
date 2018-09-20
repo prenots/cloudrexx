@@ -249,6 +249,12 @@ class MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CONFIG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+
         //entrydata
         $objResult = $objDatabase->Execute("SELECT id, title, name, userid, email, regkey FROM ".DBPREFIX."module_market WHERE id='".contrexx_addslashes($entryId)."' LIMIT 1");
         if ($objResult !== false) {
@@ -262,13 +268,15 @@ class MarketLibrary
             };
         }
 
-        //assesuserdata
-        $objResult = $objDatabase->Execute("SELECT email, username FROM ".DBPREFIX."access_users WHERE id='".$entryUserid."' LIMIT 1");
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-                $userUsername        = $objResult->fields['username'];
-                $objResult->MoveNext();
-            };
+        //accessuserdata
+        $username = $qb->select('u.email', 'u.username')
+            ->from('\Cx\Core\User\Model\Entity\User', 'u')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $entryUserid)
+            ->getQuery()
+            ->getResult();
+        if (!empty($username)) {
+            $userUsername = $username[0]['username'];
         }
 
         //get mail content n title
@@ -340,6 +348,12 @@ class MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG, $_CONFIG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+
         //entrydata
         $objResult = $objDatabase->Execute("SELECT id, title, name, userid, email FROM ".DBPREFIX."module_market WHERE id='".contrexx_addslashes($entryId)."' LIMIT 1");
         if ($objResult !== false) {
@@ -352,15 +366,17 @@ class MarketLibrary
             };
         }
 
-        //assesuserdata
-        $objResult = $objDatabase->Execute("SELECT email, username FROM ".DBPREFIX."access_users WHERE id='".$entryUserid."' LIMIT 1");
-        if ($objResult !== false) {
-            while (!$objResult->EOF) {
-// TODO: Never used
-//                $userMail            = $objResult->fields['email'];
-                $userUsername        = $objResult->fields['username'];
-                $objResult->MoveNext();
-            };
+        //accessuserdata
+        $username = $qb->select('u.email', 'u.username')
+            ->from('\Cx\Core\User\Model\Entity\User', 'u')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $entryUserid)
+            ->getQuery()
+            ->getResult();
+        if (!empty($username)) {
+            // TODO: Never used
+            //$userMail = $username[0]['email'];
+            $userUsername = $username[0]['username'];
         }
 
         //get mail content n title
