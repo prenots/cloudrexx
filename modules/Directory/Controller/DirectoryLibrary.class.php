@@ -1276,19 +1276,24 @@ class DirectoryLibrary
 
     function getAuthor($id)
     {
-        global $objDatabase, $_ARRAYLANG;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
 
         $userId = contrexx_addslashes($id);
         $author = '';
 
         if (is_numeric($userId)) {
-            $objResultauthor = $objDatabase->Execute("SELECT id, username FROM ".DBPREFIX."access_users WHERE id = '".$userId."'");
-            if ($objResultauthor !== false) {
-                while (!$objResultauthor->EOF) {
-                    $author = $objResultauthor->fields['username'];
-                    $objResultauthor->MoveNext();
-                }
-            }
+            $resultAuthor = $qb->select('u.id', 'u.username')
+                ->from('\Cx\Core\User\Model\Entity\User', 'u')
+                ->where('u.id = :userId')
+                ->setParameter('userId', $userId)
+                ->getQuery()
+                ->getResult();
+
+            $author = $resultAuthor[0]['username'];
         } else {
             $author = $userId;
         }
@@ -1299,17 +1304,23 @@ class DirectoryLibrary
 
     function getAuthorID($author)
     {
-        global $objDatabase, $_ARRAYLANG;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
-        $objResultauthor = $objDatabase->Execute("SELECT id, username FROM ".DBPREFIX."access_users WHERE username = '".contrexx_addslashes($author)."'");
-        if ($objResultauthor !== false) {
-            while (!$objResultauthor->EOF) {
-                $author = $objResultauthor->fields['id'];
-                $objResultauthor->MoveNext();
-            }
-        }
+        $em = $cx->getDb()->getEntityManager();
 
-        return $author;
+        $qb = $em->createQueryBuilder();
+
+        $resultAuthor = $qb->select('u.id', 'u.username')
+            ->from('\Cx\Core\User\Model\Entity\User', 'u')
+            ->where('u.username = :username')
+            ->orderBy('u.id', 'desc')
+            ->setParameter('username', contrexx_addslashes($author))
+            ->getQuery()
+            ->getResult();
+
+        $authorId = $resultAuthor[0]['id'];
+
+        return $authorId;
     }
 
 
