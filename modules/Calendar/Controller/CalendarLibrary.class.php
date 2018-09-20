@@ -558,28 +558,17 @@ class CalendarLibrary
      */
     function getCommunityGroups()
     {
-        global $objDatabase;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
-        $arrCommunityGroups = array();
+        $em = $cx->getDb()->getEntityManager();
 
-        $objCommunityGroups = $objDatabase->Execute("SELECT
-                                                        `group`.`group_id` AS group_id,
-                                                        `group`.`group_name` AS group_name,
-                                                        `group`.`is_active` AS is_active,
-                                                        `group`.`type` AS `type`
-                                                      FROM  ".DBPREFIX."access_user_groups AS `group`");
-        if ($objCommunityGroups !== false) {
-            while (!$objCommunityGroups->EOF) {
-                $arrCommunityGroups[intval($objCommunityGroups->fields['group_id'])]['id'] = intval($objCommunityGroups->fields['group_id']);
-                $arrCommunityGroups[intval($objCommunityGroups->fields['group_id'])]['name'] = htmlspecialchars($objCommunityGroups->fields['group_name'], ENT_QUOTES, CONTREXX_CHARSET);
-                $arrCommunityGroups[intval($objCommunityGroups->fields['group_id'])]['active'] = intval($objCommunityGroups->fields['is_active']);
-                $arrCommunityGroups[intval($objCommunityGroups->fields['group_id'])]['type'] = htmlspecialchars($objCommunityGroups->fields['type'], ENT_QUOTES, CONTREXX_CHARSET);  
+        $qb = $em->createQueryBuilder();
 
-                $objCommunityGroups->MoveNext();
-            }
-        }
-                                           
-        $this->arrCommunityGroups = $arrCommunityGroups;
+        $communityGroups = $qb->select('g.groupId as id', 'g.groupName as name', 'g.isActive as active', 'g.type')
+            ->from('\Cx\Core\User\Model\Entity\Group', 'g')
+            ->getQuery()->getResult();
+
+        $this->arrCommunityGroups = $communityGroups;
     }
     
     /**
