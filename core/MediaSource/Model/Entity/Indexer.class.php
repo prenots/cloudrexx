@@ -146,7 +146,7 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             );
         } else {
             $indexerEntries = $indexerEntryRepo->findBy(
-                array('indexer' => $this->getName())
+                array('indexer' => get_class($this))
             );
         }
 
