@@ -353,12 +353,17 @@ class MediaSource extends DataSource {
                 continue;
             }
 
+            $componentName = '';
+            if (!empty($this->getSystemComponentController())) {
+                $componentName = $this->getSystemComponentController()->getName();
+            }
+
             $fileInformation['Score'] = 100;
             $fileInformation['Title'] = ucfirst($file->getName());
             $fileInformation['Content'] = $content;
             $link = explode($this->cx->getWebsiteDocumentRootPath(), $fileWebPath);
             $fileInformation['Link'] = $link[1];
-            $fileInformation['Component'] = $this->getHumanName();
+            $fileInformation['Component'] = $componentName;
             array_push($searchResult, $fileInformation);
         }
         return $searchResult;
