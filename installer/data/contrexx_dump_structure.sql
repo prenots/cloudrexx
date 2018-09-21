@@ -3844,6 +3844,15 @@ CREATE TABLE `contrexx_voting_system` (
   `additional_comment` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
+CREATE TABLE contrexx_core_mediasource_indexer_entry (
+  `id` INT AUTO_INCREMENT NOT NULL,
+  `path` VARCHAR(65535) NOT NULL,
+  `indexer` VARCHAR(255) NOT NULL,
+  `content` VARCHAR(65535) NOT NULL,
+  `last_update` DATETIME NOT NULL,
+  PRIMARY KEY(`id`)
+) ENGINE = InnoDB;
+
 ALTER TABLE contrexx_module_calendar_invite ADD CONSTRAINT FK_842085E171F7E88B FOREIGN KEY (event_id) REFERENCES contrexx_module_calendar_event (id);
 ALTER TABLE contrexx_module_calendar_registration_form_field_value ADD CONSTRAINT FK_F58DB1FA990B26CC FOREIGN KEY (reg_id) REFERENCES contrexx_module_calendar_registration (id);
 ALTER TABLE contrexx_module_calendar_registration_form_field_value ADD CONSTRAINT FK_F58DB1FA443707B0 FOREIGN KEY (field_id) REFERENCES contrexx_module_calendar_registration_form_field (id);
