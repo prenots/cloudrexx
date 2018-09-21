@@ -320,18 +320,21 @@ class MediaSource extends DataSource {
         $fileList = array();
         $searchResult = array();
 
-        if (is_dir($fullPath)) {
+        $orgFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+            $path,
+            $this->getFileSystem()
+        );
+
+        if ($this->getFileSystem()->isDirectory($orgFile)) {
             $fileList = $this->getFileSystem()->getFileList($path);
         } else {
             $fileEntry = $this->getFileSystem()->getFileFromPath($fullPath);
             array_push($fileList, $fileEntry);
         }
-
-        $files = $this->getAllFilesAsObjects($fileList, $fullPath, array());
+        $files = $this->getAllFilesAsObjects($fileList, $orgFile, array());
         foreach ($files as $file) {
             $fileInformation = array();
-            $filePath = $file->getPath() . '/' . $file->getFullName();
-            $fileWebPath = $file->getPath() . '/' . $file->getFullName();
+            $filePath = $file->getFileSystem()->getRootPath() . $file->__toString();
             $content = '';
             if ($this->isIndexingActivated()) {
                 $indexer = $this->getComponentController()->getIndexer(
@@ -361,7 +364,7 @@ class MediaSource extends DataSource {
             $fileInformation['Score'] = 100;
             $fileInformation['Title'] = ucfirst($file->getName());
             $fileInformation['Content'] = $content;
-            $link = explode($this->cx->getWebsiteDocumentRootPath(), $fileWebPath);
+            $link = explode($this->cx->getWebsiteDocumentRootPath(), $filePath);
             $fileInformation['Link'] = $link[1];
             $fileInformation['Component'] = $componentName;
             array_push($searchResult, $fileInformation);
@@ -374,26 +377,25 @@ class MediaSource extends DataSource {
      * including files located in subdirectories.
      *
      * @param $fileList array  all files and directories
-     * @param $path     string path from this directory
+     * @param $file    \Cx\Core\MediaSource\Model\Entity\LocalFile file to check
      * @param $result   array  existing result
      *
      * @return array with all files as
      *               \Cx\Core\MediaSource\Model\Entity\LocalFile
      */
-    protected function getAllFilesAsObjects($fileList, $path, $result)
+    protected function getAllFilesAsObjects($fileList, $file, $result)
     {
         foreach ($fileList as $fileEntryKey => $fileListEntry) {
-            $newPath = $path  . $fileEntryKey;
-            if (is_dir($newPath)) {
-                $newPath = $path . $fileEntryKey;
+            $newFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
+                $file->__toString() . $fileEntryKey,
+                $this->getFileSystem()
+            );
+            if ($this->getFileSystem()->isDirectory($newFile)) {
                 $result = $this->getAllFilesAsObjects(
-                    $fileListEntry, $newPath .'/', $result
+                    $fileListEntry, $newFile, $result
                 );
-            } else if (is_file($newPath)) {
-                $file = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-                    $newPath, $this->getFileSystem()
-                );
-                array_push($result, $file);
+            } else if ($this->getFileSystem()->isFile($newFile)) {
+                array_push($result, $newFile);
             }
         }
         return $result;
