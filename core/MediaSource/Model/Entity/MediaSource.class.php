@@ -331,6 +331,7 @@ class MediaSource extends DataSource {
             $fileEntry = $this->getFileSystem()->getFileFromPath($fullPath);
             array_push($fileList, $fileEntry);
         }
+        // ToDo: Implement glob algorithm for matching file names
         $files = $this->getAllFilesAsObjects($fileList, $orgFile, array());
         foreach ($files as $file) {
             $fileInformation = array();
