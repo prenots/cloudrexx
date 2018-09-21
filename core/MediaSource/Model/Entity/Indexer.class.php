@@ -103,11 +103,11 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
 
         if (!empty($oldPath)) {
             $indexerEntry = $repo->findOneBy(
-                array('path' => $oldPath)
+                array('path' => $oldPath, 'indexer' => get_class($this))
             );
         } else {
             $indexerEntry = $repo->findOneBy(
-                array('path' => $path)
+                array('path' => $path, 'indexer' => get_class($this))
             );
         }
 
