@@ -57,7 +57,7 @@ class ComponentController
      *
      * @var array
      */
-    protected $fileEvents = array('Remove', 'Add', 'Edit');
+    protected $fileEvents = array('Remove', 'Add', 'Update');
 
     /**
      * Register your events here

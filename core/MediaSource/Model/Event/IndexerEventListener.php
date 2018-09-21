@@ -57,13 +57,13 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
     }
 
     /**
-     *  Edit event - update an index
+     * Update event - update an index
      *
      * @param $info array information from file/ directory
      *
      * @return void
      */
-    protected function mediaSourceFileEdit($info)
+    protected function mediaSourceFileUpdate($info)
     {
         $this->index($info);
     }
