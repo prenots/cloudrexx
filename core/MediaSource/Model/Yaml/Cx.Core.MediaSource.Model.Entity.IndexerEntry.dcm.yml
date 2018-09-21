@@ -9,7 +9,7 @@ Cx\Core\MediaSource\Model\Entity\IndexerEntry:
   fields:
     path:
       type: string
-      length: 255
+      length: 65535
     indexer:
       type: string
       length: 255

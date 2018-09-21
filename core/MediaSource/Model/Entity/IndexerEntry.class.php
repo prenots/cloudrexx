@@ -66,6 +66,17 @@ class IndexerEntry extends \Cx\Model\Base\EntityBase
      */
     protected $lastUpdate;
 
+    /**
+     * IndexerEntry constructor.
+     */
+    public function __construct()
+    {
+        $this->validators = array(
+            'indexer' => new \CxValidateString(array('maxlength' => 255)),
+            'path' => new \CxValidateString(array('maxlength' => 65535))
+        );
+    }
+
 
     /**
      * Get id
