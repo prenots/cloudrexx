@@ -77,7 +77,6 @@ class IndexerEntry extends \Cx\Model\Base\EntityBase
         );
     }
 
-
     /**
      * Get id
      *
