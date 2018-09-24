@@ -558,19 +558,24 @@ class CalendarLibrary
      */
     function getCommunityGroups()
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objFWUser = \FWUser::getFWUserObject();
 
-        $em = $cx->getDb()->getEntityManager();
+        $objGroup = $objFWUser->objGroup->getGroups();
 
-        $qb = $em->createQueryBuilder();
+        $arrCommunityGroups = array();
 
-        $communityGroups = $qb->select('g.groupId as id', 'g.groupName as name', 'g.isActive as active', 'g.type')
-            ->from('\Cx\Core\User\Model\Entity\Group', 'g')
-            ->getQuery()->getResult();
+        while (!$objGroup->EOF) {
+            $arrCommunityGroups[intval($objGroup->getId())]['id'] = intval($objGroup->getId());
+            $arrCommunityGroups[intval($objGroup->getId())]['name'] = $objGroup->getName();
+            $arrCommunityGroups[intval($objGroup->getId())]['active'] = intval($objGroup->getActiveStatus());
+            $arrCommunityGroups[intval($objGroup->getId())]['type'] = $objGroup->getType();
 
-        $this->arrCommunityGroups = $communityGroups;
+            $objGroup->next();
+        }
+
+        $this->arrCommunityGroups = $arrCommunityGroups;
     }
-    
+
     /**
      * Return's the billing address javascript
      * 
