@@ -8,7 +8,6 @@ CREATE INDEX IDX_B0DEA323B6E62EFA ON contrexx_access_user_attribute_value (attri
 /*Migrate core attribute to user attribute*/
 ALTER TABLE contrexx_access_user_core_attribute ADD is_default ENUM('0','1') DEFAULT '1' NOT NULL;
 INSERT INTO `contrexx_access_user_attribute`(`mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default`) SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default` FROM `contrexx_access_user_core_attribute`;
-
 /*Migrate user profile to user attribute*/
 ALTER TABLE contrexx_access_user_attribute ADD tmp_name TEXT;
 
@@ -16,6 +15,11 @@ INSERT INTO contrexx_access_user_attribute (tmp_name)
 SELECT COLUMN_NAME
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'contrexx_access_user_profile';
+
+INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (0, 'menu_option', 0, 0, 'title-w');
+INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (0, 'menu_option', 0, 0, 'title-m');
+UPDATE contrexx_access_user_attribute as userattr SET parent_id =  (SELECT ua.id FROM (SELECT * FROM contrexx_access_user_attribute)AS ua WHERE ua.tmp_name = 'title') WHERE userattr.tmp_name = 'title-w' OR userattr.tmp_name = 'title-m';
+UPDATE contrexx_access_user_attribute SET type = 'menu' WHERE tmp_name = 'title';
 
 /*
 DELETE FROM `contrexx_access_user_attribute` WHERE `contrexx_access_user_attribute`.`tmp_name` = 'user_id'; 
@@ -57,7 +61,7 @@ UPDATE `contrexx_access_user_attribute_value` SET `attribute_id` = (SELECT `id` 
 
 UPDATE `contrexx_access_user_profile` SET `tmp_name` = 'designation';
 
-INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`, `user_id`, `value`) SELECT `tmp_name`, `user_id`, `title` FROM `contrexx_access_user_profile`;
+INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`, `user_id`, `value`) SELECT `tmp_name`, `user_id`, `designation` FROM `contrexx_access_user_profile`;
 
 UPDATE `contrexx_access_user_attribute_value` SET `attribute_id` = (SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'designation') WHERE `tmp_name` = 'designation';
 
@@ -188,6 +192,18 @@ INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES
 
 INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title'), 'title');
 
+INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`, `lang_id`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title-w'), 'Sehr geehrte Frau', 1);
+
+INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`, `lang_id`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title-w'), 'Madame', 3);
+
+INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`, `lang_id`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title-w'), 'Dear Ms', 2);
+
+INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`, `lang_id`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title-m'), 'Sehr geehrter Herr', 1);
+
+INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`, `lang_id`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title-m'), 'Dear Mr', 2);
+
+INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`, `lang_id`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'title-m'), 'Monsieur', 3);
+
 INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'designation'), 'designation');
 
 INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'firstname'), 'firstname');
@@ -222,17 +238,19 @@ INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES
 
 INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'picture'), 'picture');
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Sehr geehrte Frau' WHERE `value` = 1 AND `tmp_name` = 'title';
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Sehr geehrter Herr' WHERE `value` = 2 AND `tmp_name` = 'title';
+UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT attribute_id FROM contrexx_access_user_attribute_name WHERE name='Sehr geehrte Frau') WHERE `value` = 1 AND `tmp_name` = 'title';
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Dear Ms' WHERE `value` = 3 AND `tmp_name` = 'title';
+UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT attribute_id FROM contrexx_access_user_attribute_name WHERE name='Dear Ms') WHERE `value` = 3 AND `tmp_name` = 'title';
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Dear Mr' WHERE `value` = 4 AND `tmp_name` = 'title';
+UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT attribute_id FROM contrexx_access_user_attribute_name WHERE name='Madame') WHERE `value` = 5 AND `tmp_name` = 'title';
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Madame' WHERE `value` = 5 AND `tmp_name` = 'title';
+UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT attribute_id FROM contrexx_access_user_attribute_name WHERE name='Sehr geehrter Herr') WHERE `value` = 2 AND `tmp_name` = 'title';
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = 'Monsieur' WHERE `value` = 6 AND `tmp_name` = 'title';
+UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT attribute_id FROM contrexx_access_user_attribute_name WHERE name='Dear Mr') WHERE `value` = 4 AND `tmp_name` = 'title';
+
+UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT attribute_id FROM contrexx_access_user_attribute_name WHERE name='Monsieur') WHERE `value` = 6 AND `tmp_name` = 'title';
+
 
 ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name, CHANGE attribute_id attribute_id INT NOT NULL, ADD PRIMARY KEY (attribute_id, user_id, history_id);
 
@@ -261,7 +279,7 @@ id as 'user_id',
 (SELECT value.value FROM contrexx_access_users AS user 
 JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
 JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
-WHERE name.name = 'gender' AND lang_id = 0 AND value.user_id = users.id) AS 'gender', 
+WHERE name.name = 'gender' AND lang_id = 0 AND value.user_id = users.id) AS 'gender',
 (SELECT value.value FROM contrexx_access_users AS user 
 JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
 JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
