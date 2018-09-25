@@ -1276,26 +1276,20 @@ class DirectoryLibrary
 
     function getAuthor($id)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objFWUser = \FWUser::getFWUserObject();
 
-        $em = $cx->getDb()->getEntityManager();
-
-        $qb = $em->createQueryBuilder();
+        $objUser = $objFWUser->objUser;
 
         $userId = contrexx_addslashes($id);
         $author = '';
 
-        if (is_numeric($userId)) {
-            $resultAuthor = $qb->select('u.id', 'u.username')
-                ->from('\Cx\Core\User\Model\Entity\User', 'u')
-                ->where('u.id = :userId')
-                ->setParameter('userId', $userId)
-                ->getQuery()
-                ->getResult();
-
-            $author = $resultAuthor[0]['username'];
-        } else {
-            $author = $userId;
+        while (!$objUser->EOF) {
+            if ($objUser->getId() === intval($userId)) {
+                $author = $objUser->getRealUsername();
+            } else {
+                $author = $userId;
+            }
+            $objUser->next();
         }
 
         return $author;
@@ -1304,21 +1298,18 @@ class DirectoryLibrary
 
     function getAuthorID($author)
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objFWUser = \FWUser::getFWUserObject();
 
-        $em = $cx->getDb()->getEntityManager();
+        $objUser = $objFWUser->objUser;
 
-        $qb = $em->createQueryBuilder();
-
-        $resultAuthor = $qb->select('u.id', 'u.username')
-            ->from('\Cx\Core\User\Model\Entity\User', 'u')
-            ->where('u.username = :username')
-            ->orderBy('u.id', 'desc')
-            ->setParameter('username', contrexx_addslashes($author))
-            ->getQuery()
-            ->getResult();
-
-        $authorId = $resultAuthor[0]['id'];
+        while (!$objUser->EOF) {
+            if ($objUser->getRealUsername() !== $author) {
+                $authorId = '';
+                $objUser->next();
+            } else {
+                $authorId = $objUser->getId();
+            }
+        }
 
         return $authorId;
     }
