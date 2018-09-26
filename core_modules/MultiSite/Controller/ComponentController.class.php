@@ -87,10 +87,21 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     public function getCommandDescription($command, $short = false) {
-        switch ($command) {
-            case 'MultiSite':
-                return 'Load MultiSite GUI forms (sign-up / Customer Panel / etc.)';
+        if ($command != 'MultiSite') {
+            return '';
         }
+        if ($short) {
+            return 'Allows the management of the MultiSite manager/service server';
+        }
+        return "MultiSite <section>
+\tLoad MultiSite GUI forms of <section> (Signup / Login / Subscription / etc.)
+
+MultiSite pass <website> [sudo] <command> [<arguments>]
+\tExecute <command> on website <website> 
+\tIf sudo is specified, then the command <command> will be executed even if the website is not online.
+
+MultiSite Cache flush [<pattern>] [-v] [--exec]
+\tFlush memcached cache by optional <pattern>";
     }
 
     /**
@@ -129,26 +140,28 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             return;
         }
 
-        // define frontend language
-// TODO: implement multilanguage support for API command
-        if (!defined('FRONTEND_LANG_ID')) {
-            define('FRONTEND_LANG_ID', 1);
+        if ($subcommand != 'Cache') {
+            // define frontend language
+    // TODO: implement multilanguage support for API command
+            if (!defined('FRONTEND_LANG_ID')) {
+                define('FRONTEND_LANG_ID', 1);
+            }
+
+            // load language data of MultiSite component
+            JsonMultiSiteController::loadLanguageData();
+
+            // load application template
+            $page = new \Cx\Core\ContentManager\Model\Entity\Page();
+            $page->setVirtual(true);
+            $page->setType(\Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION);
+            $page->setCmd($pageCmd);
+            $page->setModule('MultiSite');
+            $pageContent = \Cx\Core\Core\Controller\Cx::getContentTemplateOfPage($page);
+            \LinkGenerator::parseTemplate($pageContent, true, new \Cx\Core\Net\Model\Entity\Domain(\Cx\Core\Setting\Controller\Setting::getValue('customerPanelDomain','MultiSite')));
+            $objTemplate = new \Cx\Core\Html\Sigma();
+            $objTemplate->setTemplate($pageContent);
+            $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
         }
-
-        // load language data of MultiSite component
-        JsonMultiSiteController::loadLanguageData();
-
-        // load application template
-        $page = new \Cx\Core\ContentManager\Model\Entity\Page();
-        $page->setVirtual(true);
-        $page->setType(\Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION);
-        $page->setCmd($pageCmd);
-        $page->setModule('MultiSite');
-        $pageContent = \Cx\Core\Core\Controller\Cx::getContentTemplateOfPage($page);
-        \LinkGenerator::parseTemplate($pageContent, true, new \Cx\Core\Net\Model\Entity\Domain(\Cx\Core\Setting\Controller\Setting::getValue('customerPanelDomain','MultiSite')));
-        $objTemplate = new \Cx\Core\Html\Sigma();
-        $objTemplate->setTemplate($pageContent);
-        $objTemplate->setErrorHandling(PEAR_ERROR_DIE);
 
         switch ($command) {
             case 'MultiSite':
@@ -223,6 +236,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     
                     case 'exec':
                         echo $this->executeCommandExec($arguments);
+                        break;
+
+                    case 'Cache':
+                        echo $this->executeCommandCache($arguments);
                         break;
                     
                     default:
@@ -2106,6 +2123,110 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
 
         echo PHP_EOL . str_repeat('#', 80) . PHP_EOL;
+    }
+
+    public function executeCommandCache($arguments) {
+        global $_CONFIG;
+
+        if ($arguments[1] != 'flush') {
+            return;
+        }
+
+        $pattern = '';
+        if (!empty($arguments[2])) {
+            $pattern = $arguments[2];
+        }
+
+        $verbose = false;
+        if (in_array('-v', $arguments)) {
+            $verbose = true;
+        }
+
+        $dryRun = true;
+        if (in_array('--exec', $arguments)) {
+            $dryRun = false;
+        }
+
+        if (
+            !isset($_CONFIG['cacheDbStatus']) ||
+            $_CONFIG['cacheDbStatus'] != 'on'
+        ) {
+            return;
+        }
+
+        if (!isset($_CONFIG['cacheUserCache'])) {
+            return;
+        }
+
+        switch ($_CONFIG['cacheUserCache']) {
+            case \Cx\Core_Modules\Cache\Controller\CacheLib::CACHE_ENGINE_MEMCACHED:
+                // load stored memcached configuration
+
+                // workaround as h1 does not yet have the new cache config option
+                if (empty($_CONFIG['cacheUserCacheMemcachedConfig'])) {
+                    $_CONFIG['cacheUserCacheMemcachedConfig'] = $_CONFIG['cacheUserCacheMemcacheConfig'];
+                }
+
+                if (empty($_CONFIG['cacheUserCacheMemcachedConfig'])) {
+                    return;
+                }
+
+                $settings = json_decode($_CONFIG['cacheUserCacheMemcachedConfig'], true);
+                $ip = $settings['ip'];
+                $port = $settings['port'];
+
+                $memcachedConfiguration = array('ip' => $ip, 'port' => $port);
+
+                // verify that memcached is installed
+                if (!extension_loaded('memcached')) {
+                    dl('memcached');
+                    break;
+                }
+
+                // verify that memcached is loaded
+                if (!class_exists('\Memcached', false)) {
+                    break;
+                }
+
+                // connect to memcached server
+                $memcached = new \Memcached();
+                if (!@$memcached->addServer($memcachedConfiguration['ip'], $memcachedConfiguration['port'])) {
+                    break;
+                }
+
+                // flush cache
+                $keys = $memcached->getAllKeys();
+                $n = 0;
+                foreach ($keys as $key) {
+                    if (
+                        !empty($pattern) &&
+                        !preg_match('/' . $pattern . '/', $key)
+                    ) {
+                        continue;
+                    }
+
+                    if ($verbose) {
+                        echo "flush $key\n";
+                    }
+
+                    if (!$dryRun) {
+                        $memcached->delete($key);
+                    }
+                    $n++;
+                }
+
+                if ($dryRun) {
+                    echo 'Dry-run: nothing has been flushed yet' . "\n";
+                    echo $n . ' keys would have been dropped from Memcached' . "\n";
+                    echo 'Call command with argument --exec to perform the flush command' . "\n";
+                } else {
+                    echo $n . ' keys dropped from Memcached' . "\n";
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 
     /**
