@@ -660,11 +660,10 @@ class newsletter extends NewsletterLib
                         $newsUrl        = empty($objNews->fields['redirect'])
                                             ? (empty($objNews->fields['newscontent'])
                                                 ? ''
-                                                : 'index.php?section=news&cmd=details&newsid='.$newsid)
+                                                : '[[' . \Cx\Core\ContentManager\Model\Entity\Page::PLACEHOLDER_PREFIX . 'NEWS_DETAILS]]?newsid=' . $newsid)
                                             : $objNews->fields['redirect'];
 						$newstext = ltrim(strip_tags($objNews->fields['newscontent']));
 						$newsteasertext = ltrim(strip_tags($objNews->fields['teaser_text']));
-						$newslink = "[[" . \Cx\Core\ContentManager\Model\Entity\Page::PLACEHOLDER_PREFIX . "NEWS_DETAILS]]?newsid=" . $newsid;
 						if ($objNews->fields['newsuid'] && ($objUser = $objFWUser->objUser->getUser($objNews->fields['newsuid']))) {
 							$author = htmlentities($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET);
 						} else {
@@ -679,7 +678,7 @@ class newsletter extends NewsletterLib
 							'NEWS_DATE' => date(ASCMS_DATE_FORMAT_DATE, $objNews->fields['newsdate']),
 							'NEWS_LONG_DATE' => date(ASCMS_DATE_FORMAT_DATETIME, $objNews->fields['newsdate']),
 							'NEWS_TITLE' => contrexx_raw2xhtml($newstitle),
-							'NEWS_URL' => $newslink,
+							'NEWS_URL' => $newsUrl,
 							'NEWS_TEASER_TEXT' => $newsteasertext,
 							'NEWS_TEXT' => $newstext,
 							'NEWS_AUTHOR' => $author,
@@ -3770,12 +3769,11 @@ class newsletter extends NewsletterLib
                         $newsUrl        = empty($objNews->fields['redirect'])
                                             ? (empty($objNews->fields['newscontent'])
                                                 ? ''
-                                                : 'index.php?section=news&cmd=details&newsid='.$newsid)
+                                                : \Cx\Core\Routing\Url::fromModuleAndCmd('news', 'details', '', array('newsid' => $newsid)))
                                             : $objNews->fields['redirect'];
 
 						$newstext = ltrim(strip_tags($objNews->fields['newscontent']));
 						$newsteasertext = ltrim(strip_tags($objNews->fields['teaser_text']));
-						$newslink = \Cx\Core\Routing\Url::fromModuleAndCmd('news', 'details', '', array('newsid' => $objNews->fields['newsid']));
 						if ($objNews->fields['newsuid'] && ($objUser = $objFWUser->objUser->getUser($objNews->fields['newsuid']))) {
 							$author = htmlentities($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET);
 						} else {
@@ -3792,7 +3790,7 @@ class newsletter extends NewsletterLib
 							'NEWS_DATE' => date(ASCMS_DATE_FORMAT_DATE, $objNews->fields['newsdate']),
 							'NEWS_LONG_DATE' => date(ASCMS_DATE_FORMAT_DATETIME, $objNews->fields['newsdate']),
 							'NEWS_TITLE' => contrexx_raw2xhtml($newstitle),
-							'NEWS_URL' => $newslink,
+							'NEWS_URL' => $newsUrl,
 							'NEWS_TEASER_TEXT' => $newsteasertext,
 							'NEWS_TEXT' => $newstext,
 							'NEWS_AUTHOR' => $author,
