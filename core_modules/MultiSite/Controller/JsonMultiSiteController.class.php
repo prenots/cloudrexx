@@ -1918,6 +1918,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                 $website->setServerWebsite($serverWebsite);
             }
             $em->flush();
+            $em->getConfiguration()->getResultCacheImpl()->deleteAll();
             if ($updateDomainMaps || $oldServerWebsite != $serverWebsite) {
                 $domainRepository = $em->getRepository('Cx\Core_Modules\MultiSite\Model\Entity\Domain');
                 $domainRepository->exportDomainAndWebsite();

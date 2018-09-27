@@ -3251,7 +3251,7 @@ MultiSite Cache flush [<pattern>] [-v] [--exec]
     }
     
     public function preInit(\Cx\Core\Core\Controller\Cx $cx) {
-        global $_CONFIG;
+        global $_CONFIG, $argv;
 
         /**
          * This gives us the list of classes that are not loaded from codebase
@@ -3349,6 +3349,26 @@ MultiSite Cache flush [<pattern>] [-v] [--exec]
                     $_CONFIG['domainUrl'] = $_SERVER['HTTP_HOST'];
 
                     // MultiSite-API requests shall always be by-passed
+                    break;
+                }
+
+                // Ignore the website's state if the sudo command is being
+                // executed.
+                // Otherwise the command will only be executed if the website
+                // is currently online.
+                if (
+                    $cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_COMMAND &&
+                    php_sapi_name() == 'cli' &&
+                    count($argv) >= 3 &&
+                    $argv[1] == 'sudo'
+                ) {
+                    array_splice($argv, 1, 1);
+                    if ($argv[1] == 'Cache') {
+                        // disable the user cache to ensure the cache
+                        // command can be executed fail-safe
+                        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
+                        $cx->getComponent('Cache')->setCacheDriver($cacheDriver);
+                    }
                     break;
                 }
 
