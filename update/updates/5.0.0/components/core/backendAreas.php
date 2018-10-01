@@ -70,19 +70,6 @@ function _updateBackendAreas()
 			'access_id'			=> 3
 		),
 		array(
-			'area_id'			=> 203,
-			'parent_area_id'	=> 0,
-			'type'				=> 'group',
-			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_NEWS_MANAGER',
-			'is_active'			=> 1,
-			'uri'				=> '',
-			'target'			=> '_self',
-			'module_id'			=> 4,
-			'order_id'			=> 3,
-			'access_id'			=> 178
-		),
-		array(
 			'area_id'			=> 8,
 			'parent_area_id'	=> 0,
 			'type'				=> 'group',
@@ -161,19 +148,6 @@ function _updateBackendAreas()
 			'access_id'			=> 0
 		),
 		array(
-			'area_id'			=> 189,
-			'parent_area_id'	=> 0,
-			'type'				=> 'group',
-			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_CRM_MODULE_DESCRIPTION',
-			'is_active'			=> 1,
-			'uri'				=> '',
-			'target'			=> '_self',
-			'module_id'			=> 0,
-			'order_id'			=> 6,
-			'access_id'			=> 194
-		),
-		array(
 			'area_id'			=> 180,
 			'parent_area_id'	=> 0,
 			'type'				=> 'function',
@@ -224,6 +198,32 @@ function _updateBackendAreas()
 			'module_id'			=> 1,
 			'order_id'			=> 1,
 			'access_id'			=> 0
+		),
+		array(
+			'area_id'			=> 189,
+			'parent_area_id'	=> 0,
+			'type'				=> 'group',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CRM_MODULE_DESCRIPTION',
+			'is_active'			=> 1,
+			'uri'				=> '',
+			'target'			=> '_self',
+			'module_id'			=> 0,
+			'order_id'			=> 6,
+			'access_id'			=> 194
+		),
+		array(
+			'area_id'			=> 203,
+			'parent_area_id'	=> 0,
+			'type'				=> 'group',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_NEWS_MANAGER',
+			'is_active'			=> 1,
+			'uri'				=> '',
+			'target'			=> '_self',
+			'module_id'			=> 8,
+			'order_id'			=> 3,
+			'access_id'			=> 178
 		),
 		array(
 			'area_id'			=> 222,
@@ -564,19 +564,6 @@ function _updateBackendAreas()
 			'access_id'			=> 153
 		),
 		array(
-			'area_id'			=> 163,
-			'parent_area_id'	=> 3,
-			'type'				=> 'navigation',
-			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_SYSTEM_LOGS',
-			'is_active'			=> 1,
-			'uri'				=> 'index.php?cmd=SystemLog',
-			'target'			=> '_self',
-			'module_id'			=> 79,
-			'order_id'			=> 10,
-			'access_id'			=> 55
-		),
-		array(
 			'area_id'			=> 17,
 			'parent_area_id'	=> 3,
 			'type'				=> 'navigation',
@@ -637,7 +624,7 @@ function _updateBackendAreas()
 			'is_active'			=> 1,
 			'uri'				=> 'index.php?cmd=Locale',
 			'target'			=> '_self',
-			'module_id'			=> 118,
+			'module_id'			=> 121,
 			'order_id'			=> 5,
 			'access_id'			=> 22
 		),
@@ -718,6 +705,19 @@ function _updateBackendAreas()
 			'module_id'			=> 111,
 			'order_id'			=> 14,
 			'access_id'			=> 201
+		),
+		array(
+			'area_id'			=> 229,
+			'parent_area_id'	=> 3,
+			'type'				=> 'navigation',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CORE_ROUTING',
+			'is_active'			=> 1,
+			'uri'				=> 'index.php?cmd=Routing',
+			'target'			=> '_self',
+			'module_id'			=> 99,
+			'order_id'			=> 14,
+			'access_id'			=> 200
 		),
 		array(
 			'area_id'			=> 127,
@@ -1058,6 +1058,19 @@ function _updateBackendAreas()
 			'access_id'			=> 193
 		),
 		array(
+			'area_id'			=> 233,
+			'parent_area_id'	=> 17,
+			'type'				=> 'function',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CORE_MODULE_PDF',
+			'is_active'			=> 1,
+			'uri'				=> 'index.php?cmd=Pdf',
+			'target'			=> '_self',
+			'module_id'			=> 117,
+			'order_id'			=> 17,
+			'access_id'			=> 193
+		),
+		array(
 			'area_id'			=> 31,
 			'parent_area_id'	=> 18,
 			'type'				=> 'function',
@@ -1071,17 +1084,30 @@ function _updateBackendAreas()
 			'access_id'			=> 31
 		),
 		array(
-			'area_id'			=> 40,
-			'parent_area_id'	=> 19,
+			'area_id'			=> 230,
+			'parent_area_id'	=> 18,
 			'type'				=> 'function',
 			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_SETTINGS',
+			'area_name'			=> 'TXT_CORE_MODULE_ACCESS_MANAGE_USERS',
 			'is_active'			=> 1,
 			'uri'				=> '',
 			'target'			=> '_self',
 			'module_id'			=> 0,
-			'order_id'			=> 0,
-			'access_id'			=> 40
+			'order_id'			=> 1,
+			'access_id'			=> 202
+		),
+		array(
+			'area_id'			=> 231,
+			'parent_area_id'	=> 18,
+			'type'				=> 'function',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CORE_MODULE_ACCESS_MANAGE_USER_GROUPS',
+			'is_active'			=> 1,
+			'uri'				=> '',
+			'target'			=> '_self',
+			'module_id'			=> 0,
+			'order_id'			=> 2,
+			'access_id'			=> 203
 		),
 		array(
 			'area_id'			=> 41,
@@ -1136,16 +1162,29 @@ function _updateBackendAreas()
 			'access_id'			=> 102
 		),
 		array(
-			'area_id'			=> 48,
-			'parent_area_id'	=> 22,
+			'area_id'			=> 232,
+			'parent_area_id'	=> 21,
 			'type'				=> 'function',
 			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_EDIT_LANGUAGE_SETTINGS',
+			'area_name'			=> 'TXT_CORE_VIEWMANAGER_TEMPLATE_EDITOR_ACCESS',
 			'is_active'			=> 1,
 			'uri'				=> '',
 			'target'			=> '_self',
 			'module_id'			=> 0,
 			'order_id'			=> 0,
+			'access_id'			=> 204
+		),
+		array(
+			'area_id'			=> 48,
+			'parent_area_id'	=> 22,
+			'type'				=> 'function',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CORE_LOCALE_ACL_VARS',
+			'is_active'			=> 1,
+			'uri'				=> '',
+			'target'			=> '_self',
+			'module_id'			=> 121,
+			'order_id'			=> 2,
 			'access_id'			=> 48
 		),
 		array(
@@ -1153,12 +1192,12 @@ function _updateBackendAreas()
 			'parent_area_id'	=> 22,
 			'type'				=> 'function',
 			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_DELETE_LANGUAGES',
+			'area_name'			=> 'TXT_CORE_LOCALE_ACL_MANAGEMENT',
 			'is_active'			=> 1,
 			'uri'				=> '',
 			'target'			=> '_self',
-			'module_id'			=> 0,
-			'order_id'			=> 0,
+			'module_id'			=> 121,
+			'order_id'			=> 1,
 			'access_id'			=> 49
 		),
 		array(
@@ -1166,11 +1205,11 @@ function _updateBackendAreas()
 			'parent_area_id'	=> 22,
 			'type'				=> 'function',
 			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_LANGUAGE_SETTINGS',
+			'area_name'			=> 'TXT_CORE_LOCALE_ACL_LIST',
 			'is_active'			=> 1,
 			'uri'				=> '',
 			'target'			=> '_self',
-			'module_id'			=> 0,
+			'module_id'			=> 121,
 			'order_id'			=> 0,
 			'access_id'			=> 50
 		),
@@ -1201,19 +1240,6 @@ function _updateBackendAreas()
 			'access_id'			=> 52
 		),
 		array(
-			'area_id'			=> 166,
-			'parent_area_id'	=> 28,
-			'type'				=> 'navigation',
-			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_CORE_VISITOR_DETAILS',
-			'is_active'			=> 1,
-			'uri'				=> 'index.php?cmd=Stats&stat=visitors',
-			'target'			=> '_self',
-			'module_id'			=> 1,
-			'order_id'			=> 1,
-			'access_id'			=> 166
-		),
-		array(
 			'area_id'			=> 164,
 			'parent_area_id'	=> 28,
 			'type'				=> 'navigation',
@@ -1225,6 +1251,19 @@ function _updateBackendAreas()
 			'module_id'			=> 1,
 			'order_id'			=> 2,
 			'access_id'			=> 164
+		),
+		array(
+			'area_id'			=> 166,
+			'parent_area_id'	=> 28,
+			'type'				=> 'navigation',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CORE_VISITOR_DETAILS',
+			'is_active'			=> 1,
+			'uri'				=> 'index.php?cmd=Stats&stat=visitors',
+			'target'			=> '_self',
+			'module_id'			=> 1,
+			'order_id'			=> 1,
+			'access_id'			=> 166
 		),
 		array(
 			'area_id'			=> 167,
@@ -1279,19 +1318,6 @@ function _updateBackendAreas()
 			'access_id'			=> 170
 		),
 		array(
-			'area_id'			=> 172,
-			'parent_area_id'	=> 29,
-			'type'				=> 'navigation',
-			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_CORE_LISTS',
-			'is_active'			=> 1,
-			'uri'				=> 'index.php?cmd=Newsletter&act=lists',
-			'target'			=> '_self',
-			'module_id'			=> 4,
-			'order_id'			=> 2,
-			'access_id'			=> 172
-		),
-		array(
 			'area_id'			=> 171,
 			'parent_area_id'	=> 29,
 			'type'				=> 'navigation',
@@ -1303,6 +1329,19 @@ function _updateBackendAreas()
 			'module_id'			=> 4,
 			'order_id'			=> 1,
 			'access_id'			=> 171
+		),
+		array(
+			'area_id'			=> 172,
+			'parent_area_id'	=> 29,
+			'type'				=> 'navigation',
+			'scope'				=> 'backend',
+			'area_name'			=> 'TXT_CORE_LISTS',
+			'is_active'			=> 1,
+			'uri'				=> 'index.php?cmd=Newsletter&act=lists',
+			'target'			=> '_self',
+			'module_id'			=> 4,
+			'order_id'			=> 2,
+			'access_id'			=> 172
 		),
 		array(
 			'area_id'			=> 174,
@@ -1337,7 +1376,7 @@ function _updateBackendAreas()
 			'scope'				=> 'backend',
 			'area_name'			=> 'TXT_NEWSLETTER_SETTINGS',
 			'is_active'			=> 1,
-			'uri'				=> 'index.php?cmd=Newsletter&act=dispatch',
+			'uri'				=> 'index.php?cmd=Newsletter&act=Settings',
 			'target'			=> '_self',
 			'module_id'			=> 4,
 			'order_id'			=> 6,
@@ -1545,7 +1584,7 @@ function _updateBackendAreas()
 			'scope'				=> 'backend',
 			'area_name'			=> 'TXT_KNOWLEDGE_ACCESS_OVERVIEW',
 			'is_active'			=> 1,
-			'uri'				=> 'index.php?cmd=Knowledge&section=articles',
+			'uri'				=> 'index.php?cmd=Knowledge&act=articles',
 			'target'			=> '_self',
 			'module_id'			=> 56,
 			'order_id'			=> 1,

@@ -675,7 +675,7 @@ function getModules()
 			'id'					=> 92,
 			'name'					=> 'Shell',
 			'description_variable'	=> 'TXT_CORE_SHELL_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -702,7 +702,7 @@ function getModules()
 			'id'					=> 101,
 			'name'					=> 'Uploader',
 			'description_variable'	=> 'TXT_CORE_MODULE_UPLOADER_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -711,7 +711,7 @@ function getModules()
 			'id'					=> 102,
 			'name'					=> 'MediaBrowser',
 			'description_variable'	=> 'TXT_CORE_MODULE_MEDIABROWSER_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -720,7 +720,7 @@ function getModules()
 			'id'					=> 103,
 			'name'					=> 'Cron',
 			'description_variable'	=> 'TXT_CORE_MODULE_CRON_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -729,7 +729,7 @@ function getModules()
 			'id'					=> 104,
 			'name'					=> 'SysLog',
 			'description_variable'	=> 'TXT_CORE_MODULE_SYSLOG_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -747,7 +747,7 @@ function getModules()
 			'id'					=> 106,
 			'name'					=> 'Wysiwyg',
 			'description_variable'	=> 'TXT_CORE_WYSIWYG_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -756,7 +756,7 @@ function getModules()
 			'id'					=> 107,
 			'name'					=> 'User',
 			'description_variable'	=> 'TXT_CORE_USER_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -765,7 +765,7 @@ function getModules()
 			'id'					=> 108,
 			'name'					=> 'Html',
 			'description_variable'	=> 'TXT_CORE_HTML_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -774,7 +774,7 @@ function getModules()
 			'id'					=> 109,
 			'name'					=> 'MediaSource',
 			'description_variable'	=> 'TXT_CORE_MEDIASOURCE_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -783,7 +783,7 @@ function getModules()
 			'id'					=> 110,
 			'name'					=> 'TemplateEditor',
 			'description_variable'	=> 'TXT_CORE_MODULE_TEMPLATEEDITOR_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -792,7 +792,7 @@ function getModules()
 			'id'					=> 111,
 			'name'					=> 'GeoIp',
 			'description_variable'	=> 'TXT_CORE_MODULE_GEOIP_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -801,7 +801,7 @@ function getModules()
 			'id'					=> 112,
 			'name'					=> 'DateTime',
 			'description_variable'	=> 'TXT_CORE_DATETIME_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -810,7 +810,7 @@ function getModules()
 			'id'					=> 113,
 			'name'					=> 'DataAccess',
 			'description_variable'	=> 'TXT_CORE_MODULE_DATAACCESS_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -819,7 +819,7 @@ function getModules()
 			'id'					=> 114,
 			'name'					=> 'DataSource',
 			'description_variable'	=> 'TXT_CORE_MODULE_DATASOURCE_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 0,
 			'is_active'				=> 1
@@ -828,7 +828,7 @@ function getModules()
 			'id'					=> 116,
 			'name'					=> 'Model',
 			'description_variable'	=> 'TXT_CORE_MODEL_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -837,7 +837,7 @@ function getModules()
 			'id'					=> 117,
 			'name'					=> 'Pdf',
 			'description_variable'	=> 'TXT_CORE_MODULES_PDF_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -855,7 +855,7 @@ function getModules()
 			'id'					=> 119,
 			'name'					=> 'Country',
 			'description_variable'	=> 'TXT_CORE_COUNTRY_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
@@ -864,7 +864,7 @@ function getModules()
 			'id'					=> 120,
 			'name'					=> 'View',
 			'description_variable'	=> 'TXT_CORE_VIEW_DESCRIPTION',
-			'status'				=> 'y',
+			'status'				=> 'n',
 			'is_required'			=> 1,
 			'is_core'				=> 1,
 			'is_active'				=> 1
