@@ -1278,18 +1278,14 @@ class DirectoryLibrary
     {
         $objFWUser = \FWUser::getFWUserObject();
 
-        $objUser = $objFWUser->objUser;
-
         $userId = contrexx_addslashes($id);
         $author = '';
 
-        while (!$objUser->EOF) {
-            if ($objUser->getId() === intval($userId)) {
-                $author = $objUser->getRealUsername();
-            } else {
-                $author = $userId;
-            }
-            $objUser->next();
+        $objUser = $objFWUser->objUser->getUsers(array('id' => intval($userId)));
+        if ($objUser !== false) {
+            $author = $objUser->getRealUsername();
+        } else {
+            $author = $userId;
         }
 
         return $author;
@@ -1300,15 +1296,11 @@ class DirectoryLibrary
     {
         $objFWUser = \FWUser::getFWUserObject();
 
-        $objUser = $objFWUser->objUser;
-
-        while (!$objUser->EOF) {
-            if ($objUser->getRealUsername() !== $author) {
-                $authorId = '';
-                $objUser->next();
-            } else {
-                $authorId = $objUser->getId();
-            }
+        $objUser = $objFWUser->objUser->getUsers(array('username' => $author));
+        if ($objUser !== false) {
+            $authorId = $objUser->getId();
+        } else {
+            $authorId = '';
         }
 
         return $authorId;
