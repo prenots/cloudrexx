@@ -37,6 +37,7 @@
  */
 
 namespace Cx\Modules\Market\Controller;
+use function Sodium\add;
 
 /**
  * Market
@@ -475,11 +476,7 @@ class MarketManager extends MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG;
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-
-        $em = $cx->getDb()->getEntityManager();
-
-        $qb = $em->createQueryBuilder();
+        $objFWUser = \FWUser::getFWUserObject();
 
         $this->_pageTitle = $_ARRAYLANG['TXT_ENTRIES'];
         $this->_objTpl->loadTemplateFile('module_market_entries.html',true,true);
@@ -582,14 +579,9 @@ class MarketManager extends MarketLibrary
                    $this->entries[$entryId]['status'] == 1 ? $led = 'led_green' : $led = 'led_red';
                    $this->entries[$entryId]['type'] == 'offer' ? $type = $_ARRAYLANG['TXT_MARKET_OFFER'] : $type = $_ARRAYLANG['TXT_MARKET_SEARCH'];
                    $i%2 ? $row = 2 : $row = 1;
-                   $user = $qb->select('u.username')
-                       ->from('\Cx\Core\User\Model\Entity\User', 'u')
-                       ->where('u.id = :userId')
-                       ->setParameter('userId', $this->entries[$entryId]['userid'])
-                       ->getQuery()
-                       ->getResult();
-                   if (!empty($user)) {
-                       $addedby = $user[0]['username'];
+                   $objUser = $objFWUser->objUser->getUsers(array('id' => intval($this->entries[$entryId]['userid'])));
+                   if ($objUser !== false) {
+                       $addedby = $objUser->getRealUsername();
                    }
 
                 $this->entries[$entryId]['regdate'] == '' ? $date = 'KEY: '.$this->entries[$entryId]['regkey'] : $date = date("d.m.Y", $this->entries[$entryId]['regdate']);
@@ -818,11 +810,7 @@ class MarketManager extends MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG;
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-
-        $em = $cx->getDb()->getEntityManager();
-
-        $qb = $em->createQueryBuilder();
+        $objFWUser = \FWUser::getFWUserObject();
 
         $this->_pageTitle = $copy ? $_ARRAYLANG['TXT_COPY_ADVERTISEMENT'] : $_ARRAYLANG['TXT_EDIT_ADVERTISEMENT'];
         $this->_objTpl->loadTemplateFile('module_market_entry.html',true,true);
@@ -895,16 +883,13 @@ class MarketManager extends MarketLibrary
                         $forfree     = '';
                         $agreement     = '';
                     }
+
                     //entry user
-                    $user = $qb->select('u.username')
-                        ->from('\Cx\Core\User\Model\Entity\User', 'u')
-                        ->where('u.id = :userId')
-                        ->setParameter('userId', $objResult->fields['userid'])
-                        ->getQuery()
-                        ->getResult();
-                    if (!empty($user)) {
-                        $addedby = $user[0]['username'];
+                    $objUser = $objFWUser->objUser->getUsers(array('id' => intval($objResult->fields['userid'])));
+                    if ($objUser !== false) {
+                        $addedby = $objUser->getRealUsername();
                     }
+
                     //entry userdetails
                     if ($objResult->fields['userdetails'] == '1') {
                         $userdetailsOn         = 'checked';

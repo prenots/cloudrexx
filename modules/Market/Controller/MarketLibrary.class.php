@@ -249,11 +249,7 @@ class MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CONFIG;
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-
-        $em = $cx->getDb()->getEntityManager();
-
-        $qb = $em->createQueryBuilder();
+        $objFWUser = \FWUser::getFWUserObject();
 
         //entrydata
         $objResult = $objDatabase->Execute("SELECT id, title, name, userid, email, regkey FROM ".DBPREFIX."module_market WHERE id='".contrexx_addslashes($entryId)."' LIMIT 1");
@@ -269,14 +265,9 @@ class MarketLibrary
         }
 
         //accessuserdata
-        $username = $qb->select('u.email', 'u.username')
-            ->from('\Cx\Core\User\Model\Entity\User', 'u')
-            ->where('u.id = :userId')
-            ->setParameter('userId', $entryUserid)
-            ->getQuery()
-            ->getResult();
-        if (!empty($username)) {
-            $userUsername = $username[0]['username'];
+        $objUser = $objFWUser->objUser->getUsers(array('id' => intval($entryUserid)));
+        if ($objUser !== false) {
+            $userUsername = $objUser->getRealUsername();
         }
 
         //get mail content n title
@@ -348,6 +339,8 @@ class MarketLibrary
 
         global $objDatabase, $_ARRAYLANG, $_CORELANG, $_CONFIG;
 
+        $objFWUser = \FWUser::getFWUserObject();
+
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
         $em = $cx->getDb()->getEntityManager();
@@ -367,16 +360,11 @@ class MarketLibrary
         }
 
         //accessuserdata
-        $username = $qb->select('u.email', 'u.username')
-            ->from('\Cx\Core\User\Model\Entity\User', 'u')
-            ->where('u.id = :userId')
-            ->setParameter('userId', $entryUserid)
-            ->getQuery()
-            ->getResult();
-        if (!empty($username)) {
-            // TODO: Never used
-            //$userMail = $username[0]['email'];
-            $userUsername = $username[0]['username'];
+        $objUser = $objFWUser->objUser->getUsers(array('id' => intval($entryUserid)));
+        if ($objUser !== false) {
+// TODO: Never used
+//          $userMail = $objUser->getEmail();
+            $userUsername = $objUser->getRealUsername();
         }
 
         //get mail content n title
