@@ -1,14 +1,25 @@
 <div id="content-start">
     <h1 class="first">{TXT_UPDATE_UPDATE_IS_READY}</h1>
-
+    
+    <!-- BEGIN update_dropped_components -->
+    <div class="message-warning">
+        Die folgenden Anwendungen werden von Cloudrexx {VERSION} nicht mehr unterstützt und werden daher nicht migriert:
+        <ul>
+            <!-- BEGIN update_dropped_component -->
+            <li>{COMPONENT_NAME}</li>
+            <!-- END update_dropped_component -->
+        </ul>
+        Wir empfehlen Ihnen die Migration der Daten in eine alternative Anwendung bevor Sie mit dem Update fortfahren.
+    </div>
+    <!-- END update_dropped_components -->
     Bevor Sie das Update starten, stellen Sie sicher, dass ein Backup aller Dateien sowie der Datenbank Ihrer kompletten Webseite vorhanden ist.<br /><br />
-
+    
     <b>Hinweis:</b><br />
     Je nach Grösse Ihrer Website kann das Update bis zu 30 Minuten dauern.<br /><br />
-
+    
     <b>Achtung:</b><br />
     Während des Updatevorgangs ist Ihre Website nicht funktionsfähig und steht Besuchern nicht zur Verfügung.<br />
     Nach Initialisierung des Updatevorgangs kann dieser nicht unterbrochen oder abgebrochen werden.<br /><br />
-
+    
     Klicken Sie nun auf "Update starten", um Ihre Contrexx Installation auf die Version {UPDATE_VERSION} zu aktualisieren.
 </div>

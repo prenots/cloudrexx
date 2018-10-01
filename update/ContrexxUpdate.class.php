@@ -574,6 +574,17 @@ class ContrexxUpdate
         $arrVersion    = $this->getLoadedVersionInfo();
         $updateVersion = $version = $this->getLiteralRepresentationOfVersion($arrVersion['cmsVersion']);
         
+        $droppedComponents = $this->getDroppedComponents();
+        if (count($droppedComponents)) {
+            $this->objTemplate->setVariable(array(
+                'VERSION' => $updateVersion,
+            ));
+            foreach ($droppedComponents as $componentName) {
+                $this->objTemplate->setVariable('COMPONENT_NAME', $componentName);
+                $this->objTemplate->parse('update_dropped_component');
+            }
+        }
+
         $this->objTemplate->setVariable(array(
             'TXT_UPDATE_UPDATE_IS_READY' => $_CORELANG['TXT_UPDATE_UPDATE_IS_READY'],
             'UPDATE_VERSION'             => $updateVersion,
@@ -585,6 +596,51 @@ class ContrexxUpdate
         }
         
         $this->setNavigation('<input type="submit" value="'.$_CORELANG['TXT_UPDATE_BACK'].'" name="updateBack" onclick="try{doUpdate(true)} catch(e){return true;}" /> <input type="submit" value="'.$_CORELANG['TXT_UPDATE_START_UPDATE'].'" name="updateNext" /><input type="hidden" name="processUpdate" id="processUpdate" /><input type="hidden" id="checkTimeout" />');
+    }
+
+    protected function getDroppedComponents() {
+        global $_CONFIG;
+
+        $unsupportedComponents = array('Blog', 'Checkout');
+        if ($this->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
+            // pre3
+            $query = '
+                SELECT
+                    `m`.`name` AS `module`
+                FROM
+                    `' . DBPREFIX . 'content_navigation` AS `n`
+                JOIN
+                    `' . DBPREFIX . 'modules` AS `m`
+                ON
+                    `n`.`module` = `m`.`id`
+                WHERE
+                    `m`.`name` IN("' . implode('", "', $unsupportedComponents) . '")
+                GROUP BY
+                    `module`
+            ';
+        } else {
+            // 3.0 or newer
+            $query = '
+                SELECT
+                    `module`
+                FROM
+                    `' . DBPREFIX . 'content_page`
+                WHERE
+                    `module` IN("' . implode('", "', $unsupportedComponents) . '")
+                GROUP BY
+                    `module`
+            ';
+        }
+        $result = $this->objDatabase->Execute($query);
+        if (!$result || $result->EOF) {
+            return array();
+        }
+        $droppedComponents = array();
+        while (!$result->EOF) {
+            $droppedComponents[] = ucfirst($result->fields['module']);
+            $result->MoveNext();
+        }
+        return $droppedComponents;
     }
     
     private function processUpdate()
