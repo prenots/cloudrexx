@@ -61,7 +61,7 @@ function _downloadsUpdate()
                   PRIMARY KEY (`id`),
                   KEY `is_active` (`is_active`),
                   KEY `visibility` (`visibility`)
-                ) ENGINE=MyISAM",
+                ) ENGINE=InnoDB",
             #################################################################################
             DBPREFIX.'module_downloads_category_locale' => "CREATE TABLE `".DBPREFIX."module_downloads_category_locale` (
                  `lang_id` int(11) unsigned NOT NULL default '0',
@@ -71,7 +71,7 @@ function _downloadsUpdate()
                   PRIMARY KEY (`lang_id`,`category_id`),
                   FULLTEXT KEY `name` (`name`),
                   FULLTEXT KEY `description` (`description`)
-                ) ENGINE=MyISAM",
+                ) ENGINE=InnoDB",
             #################################################################################
             DBPREFIX.'module_downloads_download_locale' => "CREATE TABLE `".DBPREFIX."module_downloads_download_locale` (
                  `lang_id` int(11) unsigned NOT NULL default '0',
@@ -81,27 +81,27 @@ function _downloadsUpdate()
                   PRIMARY KEY (`lang_id`,`download_id`),
                   FULLTEXT KEY `name` (`name`),
                   FULLTEXT KEY `description` (`description`)
-                ) ENGINE=MyISAM",
+                ) ENGINE=InnoDB",
             #################################################################################
             DBPREFIX.'module_downloads_rel_download_category' => "CREATE TABLE `".DBPREFIX."module_downloads_rel_download_category` (
                  `download_id` int(10) unsigned NOT NULL default '0',
                  `category_id` int(10) unsigned NOT NULL default '0',
                  `order` int(3) unsigned NOT NULL default '0',
                   PRIMARY KEY (`download_id`,`category_id`)
-                ) ENGINE=MyISAM",
+                ) ENGINE=InnoDB",
             #################################################################################
             DBPREFIX.'module_downloads_rel_download_download' => "CREATE TABLE `".DBPREFIX."module_downloads_rel_download_download` (
                  `id1` int(10) unsigned NOT NULL default '0',
                  `id2` int(10) unsigned NOT NULL default '0',
                   PRIMARY KEY (`id1`,`id2`)
-                ) ENGINE=MyISAM",
+                ) ENGINE=InnoDB",
             #################################################################################
             DBPREFIX.'module_downloads_settings' => "CREATE TABLE `".DBPREFIX."module_downloads_settings` (
                  `id` int(11) NOT NULL auto_increment,
                  `name` varchar(32) NOT NULL default '',
                  `value` varchar(255) NOT NULL default '',
                   PRIMARY KEY (`id`)
-                ) ENGINE=MyISAM"
+                ) ENGINE=InnoDB"
        );
 
         foreach ($tables as $name => $query) {
@@ -387,6 +387,9 @@ function _downloadsUpdate()
             \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (16,'use_attr_metakeys','1')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (17,'downloads_sorting_order','newestToOldest')");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (18,'categories_sorting_order','alphabetic')");
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (19,'list_downloads_current_lang','0')");
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (20,'integrate_into_search_component','0')");
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_downloads_settings` (`id`, `name`, `value`) VALUES (21,'global_search_linking','detail')");
 
             \Cx\Lib\UpdateUtil::sql("ALTER TABLE `".DBPREFIX."module_downloads_download` CHANGE `version` `version` VARCHAR(255) NOT NULL DEFAULT ''");
 

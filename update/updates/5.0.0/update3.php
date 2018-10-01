@@ -162,7 +162,7 @@ $updatesHotfixToSp1 = array(
             'title'      => array('type' => 'text', 'after' => 'id'),
             'content'    => array('type' => 'text', 'after' => 'title')
         ),
-        'engine' => 'MyISAM',
+        'engine' => 'InnoDB',
     ),
     array(
         'table' => DBPREFIX.'module_checkout_settings_yellowpay',
@@ -171,7 +171,7 @@ $updatesHotfixToSp1 = array(
             'name'       => array('type' => 'text', 'after' => 'id'),
             'value'      => array('type' => 'text', 'after' => 'name')
         ),
-        'engine' => 'MyISAM',
+        'engine' => 'InnoDB',
     ),
 );
 
@@ -354,7 +354,7 @@ $updatesSp2ToSp3 = array(
             'lang_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '1', 'primary' => true, 'after' => 'id'),
             'section' => array('type' => 'VARCHAR(32)', 'notnull' => true, 'default' => '', 'primary' => true, 'after' => 'lang_id'),
             'key' => array('type' => 'VARCHAR(255)', 'notnull' => true, 'primary' => true, 'after' => 'section'),
-            'text' => array('type' => 'text', 'after' => 'key'),
+            'text' => array('type' => 'text', 'after' => 'key', 'notnull' => true, 'default' => ''),
         ),
         'keys' => array(
             'text' => array('fields' => array('text'), 'type' => 'FULLTEXT'),
@@ -532,7 +532,7 @@ foreach ($updates as $update) {
                 $update['table'],
                 $update['structure'],
                 $update['keys'],
-                isset($update['engine']) ? $update['engine'] : 'MyISAM'
+                isset($update['engine']) ? $update['engine'] : 'InnoDB'
             );
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

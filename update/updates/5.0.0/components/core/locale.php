@@ -112,7 +112,7 @@ function _localeUpdate()
                     ),
                 )
             );
-            \Cx\Lib\UpdateUtil::sql('ALTER TABLE `contrexx_skins` ENGINE = InnoDB');
+            \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'skins` ENGINE = InnoDB');
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_view_frontend',
                 array(
@@ -171,11 +171,11 @@ function _localeUpdate()
                 \Cx\Lib\UpdateUtil::sql('UPDATE '.DBPREFIX.'languages SET app_themes_id= '.$result->fields['app_themes_id'].' WHERE app_themes_id NOT IN (SELECT id FROM '.DBPREFIX.'skins)');
 
                 # set frontend views for existing locales
-                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `themesid` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'default\' FROM `contrexx_core_locale_locale` AS l');
-                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `mobile_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'mobile\' FROM `contrexx_core_locale_locale` AS l');
-                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `print_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'print\' FROM `contrexx_core_locale_locale` AS l');
-                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `pdf_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'pdf\' FROM `contrexx_core_locale_locale` AS l');
-                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `app_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'app\' FROM `contrexx_core_locale_locale` AS l');
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `themesid` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'default\' FROM `'.DBPREFIX.'core_locale_locale` AS l');
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `mobile_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'mobile\' FROM `'.DBPREFIX.'core_locale_locale` AS l');
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `print_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'print\' FROM `'.DBPREFIX.'core_locale_locale` AS l');
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `pdf_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'pdf\' FROM `'.DBPREFIX.'core_locale_locale` AS l');
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_view_frontend` (`language`, `theme`, `channel`) SELECT l.id, (SELECT `app_themes_id` FROM `'.DBPREFIX.'languages` WHERE CONVERT(CASE `lang` WHEN \'dk\' THEN \'da\' ELSE `lang` END using utf8) = CONVERT(l.iso_1 using utf8)), \'app\' FROM `'.DBPREFIX.'core_locale_locale` AS l');
             }
 
             # reenable foreign_key_checks

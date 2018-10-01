@@ -102,6 +102,53 @@ class UpdateCx extends \Cx\Core\Core\Controller\Cx {
                 };
                 break;
 
+            case 'Model':
+                return new class {
+                    public function slugify($string) {
+                        // replace international characters
+                        $string = \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('LanguageManager')
+                            ->replaceInternationalCharacters($string);
+
+                        // replace spaces
+                        $string = preg_replace('/\s+/', '-', $string);
+
+                        // replace all non-url characters
+                        $string = preg_replace('/[^a-zA-Z0-9-_]/', '', $string);
+
+                        // replace duplicate occurrences (in a row) of char "-" and "_"
+                        $string = preg_replace('/([-_]){2,}/', '-', $string);
+
+                        return $string;
+                    }
+                };
+                break;
+
+            case 'LanguageManager':
+                return new class {
+                    public function replaceInternationalCharacters($text) {
+                        $text = str_replace(
+                            array_keys(\Cx\Core\LanguageManager\Controller\ComponentController::$REPLACEMENT_CHARLIST),
+                            \Cx\Core\LanguageManager\Controller\ComponentController::$REPLACEMENT_CHARLIST,
+                            $text
+                        );
+                        return $text;
+                    }
+                };
+                break;
+
+            case 'Session':
+                return new class {
+                    public function getSession($forceInitialization = true) {
+                        $sessionObj = \cmsSession::getInstance();
+                    }
+
+                    // session is always initialized during update
+                    public function isInitialized() {
+                        return true;
+                    }
+                };
+                break;
+
             default;
                 break;
         }

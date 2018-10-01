@@ -29,6 +29,8 @@
 use \Cx\Update\UpdatePageEventListener as PageEventListener;
 
 require_once(UPDATE_PATH . '/core/UpdatePageEventListener.class.php');
+require_once(UPDATE_PATH . '/lib/Gedmo/Loggable/Entity/MappedSuperclass/AbstractLogEntry.php');
+require_once(UPDATE_PATH . '/core/Model/Controller/EntityManager.class.php');
 
 $_DBCONFIG   = \Env::get('dbconfig');
 $doctrineDir = ASCMS_LIBRARY_PATH . '/doctrine/';
@@ -93,7 +95,7 @@ $evm->addEventListener(\Doctrine\ORM\Events::preRemove, $pageListener);
 
 $config->setSqlLogger(new \Cx\Lib\DBG\DoctrineSQLLogger());
 
-$em = \Cx\Core\Model\Controller\EntityManager::create($connectionOptions, $config, $evm);
+$em = \Cx\Update\EntityManager::create($connectionOptions, $config, $evm);
 
 //resolve enum, set errors
 $conn = $em->getConnection();

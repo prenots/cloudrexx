@@ -316,8 +316,13 @@ class ContentMigration
 
         $p = array();
 
+        if (!isset($_SESSION['contrexx_update']['page_log_date'])) {
+            $_SESSION['contrexx_update']['page_log_date'] = array();
+        }
+
         if (empty($_SESSION['contrexx_update']['history_pages_added'])) {
             // 1ST: MIGRATE PAGES FROM HISTORY
+            \DBG::msg('MIGRATE PAGES FROM HISTORY');
             try {
                 $hasCustomContent = false;
                 if (\Cx\Lib\UpdateUtil::column_exist(DBPREFIX.'content_navigation_history', 'custom_content')) {
@@ -379,6 +384,7 @@ class ContentMigration
                         $this->nodeArr[$catId]->setParent($this->nodeArr[$objResult->fields['parcat']]);
                     }
 
+                    \DBG::msg('Migrate history (' . $objResult->fields['history_id'] . ') of page '.$objResult->fields['catname'].' (catid: '.$catId.' | lang: '.$objResult->fields['lang'].')');
                     $page = null;
 
                     if (!isset($_SESSION['contrexx_update']['pages'])) {
@@ -400,7 +406,8 @@ class ContentMigration
                             $this->_setPageRecords($objResult, $this->nodeArr[$catId], $page);
                             self::$em->persist($page);
                             self::$em->flush();
-                            $_SESSION['contrexx_update']['pages'][$catId] = $page->getId();
+                            $_SESSION['contrexx_update']['pages'][$catId] = $page->getId();                            $_SESSION['contrexx_update']['page_log_date'][$page->getId()] = $page->getUpdatedAt()->getTimestamp();
+                            \DBG::msg('History of page '.$objResult->fields['catname'].' (catid: '.$catId.' | lang: '.$objResult->fields['lang'].') migrated as page-id '. $page->getId());
                             break;
                         case 'delete':
                             if (!empty($page)) {
@@ -423,6 +430,7 @@ class ContentMigration
 
         if (empty($_SESSION['contrexx_update']['pages_added'])) {
             // 2ND: MIGRATE CURRENT CONTENT
+            \DBG::msg('MIGRATE CURRENT CONTENT');
             try {
                 $hasCustomContent = false;
                 if (\Cx\Lib\UpdateUtil::column_exist(DBPREFIX.'content_navigation', 'custom_content')) {
@@ -507,6 +515,7 @@ class ContentMigration
                     self::$em->persist($page);
                     self::$em->flush();
                     $_SESSION['contrexx_update']['pages'][$catId] = $page->getId();
+                    \DBG::msg('Page '.$objRecords->fields['catname'].' (catid: '.$catId.' | lang: '.$objRecords->fields['lang'].') migrated as page-id '. $page->getId());
 
                     $pagesIndex ++;
                     $objRecords->MoveNext();
@@ -616,7 +625,16 @@ class ContentMigration
         $page->setTarget(substr($objResult->fields['redirect'], 0, 255));
 
         $updatedAt = new \DateTime();
-        $updatedAt->setTimestamp($objResult->fields['changelog']);
+        if (
+            $page->getId() &&
+            isset($_SESSION['contrexx_update']['page_log_date'][$page->getId()]) &&
+            $_SESSION['contrexx_update']['page_log_date'][$page->getId()] > $objResult->fields['changelog']
+        ) {
+            \DBG::msg('overwrite invalid changelog for ' . $objResult->fields['catname'] . ' ('. $objResult->fields['catid'] . ') to: '. $_SESSION['contrexx_update']['page_log_date'][$page->getId()]);
+            $updatedAt->setTimestamp($_SESSION['contrexx_update']['page_log_date'][$page->getId()]);
+        } else {
+            $updatedAt->setTimestamp($objResult->fields['changelog']);
+        }
         $page->setUpdatedAt($updatedAt);
 
         if ($objResult->fields['startdate'] != '0000-00-00') {

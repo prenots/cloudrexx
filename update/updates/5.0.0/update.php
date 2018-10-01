@@ -252,6 +252,28 @@ function executeContrexxUpdate() {
         setUpdateMsg(1, 'timeout');
         return false;
     }
+    
+
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /******************** STAGE 2.2 - INNODB MIGRATION *****************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    if (!in_array('InnoDB', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+        $tableList = getTableList();
+        foreach ($tableList as $table) {
+            try {
+                \Cx\Lib\UpdateUtil::check_dbtype($table, 'InnoDB');
+            } catch (\Cx\Lib\UpdateException $e) {
+                setUpdateMsg(sprintf('Die Datenbank-Engine der Tabelle %s konnte nicht auf InnoDB umgestellt werden', $table), 'title');
+                return false;
+            }
+        }
+        $_SESSION['contrexx_update']['update']['done'][] = 'InnoDB';
+    }
+
 
     /*******************************************************************************/
     /*******************************************************************************/
@@ -274,7 +296,7 @@ function executeContrexxUpdate() {
                 'ord' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'values'),
             ),
             'comment' => 'cx3upgrade',
-            'engine' => 'MyISAM',
+            'engine' => 'InnoDB',
         ),
         // @TODO: only execute this before country update
         array (
@@ -287,7 +309,7 @@ function executeContrexxUpdate() {
                 'active' => array('type' => 'TINYINT(1)', 'default' => 1),
             ),
             'comment' => 'cx3upgrade',
-            'engine' => 'MyISAM'
+            'engine' => 'InnoDB'
         ),
         array (
             'table' => DBPREFIX . 'core_text',
@@ -300,12 +322,12 @@ function executeContrexxUpdate() {
             ),
             'keys' => array('text' => array('fields' => array('text'), 'type' => 'FULLTEXT')),
             'comment' => 'cx3upgrade',
-            'engine' => 'MyISAM',
+            'engine' => 'InnoDB',
         )
     );
     foreach($possiblyMissingTables as $possiblyMissingTable) {
         try {
-            $engine = 'MyISAM';
+            $engine = 'InnoDB';
             $comment = 'cx3upgrade';
             $constraints = array();
             $keys = array();
@@ -461,7 +483,13 @@ function executeContrexxUpdate() {
         // Migrate content
         if (empty($_SESSION['contrexx_update']['content_migrated'])) {
             DBG::msg('Migrate content');
-            $status = $contentMigration->migrate();
+            try {
+                $status = $contentMigration->migrate();
+            } catch (\Exception $e) {
+                \DBG::dump($e->getMessage());
+                setUpdateMsg('Bei der Migration des Inhalts ist ein Fehler aufgetreten. Der genaue Fehler ist im Log-Protokoll (update/dbg.log) einsehbar.');
+                return false;
+            }
 
             if ($status === true) {
                 $_SESSION['contrexx_update']['content_migrated'] = true;
@@ -475,6 +503,7 @@ function executeContrexxUpdate() {
                 DBG::msg('PAGES: catId -> pageId');
                 DBG::dump(ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['pages']));
                 unset($_SESSION['contrexx_update']['pages']);
+                unset($_SESSION['contrexx_update']['page_log_date']);
 
                 if (!checkMemoryLimit() || !checkTimeoutLimit()) {
                     setUpdateMsg(1, 'timeout');

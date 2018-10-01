@@ -846,10 +846,13 @@ function _shopUpdate()
 
             //Text::errorHandler(); // Called by Currency::errorHandler();Product::errorHandler();Payment::errorHandler();ShopCategory::errorHandler();
 
-            $selectUserProfileAttributes = null;
+            $selectUserProfileAttributes = '';
             \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
-            $shopUserProfileAttributes = array('user_profile_attribute_notes', 'user_profile_attribute_customer_group_id');
-            foreach ($shopUserProfileAttributes as $userProfileAttribute) { 
+            $shopUserProfileAttributes = array(
+                'user_profile_attribute_notes'              => 'Profilattribut für die Notizen zum Kunden',
+                'user_profile_attribute_customer_group_id'  => 'Profilattribut für die Kundengruppe',
+            );
+            foreach ($shopUserProfileAttributes as $userProfileAttribute => $userProfileAttributeLabel) { 
                 $profileAttributeValue = \Cx\Core\Setting\Controller\Setting::getValue($userProfileAttribute,'Shop');
                 if (!$profileAttributeValue) {
                     if (isset($_POST[$userProfileAttribute])) {
@@ -864,22 +867,23 @@ function _shopUpdate()
                                "Failed to update User_Profile_Attribute $userProfileAttribute setting");
                         }
                     } else {
-                        $attributeRadio = array('<input type="radio" name="'.$userProfileAttribute.'" value="0" id="shop-'.$userProfileAttribute.'-0" /><label for="shop-'.$userProfileAttribute.'-0">Create new attribute</label>');
+                        $attributeRadio = array('<input type="radio" name="'.$userProfileAttribute.'" value="0" id="shop-'.$userProfileAttribute.'-0" /><label for="shop-'.$userProfileAttribute.'-0">Neue Profil-Eigenschaft anlegen und als Ablage verwenden</label>');
                         $customAttributeIds = \FWUser::getFWUserObject()->objUser->objAttribute->getCustomAttributeIds();
                         foreach ($customAttributeIds as $attributeId) {
                             $objAttribute = \FWUser::getFWUserObject()->objUser->objAttribute->getById($attributeId);
                             $attributeRadio[] = '<input type="radio" name="'.$userProfileAttribute.'" value="'.$objAttribute->getId().'" id="shop-'.$userProfileAttribute.'-'.$objAttribute->getId().'" /><label for="shop-'.$userProfileAttribute.'-'.$objAttribute->getId().'">'.contrexx_raw2xhtml($objAttribute->getName()).'</label>';
                         }
                         $selectUserProfileAttributes .= '<div style="padding:10px;">';
-                        $selectUserProfileAttributes .= 'Select '.$userProfileAttribute.':<br />';
+                        $selectUserProfileAttributes .= $userProfileAttributeLabel.':<br />';
                         $selectUserProfileAttributes .= join('<br />', $attributeRadio);
                         $selectUserProfileAttributes .= '</div>';
                     }
                 }
             }
             if ($selectUserProfileAttributes) {
-                setUpdateMsg('Select user profile attribute', 'title');
-                setUpdateMsg($selectUserProfileAttributes, 'msg');
+                $msg = 'Die Shop-Anwendung pflegt zusätzliche Informationen zu Kunden. Die Informationen werden in den Profilen der Benutzerkonten abgelegt. Wählen Sie nachfolgend aus, in welchen Profil-Eigenschaften die Kunden-Informationen abgelegt werden sollen: ';
+                setUpdateMsg('Shop Profil-Eigenschaften', 'title');
+                setUpdateMsg($msg . $selectUserProfileAttributes, 'msg');
                 setUpdateMsg('<input type="submit" value="'.$_CORELANG['TXT_UPDATE_NEXT'].'" name="updateNext" /><input type="hidden" name="processUpdate" id="processUpdate" />', 'button');
                 return false;
             }
@@ -906,7 +910,7 @@ function _shopUpdate()
             //        Order::errorHandler(); // Calls required Country::errorHandler();
             //        Discount::errorHandler(); // Called by Product::errorHandler();
 
-            //Order::errorHandler(); // Called by Customer::errorHandler();
+            \Cx\Modules\Shop\Controller\Order::errorHandler(); // Called by Customer::errorHandler();
             // Prerequisites:
             //        ShopSettings::errorHandler();
             //        Country::errorHandler();
@@ -1478,6 +1482,7 @@ HTML;
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_shop_payment_processors` SET `picture` = 'logo_postfinance.png' WHERE `picture` = 'logo_postfinance.gif'");
 
             \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."core_setting` SET `type` = 'checkbox' WHERE `section` ='Shop' AND `name` = 'weight_enable'");
+            \Cx\Lib\UpdateUtil::sql("UPDATE `" . DBPREFIX ."core_text` SET `text` = REPLACE(`text`, '\r\n', '<br />') WHERE `section` = 'Shop' AND (`key` = 'category_short_description' OR `key` = 'category_description')");
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
@@ -1933,7 +1938,7 @@ function _shopInstall()
                 'lang_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '1', 'primary' => true, 'after' => 'id'),
                 'section' => array('type' => 'VARCHAR(32)', 'notnull' => true, 'default' => '', 'primary' => true, 'after' => 'lang_id'),
                 'key' => array('type' => 'VARCHAR(255)', 'notnull' => true, 'primary' => 32, 'after' => 'section'),
-                'text' => array('type' => 'text', 'after' => 'key'),
+                'text' => array('type' => 'text', 'after' => 'key', 'notnull' => true, 'default'=> ''),
             ),
             array(
                 'text' => array('fields' => array('text'), 'type' => 'FULLTEXT'),

@@ -186,14 +186,16 @@ function _newsletterUpdate()
     }
 
 
-    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.1')) {
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_newsletter_access_user',
                 array(
                     'accessUserID'               => array('type' => 'INT(5)', 'unsigned' => true),
                     'newsletterCategoryID'       => array('type' => 'INT(11)', 'after' => 'accessUserID'),
-                    'code'                       => array('type' => 'VARCHAR(255)', 'after' => 'newsletterCategoryID', 'notnull' => true, 'default' => '')
+                    'code'                       => array('type' => 'VARCHAR(255)', 'after' => 'newsletterCategoryID', 'notnull' => true, 'default' => ''),
+                    'source'                     => array('type' => 'ENUM(\'backend\',\'opt-in\',\'api\')', 'after' => 'code', 'notnull' => true, 'default' => 'backend'),
+                    'consent'                    => array('type' => 'TIMESTAMP', 'after' => 'source'),
                 ),
                 array(
                     'rel'                        => array('fields' => array('accessUserID','newsletterCategoryID'), 'type' => 'UNIQUE'),
@@ -203,6 +205,16 @@ function _newsletterUpdate()
 
             // set random newsletter code for access recipients
             \Cx\Lib\UpdateUtil::sql('UPDATE '.DBPREFIX.'module_newsletter_access_user SET `code` = SUBSTR(MD5(RAND()),1,12) WHERE `code` = \'\'');
+
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_newsletter_rel_user_cat',
+                array(
+                    'user'           => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'primary' => true),
+                    'category'       => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'user', 'primary' => true),
+                    'source'         => array('type' => 'ENUM(\'backend\',\'opt-in\',\'api\')', 'notnull' => true, 'default' => 'backend', 'after' => 'category'),
+                    'consent'        => array('type' => 'timestamp', 'after' => 'source')
+                )
+            );
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
@@ -240,7 +252,7 @@ function _newsletterUpdate()
     }
 
 
-    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.3')) {
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_newsletter_tmp_sending',
@@ -249,7 +261,7 @@ function _newsletterUpdate()
                     'newsletter'     => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'id'),
                     'email'          => array('type' => 'VARCHAR(255)', 'after' => 'newsletter', 'notnull' => true, 'default' => ''),
                     'sendt'          => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'email'),
-                    'type'           => array('type' => 'ENUM(\'access\',\'newsletter\',\'core\')', 'notnull' => true, 'default' => 'newsletter', 'after' => 'sendt'),
+                    'type'           => array('type' => 'ENUM(\'access\',\'newsletter\',\'core\',\'crm\')', 'notnull' => true, 'default' => 'newsletter', 'after' => 'sendt'),
                     'code'           => array('type' => 'VARCHAR(10)', 'after' => 'type')
                 ),
                 array(
@@ -284,7 +296,7 @@ function _newsletterUpdate()
                     'link_id'            => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'id'),
                     'email_id'           => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'link_id'),
                     'recipient_id'       => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'email_id'),
-                    'recipient_type'     => array('type' => 'ENUM(\'access\',\'newsletter\')', 'after' => 'recipient_id')
+                    'recipient_type'     => array('type' => 'ENUM(\'access\',\'newsletter\',\'crm\')', 'after' => 'recipient_id')
                 ),
                 array(
                     'link_id'            => array('fields' => array('link_id','email_id','recipient_id','recipient_type'), 'type' => 'UNIQUE'),
@@ -338,7 +350,9 @@ function _newsletterUpdate()
                     'birthday'           => array('type' => 'VARCHAR(10)', 'notnull' => true, 'default' => '00-00-0000', 'after' => 'notes'),
                     'status'             => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'birthday'),
                     'emaildate'          => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'status'),
-                    'language'           => array('type' => 'INT(3)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'emaildate')
+                    'language'           => array('type' => 'INT(3)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'emaildate'),
+                    'source'             => array('type' => 'ENUM(\'backend\',\'opt-in\',\'api\')', 'after' => 'language', 'notnull' => true, 'default' => 'backend'),
+                    'consent'            => array('type' => 'TIMESTAMP', 'after' => 'source'),
                 ),
                 array(
                     'email'              => array('fields' => array('email'), 'type' => 'UNIQUE'),
@@ -506,12 +520,88 @@ function _newsletterUpdate()
                 array(
                     'membership_id'      => array('type' => 'INT(10)', 'unsigned' => true),
                     'newsletter_id'      => array('type' => 'INT(10)', 'unsigned' => true, 'after' => 'membership_id'),
-                    'type'               => array('type' => 'ENUM(\'include\',\'exclude\')', 'after' => 'newsletter_id')
+                    'type'               => array('type' => 'ENUM(\'associate\',\'include\',\'exclude\')', 'after' => 'newsletter_id')
                 ),
                 array(
                     'uniq'               => array('fields' => array('membership_id','newsletter_id','type'), 'type' => 'UNIQUE')
                 )
             );
+
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_newsletter_email_link_feedback',
+                array(
+                    'id'                 => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'link_id'            => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'id'),
+                    'email_id'           => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'link_id'),
+                    'recipient_id'       => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'email_id'),
+                    'recipient_type'     => array('type' => 'ENUM(\'access\',\'newsletter\',\'crm\')', 'after' => 'recipient_id')
+                ),
+                array(
+                    'link_id'            => array('fields' => array('link_id','email_id','recipient_id','recipient_type'), 'type' => 'UNIQUE'),
+                    'email_id'           => array('fields' => array('email_id'))
+                )
+            );
+
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `" . DBPREFIX . "module_newsletter_settings` (`setname`, `setvalue`, `status`) VALUES ('statistics','1',1)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `" . DBPREFIX . "module_newsletter_settings` (`setname`, `setvalue`, `status`) VALUES ('agbTermsConditions','0',1)");
+            \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `" . DBPREFIX . "module_newsletter_settings` (`setname`, `setvalue`, `status`) VALUES ('confirmLinkHour','24',1)");
+
+
+            $result = \Cx\Lib\UpdateUtil::sql("SELECT `text_id` FROM `" . DBPREFIX . "core_mail_template` WHERE `key` = 'notify_subscription_list_additional'");
+            if ($result->RecordCount()) {
+                // Get old notification mail
+                $oldMailTextId = $result->fields['text_id'];
+
+                // "auto" increment
+                $result = \Cx\Lib\UpdateUtil::sql("SELECT MAX(`text_id`) + 1 AS 'newTextId' FROM " . DBPREFIX ."core_mail_template");
+                $newMailTextId = $result->fields['newTextId'];
+
+                //  add new mailtemplate
+                \Cx\Lib\UpdateUtil::sql("INSERT INTO `" . DBPREFIX . "core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('consent_confirmation_email','Newsletter',$newMailTextId,0,1)");
+
+                // copy from, sender, reply, to, cc and bcc from old mail
+                \Cx\Lib\UpdateUtil::sql("INSERT INTO
+                    `" . DBPREFIX ."core_text` (
+                        `id`,
+                        `lang_id`,
+                        `section`,
+                        `key`,
+                        `text`
+                    )
+                SELECT
+                    $newMailTextId,
+                    `l`.`id`,
+                    `t`.`section`,
+                    `t`.`key`,
+                    `t`.`text`
+                FROM
+                    `" . DBPREFIX ."core_text` AS `t`
+                JOIN
+                    `" . DBPREFIX ."core_locale_locale` AS `l`
+                ON
+                    `l`.`id` = `t`.`lang_id`
+                WHERE
+                    `t`.`id` = $oldMailTextId AND
+                    `t`.`section`='Newsletter' AND
+                    `t`.`key` IN('core_mail_template_from','core_mail_template_sender','core_mail_template_reply','core_mail_template_to','core_mail_template_cc','core_mail_template_bcc')");
+
+                // insert non-copied texts in "DE"
+                \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."core_text` (`id`, `lang_id`, `section`, `key`, `text`) SELECT $newMailTextId,`id`,'Newsletter','core_mail_template_name','Zustimmungsbestätigung' FROM `".DBPREFIX."core_locale_locale` WHERE `source_language` = 'de'");
+                \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."core_text` (`id`, `lang_id`, `section`, `key`, `text`) SELECT $newMailTextId,`id`,'Newsletter','core_mail_template_subject','[NEWSLETTER_DOMAIN_URL] - Newsletter Zustimmungsbestätigung' FROM `".DBPREFIX."core_locale_locale` WHERE `source_language` = 'de'");
+                \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."core_text` (`id`, `lang_id`, `section`, `key`, `text`) SELECT $newMailTextId,`id`,'Newsletter','core_mail_template_message','[NEWSLETTER_USER_TITLE] [NEWSLETTER_USER_FIRSTNAME]\\r\\n\\r\\nBitte bestätigen Sie, dass Sie Mails der folgenden Mailing-Listen erhalten möchten:\\r\\n[[NEWSLETTER_LISTS]\\r\\n   [NEWSLETTER_LIST]\\r\\n[NEWSLETTER_LISTS]]\\r\\n\\r\\nUm dies zu bestätigen, klicken Sie bitte auf den folgenden Link oder kopieren Sie ihn in die Adressleiste Ihres Webbrowsers:\\r\\n\\r\\n[NEWSLETTER_CONSENT_CONFIRM_CODE]\\r\\n\\r\\n--\\r\\n\\r\\nDies ist eine automatisch generierte Nachricht.' FROM `".DBPREFIX."core_locale_locale` WHERE `source_language` = 'de'");
+
+                // insert non-copied texts in "EN"
+                \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."core_text` (`id`, `lang_id`, `section`, `key`, `text`) SELECT $newMailTextId,`id`,'Newsletter','core_mail_template_name','Consent confirmation' FROM `".DBPREFIX."core_locale_locale`");
+                \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."core_text` (`id`, `lang_id`, `section`, `key`, `text`) SELECT $newMailTextId,`id`,'Newsletter','core_mail_template_subject','[NEWSLETTER_DOMAIN_URL] - Newsletter consent confirmation' FROM `".DBPREFIX."core_locale_locale`");
+                \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."core_text` (`id`, `lang_id`, `section`, `key`, `text`) SELECT $newMailTextId,`id`,'Newsletter','core_mail_template_message','[NEWSLETTER_USER_TITLE] [NEWSLETTER_USER_FIRSTNAME]\\r\\n\\r\\nPlease confirm that you would like to receive mails from the following mailing lists:\\r\\n[[NEWSLETTER_LISTS]\\r\\n   [NEWSLETTER_LIST]\\r\\n[NEWSLETTER_LISTS]]\\r\\n\\r\\nIn order to confirm this please click on the following link or copy it to the address bar of your webbrowser:\\r\\n\\r\\n[NEWSLETTER_CONSENT_CONFIRM_CODE]\\r\\n\\r\\n--\\r\\n\\r\\nThis is an automatically generated message.' FROM `".DBPREFIX."core_locale_locale`");
+
+                // clean up
+                \Cx\Lib\UpdateUtil::sql("DELETE FROM `".DBPREFIX."core_text` WHERE `id` = $oldMailTextId and `section` = 'Newsletter'");
+                \Cx\Lib\UpdateUtil::sql("DELETE FROM `".DBPREFIX."core_mail_template` WHERE `key` = 'notify_subscription_list_additional' AND `section` = 'Newsletter'");
+
+                // add cron job
+                \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."core_module_cron_job` (`id`, `active`, `expression`, `command`, `last_ran`) VALUES (1,1,'@hourly','Newsletter autoclean','2018-06-11 09:00:00')");
+            }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }

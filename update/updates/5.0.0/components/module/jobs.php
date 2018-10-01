@@ -49,6 +49,7 @@ function _jobsUpdate() {
                 'status'     => array('type' => 'TINYINT(4)',       'notnull' => true,  'default' => 1),
                 'changelog'  => array('type' => 'INT(14)',      'notnull' => true,  'default' => 0),
                 'hot'        => array('type' => 'TINYINT(4)',   'notnull' => true,  'default' => 0),
+                'paid'       => array('type' => 'TINYINT(1)',   'notnull' => true,  'default' => 0),
             ),
             array(
                 'newsindex'  => array('fields' => array('title', 'text'), 'type' => 'fulltext')

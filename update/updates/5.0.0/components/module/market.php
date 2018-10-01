@@ -154,7 +154,7 @@ function _marketUpdate()
                 'description' => array('fields' => array('description'), 'type' => 'FULLTEXT'),
                 'title'       => array('fields' => array('description', 'title'), 'type' => 'FULLTEXT'),
             ),
-            'MyISAM'
+            'InnoDB'
         );
 
         //Update script for moving the folder

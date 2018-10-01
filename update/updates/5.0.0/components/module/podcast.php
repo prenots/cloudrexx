@@ -102,14 +102,30 @@ function _podcastUpdate() {
     }
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_podcast_template',
+                array(
+                    'id'             => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'description'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'id'),
+                    'template'       => array('type' => 'text', 'after' => 'description'),
+                    'extensions'     => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'template')
+                ),
+                array(
+                    'description'    => array('fields' => array('description'), 'type' => 'UNIQUE')
+                )
+            );
 
-// TODO: ask user to confirm this change
-        \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_podcast_template` SET `template` = '<iframe width=\"[[MEDIUM_WIDTH]]\" height=\"[[MEDIUM_HEIGHT]]\" src=\"[[MEDIUM_URL]]\" frameborder=\"0\" allowfullscreen></iframe>' WHERE `description` = 'YouTube Video'");
+    // TODO: ask user to confirm this change
+            \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_podcast_template` SET `template` = '<iframe width=\"[[MEDIUM_WIDTH]]\" height=\"[[MEDIUM_HEIGHT]]\" src=\"[[MEDIUM_URL]]\" frameborder=\"0\" allowfullscreen></iframe>' WHERE `description` = 'YouTube Video'");
 
-        // Update the thumbnail path from images/podcast into images/Podcast
-        \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_podcast_medium`
-                                 SET `thumbnail` = REPLACE(`thumbnail`, 'images/podcast', 'images/Podcast')
-                                 WHERE `thumbnail` LIKE ('".ASCMS_PATH_OFFSET."/images/podcast%')");
+            // Update the thumbnail path from images/podcast into images/Podcast
+            \Cx\Lib\UpdateUtil::sql("UPDATE `".DBPREFIX."module_podcast_medium`
+                                     SET `thumbnail` = REPLACE(`thumbnail`, 'images/podcast', 'images/Podcast')
+                                     WHERE `thumbnail` LIKE ('".ASCMS_PATH_OFFSET."/images/podcast%')");
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
 
         //Update script for moving the folder
         $imagePath       = ASCMS_DOCUMENT_ROOT . '/images';

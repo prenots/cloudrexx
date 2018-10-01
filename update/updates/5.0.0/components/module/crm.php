@@ -53,7 +53,8 @@ function _crmUpdate() {
                     'contact_customer'       => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'contact_role'),
                     'contact_language'       => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'contact_customer'),
                     'gender'                 => array('type' => 'TINYINT(2)', 'after' => 'contact_language'),
-                    'notes'                  => array('type' => 'text','notnull' => false, 'after' => 'gender'),
+                    'salutation'             => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'gender'),
+                    'notes'                  => array('type' => 'text','notnull' => false, 'after' => 'salutation'),
                     'industry_type'          => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'notes'),
                     'contact_type'           => array('type' => 'TINYINT(2)', 'notnull' => false, 'after' => 'industry_type'),
                     'user_account'           => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'contact_type'),
@@ -376,7 +377,7 @@ function _crmUpdate() {
                 array(
                     'customer_id'        => array('fields' => array('customer_id'))
                 ),
-                'MyISAM'
+                'InnoDB'
             );
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

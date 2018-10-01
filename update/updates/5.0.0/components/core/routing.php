@@ -37,7 +37,7 @@ function _routingUpdate()
                     'id'                  => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
                     'regular_expression'  => array('type' => 'VARCHAR(255)', 'notnull' => true, 'after' => 'id'),
                     'continue_on_match'   => array('type' => 'TINYINT(1)', 'notnull' => true, 'after' => 'regular_expression'),
-                    'rewrite_status_code' => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'continue_on_match'),
+                    'rewrite_status_code' => array('type' => 'ENUM(\'301\',\'302\',\'intern\')', 'notnull' => true, 'after' => 'continue_on_match'),
                     'order_no'            => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'rewrite_status_code'),
                 ),
                 array(),

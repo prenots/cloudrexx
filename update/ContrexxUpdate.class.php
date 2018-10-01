@@ -898,6 +898,18 @@ class ContrexxUpdate
             $arrPhpExtensions['pdo']['name']  = $_CORELANG['TXT_UPDATE_PDO'];
         }
         
+        if (!extension_loaded('intl')) {
+            $failed = true;
+            $arrPhpExtensions['intl']['class'] = 'failed';
+            $arrPhpExtensions['intl']['value'] = $_CORELANG['TXT_UPDATE_NO'];
+            $arrPhpExtensions['intl']['name']  = $_CORELANG['TXT_UPDATE_INTL']
+                . ' <span class="icon-info tooltip-trigger"></span><span class="tooltip-message">' . $_CORELANG['TXT_UPDATE_INTL_TOOLTIP'] . '</span>';
+        } else {
+            $arrPhpExtensions['intl']['class'] = 'successful';
+            $arrPhpExtensions['intl']['value'] = $_CORELANG['TXT_UPDATE_YES'];
+            $arrPhpExtensions['intl']['name']  = $_CORELANG['TXT_UPDATE_INTL'];
+        }
+        
         if ($this->getWebserverSoftware() == 'iis') {
             if (!$this->checkIISUrlRewriteModule()) {
                 $failed = true;

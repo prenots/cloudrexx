@@ -125,7 +125,7 @@ class UpdateUtil
      *                                     # are duplicates (which will be dropped). use with care.
      *        )
      * @param string engine - optional. Specification of the DB-Engine to use (i.e. MyISAM, InnoDB, etc)
-     *                          Defaults to 'MyISAM'
+     *                          Defaults to 'InnoDB'
      * @param string comment - optional. Table comment.
      * @param array constraints - optional. Additional constraints specification. This is an associative array
      *      where the keys represent the foreign keys and the values are arrays defining the constraint on the
@@ -139,7 +139,7 @@ class UpdateUtil
      *              ),
      *          )
      */
-    public static function table($name, $struc, $idx=array(), $engine='MyISAM',
+    public static function table($name, $struc, $idx=array(), $engine='InnoDB',
         $comment='', $constraints = array())
     {
         if (self::table_exist($name)) {
@@ -327,7 +327,7 @@ class UpdateUtil
     }
 
 
-    private static function check_dbtype($name, $engine)
+    public static function check_dbtype($name, $engine)
     {
         $tableinfo = self::sql("SHOW CREATE TABLE $name");
         $create_stmt = $tableinfo->fields['Create Table'];
@@ -396,7 +396,7 @@ class UpdateUtil
      * Returns true if the table is empty
      *
      * If the table cannot be accessed, returns null.
-     * Hint: call {@see table_exists} first.
+     * Hint: call {@see table_exist} first.
      * @param   string      $table_name     The table name
      * @return  boolean                     True if the table is empty,
      *                                      null on error, or false

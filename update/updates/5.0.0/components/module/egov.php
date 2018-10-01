@@ -43,7 +43,7 @@ function _egovUpdate()
               `name` varchar(255) NOT NULL default '',
               `value` text NOT NULL,
               UNIQUE KEY `name` (`name`)
-            ) ENGINE=MyISAM;
+            ) ENGINE=InnoDB;
         ";
         if ($objDatabase->Execute($query) === false) {
             return _databaseError($query, $objDatabase->ErrorMsg());
@@ -167,7 +167,7 @@ function _egovUpdate()
               `product_paypal_currency` varchar(255) NOT NULL default '',
               `product_orderby` int(11) NOT NULL default '0',
               PRIMARY KEY  (`product_id`)
-            ) TYPE=MyISAM;
+            ) TYPE=InnoDB;
         ";
         if ($objDatabase->Execute($query) === false) {
             return _databaseError($query, $objDatabase->ErrorMsg());

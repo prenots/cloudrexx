@@ -269,7 +269,8 @@ function _calendarUpdate()
                         'show_in'                            => array('type' => 'VARCHAR(255)', 'after' => 'catid'),
                         'invited_groups'                     => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'show_in'),
                         'invited_crm_groups'                 => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_groups'),
-                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'invited_crm_groups'),
+                        'excluded_crm_groups'                => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_crm_groups'),
+                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'excluded_crm_groups'),
                         'invitation_sent'                    => array('type' => 'INT(1)', 'after' => 'invited_mails'),
                         'invitation_email_template'          => array('type' => 'VARCHAR(255)', 'after' => 'invitation_sent'),
                         'registration'                       => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'invitation_email_template'),
@@ -295,7 +296,8 @@ function _calendarUpdate()
                         'series_pattern_end_date'            => array('type' => 'timestamp', 'notnull' => true, 'default' => '0000-00-00 00:00:00', 'after' => 'series_pattern_end'),
                         'series_pattern_begin'               => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'series_pattern_end_date'),
                         'series_pattern_exceptions'          => array('type' => 'longtext', 'after' => 'series_pattern_begin'),
-                        'status'                             => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'series_pattern_exceptions'),
+                        'series_additional_recurrences'      => array('type' => 'longtext', 'after' => 'series_pattern_exceptions'),
+                        'status'                             => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'series_additional_recurrences'),
                         'confirmed'                          => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'status'),
                         'show_detail_view'                   => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'confirmed'),
                         'author'                             => array('type' => 'VARCHAR(255)', 'after' => 'show_detail_view'),
@@ -409,7 +411,7 @@ function _calendarUpdate()
                         'event_id'   => array('fields' => array('event_id')),
                         'eventIndex' => array('fields' => array('title', 'teaser', 'description'), 'type' => 'FULLTEXT')
                     ),
-                    'MyISAM'
+                    'InnoDB'
                 );
 
             \Cx\Lib\UpdateUtil::sql(
@@ -454,7 +456,8 @@ function _calendarUpdate()
                         'show_in'                            => array('type' => 'VARCHAR(255)', 'after' => 'catid'),
                         'invited_groups'                     => array('type' => 'VARCHAR(45)', 'notnull' => false, 'after' => 'show_in'),
                         'invited_crm_groups'                 => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_groups'),
-                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'invited_crm_groups'),
+                        'excluded_crm_groups'                => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_crm_groups'),
+                        'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'excluded_crm_groups'),
                         'invitation_sent'                    => array('type' => 'INT(1)', 'after' => 'invited_mails'),
                         'invitation_email_template'          => array('type' => 'VARCHAR(255)', 'after' => 'invitation_sent'),
                         'registration'                       => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'invitation_email_template'),
@@ -480,7 +483,8 @@ function _calendarUpdate()
                         'series_pattern_end_date'            => array('type' => 'timestamp', 'notnull' => true, 'default' => '0000-00-00 00:00:00', 'after' => 'series_pattern_end'),
                         'series_pattern_begin'               => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'series_pattern_end_date'),
                         'series_pattern_exceptions'          => array('type' => 'longtext', 'after' => 'series_pattern_begin'),
-                        'status'                             => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'series_pattern_exceptions'),
+                        'series_additional_recurrences'      => array('type' => 'longtext', 'after' => 'series_pattern_exceptions'),
+                        'status'                             => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'series_additional_recurrences'),
                         'confirmed'                          => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'status'),
                         'show_detail_view'                   => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'confirmed'),
                         'author'                             => array('type' => 'VARCHAR(255)', 'after' => 'show_detail_view'),
@@ -579,7 +583,7 @@ function _calendarUpdate()
                     'paid'               => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'payment_method')
                 ),
                 array(),
-                'MyISAM'
+                'InnoDB'
             );
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
@@ -1074,7 +1078,8 @@ class CalendarUpdate
                         'series_pattern_end_date'            => array('type' => 'timestamp', 'notnull' => true, 'default' => '0000-00-00 00:00:00', 'after' => 'series_pattern_end'),
                         'series_pattern_begin'               => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'series_pattern_end_date'),
                         'series_pattern_exceptions'          => array('type' => 'longtext', 'after' => 'series_pattern_begin'),
-                        'status'                             => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'series_pattern_exceptions'),
+                        'series_additional_recurrences'      => array('type' => 'longtext', 'after' => 'series_pattern_exceptions'),
+                        'status'                             => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'series_additional_recurrences'),
                         'confirmed'                          => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'status'),
                         'show_detail_view'                   => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'confirmed'),
                         'author'                             => array('type' => 'VARCHAR(255)', 'after' => 'show_detail_view'),
@@ -1510,7 +1515,7 @@ class CalendarUpdate
                         `series_pattern_end`,
                         `series_pattern_begin`,
                         `series_pattern_exceptions`,
-
+                        `series_additional_recurrences`,
                         `use_custom_date_display`,
                         `showStartDateList`,
                         `showEndDateList`,
@@ -1578,6 +1583,7 @@ class CalendarUpdate
                         '" . contrexx_raw2db($result->fields['series_pattern_end']) . "',
                         '" . contrexx_raw2db($result->fields['series_pattern_begin']) . "',
                         '" . contrexx_raw2db($result->fields['series_pattern_exceptions']) . "',
+                        '',
                         0,
                         1,
                         0,

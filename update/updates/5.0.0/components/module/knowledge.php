@@ -214,7 +214,7 @@ function _knowledgeUpdate()
             array(
                 'article'    => array('fields' => array('article', 'tag'), 'type' => 'UNIQUE', 'force' => true)
             ),
-            'MyISAM'
+            'InnoDB'
         );
     } catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

@@ -753,7 +753,7 @@ NEWS;
             );
 
             // add nested set root node and select its id
-            $objResultRoot = \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'module_news_categories` (`catid`, `parent_id`, `left_id`, `right_id`, `sorting`, `level`) VALUES (0, 0, 0, 0, 0, 0)');
+            $objResultRoot = \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'module_news_categories` (`parent_id`, `left_id`, `right_id`, `sorting`, `level`) VALUES (0, 0, 0, 0, 0)');
             if ($objResultRoot) {
                 $nestedSetRootId = $objDatabase->Insert_ID();
             }
@@ -813,7 +813,7 @@ NEWS;
 
 
             // insert id of last added category
-            \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'module_news_categories_catid` (`id`) VALUES ('.$nestedSetRootId.')');
+            \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'module_news_categories_catid` (`id`) SELECT MAX(`catid`) FROM `'.DBPREFIX.'module_news_categories`');
             $_SESSION['contrexx_update']['news']['nestedSet'] = true;
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
@@ -984,6 +984,40 @@ NEWS;
             );
 
 
+            // fetch index infos for dropping duplicate settings below
+            $structure = \Cx\Lib\UpdateUtil::sql('SHOW INDEX FROM `'.DBPREFIX.'module_news_settings`');
+            if ($structure === false) {
+                setUpdateMsg(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], DBPREFIX.'module_news_settings'));
+                return false;
+            }
+
+            $keys = array();
+            while (!$structure->EOF) {
+                // fetch unique keys
+                if (
+                    empty($structure->fields['Key_name']) ||
+                    $structure->fields['Non_unique']
+                ) {
+                    $structure->MoveNext();
+                    continue;
+                }
+
+                $keys[] = $structure->fields['Key_name'];
+                $structure->MoveNext();
+            }
+
+            // drop duplicate settings
+            if (!in_array('name', $keys)) {
+                if (!\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'module_news_settings_clean')) {
+                    \Cx\Lib\UpdateUtil::sql('CREATE TABLE `'.DBPREFIX.'module_news_settings_clean` SELECT * FROM `'.DBPREFIX.'module_news_settings`');
+                }
+                \Cx\Lib\UpdateUtil::sql('TRUNCATE `'.DBPREFIX.'module_news_settings`');
+                \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_news_settings` ADD UNIQUE(`name`)');
+                \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `'.DBPREFIX.'module_news_settings` SELECT * FROM `'.DBPREFIX.'module_news_settings_clean`');
+                \Cx\Lib\UpdateUtil::sql('DROP TABLE `'.DBPREFIX.'module_news_settings_clean`');
+            }
+
+
             // migrate path to images and media
             $pathsToMigrate = \Cx\Lib\UpdateUtil::getMigrationPaths();
             $attributes = array(
@@ -992,6 +1026,8 @@ NEWS;
                 'teaser_text'   => 'module_news_locale',
                 'value'         => 'module_news_settings',
                 'html'          => 'module_news_teaser_frame_templates',
+                'teaser_image_path'=> 'module_news',
+                'teaser_image_thumbnail_path'=> 'module_news',
             );
             foreach ($attributes as $attribute => $table) {
                 foreach ($pathsToMigrate as $oldPath => $newPath) {

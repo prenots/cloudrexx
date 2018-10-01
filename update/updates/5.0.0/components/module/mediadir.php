@@ -46,20 +46,6 @@ function _mediadirUpdate()
            );
 
            \Cx\Lib\UpdateUtil::table(
-               DBPREFIX.'module_mediadir_categories_names',
-               array(
-                     'lang_id'                    => array('type' => 'INT(1)'),
-                        'category_id'                => array('type' => 'INT(7)', 'after' => 'lang_id'),
-                        'category_name'              => array('type' => 'VARCHAR(255)', 'after' => 'category_id'),
-                        'category_description'       => array('type' => 'mediumtext', 'after' => 'category_name')
-               ),
-               array(
-                        'lang_id'                    => array('fields' => array('lang_id')),
-                        'category_id'                => array('fields' => array('category_id'))
-               )
-           );
-
-          \Cx\Lib\UpdateUtil::table(
               DBPREFIX.'module_mediadir_comments',
               array(
                   'id'                 => array('type' => 'INT(7)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
@@ -116,6 +102,36 @@ function _mediadirUpdate()
           );
         }
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+            \Cx\Lib\UpdateUtil::table(
+               DBPREFIX.'module_mediadir_categories_names',
+               array(
+                     'lang_id'                    => array('type' => 'INT(1)'),
+                        'category_id'                => array('type' => 'INT(7)', 'after' => 'lang_id'),
+                        'category_name'              => array('type' => 'VARCHAR(255)', 'after' => 'category_id'),
+                        'category_description'       => array('type' => 'mediumtext', 'after' => 'category_name'),
+                        'category_metadesc'          => array('type' => 'VARCHAR(160)', 'notnull' => true, 'default' => '', 'after' => 'category_description'),
+               ),
+               array(
+                        'lang_id'                    => array('fields' => array('lang_id')),
+                        'category_id'                => array('fields' => array('category_id'))
+               )
+           );
+
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_mediadir_level_names',
+                array(
+                    'lang_id'                => array('type' => 'INT(1)'),
+                    'level_id'               => array('type' => 'INT(7)', 'after' => 'lang_id'),
+                    'level_name'             => array('type' => 'VARCHAR(255)', 'after' => 'level_id'),
+                    'level_description'      => array('type' => 'mediumtext', 'after' => 'level_name'),
+                    'level_metadesc'        => array('type' => 'VARCHAR(160)', 'notnull' => true, 'default' => '', 'after' => 'level_description'),
+                ),
+                array(
+                    'lang_id'                => array('fields' => array('lang_id')),
+                    'category_id'            => array('fields' => array('level_id'))
+                )
+            );
+
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_mediadir_forms',
                 array(
@@ -196,20 +212,6 @@ function _mediadirUpdate()
                     ),
                 array(
                     'name'       => array('fields' => array('name'), 'type' => 'UNIQUE')
-                )
-            );
-
-            \Cx\Lib\UpdateUtil::table(
-                DBPREFIX.'module_mediadir_level_names',
-                array(
-                    'lang_id'                => array('type' => 'INT(1)'),
-                    'level_id'               => array('type' => 'INT(7)', 'after' => 'lang_id'),
-                    'level_name'             => array('type' => 'VARCHAR(255)', 'after' => 'level_id'),
-                    'level_description'      => array('type' => 'mediumtext', 'after' => 'level_name')
-                ),
-                array(
-                    'lang_id'                => array('fields' => array('lang_id')),
-                    'category_id'            => array('fields' => array('level_id'))
                 )
             );
 

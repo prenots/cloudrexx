@@ -125,6 +125,8 @@ $_CORELANG = array(
     'TXT_UPDATE_DBG_FILE'                        => 'Zur schnelleren Analyse und Behebung von Problemen, die während einem Update auftreten, wurde versucht eine Datei als Log zu erstellen.<br />Dies ist leider nicht gelungen. Bitte erstellen Sie die Datei dbg.log im Ordner update/ und erlauben Sie globalen Schreibzugriff auf die Datei.',
     'TXT_UPDATE_EXECUTION_TIME'                  => 'Die PHP max_execution_time beträgt auf Ihrem Server weniger als 20 Sekunden. Dies kann Probleme während dem Update verursachen. Sie können den Update Vorgang hier trotzdem fortsetzen.',
     'TXT_UPDATE_PDO'                             => 'PHP-Erweiterung PDO',
+    'TXT_UPDATE_INTL'                            => 'PHP-Erweiterung Intl',
+    'TXT_UPDATE_INTL_TOOLTIP'                    => 'Für den Betrieb von Cloudrexx wird die PHP Erweiterung <a href="http://php.net/manual/en/book.intl.php" target="_blank">Intl</a> benötigt.',
     'TXT_UPDATE_THEME_FAILED'                    => 'Das CSS des Designes "%s" konnte nicht aktualisiert werden.',
     'TXT_UPDATE_COMPONENT_TABLE'                 => 'Beim Aktualisieren der Komponententabelle (%scomponent) ist ein Fehler aufgetreten.',
     'TXT_UPDATE_PAGE_LOG'                        => 'Beim Aktualisieren des Seitenverlaufs ist ein Fehler aufgetreten.',
