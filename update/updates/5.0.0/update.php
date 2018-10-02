@@ -281,11 +281,11 @@ function executeContrexxUpdate() {
         array (
             'table' => DBPREFIX . 'core_country',
             'structure' => array(
-                'id' => array('type' => 'INT(10)', 'primary' => true),
+                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'primary' => true),
                 'alpha2' => array('type' => 'CHAR(2)', 'default' => ''),
                 'alpha3' => array('type' => 'CHAR(3)', 'default' => ''),
-                'ord' => array('type' => 'INT(5)', 'default' => 0),
-                'active' => array('type' => 'TINYINT(1)', 'default' => 1),
+                'ord' => array('type' => 'INT(5)', 'unsigned' => true, 'default' => 0),
+                'active' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => 1),
             ),
             'comment' => 'cx3upgrade',
             'engine' => 'InnoDB'
@@ -293,10 +293,10 @@ function executeContrexxUpdate() {
         array (
             'table' => DBPREFIX . 'core_text',
             'structure' => array(
-                'id' => array('type' => 'INT(10)', 'default' => 0, 'primary' => true),
-                'lang_id' => array('type' => 'INT(10)', 'default' => 1, 'primary' => true),
+                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => 0, 'primary' => true),
+                'lang_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => 1, 'primary' => true),
                 'section' => array('type' => 'VARCHAR(32)', 'default' => '', 'primary' => true),
-                'key' => array('type' => 'VARCHAR(255)', 'default' => '', 'primary' => 32),
+                'key' => array('type' => 'VARCHAR(255)', 'primary' => 32),
                 'text' => array('type' => 'TEXT', 'default' => ''),
             ),
             'keys' => array('text' => array('fields' => array('text'), 'type' => 'FULLTEXT')),
@@ -344,7 +344,7 @@ function executeContrexxUpdate() {
     /*******************************************************************************/
     if (!in_array('session', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
         $isSessionVariableTableExists = \Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'session_variable');
-        if (!$isSessionVariableTableExists || $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '4.0.0')) {
+        if (!$isSessionVariableTableExists || $objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
             \DBG::msg('update: migrate session');
             if (!migrateSessionTable()) {
                 setUpdateMsg('Error in updating session table', 'error');
