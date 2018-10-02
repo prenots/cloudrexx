@@ -41,28 +41,31 @@ function _crmUpdate() {
                 DBPREFIX.'module_crm_contacts',
                 array(
                     'id'                     => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
-                    'customer_id'            => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'id'),
+                    'customer_id'            => array('type' => 'VARCHAR(256)', 'binary' => true, 'notnull' => false, 'after' => 'id'),
                     'customer_type'          => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'customer_id'),
-                    'customer_name'          => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'customer_type'),
-                    'customer_website'       => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'customer_name'),
+                    'customer_name'          => array('type' => 'VARCHAR(256)', 'binary' => true, 'notnull' => false, 'after' => 'customer_type'),
+                    'customer_website'       => array('type' => 'VARCHAR(256)', 'binary' => true, 'notnull' => false, 'after' => 'customer_name'),
                     'customer_addedby'       => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'customer_website'),
                     'company_size'           => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'customer_addedby'),
                     'customer_currency'      => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'company_size'),
-                    'contact_familyname'     => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'customer_currency'),
-                    'contact_role'           => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'contact_familyname'),
+                    'contact_amount'         => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'customer_currency'),
+                    'contact_familyname'     => array('type' => 'VARCHAR(256)', 'binary' => true, 'notnull' => false, 'after' => 'contact_amount'),
+                    'contact_title'          => array('type' => 'VARCHAR(256)', 'notnull' => false, 'after' => 'contact_familyname'),
+                    'contact_role'           => array('type' => 'VARCHAR(256)', 'binary' => true, 'notnull' => false, 'after' => 'contact_title'),
                     'contact_customer'       => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'contact_role'),
                     'contact_language'       => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'contact_customer'),
                     'gender'                 => array('type' => 'TINYINT(2)', 'after' => 'contact_language'),
                     'salutation'             => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'gender'),
-                    'notes'                  => array('type' => 'text','notnull' => false, 'after' => 'salutation'),
+                    'notes'                  => array('type' => 'text', 'binary' => true, 'notnull' => false, 'after' => 'salutation'),
                     'industry_type'          => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'notes'),
                     'contact_type'           => array('type' => 'TINYINT(2)', 'notnull' => false, 'after' => 'industry_type'),
                     'user_account'           => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'contact_type'),
                     'datasource'             => array('type' => 'INT(11)', 'notnull' => false, 'after' => 'user_account'),
-                    'profile_picture'        => array('type' => 'VARCHAR(256)', 'after' => 'datasource'),
+                    'profile_picture'        => array('type' => 'VARCHAR(256)', 'binary' => true, 'after' => 'datasource'),
                     'status'                 => array('type' => 'TINYINT(2)', 'notnull' => true, 'default' => '1', 'after' => 'profile_picture'),
                     'added_date'             => array('type' => 'date', 'after' => 'status'),
-                    //'email_delivery'         => array('type' => 'TINYINT(2)', 'notnull' => true, 'default' => '1', 'after' => 'added_date'),
+                    'updated_date'           => array('type' => 'timestamp', 'notnull' => true, 'after' => 'added_date'),
+                    'email_delivery'         => array('type' => 'TINYINT(2)', 'notnull' => true, 'default' => '1', 'after' => 'updated_date')
                 ),
                 array(
                     'contact_customer'       => array('fields' => array('contact_customer')),
@@ -195,11 +198,13 @@ function _crmUpdate() {
                     'url_2'          => array('fields' => array('url'), 'type' => 'FULLTEXT')
                 )
             );
+        }
+        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_crm_customer_types',
                 array(
                     'id'             => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
-                    'label'          => array('type' => 'VARCHAR(250)', 'after' => 'id'),
+                    'label'          => array('type' => 'VARCHAR(250)', 'binary' => true, 'after' => 'id'),
                     'hourly_rate'    => array('type' => 'VARCHAR(256)', 'after' => 'label'),
                     'active'         => array('type' => 'INT(1)', 'after' => 'hourly_rate'),
                     'pos'            => array('type' => 'INT(10)', 'notnull' => true, 'default' => '0', 'after' => 'active'),
@@ -215,7 +220,7 @@ function _crmUpdate() {
                 array(
                     'entry_id'       => array('type' => 'INT(11)'),
                     'lang_id'        => array('type' => 'INT(11)', 'after' => 'entry_id'),
-                    'value'          => array('type' => 'VARCHAR(256)', 'after' => 'lang_id')
+                    'value'          => array('type' => 'VARCHAR(256)', 'binary' => true, 'after' => 'lang_id')
                 ),
                 array(
                     'entry_id'       => array('fields' => array('entry_id')),
@@ -228,7 +233,7 @@ function _crmUpdate() {
                 array(
                     'entry_id'       => array('type' => 'INT(11)'),
                     'lang_id'        => array('type' => 'INT(11)', 'after' => 'entry_id'),
-                    'value'          => array('type' => 'VARCHAR(256)', 'after' => 'lang_id')
+                    'value'          => array('type' => 'VARCHAR(256)', 'binary' => true, 'after' => 'lang_id')
                 ),
                 array(
                     'entry_id'       => array('fields' => array('entry_id')),
@@ -236,6 +241,8 @@ function _crmUpdate() {
                     'value_2'        => array('fields' => array('value'), 'type' => 'FULLTEXT')
                 )
             );
+        }
+        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.2.0')) {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_crm_notes',
                 array(
@@ -278,7 +285,9 @@ function _crmUpdate() {
                     'sorting'      => array('type' => 'INT(11)', 'notnull' => true,  'after' => 'company_size'),
                     'status'       => array('type' => 'TINYINT(4)', 'notnull' => true,  'after' => 'sorting'),
                 ),
-                array(),
+                array(
+                    'company_size' => array('fields' => array('company_size'), 'type' => 'FULLTEXT')
+                ),
                 'InnoDB'
             );
         }
@@ -372,7 +381,7 @@ function _crmUpdate() {
                     'customer_id'        => array('type' => 'INT(2)', 'notnull' => true, 'after' => 'task_type_id'),
                     'due_date'           => array('type' => 'datetime', 'notnull' => true, 'after' => 'customer_id'),
                     'assigned_to'        => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'due_date'),
-                    'description'        => array('type' => 'text', 'notnull' => true, 'after' => 'assigned_to'),
+                    'description'        => array('type' => 'text', 'binary' => true, 'notnull' => true, 'after' => 'assigned_to'),
                     'task_status'        => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '1', 'after' => 'description'),
                     'added_by'           => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'task_status'),
                     'added_date_time'    => array('type' => 'datetime', 'notnull' => true, 'after' => 'added_by')
