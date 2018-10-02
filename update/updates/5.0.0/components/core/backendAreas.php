@@ -226,19 +226,6 @@ function _updateBackendAreas()
 			'access_id'			=> 178
 		),
 		array(
-			'area_id'			=> 222,
-			'parent_area_id'	=> 0,
-			'type'				=> 'function',
-			'scope'				=> 'backend',
-			'area_name'			=> 'TXT_MODULE_SUPPORT',
-			'is_active'			=> 1,
-			'uri'				=> 'index.php?cmd=Support',
-			'target'			=> '_self',
-			'module_id'			=> 100,
-			'order_id'			=> 15,
-			'access_id'			=> 192
-		),
-		array(
 			'area_id'			=> 5,
 			'parent_area_id'	=> 1,
 			'type'				=> 'navigation',

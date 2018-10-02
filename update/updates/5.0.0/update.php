@@ -257,6 +257,30 @@ function executeContrexxUpdate() {
     /*******************************************************************************/
     /*******************************************************************************/
     /*******************************************************************************/
+    /******************** STAGE 2.2 - INNODB MIGRATION *****************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
+    if (!in_array('InnoDB', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
+        $tableList = getTableList();
+        foreach ($tableList as $table) {
+            try {
+                if (!\Cx\Lib\UpdateUtil::table_exist($table)) {
+                    continue;
+                }
+                \Cx\Lib\UpdateUtil::check_dbtype($table, 'InnoDB');
+            } catch (\Cx\Lib\UpdateException $e) {
+                setUpdateMsg(sprintf('Die Datenbank-Engine der Tabelle %s konnte nicht auf InnoDB umgestellt werden', $table));
+                return false;
+            }
+        }
+        $_SESSION['contrexx_update']['update']['done'][] = 'InnoDB';
+    }
+    
+
+    /*******************************************************************************/
+    /*******************************************************************************/
+    /*******************************************************************************/
     /******************** STAGE 3 CREATE POSSIBLY MISSING TABLES *******************/
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1159,30 +1183,6 @@ function executeContrexxUpdate() {
             setUpdateMsg(1, 'timeout');
             return false;
         }
-    }
-
-
-    /*******************************************************************************/
-    /*******************************************************************************/
-    /*******************************************************************************/
-    /******************** STAGE 24 - INNODB MIGRATION *****************************/
-    /*******************************************************************************/
-    /*******************************************************************************/
-    /*******************************************************************************/
-    if (!in_array('InnoDB', ContrexxUpdate::_getSessionArray($_SESSION['contrexx_update']['update']['done']))) {
-        $tableList = getTableList();
-        foreach ($tableList as $table) {
-            try {
-                if (!\Cx\Lib\UpdateUtil::table_exist($table)) {
-                    continue;
-                }
-                \Cx\Lib\UpdateUtil::check_dbtype($table, 'InnoDB');
-            } catch (\Cx\Lib\UpdateException $e) {
-                setUpdateMsg(sprintf('Die Datenbank-Engine der Tabelle %s konnte nicht auf InnoDB umgestellt werden', $table));
-                return false;
-            }
-        }
-        $_SESSION['contrexx_update']['update']['done'][] = 'InnoDB';
     }
 
 

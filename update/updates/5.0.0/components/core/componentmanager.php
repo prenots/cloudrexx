@@ -404,11 +404,6 @@ function getComponents()
 			'type'					=> 'core',
 		),
 		array(
-			'id'					=> 100,
-			'name'					=> 'Support',
-			'type'					=> 'module',
-		),
-		array(
 			'id'					=> 101,
 			'name'					=> 'Uploader',
 			'type'					=> 'core_module',

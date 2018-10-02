@@ -690,15 +690,6 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
-			'id'					=> 100,
-			'name'					=> 'Support',
-			'description_variable'	=> 'TXT_MODULE_SUPPORT_DESCRIPTION',
-			'status'				=> 'n',
-			'is_required'			=> 1,
-			'is_core'				=> 0,
-			'is_active'				=> 1
-		),
-		array(
 			'id'					=> 101,
 			'name'					=> 'Uploader',
 			'description_variable'	=> 'TXT_CORE_MODULE_UPLOADER_DESCRIPTION',
