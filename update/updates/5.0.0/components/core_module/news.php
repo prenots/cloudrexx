@@ -924,6 +924,12 @@ NEWS;
 
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        // drop key if exists
+        try {
+            \Cx\Lib\UpdateUtil::sql(
+                'ALTER TABLE `' . DBPREFIX . 'module_news_settings` DROP INDEX `name`'
+            );
+        } catch (\Cx\Lib\UpdateException $e) {}
         \Cx\Lib\UpdateUtil::sql(
             'ALTER TABLE `' . DBPREFIX . 'module_news_settings` ADD UNIQUE KEY `name` (`name`) USING BTREE'
         );
