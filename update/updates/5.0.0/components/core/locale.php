@@ -59,7 +59,9 @@ function _localeUpdate()
                     'id'                                         => array('type' => 'int', 'auto_increment' => true, 'primary' => true, 'notnull' => true),
                     'iso_1'                                      => array('type' => 'CHAR(2)', 'notnull' => true, 'after' => 'id'),
                 ),
-                array(),
+                array(
+                    'iso_1' => array('fields' => array('iso_1')),
+                ),
                 'InnoDB',
                 '',
                 array(
@@ -83,14 +85,17 @@ function _localeUpdate()
                     'order_no'                                               => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'source_language'),
                 ),
                 array(
-                    'iso_1'                                                  => array('fields' => array('iso_1', 'country'), 'type' => 'UNIQUE')
+                    'iso_1'                                                  => array('fields' => array('iso_1', 'country'), 'type' => 'UNIQUE'),
+                    'country' => array('fields' => array('country')),
+                    'fallback' => array('fields' => array('fallback')),
+                    'source_language' => array('fields' => array('source_language')),
                 ),
                 'InnoDB',
                 '',
                 array(
                     'country' => array(
                         'table' => DBPREFIX.'core_country_country',
-                        'column'    => 'alpha_2',
+                        'column'    => 'alpha2',
                         'onDelete'  => 'NO ACTION',
                         'onUpdate'  => 'NO ACTION',
                     ),
