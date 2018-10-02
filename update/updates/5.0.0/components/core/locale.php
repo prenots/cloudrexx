@@ -61,6 +61,7 @@ function _localeUpdate()
                 ),
                 array(),
                 'InnoDB',
+                '',
                 array(
                     'iso_1' => array(
                         'table' => DBPREFIX.'core_locale_language',
@@ -85,6 +86,7 @@ function _localeUpdate()
                     'iso_1'                                                  => array('fields' => array('iso_1', 'country'), 'type' => 'UNIQUE')
                 ),
                 'InnoDB',
+                '',
                 array(
                     'country' => array(
                         'table' => DBPREFIX.'core_country_country',
@@ -122,6 +124,7 @@ function _localeUpdate()
                 ),
                 array(),
                 'InnoDB',
+                '',
                 array(
                     'language' => array(
                         'table' => DBPREFIX.'core_locale_locale',
