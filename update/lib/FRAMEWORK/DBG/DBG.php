@@ -350,7 +350,12 @@ class DBG
                 return false;
             }
         } else {
-            self::$dbg_fh = fopen(ASCMS_DOCUMENT_ROOT.'/update/'.$file.$suffix, $mode);
+            if (defined('ASCMS_DOCUMENT_ROOT')) {
+                $path = ASCMS_DOCUMENT_ROOT;
+            } else {
+                $path = dirname(__FILE__, 5);
+            }
+            self::$dbg_fh = fopen($path.'/update/'.$file.$suffix, $mode);
             if (self::$dbg_fh) {
                 return true;
             } else {

@@ -1167,6 +1167,9 @@ function executeContrexxUpdate() {
         $tableList = getTableList();
         foreach ($tableList as $table) {
             try {
+                if (!\Cx\Lib\UpdateUtil::table_exist($table)) {
+                    continue;
+                }
                 \Cx\Lib\UpdateUtil::check_dbtype($table, 'InnoDB');
             } catch (\Cx\Lib\UpdateException $e) {
                 setUpdateMsg(sprintf('Die Datenbank-Engine der Tabelle %s konnte nicht auf InnoDB umgestellt werden', $table));
