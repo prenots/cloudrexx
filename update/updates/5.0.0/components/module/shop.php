@@ -354,6 +354,7 @@ function _shopUpdate()
                         'id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'primary' => true, 'auto_increment' => true),
                         'name' => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => ''),
                         'unit' => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => ''),
+                        'cumulative' => array('type' => 'INT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'id'),
                     )
                 );
             }
@@ -1447,7 +1448,7 @@ HTML;
                     'id'                 => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
                     'item_id'            => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'id'),
                     'attribute_name'     => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'item_id'),
-                    'option_name'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'attribute_name'),
+                    'option_name'        => array('type' => 'text', 'notnull' => true, 'after' => 'attribute_name'),
                     'price'              => array('type' => 'DECIMAL(9,2)', 'unsigned' => false, 'notnull' => true, 'default' => '0.00', 'after' => 'option_name')
                 ),
                 array(
