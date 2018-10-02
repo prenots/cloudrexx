@@ -658,7 +658,9 @@ function _newsletterUpdate()
  */
 function migrateNewsletterEmailTemplates()
 {
-
+    if (!\Cx\Lib\UpdateUtil::table_exist(DBPREFIX . 'module_newsletter_confirm_mail')) {
+        return;
+    }
     $mailTemplateArray = array(
         1 => array(
             'name' => array(
@@ -815,7 +817,7 @@ This is an automatically generated message.
         SELECT
             `id`,
             `title`,
-            `content` as "setvalue",
+            CONVERT(`content` USING "utf8") as "setvalue",
             `recipients`
         FROM
             `' . DBPREFIX . 'module_newsletter_confirm_mail`
@@ -825,7 +827,7 @@ This is an automatically generated message.
         SELECT
             4,
             "",
-            `setvalue`,
+            CONVERT(`setvalue` USING "utf8") as "setvalue",
             ""
         FROM
             `' . DBPREFIX . 'module_newsletter_settings` WHERE `setname` = "reject_info_mail_text"';
