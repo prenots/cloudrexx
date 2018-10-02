@@ -394,7 +394,7 @@ function _calendarUpdate()
                 // try to drop index (if it exists at all)
                 try {
                     \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_calendar_event_field` DROP INDEX `eventIndex`');
-                } catch (\Exception $) {}
+                } catch (\Exception $e) {}
 
                 \Cx\Lib\UpdateUtil::table(
                     DBPREFIX.'module_calendar_event_field',
@@ -1931,5 +1931,5 @@ class CalendarUpdate
             }
         }
         return true;
-    }
+                        }
 }

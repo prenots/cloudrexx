@@ -119,7 +119,7 @@ function _egovUpdate()
 
     try {
         if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX."module_egov_settings")) {
-            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX."module_egov_settings")
+            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX."module_egov_settings");
         }
     } catch (\Cx\Lib\UpdateException $e) {
         return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
