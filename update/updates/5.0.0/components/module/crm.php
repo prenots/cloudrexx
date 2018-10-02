@@ -70,7 +70,9 @@ function _crmUpdate() {
                     'customer_name'          => array('fields' => array('customer_name')),
                     'contact_familyname'     => array('fields' => array('contact_familyname')),
                     'contact_role'           => array('fields' => array('contact_role')),
-                    'customer_id_2'          => array('fields' => array('customer_id','customer_name','contact_familyname','contact_role','notes'), 'type' => 'FULLTEXT')
+                    'customer_id_2'          => array('fields' => array('customer_id','customer_name','contact_familyname','contact_role','notes'), 'type' => 'FULLTEXT'),
+                    'customer_name_fulltext' => array('fields' => array('customer_name'), 'type' => 'FULLTEXT'),
+                    'contact_familyname_fulltext'=> array('fields' => array('contact_familyname'), 'type' => 'FULLTEXT'),
                 )
             );
             \Cx\Lib\UpdateUtil::table(
@@ -85,6 +87,7 @@ function _crmUpdate() {
                 ),
                 array(
                     'name'                   => array('fields' => array('name' => 333)),
+                    'fulltext'               => array('fields' => array('name'), 'type' => 'FULLTEXT'),
                 )
             );
         }

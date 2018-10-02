@@ -360,7 +360,6 @@ function getTableList() {
         DBPREFIX.'module_calendar_host',
         DBPREFIX.'module_calendar_invite',
         DBPREFIX.'module_calendar_mail',
-        DBPREFIX.'module_calendar_mail_action',
         DBPREFIX.'module_calendar_registration',
         DBPREFIX.'module_calendar_registration_form',
         DBPREFIX.'module_calendar_registration_form_field',
@@ -647,10 +646,6 @@ function getTableList() {
         DBPREFIX.'voting_system',
         DBPREFIX.'core_wysiwyg_template',
         DBPREFIX.'core_wysiwyg_toolbar',
-        DBPREFIX.'module_feed_newsml_content_item',
-        DBPREFIX.'module_newsletter_system',
-        DBPREFIX.'module_newsletter_config',
-        DBPREFIX.'module_shop_shipment'
     );
     return $arrContrexxTables;
 }
