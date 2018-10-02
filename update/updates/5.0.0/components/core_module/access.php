@@ -46,14 +46,14 @@ function _accessUpdate()
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'access_user_mail',
                 array(
-                    'type'           => array('type' => 'ENUM(\'reg_confirm\',\'reset_pw\',\'user_activated\',\'user_deactivated\',\'new_user\',\'user_account_invitation\')', 'notnull' => true, 'default' => 'reg_confirm'),
-                    'lang_id'        => array('type' => 'TINYINT(2)', 'unsigned' => true, 'notnull' => true, 'default' => '0'),
-                    'sender_mail'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => ''),
-                    'sender_name'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => ''),
-                    'subject'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => ''),
-                    'format'         => array('type' => 'ENUM(\'text\',\'html\',\'multipart\')', 'notnull' => true, 'default' => 'text'),
-                    'body_text'      => array('type' => 'TEXT'),
-                    'body_html'      => array('type' => 'TEXT')
+                    'type'           => array('type' => 'ENUM(\'reg_confirm\',\'reset_pw\',\'user_activated\',\'user_deactivated\',\'new_user\',\'user_account_invitation\',\'user_profile_modification\')', 'notnull' => true, 'default' => 'reg_confirm'),
+                    'lang_id'        => array('type' => 'TINYINT(2)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'type'),
+                    'sender_mail'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'lang_id'),
+                    'sender_name'    => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'sender_mail'),
+                    'subject'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'sender_name'),
+                    'format'         => array('type' => 'ENUM(\'text\',\'html\',\'multipart\')', 'notnull' => true, 'default' => 'text', 'after' => 'subject'),
+                    'body_text'      => array('type' => 'TEXT', 'after' => 'format'),
+                    'body_html'      => array('type' => 'TEXT', 'after' => 'body_text')
                 ),
                 array(
                     'mail'           => array('fields' => array('type','lang_id'), 'type' => 'UNIQUE')
@@ -639,7 +639,7 @@ function _accessUpdate()
                     'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'sort_type'),
                     'access_special' => array('type' => 'ENUM(\'\',\'menu_select_higher\',\'menu_select_lower\')', 'notnull' => true, 'default' => '', 'after' => 'order_id'),
                     'access_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'access_special'),
-                    'read_access_id' => array('type' => 'INT', 'notnull' => true, 'after' => 'access_id'),
+                    'read_access_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'access_id'),
                 ),
                 array(),
                 'InnoDB'
@@ -789,7 +789,7 @@ function _accessUpdate()
             );
         }
 
-        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
+        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX . 'access_user_groups',
                 array(
@@ -1007,6 +1007,18 @@ function _accessUpdate()
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'core_modules_access_permission',
+                array(
+                    'id'                     => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'allowed_protocols'      => array('type' => 'text', 'after' => 'id'),
+                    'allowed_methods'        => array('type' => 'text', 'after' => 'allowed_protocols'),
+                    'requires_login'         => array('type' => 'TINYINT(1)', 'notnull' => false, 'after' => 'allowed_methods'),
+                    'valid_user_groups'      => array('type' => 'text', 'after' => 'requires_login'),
+                    'valid_access_ids'       => array('type' => 'text', 'after' => 'valid_user_groups')
+                )
+            );
+
             \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `".DBPREFIX."access_user_mail` (`type`, `lang_id`, `sender_mail`, `sender_name`, `subject`, `format`, `body_text`, `body_html`) VALUES ('user_account_invitation',0,'info@cloudrexx.com','Cloudrexx','Willkommen bei Cloudrexx','multipart','Hallo [[FIRSTNAME]] [[LASTNAME]]\r\n\r\nFür Sie wurde ein persönlicher Zugang bei [[WEBSITE]] eingerichtet.\r\nSie können sich unter dem Link [[LINK]] mit den folgenden Angaben anmelden:\r\nBenutzername: [[EMAIL]]\r\nPasswort: [[PASSWORD]]\r\n\r\n\r\nSupport\r\n--------------------------------------\r\nHaben Sie noch Fragen? Antworten Sie einfach auf diese E-Mail oder melden Sie sich unter support@cloudrexx.com. Wir sind gerne für Sie da.\r\n\r\n\r\nFreundliche Grüsse\r\nIhr Cloudrexx-Team','<html>\r\n<head>\r\n	<title></title>\r\n</head>\r\n<body style=\"cursor: auto;\">\r\n<style type=\"text/css\">*, html, body, table {padding: 0;margin: 0;font-size: 14px;font-family: arial;line-height: 1.5;color: #000000;}\r\n  body {background-color: #fff;}\r\n  a {color: #0071bc;text-decoration: none;}\r\n</style>\r\n<table bgcolor=\"#fff\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\r\n	<tbody>\r\n		<tr>\r\n			<td bgcolor=\"#0071bc\" style=\"height:75px;\">\r\n			<div align=\"center\">\r\n			<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"596\">\r\n				<tbody>\r\n					<tr>\r\n						<td align=\"left\" style=\"padding-top: 15px; padding-bottom: 12px;\"><img alt=\"logo\" src=\"https://media.cloudrexx.com/1.0.0/cloudrexx_logo_145x25.png\" /></td>\r\n						<td align=\"right\" style=\"padding-top: 12px; padding-bottom: 12px;\"><span style=\"color:#fff; font-size: 18px;font-family: arial;\">Ihr pers&ouml;nlicher Zugang</span></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n			</div>\r\n			</td>\r\n		</tr>\r\n		<tr>\r\n			<td>&nbsp;</td>\r\n		</tr>\r\n		<tr>\r\n			<td>\r\n			<div align=\"center\">\r\n			<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"480\">\r\n				<tbody>\r\n					<tr>\r\n						<td style=\"padding-bottom: 7px;\">\r\n						<h1 style=\"font-size: 25px;font-family: arial;\">Willkommen bei Cloudrexx!</h1>\r\n						</td>\r\n					</tr>\r\n					<tr>\r\n						<td style=\"padding-bottom: 13px;  font-family: arial; font-size:14px\"><br />\r\n						Hallo [[FIRSTNAME]] [[LASTNAME]]<br />\r\n						<br />\r\n						F&uuml;r Sie wurde ein pers&ouml;nlicher Zugang bei [[WEBSITE]] eingerichtet.<br />\r\n						Sie k&ouml;nnen sich unter dem Link [[LINK]] mit den folgenden Angaben anmelden:<br />\r\n						<br />\r\n						Benutzername: [[EMAIL]]<br />\r\n						Passwort: [[PASSWORD]]\r\n						<h2 style=\"font-size: 19px;\">Support</h2>\r\n						<span style=\"line-height: 21px;\">Haben Sie noch Fragen? Antworten Sie einfach auf diese E-Mail oder melden Sie sich unter </span><a href=\"mailto:support@cloudrexx.com\" style=\"line-height: 21px;\">support@cloudrexx.com</a><span style=\"line-height: 21px;\">. Wir sind gerne f&uuml;r Sie da.<br />\r\n						<br />\r\n						Freundliche Gr&uuml;sse<br />\r\n						Ihr Cloudrexx-Team</span><br />\r\n						&nbsp;</td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n			</div>\r\n			</td>\r\n		</tr>\r\n		<tr>\r\n			<td style=\"border-top: 1px solid #B9B9B9\">\r\n			<div align=\"center\">\r\n			<table cellspacing=\"0\" width=\"596\">\r\n				<tbody>\r\n					<tr>\r\n						<td align=\"left\" style=\"font-family: arial; color: #939fa2; font-size: 11px; padding-top: 14px;\" width=\"50%\">&copy; 2017 Cloudrexx AG</td>\r\n						<td align=\"right\" style=\"padding-top: 12px;\" width=\"33%\">&nbsp;</td>\r\n						<td align=\"right\" style=\"padding-top: 12px;\"><a href=\"https://www.cloudrexx.com/\" style=\"font-family: arial; color: #0071bc; font-size: 11px;\">www.cloudrexx.com</a></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n			</div>\r\n			</td>\r\n		</tr>\r\n	</tbody>\r\n</table>\r\n</body>\r\n</html>\r\n')");
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

@@ -30,6 +30,34 @@ function _newsletterUpdate()
 {
     global $objDatabase, $objUpdate, $_CONFIG;
 
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try{
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_newsletter',
+                array(
+                    'id'                 => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'subject'            => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'id'),
+                    'template'           => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'subject'),
+                    'content'            => array('type' => 'mediumtext', 'after' => 'template'),
+                    'attachment'         => array('type' => 'ENUM(\'0\',\'1\')', 'notnull' => true, 'default' => '0', 'after' => 'content'),
+                    'priority'           => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'attachment'),
+                    'sender_email'       => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'priority'),
+                    'sender_name'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'sender_email'),
+                    'return_path'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'sender_name'),
+                    'smtp_server'        => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'return_path'),
+                    'status'             => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'smtp_server'),
+                    'count'              => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'status'),
+                    'recipient_count'    => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'count'),
+                    'date_create'        => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'recipient_count'),
+                    'date_sent'          => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'date_create'),
+                    'tmp_copy'           => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'date_sent')
+                )
+            );
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
         try{
             \Cx\Lib\UpdateUtil::table(
@@ -52,28 +80,6 @@ function _newsletterUpdate()
                     'title'          => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'id'),
                     'content'        => array('type' => 'longtext', 'after' => 'title'),
                     'recipients'     => array('type' => 'text', 'after' => 'content')
-                )
-            );
-
-            \Cx\Lib\UpdateUtil::table(
-                DBPREFIX.'module_newsletter',
-                array(
-                    'id'                 => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
-                    'subject'            => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'id'),
-                    'template'           => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'subject'),
-                    'content'            => array('type' => 'text', 'after' => 'template'),
-                    'attachment'         => array('type' => 'ENUM(\'0\',\'1\')', 'notnull' => true, 'default' => '0', 'after' => 'content'),
-                    'priority'           => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'attachment'),
-                    'sender_email'       => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'priority'),
-                    'sender_name'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'sender_email'),
-                    'return_path'        => array('type' => 'VARCHAR(255)', 'notnull' => true, 'default' => '', 'after' => 'sender_name'),
-                    'smtp_server'        => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'return_path'),
-                    'status'             => array('type' => 'INT(1)', 'notnull' => true, 'default' => '0', 'after' => 'smtp_server'),
-                    'count'              => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'status'),
-                    'recipient_count'    => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'count'),
-                    'date_create'        => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'recipient_count'),
-                    'date_sent'          => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'date_create'),
-                    'tmp_copy'           => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'date_sent')
                 )
             );
 
@@ -195,7 +201,7 @@ function _newsletterUpdate()
                     'newsletterCategoryID'       => array('type' => 'INT(11)', 'after' => 'accessUserID'),
                     'code'                       => array('type' => 'VARCHAR(255)', 'after' => 'newsletterCategoryID', 'notnull' => true, 'default' => ''),
                     'source'                     => array('type' => 'ENUM(\'backend\',\'opt-in\',\'api\')', 'after' => 'code', 'notnull' => true, 'default' => 'backend'),
-                    'consent'                    => array('type' => 'TIMESTAMP', 'after' => 'source'),
+                    'consent'                    => array('type' => 'TIMESTAMP', 'notnull' => false, 'default' => null, 'after' => 'source'),
                 ),
                 array(
                     'rel'                        => array('fields' => array('accessUserID','newsletterCategoryID'), 'type' => 'UNIQUE'),
@@ -212,7 +218,7 @@ function _newsletterUpdate()
                     'user'           => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'primary' => true),
                     'category'       => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'user', 'primary' => true),
                     'source'         => array('type' => 'ENUM(\'backend\',\'opt-in\',\'api\')', 'notnull' => true, 'default' => 'backend', 'after' => 'category'),
-                    'consent'        => array('type' => 'timestamp', 'after' => 'source')
+                    'consent'        => array('type' => 'timestamp', 'notnull' => false, 'default' => null, 'after' => 'source')
                 )
             );
         } catch (\Cx\Lib\UpdateException $e) {
@@ -321,6 +327,12 @@ function _newsletterUpdate()
                 return 'timeout';
             }
 
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try { 
             // IMPORTANT: the table definition statement of module_newsletter_user must be AFTER newsletter_migrate_country_field() has been called!
             // fix missing columns & rename old columns if required
             \Cx\Lib\UpdateUtil::table(
@@ -954,7 +966,7 @@ This is an automatically generated message.
     }
 
     try {
-        \Cx\Lib\UpdateUtil::sql('DELETE FROM `'. DBPREFIX .'module_newsletter_settings` WHERE `setname` = "reject_info_mail_text"`');
+        \Cx\Lib\UpdateUtil::sql('DELETE FROM `'. DBPREFIX .'module_newsletter_settings` WHERE `setname` = "reject_info_mail_text"');
         \Cx\Lib\UpdateUtil::drop_table(DBPREFIX . 'module_newsletter_confirm_mail');
     } catch (\Cx\Lib\UpdateException $e) {
         return "Error: $e->sql";
