@@ -489,8 +489,8 @@ function _contactUpdate()
                     'use_email_of_sender'    => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'send_copy'),
                     'html_mail'              => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '1', 'after' => 'use_email_of_sender'),
                     'send_attachment'        => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'html_mail'),
-// TODO: not yet on live system
-                    //'crm_customer_groups'    => array('type' => 'text', 'notnull' => false, 'after' => 'send_attachment'),
+                    'crm_customer_groups' => array('type' => 'text', 'notnull' => false, 'after' => 'send_attachment'),
+                    'send_multiple_reply' => array('type' => 'TINYINT(1)', 'notnull' => true, 'default' => '0', 'after' => 'crm_customer_groups')
                 )
             );
             \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `' . DBPREFIX . 'module_contact_settings` (`setid`, `setname`, `setvalue`, `status`) VALUES (\'7\', \'fieldMetaBrowser\', \'1\', \'1\')');

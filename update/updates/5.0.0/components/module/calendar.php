@@ -390,6 +390,12 @@ function _calendarUpdate()
 
         try {
             if (empty($_SESSION['contrexx_update']['calendar']['places_migrated'])) {
+
+                // try to drop index (if it exists at all)
+                try {
+                    \Cx\Lib\UpdateUtil::sql('ALTER TABLE `'.DBPREFIX.'module_calendar_event_field` DROP INDEX `eventIndex`');
+                } catch (\Exception $) {}
+
                 \Cx\Lib\UpdateUtil::table(
                     DBPREFIX.'module_calendar_event_field',
                     array(
@@ -454,7 +460,7 @@ function _calendarUpdate()
                         'place_mediadir_id'                  => array('type' => 'INT(11)', 'after' => 'attach'),
                         'catid'                              => array('type' => 'INT(11)', 'notnull' => true, 'default' => '0', 'after' => 'place_mediadir_id'),
                         'show_in'                            => array('type' => 'VARCHAR(255)', 'after' => 'catid'),
-                        'invited_groups'                     => array('type' => 'VARCHAR(45)', 'notnull' => false, 'after' => 'show_in'),
+                        'invited_groups'                     => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'show_in'),
                         'invited_crm_groups'                 => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_groups'),
                         'excluded_crm_groups'                => array('type' => 'VARCHAR(255)', 'notnull' => false, 'after' => 'invited_crm_groups'),
                         'invited_mails'                      => array('type' => 'mediumtext', 'notnull' => false, 'after' => 'excluded_crm_groups'),
@@ -572,7 +578,7 @@ function _calendarUpdate()
                     'id'                 => array('type' => 'INT(7)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
                     'event_id'           => array('type' => 'INT(11)', 'notnull' => true, 'after' => 'id'),
                     'date'               => array('type' => 'INT(15)', 'notnull' => true, 'after' => 'event_id'),
-                    'submission_date'    => array('type' => 'timestamp', 'notnull' => true, 'default' => '0000-00-00 00:00:00', 'after' => 'date'),
+                    'submission_date'    => array('type' => 'timestamp', 'notnull' => false, 'default' => '0000-00-00 00:00:00', 'after' => 'date'),
                     'type'               => array('type' => 'INT(1)', 'notnull' => true, 'after' => 'submission_date'),
                     'invite_id'          => array('type' => 'int', 'notnull' => false, 'after' => 'type'),
                     'key'                => array('type' => 'VARCHAR(45)', 'notnull' => true, 'after' => 'invite_id'),
