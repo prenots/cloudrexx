@@ -624,8 +624,8 @@ function _accessUpdate()
                     'sort_type' => array('type' => 'ENUM(\'asc\',\'desc\',\'custom\')', 'notnull' => true, 'default' => 'asc', 'after' => 'mandatory'),
                     'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'sort_type'),
                     'access_special' => array('type' => 'ENUM(\'\',\'menu_select_higher\',\'menu_select_lower\')', 'notnull' => true, 'default' => '', 'after' => 'order_id'),
-                    'access_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'access_id'),
-                    'read_access_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'access_special'),
+                    'access_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'access_special'),
+                    'read_access_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'access_id'),
                 ),
                 array(),
                 'InnoDB'

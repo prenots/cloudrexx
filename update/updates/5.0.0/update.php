@@ -2538,10 +2538,10 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
     // component update scripts that introduce changes for all versions (pre and post v3)
     $genericMigrationScripts = array(
         // core
-        'routing', 'wysiwyg', 'locale',
+        'routing', 'wysiwyg', 'locale', 'datasource',
         // core module
         'access', 'contact', 'pdf',
-        'cron', 'linkmanager', 'news', 'stats',
+        'cron', 'linkmanager', 'news', 'stats', 'dataaccess',
         // module
         'block', 'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',
         'forum', 'gallery', 'market', 'mediadir', 'memberdir', 'newsletter', 'podcast', 'shop',
