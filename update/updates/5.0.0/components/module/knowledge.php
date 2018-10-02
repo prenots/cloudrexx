@@ -43,6 +43,7 @@ function _knowledgeUpdate()
             array( # indexes
                 'module_knowledge_article_content_lang'    => array( 'fields'=>array('lang')),
                 'module_knowledge_article_content_article' => array( 'fields'=>array('article')),
+                'content' => array('fields' => array('question','answer'), 'type' => 'FULLTEXT'),
             )
         );
         \Cx\Lib\UpdateUtil::table(
