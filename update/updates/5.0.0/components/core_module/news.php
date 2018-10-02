@@ -924,6 +924,16 @@ NEWS;
 
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        \Cx\Lib\UpdateUtil::table(
+            DBPREFIX.'module_news_settings',
+            array(
+                'name'       => array('type' => 'VARCHAR(50)', 'notnull' => true, 'default' => ''),
+                'value'      => array('type' => 'VARCHAR(250)', 'notnull' => true, 'default' => '', 'after' => 'name')
+            ),
+            array(
+                'name'       => array('fields' => array('name'), 'type' => 'UNIQUE')
+            )
+        );
         \Cx\Lib\UpdateUtil::sql(
             'INSERT INTO `'.DBPREFIX.'module_news_settings` (`name`, `value`)
             VALUES  ("use_related_news", "0"),
