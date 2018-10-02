@@ -1148,6 +1148,12 @@ function executeContrexxUpdate() {
             return false;
         } else {
             $_SESSION['contrexx_update']['update']['done'][] = 'coreSettings2SettingDb';
+            try {
+                $legacySettingsTable = DBPREFIX . 'settings';
+                if (\Cx\Lib\UpdateUtil::table_exist($legacySettingsTable)) {
+                    \Cx\Lib\UpdateUtil::drop_table($legacySettingsTable);
+                }
+            } catch (\Cx\Lib\UpdateException $e) {}
 
             // let's force a reload here to ensure any new settings will be loaded
             setUpdateMsg(1, 'timeout');
@@ -2548,7 +2554,7 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
         // module
         'block', 'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',
         'forum', 'gallery', 'market', 'mediadir', 'memberdir', 'newsletter', 'podcast', 'shop',
-        'livecam', 'guestbook', 'egov'
+        'livecam', 'guestbook', 'egov', 'jobs'
     );
 
     foreach ($components as $dir) {

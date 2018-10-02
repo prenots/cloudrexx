@@ -142,7 +142,8 @@ function _mediadirUpdate()
                     'use_level'                  => array('type' => 'INT(1)', 'after' => 'active'),
                     'use_category'               => array('type' => 'INT(1)', 'after' => 'use_level'),
                     'use_ready_to_confirm'       => array('type' => 'INT(1)', 'after' => 'use_category'),
-                    'entries_per_page'           => array('type' => 'INT(7)', 'notnull' => true, 'default' => '0', 'after' => 'use_ready_to_confirm'),
+                    'use_associated_entries'     => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'use_ready_to_confirm'),
+                    'entries_per_page'           => array('type' => 'INT(7)', 'notnull' => true, 'default' => '0', 'after' => 'use_associated_entries'),
                     'cmd'                        => array('type' => 'VARCHAR(50)', 'after' => 'entries_per_page')
                 )
             );
@@ -288,7 +289,7 @@ function _mediadirUpdate()
         }
 
 
-        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.1.2')) {
+        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
             \Cx\Lib\UpdateUtil::table(
             DBPREFIX.'module_mediadir_inputfields',
                 array(
@@ -300,7 +301,7 @@ function _mediadirUpdate()
                     'required'           => array('type' => 'INT(10)', 'after' => 'search'),
                     'order'              => array('type' => 'INT(10)', 'after' => 'required'),
                     'show_in'            => array('type' => 'INT(10)', 'after' => 'order'),
-                    'context_type'       => array('type' => 'ENUM(\'none\',\'title\',\'content\',\'address\',\'zip\',\'city\',\'country\')', 'after' => 'show_in')
+                    'context_type'       => array('type' => 'ENUM(\'none\',\'title\',\'content\',\'address\',\'zip\',\'city\',\'country\',\'image\',\'slug\',\'keywords\')', 'after' => 'show_in')
                 )
             );
         }

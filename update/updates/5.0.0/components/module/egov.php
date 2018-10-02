@@ -50,6 +50,15 @@ function _egovUpdate()
         }
     }
 
+    $hasLegacyTable = false;
+    try {
+        if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX."module_egov_settings")) {
+            $hasLegacyTable = true;
+        }
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+    }
+
     // Copy original values
     $arrField = array(
         'set_sender_name',
@@ -91,15 +100,29 @@ function _egovUpdate()
         }
 
         // Copy the original value
-        $query = "
-            INSERT INTO ".DBPREFIX."module_egov_configuration (name, value)
-            SELECT '$fieldname', `$fieldname`
-              FROM ".DBPREFIX."module_egov_settings
-        ";
+        if ($hasLegacyTable) {
+            $query = "
+                INSERT INTO ".DBPREFIX."module_egov_configuration (name, value)
+                SELECT '$fieldname', `$fieldname`
+                  FROM ".DBPREFIX."module_egov_settings
+            ";
+        } else {
+            $query = "
+                INSERT INTO ".DBPREFIX."module_egov_configuration (name, value) VALUES ('$fieldname', '')
+            ";
+        }
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
             return _databaseError($query, $objDatabase->ErrorMsg());
         }
+    }
+
+    try {
+        if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX."module_egov_settings")) {
+            \Cx\Lib\UpdateUtil::drop_table(DBPREFIX."module_egov_settings")
+        }
+    } catch (\Cx\Lib\UpdateException $e) {
+        return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
     }
 
     // Add new settings for Yellowpay
@@ -276,7 +299,7 @@ function _egovUpdate()
         'product_message'       => 'module_egov_products',
         'product_target_url'    => 'module_egov_products',
         'product_target_body'   => 'module_egov_products',
-        'set_state_email'       => 'module_egov_settings',
+        'value'                 => 'module_egov_configuration',
     );
     try {
         foreach ($attributes as $attribute => $table) {
