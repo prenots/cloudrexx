@@ -304,6 +304,14 @@ function _directoryUpdate() {
             ));
             return false;
         }
+        // update script for dropped table
+        try {
+            if (\Cx\Lib\UpdateUtil::table_exist(DBPREFIX.'module_directory_settings_google')) {
+                \Cx\Lib\UpdateUtil::drop_table(DBPREFIX.'module_directory_settings_google');
+            }
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
     }
     $attributes = array(
         'attachment'    => 'module_directory_dir',
