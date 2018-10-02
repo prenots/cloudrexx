@@ -27,5 +27,22 @@
 
 function _datasourceUpdate()
 {
+    global $objUpdate, $_CONFIG;
+
+    if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
+        try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'core_data_source',
+                array(
+                    'id'             => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'identifier'     => array('type' => 'VARCHAR(255)', 'after' => 'id'),
+                    'options'        => array('type' => 'text', 'after' => 'identifier'),
+                    'type'           => array('type' => 'VARCHAR(50)', 'after' => 'options')
+                )
+            );
+        } catch (\Cx\Lib\UpdateException $e) {
+            return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
+        }
+    }
     return true;
 }

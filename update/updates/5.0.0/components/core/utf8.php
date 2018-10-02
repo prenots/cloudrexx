@@ -645,7 +645,7 @@ function getTableList() {
         DBPREFIX.'voting_results',
         DBPREFIX.'voting_system',
         DBPREFIX.'core_wysiwyg_template',
-        DBPREFIX.'core_wysiwyg_toolbar',
+        DBPREFIX.'core_wysiwyg_toolbar'
     );
     return $arrContrexxTables;
 }
