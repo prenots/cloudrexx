@@ -91,30 +91,34 @@ function _mediadirUpdate()
               )
           );
 
-          \Cx\Lib\UpdateUtil::table(
-              DBPREFIX.'module_mediadir_form_names',
-              array(
-                  'lang_id'                => array('type' => 'INT(1)'),
-                  'form_id'                => array('type' => 'INT(7)', 'after' => 'lang_id'),
-                  'form_name'              => array('type' => 'VARCHAR(255)', 'after' => 'form_id'),
-                  'form_description'       => array('type' => 'mediumtext', 'notnull' => true, 'after' => 'form_name')
-              )
-          );
         }
         if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
             \Cx\Lib\UpdateUtil::table(
-               DBPREFIX.'module_mediadir_categories_names',
-               array(
-                     'lang_id'                    => array('type' => 'INT(1)'),
-                        'category_id'                => array('type' => 'INT(7)', 'after' => 'lang_id'),
-                        'category_name'              => array('type' => 'VARCHAR(255)', 'after' => 'category_id'),
-                        'category_description'       => array('type' => 'mediumtext', 'after' => 'category_name'),
-                        'category_metadesc'          => array('type' => 'VARCHAR(160)', 'notnull' => true, 'default' => '', 'after' => 'category_description'),
-               ),
-               array(
-                        'lang_id'                    => array('fields' => array('lang_id')),
-                        'category_id'                => array('fields' => array('category_id'))
-               )
+                DBPREFIX.'module_mediadir_form_names',
+                array(
+                    'lang_id'                => array('type' => 'INT(1)'),
+                    'form_id'                => array('type' => 'INT(7)', 'after' => 'lang_id'),
+                    'form_name'              => array('type' => 'VARCHAR(255)', 'after' => 'form_id'),
+                    'form_description'       => array('type' => 'mediumtext', 'notnull' => true, 'after' => 'form_name')
+                ),
+                array(
+                    'form'                   => array('fields' => array('lang_id','form_id'), 'type' => 'UNIQUE')
+                )
+            );
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_mediadir_categories_names',
+                array(
+                    'lang_id'                    => array('type' => 'INT(1)'),
+                    'category_id'                => array('type' => 'INT(7)', 'after' => 'lang_id'),
+                    'category_name'              => array('type' => 'VARCHAR(255)', 'after' => 'category_id'),
+                    'category_description'       => array('type' => 'mediumtext', 'after' => 'category_name'),
+                    'category_metadesc'          => array('type' => 'VARCHAR(160)', 'notnull' => true, 'default' => '', 'after' => 'category_description'),
+                ),
+                array(
+                    'category'                   => array('fields' => array('lang_id','category_id'), 'type' => 'UNIQUE'),
+                    'lang_id'                    => array('fields' => array('lang_id')),
+                    'category_id'                => array('fields' => array('category_id'))
+                )
            );
 
             \Cx\Lib\UpdateUtil::table(
@@ -127,6 +131,7 @@ function _mediadirUpdate()
                     'level_metadesc'        => array('type' => 'VARCHAR(160)', 'notnull' => true, 'default' => '', 'after' => 'level_description'),
                 ),
                 array(
+                    'level'                  => array('fields' => array('lang_id','level_id'), 'type' => 'UNIQUE'),
                     'lang_id'                => array('fields' => array('lang_id')),
                     'category_id'            => array('fields' => array('level_id'))
                 )
@@ -150,8 +155,8 @@ function _mediadirUpdate()
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_mediadir_entry_associated_entry',
                 array(
-                    'source_entry_id'    => array('type' => 'INT(11)', 'unsigned' => true),
-                    'target_entry_id'    => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'source_entry_id'),
+                    'source_entry_id'    => array('type' => 'INT(11)', 'unsigned' => true, 'primary' => true),
+                    'target_entry_id'    => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'source_entry_id', 'primary' => true),
                     'ord'                => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'target_entry_id')
                 ),
                 array(
@@ -161,17 +166,14 @@ function _mediadirUpdate()
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_mediadir_form_associated_form',
                 array(
-                    'source_form_id'     => array('type' => 'INT(11)', 'unsigned' => true),
-                    'target_form_id'     => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'source_form_id'),
+                    'source_form_id'     => array('type' => 'INT(11)', 'unsigned' => true, 'primary' => true),
+                    'target_form_id'     => array('type' => 'INT(11)', 'unsigned' => true, 'after' => 'source_form_id', 'primary' => true),
                     'ord'                => array('type' => 'INT(11)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'target_form_id')
                 ),
                 array(
                     'ord'                => array('fields' => array('ord'))
                 )
             );
-        }
-
-        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_mediadir_inputfield_names',
                 array(
@@ -183,11 +185,14 @@ function _mediadirUpdate()
                     'field_info'             => array('type' => 'mediumtext', 'after' => 'field_default_value')
                     ),
                 array(
+                    'field'                  => array('fields' => array('lang_id','form_id','field_id'), 'type' => 'UNIQUE'),
                     'field_id'               => array('fields' => array('field_id')),
                     'lang_id'                => array('fields' => array('lang_id'))
                 )
             );
+        }
 
+        if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '3.0.0')) {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_mediadir_inputfield_types',
                 array(
