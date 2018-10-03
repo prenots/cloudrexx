@@ -321,6 +321,15 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
+			'id'					=> 32,
+			'name'					=> 'NetTools',
+			'description_variable'	=> 'TXT_NETTOOLS_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 0,
+			'is_active'				=> 1
+		),
+		array(
 			'id'					=> 33,
 			'name'					=> 'Market',
 			'description_variable'	=> 'TXT_MARKET_MODULE_DESCRIPTION',
@@ -618,6 +627,15 @@ function getModules()
 			'is_active'				=> 1
 		),
 		array(
+			'id'					=> 83,
+			'name'					=> 'Media',
+			'description_variable'	=> 'TXT_MEDIA_MODULE_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
 			'id'					=> 84,
 			'name'					=> 'Security',
 			'description_variable'	=> 'TXT_SECURITY_MODULE_DESCRIPTION',
@@ -675,6 +693,15 @@ function getModules()
 			'id'					=> 92,
 			'name'					=> 'Shell',
 			'description_variable'	=> 'TXT_CORE_SHELL_DESCRIPTION',
+			'status'				=> 'n',
+			'is_required'			=> 0,
+			'is_core'				=> 1,
+			'is_active'				=> 1
+		),
+		array(
+			'id'					=> 96,
+			'name'					=> 'CacheManager',
+			'description_variable'	=> '',
 			'status'				=> 'n',
 			'is_required'			=> 0,
 			'is_core'				=> 1,

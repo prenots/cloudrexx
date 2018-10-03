@@ -364,6 +364,11 @@ function getComponents()
 			'type'					=> 'core_module',
 		),
 		array(
+			'id'					=> 83,
+			'name'					=> 'Media',
+			'type'					=> 'core_module',
+		),
+		array(
 			'id'					=> 84,
 			'name'					=> 'Security',
 			'type'					=> 'core',
@@ -391,6 +396,11 @@ function getComponents()
 		array(
 			'id'					=> 90,
 			'name'					=> 'Net',
+			'type'					=> 'core',
+		),
+		array(
+			'id'					=> 91,
+			'name'					=> 'Core',
 			'type'					=> 'core',
 		),
 		array(
