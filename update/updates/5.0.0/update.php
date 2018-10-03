@@ -252,7 +252,7 @@ function executeContrexxUpdate() {
         setUpdateMsg(1, 'timeout');
         return false;
     }
-    
+
 
     /*******************************************************************************/
     /*******************************************************************************/
@@ -1583,7 +1583,7 @@ function _updateModuleRepository() {
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'module_repository',
                 array(
-                    'id'                 => array('type' => 'INT(6)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true),
+                    'id'                 => array('type' => 'INT(6)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
                     'moduleid'           => array('type' => 'INT(5)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'id'),
                     'content'            => array('type' => 'mediumtext', 'after' => 'moduleid'),
                     'title'              => array('type' => 'VARCHAR(250)', 'notnull' => true, 'default' => '', 'after' => 'content'),
@@ -1595,7 +1595,6 @@ function _updateModuleRepository() {
                     'displayorder'       => array('type' => 'SMALLINT(6)', 'notnull' => true, 'default' => '100', 'after' => 'username')
                 ),
                 array(
-                    'contentid'          => array('fields' => array('id'), 'type' => 'UNIQUE'),
                     'fulltextindex'      => array('fields' => array('title','content'), 'type' => 'FULLTEXT')
                 )
             );

@@ -143,7 +143,7 @@ class UpdateUtil
         $comment='', $constraints = array())
     {
         if (self::table_exist($name)) {
-            self::check_columns($name, $struc);
+            self::check_columns($name, $struc, $constraints);
             self::check_indexes($name, $idx, $struc);
             self::check_dbtype($name, $engine);
             self::set_constraints($name, $constraints);
@@ -470,7 +470,7 @@ class UpdateUtil
     }
 
 
-    private static function check_columns($name, $struc)
+    private static function check_columns($name, $struc, $constraints = array())
     {
         global $objDatabase, $_ARRAYLANG;
 
@@ -481,7 +481,7 @@ class UpdateUtil
         static::fetchCollationInfo($name, $col_info);
         // Create columns that don't exist yet
         foreach ($struc as $col => $spec) {
-            if (self::_check_column($name, $col_info, $col, $spec)) {
+            if (self::_check_column($name, $col_info, $col, $spec, $constraints)) {
                 // col_info NEEDS to be reloaded, as _check_column() has changed the table
                 $col_info = $objDatabase->MetaColumns($name);
                 if ($col_info === false) {
@@ -530,15 +530,19 @@ class UpdateUtil
      * Checks the given column and ALTERS what's needed. Returns true
      * if a change has been done.
      */
-    private static function _check_column($name, $col_info, $col, $spec)
+    private static function _check_column($name, $col_info, $col, $spec, $constraints = array())
     {
         if (!isset($col_info[strtoupper($col)])) {
             $colspec = self::_colspec($spec);
             $query = '';
             // check if we need to rename the column
             if (isset($spec['renamefrom']) and isset($col_info[strtoupper($spec['renamefrom'])])) {
-                // drop indexes to ensure column alteration is successful
-                self::check_indexes($name, array());
+                // TODO: dropping indexes only works if there are no constraints defined.
+                //       Implement ability to drop indexes in combination with constraints
+                if (empty($constraints)) {
+                    // drop indexes to ensure column alteration is successful
+                    self::check_indexes($name, array());
+                }
                 // rename requested and possible.
                 $from = $spec['renamefrom'];
                 $query = "ALTER TABLE `$name` CHANGE `$from` `$col` $colspec";
@@ -566,8 +570,12 @@ class UpdateUtil
             || isset($spec['on_delete'])
             || isset($spec['binary']) && strpos($col_spec->collation, '_bin') === false
         ) {
-            // drop indexes to ensure column alteration is successful
-            self::check_indexes($name, array());
+            // TODO: dropping indexes only works if there are no constraints defined.
+            //       Implement ability to drop indexes in combination with constraints
+            if (empty($constraints)) {
+                // drop indexes to ensure column alteration is successful
+                self::check_indexes($name, array());
+            }
 
             $colspec = self::_colspec($spec);
             $query = "ALTER TABLE `$name` CHANGE `$col` `$col` $colspec";
