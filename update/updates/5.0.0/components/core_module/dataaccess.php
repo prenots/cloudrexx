@@ -31,6 +31,21 @@ function _dataaccessUpdate()
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
+            // IMPORTANT: same table statement in access.php
+            // but as dataaccess.php is executed beforehand, we do execute it
+            // here too
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'core_modules_access_permission',
+                array(
+                    'id'                     => array('type' => 'INT(11)', 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'allowed_protocols'      => array('type' => 'text', 'after' => 'id'),
+                    'allowed_methods'        => array('type' => 'text', 'after' => 'allowed_protocols'),
+                    'requires_login'         => array('type' => 'TINYINT(1)', 'notnull' => false, 'after' => 'allowed_methods'),
+                    'valid_user_groups'      => array('type' => 'text', 'notnull' => false, 'after' => 'requires_login'),
+                    'valid_access_ids'       => array('type' => 'text', 'notnull' => false, 'after' => 'valid_user_groups')
+                )
+            );
+
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_module_data_access',
                 array(
@@ -52,20 +67,20 @@ function _dataaccessUpdate()
                     'read_permission' => array(
                         'table' => DBPREFIX.'core_modules_access_permission',
                         'column' => 'id',
-                        'onDelete' => 'NO ACTION',
-                        'onUpdate' => 'NO ACTION',
+                        //'onDelete' => 'NO ACTION',
+                        //'onUpdate' => 'NO ACTION',
                     ),
                     'write_permission' => array(
                         'table' => DBPREFIX.'core_modules_access_permission',
                         'column' => 'id',
-                        'onDelete' => 'NO ACTION',
-                        'onUpdate' => 'NO ACTION',
+                        //'onDelete' => 'NO ACTION',
+                        //'onUpdate' => 'NO ACTION',
                     ),
                     'data_source_id' => array(
                         'table' => DBPREFIX.'core_data_source',
                         'column' => 'id',
-                        'onDelete' => 'NO ACTION',
-                        'onUpdate' => 'NO ACTION',
+                        //'onDelete' => 'NO ACTION',
+                        //'onUpdate' => 'NO ACTION',
                     ),
                 )
             );
@@ -94,14 +109,14 @@ function _dataaccessUpdate()
                     'api_key_id' => array(
                         'table' => DBPREFIX.'core_module_data_access_apikey',
                         'column' => 'id',
-                        'onDelete' => 'NO ACTION',
-                        'onUpdate' => 'NO ACTION',
+                        //'onDelete' => 'NO ACTION',
+                        //'onUpdate' => 'NO ACTION',
                     ),
                     'data_access_id' => array(
                         'table' => DBPREFIX.'core_module_data_access',
                         'column' => 'id',
-                        'onDelete' => 'NO ACTION',
-                        'onUpdate' => 'NO ACTION',
+                        //'onDelete' => 'NO ACTION',
+                        //'onUpdate' => 'NO ACTION',
                     ),
                 )
             );

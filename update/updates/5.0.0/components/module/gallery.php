@@ -157,6 +157,30 @@ function _galleryUpdate()
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_gallery_comments',
+                array(
+                    'id'         => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'picid'      => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'id'),
+                    'date'       => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'picid'),
+                    'name'       => array('type' => 'VARCHAR(50)', 'notnull' => true, 'default' => '', 'after' => 'date'),
+                    'email'      => array('type' => 'VARCHAR(250)', 'notnull' => true, 'default' => '', 'after' => 'name'),
+                    'www'        => array('type' => 'VARCHAR(250)', 'notnull' => true, 'default' => '', 'after' => 'email'),
+                    'comment'    => array('type' => 'text', 'after' => 'www')
+                )
+            );
+
+            \Cx\Lib\UpdateUtil::table(
+                DBPREFIX.'module_gallery_votes',
+                array(
+                    'id'         => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
+                    'picid'      => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'id'),
+                    'date'       => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'picid'),
+                    'md5'        => array('type' => 'VARCHAR(32)', 'notnull' => true, 'default' => '', 'after' => 'date'),
+                    'mark'       => array('type' => 'INT(2)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'md5')
+                )
+            );
+
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."module_gallery_settings` (`id`, `name`, `value`) VALUES (25,'show_image_size','off')");
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);

@@ -478,6 +478,7 @@ class UpdateUtil
         if ($col_info === false) {
             self::cry(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], $name));
         }
+        static::fetchCollationInfo($name, $col_info);
         // Create columns that don't exist yet
         foreach ($struc as $col => $spec) {
             if (self::_check_column($name, $col_info, $col, $spec)) {
@@ -486,12 +487,23 @@ class UpdateUtil
                 if ($col_info === false) {
                     self::cry(sprintf($_ARRAYLANG['TXT_UNABLE_GETTING_DATABASE_TABLE_STRUCTURE'], $name));
                 }
+                static::fetchCollationInfo($name, $col_info);
             }
         }
         // Drop columns that are not specified
         self::_drop_unspecified_columns($name, $struc, $col_info);
     }
 
+    protected static function fetchCollationInfo($table, &$col_info) {
+        $fullColumnInfo = static::sql('SHOW FULL COLUMNS FROM `' . $table . '`');
+        while (!$fullColumnInfo->EOF) {
+            if (!isset($col_info[strtoupper($fullColumnInfo->fields['Field'])])) {
+                continue;
+            }
+            $col_info[strtoupper($fullColumnInfo->fields['Field'])]->collation = $fullColumnInfo->fields['Collation'];
+            $fullColumnInfo->MoveNext();
+        }
+    }
 
     private static function _drop_unspecified_columns($name, $struc, $col_info)
     {
@@ -525,6 +537,8 @@ class UpdateUtil
             $query = '';
             // check if we need to rename the column
             if (isset($spec['renamefrom']) and isset($col_info[strtoupper($spec['renamefrom'])])) {
+                // drop indexes to ensure column alteration is successful
+                self::check_indexes($name, array());
                 // rename requested and possible.
                 $from = $spec['renamefrom'];
                 $query = "ALTER TABLE `$name` CHANGE `$from` `$col` $colspec";
@@ -550,7 +564,11 @@ class UpdateUtil
             || $col_spec->auto_increment != (isset($spec['auto_increment']) && $spec['auto_increment'])
             || isset($spec['on_update'])
             || isset($spec['on_delete'])
+            || isset($spec['binary']) && strpos($col_spec->collation, '_bin') === false
         ) {
+            // drop indexes to ensure column alteration is successful
+            self::check_indexes($name, array());
+
             $colspec = self::_colspec($spec);
             $query = "ALTER TABLE `$name` CHANGE `$col` `$col` $colspec";
             self::sql($query);

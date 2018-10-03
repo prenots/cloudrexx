@@ -954,6 +954,7 @@ function _shopUpdate()
 
             \Cx\Modules\Shop\Controller\Vat::errorHandler();
 
+            \Cx\Modules\Shop\Controller\Discount::errorHandler();
 
             // Update page templates
 

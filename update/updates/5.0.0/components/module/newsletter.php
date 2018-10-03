@@ -364,7 +364,7 @@ function _newsletterUpdate()
                     'emaildate'          => array('type' => 'INT(14)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'status'),
                     'language'           => array('type' => 'INT(3)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'after' => 'emaildate'),
                     'source'             => array('type' => 'ENUM(\'backend\',\'opt-in\',\'api\')', 'after' => 'language', 'notnull' => true, 'default' => 'backend'),
-                    'consent'            => array('type' => 'TIMESTAMP', 'after' => 'source'),
+                    'consent'            => array('type' => 'TIMESTAMP', 'notnull' => false, 'default' => null, 'after' => 'source'),
                 ),
                 array(
                     'email'              => array('fields' => array('email'), 'type' => 'UNIQUE'),

@@ -305,7 +305,7 @@ function executeContrexxUpdate() {
         array (
             'table' => DBPREFIX . 'core_country',
             'structure' => array(
-                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'primary' => true),
+                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'primary' => true, 'auto_increment' => true),
                 'alpha2' => array('type' => 'CHAR(2)', 'default' => ''),
                 'alpha3' => array('type' => 'CHAR(3)', 'default' => ''),
                 'ord' => array('type' => 'INT(5)', 'unsigned' => true, 'default' => 0),
@@ -2554,7 +2554,7 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
         // module
         'block', 'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',
         'forum', 'gallery', 'market', 'mediadir', 'memberdir', 'newsletter', 'podcast', 'shop',
-        'livecam', 'guestbook', 'egov', 'jobs'
+        'livecam', 'guestbook', 'egov', 'jobs', 'knowledge'
     );
 
     foreach ($components as $dir) {

@@ -1007,6 +1007,7 @@ function _accessUpdate()
 
     if ($objUpdate->_isNewerVersion($_CONFIG['coreCmsVersion'], '5.0.0')) {
         try {
+            // IMPORTANT: this table statement is also executed in dataaccess.php
             \Cx\Lib\UpdateUtil::table(
                 DBPREFIX.'core_modules_access_permission',
                 array(
@@ -1014,8 +1015,8 @@ function _accessUpdate()
                     'allowed_protocols'      => array('type' => 'text', 'after' => 'id'),
                     'allowed_methods'        => array('type' => 'text', 'after' => 'allowed_protocols'),
                     'requires_login'         => array('type' => 'TINYINT(1)', 'notnull' => false, 'after' => 'allowed_methods'),
-                    'valid_user_groups'      => array('type' => 'text', 'after' => 'requires_login'),
-                    'valid_access_ids'       => array('type' => 'text', 'after' => 'valid_user_groups')
+                    'valid_user_groups'      => array('type' => 'text', 'notnull' => false, 'after' => 'requires_login'),
+                    'valid_access_ids'       => array('type' => 'text', 'notnull' => false, 'after' => 'valid_user_groups')
                 )
             );
 
