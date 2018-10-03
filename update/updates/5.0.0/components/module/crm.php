@@ -309,6 +309,8 @@ function _crmUpdate() {
             \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `". DBPREFIX ."module_crm_company_size` (`id`, `company_size`, `sorting`, `status`) VALUES (8,'750 - 999',8,1)");
             \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `". DBPREFIX ."module_crm_company_size` (`id`, `company_size`, `sorting`, `status`) VALUES (9,'1\'000 - 4\'999',9,1)");
             \Cx\Lib\UpdateUtil::sql("INSERT IGNORE INTO `". DBPREFIX ."module_crm_company_size` (`id`, `company_size`, `sorting`, `status`) VALUES (10,'> 5\'000',10,1)");
+
+            \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `'.DBPREFIX.'module_crm_settings` (`setid`, `setname`, `setvalue`) VALUES(18, \'contact_amount_enabled\', \'0\')');
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }

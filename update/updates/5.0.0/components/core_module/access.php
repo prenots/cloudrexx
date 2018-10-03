@@ -1000,6 +1000,7 @@ function _accessUpdate()
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."access_settings` (`key`, `value`, `status`) VALUES ('block_next_birthday_users', '5', '0') ON DUPLICATE KEY UPDATE `key` = `key`");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."access_settings` (`key`, `value`, `status`) VALUES ('block_next_birthday_users_pic', '', '0') ON DUPLICATE KEY UPDATE `key` = `key`");
             \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."access_settings` (`key`, `value`, `status`) VALUES ('block_random_access_users', '5', '0') ON DUPLICATE KEY UPDATE `key` = `key`");
+            \Cx\Lib\UpdateUtil::sql("INSERT INTO `".DBPREFIX."access_settings` (`key`, `value`, `status`) VALUES ('user_change_notification_address', '" . $_CONFIG['coreAdminEmail'] . "', '0') ON DUPLICATE KEY UPDATE `key` = `key`");
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }

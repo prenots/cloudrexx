@@ -58,19 +58,27 @@ function _media1Update()
             'InnoDB'
         );
         $arrValues = array(
-                           array("media1_frontend_changable","off"),
-                           array("media2_frontend_changable","off"),
-                           array("media3_frontend_changable","off"),
-                           array("media4_frontend_changable","off"),
-                           array("media1_frontend_managable","off"),
-                           array("media2_frontend_managable","off"),
-                           array("media3_frontend_managable","off"),
-                           array("media4_frontend_managable","off"),
-                           array("media1_frontend_search","off"),
-                           array("media2_frontend_search","off"),
-                           array("media3_frontend_search","off"),
-                           array("media4_frontend_search","off"),
-                           );
+           array("media1_frontend_changable","off"),
+           array("media2_frontend_changable","off"),
+           array("media3_frontend_changable","off"),
+           array("media4_frontend_changable","off"),
+           array("media1_frontend_managable","off"),
+           array("media2_frontend_managable","off"),
+           array("media3_frontend_managable","off"),
+           array("media4_frontend_managable","off"),
+           array("media1_frontend_search","off"),
+           array("media2_frontend_search","off"),
+           array("media3_frontend_search","off"),
+           array("media4_frontend_search","off"),
+           array("media1_pretty_file_names","off"),
+           array("media2_pretty_file_names","off"),
+           array("media3_pretty_file_names","off"),
+           array("media4_pretty_file_names","off"),
+           array("media1_pretty_file_name_regexp",""),
+           array("media2_pretty_file_name_regexp",""),
+           array("media3_pretty_file_name_regexp",""),
+           array("media4_pretty_file_name_regexp",""),
+       );
 
         for($i = 0; $i < count($arrValues); $i++) {
             $rs = \Cx\Lib\UpdateUtil::sql('SELECT 1 FROM '.DBPREFIX.'module_media_settings WHERE name="'.$arrValues[$i][0].'";');

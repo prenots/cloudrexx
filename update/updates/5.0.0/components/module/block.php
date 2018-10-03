@@ -43,6 +43,8 @@ function _blockUpdate()
                 array(),
                 'InnoDb'
             );
+
+            \Cx\Lib\UpdateUtil::sql('INSERT IGNORE INTO `'.DBPREFIX.'module_block_settings` (`id`, `name`, `value`) VALUES(2, \'markParsedBlock\', \'0\')');
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }

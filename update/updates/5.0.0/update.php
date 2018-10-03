@@ -2548,7 +2548,7 @@ function _migrateComponents($components, $objUpdate, $missedModules) {
         // core
         'routing', 'wysiwyg', 'locale', 'datasource',
         // core module
-        'access', 'contact', 'pdf',
+        'access', 'contact', 'pdf', 'media1',
         'cron', 'linkmanager', 'news', 'stats', 'dataaccess',
         // module
         'block', 'blog', 'calendar', 'crm', 'data', 'directory', 'downloads', 'ecard', 'filesharing',

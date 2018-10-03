@@ -41,6 +41,11 @@ function _cronUpdate()
                     'last_ran'   => array('type' => 'DATETIME', 'notnull' => true, 'after' => 'command')
                 )
             );
+
+            $result = \Cx\Lib\UpdateUtil::sql('SELECT 1 FROM `'.DBPREFIX.'core_module_cron_job` WHERE `command` = \'Newsletter autoclean\'');
+            if ($result->EOF) {
+                \Cx\Lib\UpdateUtil::sql('INSERT INTO `'.DBPREFIX.'core_module_cron_job` (`id`, `active`, `expression`, `command`, `last_ran`) VALUES(1, 1, \'@hourly\', \'Newsletter autoclean\', \'2018-06-11 09:00:00\')');
+            }
         } catch (\Cx\Lib\UpdateException $e) {
             return \Cx\Lib\UpdateUtil::DefaultActionHandler($e);
         }
