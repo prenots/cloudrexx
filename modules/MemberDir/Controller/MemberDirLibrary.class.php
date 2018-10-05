@@ -248,10 +248,9 @@ class MemberDirLibrary
         if ($objResult) {
             while (!$objResult->EOF) {
                 $index = $objResult->fields['field'];
-                $fieldnames[$index] = array(
-                    'name'   => $objResult->fields['name'],
-                    'active' => $objResult->fields['active'],
-                );
+                $fieldnames[$index]['name'] = $objResult->fields['name'];
+                $fieldnames[$index]['active'] = $objResult->fields['active'];
+
                 $objResult->MoveNext();
             }
         }

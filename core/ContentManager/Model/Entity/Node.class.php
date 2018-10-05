@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 /**
  * Node
  *
@@ -77,17 +77,17 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     private $lvl;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Cx\Core\ContentManager\Model\Entity\Node
      */
     private $children;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Cx\Core\ContentManager\Model\Entity\Page
      */
     private $pages;
 
     /**
-     * @var \Cx\Core\ContentManager\Model\Entity\Node
+     * @var Cx\Core\ContentManager\Model\Entity\Node
      */
     private $parent;
 
@@ -97,14 +97,14 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     public function __construct()
     {
         $this->children = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->pages = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->pages = new \Doctrine\Common\Collections\ArrayCollection();      
 
         //instance counter to provide unique ids
         $this->instance = ++self::$instanceCounter;
     }
 
     /**
-     * Returns an unique identifier that is usable even if
+     * Returns an unique identifier that is usable even if 
      * no id is set yet.
      * The Cx\Model\Events\PageEventListener uses this.
      *
@@ -201,30 +201,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     /**
      * Add children
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Node $children
-     * @return Node
-     */
-    public function addChild(\Cx\Core\ContentManager\Model\Entity\Node $children)
-    {
-        $this->children[] = $children;
-
-        return $this;
-    }
-
-    /**
-     * Remove children
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Node $children
-     */
-    public function removeChild(\Cx\Core\ContentManager\Model\Entity\Node $children)
-    {
-        $this->children->removeElement($children);
-    }
-
-    /**
-     * Add children
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Node $children
+     * @param Cx\Core\ContentManager\Model\Entity\Node $children
      */
     public function addChildren(\Cx\Core\ContentManager\Model\Entity\Node $children)
     {
@@ -235,12 +212,12 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     {
         $this->children[] = $child;
     }
-
+    
 
     /**
      * Get children
      *
-     * @return \Doctrine\Common\Collections\Collection $children
+     * @return Doctrine\Common\Collections\Collection $children
      */
     public function getChildren($lang = null)
     {
@@ -256,7 +233,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     /**
      * Add a page
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page
+     * @param Cx\Core\ContentManager\Model\Entity\Page $page
      */
     public function addPage(\Cx\Core\ContentManager\Model\Entity\Page $page)
     {
@@ -264,19 +241,9 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     }
 
     /**
-     * Remove pages
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $pages
-     */
-    public function removePage(\Cx\Core\ContentManager\Model\Entity\Page $pages)
-    {
-        $this->pages->removeElement($pages);
-    }
-
-    /**
      * Get pages
      *
-     * @return \Doctrine\Common\Collections\Collection $pages
+     * @return Doctrine\Common\Collections\Collection $pages
      */
     public function getPages($inactive_langs = false, $aliases = false)
     {
@@ -312,7 +279,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     }
 
     /**
-     * Get a certain Page
+     * Get a certain Page 
      *
      * @param integer $lang
      * @return \Cx\Core\ContentManager\Model\Entity\Page
@@ -333,7 +300,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     /**
      * Set parent
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Node $parent
+     * @param Cx\Core\ContentManager\Model\Entity\Node $parent
      */
     public function setParent(\Cx\Core\ContentManager\Model\Entity\Node $parent)
     {
@@ -343,7 +310,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     /**
      * Get parent
      *
-     * @return \Cx\Core\ContentManager\Model\Entity\Node $parent
+     * @return Cx\Core\ContentManager\Model\Entity\Node $parent
      */
     public function getParent()
     {
@@ -360,7 +327,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
     public function validate()
     {
         //workaround, this method is regenerated each time
-        parent::validate();
+        parent::validate(); 
     }
 
     /**
@@ -371,9 +338,9 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
      */
     public function hasAccessByUserId($frontend = true) {
         $type = 'node_' . ($frontend ? 'frontend' : 'backend');
-        return Permission::checkAccess($this->id, $type, true);
+        return Permission::checkAccess($this->id, $type, true);        
     }
-
+    
     /**
      * Creates a translated page in this node
      *
@@ -385,14 +352,14 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
      */
     public function translatePage($activate, $targetLang) {
         $type = \Cx\Core\ContentManager\Model\Entity\Page::TYPE_FALLBACK;
-
+        
         $fallback_language = \FWLanguage::getFallbackLanguageIdById($targetLang);
         $defaultLang = \FWLanguage::getDefaultLangId();
-
+        
         // copy the corresponding language version (if there is one)
         if ($fallback_language && $this->getPage($fallback_language)) {
             $pageToTranslate = $this->getPage($fallback_language);
-
+        
         // find best page to copy if no corresponding language version is present
         } else {
             if ($this->getPage($defaultLang)) {
@@ -405,7 +372,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
                 $type = \Cx\Core\ContentManager\Model\Entity\Page::TYPE_CONTENT;
             }
         }
-
+        
         // copy page following redirects
         $page = $pageToTranslate->copyToLang(
                 $targetLang,
@@ -419,15 +386,15 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
         );
         $page->setActive($activate);
         $page->setType($type);
-
+        
         $pageToTranslate->setupPath($targetLang);
-
+        
         return $page;
     }
-
+    
     /**
      * Creates a copy of this node including its pages
-     *
+     * 
      * This does not persist anything.
      * @todo This is untested!
      * @param boolean $recursive (optional) Wheter copy all children to the new node or not, default false
@@ -437,7 +404,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
      */
     public function copy($recursive = false, Node $newParent = null, $persist = true) {
         $em = \Env::get('cx')->getDb()->getEntityManager();
-
+        
         if (!$newParent) {
             $newParent = $this->getParent();
         }
@@ -446,24 +413,24 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
         if ($persist) {
             $em->persist($copy);
         }
-
+        
         foreach ($this->getPages(true) as $page) {
             $pageCopy = $page->copyToNode($copy);
             if ($persist) {
                 $em->persist($pageCopy);
             }
         }
-
+        
         if (!$recursive) {
             return $copy;
         }
-
+        
         foreach ($this->getChildren() as $child) {
             $copy->addParsedChild($child->copy(true, $copy));
         }
         return $copy;
     }
-
+    
     public function serialize() {
         $parent = $this->getParent();
         $childrenArray = array();
@@ -492,7 +459,7 @@ class Node extends \Cx\Model\Base\EntityBase implements \Serializable
 
         //instance counter to provide unique ids
         $this->instance = ++self::$instanceCounter;
-
+        
         $unserialized = unserialize($data);
         $this->id = $unserialized[0];
         $this->lft = $unserialized[1];

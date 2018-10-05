@@ -9,40 +9,32 @@ Cx\Core_Modules\LinkManager\Model\Entity\Link:
         strategy: AUTO
   fields:
     lang:
-      type: smallint
+      type: integer
     requestedPath:
-      type: text
-      length: 65535
+      type: string
     refererPath:
-      type: text
-      length: 65535
-      nullable: true
+      type: string
     leadPath:
-      type: text
-      length: 65535
-      nullable: true
+      type: string
     linkStatusCode:
-      type: smallint
-      nullable: true
+      type: integer
     entryTitle:
       type: string
       length: 255
     moduleName:
       nullable: true
       type: string
-      length: 100
+      length: 255
     moduleAction:
       nullable: true
       type: string
-      length: 100
+      length: 255
     moduleParams:
       nullable: true
       type: string
       length: 255
     detectedTime:
-      type: timestamp
-      options:
-        default: "CURRENT_TIMESTAMP"
+      type: datetime
     flagStatus:
       type: boolean
     linkStatus:
@@ -53,8 +45,7 @@ Cx\Core_Modules\LinkManager\Model\Entity\Link:
       type: integer
     requestedLinkType:
       type: string
-      nullable: true
-      length: 25
+      length: 255
     brokenLinkText:
       type: string
       length: 255

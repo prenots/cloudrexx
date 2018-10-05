@@ -59,8 +59,7 @@ class MediaDirectoryInputfieldGoogleWeather extends \Cx\Modules\MediaDir\Control
 
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $objInit;
-        $langId = static::getOutputLocale()->getId();
+        global $objDatabase, $_LANGID, $objInit;
 
         switch ($intView) {
             default:
@@ -86,11 +85,11 @@ class MediaDirectoryInputfieldGoogleWeather extends \Cx\Modules\MediaDir\Control
                 }
 
                 if(empty($strValue)) {
-                    $strValue = empty($arrInputfield['default_value'][$langId]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$langId];
+                    $strValue = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
                 }
-
+                
                 if(!empty($arrInputfield['info'][0])){
-                    $strInfoValue = empty($arrInputfield['info'][$langId]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][$langId].'"';
+                    $strInfoValue = empty($arrInputfield['info'][$_LANGID]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][$_LANGID].'"';
                     $strInfoClass = 'mediadirInputfieldHint';
                 } else {
                     $strInfoValue = null;
@@ -138,27 +137,7 @@ class MediaDirectoryInputfieldGoogleWeather extends \Cx\Modules\MediaDir\Control
 
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
-        $strValue = static::getRawData($intEntryId, $arrInputfield, $arrTranslationStatus);
-
-        if(!empty($strValue)) {
-            $strValue = strip_tags($strValue);
-            $objGoogleWeather = new \googleWeather();
-            $objGoogleWeather->setWeatherLanguage(static::getOutputLocale()->getId());
-            $objGoogleWeather->setWeatherLocation($strValue);
-            $objGoogleWeather->setWeatherForecastDays(4);
-            $objGoogleWeather->setWeatherShowTitle(false);
-
-            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = htmlspecialchars($arrInputfield['name'][0], ENT_QUOTES, CONTREXX_CHARSET);
-            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $objGoogleWeather->getWeather();
-        } else {
-            $arrContent = null;
-        }
-
-        return $arrContent;
-    }
-
-    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus) {
-        global $objDatabase;
+        global $objDatabase, $_LANGID;
 
         $intId = intval($arrInputfield['id']);
         $objInputfieldValue = $objDatabase->Execute("
@@ -172,7 +151,22 @@ class MediaDirectoryInputfieldGoogleWeather extends \Cx\Modules\MediaDir\Control
                 entry_id=".$intEntryId."
             LIMIT 1
         ");
-        return $objInputfieldValue->fields['value'];
+        $strValue = strip_tags($objInputfieldValue->fields['value']);
+
+        if(!empty($strValue)) {
+            $objGoogleWeather = new \googleWeather();
+            $objGoogleWeather->setWeatherLanguage($_LANGID);
+            $objGoogleWeather->setWeatherLocation($strValue);
+            $objGoogleWeather->setWeatherForecastDays(4);
+            $objGoogleWeather->setWeatherShowTitle(false);
+
+            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = htmlspecialchars($arrInputfield['name'][0], ENT_QUOTES, CONTREXX_CHARSET);
+            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = $objGoogleWeather->getWeather();
+        } else {
+            $arrContent = null;
+        }
+
+        return $arrContent;
     }
 
 
@@ -184,21 +178,21 @@ class MediaDirectoryInputfieldGoogleWeather extends \Cx\Modules\MediaDir\Control
             case 'google_weather':
                 /*value = document.getElementById('$fieldName' + field + '_0').value;
                 if (value == "" && isRequiredGlobal(inputFields[field][1], value)) {
-                    isOk = false;
-                    document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
+                	isOk = false;
+                	document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
                 } else if (value != "" && !matchType(inputFields[field][2], value)) {
-                    isOk = false;
-                    document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
+                	isOk = false;
+                	document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
                 } else {
-                    document.getElementById('$fieldName' + field + '_0').style.borderColor = '';
+                	document.getElementById('$fieldName' + field + '_0').style.borderColor = '';
                 }*/
                 break;
 
 EOF;
         return $strJavascriptCheck;
     }
-
-
+    
+    
     function getFormOnSubmit($intInputfieldId)
     {
         return null;

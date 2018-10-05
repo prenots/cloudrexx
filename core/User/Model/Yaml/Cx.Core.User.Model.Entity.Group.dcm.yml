@@ -15,44 +15,30 @@ Cx\Core\User\Model\Entity\Group:
       length: 100
       nullable: false
       column: group_name
-      options:
-        default: ""
     groupDescription:
       type: string
       length: 255
       nullable: false
       column: group_description
-      options:
-        default: ""
     isActive:
-      type: smallint
+      type: integer
+      length: 1
       nullable: false
       column: is_active
-      options:
-        default: 1
     type:
-      type: enum
-      values: ['frontend','backend']
-      options:
-        default: "frontend"
+      type: string
+      nullable: false
     homepage:
       type: string
       length: 255
       nullable: false
-      options:
-        default: ""
-    toolbar:
-      type: integer
-      nullable: false
-      options:
-        default: 0
   manyToMany:
     user:
       targetEntity: Cx\Core\User\Model\Entity\User
       mappedBy: group
-#    accessId2:
-#      targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
-#      mappedBy: group2
-#    accessId:
-#      targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
-#      mappedBy: group
+    accessId2:
+      targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
+      mappedBy: group2
+    accessId:
+      targetEntity: Cx\Core_Modules\Access\Model\Entity\AccessId
+      mappedBy: group

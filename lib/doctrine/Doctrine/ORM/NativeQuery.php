@@ -1,4 +1,4 @@
-<?php
+<?php 
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -27,22 +27,17 @@ namespace Doctrine\ORM;
  */
 final class NativeQuery extends AbstractQuery
 {
-    /**
-     * @var string
-     */
     private $_sql;
 
     /**
      * Sets the SQL of the query.
      *
      * @param string $sql
-     *
      * @return NativeQuery This query instance.
      */
     public function setSQL($sql)
     {
         $this->_sql = $sql;
-
         return $this;
     }
 
@@ -50,7 +45,6 @@ final class NativeQuery extends AbstractQuery
      * Gets the SQL query.
      *
      * @return mixed The built SQL query or an array of all SQL queries.
-     *
      * @override
      */
     public function getSQL()
@@ -63,30 +57,17 @@ final class NativeQuery extends AbstractQuery
      */
     protected function _doExecute()
     {
-        $parameters = array();
-        $types      = array();
-
-        foreach ($this->getParameters() as $parameter) {
-            $name  = $parameter->getName();
-            $value = $this->processParameterValue($parameter->getValue());
-            $type  = ($parameter->getValue() === $value)
-                ? $parameter->getType()
-                : Query\ParameterTypeInferer::inferType($value);
-
-            $parameters[$name] = $value;
-            $types[$name]      = $type;
+        $stmt = $this->_em->getConnection()->prepare($this->_sql);
+        $params = $this->_params;
+        foreach ($params as $key => $value) {
+            if (isset($this->_paramTypes[$key])) {
+                $stmt->bindValue($key, $value, $this->_paramTypes[$key]);
+            } else {
+                $stmt->bindValue($key, $value);
+            }
         }
+        $stmt->execute();
 
-        if ($parameters && is_int(key($parameters))) {
-            ksort($parameters);
-            ksort($types);
-
-            $parameters = array_values($parameters);
-            $types      = array_values($types);
-        }
-
-        return $this->_em->getConnection()->executeQuery(
-            $this->_sql, $parameters, $types, $this->_queryCacheProfile
-        );
+        return $stmt;
     }
 }

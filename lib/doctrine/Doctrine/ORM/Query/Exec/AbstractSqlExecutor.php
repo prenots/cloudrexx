@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,14 +15,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Query\Exec;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Cache\QueryCacheProfile;
 
 /**
  * Base class for SQL statement executors.
@@ -33,15 +34,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
  */
 abstract class AbstractSqlExecutor
 {
-    /**
-     * @var array
-     */
     protected $_sqlStatements;
-
-    /**
-     * @var QueryCacheProfile
-     */
-    protected $queryCacheProfile;
 
     /**
      * Gets the SQL statements that are executed by the executor.
@@ -54,23 +47,11 @@ abstract class AbstractSqlExecutor
     }
 
     /**
-     * @param \Doctrine\DBAL\Cache\QueryCacheProfile $qcp
-     *
-     * @return void
-     */
-    public function setQueryCacheProfile(QueryCacheProfile $qcp)
-    {
-        $this->queryCacheProfile = $qcp;
-    }
-
-    /**
      * Executes all sql statements.
      *
-     * @param Connection $conn   The database connection that is used to execute the queries.
-     * @param array      $params The parameters.
-     * @param array      $types  The parameter types.
-     *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @param Doctrine\DBAL\Connection $conn The database connection that is used to execute the queries.
+     * @param array $params  The parameters.
+     * @return Doctrine\DBAL\Driver\Statement
      */
-    abstract public function execute(Connection $conn, array $params, array $types);
+    abstract public function execute(Connection $conn, array $params, array $types);    
 }

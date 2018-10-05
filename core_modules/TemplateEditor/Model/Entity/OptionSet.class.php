@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 
 namespace Cx\Core_Modules\TemplateEditor\Model\Entity;
 
@@ -34,7 +34,7 @@ use Cx\Core_Modules\TemplateEditor\Model\PresetRepositoryException;
 use Cx\Core_Modules\TemplateEditor\Model\Repository\PresetRepository;
 use Cx\Core_Modules\TemplateEditor\Model\YamlSerializable;
 use Cx\Core\Html\Sigma;
-use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\ParserException;
 
 /**
  * Class ThemeOptionNotFoundException
@@ -125,7 +125,7 @@ class OptionSet extends \Cx\Model\Base\EntityBase implements YamlSerializable
             );
         } catch (PresetRepositoryException $e) {
             $this->activePreset = $this->presetRepository->getByName('Default');
-        } catch (ParseException $e) {
+        } catch (ParserException $e) {
             $this->activePreset = $this->presetRepository->getByName('Default');
         }
 
@@ -308,7 +308,7 @@ class OptionSet extends \Cx\Model\Base\EntityBase implements YamlSerializable
         $data = $this->data;
         foreach ($data['options'] as &$emptyOption) {
             if ($presetOption = $preset->getOption($emptyOption['name'])) {
-                if (!isset($emptyOption['specific']) || !is_array($emptyOption['specific'])) {
+                if (!is_array($emptyOption['specific'])) {
                     $emptyOption['specific'] = array();
                 }
                 $emptyOption['specific'] = array_merge(
@@ -355,3 +355,4 @@ class OptionSet extends \Cx\Model\Base\EntityBase implements YamlSerializable
         $this->activePreset = $preset;
     }
 }
+

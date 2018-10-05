@@ -1,3 +1,0 @@
-Cx\Core\MediaSource\Model\Entity\MediaSource:
-  type: entity
-  repositoryClass: Cx\Core\MediaSource\Model\Repository\MediaSourceRepository

@@ -490,7 +490,6 @@ if (!$limit) {
                         'changeOrderStatus('.
                           $order_id.','.$status.',this.value)')
                     : $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$status]),
-                'SHOP_ORDER_STATUS_ID' => contrexx_input2int($status),
                 // Protected download account validity end date
 // TODO (still unused in the view)
 //                'SHOP_VALIDITY' => $endDate,
@@ -951,15 +950,6 @@ if (!$limit) {
             \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop&act=orders');
         }
         $objUser = \FWUser::getFWUserObject()->objUser;
-
-        $oldStatus = $objDatabase->getOne('
-            SELECT
-                `status`
-            FROM
-                `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_orders`
-            WHERE
-                `id`=' . contrexx_input2int($order_id));
-
         $query = "
             UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_orders`
                SET `status`=$status,
@@ -970,24 +960,10 @@ if (!$limit) {
             \Message::error($_ARRAYLANG['TXT_SHOP_ORDER_ERROR_UPDATING_STATUS']);
             \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop&act=orders');
         }
-
-        $order = new Order();
-        $order->setId($order_id);
-        if (   !empty($_GET['stock_update'])
-            && $_GET['stock_update'] == 1
-            && (
-                   $order->isStockIncreasable($oldStatus, $status)
-                || $order->isStockDecreasable($oldStatus, $status)
-            )
-        ) {
-            $order->updateStock(
-                $order->isStockIncreasable($oldStatus, $status)
-            );
-        }
         // Send an email to the customer
         if (   !empty($_GET['sendMail'])
             && !empty($_GET['order_id'])) {
-
+            
             // TODO: It might be useful to move this to its own method:
             $hasMail = false;
             $result = null;
@@ -1242,6 +1218,8 @@ if (!$limit) {
             return false;
         }
         $lang_id = $objOrder->lang_id();
+        if (!intval($lang_id))
+            $lang_id = \FWLanguage::getLangIdByIso639_1($lang_id);
         $status = $objOrder->status();
         $customer_id = $objOrder->customer_id();
         $customer = Customer::getById($customer_id);
@@ -1304,7 +1282,7 @@ if (!$limit) {
                 )),
             );
         }
-        $arrItems = $objOrder->getItems(false);
+        $arrItems = $objOrder->getItems();
         if (!$arrItems) {
             \Message::warning($_ARRAYLANG['TXT_SHOP_ORDER_WARNING_NO_ITEM']);
         }
@@ -1341,17 +1319,15 @@ if (!$limit) {
             $product_code = $objProduct->code();
             // Pick the order items attributes
             $str_options = '';
-            $optionList = array();
             // Any attributes?
             if ($item['attributes']) {
                 $str_options = '  '; // '[';
                 $attribute_name_previous = '';
-                foreach ($item['attributes'] as $attribute_name => $arrAttribute) {
-                    $optionValues = array();
+                foreach ($item['attributes'] as
+                        $attribute_name => $arrAttribute) {
 //DBG::log("Attribute /$attribute_name/ => ".var_export($arrAttribute, true));
 // NOTE: The option price is optional and may be left out
                     foreach ($arrAttribute as $arrOption) {
-                        $option = array();
                         $option_name = $arrOption['name'];
                         $option_price = $arrOption['price'];
                         $item_price += $option_price;
@@ -1372,7 +1348,6 @@ if (!$limit) {
                         } else {
                             $str_options .= ', '.$option_name;
                         }
-                        $option['PRODUCT_OPTIONS_VALUE'] = $option_name;
 // TODO: Add proper formatting with sprintf() and language entries
                         if ($option_price != 0) {
                             $str_options .=
@@ -1381,15 +1356,8 @@ if (!$limit) {
                                 ' '.Currency::getActiveCurrencyCode()
 //                                .')'
                                 ;
-                            $option['PRODUCT_OPTIONS_PRICE'] = Currency::formatPrice($option_price);
-                            $option['PRODUCT_OPTIONS_CURRENCY'] = Currency::getActiveCurrencyCode();
                         }
-                        $optionValues[] = $option;
                     }
-                    $optionList[] = array(
-                        'PRODUCT_OPTIONS_NAME' => $attribute_name,
-                        'PRODUCT_OPTIONS_VALUES' => $optionValues,
-                    );
                 }
 //                $str_options .= ']';
             }
@@ -1400,7 +1368,6 @@ if (!$limit) {
                 'PRODUCT_QUANTITY' => $quantity,
                 'PRODUCT_TITLE' => $product_name,
                 'PRODUCT_OPTIONS' => $str_options,
-                'PRODUCT_OPTION_LIST' => $optionList,
                 'PRODUCT_ITEM_PRICE' => sprintf('% 9.2f', $item_price),
                 'PRODUCT_TOTAL_PRICE' => sprintf('% 9.2f', $item_price*$quantity),
             );
@@ -1530,6 +1497,7 @@ if (!$limit) {
         } else {
 //\DBG::log("Orders::getSubstitutionArray(): No Coupon for Order ID $order_id");
         }
+        Products::deactivate_soldout();
         if (Vat::isEnabled()) {
 //DBG::log("Orders::getSubstitutionArray(): VAT amount: ".$objOrder->vat_amount());
             $arrSubstitution['VAT'] = array(0 => array(

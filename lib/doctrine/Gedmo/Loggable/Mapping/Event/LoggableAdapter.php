@@ -9,6 +9,9 @@ use Gedmo\Mapping\Event\AdapterInterface;
  * for Loggable behavior
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
+ * @package Gedmo\Loggable\Mapping\Event
+ * @subpackage LoggableAdapter
+ * @link http://www.gediminasm.org
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 interface LoggableAdapter extends AdapterInterface
@@ -18,22 +21,14 @@ interface LoggableAdapter extends AdapterInterface
      *
      * @return string
      */
-    public function getDefaultLogEntryClass();
-
-    /**
-     * Checks whether an id should be generated post insert
-     *
-     * @return boolean
-     */
-    public function isPostInsertGenerator($meta);
+    function getDefaultLogEntryClass();
 
     /**
      * Get new version number
      *
-     * @param object $meta
+     * @param ClassMetadata $meta
      * @param object $object
-     *
      * @return integer
      */
-    public function getNewVersion($meta, $object);
+    function getNewVersion($meta, $object);
 }

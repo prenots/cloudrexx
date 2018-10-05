@@ -47,6 +47,8 @@ class MediaDirectoryInputfieldLabel implements Inputfield
 {
     public $arrPlaceholders = array('MEDIADIR_INPUTFIELD_VALUE');
 
+
+
     /**
      * Constructor
      */
@@ -54,17 +56,17 @@ class MediaDirectoryInputfieldLabel implements Inputfield
     {
     }
 
+
+
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $objInit;
-
-        $langId = static::getOutputLocale()->getId();
+        global $objDatabase, $_LANGID, $objInit;
 
         switch ($intView) {
             default:
             case 1:
                 //modify (add/edit) View
-                $strValue = empty($arrInputfield['default_value'][$langId]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$langId];
+                $strValue = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
 
                 return $strValue;
 
@@ -75,31 +77,33 @@ class MediaDirectoryInputfieldLabel implements Inputfield
         }
     }
 
+
+
     function saveInputfield($strValue)
     {
         return true;
     }
+
 
     function deleteContent($intEntryId, $intIputfieldId)
     {
         return true;
     }
 
+
+
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
         return null;
     }
 
-    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus)
-    {
-        return null;
-    }
 
     function getJavascriptCheck()
     {
          return null;
     }
-
+    
+    
     function getFormOnSubmit($intInputfieldId)
     {
         return null;

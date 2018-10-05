@@ -74,10 +74,12 @@ class RssFeed
     */
     function __construct()
     {
-        global $_CONFIG, $objInit;
+        global $_CONFIG, $objInit, $objDatabase;
 
         $this->langId=$objInit->userFrontendLangId;
-        $langShort = \FWLanguage::getLanguageParameter($this->langId, 'lang');
+
+        $query = "SELECT lang FROM ".DBPREFIX."languages WHERE id='$this->langId'";
+        $objResult = $objDatabase->Execute($query);
 
         $this->xmlType = "headlines";
         $this->filePath = \Env::get('cx')->getWebsiteFeedPath();
@@ -85,10 +87,10 @@ class RssFeed
         $this->channelCopyright = ASCMS_PROTOCOL."://".$_SERVER['SERVER_NAME'];
         $this->channelGenerator = $_CONFIG['coreCmsName'];
         $this->channelWebMaster = $_CONFIG['coreAdminEmail'];
-        $this->channelLanguage  = $langShort;
+        $this->channelLanguage  = $objResult->fields['lang'];
         $this->itemLink = ASCMS_PROTOCOL."://".$_SERVER['SERVER_NAME']."/?section=DocSys".MODULE_INDEX."&amp;cmd=details&amp;id=";
-        $this->fileName[1] = 'docsys_headlines_'.$langShort.'.xml';
-        $this->fileName[2] = 'docsys_'.$langShort.'.xml';
+        $this->fileName[1] = 'docsys_headlines_'.$objResult->fields['lang'].'.xml';
+        $this->fileName[2] = 'docsys_'.$objResult->fields['lang'].'.xml';
 
         $this->limit=20;
         if($this->limit<1 OR $this->limit>100){
@@ -107,7 +109,7 @@ class RssFeed
         if(is_writeable($this->filePath) AND is_dir($this->filePath)){
             return true;
         }
-        else{
+        else{  
             return false;
         }
     }
@@ -150,7 +152,7 @@ class RssFeed
 //                             ".DBPREFIX."access_users AS u
 //                        WHERE n.userid = u.id AND n.lang = ".$_LANGID."
 //                        ORDER BY n.id DESC";
-
+            
             $query = "SELECT n.id AS docId,
                                n.date,
                                n.title,

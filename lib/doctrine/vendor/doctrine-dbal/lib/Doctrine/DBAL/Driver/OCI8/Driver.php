@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,7 +15,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -23,15 +25,12 @@ use Doctrine\DBAL\Platforms;
 
 /**
  * A Doctrine DBAL driver for the Oracle OCI8 PHP extensions.
- *
+ * 
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
 class Driver implements \Doctrine\DBAL\Driver
 {
-    /**
-     * {@inheritdoc}
-     */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         return new OCI8Connection(
@@ -39,22 +38,19 @@ class Driver implements \Doctrine\DBAL\Driver
             $password,
             $this->_constructDsn($params),
             isset($params['charset']) ? $params['charset'] : null,
-            isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT,
-            isset($params['persistent']) ? $params['persistent'] : false
+            isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT
         );
     }
 
     /**
      * Constructs the Oracle DSN.
      *
-     * @param array $params
-     *
      * @return string The DSN.
      */
-    protected function _constructDsn(array $params)
+    private function _constructDsn(array $params)
     {
         $dsn = '';
-        if (isset($params['host']) && $params['host'] != '') {
+        if (isset($params['host'])) {
             $dsn .= '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' .
                    '(HOST=' . $params['host'] . ')';
 
@@ -64,18 +60,11 @@ class Driver implements \Doctrine\DBAL\Driver
                 $dsn .= '(PORT=1521)';
             }
 
-            $database = 'SID=' . $params['dbname'];
-            $pooled   = '';
-
-            if (isset($params['service']) && $params['service'] == true) {
-                $database = 'SERVICE_NAME=' . $params['dbname'];
+            $dsn .= '))';
+            if (isset($params['dbname'])) {
+                $dsn .= '(CONNECT_DATA=(SID=' . $params['dbname'] . ')';
             }
-
-            if (isset($params['pooled']) && $params['pooled'] == true) {
-                $pooled = '(SERVER=POOLED)';
-            }
-
-            $dsn .= '))(CONNECT_DATA=(' . $database . ')' . $pooled . '))';
+            $dsn .= '))';
         } else {
             $dsn .= $params['dbname'];
         }
@@ -83,37 +72,24 @@ class Driver implements \Doctrine\DBAL\Driver
         return $dsn;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform()
     {
         return new \Doctrine\DBAL\Platforms\OraclePlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         return new \Doctrine\DBAL\Schema\OracleSchemaManager($conn);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return 'oci8';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         $params = $conn->getParams();
-
         return $params['user'];
     }
 }

@@ -46,7 +46,7 @@ namespace Cx\Core\Routing\Controller;
  */
 class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBackendController
 {
-
+    
     /**
     * Returns a list of available commands (?act=XY)
     * @return array List of acts
@@ -54,24 +54,16 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function getCommands() {
         return array('RewriteRule');
     }
-
+    
     /**
-     * This function returns the ViewGeneration options for a given entityClass
-     *
-     * @todo This is used as a temporary workaround to set user titles of fieldnames
+     * This is used as a temporary workaround to set user titles of fieldnames
      * If BackendTable and FormGenerator use a sensful format for getting the
      * fieldname titles (/headers), this can be removed.
-     *
-     * @access protected
-     * @global $_ARRAYLANG
-     * @param $entityClassName contains the FQCN from entity
-     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used for better partition
-     * @return array with options
      */
-    protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '') {
+    protected function getViewGeneratorOptions($entityClassName, $classIdentifier) {
         global $_ARRAYLANG;
-
-        $langVarName = 'TXT_' . strtoupper($this->getType() . '_' . $this->getName() . '_ACT_' . $dataSetIdentifier);
+        
+        $langVarName = 'TXT_' . strtoupper($this->getType() . '_' . $this->getName() . '_ACT_' . $classIdentifier);
         $header = '';
         if (isset($_ARRAYLANG[$langVarName])) {
             $header = $_ARRAYLANG[$langVarName];
@@ -94,7 +86,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'rewriteStatusCode' => array(
                     'header' => $_ARRAYLANG['rewriteStatusCode'],
                     'type' => 'select',
-                    'validValues' => array(301=>301, 302=>302, 'intern'=>'Intern'),
+                    'validValues' => array(301=>301, 302=>302),
                     'tooltip' => $_ARRAYLANG['TXT_CORE_ROUTING_REWRITE_STATUS_CODE_TOOLTIP'],
                 ),
                 'continueOnMatch' => array(

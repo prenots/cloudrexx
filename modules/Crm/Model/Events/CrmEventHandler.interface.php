@@ -54,10 +54,11 @@ interface CrmEventHandler
 {
     /**
      * Event handler
-     *
+     * 
      * @param Event $event event name
      *
      * @return null
      */
     function handleEvent(\Cx\Modules\Crm\Model\Entity\CrmEvent $event);
 }
+ 

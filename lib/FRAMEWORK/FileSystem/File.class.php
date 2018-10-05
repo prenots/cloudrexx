@@ -44,7 +44,7 @@ namespace Cx\Lib\FileSystem;
  * @package     cloudrexx
  * @subpackage  lib_filesystem
  */
-class FileException extends FileSystemException {};
+class FileException extends \Exception {};
 
 /**
  * File
@@ -62,13 +62,9 @@ class File implements FileInterface
 
     private $file = null;
     private $accessMode = null;
-
+    
     public function __construct($file)
     {
-        if (preg_match('#(?:^\.\.|/\.\.)/#', $file)) {
-            throw new FileException('Invalid file path: '.$file);
-        }
-
         $this->file = str_replace('\\', '/', $file);
         $this->setAccessMode();
     }
@@ -101,7 +97,7 @@ class File implements FileInterface
             return true;
         }
 
-        // fetch FTP user-ID
+        // fetch FTP user-ID 
         $ftpConfig = \Env::get('ftpConfig');
         $ftpUsername = $ftpConfig['username'];
         if (function_exists('posix_getpwnam')) {
@@ -111,6 +107,7 @@ class File implements FileInterface
         } else {
             $ftpUserId = null;
         }
+     
 
         // check if the file we're going to work with is owned by the FTP user
         if ($fileOwnerUserId == $ftpUserId) {
@@ -124,7 +121,7 @@ class File implements FileInterface
         $this->accessMode = self::UNKNOWN_ACCESS;
         return false;
     }
-
+    
     public function getAccessMode()
     {
         return $this->accessMode;
@@ -139,7 +136,7 @@ class File implements FileInterface
 
         return $data;
     }
-
+    
     /**
      * Write data specified by $data to file
      * @param   string
@@ -177,7 +174,7 @@ class File implements FileInterface
 
         throw new FileSystemException('File: Unable to write data to file '.$this->file.'!');
     }
-
+    
     public function append($data) {
         // use PHP
         if (   $this->accessMode == self::PHP_ACCESS
@@ -246,18 +243,18 @@ class File implements FileInterface
 
         throw new FileSystemException('File: Unable to touch file '.$this->file.'!');
     }
-
+    
     public function copy($dst, $force = false)
     {
         if (!$force && file_exists($dst)) {
             return true;
         }
-
+        
         $path       = \Env::get('cx')->getCodeBaseDocumentRootPath();
         $relPath    = str_replace($path, '', $dst);
         $pathInfo   = pathinfo($relPath);
         $arrFolders = explode('/', $pathInfo['dirname']);
-
+        
         foreach ($arrFolders as $folder) {
             if (empty($folder)) continue;
             $path .= '/' . $folder;
@@ -265,7 +262,7 @@ class File implements FileInterface
                 \Cx\Lib\FileSystem\FileSystem::make_folder($path);
             }
         }
-
+        
         // use PHP
         if (   $this->accessMode == self::PHP_ACCESS
             || $this->accessMode == self::UNKNOWN_ACCESS
@@ -295,23 +292,23 @@ class File implements FileInterface
 
         throw new FileSystemException('File: Unable to copy file '.$this->file.'!');
     }
-
+    
     public function rename($dst, $force = false)
     {
         return $this->move($dst, $force);
     }
-
+    
     public function move($dst, $force = false)
     {
         if (!$force && file_exists($dst)) {
             return true;
         }
-
+        
         $path       = \Env::get('cx')->getCodeBaseDocumentRootPath();
         $relPath    = str_replace($path, '', $dst);
         $pathInfo   = pathinfo($relPath);
         $arrFolders = explode('/', $pathInfo['dirname']);
-
+        
         foreach ($arrFolders as $folder) {
             if (empty($folder)) continue;
             $path .= '/' . $folder;
@@ -319,7 +316,7 @@ class File implements FileInterface
                 \Cx\Lib\FileSystem\FileSystem::make_folder($path);
             }
         }
-
+        
         // use PHP
         if (   $this->accessMode == self::PHP_ACCESS
             || $this->accessMode == self::UNKNOWN_ACCESS
@@ -394,16 +391,18 @@ class File implements FileInterface
      * @return TRUE if file has successfully been removed
      */
     public function delete()
-    {
-        $objFile = null;
-
+    {        
         // use PHP
         if (   $this->accessMode == self::PHP_ACCESS
             || $this->accessMode == self::UNKNOWN_ACCESS
         ) {
             try {
-                $objFile = new FileSystemFile($this->file);
-                $objFile->delete();
+                $objFilePhp = new FileSystemFile($this->file);
+                $objFilePhp->delete();
+                clearstatcache(); 
+                if (!file_exists($objFilePhp->getAbsoluteFilePath())) {
+                    return true;                
+                }
             } catch (FileSystemFileException $e) {
                 \DBG::msg('FileSystemFile: '.$e->getMessage());
             }
@@ -414,21 +413,17 @@ class File implements FileInterface
             || $this->accessMode == self::UNKNOWN_ACCESS
         ) {
             try {
-                $objFile = new FTPFile($this->file);
-                $objFile->delete();
+                $objFileFtp = new FTPFile($this->file);
+                $objFileFtp->delete();
+                clearstatcache(); 
+                if (!file_exists($objFileFtp->getAbsoluteFilePath())) {
+                    return true;                
+                }
             } catch (FTPFileException $e) {
                 \DBG::msg('FTPFile: '.$e->getMessage());
             }
         }
-
-        if ($objFile) {
-            clearstatcache(true, $objFile->getAbsoluteFilePath());
-        }
-        if ($objFile && file_exists($objFile->getAbsoluteFilePath())) {
-            throw new FileSystemException('File: Unable to delete file '.$this->file.'!');
-        }
-
-        return true;
+        throw new FileSystemException('File: Unable to delete file '.$this->file.'!');
     }
 }
 

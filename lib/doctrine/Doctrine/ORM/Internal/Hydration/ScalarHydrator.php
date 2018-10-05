@@ -13,43 +13,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Internal\Hydration;
+
+use Doctrine\DBAL\Connection;
 
 /**
  * Hydrator that produces flat, rectangular results of scalar data.
  * The created result is almost the same as a regular SQL result set, except
  * that column names are mapped to field names and data type conversions take place.
  *
- * @since  2.0
  * @author Roman Borschel <roman@code-factory.org>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @since 2.0
  */
 class ScalarHydrator extends AbstractHydrator
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function hydrateAllData()
+    /** @override */
+    protected function _hydrateAll()
     {
         $result = array();
-        $cache  = array();
-
+        $cache = array();
         while ($data = $this->_stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->hydrateRowData($data, $cache, $result);
+            $result[] = $this->_gatherScalarRowData($data, $cache);
         }
-
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function hydrateRowData(array $data, array &$cache, array &$result)
+    /** @override */
+    protected function _hydrateRow(array $data, array &$cache, array &$result)
     {
-        $result[] = $this->gatherScalarRowData($data, $cache);
+        $result[] = $this->_gatherScalarRowData($data, $cache);
     }
 }

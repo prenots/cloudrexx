@@ -113,7 +113,7 @@ class DB_NestedSet_Menu extends DB_NestedSet_Output {
         // will know when they have been hit.
 
         reset($params['structure']);
-        foreach ($params['structure'] as $nodeID => $node) {
+        while(list($nodeID,$node)=each($params['structure'])) {
             // see if we've already been here before
             if (isset($node['hit']) || $node['level'] < $params['currentLevel']) {
                 continue;

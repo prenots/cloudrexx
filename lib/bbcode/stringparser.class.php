@@ -912,10 +912,6 @@ class StringParser_Node {
 	 *                        occurred at. If not determinable, it is -1.
 	 * @global __STRINGPARSER_NODE_ID
 	 */
-	public function __construct($occurredAt = -1) {
-        $this->StringParser_Node($occurredAt);
-	}
-
 	function StringParser_Node ($occurredAt = -1) {
 		$this->_id = $GLOBALS['__STRINGPARSER_NODE_ID']++;
 		$this->occurredAt = $occurredAt;
@@ -1254,7 +1250,7 @@ class StringParser_Node {
 	 * @param object $node The node to destroy
 	 * @return bool True on success, else false.
 	 */
-	public static function destroyNode (&$node) {
+	function destroyNode (&$node) {
 		if ($node === null) {
 			return false;
 		}
@@ -1492,12 +1488,8 @@ class StringParser_Node_Text extends StringParser_Node {
 	 *                        occurred at. If not determinable, it is -1.
 	 * @see StringParser_Node_Text::content
 	 */
-	public function __construct($content, $occurredAt = -1) {
-        $this->StringParser_Node_Text($content, $occurredAt);
-    }
-
 	function StringParser_Node_Text ($content, $occurredAt = -1) {
-		parent::__construct($occurredAt);
+		parent::StringParser_Node ($occurredAt);
 		$this->content = $content;
 	}
 	
@@ -1551,3 +1543,4 @@ class StringParser_Node_Text extends StringParser_Node {
 	}
 }
 
+?>

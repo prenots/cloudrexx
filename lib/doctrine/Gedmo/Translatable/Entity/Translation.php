@@ -12,17 +12,26 @@ use Doctrine\ORM\Mapping\Entity;
  *
  * @Table(
  *         name="ext_translations",
- *         indexes={@Index(name="translations_lookup_idx", columns={
+ *         indexes={@index(name="translations_lookup_idx", columns={
  *             "locale", "object_class", "foreign_key"
  *         })},
  *         uniqueConstraints={@UniqueConstraint(name="lookup_unique_idx", columns={
- *             "locale", "object_class", "field", "foreign_key"
+ *             "locale", "object_class", "foreign_key", "field"
  *         })}
  * )
  * @Entity(repositoryClass="Gedmo\Translatable\Entity\Repository\TranslationRepository")
  */
-class Translation extends MappedSuperclass\AbstractTranslation
+class Translation extends AbstractTranslation
 {
+    /**
+     * @var integer $id
+     *
+     * @Column(type="integer")
+     * @Id
+     * @GeneratedValue
+     */
+    private $id;
+
     /**
      * All required columns are mapped through inherited superclass
      */

@@ -57,71 +57,12 @@ class DirectoryLibrary
     public $mediaWebPath;
     public $rssLatestTitle = "Directory News";
     public $rssLatestDescription = "The latest Directory entries";
-
-    /**
-     * category Ids
-     *
-     * @var array
-     */
-    public $categoryIds = array();
-
+    public $categories = array();
     public $googleMapStartPoint = array('lat' => 46, 'lon' => 8, 'zoom' => 1);
 
 // TODO:  The following two object variables were declared out of scope.
 // Moved here to fix this, but there may be more!
-    /**
-     * level Ids
-     *
-     * @var array
-     */
-    public $levelIds = array();
-
-    /**
-     * Categories
-     *
-     * @var array
-     */
-    public $getCategories = array('name' => array(), 'parentid' => array());
-
-    /**
-     * Levels
-     *
-     * @var array
-     */
-    public $getLevels = array('name' => array(), 'parentid' => array(), 'showcategories' => array());
-
-    /**
-     * Levels
-     *
-     * @var array
-     */
-    public $levels = array(
-        'name'           => array(),
-        'parentid'       => array(),
-        'metadesc'       => array(),
-        'metakeys'       => array(),
-        'description'    => array(),
-        'displayorder'   => array(),
-        'status'         => array(),
-        'showcategories' => array(),
-    );
-
-    /**
-     * Categories
-     *
-     * @var array
-     */
-    public $categories = array(
-        'name'         => array(),
-        'parentid'     => array(),
-        'metadesc'     => array(),
-        'metakeys'     => array(),
-        'description'  => array(),
-        'displayorder' => array(),
-        'status'       => array(),
-        'showentries'  => array(),
-    );
-
+    public $levels = array();
     public $pageTitle;
 
     /**
@@ -197,8 +138,7 @@ class DirectoryLibrary
 
         $hits++;
         $popular_hits++;
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $ip = $cx->getComponent('Stats')->getCounterInstance()->getUniqueUserId();
+        $ip = $_SERVER['REMOTE_ADDR'];
 
         //update hits
         if (!checkForSpider() && $lastip != $ip) {
@@ -300,7 +240,7 @@ class DirectoryLibrary
         $objResultCat = $objDatabase->Execute("SELECT cat_id FROM ".DBPREFIX."module_directory_rel_dir_cat WHERE dir_id='".$id."'");
         if ($objResultCat !== false) {
             while(!$objResultCat->EOF) {
-                $this->categoryIds[] = $objResultCat->fields['cat_id'];
+                $this->categories[] = $objResultCat->fields['cat_id'];
                 $objResultCat->MoveNext();
             }
         }
@@ -324,11 +264,11 @@ class DirectoryLibrary
         foreach($this->getCategories['name'] as $catKey => $catName) {
             if ($this->getCategories['parentid'][$catKey] == 0) {
                 if ($type == 1) {
-                    if (!in_array($catKey, $this->categoryIds)) {
+                    if (!in_array($catKey, $this->categories)) {
                         $options .= "<option value='".$catKey."'>".$catName."</option>";
                     }
                 } else {
-                    if (in_array($catKey, $this->categoryIds)) {
+                    if (in_array($catKey, $this->categories)) {
                         $options .= "<option value='".$catKey."'>".$catName."</option>";
                     }
                 }
@@ -358,11 +298,11 @@ class DirectoryLibrary
         foreach($this->getCategories['name'] as $catKey => $catName) {
             if ($this->getCategories['parentid'][$catKey] == $parentId) {
                 if ($type == 1) {
-                    if (!in_array($catKey, $this->categoryIds)) {
+                    if (!in_array($catKey, $this->categories)) {
                         $options .= "<option value='".$catKey."' >".$spacer.$catName."</option>";
                     }
                 } else {
-                    if (in_array($catKey, $this->categoryIds)) {
+                    if (in_array($catKey, $this->categories)) {
                         $options .= "<option value='".$catKey."' >".$catName."</option>";
                     }
                 }
@@ -558,11 +498,11 @@ class DirectoryLibrary
 
     /**
      * Upload the media files
-     *
+     * 
      * @param string $fileName   name of the media file
      * @param string $path       folder path
      * @param string $uploaderId uploader id
-     *
+     * 
      * @return string $status name of the uploaded file / error
      */
     function uploadMedia($fileName, $path, $uploaderId)
@@ -570,19 +510,18 @@ class DirectoryLibrary
         if (empty($uploaderId) || empty($fileName)) {
             return 'error';
         }
-
-        $cx  = \Cx\Core\Core\Controller\Cx::instanciate();
-        $objSession = $cx->getComponent('Session')->getSession();
+        
+        $objSession = \cmsSession::getInstance();
         $tempPath   = $objSession->getTempPath() .'/' . $uploaderId . '/' . $fileName;
         //Check the uploaded file exists in /tmp folder
         if (!\Cx\Lib\FileSystem\FileSystem::exists($tempPath)) {
-            //If the file still exists in the mediaPath then return the filename
+            //If the file still exists in the mediaPath then return the filename 
             if (\Cx\Lib\FileSystem\FileSystem::exists($this->mediaPath.$path.$fileName)) {
                 return $fileName;
             }
             return 'error';
         }
-
+        
         $info = pathinfo($fileName);
         $exte = $info['extension'];
         $extension = !empty($exte) ? '.' . $exte : '';
@@ -593,17 +532,17 @@ class DirectoryLibrary
         if ($arrSettings['encodeFilename']['value'] == 1) {
             $fileName = md5($rand.$file).$extension;
         }
-
+        
         //Rename the file if the filename already exists
         while (\Cx\Lib\FileSystem\FileSystem::exists($this->mediaPath.$path.$fileName)) {
             $fileName = $file . '_' . time() . $extension;
         }
-
+        
         $filePath = $this->mediaPath.$path.$fileName;
         if (!\FWValidator::is_file_ending_harmless($filePath)) {
             return 'error';
         }
-
+        
         //Move the file from /tmp folder into mediaPath and set the permission
         try {
             $objFile = new \Cx\Lib\FileSystem\File($tempPath);
@@ -616,12 +555,12 @@ class DirectoryLibrary
             \DBG::msg($e->getMessage());
             $status = 'error';
         }
-
+        
         //make the thumb
         if (($exte == "gif" || $exte == "jpeg" || $exte == "jpg" || $exte == "png") && $path != "uploads/") {
             $this->createThumb($fileName, $path);
         }
-
+        
         return $status;
     }
 
@@ -847,11 +786,11 @@ class DirectoryLibrary
 // TODO: $file is never set; always true.
 //        if ($file != "error") {
 // See below!
-            $imgUploadId = isset($_POST['imgUploaderId'])
-                           ? contrexx_input2raw($_POST['imgUploaderId'])
+            $imgUploadId = isset($_POST['imgUploaderId']) 
+                           ? contrexx_input2raw($_POST['imgUploaderId']) 
                            : '';
-            $fileUploadId = isset($_POST['fileUploaderId'])
-                           ? contrexx_input2raw($_POST['fileUploaderId'])
+            $fileUploadId = isset($_POST['fileUploaderId']) 
+                           ? contrexx_input2raw($_POST['fileUploaderId']) 
                            : '';
 
             $query = "INSERT INTO ".DBPREFIX."module_directory_dir SET ";
@@ -959,6 +898,8 @@ class DirectoryLibrary
                     date("H"), date("i"), date("s"),
                     date("m"), date("d"), date("Y")).
                 "', status='".intval($entryStatus).
+                "', provider='".gethostbyaddr($_SERVER['REMOTE_ADDR']).
+                "', ip='".$_SERVER['REMOTE_ADDR'].
                 "', validatedate='".mktime(
                     date("H"), date("i"), date("s"),
                     date("m"), date("d"), date("Y")).
@@ -1165,20 +1106,32 @@ class DirectoryLibrary
         $subject = str_replace($array_1, $array_2, $subject);
         $message = str_replace($array_1, $array_2, $message);
         $sendTo = explode(';', $sendTo);
+        if (@\Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH.'/phpmailer/class.phpmailer.php') ) {
+            $objMail = new \phpmailer();
+            if ($_CONFIG['coreSmtpServer'] > 0 && @\Env::get('ClassLoader')->loadFile(ASCMS_CORE_PATH.'/SmtpSettings.class.php') ) {
+                $arrSmtp = SmtpSettings::getSmtpAccount($_CONFIG['coreSmtpServer']);
+                if ($arrSmtp !== false) {
+                    $objMail->IsSMTP();
+                    $objMail->Host = $arrSmtp['hostname'];
+                    $objMail->Port = $arrSmtp['port'];
+                    $objMail->SMTPAuth = true;
+                    $objMail->Username = $arrSmtp['username'];
+                    $objMail->Password = $arrSmtp['password'];
+                }
+            }
+            $objMail->CharSet = CONTREXX_CHARSET;
+            $objMail->SetFrom($_CONFIG['coreAdminEmail'], $_CONFIG['coreAdminName']);
+            $objMail->AddReplyTo($_CONFIG['coreAdminEmail']);
+            $objMail->Subject = $subject;
+            $objMail->IsHTML(false);
+            $objMail->Body = $message;
 
-        $objMail = new \Cx\Core\MailTemplate\Model\Entity\Mail();
-
-        $objMail->SetFrom($_CONFIG['coreAdminEmail'], $_CONFIG['coreAdminName']);
-        $objMail->Subject = $subject;
-        $objMail->IsHTML(false);
-        $objMail->Body = $message;
-
-        foreach($sendTo as $mailAdress) {
-            $objMail->ClearAddresses();
-            $objMail->AddAddress($mailAdress);
-            $objMail->Send();
+            foreach($sendTo as $mailAdress) {
+                $objMail->ClearAddresses();
+                $objMail->AddAddress($mailAdress);
+                $objMail->Send();
+            }
         }
-
         return true;
     }
 
@@ -1279,7 +1232,6 @@ class DirectoryLibrary
         global $objDatabase, $_ARRAYLANG;
 
         $userId = contrexx_addslashes($id);
-        $author = '';
 
         if (is_numeric($userId)) {
             $objResultauthor = $objDatabase->Execute("SELECT id, username FROM ".DBPREFIX."access_users WHERE id = '".$userId."'");
@@ -1323,13 +1275,7 @@ class DirectoryLibrary
           $width= "300";
 
         $this->_objTpl->setCurrentBlock('inputfieldsOutput');
-        $arrInputfieldsActive = array(
-            'name'        => array(),
-            'typ'         => array(),
-            'read_only'   => array(),
-            'title'       => array(),
-            'is_required' => array(),
-        );
+        $arrInputfieldsActive = array();
         $arrInputfieldsValue = array();
         $arrSettings = $this->getSettings();
 
@@ -1405,6 +1351,8 @@ class DirectoryLibrary
                     $arrInputfieldsValue['relatedlinks'] = $objResult->fields['relatedlinks'];
                     $arrInputfieldsValue['status'] = $objResult->fields['status'];
                     $arrInputfieldsValue['addedby'] = $objResult->fields['addedby'];
+                    $arrInputfieldsValue['provider'] = $objResult->fields['provider'];
+                    $arrInputfieldsValue['ip'] = $objResult->fields['ip'];
                     $arrInputfieldsValue['validatedate'] = $objResult->fields['validatedate'];
                     $arrInputfieldsValue['platform'] = $objResult->fields['platform'];
                     $arrInputfieldsValue['language'] = $objResult->fields['language'];
@@ -1587,8 +1535,7 @@ function CheckFields() {
         foreach($arrInputfieldsActive['name'] as $inputKey => $inputName) {
             $disabled = "";
             $inputValueField = "";
-            $fieldName = isset($_ARRAYLANG[$arrInputfieldsActive['title'][$inputKey]])
-                ? $_ARRAYLANG[$arrInputfieldsActive['title'][$inputKey]] : '';
+            $fieldName = $_ARRAYLANG[$arrInputfieldsActive['title'][$inputKey]];
 
             if ($arrSettings['levels']['int'] == 1) {
                 ($i % 2)? $class = "row2" : $class = "row1";
@@ -1609,9 +1556,7 @@ function CheckFields() {
                     if ($inputName == "addedby") {
                         $value = $this->getAuthor($arrInputfieldsValue[$inputName]);
                         if ($action == "edit") {
-                            $authorId = isset($_POST['inputValue'][$inputName])
-                                ? $_POST['inputValue'][$inputName] : 0;
-                            $value .= $this->getAuthor($authorId);
+                            $value .= $this->getAuthor($_POST['inputValue'][$inputName]);
                         }
                     } elseif (isset($arrInputfieldsValue[$inputName])) {
                         $value = $arrInputfieldsValue[$inputName];
@@ -1666,9 +1611,9 @@ function CheckFields() {
                         $inputValueField .=
                             "<input type=\"text\" name=\"{$inputName}\" id=\"input_{$inputName}\" value style=\"width:".$width."px;\" />";
                         $inputValueField .=
-                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"imgUpload\"
+                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"imgUpload\" 
                             size=\"37\" value=\"Choose File\" />";
-
+                            
                         $inputValueField .=
                             "<input type=\"hidden\" name=\"inputValue[".
                             $inputName."]\" class=\"input_{$inputName}\" value='".
@@ -1715,18 +1660,16 @@ function CheckFields() {
                     }
                     if ($action !== "confirm") {
                         $initImgUploader  = true;
-                        $inputFieldValue  = !empty($arrInputfieldsValue[$inputName])
-                            ? $arrInputfieldsValue[$inputName] : '';
                         $inputValueField .=
                             "<input type=\"text\" name=\"$inputName\" id=\"input_{$inputName}\" value style=\"width:".$width."px;\" />";
                         $inputValueField .=
-                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"imgUpload\"
+                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"imgUpload\" 
                             size=\"37\" value=\"Choose File\" />";
-
+                            
                         $inputValueField .=
                             "<input type=\"hidden\" name=\"inputValue[".
                             $inputName."]\" class=\"input_{$inputName}\" value='".
-                            $inputFieldValue ."' />";
+                            $arrInputfieldsValue[$inputName]."' />";
                     }
                     $fieldName = $arrInputfieldsActive['title'][$inputKey];
                     break;
@@ -1770,12 +1713,12 @@ function CheckFields() {
                     if ($action !== "confirm") {
                         $initFileUploader = true;
                         $inputValueField .=
-                            "<input type=\"text\" name=\"{$inputName}\"
+                            "<input type=\"text\" name=\"{$inputName}\" 
                             id=\"input_{$inputName}\" value style=\"width:".$width."px;\" />";
                         $inputValueField .=
-                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"fileUpload\"
+                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"fileUpload\" 
                             size=\"37\" value=\"Choose File\" />";
-
+                            
                         $inputValueField .=
                             "<input type=\"hidden\" name=\"inputValue[".
                             $inputName."]\" class=\"input_{$inputName}\" value='".
@@ -1810,12 +1753,12 @@ function CheckFields() {
                     if ($action !== "confirm") {
                         $initFileUploader = true;
                         $inputValueField .=
-                            "<input type=\"text\" name=\"{$inputName}\"
+                            "<input type=\"text\" name=\"{$inputName}\" 
                             id=\"input_{$inputName}\" value style=\"width:".$width."px;\" />";
                         $inputValueField .=
-                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"fileUpload\"
+                            "&nbsp;&nbsp;<input type=\"button\" data-id=\"input_{$inputName}\" class=\"fileUpload\" 
                             size=\"37\" value=\"Choose File\" />";
-
+                            
                         $inputValueField .=
                             "<input type=\"hidden\" name=\"inputValue[".
                             $inputName."]\" class=\"input_{$inputName}\" value='".
@@ -1947,10 +1890,10 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
 
     /**
      * Get the uploader
-     *
+     * 
      * @param string $callbackJs callback javascript function name
      * @param array  $options    uploader options
-     *
+     * 
      * @return \Cx\Core_Modules\Uploader\Model\Entity\Uploader
      */
     public function getUploader($callbackJs, $options = array())
@@ -2008,6 +1951,13 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
                                                         'lon' =>$arrGoogleStartPoint[1],
                                                         'zoom' =>$arrGoogleStartPoint[2]);
                 }
+                $objResult->MoveNext();
+            }
+        }
+        $objResult = $objDatabase->Execute("SELECT setname, setvalue, settyp FROM ".DBPREFIX."module_directory_settings_google");
+        if ($objResult !== false) {
+            while(!$objResult->EOF) {
+                $settings['google'][$objResult->fields['setname']] = $objResult->fields['setvalue'];
                 $objResult->MoveNext();
             }
         }
@@ -2229,8 +2179,8 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
                         }
 
                         if ($_POST['deleteMedia'][$inputName] != 1) {
-                            $imgUploadId = isset($_POST['imgUploaderId'])
-                                           ? contrexx_input2raw($_POST['imgUploaderId'])
+                            $imgUploadId = isset($_POST['imgUploaderId']) 
+                                           ? contrexx_input2raw($_POST['imgUploaderId']) 
                                            : '';
                             $inputValue = $this->uploadMedia($fileName, 'images/', $imgUploadId);
                             if ($inputValue == "error") {
@@ -2254,8 +2204,8 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
                         }
 
                         if ($_POST["deleteMedia"][$inputName] != 1) {
-                            $fileUploadId = isset($_POST['fileUploaderId'])
-                                           ? contrexx_input2raw($_POST['fileUploaderId'])
+                            $fileUploadId = isset($_POST['fileUploaderId']) 
+                                           ? contrexx_input2raw($_POST['fileUploaderId']) 
                                            : '';
                             $inputValue = $this->uploadMedia($fileName, 'uploads/', $fileUploadId);
                             if ($inputValue == "error") {
@@ -2464,7 +2414,7 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
         $objResultCat = $objDatabase->Execute("SELECT level_id FROM ".DBPREFIX."module_directory_rel_dir_level WHERE dir_id='".$id."'");
         if ($objResultCat !== false) {
             while(!$objResultCat->EOF) {
-                $this->levelIds[] = $objResultCat->fields['level_id'];
+                $this->levels[] = $objResultCat->fields['level_id'];
                 $objResultCat->MoveNext();
             }
         }
@@ -2494,12 +2444,12 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
                     }
                     if ($type == 1) {
 // TODO:  $this->levels does not exist!
-                        if (!in_array($levelKey, $this->levelIds)) {
+                        if (!in_array($levelKey, $this->levels)) {
                             $options .= "<option value='".$levelKey."' $style>".$levelName."</option>";
                         }
                     } else {
 // TODO:  $this->levels does not exist!
-                        if (in_array($levelKey, $this->levelIds)) {
+                        if (in_array($levelKey, $this->levels)) {
                             $options .= "<option value='".$levelKey."' $style>".$levelName."</option>";
                         }
                     }
@@ -2533,11 +2483,11 @@ if (document.getElementsByName(\'inputValue['.$inputName.']\')[0].value == "") {
                     $style = "";
                 }
                 if ($type == 1) {
-                    if (!in_array($levelKey, $this->levelIds)) {
+                    if (!in_array($levelKey, $this->levels)) {
                         $options .= "<option value='".$levelKey."' $style>".$spacer.$levelName."</option>";
                     }
                 } else {
-                    if (in_array($levelKey, $this->levelIds)) {
+                    if (in_array($levelKey, $this->levels)) {
                         $options .= "<option value='".$levelKey."' $style>".$levelName."</option>";
                     }
                 }

@@ -20,8 +20,11 @@ Cx\Core\Routing\Model\Entity\RewriteRule:
       nullable: false
     rewriteStatusCode:
       column: rewrite_status_code
-      type: enum
-      values: ['301','302','intern']
+      type: integer
+      length: 3
+      nullable: false
     continueOnMatch:
       column: continue_on_match
       type: boolean
+      options:
+        default: true

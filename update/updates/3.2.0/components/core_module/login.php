@@ -61,3 +61,4 @@ function _loginUpdate()
 
     return true;
 }
+

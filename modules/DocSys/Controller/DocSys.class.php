@@ -148,6 +148,17 @@ class DocSys extends DocSysLibrary
     }
 
     /**
+     * Gets the global page title
+     * @param     string    (optional)$pageTitle
+     */
+    function getPageTitle($pageTitle = "")
+    {
+        if (empty($this->docSysTitle)) {
+            $this->docSysTitle = $pageTitle;
+        }
+    }
+
+    /**
      * Gets the list with the headlines
      * @global    array
      * @global    ADONewConnection
@@ -241,3 +252,4 @@ class DocSys extends DocSysLibrary
     }
 
 }
+

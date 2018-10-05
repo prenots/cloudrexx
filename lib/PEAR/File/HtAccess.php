@@ -95,9 +95,6 @@ class File_HtAccess {
     * @param  array  $params
     * @return object File_HtAccess
     */
-    public function __construct($file='.htaccess', $params='') {
-        $this->File_HtAccess($file, $params);
-    }
 
     function File_HtAccess($file='.htaccess', $params='') {
 

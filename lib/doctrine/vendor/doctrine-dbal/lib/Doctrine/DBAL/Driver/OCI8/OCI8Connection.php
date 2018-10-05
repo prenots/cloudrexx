@@ -13,13 +13,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\DBAL\Driver\OCI8;
-
-use Doctrine\DBAL\Platforms\OraclePlatform;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -28,53 +26,43 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
  */
 class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
-    /**
-     * @var resource
-     */
-    protected $dbh;
+    private $_dbh;
+
+    private $_executeMode = OCI_COMMIT_ON_SUCCESS;
 
     /**
-     * @var integer
+     * Create a Connection to an Oracle Database using oci8 extension.
+     * 
+     * @param string $username
+     * @param string $password
+     * @param string $db
      */
-    protected $executeMode = OCI_COMMIT_ON_SUCCESS;
-
-    /**
-     * Creates a Connection to an Oracle Database using oci8 extension.
-     *
-     * @param string      $username
-     * @param string      $password
-     * @param string      $db
-     * @param string|null $charset
-     * @param integer     $sessionMode
-     * @param boolean     $persistent
-     *
-     * @throws OCI8Exception
-     */
-    public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT, $persistent = false)
+    public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT)
     {
         if (!defined('OCI_NO_AUTO_COMMIT')) {
             define('OCI_NO_AUTO_COMMIT', 0);
         }
 
-        $this->dbh = $persistent
-            ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
-            : @oci_connect($username, $password, $db, $charset, $sessionMode);
-
-        if ( ! $this->dbh) {
+        $this->_dbh = @oci_connect($username, $password, $db, $charset, $sessionMode);
+        if (!$this->_dbh) {
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
     }
 
     /**
-     * {@inheritdoc}
+     * Create a non-executed prepared statement.
+     * 
+     * @param  string $prepareString
+     * @return OCI8Statement
      */
     public function prepare($prepareString)
     {
-        return new OCI8Statement($this->dbh, $prepareString, $this);
+        return new OCI8Statement($this->_dbh, $prepareString, $this->_executeMode);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $sql
+     * @return OCI8Statement
      */
     public function query()
     {
@@ -83,120 +71,90 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
-
         return $stmt;
     }
 
     /**
-     * {@inheritdoc}
+     * Quote input value.
+     *
+     * @param mixed $input
+     * @param int $type PDO::PARAM* 
+     * @return mixed
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($input, $type=\PDO::PARAM_STR)
     {
-        if (is_int($value) || is_float($value)) {
-            return $value;
-        }
-        $value = str_replace("'", "''", $value);
-
-        return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
+        return is_numeric($input) ? $input : "'$input'";
     }
 
     /**
-     * {@inheritdoc}
+     *
+     * @param  string $statement
+     * @return int
      */
     public function exec($statement)
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
-
         return $stmt->rowCount();
     }
-
-    /**
-     * {@inheritdoc}
-     */
+    
     public function lastInsertId($name = null)
     {
-        if ($name === null) {
-            return false;
-        }
-
-        OraclePlatform::assertValidIdentifier($name);
-
-        $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
-        $stmt   = $this->query($sql);
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if ($result === false || !isset($result['CURRVAL'])) {
-            throw new OCI8Exception("lastInsertId failed: Query was executed but no result was returned.");
-        }
-
-        return (int) $result['CURRVAL'];
+        //TODO: throw exception or support sequences?
     }
 
     /**
-     * Returns the current execution mode.
+     * Start a transactiom
      *
-     * @return integer
-     */
-    public function getExecuteMode()
-    {
-        return $this->executeMode;
-    }
-
-    /**
-     * {@inheritdoc}
+     * Oracle has to explicitly set the autocommit mode off. That means
+     * after connection, a commit or rollback there is always automatically
+     * opened a new transaction.
+     *
+     * @return bool
      */
     public function beginTransaction()
     {
-        $this->executeMode = OCI_NO_AUTO_COMMIT;
-
+        $this->_executeMode = OCI_NO_AUTO_COMMIT;
         return true;
     }
 
     /**
-     * {@inheritdoc}
+     * @throws OCI8Exception
+     * @return bool
      */
     public function commit()
     {
-        if (!oci_commit($this->dbh)) {
+        if (!oci_commit($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
-
+        $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
 
     /**
-     * {@inheritdoc}
+     * @throws OCI8Exception
+     * @return bool
      */
     public function rollBack()
     {
-        if (!oci_rollback($this->dbh)) {
+        if (!oci_rollback($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
-
+        $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
-
-    /**
-     * {@inheritdoc}
-     */
+    
     public function errorCode()
     {
-        $error = oci_error($this->dbh);
+        $error = oci_error($this->_dbh);
         if ($error !== false) {
             $error = $error['code'];
         }
-
         return $error;
     }
-
-    /**
-     * {@inheritdoc}
-     */
+    
     public function errorInfo()
     {
-        return oci_error($this->dbh);
+        return oci_error($this->_dbh);
     }
 }

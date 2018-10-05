@@ -177,10 +177,7 @@ EOF;
     function saveVote($intEnrtyId, $intVote) {
         global $_ARRAYLANG, $objDatabase;
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $strRemoteAddress = contrexx_addslashes(
-            $cx->getComponent('Stats')->getCounterInstance()->getUniqueUserId()
-        );
+        $strRemoteAddress = contrexx_addslashes($_SERVER['REMOTE_ADDR']);
 
         if($this->arrSettings['settingsVoteOnlyCommunity'] == 1) {
             $objFWUser  = \FWUser::getFWUserObject();
@@ -212,7 +209,7 @@ EOF;
                 SET
                     `entry_id`='".intval($intEnrtyId)."',
                     `added_by`='".intval($intUserId)."',
-                    `date`='".time()."',
+                    `date`='".mktime()."',
                     `ip`='".$strRemoteAddress."',
                     `vote`='".intval($intVote)."'
             ");

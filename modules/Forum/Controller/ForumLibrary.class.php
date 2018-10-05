@@ -525,13 +525,13 @@ class ForumLibrary
      * handles the upload of a file
      *
      * @param string $inputName name of the HTML input element used to upload the file
-     *
-     * @return array $uploadedFileInfo array containing the properties for the uploaded file,
+     * 
+     * @return array $uploadedFileInfo array containing the properties for the uploaded file, 
      *                                 false when upload has failed
      */
     function _handleUpload($inputName)
     {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $sessionObj;
 
         $fileName = isset($_POST[$inputName]) ? contrexx_input2raw($_POST[$inputName]) : '';
         if (empty($fileName)) {
@@ -549,8 +549,9 @@ class ForumLibrary
         }
 
         //Re-initialize the $sessionObj if it is empty
-        $cx  = \Cx\Core\Core\Controller\Cx::instanciate();
-        $sessionObj = $cx->getComponent('Session')->getSession();
+        if (empty($sessionObj)) {
+            $sessionObj = \cmsSession::getInstance();
+        }
         $tempPath = $sessionObj->getTempPath() . '/' . $uploaderId . '/' . $fileName;
         if (!\Cx\Lib\FileSystem\FileSystem::exists($tempPath)) {
             return false;
@@ -578,23 +579,28 @@ class ForumLibrary
     }
 
     /**
-     * Creates an array containing all frontend-languages.
+     * Creates an array containing all frontend-languages. Example: $arrValue[$langId]['short'] or $arrValue[$langId]['long']
      *
-     * Contents:
-     * $arrValue[$langId]['short']        =>    For Example: en, de, fr, de-CH, ...
-     * $arrValue[$langId]['long']        =>    For Example: 'English', 'Deutsch', 'French', ...
-     *
-     * @return    array        $arrReturn
+     * @global  ADONewConnection
+     * @return  array       $arrReturn
      */
     function createLanguageArray() {
+        global $objDatabase;
 
         $arrReturn = array();
 
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
-            $arrReturn[$frontendLanguage['id']] = array(
-                'short' =>  stripslashes($frontendLanguage['lang']),
-                'long'  =>  htmlentities(stripslashes($frontendLanguage['name']),ENT_QUOTES, CONTREXX_CHARSET)
-            );
+        $objResult = $objDatabase->Execute('SELECT      id,
+                                                        lang,
+                                                        name
+                                            FROM        '.DBPREFIX.'languages
+                                            WHERE       frontend=1
+                                            ORDER BY    id
+                                        ');
+        while (!$objResult->EOF) {
+            $arrReturn[$objResult->fields['id']] = array(   'short' =>  stripslashes($objResult->fields['lang']),
+                                                            'long'  =>  htmlentities(stripslashes($objResult->fields['name']),ENT_QUOTES, CONTREXX_CHARSET)
+                                                        );
+            $objResult->MoveNext();
         }
 
         return $arrReturn;
@@ -763,8 +769,8 @@ class ForumLibrary
                                                                 'last_post_str'     =>  !empty($strLastPost) ? $strLastPost : $_ARRAYLANG['TXT_FORUM_NO_SUBJECT'],
                                                                 'last_post_date'    =>  !empty($strLastPostDate) ? $strLastPostDate : '',
                                                                 'languages'         =>  $this->_arrTranslations[$objResult->fields['cId']],
-                                                                'name'              =>  isset($this->_arrTranslations[$objResult->fields['cId']][$this->_intLangId]) ? $this->_arrTranslations[$objResult->fields['cId']][$this->_intLangId]['name'] : '',
-                                                                'description'       =>  isset($this->_arrTranslations[$objResult->fields['cId']][$this->_intLangId]) ? $this->_arrTranslations[$objResult->fields['cId']][$this->_intLangId]['desc'] : '',
+                                                                'name'              =>  $this->_arrTranslations[$objResult->fields['cId']][$this->_intLangId]['name'],
+                                                                'description'       =>  $this->_arrTranslations[$objResult->fields['cId']][$this->_intLangId]['desc'],
                                             );
                 $this->createForumTree($arrForums,$objResult->fields['cId'],$intLevel+1);
             }
@@ -1163,7 +1169,6 @@ class ForumLibrary
         global $objDatabase, $_ARRAYLANG;
 
         $index = 0;
-        $arrLatestEntries = array();
         $query = (empty($this->_arrSettings['latest_post_per_thread'])
             ? "SELECT `id` , `category_id` , `thread_id` , `subject` , `user_id` , `time_created`
                  FROM `".DBPREFIX."module_forum_postings`
@@ -1183,7 +1188,6 @@ class ForumLibrary
             $objFWUser = \FWUser::getFWUserObject();
 
             while(!$objRS->EOF) {
-                $arrLatestEntries[$index] = array();
                 $arrLatestEntries[$index]['subject'] = !empty($objRS->fields['subject']) ? $objRS->fields['subject'] : $_ARRAYLANG['TXT_FORUM_NO_SUBJECT'];
                 $arrLatestEntries[$index]['post_id'] = $objRS->fields['id'];
                 $arrLatestEntries[$index]['thread_id'] = $objRS->fields['thread_id'];

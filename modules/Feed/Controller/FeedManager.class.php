@@ -64,7 +64,7 @@ class FeedManager extends FeedLibrary
     public $_objNewsML;
 
     private $act = '';
-
+    
     function __construct()
     {
         global  $_ARRAYLANG, $objTemplate, $_CONFIG;
@@ -75,7 +75,7 @@ class FeedManager extends FeedLibrary
 
         if (isset($_GET['act']) && $_GET['act'] == 'settings' && isset($_POST['save'])) {
             $this->_saveSettings();
-        }
+        }       
 
         //feed path
         $this->feedpath = \Env::get('cx')->getWebsiteFeedPath() . '/';
@@ -144,7 +144,7 @@ class FeedManager extends FeedLibrary
 
         $this->act = $_REQUEST['act'];
         $this->setNavigation();
-
+        
         $objTemplate->setVariable('ADMIN_CONTENT', $this->_objTpl->get());
     }
 
@@ -174,7 +174,7 @@ class FeedManager extends FeedLibrary
                 \Cx\Core\Setting\Controller\Setting::update('feedNewsMLStatus');
             }
         }
-
+        
         $_SESSION['strOkMessage'] = $_CORELANG['TXT_SETTINGS_UPDATED'];
     }
 
@@ -740,8 +740,16 @@ class FeedManager extends FeedLibrary
         $to_lang    = '';
         $to_lang[0] = '';
 
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
-            $to_lang[$frontendLanguage['id']] = $frontendLanguage['lang'];
+        $query = "SELECT id,
+                           lang
+                      FROM ".DBPREFIX."languages
+                     WHERE id<>0
+                     ORDER BY id";
+        $objResult = $objDatabase->Execute($query);
+
+        while (!$objResult->EOF) {
+            $to_lang[$objResult->fields['id']] = $objResult->fields['lang'];
+            $objResult->MoveNext();
         }
 
         //table
@@ -1366,18 +1374,26 @@ class FeedManager extends FeedLibrary
         }
 
         //lang
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
+        $query = "SELECT id,
+                           name
+                      FROM ".DBPREFIX."languages
+                     WHERE id<>0
+                     ORDER BY id";
+        $objResult = $objDatabase->Execute($query);
+
+        while(!$objResult->EOF) {
             $selected = '';
-            if ($_LANGID == $frontendLanguage['id']) {
+            if ($_LANGID == $objResult->fields['id']) {
                 $selected = ' selected';
             }
 
             $this->_objTpl->setVariable(array(
-                'FEED_LANG_ID' => $frontendLanguage['id'],
+                'FEED_LANG_ID' => $objResult->fields['id'],
                 'FEED_LANG_SELECTED' => $selected,
-                'FEED_LANG_NAME' => $frontendLanguage['name']
+                'FEED_LANG_NAME' => $objResult->fields['name']
             ));
             $this->_objTpl->parse('feed_lang');
+            $objResult->MoveNext();
         }
 
         //table
@@ -1431,6 +1447,12 @@ class FeedManager extends FeedLibrary
                  WHERE subid = '".$objResult->fields['id']."'";
             $objResult2 = $objDatabase->Execute($query);
             $records = $objResult2->fields['numof_records'];
+              //lang
+            $query = "
+                SELECT name
+                  FROM ".DBPREFIX."languages
+                 WHERE id = '".$objResult->fields['lang']."'";
+            $objResult2 = $objDatabase->Execute($query);
 
             //parser
             $this->_objTpl->setVariable(array(
@@ -1439,7 +1461,7 @@ class FeedManager extends FeedLibrary
                 'FEED_STATUS' => $status,
                 'FEED_ID' => $objResult->fields['id'],
                 'FEED_NAME' => $objResult->fields['name'],
-                'FEED_LANG' => \FWLanguage::getLanguageParameter($objResult->fields['lang'], 'name'),
+                'FEED_LANG' => $objResult2->fields['name'],
                 'FEED_TIME' => $objResult->fields['time'],
                 'FEED_RECORDS' => $records,
                 'TXT_FEED_EDIT' => $_ARRAYLANG['TXT_FEED_EDIT']
@@ -1687,16 +1709,23 @@ class FeedManager extends FeedLibrary
         ));
 
         //lang
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
+        $query = "SELECT id,
+                           name
+                      FROM ".DBPREFIX."languages
+                     WHERE id<>0
+                     ORDER BY id";
+        $objResult = $objDatabase->Execute($query);
+
+        while (!$objResult->EOF) {
             $selected = '';
-            if ($lang == $frontendLanguage['id']) {
+            if ($lang == $objResult->fields['id']) {
                 $selected = ' selected';
             }
 
             $this->_objTpl->setVariable(array(
-                'FEED_LANG_ID' => $frontendLanguage['id'],
+                'FEED_LANG_ID' => $objResult->fields['id'],
                 'FEED_LANG_SELECTED' => $selected,
-                'FEED_LANG_NAME' => $frontendLanguage['name']
+                'FEED_LANG_NAME' => $objResult->fields['name']
             ));
             $this->_objTpl->parse('feed_lang');
             $objResult->MoveNext();

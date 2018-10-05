@@ -27,7 +27,7 @@
 
 /**
  * Main controller for Newsletter
- *
+ * 
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -38,7 +38,7 @@ namespace Cx\Modules\Newsletter\Controller;
 
 /**
  * Main controller for Newsletter
- *
+ * 
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -51,71 +51,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array();
     }
 
-    /**
-     * Returns a list of command mode commands provided by this component
-     *
-     * @return array List of command names
-     */
-    public function getCommandsForCommandMode()
-    {
-        return array('Newsletter');
-    }
-
-    /**
-     * Returns the description for a command provided by this component
-     * @param string $command The name of the command to fetch the description from
-     * @param boolean $short Wheter to return short or long description
-     * @return string Command description
-     */
-    public function getCommandDescription($command, $short = false) {
-        switch ($command) {
-            case 'Newsletter':
-                $desc = 'Group-based newsletter system';
-                if ($short) {
-                    return $desc;
-                }
-                $desc .= PHP_EOL . PHP_EOL . 'autoclean' . "\t" . 'Cleanup unsuccessul registrations';
-                return $desc;
-                break;
-        }
-    }
-
-    /**
-     * Execute api command
-     *
-     * @param string $command Name of command to execute
-     * @param array  $arguments List of arguments for the command
-     * @param array  $dataArguments (optional) List of data arguments for the command
-     */
-    public function executeCommand($command, $arguments, $dataArguments = array())
-    {
-        $subcommand = null;
-        if (!empty($arguments[0])) {
-            $subcommand = $arguments[0];
-        }
-
-        // define frontend language
-        if (!defined('FRONTEND_LANG_ID')) {
-            define('FRONTEND_LANG_ID', 1);
-        }
-
-        switch ($command) {
-            case 'Newsletter':
-                switch ($subcommand) {
-                    case 'autoclean':
-                        $newsletterLib = new NewsletterLib();
-                        $newsletterLib->autoCleanRegisters();
-                        break;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
      /**
      * Load your component.
-     *
+     * 
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
@@ -129,7 +67,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
                 $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
                 $objTemplate = $this->cx->getTemplate();
-
+                
                 $subMenuTitle = $_CORELANG['TXT_CORE_EMAIL_MARKETING'];
                 $objNewsletter = new NewsletterManager();
                 $objNewsletter->getPage();
@@ -139,7 +77,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     /**
      * Do something after resolving is done
-     *
+     * 
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function postResolve(\Cx\Core\ContentManager\Model\Entity\Page $page) {
@@ -170,7 +108,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     /**
      * Do something before content is loaded from DB
-     *
+     * 
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {

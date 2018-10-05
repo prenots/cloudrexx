@@ -291,9 +291,6 @@ class DB_NestedSet {
     // | Base methods                          |
     // +---------------------------------------+
     // {{{ constructor
-    public function __construct($params) {
-        $this->DB_NestedSet($params);
-    }
     /**
     * Constructor
     *

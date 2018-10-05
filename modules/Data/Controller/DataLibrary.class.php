@@ -114,20 +114,29 @@ class DataLibrary
      * Creates an array containing all frontend-languages.
      *
      * Contents:
-     * $arrValue[$langId]['short']        =>    For Example: en, de, fr, de-CH, ...
+     * $arrValue[$langId]['short']        =>    For Example: en, de, fr, ...
      * $arrValue[$langId]['long']        =>    For Example: 'English', 'Deutsch', 'French', ...
      *
+     * @global     ADONewConnection
      * @return    array        $arrReturn
      */
     function createLanguageArray() {
+        global $objDatabase;
 
         $arrReturn = array();
 
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
-            $arrReturn[$frontendLanguage['id']] = array(
-                'short' =>  stripslashes($frontendLanguage['lang']),
-                'long'  =>  htmlentities(stripslashes($frontendLanguage['name']),ENT_QUOTES, CONTREXX_CHARSET)
-            );
+        $objResult = $objDatabase->Execute('SELECT        id,
+                                                        lang,
+                                                        name
+                                            FROM        '.DBPREFIX.'languages
+                                            WHERE        frontend=1
+                                            ORDER BY    id
+                                        ');
+        while (!$objResult->EOF) {
+            $arrReturn[$objResult->fields['id']] = array(    'short'    =>    stripslashes($objResult->fields['lang']),
+                                                            'long'    =>    htmlentities(stripslashes($objResult->fields['name']),ENT_QUOTES, CONTREXX_CHARSET)
+                                                        );
+            $objResult->MoveNext();
         }
 
         return $arrReturn;
@@ -158,13 +167,13 @@ class DataLibrary
 
 
         $query = '
-            SELECT DISTINCT
+            SELECT DISTINCT 
                 category_id
             FROM
                 '.DBPREFIX.'module_data_categories
-           ORDER BY
+           ORDER BY 
                 sort
-            LIMIT
+            LIMIT 
                 '.$intStartingIndex.','.$intLimitIndex;
 
         $objResult = $objDatabase->Execute($query);
@@ -172,7 +181,7 @@ class DataLibrary
         if ($objResult->RecordCount() > 0) {
             while (!$objResult->EOF) {
                 foreach (array_keys($this->_arrLanguages) as $intLangId) {
-                    $arrReturn[intval($objResult->fields['category_id'])][$intLangId] = array(
+                    $arrReturn[intval($objResult->fields['category_id'])][$intLangId] = array(    
                         'name'          => '',
                         'is_active'     => '',
                         'placeholder'   => '',
@@ -189,8 +198,8 @@ class DataLibrary
         //Fill array if possible
         foreach ($arrReturn as $intCategoryId => $arrLanguages) {
             foreach (array_keys($arrLanguages) as $intLanguageId) {
-                $query = '
-                    SELECT
+                $query = '  
+                    SELECT 
                             is_active,
                             name,
                             parent_id,
@@ -202,17 +211,17 @@ class DataLibrary
                             categories.box_width,
                             categories.box_height,
                             categories.template
-                    FROM
+                    FROM 
                             '.DBPREFIX.'module_data_categories      AS categories
-                    LEFT JOIN
+                    LEFT JOIN 
                             '.DBPREFIX.'module_data_placeholders    AS ph
                     ON
                             categories.category_id = ph.ref_id
                         AND
                             `ph`.`type` = "cat"
 
-                    WHERE
-                            category_id='.$intCategoryId.'
+                    WHERE        
+                            category_id='.$intCategoryId.' 
                         AND
                             lang_id='.$intLanguageId.'
                     LIMIT
@@ -300,7 +309,7 @@ class DataLibrary
         } else {
             $limit = "";
         }
-        $query = "  SELECT
+        $query = "  SELECT      
                         dataMessages.message_id,
                         dataMessages.time_created,
                         dataMessages.time_edited,
@@ -310,17 +319,17 @@ class DataLibrary
                         ph.placeholder,
                         dataMessages.release_time              AS release_time,
                         dataMessages.release_time_end          AS release_time_end
-                    FROM
+                    FROM 
                        ".DBPREFIX."module_data_messages        AS dataMessages
-                    LEFT JOIN
+                    LEFT JOIN  
                         ".DBPREFIX."module_data_placeholders   AS ph
-                    ON
+                    ON 
                          dataMessages.message_id = ph.ref_id
                         ".$strLanguageJoin."
-                    WHERE
+                    WHERE 
                         ph.type = 'entry'
                     ".$strLanguageWhere."
-                    ORDER BY
+                    ORDER BY 
                        sort ASC
                     ".$limit;
 
@@ -386,7 +395,7 @@ class DataLibrary
 
                     if ( ($intLanguageId == $this->_intLanguageId && !empty($translations->fields['subject'])) ||
                            empty($arrReturn[$intMessageId]['subject']) ) {
-                       $arrReturn[$intMessageId]['subject'] =
+                       $arrReturn[$intMessageId]['subject'] = 
                            htmlentities(stripslashes($translations->fields['subject']), ENT_QUOTES, CONTREXX_CHARSET);
                     }
 
@@ -427,7 +436,7 @@ class DataLibrary
         global $objDatabase;
 
         $query = '
-            SELECT
+            SELECT 
                lang_id,
                 is_active,
                 subject,
@@ -442,9 +451,9 @@ class DataLibrary
                 attachment_description,
                 forward_url,
                 forward_target
-            FROM
+            FROM 
                '.DBPREFIX.'module_data_messages_lang
-            WHERE
+            WHERE 
                message_id='.$id;
 
 

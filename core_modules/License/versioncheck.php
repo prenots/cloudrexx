@@ -25,7 +25,7 @@
  * our trademarks remain entirely with us.
  */
 
-global $_CONFIG, $_CORELANG, $objUser, $objDatabase;
+global $sessionObj, $_CONFIG, $_CORELANG, $objUser, $objDatabase;
 
 if (!isset($objUser) || !isset($objDatabase) || !isset($license)) {
     require_once dirname(dirname(dirname(__FILE__))).'/core/Core/init.php';
@@ -33,14 +33,11 @@ if (!isset($objUser) || !isset($objDatabase) || !isset($license)) {
     // In mode 'minimal' we have to manually register event listeners.
     // The listener registerYamlSettingEventListener is used to update the
     // settings.php file.
-    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener($cx);
-}
-if (!$cx) {
-    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+    \Cx\Core\Config\Controller\ComponentController::registerYamlSettingEventListener();
 }
 
 // Init user
-$sessionObj = $cx->getComponent('Session')->getSession();
+if (empty($sessionObj)) $sessionObj = \cmsSession::getInstance();
 if (!isset($objUser)) {
     $objUser = $cx->getUser()->objUser;
 }

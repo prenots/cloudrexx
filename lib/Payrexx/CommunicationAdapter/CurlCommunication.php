@@ -38,16 +38,7 @@ class CurlCommunication extends \Payrexx\CommunicationAdapter\AbstractCommunicat
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_CAINFO => dirname(__DIR__) . '/certs/ca.pem',
         );
-        if (defined(PHP_QUERY_RFC3986)) {
-            $paramString = http_build_query($params, null, '&', PHP_QUERY_RFC3986);
-        } else {
-            // legacy, because the $enc_type has been implemented with PHP 5.4
-            $paramString = str_replace(
-                array('+', '%7E'),
-                array('%20', '~'),
-                http_build_query($params, null, '&')
-            );
-        }
+        $paramString = http_build_query($params, null, '&', PHP_QUERY_RFC3986);
         if ($method == 'GET') {
             if (!empty($params)) {
                 $curlOpts[CURLOPT_URL] .= strpos($curlOpts[CURLOPT_URL], '?') === false ? '?' : '&';
@@ -69,14 +60,11 @@ class CurlCommunication extends \Payrexx\CommunicationAdapter\AbstractCommunicat
         }
         curl_close($curl);
 
-        if ($responseInfo['content_type'] === 'application/json') {
-            $responseBody = json_decode($responseBody, true);
+        if ($responseInfo['content_type'] != 'application/json') {
+            return $responseBody;
         }
 
-        return array(
-            'info' => $responseInfo,
-            'body' => $responseBody
-        );
+        return json_decode($responseBody, true);
     }
 
     /**

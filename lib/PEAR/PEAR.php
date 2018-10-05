@@ -136,10 +136,6 @@ class PEAR
 
     // {{{ constructor
 
-    public function __construct($error_class = null) {
-        $this->PEAR($error_class);
-    }
-
     /**
      * Constructor.  Registers this object in
      * $_PEAR_destructor_object_list for destructor emulation if a
@@ -665,7 +661,7 @@ function _PEAR_call_destructors()
         sizeof($_PEAR_destructor_object_list))
     {
         reset($_PEAR_destructor_object_list);
-        foreach ($_PEAR_destructor_object_list as $k => $objref) {
+        while (list($k, $objref) = each($_PEAR_destructor_object_list)) {
             $classname = get_class($objref);
             while ($classname) {
                 $destructor = "_$classname";
@@ -706,11 +702,6 @@ class PEAR_Error
 
     // }}}
     // {{{ constructor
-
-    public function __construct($message = 'unknown error', $code = null,
-                        $mode = null, $options = null, $userinfo = null) {
-        $this->PEAR_Error($message, $code, $mode, $options, $userinfo);
-    }
 
     /**
      * PEAR_Error constructor

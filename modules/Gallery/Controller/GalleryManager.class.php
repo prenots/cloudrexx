@@ -434,7 +434,7 @@ class GalleryManager extends GalleryLibrary
      */
     function overview()
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $objDatabase, $_ARRAYLANG, $_LANGID;
 
 
         $this->strPageTitle = $_ARRAYLANG['TXT_GALLERY_MENU_OVERVIEW'];
@@ -468,7 +468,7 @@ class GalleryManager extends GalleryLibrary
                 $arrImageCount[$objResult->fields['id']] = '';
                 $objResult->MoveNext();
             }
-
+        
             foreach (array_keys($arrImageSize) as $intKey) {
                 $objResult = $objDatabase->Execute('SELECT     path
                                                    FROM     '.DBPREFIX.'module_gallery_pictures
@@ -481,10 +481,10 @@ class GalleryManager extends GalleryLibrary
                 $arrImageSize[$intKey] = round($arrImageSize[$intKey] / 1024,2);
             }
         }
-
+        
         //get the gallery name by current activate lang id
         $arrCategoryName = $this->getCategoryNameByLang();
-
+        
         $objResult = $objDatabase->Execute('SELECT         id
                                             FROM         '.DBPREFIX.'module_gallery_categories
                                             WHERE         pid=0
@@ -547,23 +547,23 @@ class GalleryManager extends GalleryLibrary
 
     /**
      * Show the Sub Categories
-     *
+     * 
      * @global ADONewConnection $objDatabase
      * @param integer $parentId
      * @param array $arrCategoryName
      * @param array $arrImageCount
      * @param array $arrImageSize
      * @param string $subCategorySpace
-     *
+     * 
      * @return boolean
      */
     function showSubCategories($parentId, $arrCategoryName, $arrImageCount, $arrImageSize, $subCategorySpace) {
         global $objDatabase;
-
+        
         if (empty($parentId)) {
             return;
         }
-
+        
         $objSubCategory = $objDatabase->Execute('SELECT `id`,
                                                         `sorting`,
                                                         `status`
@@ -590,29 +590,30 @@ class GalleryManager extends GalleryLibrary
                 ));
                 $this->_objTpl->parse('showCategories');
                 $intRowCounter++;
-
+                
                 //Showing third level sub categories
                 $this->showSubCategories($objSubCategory->fields['id'], $arrCategoryName, $arrImageCount, $arrImageSize, $subCategorySpace . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-
+                
                 $objSubCategory->MoveNext();
             }
         }
         return;
     }
-
+    
     /**
      * Get the Category Name by Language
-     *
+     * 
      * @global ADONewConnection $objDatabase
-     *
+     * @global Array            $_LANGID
+     * 
      * @return boolean|array
      */
     function getCategoryNameByLang() {
-        global $objDatabase;
-
+        global $objDatabase, $_LANGID;
+        
         $objSubResult = $objDatabase->Execute('SELECT `name`, `value`, `gallery_id`
                                                     FROM `' . DBPREFIX . 'module_gallery_language`
-                                                        WHERE `lang_id` = ' . $this->intLangId . '
+                                                        WHERE `lang_id` = ' . $_LANGID . '
                                                             ORDER BY `name` ASC');
         if ($objSubResult && $objSubResult->RecordCount() > 0) {
             $arrCategoryName = array();
@@ -624,7 +625,7 @@ class GalleryManager extends GalleryLibrary
         }
         return false;
     }
-
+    
     /**
      * Shows the 'Insert new category'-Form
      *
@@ -690,17 +691,22 @@ class GalleryManager extends GalleryLibrary
             'FORM_ACT'                          => 'insert_category'
         ));
 
-        $frontendLanguages = \FWLanguage::getActiveFrontendLanguages();
-        if (!empty($frontendLanguages)) {
-            foreach ($frontendLanguages as $frontendLanguage) {
+        $objResult = $objDatabase->Execute('    SELECT        id,
+                                                            name
+                                                FROM        '.DBPREFIX.'languages
+                                                ORDER BY    id ASC
+                                            ');
+        if ($objResult->RecordCount() > 0) {
+            while (!$objResult->EOF) {
                 $this->_objTpl->setVariable(array(
-                    'NAMEFIELDS_LID'         =>    $frontendLanguage['id'],
-                    'DESCFIELDS_LID'         =>    $frontendLanguage['id'],
-                    'NAMEFIELDS_LANGUAGE'    =>    $frontendLanguage['name'],
-                    'DESCFIELDS_LANGUAGE'    =>    $frontendLanguage['name']
+                    'NAMEFIELDS_LID'         =>    $objResult->fields['id'],
+                    'DESCFIELDS_LID'         =>    $objResult->fields['id'],
+                    'NAMEFIELDS_LANGUAGE'    =>    $objResult->fields['name'],
+                    'DESCFIELDS_LANGUAGE'    =>    $objResult->fields['name']
                 ));
                 $this->_objTpl->parse('showNameFields');
                 $this->_objTpl->parse('showDescFields');
+                $objResult->MoveNext();
             }
         } else {
             $this->_objTpl->hideBlock('showNameFields');
@@ -727,9 +733,11 @@ class GalleryManager extends GalleryLibrary
      */
     private function parseCategoryDropdown($selected=-1, $disabled=false, $name="showCategories", $parent_id=0, $level=0, $parseSubCategories = true)
     {
+        global $_LANGID;
+
 // TODO: Unused
 //        $objFWuser = \FWUser::getFWUserObject();
-        $categories = $this->sql->getCategoriesArray($this->intLangId, $parent_id);
+        $categories = $this->sql->getCategoriesArray($_LANGID, $parent_id);
 
         if ($disabled) {
             $this->_objTpl->setVariable('CAT_DROPDOWN_DISABLED', ' disabled="disabled"');
@@ -1039,14 +1047,19 @@ class GalleryManager extends GalleryLibrary
             'TXT_NO_RESTRICTIONS'           => $_ARRAYLANG['TXT_NO_RESTRICTIONS']
         ));
 
-        $frontendLanguages = \FWLanguage::getActiveFrontendLanguages();
-        if (!empty($frontendLanguages)) {
-            foreach ($frontendLanguages as $frontendLanguage) {
+        $objResult = $objDatabase->Execute('    SELECT        id,
+                                                            name,
+                                                            is_default
+                                                FROM        '.DBPREFIX.'languages
+                                                ORDER BY    id ASC
+                                            ');
+        if ($objResult->RecordCount() > 0) {
+            while (!$objResult->EOF) {
                 $objSubResult = $objDatabase->Execute('    SELECT        name,
                                                                     value
                                                         FROM        '.DBPREFIX.'module_gallery_language
                                                         WHERE        gallery_id='.intval($intCategoryId).' AND
-                                                                    lang_id='.$frontendLanguage['id'].'
+                                                                    lang_id='.$objResult->fields['id'].'
                                                         ORDER BY    name ASC
                                                     ');
                 unset($arrCategoryLang);
@@ -1056,10 +1069,10 @@ class GalleryManager extends GalleryLibrary
                 }
 
                 $this->_objTpl->setVariable(array(
-                    'NAMEFIELDS_LID'        =>    $frontendLanguage['id'],
-                    'DESCFIELDS_LID'        =>    $frontendLanguage['id'],
-                    'NAMEFIELDS_LANGUAGE'    =>    $frontendLanguage['name'],
-                    'DESCFIELDS_LANGUAGE'    =>    $frontendLanguage['name'],
+                    'NAMEFIELDS_LID'        =>    $objResult->fields['id'],
+                    'DESCFIELDS_LID'        =>    $objResult->fields['id'],
+                    'NAMEFIELDS_LANGUAGE'    =>    $objResult->fields['name'],
+                    'DESCFIELDS_LANGUAGE'    =>    $objResult->fields['name'],
                     'NAMEFIELDS_VALUE'        =>    $arrCategoryLang['name'],
                     'DESCFIELDS_VALUE'        =>    $arrCategoryLang['desc']
                 ));
@@ -1067,10 +1080,11 @@ class GalleryManager extends GalleryLibrary
                 $this->_objTpl->parse('showNameFields');
                 $this->_objTpl->parse('showDescFields');
 
-                if ($frontendLanguage['is_default'] == 'true') {
+                if ($objResult->fields['is_default'] == 'true') {
                     $strNameDefault = $arrCategoryLang['name'];
                     $strDescDefault = $arrCategoryLang['desc'];
                 }
+                $objResult->MoveNext();
             }
         } else {
             $this->_objTpl->hideBlock('showNameFields');
@@ -1170,7 +1184,7 @@ class GalleryManager extends GalleryLibrary
                 $objSubResult = $objDatabase->Execute('    SELECT        value
                                                         FROM        '.DBPREFIX.'module_gallery_language
                                                         WHERE        gallery_id='.$objResult->fields['id'].' AND
-                                                                    lang_id='.$this->intLangId.' AND
+                                                                    lang_id='.$objFWUser->objUser->getFrontendLanguage().' AND
                                                                     name="name"
                                                     ');
                 $this->_objTpl->setVariable(array(
@@ -1387,7 +1401,7 @@ class GalleryManager extends GalleryLibrary
         $objResult = $objDatabase->Execute('SELECT     value
                                             FROM     '.DBPREFIX.'module_gallery_language
                                             WHERE     gallery_id='.intval($intCatId).' AND
-                                                    lang_id='.$this->intLangId.' AND
+                                                    lang_id='.$objFWUser->objUser->getFrontendLanguage().' AND
                                                     name="desc"
                                         ');
         $strCategoryComment = $objResult->fields['value'];
@@ -1737,7 +1751,7 @@ class GalleryManager extends GalleryLibrary
                                             ');
         $boolComment     = $objResult->fields['comment'];
         $boolVoting        = $objResult->fields['voting'];
-
+        
         if ($this->arrSettings['show_comments'] == 'off' || $boolComment == 0) {
             $this->_objTpl->hideBlock('tabComment');
             if ($_GET['active'] == 'comment') {
@@ -1791,14 +1805,14 @@ class GalleryManager extends GalleryLibrary
                                                         `desc`
                                                 FROM    '.DBPREFIX.'module_gallery_language_pics
                                                 WHERE    picture_id='.$intPid.' AND
-                                                        lang_id='.$this->intLangId.'
+                                                        lang_id='.$objFWUser->objUser->getFrontendLanguage().'
                                                 LIMIT    1');
 
         // Hide "Show image size" checbox when the settings option "Show image size" is not set
         if ($this->arrSettings['show_image_size'] != 'on') {
             $this->_objTpl->hideBlock('showImageSize');
         }
-
+        
         $boolSizeShow = ($objResult->fields['size_show'] == '1') ? 'checked' : '';
 
         $this->_objTpl->setVariable(array(
@@ -1810,27 +1824,32 @@ class GalleryManager extends GalleryLibrary
             'VALUE_ID'                => $intPid
         ));
 
-        $frontendLanguages = \FWLanguage::getActiveFrontendLanguages();
-        if (!empty($frontendLanguages)) {
-            foreach ($frontendLanguages as $frontendLanguage) {
+        $objResult = $objDatabase->Execute('    SELECT        id,
+                                                            name
+                                                FROM        '.DBPREFIX.'languages
+                                                ORDER BY    id ASC
+                                            ');
+        if ($objResult->RecordCount() > 0) {
+            while (!$objResult->EOF) {
                 $objSubResult = $objDatabase->Execute('    SELECT    name,
                                                                 `desc`
                                                         FROM    '.DBPREFIX.'module_gallery_language_pics
                                                         WHERE    picture_id='.$intPid.' AND
-                                                                lang_id='.$frontendLanguage['id'].'
+                                                                lang_id='.$objResult->fields['id'].'
                                                         LIMIT    1');
                 $this->_objTpl->setVariable(array(
                     'NAMEFIELDS_VALUE'        =>    $objSubResult->fields['name'],
-                    'NAMEFIELDS_LID'        =>    $frontendLanguage['id'],
-                    'NAMEFIELDS_LANGUAGE'    =>    $frontendLanguage['name'],
+                    'NAMEFIELDS_LID'        =>    $objResult->fields['id'],
+                    'NAMEFIELDS_LANGUAGE'    =>    $objResult->fields['name'],
             ));
                 $this->_objTpl->setVariable(array(
                     'DESCFIELDS_VALUE'        =>    $objSubResult->fields['desc'],
-                    'DESCFIELDS_LID'        =>    $frontendLanguage['id'],
-                    'DESCFIELDS_LANGUAGE'    =>    $frontendLanguage['name'],
+                    'DESCFIELDS_LID'        =>    $objResult->fields['id'],
+                    'DESCFIELDS_LANGUAGE'    =>    $objResult->fields['name'],
             ));
             $this->_objTpl->parse('showNameFields');
             $this->_objTpl->parse('showDescFields');
+            $objResult->MoveNext();
             }
         } else {
             $this->_objTpl->hideBlock('showNameFields');
@@ -1840,6 +1859,7 @@ class GalleryManager extends GalleryLibrary
     //comments
         $objResult = $objDatabase->Execute('    SELECT        id,
                                                             date,
+                                                            ip,
                                                             name,
                                                             email,
                                                             www,
@@ -1856,6 +1876,7 @@ class GalleryManager extends GalleryLibrary
                 $this->_objTpl->SetVariable(array(    'COMMENTS_ROWCLASS'    =>    ($i % 2)+1,
                                                     'COMMENTS_ID'        =>    $objResult->fields['id'],
                                                     'COMMENTS_DATE'        =>    date('d.m.Y',$objResult->fields['date']),
+                                                    'COMMENTS_IP'        =>    $objResult->fields['ip'],
                                                     'COMMENTS_NAME'        =>    $objResult->fields['name'],
                                                     'COMMENTS_EMAIL'    =>    $objResult->fields['email'],
                                                     'COMMENTS_WWW'        =>    $objResult->fields['www'],
@@ -1892,6 +1913,7 @@ class GalleryManager extends GalleryLibrary
         /** end paging **/
         $objResult = $objDatabase->SelectLimit('SELECT        id,
                                                             date,
+                                                            ip,
                                                             mark
                                                 FROM        '.DBPREFIX.'module_gallery_votes
                                                 WHERE        picid='.$intPid.'
@@ -1905,6 +1927,7 @@ class GalleryManager extends GalleryLibrary
                 $this->_objTpl->SetVariable(array(    'VOTES_ROWCLASS'    =>    ($i % 2)+1,
                                                     'VOTES_ID'            =>    $objResult->fields['id'],
                                                     'VOTES_DATE'        =>    date('d.m.Y',$objResult->fields['date']),
+                                                    'VOTES_IP'            =>    $objResult->fields['ip'],
                                                     'VOTES_MARK'        =>    $objResult->fields['mark']
                                             ));
                 $this->_objTpl->parse('showVotes');
@@ -2005,7 +2028,7 @@ class GalleryManager extends GalleryLibrary
             'TXT_SETTINGS_THUMB_PROZ_DESC'            =>    $_ARRAYLANG['TXT_SETTINGS_THUMB_PROZ_DESC'],
             'TXT_SETTINGS_QUALITY'                    =>    $_ARRAYLANG['TXT_SETTINGS_QUALITY'],
             'TXT_STANDARD_QUALITY_UPLOADED_PICS'    =>    $_ARRAYLANG['TXT_STANDARD_QUALITY_UPLOADED_PICS'],
-            'TXT_GALLERY_QUALITY'                            =>    $_ARRAYLANG['TXT_GALLERY_QUALITY'],
+            'TXT_QUALITY'                            =>    $_ARRAYLANG['TXT_QUALITY'],
             'TXT_BUTTON_SUBMIT'                        =>    $_ARRAYLANG['TXT_GALLERY_BUTTON_SAVE_SORT'],
             'TXT_GALLERY_SETTINGS_POPUP_ENABLED'    =>    $_ARRAYLANG['TXT_GALLERY_SETTINGS_POPUP_ENABLED'],
             'TXT_GALLERY_SETTINGS_IMAGE_WIDTH'        =>    $_ARRAYLANG['TXT_GALLERY_SETTINGS_IMAGE_WIDTH'],
@@ -2052,6 +2075,7 @@ class GalleryManager extends GalleryLibrary
                 case 'enable_popups':
                     if ($objResult->fields['value'] != 'on') {
                         $this->_objTpl->SetVariable(array(
+                            'IMAGE_WIDTH_CONTAINER_VISIBILITY'  => 'display: none',
                             'SLIDE_SHOW_BLOCK'                  => 'display: none',
                         ));
                     } else {
@@ -2121,6 +2145,11 @@ class GalleryManager extends GalleryLibrary
             // the submitted category isnt allowed, so set the standardvalue 'proz'
             $_POST['standard_size_type'] = 'proz';
         }
+        if ($_POST['standard_height_abs'] > 0 && $_POST['standard_width_abs'] > 0) {
+            // only one value can be bigger than 0, so set one to zero
+            $_POST['standard_height_abs'] = 0;
+        }
+
         if ($_POST['standard_height_abs'] > 2000) {
             $_POST['standard_height_abs'] = 2000;
         }
@@ -2179,7 +2208,7 @@ class GalleryManager extends GalleryLibrary
         if (empty($_POST['show_file_name']) || $_POST['show_file_name'] != 'on') {
             $_POST['show_file_name'] = "off";
         }
-
+        
         if ($_POST['show_image_size'] != 'on') {
             // the value is not allowed, reset to off
             $_POST['show_image_size'] = 'off';
@@ -2231,12 +2260,12 @@ class GalleryManager extends GalleryLibrary
         $this->_objTpl->setVariable(array(
 //              'COMBO_UPLOADER_CODE' => $comboUp->getXHtml(true),
                 'COMBO_UPLOADER_CODE' => $uploader->getXHtml($_ARRAYLANG['TXT_GALLERY_MENU_UPLOAD_FORM_SUBMIT']),
-              'REDIRECT_URL'        => $redirectUrl
+			  'REDIRECT_URL'		=> $redirectUrl
         ));
         //end of uploader button handling
 
         //get enabled filetypes
-        $strEnabledTypes = '';
+		$strEnabledTypes = '';
         if ($this->boolGifEnabled == true) {
             $strEnabledTypes .= 'GIF ';
         }
@@ -2282,31 +2311,31 @@ class GalleryManager extends GalleryLibrary
     /**
      * Upload the submitted images
      *
-     * @global    ADONewConnection
+     * @global	ADONewConnection
      * @global  array
      * @global  array
-     * @param   string        $tempPath
-     * @param   array        $paths
-     * @param   integer        $uploadId
+     * @param   string		$tempPath
+     * @param   array		$paths
+     * @param   integer    	$uploadId
      */
     public static function uploadFinished($tempPath, $tempWebPath, $paths, $uploadId, $fileInfos, $response) {
 
-        global $objDatabase, $_ARRAYLANG, $_CONFIG, $objInit;
+		global $objDatabase, $_ARRAYLANG, $_CONFIG, $objInit;
         $lang = $objInit->loadLanguageData('Gallery');
-        $objGallery = new GalleryManager();
+		$objGallery = new GalleryManager();
 
-        $path = $paths['path'];
+		$path = $paths['path'];
         $webPath = $paths['webPath'];
 
         //we remember the names of the uploaded files here. they are stored in the session afterwards,
         //so we can later display them highlighted.
         $arrFiles = array();
 
-        //get allowed file types
-        $arrAllowedFileTypes = array();
-        if (imagetypes() & IMG_GIF) { $arrAllowedFileTypes[] = 'gif'; }
-        if (imagetypes() & IMG_JPG) { $arrAllowedFileTypes[] = 'jpg'; $arrAllowedFileTypes[] = 'jpeg'; }
-        if (imagetypes() & IMG_PNG) { $arrAllowedFileTypes[] = 'png'; }
+		//get allowed file types
+		$arrAllowedFileTypes = array();
+		if (imagetypes() & IMG_GIF) { $arrAllowedFileTypes[] = 'gif'; }
+		if (imagetypes() & IMG_JPG) { $arrAllowedFileTypes[] = 'jpg'; $arrAllowedFileTypes[] = 'jpeg'; }
+		if (imagetypes() & IMG_PNG) { $arrAllowedFileTypes[] = 'png'; }
 
         //rename files, delete unwanted
         $arrFilesToRename = array(); //used to remember the files we need to rename
@@ -2325,14 +2354,9 @@ class GalleryManager extends GalleryLibrary
         //width of the image is wider than the allowed value. Show Error.
         $arrImageSize = getimagesize($tempPath.'/'.$file);
         if (intval($arrImageSize[0]) > intval($objGallery->arrSettings['image_width'])) {
+            $objGallery->strErrMessage = str_replace('{WIDTH}', $objGallery->arrSettings['image_width'], $lang['TXT_GALLERY_UPLOAD_ERROR_WIDTH']);
              @unlink($tempPath.'/'.$file);
-             throw new \Exception(
-                 str_replace(
-                     '{WIDTH}',
-                     $objGallery->arrSettings['image_width'],
-                     $lang['TXT_GALLERY_UPLOAD_ERROR_WIDTH']
-                 )
-             );
+
         }
 
         //check if file needs to be renamed
@@ -2364,7 +2388,7 @@ class GalleryManager extends GalleryLibrary
         /* unwanted files have been deleted, unallowed filenames corrected.
            we can now simply return the desired target path, as only valid
            files are present in $tempPath */
-        return array($path, $webPath, $newName);
+		return array($path, $webPath, $newName);
     }
 
 
@@ -2412,11 +2436,11 @@ class GalleryManager extends GalleryLibrary
         $objDatabase->Execute($query);
 
         $intPictureId = $objDatabase->insert_id();
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
-            $objResult = $objDatabase->Execute('INSERT INTO '.DBPREFIX.'module_gallery_language_pics
+        $objResult = $objDatabase->Execute('INSERT INTO '.DBPREFIX.'module_gallery_language_pics
                                                (picture_id, lang_id, name)
-                                            VALUES ('.$intPictureId.', ' . $frontendLanguage['id'] . ', "'.contrexx_raw2db($imageName).'")');
-        }
+                                            SELECT
+                                               '.$intPictureId.', id, "'.contrexx_raw2db($imageName).'"
+                                            FROM '.DBPREFIX.'languages');
     }
 
 
@@ -2499,20 +2523,25 @@ class GalleryManager extends GalleryLibrary
                                                     WHERE         validated="0"
                                                     ORDER BY     lastedit ASC');
 
-                $frontendLanguages = \FWLanguage::getActiveFrontendLanguages();
-                if (!empty($frontendLanguages)) {
-                    foreach ($frontendLanguages as $frontendLanguage) {
+                $objSubResult = $objDatabase->Execute('    SELECT        id,
+                                                                    name
+                                                        FROM        '.DBPREFIX.'languages
+                                                        ORDER BY    id ASC
+                                                    ');
+                if ($objSubResult->RecordCount() > 0) {
+                    while (!$objSubResult->EOF) {
                         $objSubSubResult = $objDatabase->Execute('  SELECT   name
                                                                     FROM     '.DBPREFIX.'module_gallery_language_pics
                                                                     WHERE    picture_id='.$objResult->fields['id'].' AND
-                                                                             lang_id='.$frontendLanguage['id'].'
+                                                                             lang_id='.$objSubResult->fields['id'].'
                                                                     LIMIT    1');
                         $this->_objTpl->setVariable(array(
                             'NAMEFIELDS_VALUE'          =>    $objSubSubResult->fields['name'],
-                            'NAMEFIELDS_LID'            =>    $frontendLanguage['id'],
-                            'NAMEFIELDS_LANGUAGE'       =>    $frontendLanguage['name'],
+                            'NAMEFIELDS_LID'            =>    $objSubResult->fields['id'],
+                            'NAMEFIELDS_LANGUAGE'       =>    $objSubResult->fields['name'],
                         ));
                         $this->_objTpl->parse('showNameFields');
+                        $objSubResult->MoveNext();
                     }
                 } else {
                     $this->_objTpl->hideBlock('showNameFields');
@@ -2521,7 +2550,7 @@ class GalleryManager extends GalleryLibrary
                 $objSubResult = $objDatabase->Execute(' SELECT  name
                                                         FROM    '.DBPREFIX.'module_gallery_language_pics
                                                         WHERE   picture_id='.$objResult->fields['id'].' AND
-                                                                lang_id='.$this->intLangId.'
+                                                                lang_id='.$objFWUser->objUser->getFrontendLanguage().'
                                                         LIMIT   1
                                                     ');
 
@@ -2612,7 +2641,7 @@ class GalleryManager extends GalleryLibrary
 
                 $this->_objTpl->setVariable(array(
                     'DETAILS_ID'                        =>     $objResult->fields['id'],
-                    'DETAILS_NAME'                      =>    $frontendLanguage['name'],
+                    'DETAILS_NAME'                      =>    $objSubResult->fields['name'],
                     'DETAILS_UPLOADDATE'                =>    date('d.m.Y - h:i:s',$objResult->fields['lastedit']),
                     'DETAILS_ACTIVE_SELECTED'           =>    $strDetailsActive,
                     'DETAILS_SIZE_ORIG'                 =>    round(filesize($this->strImagePath.$objResult->fields['path'])/1024,2),
@@ -2755,7 +2784,7 @@ class GalleryManager extends GalleryLibrary
                     $arrFileInfo = getimagesize($this->strImagePath.$objResult->fields['path']);
 
                     $arrImageCounter[$objResult->fields['id']]                 = $objResult->fields['id'];
-                    $arrImageInfo[$objResult->fields['id']]['name']         = contrexx_raw2xhtml($arrNames[$objResult->fields['id']][$this->intLangId]);
+                    $arrImageInfo[$objResult->fields['id']]['name']         = contrexx_raw2xhtml($arrNames[$objResult->fields['id']][$objFWUser->objUser->getFrontendLanguage()]);
                     $arrImageInfo[$objResult->fields['id']]['random_path']     = $this->strThumbnailWebPath.'temp_'.rand().'_'.$objResult->fields['path'];
                     $arrImageInfo[$objResult->fields['id']]['uploadtime']     = date('d.m.Y',$objResult->fields['lastedit']);
                     $arrImageInfo[$objResult->fields['id']]['size_o']         = round(filesize($this->strImagePath.$objResult->fields['path'])/1024,2);
@@ -2793,16 +2822,21 @@ class GalleryManager extends GalleryLibrary
                         'TXT_EXTENDED'              => $_ARRAYLANG['TXT_GALLERY_EXTENDED']
                     ));
 
-                    $frontendLanguages = \FWLanguage::getActiveFrontendLanguages();
-                    if (!empty($frontendLanguages)) {
-                        foreach ($frontendLanguages as $frontendLanguage) {
+                    $objResult = $objDatabase->Execute('    SELECT        id,
+                                                                        name
+                                                            FROM        '.DBPREFIX.'languages
+                                                            ORDER BY    id ASC
+                                                        ');
+                    if ($objResult->RecordCount() > 0) {
+                        while (!$objResult->EOF) {
                             $this->_objTpl->setVariable(array(
                                 'NAMEFIELDS_IMID'       => $intIdKey,
-                                'NAMEFIELDS_IMVALUE'    => $arrNames[$intIdKey][$frontendLanguage['id']],
-                                'NAMEFIELDS_LID'        => $frontendLanguage['id'],
-                                'NAMEFIELDS_LANGUAGE'   => $frontendLanguage['name'],
+                                'NAMEFIELDS_IMVALUE'    => $arrNames[$intIdKey][$objResult->fields['id']],
+                                'NAMEFIELDS_LID'        => $objResult->fields['id'],
+                                'NAMEFIELDS_LANGUAGE'   => $objResult->fields['name'],
                             ));
                             $this->_objTpl->parse('showNameFields');
+                            $objResult->MoveNext();
                         }
                     } else {
                         $this->_objTpl->hideBlock('showNameFields');
@@ -3223,10 +3257,10 @@ $strFileNew = '';
         $strWebpath     = $this->strImageWebPath;
         $strThumbPath   = $this->strThumbnailPath;
         $strThumbWebpath= $this->strThumbnailWebPath;
-
+                
         $objImage = new \ImageManager();
         $objImage->loadImage($strOrgPath.$strImagename);
-
+               
         //Rotate the clockwise
         if($objImage->rotateImage(270)){
 
@@ -3256,8 +3290,8 @@ $strFileNew = '';
                 $intNewHeight = round(($objResult->fields['size_proz'] / 100) * $intOldHeight, 0);
             }
 
-            //Resize the Rotated image
-            if ($this->createImages_JPG_GIF_PNG($strOrgPath, $strThumbPath, $strImagename, $strImagename, $intNewWidth, $intNewHeight, $objResult->fields['quality'])) {
+            //Resize the Rotated image 
+            if ($objImage->resizeImageSave($strOrgPath, $strWebpath, $strImagename, $intNewWidth, $intNewHeight, $objResult->fields['quality'], $strThumbPath, $strThumbWebpath, $strImagename)) {
                 if ($objResult->fields['size_type'] == 'abs') {
                     $objDatabase->Execute('    UPDATE     ' . DBPREFIX . 'module_gallery_pictures
                                     SET     size_abs_h=' . $intNewHeight . ',
@@ -3460,7 +3494,7 @@ $strFileNew = '';
         //check if file exists
         $boolChecker = false;
 
-        $strImportedImageName = \Cx\Lib\FileSystem\FileSystem::replaceCharacters($strFile);
+        $strImportedImageName = $strFile;
         while ($boolChecker == false) {
             if (self::fileExists($this->strImagePath.$strImportedImageName, false)) {
                 $info     = pathinfo($strImportedImageName);
@@ -3584,8 +3618,8 @@ $strFileNew = '';
             $memoryLimit = $objSystem->getBytesOfLiteralSizeFormat(@ini_get('memory_limit'));
             // a $memoryLimit of zero means that there is no limit. so let's try it and hope that the host system has enough memory
             if (!empty($memoryLimit)) {
-               $potentialRequiredMemory = $intSize[0] * $intSize[1] * ($intSize['bits']/8) * $intSize['channels'] * 1.8 * 2;
-                if (function_exists('memory_get_usage')) {
+                   $potentialRequiredMemory = $intSize[0] * $intSize[1] * ($intSize['bits']/8) * $intSize['channels'] * 1.8 * 2;
+        if (function_exists('memory_get_usage')) {
                     $potentialRequiredMemory += memory_get_usage();
                 } else {
                     // add a default of 10 MBytes
@@ -3605,33 +3639,51 @@ $strFileNew = '';
             return false;
         }
 
-        $imageManager = new \ImageManager();
+        switch ($strType)
+        {
+            case 1: //GIF
+                if ($this->boolGifEnabled) {
+                    $handleImage1 = ImageCreateFromGif ($strPathOld.$strFileOld);
+                    $handleImage2 = @ImageCreateTrueColor($intNewWidth,$intNewHeight);
+                    ImageCopyResampled($handleImage2, $handleImage1,0,0,0,0,$intNewWidth,$intNewHeight, $intWidth,$intHeight);
+                    ImageGif ($handleImage2, $strPathNew.$strFileNew);
 
-        // load raw image
-        if (!$imageManager->loadImage($strPathOld.$strFileOld)) {
-            return false;
+                    ImageDestroy($handleImage1);
+                    ImageDestroy($handleImage2);
+                } else {
+                        $this->strErrMessage = $_ARRAYLANG['TXT_GALLERY_NO_GIF_SUPPORT'];
+                }
+            break;
+            case 2: //JPG
+                if ($this->boolJpgEnabled) {
+                    $handleImage1 = ImageCreateFromJpeg($strPathOld.$strFileOld);
+                    $handleImage2 = ImageCreateTrueColor($intNewWidth,$intNewHeight);
+
+                    ImageCopyResampled($handleImage2, $handleImage1,0,0,0,0,$intNewWidth,$intNewHeight, $intWidth,$intHeight);
+                    ImageJpeg($handleImage2, $strPathNew.$strFileNew, $intQuality);
+
+                    ImageDestroy($handleImage1);
+                    ImageDestroy($handleImage2);
+                } else {
+                        $this->strErrMessage = $_ARRAYLANG['TXT_GALLERY_NO_JPG_SUPPORT'];
+                }
+            break;
+            case 3: //PNG
+                if ($this->boolPngEnabled) {
+                    $handleImage1 = ImageCreateFromPNG($strPathOld.$strFileOld);
+                    $handleImage2 = @ImageCreateTrueColor($intNewWidth,$intNewHeight);
+                    ImageAlphaBlending($handleImage2, false);
+                    ImageSaveAlpha($handleImage2, true);
+                    ImageCopyResampled($handleImage2, $handleImage1,0,0,0,0,$intNewWidth,$intNewHeight, $intWidth,$intHeight);
+                    ImagePNG($handleImage2, $strPathNew.$strFileNew);
+                    ImageDestroy($handleImage1);
+                    ImageDestroy($handleImage2);
+                } else {
+                        $this->strErrMessage = $_ARRAYLANG['TXT_GALLERY_NO_PNG_SUPPORT'];
+                }
+            break;
         }
-
-        // calculate the scale ratios
-        $rationWidth = $imageManager->orgImageWidth / $intNewWidth;
-        $rationHeight = $imageManager->orgImageHeight / $intNewHeight;
-
-        // crop the image to new dimension
-        if ($rationWidth < $rationHeight) {
-            $imageManager->orgImageHeight = $imageManager->orgImageHeight / $rationHeight * $rationWidth;
-        } else {
-            $imageManager->orgImageWidth = $imageManager->orgImageWidth / $rationWidth * $rationHeight;
-        }
-
-        // scale the image to thumbnail-size
-        if (!$imageManager->resizeImage(
-            $intNewWidth,
-            $intNewHeight,
-            $this->arrSettings['standard_quality']
-        )) {
-            return false;
-        }
-        return $imageManager->saveNewImage($strPathNew.$strFileNew, true);
+        return true;
     }
 
 
@@ -3700,6 +3752,7 @@ $strFileNew = '';
         $this->_objTpl->loadTemplateFile('module_gallery_edit_comment.html',true,true);
         $this->_objTpl->SetVariable(array(    'TXT_COMMENT_EDIT_TITLE'    =>    $_ARRAYLANG['TXT_COMMENT_EDIT'],
                                             'TXT_COMMENT_EDIT_DATE'        =>    $_ARRAYLANG['TXT_COMMENT_EDIT_DATE'],
+                                            'TXT_COMMENT_EDIT_IP'        =>    $_ARRAYLANG['TXT_COMMENT_EDIT_IP'],
                                             'TXT_COMMENT_EDIT_NAME'        =>    $_ARRAYLANG['TXT_COMMENT_EDIT_NAME'],
                                             'TXT_COMMENT_EDIT_EMAIL'    =>    $_ARRAYLANG['TXT_COMMENT_EDIT_EMAIL'],
                                             'TXT_COMMENT_EDIT_HOMEPAGE'    =>    $_ARRAYLANG['TXT_COMMENT_EDIT_HOMEPAGE'],
@@ -3709,6 +3762,7 @@ $strFileNew = '';
 
         $objResult = $objDatabase->Execute('    SELECT    picid,
                                                         `date`,
+                                                        ip,
                                                         name,
                                                         email,
                                                         www,
@@ -3720,6 +3774,7 @@ $strFileNew = '';
         $this->_objTpl->SetVariable(array(    'VALUE_COMMENT_EDIT_ID'            =>    $intCommentId,
                                             'VALUE_COMMENT_EDIT_PICID'        =>    $objResult->fields['picid'],
                                             'VALUE_COMMENT_EDIT_DATE'        =>    date('d.m.Y',$objResult->fields['date']),
+                                            'VALUE_COMMENT_EDIT_IP'            =>    $objResult->fields['ip'],
                                             'VALUE_COMMENT_EDIT_NAME'        =>    $objResult->fields['name'],
                                             'VALUE_COMMENT_EDIT_EMAIL'        =>    $objResult->fields['email'],
                                             'VALUE_COMMENT_EDIT_HOMEPAGE'    =>    $objResult->fields['www'],

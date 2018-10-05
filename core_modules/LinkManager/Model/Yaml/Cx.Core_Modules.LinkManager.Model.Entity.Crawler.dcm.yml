@@ -9,19 +9,14 @@ Cx\Core_Modules\LinkManager\Model\Entity\Crawler:
         strategy: AUTO
   fields:
     lang:
-      type: smallint
+      type: integer
     startTime:
-      type: timestamp
-      options:
-        default: "0000-00-00 00:00:00"
+      type: datetime
     endTime:
-      type: timestamp
-      options:
-        default: "0000-00-00 00:00:00"
+      type: datetime
     totalLinks:
       type: integer
     totalBrokenLinks:
       type: integer
     runStatus:
-      type: enum
-      values: ['running','incomplete','completed']
+      type: string

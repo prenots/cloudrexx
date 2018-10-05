@@ -136,10 +136,10 @@ class PodcastLib
     function __construct()
     {
         $this->_arrSettings = $this->_getSettings();
-        $this->_youTubeIdRegex = '#.*[\?&/](?:v|embed)[=/]('.$this->_youTubeAllowedCharacters.'{'.$this->_youTubeIdLength.'}).*#';
+        $this->_youTubeIdRegex = '#.*[\?&/]v[=/]('.$this->_youTubeAllowedCharacters.'{'.$this->_youTubeIdLength.'}).*#';
         //youtubeIdCharacters and youtubeIdLength are JS variables.
-        $this->_youTubeIdRegexJS = '.*[\\?&/](?:v|embed)[=/]("+youtubeIdCharacters+"{"+youtubeIdLength+"}).*';
-        $this->_noThumbnail = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath() . '/images/Podcast/no_picture.gif';
+        $this->_youTubeIdRegexJS = '.*[\\?&/]v[=/]("+youtubeIdCharacters+"{"+youtubeIdLength+"}).*';
+        $this->_noThumbnail = ASCMS_PATH_OFFSET . '/images/Podcast/no_picture.gif';
     }
 
     function _getMedia($ofCategory = false, $isActive = false, $limit = 0, $pos = 0)
@@ -182,9 +182,9 @@ class PodcastLib
         if ($objMedium != false) {
             while (!$objMedium->EOF) {
                 if(!empty($objMedium->fields['youtube_id'])){
-                    $mediumSource = '//youtube.com/embed/'.$objMedium->fields['youtube_id'];
+                    $mediumSource = '//youtube.com/v/'.$objMedium->fields['youtube_id'];
                 }else{
-                    $mediumSource = str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()), $objMedium->fields['source']);
+                    $mediumSource = str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], ASCMS_PATH_OFFSET), $objMedium->fields['source']);
                 }
                 $arrMedia[$objMedium->fields['id']] = array(
                     'title'         => $objMedium->fields['title'],
@@ -233,9 +233,9 @@ class PodcastLib
             ($isActive ? " AND status=1" : ""), 1);
         if ($objMedium !== false && $objMedium->RecordCount() == 1) {
             if(!empty($objMedium->fields['youtube_id'])){
-                $mediumSource = '//youtube.com/embed/'.$objMedium->fields['youtube_id'];
+                $mediumSource = '//youtube.com/v/'.$objMedium->fields['youtube_id'];
             }else{
-                $mediumSource = str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()), $objMedium->fields['source']);
+                $mediumSource = str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], ASCMS_PATH_OFFSET), $objMedium->fields['source']);
             }
             $arrMedium = array(
                 'title'         => $objMedium->fields['title'],
@@ -308,7 +308,7 @@ class PodcastLib
         if ($objCategory !== false) {
             while (!$objCategory->EOF) {
                 if ($langId !== false) {
-                    $arrLangIds = $this->_getLangIdsOfCategory($objCategory->fields['id']);
+                    $arrLangIds = &$this->_getLangIdsOfCategory($objCategory->fields['id']);
                     if (!in_array($_LANGID, $arrLangIds)) {
                         $objCategory->MoveNext();
                         continue;
@@ -366,7 +366,7 @@ class PodcastLib
         $menu .= "<option value=\"0\">".$_ARRAYLANG['TXT_PODCAST_SELECT_CATEGORY']."</option>\n";
         $menu .= "<option value=\"0\">".$_ARRAYLANG['TXT_PODCAST_ALL']."</option>\n";
 
-        if (($arrCategories = $this->_getCategories($areActive, false, $langId)) !== false && count($arrCategories) > 0) {
+        if (($arrCategories = &$this->_getCategories($areActive, false, $langId)) !== false && count($arrCategories) > 0) {
 
             foreach ($arrCategories as $categoryId => $arrCategory) {
                 $menu .= "<option value=\"".$categoryId.($categoryId == $selectedCategoryId ? "\" selected=\"selected\"" : "\"").">".htmlentities($arrCategory['title'], ENT_QUOTES, CONTREXX_CHARSET)."</option>\n";
@@ -505,10 +505,8 @@ class PodcastLib
                   WHERE `id` = ".$id;
         if(($objRS = $objDatabase->SelectLimit($query, 1)) !== false){
             $thumbNail = $objRS->fields['thumbnail'];
-            if (strpos($thumbNail, '/') !== 0) {
-                $thumbNail = '/'. $thumbNail;
-            }
-            \Cx\Lib\FileSystem\FileSystem::delete_file(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath() . $thumbNail);
+            $objFile = new \File();
+            $objFile->delFile(ASCMS_DOCUMENT_ROOT, ASCMS_PATH_OFFSET, $thumbNail);
         }
 
         if ($objDatabase->Execute("DELETE FROM ".DBPREFIX."module_podcast_rel_medium_category WHERE medium_id=".$id) !== false) {
@@ -552,13 +550,7 @@ class PodcastLib
     function _setHomecontentCategories($arrCategories)
     {
         global $objDatabase;
-
-        $arrCategories = array_filter(
-            $arrCategories,
-            function ($cat) {
-                return intval($cat) > 0;
-            }
-        );
+        $arrCategories = array_filter($arrCategories, create_function('$cat', 'return intval($cat) > 0;'));
         $query = "  UPDATE  `".DBPREFIX."module_podcast_settings`
                     SET `setvalue` = '".implode(',', $arrCategories)."'
                     WHERE `setname` = 'latest_media_categories'";
@@ -660,7 +652,7 @@ class PodcastLib
 
     function _getTemplateMenu($selectedTemplateId, $attrs = '')
     {
-        $arrTemplates = $this->_getTemplates();
+        $arrTemplates = &$this->_getTemplates();
         if($selectedTemplateId == $this->_getYoutubeTemplate()){
             $attrs .= ' disabled="disabled"';
         }
@@ -779,7 +771,7 @@ class PodcastLib
 
         return str_replace(
             array('[[MEDIUM_WIDTH]]', '[[MEDIUM_HEIGHT]]', '[[MEDIUM_URL]]', '[[MEDIUM_THUMBNAIL]]', '[[ASCMS_PATH_OFFSET]]'),
-            array($arrMedium['width'], $arrMedium['height'], $arrMedium['source'], $arrMedium['thumbnail'] == $this->_noThumbnail ? '' : $arrMedium['thumbnail'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()),
+            array($arrMedium['width'], $arrMedium['height'], $arrMedium['source'], $arrMedium['thumbnail'] == $this->_noThumbnail ? '' : $arrMedium['thumbnail'], ASCMS_PATH_OFFSET),
             $template);
     }
 
@@ -978,7 +970,7 @@ EOF;
             'TXT_PODCAST_YOUTUBE_ID_INVALID'=> $_ARRAYLANG['TXT_PODCAST_YOUTUBE_ID_INVALID'],
             'TXT_PODCAST_YOUTUBE_SPECIFY_ID'=> $_ARRAYLANG['TXT_PODCAST_YOUTUBE_SPECIFY_ID']
         ));
-
+        
         $this->_objTpl->setVariable(array(
             'PODCAST_SELECT_LOCAL_MEDIUM'       => $sourceType == 'local' ? 'checked="checked"' : '',
             'PODCAST_SELECT_LOCAL_MEDIUM_BOX'   => $sourceType == 'local' ? 'block' : 'none',
@@ -987,7 +979,7 @@ EOF;
             'PODCAST_SELECT_YOUTUBE_MEDIUM'     => $sourceType == 'youtube' ? 'checked="checked"' : '',
             'PODCAST_SELECT_YOUTUBE_MEDIUM_BOX' => $sourceType == 'youtube' ? 'block' : 'none',
             'PODCAST_LOCAL_SOURCE'              => $sourceType == 'local' ? $source : '',
-            'PODCAST_REMOTE_SOURCE'             => $sourceType == 'remote' ? $source : 'https://',
+            'PODCAST_REMOTE_SOURCE'             => $sourceType == 'remote' ? $source : 'http://',
             'PODCAST_YOUTUBE_SOURCE'            => $sourceType == 'youtube' ? $source : '',
             'PODCAST_YOUTUBE_ID_CHARACTERS'     => $this->_youTubeAllowedCharacters,
             'PODCAST_YOUTUBE_ID_LENGTH'         => $this->_youTubeIdLength,
@@ -1037,7 +1029,7 @@ EOF;
                 'type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
                 'cmd' => 'modifyMedium',
             ));
-
+            
             if (count($pages)) {
                 //overwrite template, since _modifyMedium is called in the same request as the _selectMediumSource
                 $this->_objTpl->setTemplate(current($pages)->getContent());
@@ -1178,7 +1170,7 @@ EOF;
                     }
                 }
             }
-        } elseif ($mediumId > 0 && ($arrMedium = $this->_getMedium($mediumId)) !== false && $_REQUEST['section'] != 'Podcast') {
+        } elseif ($mediumId > 0 && ($arrMedium = &$this->_getMedium($mediumId)) !== false && $_REQUEST['section'] != 'Podcast') {
             $mediumTitle = $arrMedium['title'];
             $mediumAuthor = $arrMedium['author'];
             $mediumDescription = $arrMedium['description'];
@@ -1197,15 +1189,15 @@ EOF;
             if (isset($_POST['podcast_medium_source_type']) && in_array($_POST['podcast_medium_source_type'], array('local', 'remote', 'youtube'))) {
                 if ($_POST['podcast_medium_source_type'] == 'local') {
                     if (isset($_POST['podcast_medium_local_source'])) {
-                        if (strpos($_POST['podcast_medium_local_source'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()) === 0) {
-                            $mediumSource =  '//%domain%%offset%'.substr($_POST['podcast_medium_local_source'], strlen(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()));
+                        if (strpos($_POST['podcast_medium_local_source'], ASCMS_PATH_OFFSET) === 0) {
+                            $mediumSource =  ASCMS_PROTOCOL.'://%domain%%offset%'.substr($_POST['podcast_medium_local_source'], strlen(ASCMS_PATH_OFFSET));
                         } else {
-                            $mediumSource =  '//%domain%%offset%'.$_POST['podcast_medium_local_source'];
+                            $mediumSource =  ASCMS_PROTOCOL.'://%domain%%offset%'.$_POST['podcast_medium_local_source'];
                         }
                     }
                 } elseif ($_POST['podcast_medium_source_type'] == 'youtube') {
                     $mediumYoutubeID = contrexx_addslashes(trim($_POST['youtubeID']));
-                    $mediumSource = '//youtube.com/embed/'.$mediumYoutubeID;
+                    $mediumSource = '//youtube.com/v/'.$mediumYoutubeID;
                 } elseif (isset($_POST['podcast_medium_remote_source'])) {
                     $mediumSource = $_POST['podcast_medium_remote_source'];
                 }
@@ -1216,18 +1208,17 @@ EOF;
             }
 
             if(!empty($mediumYoutubeID)){
-                $youTubeData = $this->getYouTubeData($mediumYoutubeID);
-                $mediumTitle = $youTubeData['title'];
-                $mediumThumbnail = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath().$this->_saveYoutubeThumbnail($mediumYoutubeID, $youTubeData['image']);
-                $mediumTemplate = $this->_getYoutubeTemplate();
-                $mediumDescription = $youTubeData['description'];
+                $mediumTitle = $this->_getYoutubeTitle($mediumYoutubeID);
+                $mediumThumbnail = ASCMS_PATH_OFFSET.$this->_saveYoutubeThumbnail($mediumYoutubeID);
+                $mediumTemplate = &$this->_getYoutubeTemplate();
+                $mediumDescription = &$this->_getYoutubeDescription($mediumYoutubeID);
                 $mediumWidth = $this->_youTubeDefaultWidth;
                 $mediumSize = 0;
                 $mediumHeight = $this->_youTubeDefaultHeight;
             }else{
                 $mediumTitle = ($lastSlash = strrpos($mediumSource, '/')) !== false ? substr($mediumSource, $lastSlash+1) : $mediumSource;
-                $mediumTemplate = $this->_getSuitableTemplate($mediumSource);
-                $dimensions = isset($_POST['podcast_medium_local_source']) && \Cx\Core_Modules\Media\Controller\MediaLibrary::_isImage(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$_POST['podcast_medium_local_source']) ? @getimagesize(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$_POST['podcast_medium_local_source']) : false;
+                $mediumTemplate = &$this->_getSuitableTemplate($mediumSource);
+                $dimensions = isset($_POST['podcast_medium_local_source']) && \Cx\Core_Modules\Media\Controller\MediaLibrary::_isImage(ASCMS_PATH.$_POST['podcast_medium_local_source']) ? @getimagesize(ASCMS_PATH.$_POST['podcast_medium_local_source']) : false;
                 if ($dimensions) {
                     $mediumWidth = $dimensions[0];
                     $mediumHeight = $dimensions[1];
@@ -1235,8 +1226,8 @@ EOF;
                     $mediumWidth = $this->_arrSettings['default_width'];
                     $mediumHeight = $this->_arrSettings['default_height'];
                 }
-                $mediumSize = isset($_POST['podcast_medium_local_source']) ? filesize(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$_POST['podcast_medium_local_source']) : 0;
-                $mediumSource = htmlentities(str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()), $mediumSource), ENT_QUOTES, CONTREXX_CHARSET);
+                $mediumSize = isset($_POST['podcast_medium_local_source']) ? filesize(ASCMS_PATH.$_POST['podcast_medium_local_source']) : 0;
+                $mediumSource = htmlentities(str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], ASCMS_PATH_OFFSET), $mediumSource), ENT_QUOTES, CONTREXX_CHARSET);
             }
         }
 
@@ -1271,7 +1262,7 @@ EOF;
                                                     )
         ));
 
-        $arrCategories = $this->_getCategories();
+        $arrCategories = &$this->_getCategories();
         $categoryNr = 0;
         $arrLanguages = \FWLanguage::getLanguageArray();
 
@@ -1283,14 +1274,8 @@ EOF;
             }
 
             $column = $categoryNr % 3;
-            $arrCatLangIds = $this->_getLangIdsOfCategory($categoryId);
-            array_walk(
-                $arrCatLangIds,
-                function (&$cat, $k, $arrLanguages) {
-                    $cat = $arrLanguages[$cat]['lang'];
-                },
-                $arrLanguages
-            );
+            $arrCatLangIds = &$this->_getLangIdsOfCategory($categoryId);
+            array_walk($arrCatLangIds, create_function('&$cat, $k, $arrLanguages', '$cat = $arrLanguages[$cat]["lang"];'), $arrLanguages);
             $arrCategory['title'] .= ' ('.implode(', ', $arrCatLangIds).')';
 
             $this->_objTpl->setVariable(array(
@@ -1305,83 +1290,129 @@ EOF;
         }
     }
 
+
     /**
      * saves the thumbnail preview of the specified youtube video
      *
      * @param string $youTubeID youtube video ID
-     * @param string $url   URL of thumbnail of YouTube video
      * @return string path to the newly created thumbnail picture
      */
-    function _saveYoutubeThumbnail($youTubeID, $url)
+    function _saveYoutubeThumbnail($youTubeID)
     {
-        if (empty($url)) {
-            $url = 'http://img.youtube.com/vi/' . $youTubeID . '/default.jpg';
-        }
+        $httpRequest = '';
+        $response = '';
+        $errmsg = '';
+        $errno = 0;
+        $s = @fsockopen('img.youtube.com', 80, $errno, $errmsg, 5);
+        if(is_resource($s)){
+            $httpRequest =  "GET /vi/%s/default.jpg HTTP/1.1\r\n".
+                            "Host: img.youtube.com\r\n".
+                            "User-Agent: ".$_SERVER['HTTP_USER_AGENT']."\r\n".
+                            "Accept: ".$_SERVER['HTTP_ACCEPT']."\r\n".
+                            "Accept-Language: ".$_SERVER['HTTP_ACCEPT_LANGUAGE']."\r\n".
+                            "Accept-Encoding: \r\n".
+                            "Accept-Charset: ".$_SERVER['HTTP_ACCEPT_CHARSET'].";q=0.7,*\r\n".
+                            "Cache-Control: max-age=0\r\n".
+                            "Connection: close\r\n\r\n";
+            fwrite($s, sprintf($httpRequest, $youTubeID));
+            fflush($s);
 
-        $mediumThumbnail = '';
-
-        try {
-            $request = new \HTTP_Request2($url);
-            $request->setConfig(array(
-                'ssl_verify_peer' => false,
-                'ssl_verify_host' => false,
-            ));
-            $objResponse = $request->send();
-            $result = $objResponse->getBody();
-            $contentLength = strlen($result);
-
+            $response = fread($s, 512);
+            $match = array();
+            preg_match('#Content-Length: ([0-9]+)#', $response, $match);
+            $contentLength = $match[1];
+            while(!feof($s)){
+                $response .= fread($s, 512);
+            }
+            @fclose($s);
+            $response = substr($response, -$contentLength);
             $mediumThumbnail = '/images/Podcast/youtube_thumbnails/youtube_'.$youTubeID.'.jpg';
-            $hImg = fopen(\Cx\Core\Core\Controller\Cx::instanciate()->getWebsitePath().$mediumThumbnail, 'w');
-            fwrite($hImg, $result, $contentLength);
+            $hImg = fopen(ASCMS_DOCUMENT_ROOT.$mediumThumbnail, 'w');
+            fwrite($hImg, $response, $contentLength);
             fclose($hImg);
-        } catch (\HTTP_Request2_Exception $e) {
-            \DBG::msg($e->getMessage());
         }
-
         return $mediumThumbnail;
     }
 
     /**
-     * Return infos about a YouTube video
+     * return the title of the specified youtube video
      *
      * @param string $youTubeID youtube video ID
-     * @return array
+     * @return string youtube video title
      */
-    protected function getYouTubeData($youTubeID)
+    function _getYoutubeTitle($youTubeID)
     {
-        $data = array(
-            'title'         => '',
-            'description'   => '',
-            'image'         => '',
-        );
-        try {
-            $request = new \HTTP_Request2('https://www.youtube.com/watch?v=' . $youTubeID);
-            $request->setConfig(array(
-                'ssl_verify_peer' => false,
-                'ssl_verify_host' => false,
-            ));
-            $objResponse = $request->send();
-            $result = $objResponse->getBody();
-            if (preg_match('/<meta\s*property\s*=\s*([\'"])og:title\1\s*content\s*=\s*([\'"])(.*?)\2\s*>/', $result, $match)) {
-                $data['title'] = $match[3];
+        $httpRequest = '';
+        $response = '';
+        $mediumTitle = '';
+        $errmsg = '';
+        $errno = 0;
+        $s = @fsockopen('www.youtube.com', 80, $errno, $errmsg, 5);
+        if(is_resource($s)){
+            $httpRequest =  "GET /watch?v=".$youTubeID." HTTP/1.1\r\n".
+                            "Host: www.youtube.com\r\n".
+                            "User-Agent: ".$_SERVER['HTTP_USER_AGENT']."\r\n".
+                            "Accept: ".$_SERVER['HTTP_ACCEPT']."\r\n".
+                            "Accept-Language: ".$_SERVER['HTTP_ACCEPT_LANGUAGE']."\r\n".
+                            "Accept-Encoding: \r\n".
+                            "Accept-Charset: ".$_SERVER['HTTP_ACCEPT_CHARSET'].";q=0.7,*\r\n".
+                            "Cache-Control: max-age=0\r\n".
+                            "Connection: close\r\n\r\n";
+            fwrite($s, $httpRequest);
+            fflush($s);
+            while(!feof($s)){
+                $response .= fread($s, 512);
             }
-            if (preg_match('/<meta\s*property\s*=\s*([\'"])og:description\1\s*content\s*=\s*([\'"])(.*?)\2\s*>/', $result, $match)) {
-                $data['description'] = $match[3];
-            }
-            if (preg_match('/<meta\s*property\s*=\s*([\'"])og:image\1\s*content\s*=\s*([\'"])(.*?)\2\s*>/', $result, $match)) {
-                $data['image'] = $match[3];
-            }
-        } catch (\HTTP_Request2_Exception $e) {
-            \DBG::msg($e->getMessage());
+            @fclose($s);
+            $match = array();
+            preg_match('#<title>YouTube - ([^<]+)</title>#', $response, $match);
+            $mediumTitle = $match[1];
         }
-
-        return $data;
+        return $mediumTitle;
     }
+
+    /**
+     * return the description of the specified youtube video
+     *
+     * @param string $youTubeID youtube video ID
+     * @return string youtube video description
+     */
+    function _getYoutubeDescription($youTubeID)
+    {
+        return '';
+/*
+        $httpRequest = '';
+        $response = '';
+        $mediumDescription = '';
+        $s = @fsockopen('www.youtube.com', 80, $errno, $errmsg, 5);
+        if(is_resource($s)){
+            $httpRequest =  "GET /watch?v=".$youTubeID." HTTP/1.1\r\n".
+                            "Host: www.youtube.com\r\n".
+                            "User-Agent: ".$_SERVER['HTTP_USER_AGENT']."\r\n".
+                            "Accept: ".$_SERVER['HTTP_ACCEPT']."\r\n".
+                            "Accept-Language: ".$_SERVER['HTTP_ACCEPT_LANGUAGE']."\r\n".
+                            "Accept-Encoding: \r\n".
+                            "Accept-Charset: ".$_SERVER['HTTP_ACCEPT_CHARSET'].";q=0.7,*\r\n".
+                            "Cache-Control: max-age=0\r\n".
+                            "Connection: close\r\n\r\n";
+            fwrite($s, $httpRequest);
+            fflush($s);
+            while(!feof($s)){
+                $response .= fread($s, 512);
+            }
+            @fclose($s);
+            preg_match('/expand-content">(.*?)\).*?<a/im', $response, $match);
+            $mediumDescription = $match[1];
+        }
+        return $mediumDescription;
+*/
+    }
+
 
     function _createRSS()
     {
         global $_CONFIG, $objDatabase;
-        $this->_arrSettings = $this->_getSettings();
+        $this->_arrSettings = &$this->_getSettings();
         $arrMedia = array();
         $objMedium = $objDatabase->Execute("
             SELECT tblMedium.id,
@@ -1405,7 +1436,7 @@ EOF;
                         'title'         => $objMedium->fields['title'],
                         'author'        => $objMedium->fields['author'],
                         'description'   => $objMedium->fields['description'],
-                        'source'        => str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath()), $objMedium->fields['source']),
+                        'source'        => str_replace(array('%domain%', '%offset%'), array($_CONFIG['domainUrl'], ASCMS_PATH_OFFSET), $objMedium->fields['source']),
                         'size'          => $objMedium->fields['size'],
                         'date_added'    => $objMedium->fields['date_added'],
                         'categories'    => array()
@@ -1420,7 +1451,7 @@ EOF;
         }
 
         $objRSSWriter = new \RSSWriter();
-
+        
         $objRSSWriter->characterEncoding = CONTREXX_CHARSET;
         $objRSSWriter->channelTitle = $this->_arrSettings['feed_title'];
         $objRSSWriter->channelLink = \Cx\Core\Routing\Url::fromModuleAndCmd(
@@ -1500,14 +1531,14 @@ EOF;
         }
         return $status;
     }
-
+    
     /**
      * Get mediabrowser button
-     *
+     * 
      * @param string $buttonValue Value of the button
-     * @param string $options     Input button options
+     * @param string $options     Input button options 
      * @param string $callback    Media browser callback function
-     *
+     * 
      * @return string html element of browse button
      */
     public static function getMediaBrowserButton($buttonValue, $options = array(), $callback = '')
@@ -1518,7 +1549,7 @@ EOF;
         if ($callback) {
             $mediaBrowser->setCallback($callback);
         }
-
-        return $mediaBrowser->getXHtml($buttonValue);
+        
+        return $mediaBrowser->getXHtml($buttonValue);        
     }
 }

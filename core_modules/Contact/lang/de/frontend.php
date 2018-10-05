@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Cloudrexx
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -23,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 /**
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
@@ -42,7 +43,7 @@ $_ARRAYLANG['TXT_CONTACT_SUBMIT'] = "Absenden";
 $_ARRAYLANG['TXT_CONTACT_YES'] = "Ja";
 $_ARRAYLANG['TXT_CONTACT_NO'] = "Nein";
 $_ARRAYLANG['TXT_CONTACT_UPLOADS'] = "Uploads";
-$_ARRAYLANG['TXT_NEW_ENTRY_ERORR'] = "Bitte überprüfen Sie Ihre Eingabe!";
+$_ARRAYLANG['TXT_NEW_ENTRY_ERORR'] = "Bitte überprüfen Sie ihre Eingabe!";
 $_ARRAYLANG['TXT_FEEDBACK_ERROR'] = "Ihre Anfrage konnte nicht entgegen genommen werden. Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut!";
 $_ARRAYLANG['TXT_CONTACT_LANG'] = "Sprache";
 $_ARRAYLANG['TXT_CONTACT_ENTRIE_DETAILS'] = "Details";
@@ -60,5 +61,4 @@ $_ARRAYLANG['TXT_CONTACT_RECEIVER_ADDRESSES_SELECTION'] = "Empfängeradressen Au
 $_ARRAYLANG['TXT_CONTACT_CAPTCHA'] = "Captcha";
 $_ARRAYLANG['TXT_CONTACT_PLEASE_SELECT'] = "Bitte wählen";
 $_ARRAYLANG['TXT_CONTACT_NOT_SPECIFIED'] = "Nicht angegeben";
-$_ARRAYLANG['TXT_CONTACT_RECAPTCHA_ERROR'] = "Bitte füllen Sie das CAPTCHA aus:";
-$_ARRAYLANG['TXT_CONTACT_EMAIL'] = "E-Mail";
+?>

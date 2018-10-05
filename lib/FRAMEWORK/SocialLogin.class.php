@@ -182,18 +182,4 @@ class SocialLogin
             }
         }
     }
-
-    /**
-     * Hide the sociallogin login buttons in the given template.
-     *
-     * @static
-     * @param $objTpl \Cx\Core\Html\Sigma template object to parse
-     * @param string $prefix the prefix for the template blocks and variables
-     */
-    public static function hideLogin($objTpl, $prefix = 'login_')
-    {
-        if ($objTpl->blockExists($prefix . 'social_networks')) {
-            $objTpl->hideBlock($prefix . 'social_networks');
-        }
-    }
 }

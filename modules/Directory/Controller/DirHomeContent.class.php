@@ -61,6 +61,9 @@ class DirHomeContent extends DirectoryLibrary
     private $arrRows = array();
     private $arrRowsIndex = array();
 
+    public $categories = array();
+    public $levels = array();
+
     public $count = array();
     public $numLevels = array();
     public $numCategories = array();
@@ -68,6 +71,7 @@ class DirHomeContent extends DirectoryLibrary
     public $navtree;
     public $navtreeLevels = array();
     public $navtreeCategories = array();
+
 
     /**
      * Constructor PHP5

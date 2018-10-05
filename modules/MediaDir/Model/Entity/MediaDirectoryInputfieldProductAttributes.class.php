@@ -61,10 +61,9 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
 
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $objInit, $_ARRAYLANG;
-
+        global $objDatabase, $_LANGID, $objInit, $_ARRAYLANG;
+        
         $intId = intval($arrInputfield['id']);
-        $langId = static::getOutputLocale()->getId();
 
         switch ($intView) {
             default:
@@ -91,11 +90,11 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
                     $arrValue = null;
                 }
 
-                $strOptions = empty($arrInputfield['default_value'][$langId]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$langId];
+                $strOptions = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
                 $arrOptions = explode(",", $strOptions);
-
+                
                 if(!empty($arrInputfield['info'][0])){
-                    $strInfoValue = empty($arrInputfield['info'][$langId]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][$langId].'"';
+                    $strInfoValue = empty($arrInputfield['info'][$_LANGID]) ? 'title="'.$arrInputfield['info'][0].'"' : 'title="'.$arrInputfield['info'][$_LANGID].'"';
                     $strInfoClass = 'mediadirInputfieldHint';
                 } else {
                     $strInfoValue = null;
@@ -140,7 +139,7 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
                 break;
             case 2:
                 //search View
-                $strOptions = empty($arrInputfield['default_value'][$langId]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$langId];
+                $strOptions = empty($arrInputfield['default_value'][$_LANGID]) ? $arrInputfield['default_value'][0] : $arrInputfield['default_value'][$_LANGID];
                 $arrOptions = explode(",", $strOptions);
 
                 $strValue = isset($_GET[$intId]) ? $_GET[$intId] : '';
@@ -200,10 +199,24 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
 
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
-        $strValue = static::getRawData($intEntryId, $arrInputfield, $arrTranslationStatus);
-        $strValue = strip_tags(htmlspecialchars($strValue, ENT_QUOTES, CONTREXX_CHARSET));
+        global $objDatabase;
+
+        $intId = intval($arrInputfield['id']);
+        $objInputfieldValue = $objDatabase->Execute("
+            SELECT
+                `value`
+            FROM
+                ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields
+            WHERE
+                field_id=".$intId."
+            AND
+                entry_id=".$intEntryId."
+            LIMIT 1
+        ");
+
 
         $arrValues = explode(",", $arrInputfield['default_value'][0]);
+        $strValue = strip_tags(htmlspecialchars($objInputfieldValue->fields['value'], ENT_QUOTES, CONTREXX_CHARSET));
 
         //explode elements
         $arrElements = explode(",", $strValue);
@@ -228,25 +241,6 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
         }
 
         return $arrContent;
-    }
-
-    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus) {
-        global $objDatabase;
-
-        $intId = intval($arrInputfield['id']);
-        $objInputfieldValue = $objDatabase->Execute("
-            SELECT
-                `value`
-            FROM
-                ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields
-            WHERE
-                field_id=".$intId."
-            AND
-                entry_id=".$intEntryId."
-            LIMIT 1
-        ");
-
-        return $objInputfieldValue->fields['value'];
     }
 
 
@@ -279,8 +273,8 @@ class MediaDirectoryInputfieldProductAttributes extends \Cx\Modules\MediaDir\Con
 EOF;
         return $strJavascriptCheck;
     }
-
-
+    
+    
     function getFormOnSubmit($intInputfieldId)
     {
         return null;

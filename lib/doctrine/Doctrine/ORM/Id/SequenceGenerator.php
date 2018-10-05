@@ -13,14 +13,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Id;
 
-use Serializable;
-use Doctrine\ORM\EntityManager;
+use Serializable, Doctrine\ORM\EntityManager;
 
 /**
  * Represents an ID generator that uses a database sequence.
@@ -30,34 +29,16 @@ use Doctrine\ORM\EntityManager;
  */
 class SequenceGenerator extends AbstractIdGenerator implements Serializable
 {
-    /**
-     * The allocation size of the sequence.
-     *
-     * @var int
-     */
     private $_allocationSize;
-
-    /**
-     * The name of the sequence.
-     *
-     * @var string
-     */
     private $_sequenceName;
-
-    /**
-     * @var int
-     */
     private $_nextValue = 0;
-
-    /**
-     * @var int|null
-     */
     private $_maxValue = null;
 
     /**
      * Initializes a new sequence generator.
      *
-     * @param string  $sequenceName   The name of the sequence.
+     * @param Doctrine\ORM\EntityManager $em The EntityManager to use.
+     * @param string $sequenceName The name of the sequence.
      * @param integer $allocationSize The allocation size of the sequence.
      */
     public function __construct($sequenceName, $allocationSize)
@@ -65,15 +46,12 @@ class SequenceGenerator extends AbstractIdGenerator implements Serializable
         $this->_sequenceName = $sequenceName;
         $this->_allocationSize = $allocationSize;
     }
-
+    
     /**
      * Generates an ID for the given entity.
      *
-     * @param EntityManager $em
-     * @param object        $entity
-     *
-     * @return integer The generated value.
-     *
+     * @param object $entity
+     * @return integer|float The generated value.
      * @override
      */
     public function generate(EntityManager $em, $entity)
@@ -81,19 +59,17 @@ class SequenceGenerator extends AbstractIdGenerator implements Serializable
         if ($this->_maxValue === null || $this->_nextValue == $this->_maxValue) {
             // Allocate new values
             $conn = $em->getConnection();
-            $sql  = $conn->getDatabasePlatform()->getSequenceNextValSQL($this->_sequenceName);
-
-            $this->_nextValue = (int)$conn->fetchColumn($sql);
-            $this->_maxValue  = $this->_nextValue + $this->_allocationSize;
+            $sql = $conn->getDatabasePlatform()->getSequenceNextValSQL($this->_sequenceName);
+            $this->_nextValue = $conn->fetchColumn($sql);
+            $this->_maxValue = $this->_nextValue + $this->_allocationSize;
         }
-
         return $this->_nextValue++;
     }
 
     /**
      * Gets the maximum value of the currently allocated bag of values.
      *
-     * @return integer|null
+     * @return integer|float
      */
     public function getCurrentMaxValue()
     {
@@ -103,33 +79,24 @@ class SequenceGenerator extends AbstractIdGenerator implements Serializable
     /**
      * Gets the next value that will be returned by generate().
      *
-     * @return integer
+     * @return integer|float
      */
     public function getNextValue()
     {
         return $this->_nextValue;
     }
 
-    /**
-     * @return string
-     */
     public function serialize()
     {
         return serialize(array(
             'allocationSize' => $this->_allocationSize,
-            'sequenceName'   => $this->_sequenceName
+            'sequenceName' => $this->_sequenceName
         ));
     }
 
-    /**
-     * @param string $serialized
-     *
-     * @return void
-     */
     public function unserialize($serialized)
     {
         $array = unserialize($serialized);
-
         $this->_sequenceName = $array['sequenceName'];
         $this->_allocationSize = $array['allocationSize'];
     }

@@ -151,7 +151,7 @@ class Group
      */
     public function delete()
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $objDatabase, $_ARRAYLANG, $_LANGID;
 
         \Permission::checkAccess(142, 'static');
 
@@ -162,11 +162,9 @@ class Group
             LEFT JOIN `'.DBPREFIX.'module_downloads_rel_group_category` AS tblR ON tblR.`group_id` = tblG.`id`
             WHERE tblG.`id` = '.$this->id) !== false
         ) {
-            //clear Esi Cache
-            DownloadsLibrary::clearEsiCache();
             return true;
         } else {
-            $this->error_msg[] = sprintf($_ARRAYLANG['TXT_DOWNLOADS_GROUP_DELETE_FAILED'], '<strong>'.htmlentities($this->getName(), ENT_QUOTES, CONTREXX_CHARSET).'</strong>');
+            $this->error_msg[] = sprintf($_ARRAYLANG['TXT_DOWNLOADS_GROUP_DELETE_FAILED'], '<strong>'.htmlentities($this->getName($_LANGID), ENT_QUOTES, CONTREXX_CHARSET).'</strong>');
         }
 
         return false;
@@ -279,13 +277,10 @@ class Group
         }
     }
 
-    public function getName($langId = 0)
+    public function getName($langId)
     {
         if (!isset($this->names)) {
             $this->loadLocales();
-        }
-        if (!$langId) {
-            $langId = DownloadsLibrary::getOutputLocale()->getId();
         }
         return isset($this->names[$langId]) ? $this->names[$langId] : '';
     }
@@ -343,6 +338,8 @@ class Group
      */
     private function load($id)
     {
+        global $_LANGID;
+
         $arrDebugBackTrace = debug_backtrace();
         if (!in_array($arrDebugBackTrace[1]['function'], array('getGroup', 'first','next'))) {
             die("Group->load(): Illegal method call in {$arrDebugBackTrace[0]['file']} on line {$arrDebugBackTrace[0]['line']}!");
@@ -380,7 +377,7 @@ class Group
         $arrSelectCoreExpressions = array();
         //$arrSelectLocaleExpressions = array();
         $this->filtered_search_count = 0;
-        $sqlCondition = array();
+        $sqlCondition = '';
 
         // set filter
         if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
@@ -455,12 +452,7 @@ class Group
 
         // parse filter
         if (isset($arrFilter) && is_array($arrFilter)) {
-            $arrFilterConditions = $this->parseFilterConditions($arrFilter);
-            if (
-                count($arrFilterConditions) &&
-                !empty($arrFilterConditions['conditions']) &&
-                !empty($arrFilterConditions['tables'])
-            ) {
+            if (count($arrFilterConditions = $this->parseFilterConditions($arrFilter))) {
                 $arrConditions[] = implode(' AND ', $arrFilterConditions['conditions']);
                 $tblLocales = isset($arrFilterConditions['tables']['locale']);
                 $tblCategory = isset($arrFilterConditions['tables']['category']);
@@ -548,10 +540,7 @@ class Group
      */
     private function parseFilterConditions($arrFilter)
     {
-        $arrConditions = array(
-            'conditions' => array(),
-            'tables'     => array(),
-        );
+        $arrConditions = array();
         foreach ($arrFilter as $attribute => $condition) {
             /**
              * $attribute is the attribute like 'is_active' or 'name'
@@ -687,7 +676,7 @@ class Group
 
         if ($objGroupId !== false) {
             while (!$objGroupId->EOF) {
-                $arrGroupIds[$objGroupId->fields['id']] = array();
+                $arrGroupIds[$objGroupId->fields['id']] = '';
                 $objGroupId->MoveNext();
             }
         }
@@ -738,7 +727,7 @@ class Group
      */
     public function store()
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $objDatabase, $_ARRAYLANG, $_LANGID;
 
         if (isset($this->names) && !$this->validateName()) {
             return false;
@@ -785,8 +774,6 @@ class Group
             return false;
         }
 
-        //clear Esi Cache
-        DownloadsLibrary::clearEsiCache();
         return true;
     }
 
@@ -934,19 +921,5 @@ class Group
     public function getErrorMsg()
     {
         return $this->error_msg;
-    }
-
-    /**
-     * Get Groups placeholders
-     *
-     * @return array
-     */
-    public function getGroupsPlaceholders()
-    {
-        return preg_filter(
-            '/^/',
-            'DOWNLOADS_GROUP_',
-            array_keys($this->arrLoadedGroups)
-        );
     }
 }

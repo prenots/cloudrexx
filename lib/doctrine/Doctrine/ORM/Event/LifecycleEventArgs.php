@@ -13,43 +13,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
 */
 
 namespace Doctrine\ORM\Event;
 
-use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs as BaseLifecycleEventArgs;
-
 /**
  * Lifecycle Events are triggered by the UnitOfWork during lifecycle transitions
  * of entities.
  *
- * @link   www.doctrine-project.org
- * @since  2.0
+ * @since 2.0
  * @author Roman Borschel <roman@code-factory.de>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class LifecycleEventArgs extends BaseLifecycleEventArgs
+class LifecycleEventArgs extends \Doctrine\Common\EventArgs
 {
     /**
-     * Retrieves associated Entity.
-     *
-     * @return object
+     * @var EntityManager
      */
+    private $_em;
+
+    /**
+     * @var object
+     */
+    private $_entity;
+    
+    public function __construct($entity, $em)
+    {
+        $this->_entity = $entity;
+        $this->_em = $em;
+    }
+    
     public function getEntity()
     {
-        return $this->getObject();
+        return $this->_entity;
     }
 
     /**
-     * Retrieves associated EntityManager.
-     *
-     * @return \Doctrine\ORM\EntityManager
+     * @return EntityManager
      */
     public function getEntityManager()
     {
-        return $this->getObjectManager();
+        return $this->_em;
     }
 }

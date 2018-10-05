@@ -67,7 +67,7 @@ class MediaDirectoryComment extends MediaDirectoryLibrary
 
         $strOkMessage = $_ARRAYLANG['TXT_MEDIADIR_COMMENT_ADD_SUCCESSFULL'];
         $strErrMessage = $_ARRAYLANG['TXT_MEDIADIR_COMMENT_ADD_CORRUPT'];
-
+        
         $strFunctionComment = $this->moduleNameLC.'Comment';
         $strFunctionRefreshComment = $this->moduleNameLC.'RefreshComments';
         $strFunctionCheckCommentForm = $this->moduleNameLC.'CheckCommentForm';
@@ -79,7 +79,7 @@ class MediaDirectoryComment extends MediaDirectoryLibrary
         $strCommentErrMessage = $this->moduleNameLC.'ErrorMessage';
 
         $strCommentsJavascript  =  <<<EOF
-
+        
 var $strFunctionComment = function(entry)
 {
     var elEntry = cx.jQuery('#commentForm_'+entry);
@@ -129,24 +129,24 @@ var $strFunctionCheckCommentForm = function(entry)
     errorCSSBorderStyle = '#ff0000 1px solid';
 
     if (commentName == '') {
-        isOk = false;
-        cx.jQuery('#commentName').css({'border': errorCSSBorderStyle});
+    	isOk = false;
+    	cx.jQuery('#commentName').css({'border': errorCSSBorderStyle});
     } else {
         cx.jQuery('#commentName').css({'border': ''});
     }
 
     if(commentComment == '') {
-        isOk = false;
-        cx.jQuery('#commentComment').css({'border': errorCSSBorderStyle});
+    	isOk = false;
+    	cx.jQuery('#commentComment').css({'border': errorCSSBorderStyle});
     } else {
         cx.jQuery('#commentComment').css({'border': ''});
     }
 
     if (!isOk) {
-        cx.jQuery('#$strCommentErrMessage').css({'display': 'block'});
-    } else {
-       $strFunctionComment(entry);
-    }
+		cx.jQuery('#$strCommentErrMessage').css({'display': 'block'});
+	} else {
+	   $strFunctionComment(entry);
+	}
 }
 
 EOF;
@@ -173,7 +173,6 @@ EOF;
             }
 
             if($bolGenerateCommentForm) {
-                $strCaptchaCode = '';
                 if($objUser->login()) {
                     $strCommentFormName = htmlspecialchars($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET);
                     $strCommentFormMail = htmlspecialchars($objUser->getEmail(), ENT_QUOTES, CONTREXX_CHARSET);
@@ -222,7 +221,7 @@ EOF;
         if($this->arrSettings['settingsAllowComments'] == 1) {
             $objRSGetComments = $objDatabase->Execute("
                 SELECT
-                    `id`, `added_by`, `date`, `name`, `mail`, `url`, `notification`, `comment`
+                    `id`, `added_by`, `date`, `ip`, `name`, `mail`, `url`, `notification`, `comment`
                 FROM
                     ".DBPREFIX."module_".$this->moduleTablePrefix."_comments
                 WHERE
@@ -269,6 +268,7 @@ EOF;
                             $this->moduleLangVar.'_ENTRY_COMMENT_URL' => $strUrl,
                             $this->moduleLangVar.'_ENTRY_COMMENT_URL_SRC' => strip_tags(htmlspecialchars($objRSGetComments->fields['url'], ENT_QUOTES, CONTREXX_CHARSET)),
                             $this->moduleLangVar.'_ENTRY_COMMENT_COMMENT' => strip_tags(htmlspecialchars($objRSGetComments->fields['comment'], ENT_QUOTES, CONTREXX_CHARSET)),
+                            $this->moduleLangVar.'_ENTRY_COMMENT_IP' => strip_tags(htmlspecialchars($objRSGetComments->fields['ip'], ENT_QUOTES, CONTREXX_CHARSET)),
                             $this->moduleLangVar.'_ENTRY_COMMENT_DATE' => date("d. M Y",$objRSGetComments->fields['date'])."  ".$_ARRAYLANG['TXT_MEDIADIR_AT']." ".date("H:i:s",$objRSGetComments->fields['date']),
                         ));
 
@@ -293,6 +293,8 @@ EOF;
     function saveComment($intEntryId, $arrCommentData) {
         global $_ARRAYLANG, $objDatabase;
 
+        $strRemoteAddress = contrexx_addslashes($_SERVER['REMOTE_ADDR']);
+
         $objFWUser  = \FWUser::getFWUserObject();
         $objUser    = $objFWUser->objUser;
 
@@ -312,7 +314,8 @@ EOF;
             SET
                 `entry_id`='".intval($intEntryId)."',
                 `added_by`='".intval($intAddedBy)."',
-                `date`='".time()."',
+                `date`='".mktime()."',
+                `ip`='".$strRemoteAddress."',
                 `name`='".contrexx_addslashes($arrCommentData['commentName'])."',
                 `mail`='".contrexx_addslashes($arrCommentData['commentMail'])."',
                 `url`='".contrexx_addslashes($arrCommentData['commentUrl'])."',
@@ -332,6 +335,8 @@ EOF;
 
 
     function refreshComments($intEnrtyId, $strPageSection, $strPageCmd) {
+        global $_LANGID;
+
         $arrComment = $this->getLastComment($intEnrtyId);
 
         $pageRepo = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
@@ -339,7 +344,7 @@ EOF;
             'module' => contrexx_addslashes($strPageSection),
             'cmd' => contrexx_addslashes($strPageCmd),
             'type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
-            'lang' => static::getOutputLocale()->getId(),
+            'lang' => intval($_LANGID),
         ));
 
         if (count($pages)) {
@@ -372,7 +377,7 @@ EOF;
 
         $objRSGetComment = $objDatabase->SelectLimit("
             SELECT
-                `id`, `added_by`, `date`, `name`, `mail`, `url`, `notification`, `comment`
+                `id`, `added_by`, `date`, `ip`, `name`, `mail`, `url`, `notification`, `comment`
             FROM
                 ".DBPREFIX."module_".$this->moduleTablePrefix."_comments
             WHERE
@@ -412,6 +417,7 @@ EOF;
             $arrComment['{'.$this->moduleLangVar.'_ENTRY_COMMENT_URL}'] = $strUrl;
             $arrComment['{'.$this->moduleLangVar.'_ENTRY_COMMENT_URL_SRC}'] = strip_tags(htmlspecialchars($objRSGetComment->fields['url'], ENT_QUOTES, CONTREXX_CHARSET));
             $arrComment['{'.$this->moduleLangVar.'_ENTRY_COMMENT_COMMENT}'] = strip_tags(htmlspecialchars($objRSGetComment->fields['comment'], ENT_QUOTES, CONTREXX_CHARSET));
+            $arrComment['{'.$this->moduleLangVar.'_ENTRY_COMMENT_IP}'] = strip_tags(htmlspecialchars($objRSGetComment->fields['ip'], ENT_QUOTES, CONTREXX_CHARSET));
             $arrComment['{'.$this->moduleLangVar.'_ENTRY_COMMENT_DATE}'] = date("d. M Y",$objRSGetComment->fields['date'])."  ".$_ARRAYLANG['TXT_MEDIADIR_AT']." ".date("H:i:s",$objRSGetComment->fields['date']);
 
             return $arrComment;

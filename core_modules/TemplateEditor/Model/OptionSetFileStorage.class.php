@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,13 +24,13 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 
 namespace Cx\Core_Modules\TemplateEditor\Model;
 
 use Symfony\Component\Yaml\Exception;
 use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\ParserException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -61,37 +61,32 @@ class OptionSetFileStorage implements Storable
      * @param String $name
      *
      * @return array
-     * @throws ParseException
+     * @throws ParserException
      */
     public function retrieve($name)
     {
-        $file = \Cx\Core\Core\Controller\Cx::instanciate()->getClassLoader()->getFilePath(
-            $this->path
-            . '/' . $name . '/options/options.yml'
+        $file = file_get_contents(
+            \Cx\Core\Core\Controller\Cx::instanciate()->getClassLoader()
+                ->getFilePath(
+                    $this->path
+                    . '/' . $name . '/options/options.yml'
+                )
         );
-        if (!$file) {
-            throw new ParseException(
+        if ($file) {
+            try {
+                $yaml = new Parser();
+                return $yaml->parse($file);
+            } catch (ParserException $e) {
+                preg_match(
+                    "/line (?P<line>[0-9]+)/", $e->getMessage(), $matches
+                );
+                throw new ParserException($e->getMessage(), $matches['line']);
+            }
+        } else {
+            throw new ParserException(
                 "File" . $this->path
                 . '/' . $name . '/options/options.yml not found'
             );
-        }
-
-        $content = file_get_contents($file);
-        if (!$content) {
-            throw new ParseException(
-                "File" . $this->path
-                . '/' . $name . '/options/options.yml not found'
-            );
-        }
-
-        try {
-            $yaml = new Parser();
-            return $yaml->parse($content);
-        } catch (ParseException $e) {
-            preg_match(
-                "/line (?P<line>[0-9]+)/", $e->getMessage(), $matches
-            );
-            throw new ParseException($e->getMessage(), $matches['line']);
         }
     }
 

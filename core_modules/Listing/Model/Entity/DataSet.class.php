@@ -48,13 +48,13 @@ class DataSetException extends \Exception {}
 
 /**
  * Data Set
- * On import and export from and to files the contents will be cached.
+ *
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      CLOUDREXX Development Team <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  coremodule_listing
  */
-class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
+class DataSet implements \Iterator {
     protected static $yamlInterface = null;
     protected $data = array();
     protected $dataType = 'array';
@@ -80,7 +80,7 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
             $this->data = $this->convert($data);
         }
     }
-
+    
     /**
      * Set data-attribute $key to $value
      */
@@ -90,9 +90,6 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
         }
         if (is_array($value)) {
             foreach ($value as $attribute=>$property) {
-                if (!isset($convertedData[$key])) {
-                    $convertedData[$key] = array();
-                }
                 $convertedData[$key][$attribute] = $property;
             }
         } else if (is_object($value)) {
@@ -105,7 +102,7 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
              throw new DataSetException('Supplied argument could not be converted to DataSet');
         }
     }
-
+    
     /**
      * Try to remove the declared key from the dataset
      * @param string $key
@@ -180,19 +177,19 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
             } else {
                 $data[$attribute] = $property;
             }
-        }
+        } 
         return $data;
     }
-
+    
     protected static function getYamlInterface() {
-        if (empty(static::$yamlInterface)) {
-            static::$yamlInterface = new \Cx\Core_Modules\Listing\Model\Entity\YamlInterface();
+        if (empty(self::$yamlInterface)) {
+            self::$yamlInterface = new \Cx\Core_Modules\Listing\Model\Entity\YamlInterface();
         }
-        return static::$yamlInterface;
+        return self::$yamlInterface;
     }
 
     public function toYaml() {
-        return $this->export(static::getYamlInterface());
+        return $this->export(self::getYamlInterface());
     }
 
     public static function import(\Cx\Core_Modules\Listing\Model\Entity\Importable $importInterface, $content) {
@@ -205,39 +202,20 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
     }
 
     /**
-     * Imports a DataSet from a file using an import interface
      *
-     * @param Cx\Core_Modules\Listing\Model\Entity\Importable $importInterface
-     * @param string $filename
-     * @param boolean $useCache Wether to try to load the file from cache or not
+     * @param Cx\Core_Modules\Listing\Model\ImportInterface $importInterface
+     * @param type $filename
      * @throws \Cx\Lib\FileSystem\FileSystemException
-     * @return \Cx\Core_Modules\Listing\Model\Entity\DataSet
+     * @return type 
      */
-    public static function importFromFile(\Cx\Core_Modules\Listing\Model\Entity\Importable $importInterface, $filename, $useCache = true) {
-        if ($useCache) {
-            $cache = \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache');
-            if (!$cache) {
-                $useCache = false;
-            }
-        }
-        if ($useCache) {
-            // try to load imported from cache
-            $objImport = $cache->fetch($filename);
-            if ($objImport) {
-                return $objImport;
-            }
-        }
+    public static function importFromFile(\Cx\Core_Modules\Listing\Model\Entity\Importable $importInterface, $filename) {
         try {
             $objFile = new \Cx\Lib\FileSystem\File($filename);
-            $objImport = static::import($importInterface, $objFile->getData());
+            return self::import($importInterface, $objFile->getData());
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::msg($e->getMessage());
             throw new DataSetException("Failed to load data from file $filename!");
         }
-        if ($useCache) { // store imported to cache
-            $cache->save($filename, $objImport);
-        }
-        return $objImport;
     }
 
     public function export(\Cx\Core_Modules\Listing\Model\Entity\Exportable $exportInterface) {
@@ -250,27 +228,16 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
     }
 
     /**
-     * Exports a DataSet to a file using an export interface
      *
-     * @param Cx\Core_Modules\Listing\Model\Entity\Exportable $exportInterface
-     * @param string $filename
-     * @param boolean $useCache
+     * @param Cx\Core_Modules\Listing\Model\ExportInterface $exportInterface
+     * @param type $filename 
      * @throws \Cx\Lib\FileSystem\FileSystemException
      */
-    public function exportToFile(\Cx\Core_Modules\Listing\Model\Entity\Exportable $exportInterface, $filename, $useCache = true) {
+    public function exportToFile(\Cx\Core_Modules\Listing\Model\Entity\Exportable $exportInterface, $filename) {
         try {
             $objFile = new \Cx\Lib\FileSystem\File($filename);
             $objFile->touch();
-            $export = $this->export($exportInterface);
-            $objFile->write($export);
-            // delete old key from cache, to reload it on the next import
-            if ($useCache) {
-                $cache = \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache');
-                if (!$cache) {
-                    throw new DataSetException('Cache component not available at this stage!');
-                }
-                $cache->delete($filename);
-            }
+            $objFile->write($this->export($exportInterface));
         } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
             \DBG::msg($e->getMessage());
             throw new DataSetException("Failed to export data to file $filename!");
@@ -279,7 +246,7 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
 
     /**
      *
-     * @param type $filename
+     * @param type $filename 
      * @throws \Cx\Lib\FileSystem\FileSystemException
      */
     public function save($filename) {
@@ -287,20 +254,19 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
     }
 
     public static function fromYaml($data) {
-        return static::import(static::getYamlInterface(), $data);
+        return self::import(self::getYamlInterface(), $data);
     }
 
     /**
      *
-     * @param string $filename
-     * @param boolean $useCache Wether to try to load the file from cache or not
+     * @param type $filename
      * @throws \Cx\Lib\FileSystem\FileSystemException
-     * @return type
+     * @return type 
      */
-    public static function load($filename, $useCache = true) {
-        return static::importFromFile(static::getYamlInterface(), $filename, $useCache);
+    public static function load($filename) {
+        return self::importFromFile(self::getYamlInterface(), $filename);
     }
-
+    
     public function getDataType() {
         return $this->dataType;
     }
@@ -314,18 +280,18 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
     public function setDataType($dataType) {
         $this->dataType = $dataType;
     }
-
+    
     public function entryExists($key) {
         return isset($this->data[$key]);
     }
-
+    
     public function getEntry($key) {
         if (!$this->entryExists($key)) {
             throw new DataSetException('No such entry');
         }
         return $this->data[$key];
     }
-
+    
     public function toArray() {
         if (count($this->data) == 1) {
             return current($this->data);
@@ -352,19 +318,19 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
     public function rewind() {
         return reset($this->data);
     }
-
+    
     public function count() {
         return $this->size();
     }
-
+    
     public function length() {
         return $this->size();
     }
-
+    
     public function size() {
         return count($this->data);
     }
-
+    
     public function limit($length, $offset) {
         $i = 0;
         $result = new static();
@@ -378,10 +344,10 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
         }
         return $result;
     }
-
+    
     /**
      * Sort this DataSet by the fields and in the order specified
-     *
+     * 
      * $order has the following syntax:
      * array(
      *     {fieldname} => SORT_ASC|SORT_DESC,
@@ -393,7 +359,7 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
      */
     public function sort($order) {
         $data = $this->data;
-
+        
         $dateTimeTools = new \DateTimeTools();
         uasort($data, function($a, $b) use($order, $dateTimeTools) {
             $diff = 1;
@@ -409,10 +375,10 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
             }
             return ($diff ? -1 : 1) * $orderMultiplier;
         });
-
+        
         return new static($data);
     }
-
+    
     /**
      * Tell if the supplied argument is iterable
      * @todo Rethink this method, DataSet is always iterable, this is a general helper method
@@ -422,7 +388,7 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
     private function is_iterable($var) {
         return (is_array($var) || $var instanceof Traversable || $var instanceof stdClass);
     }
-
+    
     /**
      * Returns a flipped version of this DataSet
      * @param array $arr Array to flip
@@ -430,26 +396,20 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
      */
     public function flip() {
         $result = array();
-
+        
         foreach ($this as $key => $subarr) {
             if (!$this->is_iterable($subarr)) {
-                if (!isset($result[0])) {
-                    $result[0] = array();
-                }
                 $result[0][$key] = $subarr;
                 continue;
             }
             foreach ($subarr as $subkey => $subvalue) {
-                if (!isset($result[$subkey])) {
-                    $result[$subkey] = array();
-                }
-                $result[$subkey][$key] = $subvalue;
+                 $result[$subkey][$key] = $subvalue;
             }
         }
 
         return new static($result);
     }
-
+    
     /**
      * Sort the columns after the given array.
      * Not defined columns are sorted after the default
@@ -467,18 +427,6 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
             }
             $this->data[$key] = array_merge($sortedData, $val);
         }
-    }
-
-    /**
-     * Filters entries of this DataSet
-     * @param callable $filterFunction
-     */
-    public function filter(callable $filterFunction) {
-        foreach ($this->data as $key=>$entry) {
-            if (!$filterFunction($entry)) {
-                unset($this->data[$key]);
-            }
-        } 
     }
 
     /**
@@ -501,3 +449,4 @@ class DataSet extends \Cx\Model\Base\EntityBase implements \Iterator {
         $this->identifier = $identifier;
     }
 }
+

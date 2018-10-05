@@ -55,24 +55,18 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
     function __construct($pageContent)
     {
         parent::__construct();
+        $this->getSettings();
         $this->_pageContent = $pageContent;
         $this->_objTemplate = new \Cx\Core\Html\Sigma('.');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTemplate);
     }
-
-    /**
-     * @todo This does not respect scheduled publishing!
-     */
-    function getRecentNewsComments($langId = 0)
+    
+    function getRecentNewsComments()
     {
         global $objDatabase;
-
-        if (empty($langId)) {
-            $langId = \Env::get('init')->getDefaultFrontendLangId();
-        }
-
+        
         $this->_objTemplate->setTemplate($this->_pageContent,true,true);
-
+        
         // abort if template block is missing
         if (!$this->_objTemplate->blockExists('news_comments')) {
             return;
@@ -80,29 +74,27 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
 
         // abort if commenting system is not active
         if (!$this->arrSettings['news_comments_activated']) {
-            $this->_objTemplate->hideBlock('news_comments');
+            $this->_objTemplate->hideBlock('news_comments');            
         } else {
             $_ARRAYLANG = \Env::get('init')->loadLanguageData('News');
             $commentsCount = (int) $this->arrSettings['recent_news_message_limit'];
 
-            // TODO: add permission access check
-            // only comments of articles the user has access to should be listed
             $query = "SELECT  `nComment`.`title`,
                               `nComment`.`date`,
                               `nComment`.`poster_name`,
                               `nComment`.`userid`,
                               `nComment`.`text`,
                               `news`.`id`
-                        FROM
+                        FROM  
                               `".DBPREFIX."module_news_comments` AS nComment
-                        LEFT JOIN
+                        LEFT JOIN 
                               `".DBPREFIX."module_news` AS news
                         ON
                             `nComment`.newsid = `news`.id
-                        LEFT JOIN
+                        LEFT JOIN 
                               `".DBPREFIX."module_news_locale` AS nLocale
                         ON
-                            `news`.id = `nLocale`.news_id AND `nLocale`.lang_id = ". $langId ."
+                            `news`.id = `nLocale`.news_id AND `nLocale`.lang_id = ". FRONTEND_LANG_ID ."
                         WHERE
                             `news`.status = 1
                         AND
@@ -112,7 +104,7 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         AND
                             `nComment`.`is_active` = '1'
                         ORDER BY
-                              `date` DESC
+                              `date` DESC 
                         LIMIT 0, $commentsCount";
 
             $objResult = $objDatabase->Execute($query);
@@ -133,12 +125,12 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
             $i = 0;
             while (!$objResult->EOF) {
                 self::parseUserAccountData($this->_objTemplate, $objResult->fields['userid'], $objResult->fields['poster_name'], 'news_comments_poster');
-
+                
                 $commentTitle = $objResult->fields['title'];
                 $newsCategories = $this->getCategoriesByNewsId($objResult->fields['id']);
                 $newsUrl  = \Cx\Core\Routing\Url::fromModuleAndCmd('News', $this->findCmdById('details', array_keys($newsCategories)), FRONTEND_LANG_ID, array('newsid' => $objResult->fields['id']));
                 $newsLink = self::parseLink($newsUrl, $commentTitle, contrexx_raw2xhtml($commentTitle));
-
+                
                 $this->_objTemplate->setVariable(array(
                    'NEWS_COMMENTS_CSS'          => 'row'.($i % 2 + 1),
                    'NEWS_COMMENTS_TITLE'        => contrexx_raw2xhtml($commentTitle),
@@ -146,7 +138,6 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
                    'NEWS_COMMENTS_LONG_DATE'    => date(ASCMS_DATE_FORMAT, $objResult->fields['date']),
                    'NEWS_COMMENTS_DATE'         => date(ASCMS_DATE_FORMAT_DATE, $objResult->fields['date']),
                    'NEWS_COMMENTS_TIME'         => date(ASCMS_DATE_FORMAT_TIME, $objResult->fields['date']),
-                   'NEWS_COMMENTS_TIMESTAMP'    => $objResult->fields['date'],
                    'NEWS_COMMENT_LINK'          => $newsLink,
                    'NEWS_COMMENT_URL'           => $newsUrl
                 ));
@@ -159,7 +150,7 @@ class NewsRecentComments extends \Cx\Core_Modules\News\Controller\NewsLibrary
             $this->_objTemplate->parse('news_comment_list');
             $this->_objTemplate->hideBlock('news_no_comment');
         }
-
+         
         return $this->_objTemplate->get();
     }
 }

@@ -1,5 +1,8 @@
 <?php
+
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,7 +16,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -22,21 +25,24 @@ namespace Doctrine\ORM\Tools\Export\Driver;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 /**
- * ClassMetadata exporter for PHP code.
+ * ClassMetadata exporter for PHP code
  *
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
+ * @version $Revision$
  * @author  Jonathan Wage <jonwage@gmail.com>
  */
 class PhpExporter extends AbstractExporter
 {
-    /**
-     * @var string
-     */
     protected $_extension = '.php';
 
     /**
-     * {@inheritdoc}
+     * Converts a single ClassMetadata instance to the exported format
+     * and returns it
+     *
+     * @param ClassMetadataInfo $metadata 
+     * @return mixed $exported
      */
     public function exportClassMetadata(ClassMetadataInfo $metadata)
     {
@@ -86,7 +92,7 @@ class PhpExporter extends AbstractExporter
             $lines[] = '$metadata->mapField(' . $this->_varExport($fieldMapping) . ');';
         }
 
-        if ( ! $metadata->isIdentifierComposite && $generatorType = $this->_getIdGeneratorTypeString($metadata->generatorType)) {
+        if ($generatorType = $this->_getIdGeneratorTypeString($metadata->generatorType)) {
             $lines[] = '$metadata->setIdGeneratorType(ClassMetadataInfo::GENERATOR_TYPE_' . $generatorType . ');';
         }
 
@@ -97,17 +103,12 @@ class PhpExporter extends AbstractExporter
                     unset($cascade[$key]);
                 }
             }
-
-            if (count($cascade) === 5) {
-                $cascade = array('all');
-            }
-
             $associationMappingArray = array(
                 'fieldName'    => $associationMapping['fieldName'],
                 'targetEntity' => $associationMapping['targetEntity'],
                 'cascade'     => $cascade,
             );
-
+            
             if ($associationMapping['type'] & ClassMetadataInfo::TO_ONE) {
                 $method = 'mapOneToOne';
                 $oneToOneMappingArray = array(
@@ -116,47 +117,34 @@ class PhpExporter extends AbstractExporter
                     'joinColumns'   => $associationMapping['joinColumns'],
                     'orphanRemoval' => $associationMapping['orphanRemoval'],
                 );
-
+                
                 $associationMappingArray = array_merge($associationMappingArray, $oneToOneMappingArray);
-            } elseif ($associationMapping['type'] == ClassMetadataInfo::ONE_TO_MANY) {
+            } else if ($associationMapping['type'] == ClassMetadataInfo::ONE_TO_MANY) {
                 $method = 'mapOneToMany';
-                $potentialAssociationMappingIndexes = array(
-                    'mappedBy',
-                    'orphanRemoval',
-                    'orderBy',
+                $oneToManyMappingArray = array(
+                    'mappedBy'      => $associationMapping['mappedBy'],
+                    'orphanRemoval' => $associationMapping['orphanRemoval'],
+                    'orderBy' => $associationMapping['orderBy']
                 );
-                foreach ($potentialAssociationMappingIndexes as $index) {
-                    if (isset($associationMapping[$index])) {
-                        $oneToManyMappingArray[$index] = $associationMapping[$index];
-                    }
-                }
+                
                 $associationMappingArray = array_merge($associationMappingArray, $oneToManyMappingArray);
-            } elseif ($associationMapping['type'] == ClassMetadataInfo::MANY_TO_MANY) {
+            } else if ($associationMapping['type'] == ClassMetadataInfo::MANY_TO_MANY) {
                 $method = 'mapManyToMany';
-                $potentialAssociationMappingIndexes = array(
-                    'mappedBy',
-                    'joinTable',
-                    'orderBy',
+                $manyToManyMappingArray = array(
+                    'mappedBy'  => $associationMapping['mappedBy'],
+                    'joinTable' => $associationMapping['joinTable'],
+                    'orderBy' => $associationMapping['orderBy']
                 );
-                foreach ($potentialAssociationMappingIndexes as $index) {
-                    if (isset($associationMapping[$index])) {
-                        $manyToManyMappingArray[$index] = $associationMapping[$index];
-                    }
-                }
+                
                 $associationMappingArray = array_merge($associationMappingArray, $manyToManyMappingArray);
             }
-
+            
             $lines[] = '$metadata->' . $method . '(' . $this->_varExport($associationMappingArray) . ');';
         }
 
         return implode("\n", $lines);
     }
 
-    /**
-     * @param mixed $var
-     *
-     * @return string
-     */
     protected function _varExport($var)
     {
         $export = var_export($var, true);

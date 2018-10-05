@@ -24,6 +24,6 @@ Cx\Core\Wysiwyg\Model\Entity\WysiwygTemplate:
       nullable: true
     active:
       type: boolean
-      nullable: false
+      nullable: true
       options:
         default: true

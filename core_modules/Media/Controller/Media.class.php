@@ -50,7 +50,7 @@ class Media extends MediaLibrary
     public $_objTpl;                       // var for the template object
     public $pageTitle;                     // var for the title of the active page
     public $statusMessage;                 // var for the status message
-
+    
     public $arrPaths;                      // array paths
     public $arrWebPaths;                   // array web paths
 
@@ -66,6 +66,9 @@ class Media extends MediaLibrary
 
     var $highlightName     = array();   // highlight added name
     var $highlightColor    = '#d8ffca'; // highlight color for added name [#d8ffca]
+    var $_strOkMessage  = '';           // success message
+    var $_strErrorMessage  = '';        // error message
+
 
     /**
      * PHP5 constructor
@@ -78,7 +81,7 @@ class Media extends MediaLibrary
         $this->_arrSettings =$this->createSettingsArray();
 
         $this->archive = (intval(substr($archive,-1,1)) == 0) ? 'Media1' : $archive;
-
+                
         $this->arrPaths = array(ASCMS_MEDIA1_PATH . '/',
                                     ASCMS_MEDIA2_PATH . '/',
                                     ASCMS_MEDIA3_PATH . '/',
@@ -138,8 +141,7 @@ class Media extends MediaLibrary
         $this->getCmd = !empty($_GET['cmd']) ? '&amp;cmd='.htmlentities($_GET['cmd'], ENT_QUOTES, CONTREXX_CHARSET) : '';
 
         $this->_overviewMedia();
-        \Message::show($this->_objTpl);
-
+        $this->_parseMessages();
         return $this->_objTpl->get();
     }
 
@@ -147,34 +149,31 @@ class Media extends MediaLibrary
     /**
     * Overview Media Data
     *
+    * @global     array     $_CONFIG
     * @global     array     $_ARRAYLANG
     * @return    string    parsed content
     */
     function _overviewMedia()
     {
-        global $_ARRAYLANG, $_CORELANG;
+        global $_CONFIG, $_ARRAYLANG;
 
-        $searchTerm = $this->isSearchActivated() && !empty($_GET['term'])
-                        ? \FWValidator::getCleanFileName(contrexx_input2raw($_GET['term']))
-                        : '';
-
-        switch ($this->getAct) {
-            case 'download':
-                $this->_downloadMedia();
-                break;
-            case 'newDir':
-                $this->_createDirectory($_POST['media_directory_name']);
-                break;
-            case 'upload':
-                $this->_uploadFiles();
-                break;
-            case 'rename':
-                $this->_renameFiles();
-                break;
-            case 'delete':
-                $this->_deleteFiles();
-                break;
-            default:
+        switch($this->getAct) {
+        case 'download':
+            $this->_downloadMedia();
+            break;
+        case 'newDir':
+            $this->_createDirectory($_POST['media_directory_name']);
+            break;
+        case 'upload':
+            $this->_uploadFiles();
+            break;
+        case 'rename':
+            $this->_renameFiles();
+            break;
+        case 'delete':
+            $this->_deleteFiles();
+            break;
+        default:
         }
 
         // tree navigation
@@ -202,146 +201,65 @@ class Media extends MediaLibrary
             }
         }
 
+        if (isset($_GET['deletefolder']) && $_GET['deletefolder'] = "success"){
+            $this->_strOkMessage = $_ARRAYLANG['TXT_MEDIA_FOLDER_DELETED_SUCESSFULLY'];
+        }
         if (!empty($_GET['highlightFiles'])) {
             $this->highlightName = array_merge($this->highlightName, array_map('basename', json_decode(contrexx_stripslashes(urldecode($_GET['highlightFiles'])))));
         }
-
+        
         // media directory tree
-        $dirTree = array();
-        $this->getDirectoryTree($this->path, $searchTerm, $dirTree, !empty($searchTerm));
-        $dirTree = $this->_sortDirTree($dirTree);
-
-        $deleteUrl  = clone \Cx\Core\Core\Controller\Cx::instanciate()->getRequest()->getUrl();
-        $deleteUrl->setParam('act', null);
-
-        $previewUrl = clone $deleteUrl;
-        $renameUrl  = clone $deleteUrl;
-
-        $redirect = urlencode(base64_encode($deleteUrl->toString(false)));
-        $renameUrl->setParam('redirect', $redirect);
-        $deleteUrl->setParam('redirect', $redirect);
-        $renameUrl->setParam('act', 'rename');
-        $deleteUrl->setParam('act', 'delete');
-
-        // we'll parse image specific functionality only,
-        // if related placeholder used for its output is present
-        // in the application template
-        if ($this->_objTpl->blockExists('mediaDirectoryTreeFile')) {
-            // check in file specific template block
-            $parseImagePreview = $this->_objTpl->placeholderExists('MEDIA_FILE_NAME_HREF', 'mediaDirectoryTreeFile');
-        } else {
-            // check in generic template block
-            $parseImagePreview = $this->_objTpl->placeholderExists('MEDIA_FILE_NAME_HREF', 'mediaDirectoryTree');
-        }
-
         $i = 0;
+        $dirTree = $this->_dirTree($this->path);
+        $dirTree = $this->_sortDirTree($dirTree);
         foreach (array_keys($dirTree) as $key) {
-            if (!is_array($dirTree[$key]['icon'])) {
-                continue;
-            }
-            $mediaCount = count($dirTree[$key]['icon']);
-            for ($x = 0; $x < $mediaCount; $x++) {
-                $fileName = $dirTree[$key]['name'][$x];
-                if (MediaLibrary::isIllegalFileName($fileName)) {
-                    continue;
-                }
-                $class = ($i % 2) ? 'row2' : 'row1';
-                 // highlight
-                if (in_array($fileName, $this->highlightName)) {
-                    $class .= '" style="background-color: ' . $this->highlightColor . ';';
-                }
-
-                if (!$this->manageAccessGranted()) {
-                    //if the user is not allowed to delete or rename files -- hide those blocks
-                    if ($this->_objTpl->blockExists('manage_access_option')) {
-                        $this->_objTpl->hideBlock('manage_access_option');
+            if (is_array($dirTree[$key]['icon'])) {
+                for ($x = 0; $x < count($dirTree[$key]['icon']); $x++) {
+                    if (MediaLibrary::isIllegalFileName($dirTree[$key]['name'][$x])) {
+                        continue;
                     }
+                    $class = ($i % 2) ? 'row2' : 'row1';
+                     // highlight
+                    if (in_array($dirTree[$key]['name'][$x], $this->highlightName)) {
+                        $class .= '" style="background-color: ' . $this->highlightColor . ';';
+                    }
+
+                    if (!$this->manageAccessGranted()) {
+                        //if the user is not allowed to delete or rename files -- hide those blocks
+                        if ($this->_objTpl->blockExists('manage_access_option')) {
+                            $this->_objTpl->hideBlock('manage_access_option');
+                        }
+                    }
+                    $this->_objTpl->setVariable(array(  // file
+                        'MEDIA_DIR_TREE_ROW'  => $class,
+                        'MEDIA_FILE_ICON'     => $dirTree[$key]['icon'][$x],
+                        'MEDIA_FILE_NAME'     => $dirTree[$key]['name'][$x],
+                        'MEDIA_FILE_SIZE'     => $this->_formatSize($dirTree[$key]['size'][$x]),
+                        'MEDIA_FILE_TYPE'     => $this->_formatType($dirTree[$key]['type'][$x]),
+                        'MEDIA_FILE_DATE'     => $this->_formatDate($dirTree[$key]['date'][$x]),
+                        'MEDIA_RENAME_TITLE'  => $_ARRAYLANG['TXT_MEDIA_RENAME'],
+                        'MEDIA_DELETE_TITLE'  => $_ARRAYLANG['TXT_MEDIA_DELETE'],
+                    ));
+                    $tmpHref = $delHref = '';
+                    if ($key == 'dir') {
+                        $tmpHref = CONTREXX_SCRIPT_PATH.'?section=' . $this->archive . $this->getCmd . '&amp;path=' . rawurlencode($this->webPath . $dirTree[$key]['name'][$x] . '/');
+                        $delHref = CONTREXX_SCRIPT_PATH.'?section=' . $this->archive . $this->getCmd . '&amp;act=delete&amp;path=' . rawurlencode($this->webPath . $dirTree[$key]['name'][$x] . '/');
+                    } elseif ($key == 'file') {
+                        $delHref = CONTREXX_SCRIPT_PATH.'?section=' . $this->archive . $this->getCmd . '&amp;act=delete&amp;path=' . rawurlencode($this->webPath) . '&amp;file='. rawurlencode($dirTree[$key]['name'][$x]);
+                        if ($this->_isImage($this->path . $dirTree[$key]['name'][$x])) {
+                            $tmpSize = getimagesize($this->path . $dirTree[$key]['name'][$x]);
+                            $tmpHref = 'javascript: preview(\'' . $this->webPath . $dirTree[$key]['name'][$x] . '\', ' . $tmpSize[0] . ', ' . $tmpSize[1] . ');';
+                        } else {
+                            $tmpHref = CONTREXX_SCRIPT_PATH.'?section=' . $this->archive . '&amp;act=download&amp;path=' . rawurlencode($this->webPath) . '&amp;file='. rawurlencode($dirTree[$key]['name'][$x]);
+                        }
+                    }
+                    $this->_objTpl->setVariable(array(
+                        'MEDIA_FILE_NAME_HREF'  => $tmpHref,
+                        'MEDIA_FILE_DELETE_HREF'=> $delHref,
+                    ));
+                    $this->_objTpl->parse('mediaDirectoryTree');
+                    $i++;
                 }
-
-                $this->_objTpl->setVariable(array(  // file
-                    'MEDIA_DIR_TREE_ROW'  => $class,
-                    'MEDIA_FILE_ICON'     => $dirTree[$key]['icon'][$x],
-                    'MEDIA_FILE_NAME'     => $this->prettyFormatFilename($fileName),
-                    'MEDIA_FILE_SIZE'     => $this->_formatSize($dirTree[$key]['size'][$x]),
-                    'MEDIA_FILE_TYPE'     => $this->_formatType($dirTree[$key]['type'][$x]),
-                    'MEDIA_FILE_DATE'     => $this->_formatDate($dirTree[$key]['date'][$x]),
-                    'MEDIA_RENAME_TITLE'  => $_ARRAYLANG['TXT_MEDIA_RENAME'],
-                    'MEDIA_DELETE_TITLE'  => $_ARRAYLANG['TXT_MEDIA_DELETE'],
-                ));
-
-                $image        = false;
-                $imagePreview = '';
-                $mediaPath    = $this->path;
-                $mediaWebPath = $this->webPath;
-                if (!empty($searchTerm)) {
-                    $mediaPath    = $dirTree[$key]['path'][$x] .'/';
-                    $mediaWebPath = $mediaPath;
-                    \Cx\Lib\FileSystem\FileSystem::path_relative_to_root($mediaWebPath);
-                    $mediaWebPath = '/'. $mediaWebPath; // Filesysystem removes the beginning slash(/)
-                }
-
-                $file = rawurlencode($fileName);
-                switch ($key) {
-                    case 'dir':
-                        // build directory traversal url
-                        $path = rawurlencode($mediaWebPath . $fileName . '/');
-                        $previewUrl->setParam('act', null);
-                        $previewUrl->setParam('file', null);
-                        $previewUrl->setParam('path', $path);
-
-                        // show directory specific template block
-                        if ($this->_objTpl->blockExists('mediaDirectoryTreeDir')) {
-                            $this->_objTpl->touchBlock('mediaDirectoryTreeDir');
-                        }
-
-                        // hide file specific template block
-                        if ($this->_objTpl->blockExists('mediaDirectoryTreeFile')) {
-                            $this->_objTpl->hideBlock('mediaDirectoryTreeFile');
-                        }
-                        break;
-
-                    case 'file':
-                    default:
-                        // build file download url
-                        $path = rawurlencode($mediaWebPath);
-                        $previewUrl->setParam('act', 'download');
-                        $previewUrl->setParam('path', $path);
-                        $previewUrl->setParam('file', $file);
-
-                        // build image preview url
-                        $filePath = $mediaPath . $fileName;
-                        if ($parseImagePreview && $this->_isImage($filePath)) {
-                            $image        = true;
-                            $tmpSize      = getimagesize($filePath);
-                            $imagePreview = 'javascript: preview(\'' . $mediaWebPath . $fileName . '\', ' . $tmpSize[0] . ', ' . $tmpSize[1] . ');';
-                        }
-
-                        // hide directory specific template block
-                        if ($this->_objTpl->blockExists('mediaDirectoryTreeDir')) {
-                            $this->_objTpl->hideBlock('mediaDirectoryTreeDir');
-                        }
-
-                        // show file specific template block
-                        if ($this->_objTpl->blockExists('mediaDirectoryTreeFile')) {
-                            $this->_objTpl->touchBlock('mediaDirectoryTreeFile');
-                        }
-                    break;
-                }
-
-                $deleteUrl->setParam('path', $path);
-                $deleteUrl->setParam('file', $key == 'dir' ? null : $file);
-
-                $renameUrl->setParam('path', rawurlencode($mediaWebPath));
-                $renameUrl->setParam('file', $file);
-
-                $this->_objTpl->setVariable(array(
-                    'MEDIA_FILE_NAME_HREF'   => $image ? $imagePreview : $previewUrl->toString(false),
-                    'MEDIA_FILE_NAME_SRC'    => $previewUrl->toString(false),
-                    'MEDIA_FILE_RENAME_HREF' => $renameUrl->toString(false),
-                    'MEDIA_FILE_DELETE_HREF' => $deleteUrl->toString(false),
-                ));
-                $this->_objTpl->parse('mediaDirectoryTree');
-                $i++;
             }
         }
 
@@ -357,7 +275,7 @@ class Media extends MediaLibrary
         }
 
         // parse variables
-        $tmpHref = CONTREXX_SCRIPT_PATH.'?section=' . $this->archive . $this->getCmd . (!empty($searchTerm) ? '&amp;term='. contrexx_raw2xhtml($searchTerm) : '') . '&amp;path=' . rawurlencode($this->webPath);
+        $tmpHref = CONTREXX_SCRIPT_PATH.'?section=' . $this->archive . $this->getCmd . '&amp;path=' . rawurlencode($this->webPath);
         $tmpIcon = $this->_sortingIcons();
 
         if ($this->_objTpl->blockExists('manage_access_header')) {
@@ -383,23 +301,9 @@ class Media extends MediaLibrary
             'MEDIA_TYPE_ICON'     => $tmpIcon['type'],
             'MEDIA_DATE_ICON'     => $tmpIcon['date'],
             'MEDIA_PERM_ICON'     => $tmpIcon['perm'],
-            'MEDIA_ARCHIVE_NAME'    => $this->archive,
-            'MEDIA_ARCHIVE_PATH'    => rawurlencode($this->webPath),
-            'MEDIA_JAVASCRIPT'      => $this->_getJavaScriptCodePreview(),
-            'MEDIA_SEARCH_TERM'     => contrexx_raw2xhtml(rawurldecode($searchTerm)),
-            'TXT_MEDIA_SEARCH'      => $_CORELANG['TXT_SEARCH'],
-            'TXT_MEDIA_SEARCH_TERM' => $_ARRAYLANG['TXT_MEDIA_SEARCH_TERM'],
+            'MEDIA_JAVASCRIPT'    => $this->_getJavaScriptCodePreview()
         ));
-
-        if (   $this->_objTpl->blockExists('media_archive_search_form')
-            && !$this->isSearchActivated()
-        ) {
-            $this->_objTpl->hideBlock('media_archive_search_form');
-        }
-
-        // Hide folder creation and file upload functionalies,
-        // when permission denied and on search mode
-        if (!$this->uploadAccessGranted() || !empty($searchTerm)) {
+        if (!$this->uploadAccessGranted()) {
             // if user not allowed to upload files and creating folders -- hide that blocks
             if ($this->_objTpl->blockExists('media_simple_file_upload')) {
                 $this->_objTpl->hideBlock('media_simple_file_upload');
@@ -410,7 +314,8 @@ class Media extends MediaLibrary
             if ($this->_objTpl->blockExists('media_create_directory')) {
                 $this->_objTpl->hideBlock('media_create_directory');
             }
-        } else {
+        }
+        else {
             // forms for uploading files and creating folders
             if ($this->_objTpl->blockExists('media_simple_file_upload')) {
                 //data we want to remember for handling the uploaded files
@@ -444,13 +349,13 @@ class Media extends MediaLibrary
             $this->_objTpl->setVariable(array(
                 'TXT_MEDIA_CREATE_DIRECTORY'        => $_ARRAYLANG['TXT_MEDIA_CREATE_DIRECTORY'],
                 'TXT_MEDIA_CREATE_NEW_DIRECTORY'    => $_ARRAYLANG['TXT_MEDIA_CREATE_NEW_DIRECTORY'],
-                'MEDIA_CREATE_DIRECTORY_URL'        => CONTREXX_SCRIPT_PATH . '?section=' . $this->archive . $this->getCmd . '&amp;act=newDir&amp;path=' . rawurlencode($this->webPath)
+                'MEDIA_CREATE_DIRECTORY_URL'        => CONTREXX_SCRIPT_PATH . '?section=' . $this->archive . $this->getCmd . '&amp;act=newDir&amp;path=' . $this->webPath
             ));
             $this->_objTpl->parse('media_create_directory');
-
+            
             //custom uploader
             \JS::activate('cx'); // the uploader needs the framework
-
+            
             $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader(); //create an uploader
             $uploadId = $uploader->getId();
             $uploader->setCallback('customUploader');
@@ -458,11 +363,7 @@ class Media extends MediaLibrary
                 'id'    => 'custom_'.$uploadId,
             ));
 
-            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            $folderWidget   = new \Cx\Core_Modules\MediaBrowser\Model\Entity\FolderWidget(
-                $cx->getComponent('Session')->getSession()->getTempPath() . '/' . $uploadId,
-                true
-            );
+            $folderWidget   = new \Cx\Core_Modules\MediaBrowser\Model\Entity\FolderWidget($_SESSION->getTempPath() . '/' . $uploadId, true);
             $folderWidgetId = $folderWidget->getId();
             $extendedFileInputCode = <<<CODE
     <script type="text/javascript">
@@ -481,42 +382,6 @@ CODE;
                 'FOLDER_WIDGET_CODE' => $folderWidget->getXHtml()
             ));
         }
-    }
-
-    /**
-     * Format a filename according to configuration option 'Pretty format'
-     * of currently loaded media archive.
-     *
-     * @param   string  $filename The filename to pretty format
-     * @return  string  The pretty formatted filename. In case of any error
-     *                  or if the function to pretty format is disabled,
-     *                  then the original $filename is being returned.
-     */
-    protected function prettyFormatFilename($filename) {
-        // return original filename in case pretty format function is disabled
-        if ($this->_arrSettings[strtolower($this->archive) . '_pretty_file_names'] == 'off') {
-            return $filename;
-        }
-
-        // check if a regexp is set
-        $regexpConf = $this->_arrSettings[strtolower($this->archive) . '_pretty_file_name_regexp'];
-
-        // generate pretty formatted filename
-        try {
-            $regularExpression = new \Cx\Lib\Helpers\RegularExpression($regexpConf);
-            $prettyFilename = $regularExpression->replace($filename);
-
-            // return pretty filename if conversion was successful
-            if (!is_null($prettyFilename)) {
-                return $prettyFilename;
-            }
-        } catch (\Exception $e) {
-            \DBG::msg($e->getMessage());
-        }
-
-        // return original filename in case anything
-        // didn't work out as expected
-        return $filename;
     }
 
     /**
@@ -565,23 +430,6 @@ CODE;
     }
 
     /**
-     * Check whether the search setting activated
-     *
-     * @return boolean  True when frontend search setting active, false otherwise
-     */
-    public function isSearchActivated()
-    {
-        $settingKey    = strtolower($this->archive) . '_frontend_search';
-        $searchSetting = isset($this->_arrSettings[$settingKey])
-                            ? $this->_arrSettings[$settingKey]
-                            : '';
-        if ($searchSetting == 'on') {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Format file size
      *
      * @global     array    $_ARRAYLANG
@@ -621,7 +469,7 @@ CODE;
 
         if (empty($dir_name)) {
             if (!isset($_GET['highlightFiles'])) {
-                \Message::error($_ARRAYLANG['TXT_MEDIA_EMPTY_DIR_NAME']);
+                $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_EMPTY_DIR_NAME'];
             }
             return;
         } else {
@@ -629,7 +477,7 @@ CODE;
         }
 
         if (!$this->uploadAccessGranted()) {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED']);
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED'];
             return;
         }
 
@@ -638,10 +486,21 @@ CODE;
         $creationStatus = $obj_file->mkDir($this->path, $this->webPath, $dir_name);
         if ($creationStatus != "error") {
             $this->highlightName[] = $dir_name;
-            \Message::ok($_ARRAYLANG['TXT_MEDIA_MSG_NEW_DIR']);
+            $this->_strOkMessage = $_ARRAYLANG['TXT_MEDIA_MSG_NEW_DIR'];
         } else {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_MSG_ERROR_NEW_DIR']);
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_MSG_ERROR_NEW_DIR'];
         }
+    }
+
+    /**
+     * Adding success and error messages to template
+     */
+    private function _parseMessages()
+    {
+        $this->_objTpl->setVariable(array(
+            'MEDIA_MSG_OK'      => $this->_strOkMessage,
+            'MEDIA_MSG_ERROR'   => $this->_strErrorMessage
+        ));
     }
 
     /**
@@ -653,7 +512,7 @@ CODE;
 
         // check permissions
         if (!$this->uploadAccessGranted()) {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED']);
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED'];
             return;
         }
         $this->processFormUpload();
@@ -668,14 +527,13 @@ CODE;
     private function processFormUpload()
     {
         global $_ARRAYLANG;
-
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $objSession = $cx->getComponent('Session')->getSession();
+        
+        $objSession = \cmsSession::getInstance();
         $uploaderId = isset($_POST['media_upload_file']) ? contrexx_input2raw($_POST['media_upload_file']) : 0;
         if (empty($uploaderId)) {
             return false;
         }
-
+        
         $tempPath = $objSession->getTempPath() .'/' . contrexx_input2raw($uploaderId);
         if (!\Cx\Lib\FileSystem\FileSystem::exists($tempPath)) {
             return false;
@@ -707,16 +565,13 @@ CODE;
                 $errorMsg[] = sprintf($_ARRAYLANG['TXT_MEDIA_FILE_UPLOAD_FAILED'], htmlentities($fileName, ENT_QUOTES, CONTREXX_CHARSET));
             }
         }
-
+        
         if (!empty($errorMsg)) {
-            $msgs = explode('<br>', $errorMsg);
-            foreach ($msgs as $msg) {
-                \Message::error($msg);
-            }
+            $this->_strErrorMessage = explode('<br>', $errorMsg);
             return false;
         }
-
-        \Message::ok($_ARRAYLANG['TXT_MEDIA_FILE_UPLOADED_SUCESSFULLY']);
+        
+        $this->_strOkMessage = $_ARRAYLANG['TXT_MEDIA_FILE_UPLOADED_SUCESSFULLY'];
         return true;
     }
 
@@ -729,38 +584,36 @@ CODE;
     function _renameFiles()
     {
         global $_ARRAYLANG;
-
+        
         // check permissions
         if (!$this->manageAccessGranted()) {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED']);
-            return $this->handleRedirect();
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED'];
+            return false;
         }
-
+        
         if (MediaLibrary::isIllegalFileName($this->getFile)) {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_FILE_DONT_EDIT']);
-            return $this->handleRedirect();
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_FILE_DONT_EDIT'];
+            return false;
         }
-
+        
         if (isset($_GET['newfile']) && file_exists($this->path.$this->getFile)) {
             $newFile = trim(preg_replace('/[^a-z0-9_\-\. ]/i', '_', $_GET['newfile']));
             if ($newFile != "") {
                 if (!file_exists($this->path.$newFile)) {
                     if (rename($this->path.$this->getFile, $this->path.$newFile)) {
-                        \Message::ok(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_RENAME_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>', '<strong>'.htmlentities($newFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>'));
+                        $this->_strOkMessage = sprintf($_ARRAYLANG['TXT_MEDIA_FILE_RENAME_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>', '<strong>'.htmlentities($newFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>');
                     } else {
-                        \Message::error($_ARRAYLANG['TXT_MEDIA_FILE_NAME_INVALID']);
+                        $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_FILE_NAME_INVALID'];
                     }
                 } else {
-                    \Message::error(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_AREALDY_EXSIST'], '<strong>'.htmlentities($newFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>'));
+                    $this->_strErrorMessage = sprintf($_ARRAYLANG['TXT_MEDIA_FILE_AREALDY_EXSIST'], '<strong>'.htmlentities($newFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>');
                 }
             } else {
-                \Message::error($_ARRAYLANG['TXT_MEDIA_FILE_EMPTY_NAME']);
+                $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_FILE_EMPTY_NAME'];
             }
         } else {
-            \Message::error(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'], htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET)));
+            $this->_strErrorMessage = sprintf($_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'], htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET));
         }
-
-        $this->handleRedirect();
     }
 
     /**
@@ -775,28 +628,29 @@ CODE;
 
         // check permissions
         if (!$this->manageAccessGranted()) {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED']);
-            return $this->handleRedirect();
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED'];
+            return false;
         }
 
         if (MediaLibrary::isIllegalFileName($this->getFile)) {
-            \Message::error($_ARRAYLANG['TXT_MEDIA_FILE_DONT_DELETE']);
-            return $this->handleRedirect();
+            $this->_strErrorMessage = $_ARRAYLANG['TXT_MEDIA_FILE_DONT_DELETE'];
+            return false;
         }
-
+        
         if (isset($_GET['path'])) {
             if (isset($_GET['file'])) {
-                $filePath = $this->path . $this->getFile;
+                $filePath = $this->path.$this->getFile;
                 if (unlink($filePath)) {
-                    \Message::ok(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_DELETED_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>'));
+                    $this->_strOkMessage = sprintf($_ARRAYLANG['TXT_MEDIA_FILE_DELETED_SUCESSFULLY'], '<strong>'.htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET).'</strong>');
+                    return true;
                 } else {
-                    \Message::error(sprintf($_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'], htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET)));
+                    $this->_strErrorMessage = sprintf($_ARRAYLANG['TXT_MEDIA_FILE_NOT_FOUND'], htmlentities($this->getFile, ENT_QUOTES, CONTREXX_CHARSET));
+                    return false;
                 }
             } else {
                 $this->deleteDirectory($this->path);
             }
         }
-        return $this->handleRedirect();
     }
 
      /**
@@ -810,14 +664,27 @@ CODE;
     {
         global $_ARRAYLANG;
 
-        try {
-            \Cx\Lib\FileSystem\FileSystem::delete_folder($dirName, true);
-            \Message::ok($_ARRAYLANG['TXT_MEDIA_FOLDER_DELETED_SUCESSFULLY']);
-        } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-            \DBG::msg($e->getMessage());
+        $dir_handle = is_dir($dirName) ? opendir($dirName) : "";
+        if (!$dir_handle) {
             return false;
         }
 
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirName."/".$file)) {
+                    unlink($dirName."/".$file);
+                } else {
+                    $this->deleteDirectory($dirName.'/'.$file);
+                }
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirName);
+        /* Redirect to previous path */
+        $new_path_arr = explode("/", trim($this->webPath, "/"));
+        array_pop($new_path_arr);
+        $newPath = "/".implode("/", $new_path_arr)."/";
+        header("Location: index.php?section=" . $this->archive . $this->getCmd . "&deletefolder=success&path=". rawurlencode($newPath));
         return true;
     }
 

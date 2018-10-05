@@ -45,55 +45,39 @@ namespace Cx\Modules\Shop\Controller;
  * @subpackage  module_shop
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
-
-    /**
-     * Return a list of Controller Classes.
-     * @return array
-     */
-    public function getControllerClasses()
-    {
-        return array('Backend');
+    public function getControllerClasses() {
+        // Return an empty array here to let the component handler know that there
+        // does not exist a backend, nor a frontend controller of this component.
+        return array();
     }
 
-    /**
-     * Load your component. It is needed for this request.
+     /**
+     * Load your component.
      *
-     * This loads your Frontend or BackendController depending on the
-     * mode Cx runs in. For modes other than frontend and backend, nothing is
-     * done. This method is overwritten because the frontend view is loaded
-     * without frontend controller and directly with the ShopManager
-     *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
-    public function load(\Cx\Core\ContentManager\Model\Entity\Page $page)
-    {
+    public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
+        global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $page->setContent(Shop::getPage($page->getContent()));
+                \Env::get('cx')->getPage()->setContent(Shop::getPage(\Env::get('cx')->getPage()->getContent()));
 
                 // show product title if the user is on the product details page
-                $metaTitle = Shop::getPageTitle();
-                if ($metaTitle) {
-                    $page->setTitle($metaTitle);
-                    $page->setContentTitle($metaTitle);
-                    $page->setMetaTitle($metaTitle);
-                }
-                $metaDesc = Shop::getPageMetaDesc();
-                if ($metaDesc) {
-                    $page->setMetadesc($metaDesc);
-                }
-                $metaImage = Shop::getPageMetaImage();
-                if ($metaImage) {
-                    $page->setMetaimage($metaImage);
-                }
-                $metaKeys = Shop::getPageMetaKeys();
-                if ($metaKeys) {
-                    $page->setMetakeys($metaKeys);
+                if ($page_metatitle = Shop::getPageTitle()) {
+                    \Env::get('cx')->getPage()->setTitle($page_metatitle);
+                    \Env::get('cx')->getPage()->setContentTitle($page_metatitle);
+                    \Env::get('cx')->getPage()->setMetaTitle($page_metatitle);
                 }
                 break;
 
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
-                parent::load($page);
+                $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
+                $objTemplate = $this->cx->getTemplate();
+
+                \Permission::checkAccess($intAccessIdOffset+13, 'static');
+                $subMenuTitle = $_CORELANG['TXT_SHOP_ADMINISTRATION'];
+                $objShopManager = new ShopManager();
+                $objShopManager->getPage();
                 break;
         }
     }
@@ -116,86 +100,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         Shop::init();
                         Shop::setNavbar();
                     }
-
-                    // replace global product blocks
-                    $page->setContent(
-                        preg_replace_callback(
-                            '/<!--\s+BEGIN\s+(block_shop_products_category_(?:\d+)\s+-->).*<!--\s+END\s+\1/s',
-                            function ($matches) {
-                                $blockTemplate = new \Cx\Core\Html\Sigma();
-                                $blockTemplate->setTemplate($matches[0]);
-                                Shop::parse_products_blocks($blockTemplate);
-                                return $blockTemplate->get();
-                            },
-                            $page->getContent()
-                        )
-                    );
                 }
                 break;
-        }
-    }
-
-    /**
-     * Called for additional, component specific resolving
-     * 
-     * If /en/Path/to/Page is the path to a page for this component
-     * a request like /en/Path/to/Page/with/some/parameters will
-     * give an array like array('with', 'some', 'parameters') for $parts
-     * 
-     * This may be used to redirect to another page
-     * @param array $parts List of additional path parts
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page Resolved virtual page
-     */
-    public function resolve($parts, $page) {
-        $canonicalUrl = \Cx\Core\Routing\Url::fromPage($page, $this->cx->getRequest()->getUrl()->getParamArray());
-        header('Link: <' . $canonicalUrl->toString() . '>; rel="canonical"');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function adjustResponse(\Cx\Core\Routing\Model\Entity\Response $response) {
-        // in case of an ESI request, the request URL will be set through Referer-header
-        $headers = $response->getRequest()->getHeaders();
-        if (isset($headers['Referer'])) {
-            $refUrl = new \Cx\Lib\Net\Model\Entity\Url($headers['Referer']);
-        } else {
-            $refUrl = new \Cx\Lib\Net\Model\Entity\Url($response->getRequest()->getUrl()->toString());
-        }
-
-        $page   = $response->getPage();
-        $params = $refUrl->getParamArray();
-        unset($params['section']);
-        unset($params['cmd']);
-        $canonicalUrl = \Cx\Core\Routing\Url::fromPage($page, $params);
-        $response->setHeader(
-            'Link',
-            '<' . $canonicalUrl->toString() . '>; rel="canonical"'
-        );
-
-        if (
-            !$page ||
-            $page->getModule() !== $this->getName() ||
-            !in_array(
-                $page->getCmd(),
-                array('', 'details', 'lastFive', 'products')
-            )
-        ) {
-            return;
-        }
-
-        Shop::getPage('');
-        // show product title if the user is on the product details page
-        $page_metatitle = Shop::getPageTitle();
-        if ($page_metatitle) {
-            $page->setTitle($page_metatitle);
-            $page->setContentTitle($page_metatitle);
-            $page->setMetaTitle($page_metatitle);
-        }
-
-        $metaImage = Shop::getPageMetaImage();
-        if ($metaImage) {
-            $page->setMetaimage($metaImage);
         }
     }
 

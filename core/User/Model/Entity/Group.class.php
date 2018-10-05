@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -63,7 +63,7 @@ class Group extends \Cx\Model\Base\EntityBase {
     private $homepage;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Cx\Core\User\Model\Entity\User
      */
     private $user;
 
@@ -77,18 +77,13 @@ class Group extends \Cx\Model\Base\EntityBase {
      */
     private $accessId;
 
-    /**
-     * @var 
-     */
-    protected $toolbar;
-
     public function __construct()
     {
         $this->user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->accessId2 = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->accessId = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->accessId2 = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->accessId = new \Doctrine\Common\Collections\ArrayCollection();
     }
-
+    
     /**
      * Get groupId
      *
@@ -202,7 +197,7 @@ class Group extends \Cx\Model\Base\EntityBase {
     /**
      * Add user
      *
-     * @param \Cx\Core\User\Model\Entity\User $user
+     * @param Cx\Core\User\Model\Entity\User $user
      */
     public function addUser(\Cx\Core\User\Model\Entity\User $user)
     {
@@ -210,18 +205,9 @@ class Group extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Remove the User
-     * 
-     * @param \Cx\Core\User\Model\Entity\User $user
-     */
-    public function removeUser(\Cx\Core\User\Model\Entity\User $user) {
-        $this->user->removeElement($user);
-    }
-    
-    /**
      * Get user
      *
-     * @return \Doctrine\Common\Collections\Collection $user
+     * @return Doctrine\Common\Collections\Collection $user
      */
     public function getUser()
     {
@@ -266,25 +252,5 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function getAccessId()
     {
         return $this->accessId;
-    }
-
-    /**
-     * Set toolbar
-     *
-     * @param string $toolbar
-     */
-    public function setToolbar($toolbar)
-    {
-        $this->toolbar = $toolbar;
-    }
-
-    /**
-     * Get toolbar
-     *
-     * @return string $toolbar
-     */
-    public function getToolbar()
-    {
-        return $this->toolbar;
     }
 }

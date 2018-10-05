@@ -13,32 +13,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\Common\Collections;
 
-use ArrayIterator;
-use Closure;
-use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
+use Closure, ArrayIterator;
 
 /**
  * An ArrayCollection is a Collection implementation that wraps a regular PHP array.
  *
- * @since  2.0
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
+ * @since   2.0
+ * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author  Jonathan Wage <jonwage@gmail.com>
+ * @author  Roman Borschel <roman@code-factory.org>
  */
-class ArrayCollection implements Collection, Selectable
+class ArrayCollection implements Collection
 {
     /**
      * An array containing the entries of this collection.
      *
      * @var array
      */
-    private $elements;
+    private $_elements;
 
     /**
      * Initializes a new ArrayCollection.
@@ -47,92 +45,112 @@ class ArrayCollection implements Collection, Selectable
      */
     public function __construct(array $elements = array())
     {
-        $this->elements = $elements;
+        $this->_elements = $elements;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the PHP array representation of this collection.
+     *
+     * @return array The PHP array representation of this collection.
      */
     public function toArray()
     {
-        return $this->elements;
+        return $this->_elements;
     }
 
     /**
-     * {@inheritDoc}
+     * Sets the internal iterator to the first element in the collection and
+     * returns this element.
+     *
+     * @return mixed
      */
     public function first()
     {
-        return reset($this->elements);
+        return reset($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Sets the internal iterator to the last element in the collection and
+     * returns this element.
+     *
+     * @return mixed
      */
     public function last()
     {
-        return end($this->elements);
+        return end($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the current key/index at the current internal iterator position.
+     *
+     * @return mixed
      */
     public function key()
     {
-        return key($this->elements);
+        return key($this->_elements);
     }
-
+    
     /**
-     * {@inheritDoc}
+     * Moves the internal iterator position to the next element.
+     *
+     * @return mixed
      */
     public function next()
     {
-        return next($this->elements);
+        return next($this->_elements);
     }
-
+    
     /**
-     * {@inheritDoc}
+     * Gets the element of the collection at the current internal iterator position.
+     *
+     * @return mixed
      */
     public function current()
     {
-        return current($this->elements);
+        return current($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Removes an element with a specific key/index from the collection.
+     *
+     * @param mixed $key
+     * @return mixed The removed element or NULL, if no element exists for the given key.
      */
     public function remove($key)
     {
-        if ( ! isset($this->elements[$key]) && ! array_key_exists($key, $this->elements)) {
-            return null;
+        if (isset($this->_elements[$key])) {
+            $removed = $this->_elements[$key];
+            unset($this->_elements[$key]);
+            
+            return $removed;
         }
 
-        $removed = $this->elements[$key];
-        unset($this->elements[$key]);
-
-        return $removed;
+        return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Removes the specified element from the collection, if it is found.
+     *
+     * @param mixed $element The element to remove.
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
     public function removeElement($element)
     {
-        $key = array_search($element, $this->elements, true);
-
-        if ($key === false) {
-            return false;
+        $key = array_search($element, $this->_elements, true);
+        
+        if ($key !== false) {
+            unset($this->_elements[$key]);
+            
+            return true;
         }
-
-        unset($this->elements[$key]);
-
-        return true;
+        
+        return false;
     }
 
     /**
-     * Required by interface ArrayAccess.
+     * ArrayAccess implementation of offsetExists()
      *
-     * {@inheritDoc}
+     * @see containsKey()
      */
     public function offsetExists($offset)
     {
@@ -140,9 +158,9 @@ class ArrayCollection implements Collection, Selectable
     }
 
     /**
-     * Required by interface ArrayAccess.
+     * ArrayAccess implementation of offsetGet()
      *
-     * {@inheritDoc}
+     * @see get()
      */
     public function offsetGet($offset)
     {
@@ -150,23 +168,23 @@ class ArrayCollection implements Collection, Selectable
     }
 
     /**
-     * Required by interface ArrayAccess.
+     * ArrayAccess implementation of offsetGet()
      *
-     * {@inheritDoc}
+     * @see add()
+     * @see set()
      */
     public function offsetSet($offset, $value)
     {
         if ( ! isset($offset)) {
             return $this->add($value);
         }
-
-        $this->set($offset, $value);
+        return $this->set($offset, $value);
     }
 
     /**
-     * Required by interface ArrayAccess.
+     * ArrayAccess implementation of offsetUnset()
      *
-     * {@inheritDoc}
+     * @see remove()
      */
     public function offsetUnset($offset)
     {
@@ -174,157 +192,214 @@ class ArrayCollection implements Collection, Selectable
     }
 
     /**
-     * {@inheritDoc}
+     * Checks whether the collection contains a specific key/index.
+     *
+     * @param mixed $key The key to check for.
+     * @return boolean TRUE if the given key/index exists, FALSE otherwise.
      */
     public function containsKey($key)
     {
-        return isset($this->elements[$key]) || array_key_exists($key, $this->elements);
+        return isset($this->_elements[$key]);
     }
 
     /**
-     * {@inheritDoc}
+     * Checks whether the given element is contained in the collection.
+     * Only element values are compared, not keys. The comparison of two elements
+     * is strict, that means not only the value but also the type must match.
+     * For objects this means reference equality.
+     *
+     * @param mixed $element
+     * @return boolean TRUE if the given element is contained in the collection,
+     *          FALSE otherwise.
      */
     public function contains($element)
     {
-        return in_array($element, $this->elements, true);
+        return in_array($element, $this->_elements, true);
     }
 
     /**
-     * {@inheritDoc}
+     * Tests for the existance of an element that satisfies the given predicate.
+     *
+     * @param Closure $p The predicate.
+     * @return boolean TRUE if the predicate is TRUE for at least one element, FALSE otherwise.
      */
     public function exists(Closure $p)
     {
-        foreach ($this->elements as $key => $element) {
-            if ($p($key, $element)) {
-                return true;
-            }
-        }
-
+        foreach ($this->_elements as $key => $element)
+            if ($p($key, $element)) return true;
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * Searches for a given element and, if found, returns the corresponding key/index
+     * of that element. The comparison of two elements is strict, that means not
+     * only the value but also the type must match.
+     * For objects this means reference equality.
+     *
+     * @param mixed $element The element to search for.
+     * @return mixed The key/index of the element or FALSE if the element was not found.
      */
     public function indexOf($element)
     {
-        return array_search($element, $this->elements, true);
+        return array_search($element, $this->_elements, true);
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the element with the given key/index.
+     *
+     * @param mixed $key The key.
+     * @return mixed The element or NULL, if no element exists for the given key.
      */
     public function get($key)
     {
-        return isset($this->elements[$key]) ? $this->elements[$key] : null;
+        if (isset($this->_elements[$key])) {
+            return $this->_elements[$key];
+        }
+        return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets all keys/indexes of the collection elements.
+     *
+     * @return array
      */
     public function getKeys()
     {
-        return array_keys($this->elements);
+        return array_keys($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Gets all elements.
+     *
+     * @return array
      */
     public function getValues()
     {
-        return array_values($this->elements);
+        return array_values($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the number of elements in the collection.
+     *
+     * Implementation of the Countable interface.
+     *
+     * @return integer The number of elements in the collection.
      */
     public function count()
     {
-        return count($this->elements);
+        return count($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Adds/sets an element in the collection at the index / with the specified key.
+     *
+     * When the collection is a Map this is like put(key,value)/add(key,value).
+     * When the collection is a List this is like add(position,value).
+     *
+     * @param mixed $key
+     * @param mixed $value
      */
     public function set($key, $value)
     {
-        $this->elements[$key] = $value;
+        $this->_elements[$key] = $value;
     }
 
     /**
-     * {@inheritDoc}
+     * Adds an element to the collection.
+     *
+     * @param mixed $value
+     * @return boolean Always TRUE.
      */
     public function add($value)
     {
-        $this->elements[] = $value;
-
+        $this->_elements[] = $value;
         return true;
     }
 
     /**
-     * {@inheritDoc}
+     * Checks whether the collection is empty.
+     * 
+     * Note: This is preferrable over count() == 0.
+     *
+     * @return boolean TRUE if the collection is empty, FALSE otherwise.
      */
     public function isEmpty()
     {
-        return empty($this->elements);
+        return ! $this->_elements;
     }
 
     /**
-     * Required by interface IteratorAggregate.
+     * Gets an iterator for iterating over the elements in the collection.
      *
-     * {@inheritDoc}
+     * @return ArrayIterator
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->elements);
+        return new ArrayIterator($this->_elements);
     }
 
     /**
-     * {@inheritDoc}
+     * Applies the given function to each element in the collection and returns
+     * a new collection with the elements returned by the function.
+     *
+     * @param Closure $func
+     * @return Collection
      */
     public function map(Closure $func)
     {
-        return new static(array_map($func, $this->elements));
+        return new ArrayCollection(array_map($func, $this->_elements));
     }
 
     /**
-     * {@inheritDoc}
+     * Returns all the elements of this collection that satisfy the predicate p.
+     * The order of the elements is preserved.
+     *
+     * @param Closure $p The predicate used for filtering.
+     * @return Collection A collection with the results of the filter operation.
      */
     public function filter(Closure $p)
     {
-        return new static(array_filter($this->elements, $p));
+        return new ArrayCollection(array_filter($this->_elements, $p));
     }
 
     /**
-     * {@inheritDoc}
+     * Applies the given predicate p to all elements of this collection,
+     * returning true, if the predicate yields true for all elements.
+     *
+     * @param Closure $p The predicate.
+     * @return boolean TRUE, if the predicate yields TRUE for all elements, FALSE otherwise.
      */
     public function forAll(Closure $p)
     {
-        foreach ($this->elements as $key => $element) {
+        foreach ($this->_elements as $key => $element) {
             if ( ! $p($key, $element)) {
                 return false;
             }
         }
-
+        
         return true;
     }
 
     /**
-     * {@inheritDoc}
+     * Partitions this collection in two collections according to a predicate.
+     * Keys are preserved in the resulting collections.
+     *
+     * @param Closure $p The predicate on which to partition.
+     * @return array An array with two elements. The first element contains the collection
+     *               of elements where the predicate returned TRUE, the second element
+     *               contains the collection of elements where the predicate returned FALSE.
      */
     public function partition(Closure $p)
     {
-        $matches = $noMatches = array();
-
-        foreach ($this->elements as $key => $element) {
+        $coll1 = $coll2 = array();
+        foreach ($this->_elements as $key => $element) {
             if ($p($key, $element)) {
-                $matches[$key] = $element;
+                $coll1[$key] = $element;
             } else {
-                $noMatches[$key] = $element;
+                $coll2[$key] = $element;
             }
         }
-
-        return array(new static($matches), new static($noMatches));
+        return array(new ArrayCollection($coll1), new ArrayCollection($coll2));
     }
 
     /**
@@ -338,50 +413,26 @@ class ArrayCollection implements Collection, Selectable
     }
 
     /**
-     * {@inheritDoc}
+     * Clears the collection.
      */
     public function clear()
     {
-        $this->elements = array();
+        $this->_elements = array();
     }
 
     /**
-     * {@inheritDoc}
+     * Extract a slice of $length elements starting at position $offset from the Collection.
+     *
+     * If $length is null it returns all elements from $offset to the end of the Collection.
+     * Keys have to be preserved by this method. Calling this method will only return the
+     * selected slice and NOT change the elements contained in the collection slice is called on.
+     *
+     * @param int $offset
+     * @param int $length
+     * @return array
      */
     public function slice($offset, $length = null)
     {
-        return array_slice($this->elements, $offset, $length, true);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function matching(Criteria $criteria)
-    {
-        $expr     = $criteria->getWhereExpression();
-        $filtered = $this->elements;
-
-        if ($expr) {
-            $visitor  = new ClosureExpressionVisitor();
-            $filter   = $visitor->dispatch($expr);
-            $filtered = array_filter($filtered, $filter);
-        }
-
-        if ($orderings = $criteria->getOrderings()) {
-            foreach (array_reverse($orderings) as $field => $ordering) {
-                $next = ClosureExpressionVisitor::sortByField($field, $ordering == Criteria::DESC ? -1 : 1);
-            }
-
-            uasort($filtered, $next);
-        }
-
-        $offset = $criteria->getFirstResult();
-        $length = $criteria->getMaxResults();
-
-        if ($offset || $length) {
-            $filtered = array_slice($filtered, (int)$offset, $length);
-        }
-
-        return new static($filtered);
+        return array_slice($this->_elements, $offset, $length, true);
     }
 }

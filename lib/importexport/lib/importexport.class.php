@@ -119,6 +119,7 @@ class ImportExport
 
 		switch($this->type) {
 			case "csv":
+				require_once ASCMS_LIBRARY_PATH."/importexport/lib/csv.class.php";
 				$this->dataClass = new CsvLib();
 		}
 	}

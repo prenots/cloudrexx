@@ -2,7 +2,6 @@
 
 /*
  * This file is part of the Symfony package.
- *
  * (c) Fabien Potencier <fabien@symfony.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -21,7 +20,6 @@ class Unescaper
 {
     // Parser and Inline assume UTF-8 encoding, so escaped Unicode characters
     // must be converted to that encoding.
-    // @deprecated since 2.5, to be removed in 3.0
     const ENCODING = 'UTF-8';
 
     // Regex fragment that matches an escaped character in a double quoted
@@ -50,7 +48,7 @@ class Unescaper
     public function unescapeDoubleQuotedString($value)
     {
         $self = $this;
-        $callback = function ($match) use ($self) {
+        $callback = function($match) use($self) {
             return $self->unescapeCharacter($match[0]);
         };
 
@@ -59,7 +57,7 @@ class Unescaper
     }
 
     /**
-     * Unescapes a character that was found in a double-quoted string.
+     * Unescapes a character that was found in a double-quoted string
      *
      * @param string $value An escaped character
      *
@@ -81,13 +79,13 @@ class Unescaper
             case 'n':
                 return "\n";
             case 'v':
-                return "\xB";
+                return "\xb";
             case 'f':
-                return "\xC";
+                return "\xc";
             case 'r':
-                return "\r";
+                return "\xd";
             case 'e':
-                return "\x1B";
+                return "\x1b";
             case ' ':
                 return ' ';
             case '"':
@@ -98,44 +96,47 @@ class Unescaper
                 return '\\';
             case 'N':
                 // U+0085 NEXT LINE
-                return "\xC2\x85";
+                return $this->convertEncoding("\x00\x85", self::ENCODING, 'UCS-2BE');
             case '_':
                 // U+00A0 NO-BREAK SPACE
-                return "\xC2\xA0";
+                return $this->convertEncoding("\x00\xA0", self::ENCODING, 'UCS-2BE');
             case 'L':
                 // U+2028 LINE SEPARATOR
-                return "\xE2\x80\xA8";
+                return $this->convertEncoding("\x20\x28", self::ENCODING, 'UCS-2BE');
             case 'P':
                 // U+2029 PARAGRAPH SEPARATOR
-                return "\xE2\x80\xA9";
+                return $this->convertEncoding("\x20\x29", self::ENCODING, 'UCS-2BE');
             case 'x':
-                return self::utf8chr(hexdec(substr($value, 2, 2)));
+                $char = pack('n', hexdec(substr($value, 2, 2)));
+                return $this->convertEncoding($char, self::ENCODING, 'UCS-2BE');
             case 'u':
-                return self::utf8chr(hexdec(substr($value, 2, 4)));
+                $char = pack('n', hexdec(substr($value, 2, 4)));
+                return $this->convertEncoding($char, self::ENCODING, 'UCS-2BE');
             case 'U':
-                return self::utf8chr(hexdec(substr($value, 2, 8)));
+                $char = pack('N', hexdec(substr($value, 2, 8)));
+                return $this->convertEncoding($char, self::ENCODING, 'UCS-4BE');
         }
     }
 
     /**
-     * Get the UTF-8 character for the given code point.
+     * Convert a string from one encoding to another.
      *
-     * @param int $c The unicode code point
+     * @param string $value The string to convert
+     * @param string $to    The input encoding
+     * @param string $from  The output encoding
      *
-     * @return string The corresponding UTF-8 character
+     * @return string The string with the new encoding
+     *
+     * @throws \RuntimeException if no suitable encoding function is found (iconv or mbstring)
      */
-    private static function utf8chr($c)
+    private function convertEncoding($value, $to, $from)
     {
-        if (0x80 > $c %= 0x200000) {
-            return chr($c);
-        }
-        if (0x800 > $c) {
-            return chr(0xC0 | $c >> 6).chr(0x80 | $c & 0x3F);
-        }
-        if (0x10000 > $c) {
-            return chr(0xE0 | $c >> 12).chr(0x80 | $c >> 6 & 0x3F).chr(0x80 | $c & 0x3F);
+        if (function_exists('iconv')) {
+            return iconv($from, $to, $value);
+        } elseif (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($value, $to, $from);
         }
 
-        return chr(0xF0 | $c >> 18).chr(0x80 | $c >> 12 & 0x3F).chr(0x80 | $c >> 6 & 0x3F).chr(0x80 | $c & 0x3F);
+        throw new \RuntimeException('No suitable convert encoding function (install the iconv or mbstring extension).');
     }
 }

@@ -238,11 +238,6 @@ class HTTP_Download
      *
      * @see HTTP_Download::setContentDisposition()
      */
-    public function __construct($params = array())
-    {
-        $this->HTTP_Download($params);
-    }
-
     function HTTP_Download($params = array())
     {
         $this->HTTP = new HTTP_Header();

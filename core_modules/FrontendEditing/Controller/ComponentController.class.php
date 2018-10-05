@@ -53,18 +53,14 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
     /**
      * Returns all Controller class names for this component (except this)
-     *
+     * 
      * Be sure to return all your controller classes if you add your own
      * @return array List of Controller class names (without namespace)
      */
     public function getControllerClasses() {
-        return array('Frontend', 'JsonFE');
+        return array('Frontend');
     }
     
-    public function getControllersAccessableByJson() {
-        return array('JsonFEController');
-    }
-
     /**
      * Checks whether the frontend editing is active or not
      *
@@ -72,83 +68,69 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @return bool
      */
-    public function frontendEditingIsActive($checkPermission = true, $checkMode = true)
+    public function frontendEditingIsActive()
     {
         global $_CONFIG;
 
         // check frontend editing status in settings and don't show frontend editing on mobile phone
-        if (
-            \Cx\Core\Setting\Controller\Setting::getValue(
-                'frontendEditingStatus',
-                'Config'
-            ) != 'on'
-        ) {
+        if ($_CONFIG['frontendEditingStatus'] != 'on') {
             return false;
         }
 
         // get current request`s parameters
         $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
 
-        if ($checkMode) {
-            // check whether the cloudrexx is in frontend mode, a content page exists and it is no pagePreview
-            if (
-                $this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND ||
-                !$this->cx->getPage() ||
-                isset($requestParams['pagePreview'])
-            ) {
-                return false;
-            }
-        }
-
-        if (!$checkPermission) {
-            return true;
+        // check whether the cloudrexx is in frontend mode, a content page exists and it is no pagePreview
+        if (
+            $this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND ||
+            !$this->cx->getPage() ||
+            isset($requestParams['pagePreview'])
+        ) {
+            return false;
         }
 
         // check permission
         // if the user don't have permission to edit pages or edit blocks,
         // disable the frontend editing
-        if ($this->userHasPermissionToEditPage($checkMode) ||
+        if ($this->userHasPermissionToEditPage() ||
             $this->userHasPermissionToEditBlocks()
         ) {
             return true;
         }
         return false;
     }
-
+    
     /**
      * Check the permission for editing pages
-     *
+     * 
      * @return boolean TRUE if the user has permission to edit pages
      */
-    protected function userHasPermissionToEditPage($checkMode = true) {
-        return  \Permission::checkAccess(6, 'static', true) &&
-                \Permission::checkAccess(35, 'static', true) &&
-                (
-                    !$checkMode ||
-                    (
+    protected function userHasPermissionToEditPage() {
+        return $this->cx->getUser()->objUser->getAdminStatus()  ||
+               (
+                   \Permission::checkAccess(6, 'static', true) &&
+                   \Permission::checkAccess(35, 'static', true) &&
+                   (
                         !$this->cx->getPage()->isBackendProtected() ||
-                        \Permission::checkAccess(
-                            $this->cx->getPage()->getBackendAccessId(),
-                            'dynamic',
-                            true
-                        )
-                    )
+                        \Permission::checkAccess($this->cx->getPage()->getBackendAccessId(), 'dynamic', true)
+                   )
                );
     }
-
+    
     /**
      * Check the permission to edit blocks
-     *
+     * 
      * @return boolean TRUE if the user has permission to edit blocks
      */
     protected function userHasPermissionToEditBlocks() {
-        return \Permission::checkAccess(76, 'static', true);
+        return $this->cx->getUser()->objUser->getAdminStatus() ||
+               \Permission::checkAccess(76, 'static', true);
     }
-
+    
     /**
      * Make the block editable, add the necessary html containers
      * for the frontend editing
-     *
+     * 
      * @param integer $id the id of the block
      * @param string $output the html output of the block
      */
@@ -168,17 +150,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function preContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
     {
         // Is frontend editing active?
-        if (
-            !$this->frontendEditingIsActive() ||
-            !$this->userHasPermissionToEditPage()
-        ) {
+        if (!$this->frontendEditingIsActive() ||
+            !$this->userHasPermissionToEditPage()) {
             return;
         }
 
-        $componentTemplate = new \Cx\Core\Html\Sigma(
-            $this->cx->getCodeBaseCoreModulePath() . '/' . $this->getName() .
-            '/View/Template/Generic'
-        );
+        $componentTemplate = new \Cx\Core\Html\Sigma(ASCMS_CORE_MODULE_PATH . '/' . $this->getName() . '/View/Template/Generic');
         $componentTemplate->setErrorHandling(PEAR_ERROR_DIE);
 
         // add div around content
@@ -188,6 +165,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 //        $componentTemplate->setVariable('CONTENT', $page->getContent());
 //        $page->setContent($componentTemplate->get());
         $page->setContent('<div id="fe_content">' . $page->getContent() . '</div>');
+
+        // add div around the title
+        $componentTemplate->loadTemplateFile('TitleDiv.html');
+        $componentTemplate->setVariable('TITLE', $page->getContentTitle());
+        $page->setContentTitle($componentTemplate->get());
     }
 
     /**
@@ -198,57 +180,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     public function preFinalize(\Cx\Core\Html\Sigma $template)
     {
         // Is frontend editing active?
-        if (
-            !$this->frontendEditingIsActive() ||
-            !isset($_COOKIE['fe_toolbar']) ||
-            $_COOKIE['fe_toolbar'] != 'true'
-        ) {
-            if ($this->frontendEditingIsActive(false)) {
-                // if all that makes FE inactive is the login, then parse ESI!
-                $template->_blocks['__global__'] = preg_replace(
-                    '/<body[^>]*>/',
-                    '\\0' . $this->getComponent('Cache')->getEsiContent(
-                        'FE',
-                        'getToggleButton',
-                        array(
-                            'user' => '$(HTTP_COOKIE{\'PHPSESSID\'})',
-                            'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        )
-                    ),
-                    $template->_blocks['__global__']
-                );
-                return;
-            }
+        if (!$this->frontendEditingIsActive()) {
             return;
         }
 
         $frontendEditing = new \Cx\Core_Modules\FrontendEditing\Controller\FrontendController($this, $this->cx);
         $frontendEditing->initFrontendEditing($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function adjustResponse(
-        \Cx\Core\Routing\Model\Entity\Response $response
-    ) {
-        // Is frontend editing active?
-        if (
-            !$this->frontendEditingIsActive() ||
-            !$this->userHasPermissionToEditPage()
-        ) {
-            return;
-        }
-
-        $page              = $response->getPage();
-        $componentTemplate = new \Cx\Core\Html\Sigma(
-            $this->cx->getCodeBaseCoreModulePath() . '/' . $this->getName() .
-            '/View/Template/Generic'
-        );
-        $componentTemplate->setErrorHandling(PEAR_ERROR_DIE);
-        // add div around the title
-        $componentTemplate->loadTemplateFile('TitleDiv.html');
-        $componentTemplate->setVariable('TITLE', $page->getContentTitle());
-        $page->setContentTitle($componentTemplate->get());
     }
 }

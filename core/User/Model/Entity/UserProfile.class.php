@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -41,11 +41,6 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
      * @var string $gender
      */
     private $gender;
-
-    /**
-     * @var mixed
-     */
-    protected $designation;
 
     /**
      * @var string $firstname
@@ -138,20 +133,20 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     private $users;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Cx\Core\User\Model\Entity\ProfileTitle
      */
     private $userTitle;
 
     /**
-     * @var \Cx\Core\User\Model\Entity\ProfileTitle
+     * @var Cx\Core\User\Model\Entity\UserAttribute
      */
-    protected $userAttributeValues;
+    private $userAttribute;
 
     public function __construct()
     {
-        $this->userAttributeValues = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->userAttribute = new \Doctrine\Common\Collections\ArrayCollection();
     }
-
+    
     /**
      * Set userId
      *
@@ -190,26 +185,6 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     public function getGender()
     {
         return $this->gender;
-    }
-
-    /**
-     * Set designation
-     *
-     * @param string $designation
-     */
-    public function setDesignation($designation)
-    {
-        $this->designation = $designation;
-    }
-
-    /**
-     * Get designation
-     *
-     * @return string $designation
-     */
-    public function getDesignation()
-    {
-        return $this->designation;
     }
 
     /**
@@ -555,7 +530,7 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     /**
      * Set users
      *
-     * @param \Cx\Core\User\Model\Entity\User $users
+     * @param Cx\Core\User\Model\Entity\User $users
      */
     public function setUsers(\Cx\Core\User\Model\Entity\User $users)
     {
@@ -565,7 +540,7 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     /**
      * Get users
      *
-     * @return \Cx\Core\User\Model\Entity\User $users
+     * @return Cx\Core\User\Model\Entity\User $users
      */
     public function getUsers()
     {
@@ -575,7 +550,7 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     /**
      * Set userTitle
      *
-     * @param \Cx\Core\User\Model\Entity\ProfileTitle $userTitle
+     * @param Cx\Core\User\Model\Entity\ProfileTitle $userTitle
      */
     public function setUserTitle(\Cx\Core\User\Model\Entity\ProfileTitle $userTitle)
     {
@@ -585,7 +560,7 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     /**
      * Get userTitle
      *
-     * @return \Cx\Core\User\Model\Entity\ProfileTitle $userTitle
+     * @return Cx\Core\User\Model\Entity\ProfileTitle $userTitle
      */
     public function getUserTitle()
     {
@@ -593,45 +568,22 @@ class UserProfile extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add userAttributeValues
+     * Add userAttribute
      *
-     * @param \Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValues
-     * @return UserProfile
+     * @param Cx\Core\User\Model\Entity\UserAttribute $userAttribute
      */
-    public function addUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValues)
+    public function addUserAttribute(\Cx\Core\User\Model\Entity\UserAttribute $userAttribute)
     {
-        $this->userAttributeValues[] = $userAttributeValues;
-
-        return $this;
+        $this->userAttribute[] = $userAttribute;
     }
 
     /**
-     * Remove userAttributeValues
+     * Get userAttribute
      *
-     * @param \Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValues
+     * @return Doctrine\Common\Collections\Collection $userAttribute
      */
-    public function removeUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValues)
+    public function getUserAttribute()
     {
-        $this->userAttributeValues->removeElement($userAttributeValues);
-    }
-
-    /**
-     * Add userAttributeValues
-     *
-     * @param Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue
-     */
-    public function addUserAttributeValues(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue)
-    {
-        $this->userAttributeValues[] = $userAttributeValue;
-    }
-
-    /**
-     * Get userAttributeValue
-     *
-     * @return Doctrine\Common\Collections\Collection $userAttributeValues
-     */
-    public function getUserAttributeValues()
-    {
-        return $this->userAttributeValues;
+        return $this->userAttribute;
     }
 }

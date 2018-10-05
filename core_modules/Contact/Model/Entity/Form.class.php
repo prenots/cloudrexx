@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 /**
  * Class Form
  *
@@ -38,7 +38,7 @@ namespace Cx\Core_Modules\Contact\Model\Entity;
 
 /**
  * Class Form
- *
+ * 
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      ss4u <ss4ugroup@gmail.com>
  * @package     cloudrexx
@@ -80,12 +80,7 @@ class Form {
      * @var bool
      */
     protected $sendCopy;
-
-    /**
-     * @var bool
-     */
-    protected $sendMultipleReply;
-
+    
     /**
      * @var bool
      */
@@ -95,23 +90,23 @@ class Form {
      * @var bool
      */
     protected $htmlMail;
-
+    
     /**
      * array $crmCustomerGroups
      */
     protected $crmCustomerGroups;
-
+    
     /**
      * @var bool
      */
     protected $sendAttachment;
-
+     
     /*
      * Constructor
-     *
+     * 
      */
     public function __construct() {
-
+        
         $this->id = 0;
         $this->mails = '';
         $this->showForm = false;
@@ -119,7 +114,6 @@ class Form {
         $this->useCustomStyle = false;
         $this->saveDataInCrm = false;
         $this->sendCopy = false;
-        $this->sendMultipleReply = false;
         $this->useEmailOfSender = false;
         $this->htmlMail = true;
         $this->sendAttachment = false;
@@ -152,7 +146,7 @@ class Form {
     public function setShowForm($showForm) {
         $this->showForm = $showForm;
     }
-
+    
     /**
      * Set useCaptch
      *
@@ -161,7 +155,7 @@ class Form {
     public function setUseCaptcha($useCaptcha) {
         $this->useCaptcha = $useCaptcha;
     }
-
+    
     /**
      * Set useCustomStyle
      *
@@ -170,7 +164,7 @@ class Form {
     public function setUseCustomStyle($useCustomStyle) {
         $this->useCustomStyle = $useCustomStyle;
     }
-
+    
     /**
      * Set saveDataInCrm
      *
@@ -179,7 +173,7 @@ class Form {
     public function setSaveDataInCrm($saveDataInCrm) {
         $this->saveDataInCrm = $saveDataInCrm;
     }
-
+    
     /**
      * Set sendCopy
      *
@@ -188,16 +182,7 @@ class Form {
     public function setSendCopy($sendCopy) {
         $this->sendCopy = $sendCopy;
     }
-
-    /**
-     * Set sendMultipleReply
-     *
-     * @param boolean $sendMultipleReply
-     */
-    public function setSendMultipleReply($sendMultipleReply) {
-        $this->sendMultipleReply = $sendMultipleReply;
-    }
-
+    
     /**
      * Set useEmailOfSender
      *
@@ -206,7 +191,7 @@ class Form {
     public function setUseEmailOfSender($useEmailOfSender) {
         $this->useEmailOfSender = $useEmailOfSender;
     }
-
+    
     /**
      * Set htmlMail
      *
@@ -215,7 +200,7 @@ class Form {
     public function setHtmlMail($htmlMail) {
         $this->htmlMail = $htmlMail;
     }
-
+    
     /**
      * Set sendAttachment
      *
@@ -224,7 +209,7 @@ class Form {
     public function setSendAttachment($sendAttachment) {
         $this->sendAttachment = $sendAttachment;
     }
-
+    
     /**
      * Get id
      *
@@ -251,7 +236,7 @@ class Form {
     public function getShowForm() {
         return $this->showForm;
     }
-
+    
     /**
      * Get useCaptch
      *
@@ -260,7 +245,7 @@ class Form {
     public function getUseCaptcha() {
         return $this->useCaptch;
     }
-
+    
     /**
      * Get useCustomStyle
      *
@@ -269,7 +254,7 @@ class Form {
     public function getUseCustomStyle() {
         return $this->useCustomStyle;
     }
-
+    
     /**
      * Get saveDataInCrm
      *
@@ -278,7 +263,7 @@ class Form {
     public function getSaveDataInCrm() {
         return $this->saveDataInCrm;
     }
-
+    
     /**
      * Get sendCopy
      *
@@ -287,16 +272,7 @@ class Form {
     public function getSendCopy() {
         return $this->sendCopy;
     }
-
-    /**
-     * Get sendMultipleReply
-     *
-     * return boolean $sendMultipleReply
-     */
-    public function getSendMultipleReply() {
-        return $this->sendMultipleReply;
-    }
-
+    
     /**
      * Get useEmailOfSender
      *
@@ -305,7 +281,7 @@ class Form {
     public function getUseEmailOfSender() {
         return $this->useEmailOfSender;
     }
-
+    
     /**
      * Get htmlMail
      *
@@ -314,7 +290,7 @@ class Form {
     public function getHtmlMail() {
         return $this->htmlMail;
     }
-
+    
     /**
      * Get sendAttachment
      *
@@ -323,7 +299,7 @@ class Form {
     public function getSendAttachment() {
         return $this->sendAttachment;
     }
-
+    
     /**
      * Get crmCustomerGroups
      *
@@ -332,7 +308,7 @@ class Form {
     public function getCrmCustomerGroups() {
         return $this->crmCustomerGroups;
     }
-
+    
     /**
      * Set crmCustomerGroups
      *
@@ -341,4 +317,4 @@ class Form {
     public function setCrmCustomerGroups($crmCustomerGroups) {
         $this->crmCustomerGroups = $crmCustomerGroups;
     }
-}
+}    

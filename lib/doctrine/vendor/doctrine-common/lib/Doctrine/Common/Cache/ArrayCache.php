@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,7 +15,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -22,15 +24,17 @@ namespace Doctrine\Common\Cache;
 /**
  * Array cache driver.
  *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
- * @author David Abdemoulaie <dave@hobodave.com>
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link    www.doctrine-project.org
+ * @since   2.0
+ * @version $Revision: 3938 $
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author  Jonathan Wage <jonwage@gmail.com>
+ * @author  Roman Borschel <roman@code-factory.org>
+ * @author  David Abdemoulaie <dave@hobodave.com>
  */
-class ArrayCache extends CacheProvider
+class ArrayCache extends AbstractCache
 {
     /**
      * @var array $data
@@ -40,24 +44,35 @@ class ArrayCache extends CacheProvider
     /**
      * {@inheritdoc}
      */
-    protected function doFetch($id)
+    public function getIds()
     {
-        return $this->doContains($id) ? $this->data[$id] : false;
+        return array_keys($this->data);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function doContains($id)
+    protected function _doFetch($id)
     {
-        // isset() is required for performance optimizations, to avoid unnecessary function calls to array_key_exists.
-        return isset($this->data[$id]) || array_key_exists($id, $this->data);
+        if (isset($this->data[$id])) {
+            return $this->data[$id];
+        }
+
+        return false;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function doSave($id, $data, $lifeTime = 0)
+    protected function _doContains($id)
+    {
+        return isset($this->data[$id]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function _doSave($id, $data, $lifeTime = 0)
     {
         $this->data[$id] = $data;
 
@@ -67,28 +82,10 @@ class ArrayCache extends CacheProvider
     /**
      * {@inheritdoc}
      */
-    protected function doDelete($id)
+    protected function _doDelete($id)
     {
         unset($this->data[$id]);
-
+        
         return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doFlush()
-    {
-        $this->data = array();
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doGetStats()
-    {
-        return null;
     }
 }

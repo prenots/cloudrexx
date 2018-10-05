@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 /**
  * Contact
  *
@@ -261,7 +261,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
         $this->_objTpl->loadTemplateFile('module_contact_settings.html');
         $this->_pageTitle = $_ARRAYLANG['TXT_CONTACT_SETTINGS'];
 
-        $arrSettings = $this->getSettings();
+        $arrSettings = &$this->getSettings();
 
         $this->_objTpl->setVariable(array(
                 'TXT_CONTACT_SETTINGS'                          => $_ARRAYLANG['TXT_CONTACT_SETTINGS'],
@@ -272,13 +272,8 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 'TXT_CONTACT_DATE'                              => $_ARRAYLANG['TXT_CONTACT_DATE'],
                 'TXT_CONTACT_HOSTNAME'                          => $_ARRAYLANG['TXT_CONTACT_HOSTNAME'],
                 'TXT_CONTACT_BROWSER_LANGUAGE'                  => $_ARRAYLANG['TXT_CONTACT_BROWSER_LANGUAGE'],
-                'TXT_CONTACT_BROWSER'                           => $_ARRAYLANG['TXT_CONTACT_BROWSER'],
                 'TXT_CONTACT_IP_ADDRESS'                        => $_ARRAYLANG['TXT_CONTACT_IP_ADDRESS'],
-                'TXT_CONTACT_META_DATE_BY_EXPORT'               => $_ARRAYLANG['TXT_CONTACT_META_DATE_BY_EXPORT'],
-                'TXT_CONTACT_PERSONAL_DATA_NOTE'                => $_ARRAYLANG['TXT_CONTACT_PERSONAL_DATA_NOTE'],
-                'TXT_CONTACT_STORE_SUBMISSIONS'                 => $_ARRAYLANG['TXT_CONTACT_STORE_SUBMISSIONS'],
-                'TXT_CONTACT_STORE_SUBMISSION_DATA_IN_DB'       => $_ARRAYLANG['TXT_CONTACT_STORE_SUBMISSION_DATA_IN_DB'],
-                'TXT_CONTACT_STORE_SUBMISSIONS_NOTE'            => $_ARRAYLANG['TXT_CONTACT_STORE_SUBMISSIONS_NOTE'],
+                'TXT_CONTACT_META_DATE_BY_EXPORT'               => $_ARRAYLANG['TXT_CONTACT_META_DATE_BY_EXPORT']
         ));
 
         $this->_objTpl->setVariable(array(
@@ -287,9 +282,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 'CONTACT_FIELD_META_DATE'               => $arrSettings['fieldMetaDate'] == '1' ? 'checked="checked"' : '',
                 'CONTACT_FIELD_META_LANG'               => $arrSettings['fieldMetaLang'] == '1' ? 'checked="checked"' : '',
                 'CONTACT_FIELD_META_HOST'               => $arrSettings['fieldMetaHost'] == '1' ? 'checked="checked"' : '',
-                'CONTACT_FIELD_META_BROWSER'            => $arrSettings['fieldMetaBrowser'] == '1' ? 'checked="checked"' : '',
                 'CONTACT_FIELD_META_IP'                 => $arrSettings['fieldMetaIP'] == '1' ? 'checked="checked"' : '',
-                'CONTACT_STORE_SUBMISSIONS'             => $arrSettings['storeFormSubmissions'] == '1' ? 'checked="checked"' : '',
         ));
     }
 
@@ -307,10 +300,8 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                     'spamProtectionWordList'    => isset($_POST['contactSpamProtectionWordList']) ? explode(',', $_POST['contactSpamProtectionWordList']) : '',
                     'fieldMetaDate'             => isset($_POST['contactFieldMetaDate']) ? intval($_POST['contactFieldMetaDate']) : 0,
                     'fieldMetaHost'             => isset($_POST['contactFieldMetaHost']) ? intval($_POST['contactFieldMetaHost']) : 0,
-                    'fieldMetaBrowser'          => isset($_POST['contactFieldMetaBrowser']) ? intval($_POST['contactFieldMetaBrowser']) : 0,
                     'fieldMetaLang'             => isset($_POST['contactFieldMetaLang']) ? intval($_POST['contactFieldMetaLang']) : 0,
-                    'fieldMetaIP'               => isset($_POST['contactFieldMetaIP']) ? intval($_POST['contactFieldMetaIP']) : 0,
-                    'storeFormSubmissions'      => isset($_POST['contactStoreSubmissions']) ? intval($_POST['contactStoreSubmissions']) : 0,
+                    'fieldMetaIP'               => isset($_POST['contactFieldMetaIP']) ? intval($_POST['contactFieldMetaIP']) : 0
             );
 
             if (strpos($arrNewSettings['fileUploadDepositionPath'], '..') || empty($arrNewSettings['fileUploadDepositionPath'])) {
@@ -588,7 +579,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 'TXT_CONTACT_DOWNLOAD'                      => $_ARRAYLANG['TXT_CONTACT_DOWNLOAD']
         ));
 
-        $this->initContactForms(0, $objSorting->getOrder());
+        $this->initContactForms($objSorting->getOrder());
 
         $rowNr = 0;
         if (is_array($this->arrForms)) {
@@ -792,7 +783,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
         $sendAttachment = 0;
         $emails         = $_CONFIG['contactFormEmail'];
         $crmCustomerGroups = array();
-        $sendMultipleReply = 0;
 
         $arrActiveSystemFrontendLanguages = \FWLanguage::getActiveFrontendLanguages();
 
@@ -813,7 +803,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             $sendAttachment = $this->arrForms[$formId]['sendAttachment'];
             $emails         = $this->arrForms[$formId]['emails'];
             $crmCustomerGroups = !empty($this->arrForms[$formId]['crmCustomerGroups']) ? $this->arrForms[$formId]['crmCustomerGroups'] : array();
-            $sendMultipleReply = $this->arrForms[$formId]['sendMultipleReply'];
         }
 
         if (count($arrActiveSystemFrontendLanguages) > 0) {
@@ -855,7 +844,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             $fields = $this->_getFormFieldsFromPost();
             $recipients = $this->getRecipientsFromPost();
         }
-
+        
         $objCrmLibrary = new \Cx\Modules\Crm\Controller\CrmLibrary('Crm');
         $memberships   = array_keys($objCrmLibrary->getMemberships());
         $objCrmLibrary->getMembershipDropdown($this->_objTpl, $memberships, "contactMembership", $crmCustomerGroups);
@@ -1068,8 +1057,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             'CONTACT_MAIL_TEMPLATE_STYLE'                   => $sendHtmlMail    ? 'table-row' : 'none',
             'CONTACT_FORM_SEND_COPY_YES'                    => $sendCopy        ? 'checked="checked"' : '',
             'CONTACT_FORM_SEND_COPY_NO'                     => $sendCopy        ? '' : 'checked="checked"',
-            'CONTACT_FORM_SEND_MULTIPLE_REPLY_YES'          => $sendMultipleReply   ? 'checked="checked"' : '',
-            'CONTACT_FORM_SEND_MULTIPLE_REPLY_NO'           => $sendMultipleReply   ? '' : 'checked="checked"',
             'CONTACT_FORM_USE_EMAIL_OF_SENDER_YES'          => $useEmailOfSender? 'checked="checked"' : '',
             'CONTACT_FORM_USE_EMAIL_OF_SENDER_NO'           => $useEmailOfSender? '' : 'checked="checked"',
             'CONTACT_FORM_SEND_ATTACHMENT'                  => $sendAttachment  ? 'checked="checked"' : '',
@@ -1118,8 +1105,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             'TXT_CONTACT_CAPTCHA_DESCRIPTION'               => $_ARRAYLANG['TXT_CONTACT_CAPTCHA_DESCRIPTION'],
             'TXT_CONTACT_SEND_COPY_DESCRIPTION'             => $_ARRAYLANG['TXT_CONTACT_SEND_COPY_DESCRIPTION'],
             'TXT_CONTACT_SEND_COPY'                         => $_ARRAYLANG['TXT_CONTACT_SEND_COPY'],
-            'TXT_CONTACT_SEND_MULTIPLE_REPLY_DESCRIPTION'   => $_ARRAYLANG['TXT_CONTACT_SEND_MULTIPLE_REPLY_DESCRIPTION'],
-            'TXT_CONTACT_SEND_MULTIPLE_REPLY'               => $_ARRAYLANG['TXT_CONTACT_SEND_MULTIPLE_REPLY'],
             'TXT_CONTACT_USE_EMAIL_OF_SENDER_DESCRIPTION'   => $_ARRAYLANG['TXT_CONTACT_USE_EMAIL_OF_SENDER_DESCRIPTION'],
             'TXT_CONTACT_USE_EMAIL_OF_SENDER'               => $_ARRAYLANG['TXT_CONTACT_USE_EMAIL_OF_SENDER'],
             'TXT_CONTACT_SEND_ATTACHMENT'                   => $_ARRAYLANG['TXT_CONTACT_SEND_ATTACHMENT'],
@@ -1147,14 +1132,13 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             'TXT_CONTACT_ASSIGN_CRM_CUSTOMER_GROUP_DESCRIPTION'  => $_ARRAYLANG['TXT_CONTACT_ASSIGN_CRM_CUSTOMER_GROUP_DESCRIPTION']
 
         ));
-
+        
         if (empty($recipients)) {
             // make an empty one so there's at least one
             $recipients[0] = array(
-                'id'       => 1,
-                'email'    => '',
-                'editType' => 'new',
-                'lang'     => array(),
+                    'id'    => 1,
+                    'email' => '',
+                    'editType' => 'new'
             );
 
             foreach ($arrActiveSystemFrontendLanguages as $langID => $lang) {
@@ -1167,8 +1151,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 $recipients[$recipientID]['editType'] = 'new';
             }
         }
-
-        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Contact');
 
         // parse the recipients
         $this->_showRecipients($recipients);
@@ -1259,10 +1241,9 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             $saveDataInCrm  = !empty($_POST['contactFormUseCrmModule']) ? 1 : 0;
             $useCustomStyle = !empty($_POST['contactFormUseCustomStyle']) ? 1 : 0;
             $sendCopy       = !empty($_POST['contactFormSendCopy']) ? 1 : 0;
+            $useEmailOfSender = !empty($_POST['contactFormUseEmailOfSender']) ? 1 : 0;
             $sendHtmlMail   = !empty($_POST['contactFormHtmlMail']) ? 1 : 0;
             $sendAttachment = !empty($_POST['contactFormSendAttachment']) ? 1 : 0;
-            $sendMultipleReply = $sendCopy && !empty($_POST['contactFormSendMultipleReply']) ? 1 : 0;
-            $useEmailOfSender = !$sendMultipleReply && !empty($_POST['contactFormUseEmailOfSender']) ? 1 : 0;
 
             // do the fields
             $fields = $this->_getFormFieldsFromPost();
@@ -1284,7 +1265,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                         return;
                     }
                 }
-
+                
                 $crmCustomerGroups = !empty($_POST['assigned_memberships']) ? $_POST['assigned_memberships'] : array();
             }
 
@@ -1301,8 +1282,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                         $sendHtmlMail,
                         $sendAttachment,
                         $saveDataInCrm,
-                        $crmCustomerGroups,
-                        $sendMultipleReply
+                        $crmCustomerGroups
                 );
             } else {
                 $formId = $this->addForm(
@@ -1315,8 +1295,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                         $sendHtmlMail,
                         $sendAttachment,
                         $saveDataInCrm,
-                        $crmCustomerGroups,
-                        $sendMultipleReply
+                        $crmCustomerGroups
                 );
             }
 
@@ -1393,7 +1372,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 $this->cleanRecipients($formId, $recipientIDs);
             }
 
-            \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Contact');
         }
 
         //$this->_modifyForm();
@@ -1483,8 +1461,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 if ($this->deleteForm($formId)) {
                     $this->_statusMessageOk = $_ARRAYLANG['TXT_CONTACT_CONTACT_FORM_SUCCESSFULLY_DELETED'];
 
-                    \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Contact');
-
                     if (isset($_GET['deleteContent']) && $_GET['deleteContent'] == 'true') {
                         $this->_deleteContentSite($formId);
                     }
@@ -1524,12 +1500,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 }
             }
             $this->em->flush();
-
-            // The following line is a hacky work-around for translation
-            // caching problem
-            // See http://atlantic18.github.io/DoctrineExtensions/doc/translatable.html
-            // 2017-06-19, MRi
-            $this->em->getConfiguration()->getResultCacheImpl()->deleteAll();
         } catch(\Exception $e) {}
     }
 
@@ -1589,8 +1559,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 'order_id'      => $orderId,
                 'is_required'   => $is_required,
                 'check_type'    => $checkType,
-                'editType'      => $editType,
-                'lang'          => array(),
+                'editType'      => $editType
             );
             $orderId++;
 
@@ -1659,11 +1628,10 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             }
 
             $recipients[$key] = array(
-                'id'       => $key,
-                'email'    => $mail,
-                'sort'     => $sortCounter++,
-                'editType' => $editTypes[$key],
-                'lang'     => array(),
+                    'id'    => $key,
+                    'email' => $mail,
+                    'sort'  => $sortCounter++,
+                    'editType' => $editTypes[$key]
             );
 
             foreach (array_keys(\FWLanguage::getActiveFrontendLanguages()) as $langId) {
@@ -1818,23 +1786,13 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             ));
             $contentSiteExists = $page !== null;
 
-            $formRepo = $this->em->getRepository('Cx\Core_Modules\Contact\Model\Entity\Form');
-            $form     = $formRepo->find($formId);
-            $formTemplate = new \Cx\Core_Modules\Contact\Model\Entity\FormTemplate(
-                $form,
-                $page,
-                null
-            );
-            $sourceCode = $formTemplate->getHtml(true);
-            $formTemplate->parseFormTemplate();
-
             $this->_objTpl->setVariable(array(
                 'CONTACT_CONTENT_SITE_ACTION_TXT'   => $contentSiteExists > 0 ? $_ARRAYLANG['TXT_CONTACT_UPDATE_CONTENT_SITE'] : $_ARRAYLANG['TXT_CONTACT_NEW_PAGE'],
                 'CONTACT_CONTENT_SITE_ACTION'       => $contentSiteExists > 0 ? 'updateContent' : 'newContent',
                 'CONTACT_SOURCECODE_OF'             => str_replace('%NAME%', contrexx_raw2xhtml($this->arrForms[$formId]['lang'][$selectedInterfaceLanguage]['name']), $_ARRAYLANG['TXT_CONTACT_SOURCECODE_OF_NAME']),
                 'CONTACT_PREVIEW_OF'                => str_replace('%NAME%', contrexx_raw2xhtml($this->arrForms[$formId]['lang'][$selectedInterfaceLanguage]['name']), $_ARRAYLANG['TXT_CONTACT_PREVIEW_OF_NAME']),
-                'CONTACT_FORM_SOURCECODE'           => contrexx_raw2xhtml($sourceCode),
-                'CONTACT_FORM_PREVIEW'              => $formTemplate->getHtml(),
+                'CONTACT_FORM_SOURCECODE'           => contrexx_raw2xhtml($this->getSourceCode($formId, FRONTEND_LANG_ID, false, true)),
+                'CONTACT_FORM_PREVIEW'              => $this->getSourceCode($formId, FRONTEND_LANG_ID, true),
                 'FORM_ID'                           => $formId
             ));
         } else {
@@ -1858,7 +1816,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
             if (isset($arrFormFields[$fieldId])) {
                 //fieldset and horizontal field type need not be displayed in the detail page
                 if (!in_array($arrFormFields[$fieldId]['type'], $this->nonValueFormFieldTypes)) {
-                    $label = strip_tags($arrFormFields[$fieldId]['lang'][FRONTEND_LANG_ID]['name']).($arrFormFields[$fieldId]['type'] == 'hidden' ? ' (hidden)' : '');
+                    $label = contrexx_raw2xhtml($arrFormFields[$fieldId]['lang'][FRONTEND_LANG_ID]['name']).($arrFormFields[$fieldId]['type'] == 'hidden' ? ' (hidden)' : '');
 
                     switch ($arrFormFields[$fieldId]['type']) {
                         case 'checkbox':
@@ -2013,7 +1971,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
         print ($arrSettings['fieldMetaDate'] == '1' ? $this->_escapeCsvValue($_ARRAYLANG['TXT_CONTACT_DATE']).$this->_csvSeparator : '')
                 .($arrSettings['fieldMetaHost'] == '1' ? $this->_escapeCsvValue($_ARRAYLANG['TXT_CONTACT_HOSTNAME']).$this->_csvSeparator : '')
                 .($arrSettings['fieldMetaLang'] == '1' ? $this->_escapeCsvValue($_ARRAYLANG['TXT_CONTACT_BROWSER_LANGUAGE']).$this->_csvSeparator : '')
-                .($arrSettings['fieldMetaBrowser'] == '1' ? $this->_escapeCsvValue($_ARRAYLANG['TXT_CONTACT_BROWSER']).$this->_csvSeparator : '')
                 .($arrSettings['fieldMetaIP'] == '1' ? $this->_escapeCsvValue($_ARRAYLANG['TXT_CONTACT_IP_ADDRESS']) : '')
                 .$this->_csvLFB;
 
@@ -2056,7 +2013,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 print ($arrSettings['fieldMetaDate'] == '1' ? $this->_escapeCsvValue(date(ASCMS_DATE_FORMAT, $formEntriesValues['time'])).$this->_csvSeparator : '')
                         .($arrSettings['fieldMetaHost'] == '1' ? $this->_escapeCsvValue($formEntriesValues['host']).$this->_csvSeparator : '')
                         .($arrSettings['fieldMetaLang'] == '1' ? $this->_escapeCsvValue($formEntriesValues['langId']).$this->_csvSeparator : '')
-                        .($arrSettings['fieldMetaBrowser'] == '1' ? $this->_escapeCsvValue($formEntriesValues['browser']).$this->_csvSeparator : '')
                     .($arrSettings['fieldMetaIP'] == '1' ? $this->_escapeCsvValue($formEntriesValues['ipaddress']) : '')
                     .$this->_csvLFB;
 
@@ -2296,12 +2252,6 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
         }
 
         $this->em->flush();
-
-        // The following line is a hacky work-around for translation
-        // caching problem
-        // See http://atlantic18.github.io/DoctrineExtensions/doc/translatable.html
-        // 2017-06-19, MRi
-        $this->em->getConfiguration()->getResultCacheImpl()->deleteAll();
     }
 
 

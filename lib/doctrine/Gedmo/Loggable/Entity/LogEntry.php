@@ -2,25 +2,36 @@
 
 namespace Gedmo\Loggable\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\Index;
+use Doctrine\ORM\Mapping\Entity;
 
 /**
  * Gedmo\Loggable\Entity\LogEntry
  *
- * @ORM\Table(
+ * @Table(
  *     name="ext_log_entries",
  *  indexes={
- *      @ORM\Index(name="log_class_lookup_idx", columns={"object_class"}),
- *      @ORM\Index(name="log_date_lookup_idx", columns={"logged_at"}),
- *      @ORM\Index(name="log_user_lookup_idx", columns={"username"}),
- *      @ORM\Index(name="log_version_lookup_idx", columns={"object_id", "object_class", "version"})
+ *      @index(name="log_class_lookup_idx", columns={"object_class"}),
+ *      @index(name="log_date_lookup_idx", columns={"logged_at"}),
+ *      @index(name="log_user_lookup_idx", columns={"username"})
  *  }
  * )
- * @ORM\Entity(repositoryClass="Gedmo\Loggable\Entity\Repository\LogEntryRepository")
+ * @Entity(repositoryClass="Gedmo\Loggable\Entity\Repository\LogEntryRepository")
  */
-class LogEntry extends MappedSuperclass\AbstractLogEntry
+class LogEntry extends AbstractLogEntry
 {
     /**
      * All required columns are mapped through inherited superclass
      */
+
+    /**
+     * @var integer $id
+     *
+     * @Column(type="integer")
+     * @Id
+     * @GeneratedValue
+     */
+    private $id;
+
 }

@@ -515,11 +515,12 @@ class FileSharing extends FileSharingLib
             $fieldId = $objDatabase->Insert_ID();
             $files[] = array(
                 "name"     => $uploadedFileName,
-                "image"    => $imageUrl ? $imageUrl->toString() : false,
+                "image"    => $imageUrl->toString(),
                 "download" => parent::getDownloadLink($fieldId),
                 "delete"   => parent::getDeleteLink($fieldId),
             );
         }
+
         return $files;
     }
 }

@@ -1,4 +1,4 @@
-$J(function(){
+$J(function(){    
     var hideDelay = 50;
     var currentID;
     var hideTimer = null;
@@ -91,3 +91,5 @@ $J(function(){
         }, hideDelay);
     });
 });
+
+

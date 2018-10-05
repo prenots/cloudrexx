@@ -1,9 +1,0 @@
-<!--#config timefmt="%S" -->
-<!--#set var="rand" value="$DATE_LOCAL" -->
-<!-- BEGIN first_content --><!--#if expr="$rand = /{I}/" -->
-    <!--#include virtual="{CONTENT}" --><!-- END first_content --><!-- BEGIN content -->
-<!--#elif expr="$rand = /{I}/" -->
-    <!--#include virtual="{CONTENT}" --><!-- END content -->
-<!--#else -->
-    <!--#include virtual="{FALLBACK_CONTENT}" -->
-<!--#endif -->

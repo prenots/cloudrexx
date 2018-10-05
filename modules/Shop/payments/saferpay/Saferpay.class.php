@@ -441,7 +441,6 @@ window.setTimeout(3000, function() {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSLVERSION, 'CURL_SSLVERSION_TLSv1_2');
             $result = curl_exec($ch);
         }
         if ($result) return $result;
@@ -472,12 +471,14 @@ window.setTimeout(3000, function() {
 //DBG::log("Saferpay::payConfirm():");
 //DBG::log("POST: ".var_export($_POST, true));
 //DBG::log("GET: ".var_export($_GET, true));
-        $arguments = array();
-        parse_str($_SERVER['QUERY_STRING'], $arguments);
+        // Predefine the variables parsed by parse_str() to avoid
+        // code analyzer warnings
+        $DATA = $SIGNATURE = '';
+        parse_str($_SERVER['QUERY_STRING']);
         // Note: parse_str()'s results comply with the magic quotes setting!
         $arrOrder = array(
-            'DATA' => urlencode(contrexx_input2raw($arguments['DATA'])),
-            'SIGNATURE' => urlencode(contrexx_input2raw($arguments['SIGNATURE'])),
+            'DATA' => urlencode(contrexx_input2raw($DATA)),
+            'SIGNATURE' => urlencode(contrexx_input2raw($SIGNATURE)),
         );
         $attributes = self::getAttributeList('payConfirm', $arrOrder);
         // This won't work without allow_url_fopen
@@ -490,9 +491,10 @@ window.setTimeout(3000, function() {
         }
 //DBG::log("payConfirm: Result: ".self::$arrTemp['result']);
         if (substr($result, 0, 2) == 'OK') {
-            parse_str(substr($result, 3), $arguments);
+            $ID = '';
+            parse_str(substr($result, 3));
   //DBG::log("Saferpay::payConfirm(): SUCCESS, ID $ID");
-            return $arguments['ID'];
+            return $ID;
 // Obsolete
 //            self::$token = $TOKEN;
         }

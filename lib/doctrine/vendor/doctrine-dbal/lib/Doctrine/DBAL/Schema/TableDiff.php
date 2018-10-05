@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,18 +15,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\DBAL\Schema;
 
 /**
- * Table Diff.
+ * Table Diff
  *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link    www.doctrine-project.org
+ * @copyright Copyright (C) 2005-2009 eZ Systems AS. All rights reserved.
+ * @license http://ez.no/licenses/new_bsd New BSD License
+ * @since   2.0
+ * @version $Revision$
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 class TableDiff
 {
@@ -34,100 +40,93 @@ class TableDiff
     public $name = null;
 
     /**
-     * @var string|boolean
+     * @var string
      */
     public $newName = false;
 
     /**
-     * All added fields.
+     * All added fields
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var array(string=>Column)
      */
     public $addedColumns;
 
     /**
-     * All changed fields.
+     * All changed fields
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var array(string=>Column)
      */
     public $changedColumns = array();
 
     /**
-     * All removed fields.
+     * All removed fields
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var array(string=>bool)
      */
     public $removedColumns = array();
 
     /**
      * Columns that are only renamed from key to column instance name.
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var array(string=>Column)
      */
     public $renamedColumns = array();
 
     /**
-     * All added indexes.
+     * All added indexes
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var array(string=>Index)
      */
     public $addedIndexes = array();
 
     /**
-     * All changed indexes.
+     * All changed indexes
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var array(string=>Index)
      */
     public $changedIndexes = array();
 
     /**
      * All removed indexes
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var array(string=>bool)
      */
     public $removedIndexes = array();
 
     /**
      * All added foreign key definitions
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var array
      */
     public $addedForeignKeys = array();
 
     /**
      * All changed foreign keys
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var array
      */
     public $changedForeignKeys = array();
 
     /**
      * All removed foreign keys
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var array
      */
     public $removedForeignKeys = array();
 
     /**
-     * @var \Doctrine\DBAL\Schema\Table
-     */
-    public $fromTable;
-
-    /**
      * Constructs an TableDiff object.
      *
-     * @param string                           $tableName
-     * @param \Doctrine\DBAL\Schema\Column[]   $addedColumns
-     * @param \Doctrine\DBAL\Schema\Column[]   $changedColumns
-     * @param \Doctrine\DBAL\Schema\Column[]   $removedColumns
-     * @param \Doctrine\DBAL\Schema\Index[]    $addedIndexes
-     * @param \Doctrine\DBAL\Schema\Index[]    $changedIndexes
-     * @param \Doctrine\DBAL\Schema\Index[]    $removedIndexes
-     * @param \Doctrine\DBAL\Schema\Table|null $fromTable
+     * @param array(string=>Column) $addedColumns
+     * @param array(string=>Column) $changedColumns
+     * @param array(string=>bool)   $removedColumns
+     * @param array(string=>Index)  $addedIndexes
+     * @param array(string=>Index)  $changedIndexes
+     * @param array(string=>bool)   $removedIndexes
      */
     public function __construct($tableName, $addedColumns = array(),
         $changedColumns = array(), $removedColumns = array(), $addedIndexes = array(),
-        $changedIndexes = array(), $removedIndexes = array(), Table $fromTable = null)
+        $changedIndexes = array(), $removedIndexes = array())
     {
         $this->name = $tableName;
         $this->addedColumns = $addedColumns;
@@ -136,6 +135,5 @@ class TableDiff
         $this->addedIndexes = $addedIndexes;
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
-        $this->fromTable = $fromTable;
     }
 }

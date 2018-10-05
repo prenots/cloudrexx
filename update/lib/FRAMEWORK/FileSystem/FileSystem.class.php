@@ -170,7 +170,7 @@ class FileSystem
             ) {
                 self::$ftpAuth = true;
                 return true;
-            }
+            } 
 
             @ftp_close(self::$connection);
         }
@@ -1065,3 +1065,4 @@ class FileSystem
     }
 
 }
+

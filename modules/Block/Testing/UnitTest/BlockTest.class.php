@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- *
+ * 
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,10 +24,10 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
-
+ 
 /**
  * BlockTest
- *
+ * 
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      SS4U <ss4u.comvation@gmail.com>
@@ -37,10 +37,11 @@
  */
 
 namespace Cx\Modules\Block\Testing\UnitTest;
+use \Cx\Core\Json\Adapter\Block\JsonBlock as JsonBlock;
 
 /**
  * BlockTest
- *
+ * 
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
  * @author      SS4U <ss4u.comvation@gmail.com>
@@ -50,97 +51,85 @@ namespace Cx\Modules\Block\Testing\UnitTest;
  */
 class BlockTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase {
     /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
-     * @expectedException \Cx\Modules\Block\Controller\NoPermissionException
+     * @covers \Cx\Core\Json\Adapter\Block\JsonBlock::getBlockContent
+     * @expectedException \Cx\Core\Json\Adapter\Block\NoPermissionException
      */
     public function testGetBlockContentNoPermission() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
-        $jsonBlock = $this->getJsonBlockController();
+        global $sessionObj;
+        $sessionObj = !$sessionObj ? \cmsSession::getInstance() : $sessionObj;
+        $jsonBlock = new JsonBlock();
         $jsonBlock->getBlockContent(array('get' => array('block' => 1, 'lang' => 'de')));
     }
-
+    
     /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
-     * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
+     * @covers \Cx\Core\Json\Adapter\Block\JsonBlock::getBlockContent
+     * @expectedException \Cx\Core\Json\Adapter\Block\NotEnoughArgumentsException
      */
     public function testGetBlockContentNotEnoughArguments() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
+        global $sessionObj;
+        $sessionObj = !$sessionObj ? \cmsSession::getInstance() : $sessionObj;
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
-
-        $jsonBlock = $this->getJsonBlockController();
+        
+        $jsonBlock = new JsonBlock();
         $jsonBlock->getBlockContent(array());
     }
-
+    
     /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
-     * @expectedException \Cx\Modules\Block\Controller\NoBlockFoundException
+     * @covers \Cx\Core\Json\Adapter\Block\JsonBlock::getBlockContent
+     * @expectedException \Cx\Core\Json\Adapter\Block\NoBlockFoundException
      */
     public function testGetBlockContentNoBlockFound() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
+        global $sessionObj;
+        $sessionObj = !$sessionObj ? \cmsSession::getInstance() : $sessionObj;
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
-
-        $jsonBlock = $this->getJsonBlockController();
+        
+        $jsonBlock = new JsonBlock();
         $jsonBlock->getBlockContent(array('get' => array('block' => 999, 'lang' => 'de')));
     }
-
+    
     /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::getBlockContent
+     * @covers \Cx\Core\Json\Adapter\Block\JsonBlock::getBlockContent
      */
     public function testGetBlockContent() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
+        global $sessionObj;
+        $sessionObj = !$sessionObj ? \cmsSession::getInstance() : $sessionObj;
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
-
-        $jsonBlock = $this->getJsonBlockController();
+        
+        $jsonBlock = new JsonBlock();
         $result = $jsonBlock->getBlockContent(array('get' => array('block' => 32, 'lang' => 'de')));
         $this->assertArrayHasKey('content', $result);
     }
-
+    
     /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::saveBlockContent
-     * @expectedException \Cx\Modules\Block\Controller\NotEnoughArgumentsException
+     * @covers \Cx\Core\Json\Adapter\Block\JsonBlock::saveBlockContent
+     * @expectedException \Cx\Core\Json\Adapter\Block\NotEnoughArgumentsException
      */
     public function testSaveBlockContentNotEnoughArguments() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
+        global $sessionObj;
+        $sessionObj = !$sessionObj ? \cmsSession::getInstance() : $sessionObj;
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
-
-        $jsonBlock = $this->getJsonBlockController();
+        
+        $jsonBlock = new JsonBlock();
         $jsonBlock->saveBlockContent(array());
     }
-
+    
     /**
-     * @covers \Cx\Modules\Block\Controller\JsonBlockController::saveBlockContent
+     * @covers \Cx\Core\Json\Adapter\Block\JsonBlock::saveBlockContent
      */
     public function testSaveBlockContent() {
-        $sessionObj = self::$cx->getComponent('Session')->getSession();
+        global $sessionObj;
+        $sessionObj = !$sessionObj ? \cmsSession::getInstance() : $sessionObj;
         $user = \FWUser::getFWUserObject()->objUser->getUser(1);
         \FWUser::loginUser($user);
-
-        $jsonBlock = $this->getJsonBlockController();
+        
+        $jsonBlock = new JsonBlock();
         $jsonBlock->saveBlockContent(array('get' => array('block' => 32, 'lang' => 'de'), 'post' => array('content' => 'bla')));
-
+        
         $result = $jsonBlock->getBlockContent(array('get' => array('block' => 32, 'lang' => 'de')));
         $this->assertEquals('bla', $result['content']);
-    }
-
-    /**
-     * Get json block controller using repository
-     *
-     * @return \Cx\Modules\Block\Controller\JsonBlockController
-     */
-    public function getJsonBlockController()
-    {
-        $componentRepo = self::$cx
-                            ->getDb()
-                            ->getEntityManager()
-                            ->getRepository('Cx\Core\Core\Model\Entity\SystemComponent');
-        $componentContoller = $componentRepo->findOneBy(array('name' => 'Block'));
-        if (!$componentContoller) {
-            return;
-        }
-        return $componentContoller->getController('JsonBlock');
     }
 }

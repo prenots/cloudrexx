@@ -1,3 +1,0 @@
-Cx\Core\DataSource\Model\Entity\JsonDataSource:
-  type: entity
-  repositoryClass: Cx\Core\DataSource\Model\Repository\JsonDataSourceRepository

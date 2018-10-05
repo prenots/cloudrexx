@@ -185,6 +185,7 @@ $arrDatabaseTables = array(
     'module_directory_rel_dir_cat',
     'module_directory_rel_dir_level',
     'module_directory_settings',
+    'module_directory_settings_google',
     'module_directory_vote',
     'module_docsys',
     'module_docsys_categories',

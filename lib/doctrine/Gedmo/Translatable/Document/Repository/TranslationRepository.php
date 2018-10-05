@@ -2,42 +2,29 @@
 
 namespace Gedmo\Translatable\Document\Repository;
 
-use Gedmo\Translatable\TranslatableListener;
+use Gedmo\Translatable\TranslationListener;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Doctrine\ODM\MongoDB\Cursor;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\UnitOfWork;
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
-use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
-use Gedmo\Translatable\Mapping\Event\Adapter\ODM as TranslatableAdapterODM;
 
 /**
  * The TranslationRepository has some useful functions
  * to interact with translations.
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
+ * @package Gedmo.Translatable.Document.Repository
+ * @subpackage TranslationRepository
+ * @link http://www.gediminasm.org
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 class TranslationRepository extends DocumentRepository
 {
     /**
-     * Current TranslatableListener instance used
+     * Current TranslationListener instance used
      * in EntityManager
      *
-     * @var TranslatableListener
+     * @var TranslationListener
      */
     private $listener;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(DocumentManager $dm, UnitOfWork $uow, ClassMetadata $class)
-    {
-        if ($class->getReflectionClass()->isSubclassOf('Gedmo\Translatable\Document\MappedSuperclass\AbstractPersonalTranslation')) {
-            throw new \Gedmo\Exception\UnexpectedValueException('This repository is useless for personal translations');
-        }
-        parent::__construct($dm, $uow, $class);
-    }
 
     /**
      * Makes additional translation of $document $field into $locale
@@ -46,54 +33,18 @@ class TranslationRepository extends DocumentRepository
      * @param object $document
      * @param string $field
      * @param string $locale
-     * @param mixed  $value
-     *
-     * @return static
+     * @param mixed $value
+     * @return TranslationRepository
      */
     public function translate($document, $field, $locale, $value)
     {
         $meta = $this->dm->getClassMetadata(get_class($document));
-        $listener = $this->getTranslatableListener();
-        $config = $listener->getConfiguration($this->dm, $meta->name);
+        $config = $this->getTranslationListener()->getConfiguration($this->dm, $meta->name);
         if (!isset($config['fields']) || !in_array($field, $config['fields'])) {
-            throw new \Gedmo\Exception\InvalidArgumentException("Document: {$meta->name} does not translate field - {$field}");
+            throw new \Gedmo\Exception\InvalidArgumentException("Document: {$meta->name} does not translate - {$field}");
         }
-        $modRecordValue = (!$listener->getPersistDefaultLocaleTranslation() && $locale === $listener->getDefaultLocale())
-            || $listener->getTranslatableLocale($document, $meta) === $locale
-        ;
-        if ($modRecordValue) {
-            $meta->getReflectionProperty($field)->setValue($document, $value);
-            $this->dm->persist($document);
-        } else {
-            if (isset($config['translationClass'])) {
-                $class = $config['translationClass'];
-            } else {
-                $ea = new TranslatableAdapterODM();
-                $class = $listener->getTranslationClass($ea, $config['useObjectClass']);
-            }
-            $foreignKey = $meta->getReflectionProperty($meta->identifier)->getValue($document);
-            $objectClass = $config['useObjectClass'];
-            $transMeta = $this->dm->getClassMetadata($class);
-            $trans = $this->findOneBy(compact('locale', 'field', 'objectClass', 'foreignKey'));
-            if (!$trans) {
-                $trans = $transMeta->newInstance();
-                $transMeta->getReflectionProperty('foreignKey')->setValue($trans, $foreignKey);
-                $transMeta->getReflectionProperty('objectClass')->setValue($trans, $objectClass);
-                $transMeta->getReflectionProperty('field')->setValue($trans, $field);
-                $transMeta->getReflectionProperty('locale')->setValue($trans, $locale);
-            }
-            $mapping = $meta->getFieldMapping($field);
-            $type = $this->getType($mapping['type']);
-            $transformed = $type->convertToDatabaseValue($value);
-            $transMeta->getReflectionProperty('content')->setValue($trans, $transformed);
-            if ($this->dm->getUnitOfWork()->isInIdentityMap($document)) {
-                $this->dm->persist($trans);
-            } else {
-                $oid = spl_object_hash($document);
-                $listener->addPendingTranslationInsert($oid, $trans);
-            }
-        }
-
+        $oid = spl_object_hash($document);
+        $this->listener->addTranslation($oid, $field, $locale, $value);
         return $this;
     }
 
@@ -102,29 +53,20 @@ class TranslationRepository extends DocumentRepository
      * fields from the given entity
      *
      * @param object $document
-     *
      * @return array list of translations in locale groups
      */
     public function findTranslations($document)
     {
         $result = array();
-        $wrapped = new MongoDocumentWrapper($document, $this->dm);
-        if ($wrapped->hasValidIdentifier()) {
-            $documentId = $wrapped->getIdentifier();
+        if ($document) {
+            $meta = $this->dm->getClassMetadata(get_class($document));
+            $identifier = $meta->identifier;
+            $documentId = $meta->getReflectionProperty($identifier)->getValue($document);
 
-            $translationMeta = $this->getClassMetadata(); // table inheritance support
-
-            $config = $this
-                ->getTranslatableListener()
-                ->getConfiguration($this->dm, get_class($document));
-
-            $translationClass = isset($config['translationClass']) ?
-                $config['translationClass'] :
-                $translationMeta->rootDocumentName;
-
-            $qb = $this->dm->createQueryBuilder($translationClass);
+            $translationMeta = $this->getClassMetadata();
+            $qb = $this->createQueryBuilder();
             $q = $qb->field('foreignKey')->equals($documentId)
-                ->field('objectClass')->equals($wrapped->getMetadata()->rootDocumentName)
+                ->field('objectClass')->equals($meta->name)
                 ->sort('locale', 'asc')
                 ->getQuery();
 
@@ -139,45 +81,43 @@ class TranslationRepository extends DocumentRepository
                 }
             }
         }
-
         return $result;
     }
 
     /**
      * Find the object $class by the translated field.
-     * Result is the first occurrence of translated field.
+     * Result is the first occurence of translated field.
      * Query can be slow, since there are no indexes on such
      * columns
      *
      * @param string $field
      * @param string $value
      * @param string $class
-     *
      * @return object - instance of $class or null if not found
      */
     public function findObjectByTranslatedField($field, $value, $class)
     {
         $document = null;
         $meta = $this->dm->getClassMetadata($class);
+        $translationMeta = $this->getClassMetadata();
         if ($meta->hasField($field)) {
             $qb = $this->createQueryBuilder();
             $q = $qb->field('field')->equals($field)
-                ->field('objectClass')->equals($meta->rootDocumentName)
+                ->field('objectClass')->equals($meta->name)
                 ->field('content')->equals($value)
                 ->getQuery();
 
             $q->setHydrate(false);
             $result = $q->execute();
             if ($result instanceof Cursor) {
-                $result = $result->toArray();
+                $result = $data->toArray();
             }
             $id = count($result) ? $result[0]['foreignKey'] : null;
             if ($id) {
                 $document = $this->dm->find($class, $id);
             }
         }
-
-        return $document;
+        return $entity;
     }
 
     /**
@@ -185,13 +125,13 @@ class TranslationRepository extends DocumentRepository
      * fields by a given document primary key
      *
      * @param mixed $id - primary key value of document
-     *
      * @return array
      */
     public function findTranslationsByObjectId($id)
     {
         $result = array();
         if ($id) {
+            $translationMeta = $this->getClassMetadata();
             $qb = $this->createQueryBuilder();
             $q = $qb->field('foreignKey')->equals($id)
                 ->sort('locale', 'asc')
@@ -209,38 +149,34 @@ class TranslationRepository extends DocumentRepository
                 }
             }
         }
-
         return $result;
     }
 
     /**
-     * Get the currently used TranslatableListener
+     * Get the currently used TranslationListener
      *
      * @throws \Gedmo\Exception\RuntimeException - if listener is not found
-     *
-     * @return TranslatableListener
+     * @return TranslationListener
      */
-    private function getTranslatableListener()
+    private function getTranslationListener()
     {
         if (!$this->listener) {
             foreach ($this->dm->getEventManager()->getListeners() as $event => $listeners) {
                 foreach ($listeners as $hash => $listener) {
-                    if ($listener instanceof TranslatableListener) {
-                        return $this->listener = $listener;
+                    if ($listener instanceof TranslationListener) {
+                        $this->listener = $listener;
+                        break;
                     }
+                }
+                if ($this->listener) {
+                    break;
                 }
             }
 
-            throw new \Gedmo\Exception\RuntimeException('The translation listener could not be found');
+            if (is_null($this->listener)) {
+                throw new \Gedmo\Exception\RuntimeException('The translation listener could not be found');
+            }
         }
-
         return $this->listener;
-    }
-
-    private function getType($type)
-    {
-        // due to change in ODM beta 9
-        return class_exists('Doctrine\ODM\MongoDB\Types\Type') ? \Doctrine\ODM\MongoDB\Types\Type::getType($type)
-            : \Doctrine\ODM\MongoDB\Mapping\Types\Type::getType($type);
     }
 }

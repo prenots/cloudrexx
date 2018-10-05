@@ -64,10 +64,9 @@ class MediaDirectoryInputfieldTextarea extends \Cx\Modules\MediaDir\Controller\M
 
     function getInputfield($intView, $arrInputfield, $intEntryId=null)
     {
-        global $objDatabase, $objInit, $_ARRAYLANG;
+        global $objDatabase, $_LANGID, $objInit, $_ARRAYLANG;
 
         $intId = intval($arrInputfield['id']);
-        $langId = static::getOutputLocale()->getId();
 
         switch ($intView) {
             default:
@@ -91,7 +90,7 @@ class MediaDirectoryInputfieldTextarea extends \Cx\Modules\MediaDir\Controller\M
                             $arrValue[intval($objInputfieldValue->fields['lang_id'])] = contrexx_raw2xhtml($objInputfieldValue->fields['value']);
                             $objInputfieldValue->MoveNext();
                         }
-                        $arrValue[0] = isset($arrValue[$langId]) ? $arrValue[$langId] : null;
+                        $arrValue[0] = isset($arrValue[$_LANGID]) ? $arrValue[$_LANGID] : null;
                     }
                 } else {
                     $arrValue = null;
@@ -133,30 +132,30 @@ class MediaDirectoryInputfieldTextarea extends \Cx\Modules\MediaDir\Controller\M
                         } else {
                             $minimize = "";
                         }
-
+                        
                         $value = isset($arrValue[$intLangId]) ? $arrValue[$intLangId] : '';
                         $strInputfield .= '<textarea data-id="'.$intId.'" name="'.$this->moduleNameLC.'Inputfield['.$intId.']['.$intLangId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_'.$intLangId.'" style="height: 60px; width: 279px; margin-bottom: 2px; padding-left: 21px; background: #ffffff url(\''. \Env::get('cx')->getCodeBaseOffsetPath() . \Env::get('cx')->getCoreFolderName().'/Country/View/Media/Flag/flag_'.$arrLang['lang'].'.gif\') no-repeat 3px 3px;" onfocus="this.select();" />'. $value .'</textarea>&nbsp;'.$arrLang['name'].'<a href="javascript:ExpandMinimize(\''.$intId.'\');">&nbsp;'.$minimize.'</a><br />';
-                    }
+                    }                    
                     $strInputfield .= '</div>';
                 } else {
-                    if($this->arrSettings['settingsFrontendUseMultilang'] == 1) {
-                        $strInputfield = '<div id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_Minimized" style="display: block; float: left;" class="'.$this->moduleNameLC.'GroupMultilang"><textarea data-id="'.$intId.'" class="'.$this->moduleNameLC.'InputfieldDefault" name="'.$this->moduleNameLC.'Inputfield['.$intId.'][0]" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_0" class="'.$this->moduleNameLC.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[0].' onfocus="this.select();" />'.$arrValue[0].'</textarea>&nbsp;<a href="javascript:ExpandMinimize(\''.$intId.'\');">'.$_ARRAYLANG['TXT_MEDIADIR_MORE'].'&nbsp;&raquo;</a></div>';
+                	if($this->arrSettings['settingsFrontendUseMultilang'] == 1) {
+                		$strInputfield = '<div id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_Minimized" style="display: block; float: left;" class="'.$this->moduleNameLC.'GroupMultilang"><textarea data-id="'.$intId.'" class="'.$this->moduleNameLC.'InputfieldDefault" name="'.$this->moduleNameLC.'Inputfield['.$intId.'][0]" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_0" class="'.$this->moduleNameLC.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[0].' onfocus="this.select();" />'.$arrValue[0].'</textarea>&nbsp;<a href="javascript:ExpandMinimize(\''.$intId.'\');">'.$_ARRAYLANG['TXT_MEDIADIR_MORE'].'&nbsp;&raquo;</a></div>';
 
-                        $strInputfield .= '<div id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_Expanded" style="display: none; float: left;" class="'.$this->moduleNameLC.'GroupMultilang">';
-                        foreach ($this->arrFrontendLanguages as $key => $arrLang) {
-                            $intLangId = $arrLang['id'];
+                		$strInputfield .= '<div id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_Expanded" style="display: none; float: left;" class="'.$this->moduleNameLC.'GroupMultilang">';
+	                    foreach ($this->arrFrontendLanguages as $key => $arrLang) {
+	                        $intLangId = $arrLang['id'];
 
-                            if(($key+1) == count($this->arrFrontendLanguages)) {
-                                $minimize = "&nbsp;<a href=\"javascript:ExpandMinimize('".$intId."');\">&laquo;&nbsp;".$_ARRAYLANG['TXT_MEDIADIR_MINIMIZE']."</a>";
-                            } else {
-                                $minimize = "";
-                            }
+	                        if(($key+1) == count($this->arrFrontendLanguages)) {
+	                            $minimize = "&nbsp;<a href=\"javascript:ExpandMinimize('".$intId."');\">&laquo;&nbsp;".$_ARRAYLANG['TXT_MEDIADIR_MINIMIZE']."</a>";
+	                        } else {
+	                            $minimize = "";
+	                        }
 
-                            $strInputfield .= '<textarea data-id="'.$intId.'" name="'.$this->moduleNameLC.'Inputfield['.$intId.']['.$intLangId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_'.$intLangId.'" class="'.$this->moduleNameLC.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[$intLangId].' onfocus="this.select();" />'.$arrValue[$intLangId].'</textarea>&nbsp;'.$arrLang['name'].'<a href="javascript:ExpandMinimize(\''.$intId.'\');">&nbsp;'.$minimize.'</a><br />';
-                        }
-                        $strInputfield .= '</div>';
-                    } else {
-                        $strInputfield = '<textarea name="'.$this->moduleNameLC.'Inputfield['.$intId.'][0]" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_0" class="'.$this->moduleNameLC.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[0].' onfocus="this.select();" />'.$arrValue[0].'</textarea>';
+	                        $strInputfield .= '<textarea data-id="'.$intId.'" name="'.$this->moduleNameLC.'Inputfield['.$intId.']['.$intLangId.']" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_'.$intLangId.'" class="'.$this->moduleNameLC.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[$intLangId].' onfocus="this.select();" />'.$arrValue[$intLangId].'</textarea>&nbsp;'.$arrLang['name'].'<a href="javascript:ExpandMinimize(\''.$intId.'\');">&nbsp;'.$minimize.'</a><br />';
+	                    }	                    
+	                    $strInputfield .= '</div>';
+                	} else {
+                		$strInputfield = '<textarea name="'.$this->moduleNameLC.'Inputfield['.$intId.'][0]" id="'.$this->moduleNameLC.'Inputfield_'.$intId.'_0" class="'.$this->moduleNameLC.'InputfieldTextarea '.$strInfoClass.'" '.$arrInfoValue[0].' onfocus="this.select();" />'.$arrValue[0].'</textarea>';
                     }
                 }
                 return $strInputfield;
@@ -191,42 +190,20 @@ class MediaDirectoryInputfieldTextarea extends \Cx\Modules\MediaDir\Controller\M
 
     function getContent($intEntryId, $arrInputfield, $arrTranslationStatus)
     {
-        $strValueAllowTags = static::getRawData($intEntryId, $arrInputfield, $arrTranslationStatus);
-        $strValue = strip_tags($strValueAllowTags);
-
-        if(!empty($strValue)) {
-            if (strlen($strValue) > 200) {
-                $strShortValue = preg_replace('/[^ ]*$/', '', substr($strValue, 0, 200)) . ' [...]';
-            } else {
-                $strShortValue = $strValue;
-            }
-            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = contrexx_raw2xml($arrInputfield['name'][0]);
-            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = nl2br(contrexx_raw2xml($strValue));
-            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE_SHORT'] = nl2br(contrexx_raw2xml($strShortValue));
-            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE_ALLOW_TAGS'] = $strValueAllowTags;
-        } else {
-            $arrContent = null;
-        }
-
-        return $arrContent;
-    }
-
-    function getRawData($intEntryId, $arrInputfield, $arrTranslationStatus) {
-        global $objDatabase;
+        global $objDatabase, $_LANGID;
 
         $intId = intval($arrInputfield['id']);
         $objEntryDefaultLang = $objDatabase->Execute("SELECT `lang_id` FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_entries WHERE id=".intval($intEntryId)." LIMIT 1");
         $intEntryDefaultLang = intval($objEntryDefaultLang->fields['lang_id']);
-        $langId = static::getOutputLocale()->getId();
 
         if($this->arrSettings['settingsTranslationStatus'] == 1) {
-            if(in_array($langId, $arrTranslationStatus)) {
-                $intLangId = $langId;
+            if(in_array($_LANGID, $arrTranslationStatus)) {
+                $intLangId = $_LANGID;
             } else {
                 $intLangId = $intEntryDefaultLang;
             }
         } else {
-            $intLangId = $langId;
+            $intLangId = $_LANGID;
         }
 
         $objInputfieldValue = $objDatabase->Execute("
@@ -259,7 +236,24 @@ class MediaDirectoryInputfieldTextarea extends \Cx\Modules\MediaDir\Controller\M
             ");
         }
 
-        return $objInputfieldValue->fields['value'];
+        $strValue = strip_tags($objInputfieldValue->fields['value']);
+        $strValueAllowTags = $objInputfieldValue->fields['value'];
+
+        if(!empty($strValue)) {
+            if (strlen($strValue) > 200) {
+                $strShortValue = preg_replace('/[^ ]*$/', '', substr($strValue, 0, 200)) . ' [...]';
+            } else {
+                $strShortValue = $strValue;
+            }
+            $arrContent['TXT_'.$this->moduleLangVar.'_INPUTFIELD_NAME'] = contrexx_raw2xml($arrInputfield['name'][0]);
+            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE'] = nl2br(contrexx_raw2xml($strValue));
+            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE_SHORT'] = nl2br(contrexx_raw2xml($strShortValue));
+            $arrContent[$this->moduleLangVar.'_INPUTFIELD_VALUE_ALLOW_TAGS'] = $strValueAllowTags;
+        } else {
+            $arrContent = null;
+        }
+
+        return $arrContent;
     }
 
 
@@ -272,13 +266,13 @@ class MediaDirectoryInputfieldTextarea extends \Cx\Modules\MediaDir\Controller\M
             case 'textarea':
                 value = document.getElementById('$fieldName' + field + '_0').value;
                 if (value == "" && isRequiredGlobal(inputFields[field][1], value)) {
-                    isOk = false;
-                    document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
+                	isOk = false;
+                	document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
                 } else if (value != "" && !matchType(inputFields[field][2], value)) {
-                    isOk = false;
-                    document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
+                	isOk = false;
+                	document.getElementById('$fieldName' + field + '_0').style.border = "#ff0000 1px solid";
                 } else {
-                    document.getElementById('$fieldName' + field + '_0').style.borderColor = '';
+                	document.getElementById('$fieldName' + field + '_0').style.borderColor = '';
                 }
                 break;
 EOF;

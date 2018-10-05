@@ -1,3 +1,0 @@
-Cx\Core\DataSource\Model\Entity\YmlRepository:
-  type: entity
-  repositoryClass: Cx\Core\DataSource\Model\Repository\YmlRepositoryRepository
