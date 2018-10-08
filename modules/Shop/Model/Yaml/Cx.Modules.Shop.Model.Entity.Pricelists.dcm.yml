@@ -18,7 +18,6 @@ Cx\Modules\Shop\Model\Entity\Pricelists:
     langId:
       type: integer
       options:
-        unsigned: true
         default: 0
       column: lang_id
     borderOn:

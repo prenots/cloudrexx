@@ -22,7 +22,6 @@ Cx\Modules\Shop\Model\Entity\Orders:
     customerId:
       type: integer
       options:
-        unsigned: true
         default: '0'
       column: customer_id
     currencyId:
@@ -130,7 +129,6 @@ Cx\Modules\Shop\Model\Entity\Orders:
     langId:
       type: integer
       options:
-        unsigned: true
         default: '0'
       column: lang_id
     note:

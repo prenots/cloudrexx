@@ -14,8 +14,8 @@ Cx\Modules\Shop\Model\Entity\RelCustomerCoupon:
     customerId:
       type: integer
       options:
-        unsigned: true
         default: 0
+        unsigned: false
       column: customer_id
     orderId:
       type: integer

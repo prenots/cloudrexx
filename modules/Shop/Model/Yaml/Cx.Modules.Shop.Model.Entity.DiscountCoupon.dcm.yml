@@ -16,21 +16,19 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
     customerId:
       type: integer
       options:
-        unsigned: true
-        default: 0
       column: customer_id
   fields:
     paymentId:
       type: integer
+      nullable: true
       options:
         unsigned: true
-        default: 0
       column: payment_id
     productId:
       type: integer
+      nullable: true
       options:
         unsigned: true
-        default: 0
       column: product_id
     startTime:
       type: integer
