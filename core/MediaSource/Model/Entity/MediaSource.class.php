@@ -317,58 +317,36 @@ class MediaSource extends DataSource {
             'searchDescriptionLength'
         );
         $fullPath = $this->getDirectory()[0] . $path;
-        $fileList = array();
         $searchResult = array();
+        $fileInformation = array();
 
-        $orgFile = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
-            $path,
-            $this->getFileSystem()
-        );
-
-        if ($this->getFileSystem()->isDirectory($orgFile)) {
-            $fileList = $this->getFileSystem()->getFileList($path);
-        } else {
-            $fileEntry = $this->getFileSystem()->getFileFromPath($fullPath);
-            array_push($fileList, $fileEntry);
-        }
-        // ToDo: Implement glob algorithm for matching file names
-        $files = $this->getAllFilesAsObjects($fileList, $orgFile, array());
-        foreach ($files as $file) {
-            $fileInformation = array();
-            $filePath = $file->getFileSystem()->getRootPath() . $file->__toString();
-            $content = '';
-            if ($this->isIndexingActivated()) {
-                $indexer = $this->getComponentController()->getIndexer(
-                    $file->getExtension()
-                );
-                if (!empty($indexer)) {
-                    $match = $indexer->getMatch($searchterm, $filePath);
-                    if (!empty($match)) {
-                        $content = substr(
-                            $match->getContent(), 0, $searchLength
-                        ).'...';
-                    }
-                }
-            }
-
-            if (strpos(strtolower($file->getName()), strtolower($searchterm))
-                === false && empty($content)
-            ) {
-                continue;
-            }
-
+        if ($this->isIndexingActivated()) {
+            $indexers = $this->getComponentController()->listIndexers();
             $componentName = '';
             if (!empty($this->getSystemComponentController())) {
                 $componentName = $this->getSystemComponentController()->getName();
             }
 
-            $fileInformation['Score'] = 100;
-            $fileInformation['Title'] = ucfirst($file->getName());
-            $fileInformation['Content'] = $content;
-            $link = explode($this->cx->getWebsiteDocumentRootPath(), $filePath);
-            $fileInformation['Link'] = $link[1];
-            $fileInformation['Component'] = $componentName;
-            array_push($searchResult, $fileInformation);
+            foreach ($indexers as $indexer) {
+                $matches = $indexer->getMatches($searchterm, $fullPath);
+                foreach ($matches as $match) {
+                    $content = substr(
+                            $match->getContent(), 0, $searchLength
+                        ) .'...';
+                    $fileInformation['Score'] = 100;
+                    $fileInformation['Title'] = ucfirst(
+                        pathinfo($match->getPath(), PATHINFO_FILENAME)
+                    );
+                    $fileInformation['Content'] = $content;
+                    $link = explode(
+                        $this->cx->getWebsiteDocumentRootPath(),
+                        $match->getPath()
+                    );
+                    $fileInformation['Link'] = $link[1];
+                    $fileInformation['Component'] = $componentName;
+                    array_push($searchResult, $fileInformation);
+                }
+            }
         }
         return $searchResult;
     }

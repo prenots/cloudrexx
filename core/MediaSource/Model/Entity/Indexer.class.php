@@ -164,10 +164,9 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
      * @param $searchterm string term to search
      * @param $path       string path to search in
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @return \Cx\Core\MediaSource\Model\Entity\IndexerEntry
+     * @return array
      */
-    public function getMatch($searchterm, $path)
+    public function getMatches($searchterm, $path)
     {
         $em = $this->cx->getDb()->getEntityManager();
 
@@ -180,11 +179,28 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             $qb->expr()->like(
                 'ie.content', ':searchterm'
             )
+        )->andWhere(
+            $qb->expr()->eq(
+                'ie.indexer', ':indexer'
+            )
+        )->orWhere(
+            $qb->expr()->like(
+                'ie.path', ':searchtermAndPath'
+            )
+        )->orWhere(
+            $qb->expr()->eq(
+                'ie.indexer', ':indexer'
+            )
         )->setParameters(
-            array('path' => $path, 'searchterm' => '%'.$searchterm.'%')
+            array(
+                'path' => $path.'%',
+                'searchterm' => '%'.$searchterm.'%',
+                'indexer' => get_class($this),
+                'searchtermAndPath' => $path.'%'.$searchterm.'%'
+            )
         )->getQuery();
 
-        return $query->getOneOrNullResult();
+        return $query->getResult();
     }
 
     /**
