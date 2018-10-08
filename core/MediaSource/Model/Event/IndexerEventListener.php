@@ -48,8 +48,6 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
      *  Add event - add new index
      *
      * @param $info array information from file/ directory
-     *
-     * @return void
      */
     protected function mediaSourceFileAdd($info)
     {
@@ -60,8 +58,6 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
      * Update event - update an index
      *
      * @param $info array information from file/ directory
-     *
-     * @return void
      */
     protected function mediaSourceFileUpdate($info)
     {
