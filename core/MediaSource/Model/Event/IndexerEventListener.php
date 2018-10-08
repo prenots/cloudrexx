@@ -69,18 +69,19 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
     }
 
     /**
-     *  Remove event - remove an index
-     *
-     * @param $info array information from file/ directory
-     *
-     * @return void
+     * Remove event - remove an index
+     * Todo: Use file as param when FileSystem work smart
+     * @param $fileInfo array information from file/ directory
      */
     protected function mediaSourceFileRemove($fileInfo)
     {
+        // Can be deleted when file are params.
         $fullPath = $fileInfo['path'] . $fileInfo['name'];
         $file = new \Cx\Core\MediaSource\Model\Entity\LocalFile(
             $fullPath, null
         );
+        // End
+
         $indexer = $this->cx->getComponent('MediaSource')->getIndexer(
             $file->getExtension()
         );
@@ -89,7 +90,7 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
             return;
         }
 
-        $indexer->clearIndex($fullPath);
+        $indexer->clearIndex($file->__toString());
     }
 
     /**
