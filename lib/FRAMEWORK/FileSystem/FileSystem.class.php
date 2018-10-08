@@ -523,6 +523,7 @@ class FileSystem
 
     /**
      * Call Indexer event to delete
+     * ToDo: Use \Cx\Core\MediaSource\Model\Entity\LocalFile when FileSystem work smart
      *
      * @param $path string path to file or directory
      * @param $name string name of file or directory
@@ -565,6 +566,7 @@ class FileSystem
 
     /**
      * Call Indexer event to add
+     * ToDo: Use \Cx\Core\MediaSource\Model\Entity\LocalFile when FileSystem work smart
      *
      * @param $path string path to file or directory
      * @param $name string name of file or directory
