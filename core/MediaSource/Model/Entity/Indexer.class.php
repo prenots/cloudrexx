@@ -96,7 +96,7 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
      */
     public function index($path, $oldPath = '', $flush = true)
     {
-        $pathToText = $path;
+        $pathToText = $oldPath;
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $em->getRepository(
             'Cx\Core\MediaSource\Model\Entity\IndexerEntry'
@@ -106,7 +106,6 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
             $indexerEntry = $repo->findOneBy(
                 array('path' => $oldPath, 'indexer' => get_class($this))
             );
-            $pathToText = $oldPath;
         } else {
             $indexerEntry = $repo->findOneBy(
                 array('path' => $path, 'indexer' => get_class($this))
@@ -115,15 +114,15 @@ abstract class Indexer extends \Cx\Model\Base\EntityBase
 
         if (!$indexerEntry) {
             $indexerEntry = new \Cx\Core\MediaSource\Model\Entity\IndexerEntry();
+            $pathToText = $path;
+            $content = $this->getText($pathToText);
+            $indexerEntry->setContent(
+                $content
+            );
+            $indexerEntry->setIndexer(get_class($this));
         }
         $indexerEntry->setPath($path);
-        $indexerEntry->setIndexer(get_class($this));
-        $content = $this->getText($pathToText);
-        $indexerEntry->setContent(
-            $content
-        );
         $indexerEntry->setLastUpdate(new \DateTime('now'));
-
         $em->persist($indexerEntry);
 
         if ($flush) {
