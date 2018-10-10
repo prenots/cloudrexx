@@ -59,14 +59,14 @@ class Search
      * @var \Cx\Core_Modules\Listing\Model\Entity\DataSet
      */
     private $result;
-    
+
     /**
      * Root page for search. If specified only results from this page's branch
      * are delivered
      * @var \Cx\Core\ContentManger\Model\Entity\Page $page
      */
     protected $rootPage = null;
-    
+
     /**
      * Resolves cmd. If it's a node placeholder, search is limited to the node's
      * branch
@@ -86,7 +86,7 @@ class Search
             } catch (\Cx\Core\Routing\NodePlaceholderException $e) {}
         }
     }
-    
+
     /**
      * Returns the specified root page (if any)
      * @return \Cx\Core\ContentManger\Model\Entity\Page The specified root page
@@ -152,48 +152,7 @@ class Search
         if (strlen($term) >= 3) {
             $term = trim(contrexx_input2raw($_REQUEST['term']));
 
-            $this->setTerm($term);
-            $eventHandlerInstance = \Env::get('cx')->getEvents();
-            $eventHandlerInstance->triggerEvent('SearchFindContent', array($this));
-            if ($this->result->size() == 1) {
-                $arraySearchResults[] = $this->result->toArray();
-            } else {
-                $arraySearchResults = $this->result->toArray();
-            }
-            usort($arraySearchResults,
-                /**
-                 * Compares scores (and dates, if available) of two result array elements
-                 *
-                 * Compares the scores first; when equal, compares the dates, if available.
-                 * Returns
-                 *  -1 if $a  > $b
-                 *   0 if $a == $b
-                 *  +1 if $a  < $b
-                 * Used for ordering search results.
-                 * @author  Christian Wehrli <christian.wehrli@astalavista.ch>
-                 * @param  	string  $a      The first element
-                 * @param  	string  $b      The second element
-                 * @return 	integer         The comparison result
-                 */
-                function($a, $b) {
-                    if ($a['Score'] == $b['Score']) {
-                        if (isset($a['Date'])) {
-                            if ($a['Date'] == $b['Date']) {
-                                return 0;
-                            }
-                            if ($a['Date'] > $b['Date']) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-                        return 0;
-                    }
-                    if ($a['Score'] > $b['Score']) {
-                        return -1;
-                    }
-                    return 1;
-                }
-            );
+            $arraySearchResults = $this->getSearchResult($term);
             $countResults = sizeof($arraySearchResults);
             if (!is_numeric($pos)) {
                 $pos = 0;
@@ -212,13 +171,27 @@ class Search
                 $arraySearchOut = array_slice($arraySearchResults, $pos,
                                               $_CONFIG['corePagingLimit']);
                 foreach ($arraySearchOut as $details) {
+                    // append search term to result link
+                    $link = $details['Link'];
+                    if (strpos($link, '?') === false) {
+                        $link .= '?';
+                    } else {
+                        $link .= '&';
+                    }
+                    $link .= 'searchTerm='.urlencode($term);
+
+                    // parse result into template
                     $objTpl->setVariable(array(
-                        'COUNT_MATCH' =>
-                        $_ARRAYLANG['TXT_RELEVANCE'].' '.$details['Score'].'%',
-                        'LINK' => '<b><a href="'.$details['Link'].
-                        '" title="'.contrexx_raw2xhtml($details['Title']).'">'.
-                        contrexx_raw2xhtml($details['Title']).'</a></b>',
-                        'SHORT_CONTENT' => contrexx_raw2xhtml($details['Content']),
+                        'COUNT_MATCH'             =>
+                            $_ARRAYLANG['TXT_RELEVANCE'].' '.$details['Score'].'%',
+                        'LINK'                    => '<b><a href="'.$link.
+                            '" title="'.contrexx_raw2xhtml($details['Title']).'">'.
+                            contrexx_raw2xhtml($details['Title']).'</a></b>',
+                        'TARGET_PATH' => contrexx_raw2xhtml($details['Link']),
+                        'SHORT_CONTENT'           => contrexx_raw2xhtml($details['Content']),
+                        'SEARCH_RESULT_SRC'       => $link,
+                        'SEARCH_RESULT_TITLE'     => contrexx_raw2xhtml($details['Title']),
+                        'SEARCH_RESULT_COMPONENT' => $details['Component'],
                     ));
                     $objTpl->parse('search_result');
                 }
@@ -231,10 +204,10 @@ class Search
         $objTpl->setVariable('SEARCH_TITLE', $noresult);
         return $objTpl->get();
     }
-    
+
     /**
      * Returns an accessable page of this module (if any)
-     * 
+     *
      * This should be called by all search event handlers that do not call
      * getResultArray(). If it returns null, no search results should be
      * returned!
@@ -247,27 +220,30 @@ class Search
         $criteria = array(
             'module' => $module,
             'lang'   => FRONTEND_LANG_ID,
-            'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,            
+            'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
         );
         if (!empty($command)) {
             $criteria['cmd'] = $command;
         }
+
         // only list results in case the associated page of the module is active
         $page = $pageRepo->findOneBy($criteria);
         if (!$page || !$page->isActive()) {
             return null;
         }
+
         // don't list results in case the user doesn't have sufficient rights to access the page
         // and the option to list only unprotected pages is set (coreListProtectedPages)
-        $hasPageAccess = true;
         $config = \Env::get('config');
-        if ($config['coreListProtectedPages'] == 'off' && $page->isFrontendProtected()) {
-            $hasPageAccess = \Permission::checkAccess(
-                    $page->getFrontendAccessId(), 'dynamic', true);
-        }
-        if (!$hasPageAccess) {
+        if (
+            $config['coreListProtectedPages'] == 'off' &&
+            $page->isFrontendProtected() &&
+            $page->getComponent('Session')->getSession() &&
+            !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
+        ) {
             return null;
         }
+
         // In case a root node was specified, we have to check if the page is in
         // the root page's branch.
         if ($this->rootPage) {
@@ -340,12 +316,13 @@ class Search
         if (!$page) {
             return array();
         }
-        $pagePath = $page->getPath();
+        $pagePath = \Cx\Core\Routing\Url::fromPage($page);
         $objDatabase = \Env::get('db');
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) {
             return array();
         }
+        $config = \Env::get('config');
         $max_length = intval($config['searchDescriptionLength']);
         $arraySearchResults = array();
         while (!$objResult->EOF) {
@@ -354,7 +331,7 @@ class Search
             } else {
                 $temp_pagelink = $pagePath.'?'.$pagevar.$objResult->fields['id'];
             }
-            
+
             if (is_callable($parseSearchData)) {
                 $parseSearchData($objResult->fields);
             }
@@ -370,11 +347,12 @@ class Search
             $searchtitle = empty($objResult->fields['title'])
                 ? $_ARRAYLANG['TXT_UNTITLED'] : $objResult->fields['title'];
             $arraySearchResults[] = array(
-                'Score' => $scorePercent,
-                'Title' => $searchtitle,
-                'Content' => $content,
-                'Link' => $temp_pagelink,
-                'Date' => $date,
+                'Score'     => $scorePercent,
+                'Title'     => $searchtitle,
+                'Content'   => $content,
+                'Link'      => $temp_pagelink,
+                'Date'      => $date,
+                'Component' => $module,
             );
             $objResult->MoveNext();
         }
@@ -408,5 +386,63 @@ class Search
             $content = join(' ', $arrayContent).' ...';
         }
         return $content;
+    }
+
+    /**
+     * Get a result for search term
+     *
+     * @param string $term Search value
+     * @return array Return a array of result
+     */
+    public function getSearchResult($term)
+    {
+        $this->setTerm($term);
+        $eventHandlerInstance = \Env::get('cx')->getEvents();
+        $eventHandlerInstance->triggerEvent('SearchFindContent', array($this));
+        if ($this->result->size() == 1) {
+            $arraySearchResults[] = $this->result->toArray();
+        } else {
+            $arraySearchResults = $this->result->toArray();
+        }
+
+        usort($arraySearchResults,
+            /**
+             * Compares scores (and dates, if available) of two result array elements
+             *
+             * Compares the scores first; when equal, compares the dates, if available.
+             * Returns
+             *  -1 if $a  > $b
+             *   0 if $a == $b
+             *  +1 if $a  < $b
+             * Used for ordering search results.
+             * @author  Christian Wehrli <christian.wehrli@astalavista.ch>
+             * @param      string  $a      The first element
+             * @param      string  $b      The second element
+             * @return     integer         The comparison result
+             */
+            function($a, $b) {
+                if ($a['Score'] == $b['Score']) {
+                    if (isset($a['Date'])) {
+                        if (!isset($b['Date'])) {
+                            return -1;
+                        }
+                        if ($a['Date'] == $b['Date']) {
+                            return 0;
+                        }
+                        if ($a['Date'] > $b['Date']) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    return 0;
+                }
+                if ($a['Score'] > $b['Score']) {
+                    return -1;
+                }
+                return 1;
+            }
+        );
+
+        return $arraySearchResults;
     }
 }
