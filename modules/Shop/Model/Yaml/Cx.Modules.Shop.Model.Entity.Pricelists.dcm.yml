@@ -58,6 +58,8 @@ Cx\Modules\Shop\Model\Entity\Pricelists:
     categories:
       targetEntity: Cx\Modules\Shop\Model\Entity\Categories
       mappedBy: pricelists
+      joinTable:
+        name: module_shop_rel_category_pricelist
   manyToOne:
     lang:
       targetEntity: Cx\Core\Locale\Model\Entity\Locale

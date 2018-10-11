@@ -98,9 +98,14 @@ class Categories extends \Cx\Model\Base\EntityBase {
     protected $products;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    protected $children;
+
+    /**
      * @var \Cx\Modules\Shop\Model\Entity\Categories
      */
-    protected $category;
+    protected $parentCategory;
 
     /**
      * Constructor
@@ -109,6 +114,7 @@ class Categories extends \Cx\Model\Base\EntityBase {
     {
         $this->pricelists = new \Doctrine\Common\Collections\ArrayCollection();
         $this->products = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -322,22 +328,53 @@ class Categories extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set parent category
+     * Add child
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $category
+     * @param \Cx\Modules\Shop\Model\Entity\Categories $child
      */
-    public function setCategory(\Cx\Modules\Shop\Model\Entity\Categories $category = null)
+    public function addChild(\Cx\Modules\Shop\Model\Entity\Categories $child)
     {
-        $this->category = $category;
+        $this->children[] = $child;
     }
 
     /**
-     * Get customer
+     * Remove child
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Categories
+     * @param \Cx\Modules\Shop\Model\Entity\Categories $child
      */
-    public function getCategory()
+    public function removeChild(\Cx\Modules\Shop\Model\Entity\Categories $child)
     {
-        return $this->category;
+        $this->children->removeElement($child);
     }
+
+    /**
+     * Get children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getChildren()
+    {
+        return $this->products;
+    }
+
+    /**
+     * Set parent category
+     *
+     * @param string parent category
+     */
+    public function setParentCategory($parentCategory)
+    {
+        $this->parentCategory = $parentCategory;
+    }
+
+    /**
+     * Get parent category
+     *
+     * @return string
+     */
+    public function getParentCategory()
+    {
+        return $this->parentCategory;
+    }
+
 }

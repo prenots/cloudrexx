@@ -77,6 +77,11 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo
     protected $discountgroupCountRates;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    protected $products;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -192,5 +197,35 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo
     public function getDiscountgroupCountRates()
     {
         return $this->discountgroupCountRates;
+    }
+
+    /**
+     * Add products
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     */
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    {
+        $this->products[] = $products;
+    }
+
+    /**
+     * Remove products
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     */
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    {
+        $this->products->removeElement($products);
+    }
+
+    /**
+     * Get products
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getProducts()
+    {
+        return $this->products;
     }
 }

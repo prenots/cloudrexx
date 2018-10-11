@@ -225,6 +225,16 @@ Cx\Modules\Shop\Model\Entity\Products:
     categories:
       targetEntity: Cx\Modules\Shop\Model\Entity\Categories
       mappedBy: products
+      joinTable:
+        name: module_shop_rel_category_product
     userGroups:
       targetEntity: Cx\Core\User\Model\Entity\Group
-      mappedBy: products
+      joinTable:
+        name: module_shop_rel_product_user_group
+        joinColumns:
+          usergroup_id:
+            referencedColumnName: id
+        inverseJoinColumns:
+          product_id:
+            referencedColumnName: id
+

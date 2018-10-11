@@ -12,13 +12,14 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       length: 20
       options:
         default: ''
+  fields:
     customerId:
       type: integer
+      nullable: true
       options:
         unsigned: true
         default: 0
       column: customer_id
-  fields:
     paymentId:
       type: integer
       options:
@@ -91,7 +92,6 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
         referencedColumnName: id
     customer:
       targetEntity: Cx\Core\User\Model\Entity\User
-      inversedBy: discountCoupons
       joinColumn:
         name: customer_id
         referencedColumnName: id

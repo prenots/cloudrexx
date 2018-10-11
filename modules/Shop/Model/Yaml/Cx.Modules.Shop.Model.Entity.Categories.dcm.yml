@@ -42,8 +42,6 @@ Cx\Modules\Shop\Model\Entity\Categories:
         default: ''
     description:
       type: text
-      options:
-        default: ''
   manyToMany:
     pricelists:
       targetEntity: Cx\Modules\Shop\Model\Entity\Pricelists
@@ -68,9 +66,13 @@ Cx\Modules\Shop\Model\Entity\Categories:
           product_id:
             referencedColumnName: id
   oneToMany:
-    category:
+    children:
       targetEntity: Cx\Modules\Shop\Model\Entity\Categories
-      mappedBy: categories
+      mappedBy: parentCategory
+  manyToOne:
+    parentCategory:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      inversedBy: children
       joinColumn:
-        name: id
-        referencedColumnName: parent_id
+        name: parent_id
+        referencedColumnName: id
