@@ -803,7 +803,7 @@ class Products extends \Cx\Model\Base\EntityBase {
      *
      * @param string $code
      */
-    public function code($code)
+    public function setCode($code)
     {
         $this->code = $code;
     }

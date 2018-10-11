@@ -246,7 +246,6 @@ Cx\Modules\Shop\Model\Entity\Orders:
         referencedColumnName: id
     customer:
       targetEntity: Cx\Core\User\Model\Entity\User
-      inversedBy: orders
       joinColumn:
         name: customer_id
         referencedColumnName: id

@@ -139,7 +139,7 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
      */
-    public function addProducts(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {
         $this->products[] = $products;
     }

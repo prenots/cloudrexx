@@ -24,7 +24,7 @@ Cx\Modules\Shop\Model\Entity\ArticleGroup:
         referencedColumnName: article_group_id
     products:
       targetEntity: Cx\Modules\Shop\Model\Entity\Products
-      mappedBy: products
+      mappedBy: articleGroup
       joinColumn:
         name: id
         referencedColumnName: product_id
