@@ -15,9 +15,9 @@ Cx\Modules\Shop\Model\Entity\Categories:
   fields:
     parentId:
       type: integer
+      nullable: true
       options:
         unsigned: true
-        default: 0
       column: parent_id
     ord:
       type: integer
