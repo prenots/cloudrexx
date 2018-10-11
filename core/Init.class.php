@@ -734,6 +734,7 @@ class InitCMS
                         case 'Wysiwyg':
                         case 'Routing':
                         case 'Html':
+                        case 'User':
                         case 'Locale':
                         case 'Country':
                         case 'View':
@@ -930,11 +931,7 @@ class InitCMS
         // check whether the language file exists
         $mode = in_array($this->mode, array('backend', 'update')) ? 'backend' : 'frontend';
 
-        if ($mode == 'backend') {
-            $path = \Env::get('ClassLoader')->getFilePath($this->arrModulePath[$module].$langCode.'/'.$mode.'.php');
-        } else {
-            $path = \Env::get('ClassLoader')->getFilePath($this->arrModulePath[$module].$langCode.'/'.$mode.'.php');
-        }
+        $path = \Env::get('ClassLoader')->getFilePath($this->arrModulePath[$module].$langCode.'/'.$mode.'.php');
 
         if ($path) {
             return $path;

@@ -43,8 +43,9 @@ $_ARRAYLANG['TXT_CORE_USER'] = 'User';
 $_ARRAYLANG['TXT_CORE_USER_DESCRIPTION'] = 'This is a new module with some sample content to show how to start.';
 
 // Here come the ACTs:
-$_ARRAYLANG['TXT_CORE_USER_ACT_DEFAULT'] = 'Overview';
-$_ARRAYLANG['TXT_CORE_USER_ACT_SETTINGS'] = 'Settings';
+$_ARRAYLANG['TXT_CORE_USER_ACT_USER'] = 'Benutzer';
+$_ARRAYLANG['TXT_CORE_USER_ACT_GROUP'] = 'Gruppen';
+$_ARRAYLANG['TXT_CORE_USER_ACT_SETTINGS'] = 'Einstellungen';
 $_ARRAYLANG['TXT_CORE_USER_ACT_SETTINGS_DEFAULT'] = 'Mailing';
 $_ARRAYLANG['TXT_CORE_USER_ACT_SETTINGS_HELP'] = 'Help';
 
@@ -52,8 +53,10 @@ $_ARRAYLANG['TXT_CORE_USER_ACT_SETTINGS_HELP'] = 'Help';
 $_ARRAYLANG['TXT_CORE_USER_CONGRATULATIONS'] = 'Overview';
 $_ARRAYLANG['TXT_CORE_USER_SUCCESSFUL_CREATION'] = 'This is the Overview/Dashboard of your new Component. More tabs will be generated if you add entities to this component.';
 $_ARRAYLANG['TXT_CORE_USER_EXAMPLE_TEMPLATE'] = 'This is the default template for this component, located in View/Template/Backend/Default.html. In order to add entities, place your YAML files in Model/Yaml folder and execute ./workbench.bat db update. Then add a language file entry for your entity.';
+$_ARRAYLANG['TXT_CORE_USER_EDIT_TITLE'] = 'Benutzerkonto bearbeiten';
+$_ARRAYLANG['TXT_CORE_USER_EMAIL_TITLE'] = 'E-Mail versenden an';
 $_ARRAYLANG['id'] = 'ID';
-$_ARRAYLANG['active'] = 'Status';
+$_ARRAYLANG['isAdmin'] = 'Administrator';
 $_ARRAYLANG['email'] = 'E-Mail';
 $_ARRAYLANG['regdate'] = 'Registriert seit';
 $_ARRAYLANG['lastActivity'] = 'Letzte Aktivität';
@@ -63,4 +66,4 @@ $_ARRAYLANG['isActive'] = 'Status';
 $_ARRAYLANG['groupName'] = 'Name';
 $_ARRAYLANG['groupDescription'] = 'Beschreibung';
 $_ARRAYLANG['type'] = 'Typ';
-$_ARRAYLANG['user'] = 'Benutzer';
+$_ARRAYLANG['username'] = 'Benutzername';

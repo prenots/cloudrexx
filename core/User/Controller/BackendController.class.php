@@ -19,6 +19,8 @@
 
 namespace Cx\Core\User\Controller;
 
+use Cx\Core\Core\Controller\Cx;
+
 class BackendController extends
     \Cx\Core\Core\Model\Entity\SystemComponentBackendController
 {
@@ -51,14 +53,17 @@ class BackendController extends
                         'id',
                         'active',
                         'isAdmin',
-                        'email',
                         'username',
+                        'company',
+                        'firstname',
+                        'lastname',
+                        'email',
                         'regdate',
                         'lastActivity',
-                        'lastAuth',
                     ),
                     'form' => array(
                         'email',
+                        'username',
                         'password',
                         'frontendLangId',
                         'backendLangId',
@@ -72,8 +77,31 @@ class BackendController extends
                         'showDetail' => false,
                     ),
                     'username' => array(
+                        'table' => array(
+                            'parse' => function ($value, $rowData) {
+                                return $this->addEditUrl($value, $rowData);
+                            }
+                        ),
                         'showOverview' => true,
-                        'showDetail' => false,
+                        'showDetail' => true,
+                    ),
+                    'email' => array(
+                        'table' => array(
+                            'parse' => function ($value, $rowData) {
+                                return $this->addEmailUrl($value, $rowData);
+                            }
+                        ),
+                        'showOverview' => true,
+                        'showDetail' => true,
+                    ),
+                    'company' => array(
+                        'showOverview' => true,
+                    ),
+                    'firstname' => array(
+                        'showOverview' => true,
+                    ),
+                    'lastname' => array(
+                        'showOverview' => true,
                     ),
                     'password' => array(
                         'showOverview' => false,
@@ -87,6 +115,11 @@ class BackendController extends
                         'showDetail' => false,
                     ),
                     'regdate' => array(
+                        'table' => array(
+                            'parse' => function ($value, $rowData) {
+                                return $this->formatDate($value);
+                            }
+                        ),
                         'showOverview' => true,
                         'showDetail' => false,
                     ),
@@ -103,7 +136,7 @@ class BackendController extends
                         'showDetail' => false,
                     ),
                     'lastAuth' => array(
-                        'showOverview' => true,
+                        'showOverview' => false,
                         'showDetail' => false,
                     ),
                     'emailAccess' => array(
@@ -148,9 +181,18 @@ class BackendController extends
                         'showDetail' => false,
                     ),
                     'lastActivity' => array(
+                        'table' => array(
+                            'parse' => function ($value, $rowData) {
+                                return $this->formatDate($value);
+                            }
+                        ),
                         'showOverview' => true,
                         'showDetail' => false,
-                    )
+                    ),
+                    'userAttributeValue' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
                 );
                 break;
             case 'Cx\Core\User\Model\Entity\Group':
@@ -269,6 +311,79 @@ class BackendController extends
     protected function showOverviewPage() : bool
     {
         return false;
+    }
+
+    /**
+     * Format the date for the overview list
+     *
+     * @param int $value date
+     *
+     * @return string
+     */
+    protected function formatDate($value)
+    {
+        $date = '@' . $value;
+
+        $dateElement = new \DateTime($date);
+
+        $dateElement = $dateElement->format('d.m.Y');
+
+        return $dateElement;
+    }
+
+    /**
+     * Format the date for the overview list
+     *
+     * @param string $value email
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function addEmailUrl($value)
+    {
+        global $_ARRAYLANG;
+
+        $email = new \Cx\Core\Html\Model\Entity\TextElement($value);
+
+        $setEmailUrl = new \Cx\Core\Html\Model\Entity\HtmlElement(
+            'a'
+        );
+
+        $setEmailUrl->setAttributes(array('href' => "mailto:$value", 'title' => $_ARRAYLANG['TXT_CORE_USER_EMAIL_TITLE'] . ' ' . $value));
+
+        $setEmailUrl->addChild($email);
+
+        return $setEmailUrl;
+    }
+
+    /**
+     * @param $value
+     * @param $rowData
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function addEditUrl($value,$rowData)
+    {
+        global $_ARRAYLANG;
+
+        $username = new \Cx\Core\Html\Model\Entity\TextElement($value);
+
+        $setEditUrl = new \Cx\Core\Html\Model\Entity\HtmlElement(
+            'a'
+        );
+
+        $editUrl = \Cx\Core\Routing\Url::fromMagic(
+            \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteBackendPath() .
+            '/' . $this->getName() . '/User'
+        );
+
+        $userId = $rowData['id'];
+
+        $editUrl->setParam('editid', $userId);
+
+        $setEditUrl->setAttributes(array('href' => $editUrl, 'title' => $_ARRAYLANG['TXT_CORE_USER_EDIT_TITLE']));
+
+        $setEditUrl->addChild($username);
+
+        return $setEditUrl;
     }
 }
 
