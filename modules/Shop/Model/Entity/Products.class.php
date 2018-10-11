@@ -152,11 +152,6 @@ class Products extends \Cx\Model\Base\EntityBase {
     protected $articleId;
 
     /**
-     * @var string
-     */
-    protected $usergroupIds;
-
-    /**
      * @var integer
      */
     protected $minimumOrderQuantity;
@@ -656,26 +651,6 @@ class Products extends \Cx\Model\Base\EntityBase {
     public function getArticleId()
     {
         return $this->articleId;
-    }
-
-    /**
-     * Set usergroupIds
-     *
-     * @param string $usergroupIds
-     */
-    public function setUsergroupIds($usergroupIds)
-    {
-        $this->usergroupIds = $usergroupIds;
-    }
-
-    /**
-     * Get usergroupIds
-     *
-     * @return string 
-     */
-    public function getUsergroupIds()
-    {
-        return $this->usergroupIds;
     }
 
     /**

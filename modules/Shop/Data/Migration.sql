@@ -1,25 +1,27 @@
 /** Create Tables **/
 CREATE TABLE contrexx_module_shop_rel_category_pricelist (
-    category_id INT UNSIGNED NOT NULL,
-    pricelist_id INT UNSIGNED NOT NULL,
-    INDEX IDX_B56E91A112469DE2 (category_id),
-    INDEX IDX_B56E91A189045958 (pricelist_id),
-    PRIMARY KEY(category_id, pricelist_id)
-  ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+  category_id INT UNSIGNED NOT NULL,
+  pricelist_id INT UNSIGNED NOT NULL,
+  INDEX IDX_B56E91A112469DE2 (category_id),
+  INDEX IDX_B56E91A189045958 (pricelist_id),
+  PRIMARY KEY(category_id, pricelist_id)
+) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE contrexx_module_shop_rel_category_product (
-    category_id INT UNSIGNED NOT NULL,
-    product_id INT UNSIGNED NOT NULL,
-    INDEX IDX_DA4CA51112469DE2 (category_id),
-    INDEX IDX_DA4CA5114584665A (product_id),
-    PRIMARY KEY(category_id, product_id)
-  ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+  category_id INT UNSIGNED NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  INDEX IDX_DA4CA51112469DE2 (category_id),
+  INDEX IDX_DA4CA5114584665A (product_id),
+  PRIMARY KEY(category_id, product_id)
+) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE contrexx_module_shop_rel_product_user_group (
-    product_id INT UNSIGNED NOT NULL,
-    usergroup_id INT UNSIGNED NOT NULL,
-    PRIMARY KEY(product_id, usergroup_id)
-  ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+  product_id INT UNSIGNED NOT NULL,
+  usergroup_id INT NOT NULL,
+  INDEX IDX_32A4494A4584665A (product_id),
+  INDEX IDX_32A4494AD2112630 (usergroup_id),
+  PRIMARY KEY(product_id, usergroup_id)
+) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 
 /** Andere Strukturanpassungen **/
@@ -53,7 +55,7 @@ ALTER TABLE contrexx_module_shop_payment ADD name VARCHAR(45) DEFAULT '' NOT NUL
 
 ALTER TABLE contrexx_module_shop_shipper ADD name VARCHAR(30) DEFAULT '' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_vat ADD class VARCHAR(35) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_vat ADD class VARCHAR(35) NOT NULL;
 
 ALTER TABLE contrexx_module_shop_article_group ADD name VARCHAR(45) DEFAULT '' NOT NULL;
 
@@ -86,8 +88,8 @@ ALTER TABLE contrexx_module_shop_categories CHANGE description description LONGT
 
 
 /** Drop Primary Keys **/
-ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_discount_coupon DROP PRIMARY KEY;
+ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
 
 
 /** Damit die Beziehungen ohne Probleme eingefügt werden können· **/
@@ -116,8 +118,6 @@ ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB138248176 FOREI
 ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB17BE036FC FOREIGN KEY (shipment_id) REFERENCES contrexx_module_shop_shipper (id);
 ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB14C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
 ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB19395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id);
-
-ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
 
 ALTER TABLE contrexx_module_shop_order_attributes ADD CONSTRAINT FK_273F59F6126F525E FOREIGN KEY (item_id) REFERENCES contrexx_module_shop_order_items (id);
 
@@ -163,14 +163,18 @@ ALTER TABLE contrexx_module_shop_shipment_cost ADD CONSTRAINT FK_2329A4538459F23
 
 ALTER TABLE contrexx_module_shop_categories ADD CONSTRAINT FK_A9242624727ACA70 FOREIGN KEY (parent_id) REFERENCES contrexx_module_shop_categories (id);
 
+ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A4494A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
+ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A4494AD2112630 FOREIGN KEY (usergroup_id) REFERENCES contrexx_access_user_groups (group_id);
+
+ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
+
+
 /** Indexe **/
 CREATE INDEX IDX_DA286BB1B213FA4 ON contrexx_module_shop_orders (lang_id);
 CREATE INDEX IDX_DA286BB138248176 ON contrexx_module_shop_orders (currency_id);
 CREATE INDEX IDX_DA286BB17BE036FC ON contrexx_module_shop_orders (shipment_id);
 CREATE INDEX IDX_DA286BB14C3A3BB ON contrexx_module_shop_orders (payment_id);
 CREATE INDEX IDX_DA286BB19395C3F3 ON contrexx_module_shop_orders (customer_id);
-
-CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id);
 
 CREATE INDEX IDX_658196EFB6E62EFA ON contrexx_module_shop_option (attribute_id);
 
@@ -209,11 +213,12 @@ CREATE INDEX IDX_2329A4538459F23 ON contrexx_module_shop_shipment_cost (shipper_
 
 CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id);
 
+CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id);
+
 
 /** Add Primary Keys **/
-ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
-
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
+ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
 
 /** customer_id kann kein primary key sein da es auch 0 Werte gibt. **/
 ALTER TABLE contrexx_module_shop_discount_coupon ADD PRIMARY KEY (code);
@@ -361,8 +366,7 @@ UPDATE contrexx_module_shop_customer_group AS z
 
 /** Drop **/
 ALTER TABLE contrexx_module_shop_pricelists DROP categories;
-ALTER TABLE contrexx_module_shop_products DROP category_id;
-ALTER TABLE contrexx_module_shop_products DROP usergroup_ids;
+ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
 
 DELETE FROM `contrexx_core_text` WHERE `key` = 'zone_name';
 DELETE FROM `contrexx_core_text` WHERE `key` = 'shipper_name';

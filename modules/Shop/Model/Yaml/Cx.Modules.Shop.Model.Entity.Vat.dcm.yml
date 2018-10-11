@@ -17,6 +17,9 @@ Cx\Modules\Shop\Model\Entity\Vat:
       options:
         unsigned: true
         default: 0.00
+    class:
+      type: string
+      length: 35
   oneToMany:
     products:
       targetEntity: Cx\Modules\Shop\Model\Entity\Products

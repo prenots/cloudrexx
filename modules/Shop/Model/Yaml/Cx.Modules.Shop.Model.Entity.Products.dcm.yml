@@ -126,11 +126,6 @@ Cx\Modules\Shop\Model\Entity\Products:
       options:
         unsigned: true
       column: article_id
-    usergroupIds:
-      type: string
-      length: 4096
-      nullable: true
-      column: usergroup_ids
     minimumOrderQuantity:
       type: integer
       options:
@@ -216,9 +211,9 @@ Cx\Modules\Shop\Model\Entity\Products:
       joinTable:
         name: module_shop_rel_product_user_group
         joinColumns:
-          usergroup_id:
-            referencedColumnName: id
-        inverseJoinColumns:
           product_id:
             referencedColumnName: id
+        inverseJoinColumns:
+          usergroup_id:
+            referencedColumnName: group_id
 
