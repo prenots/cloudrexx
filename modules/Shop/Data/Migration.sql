@@ -24,7 +24,7 @@ CREATE TABLE contrexx_module_shop_rel_product_user_group (
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 
-/** Andere Strukturanpassungen **/
+/** Structural adjustments  **/
 ALTER TABLE contrexx_module_shop_orders
   CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL,
   CHANGE date_time date_time DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
@@ -92,7 +92,7 @@ ALTER TABLE contrexx_module_shop_discount_coupon DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
 
 
-/** Damit die Beziehungen ohne Probleme eingefügt werden können· **/
+/** To insert relations without problems **/
 ALTER TABLE contrexx_module_shop_discount_coupon
   CHANGE customer_id customer_id INT NULL,
   CHANGE payment_id payment_id INT UNSIGNED DEFAULT NULL,
@@ -169,7 +169,7 @@ ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A449
 ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
 
 
-/** Indexe **/
+/** Index **/
 CREATE INDEX IDX_DA286BB1B213FA4 ON contrexx_module_shop_orders (lang_id);
 CREATE INDEX IDX_DA286BB138248176 ON contrexx_module_shop_orders (currency_id);
 CREATE INDEX IDX_DA286BB17BE036FC ON contrexx_module_shop_orders (shipment_id);
@@ -220,7 +220,7 @@ CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
 
-/** customer_id kann kein primary key sein da es auch 0 Werte gibt. **/
+/** customer_id is no longer a primary key, because it can also be null.**/
 ALTER TABLE contrexx_module_shop_discount_coupon ADD PRIMARY KEY (code);
 
 
