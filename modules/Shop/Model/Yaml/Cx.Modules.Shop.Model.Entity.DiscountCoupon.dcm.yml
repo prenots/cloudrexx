@@ -17,7 +17,6 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
     customerId:
       type: integer
       nullable: true
-      options:
       column: customer_id
     paymentId:
       type: integer
