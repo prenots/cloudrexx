@@ -47,6 +47,9 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @version     5.0.0
  */
 class Orders extends \Cx\Model\Base\EntityBase {
+
+    const USERNAME_PREFIX = 'shop_customer';
+
     /**
      * @var integer
      */

@@ -213,6 +213,19 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+
+        $orderListener
+            = new \Cx\Modules\Shop\Model\Event\OrderEventListener(
+            $this->cx
+        );
+
+        $entityClass = 'Cx\\Modules\\' . $this->getName()
+            . '\\Model\\Entity\\Orders';
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::preRemove,
+            $entityClass,
+            $orderListener
+        );
     }
 
     public function preFinalize(\Cx\Core\Html\Sigma $template)
