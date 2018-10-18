@@ -119,4 +119,227 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         return false;
     }
+
+    /**
+     * This function returns the ViewGeneration options for a given entityClass
+     *
+     * @access protected
+     * @global $_ARRAYLANG
+     * @param $entityClassName contains the FQCN from entity
+     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used for better partition
+     * @return array with options
+     */
+    protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
+    {
+        global $_ARRAYLANG;
+
+        $options = parent::getViewGeneratorOptions($entityClassName, $dataSetIdentifier);
+
+        switch ($entityClassName) {
+            case 'Cx\Modules\Shop\Model\Entity\Orders':
+                $options['functions']['filtering'] = true;
+                $options['functions']['searching'] = true;
+                $options['functions']['show'] = true;
+                $options['functions']['editable'] = true;
+                $options['functions']['paging'] = true;
+                $options['functions']['add'] = false;
+
+                $options['order'] = array(
+                    'overview' => array(
+                        'id',
+                        'dateTime',
+                        'status',
+                        'customer',
+                        'note',
+                        'sum'
+                    ),
+                    'form' => array(
+                        'id',
+                        'dateTime',
+                        'status',
+                        'modifiedOn',
+                        'modifiedBy',
+                        'lang',
+                        'billingCompany',
+                        'billingGender',
+                        'billingLastname',
+                        'billingFirstname',
+                        'billingAddress',
+                        'billingZip',
+                        'billingCity',
+                        'billingCountryId',
+                        'billingPhone',
+                        'billingFax',
+                        'billingEmail',
+                        'company',
+                        'gender',
+                        'lastname',
+                        'firstname',
+                        'address',
+                        'zip',
+                        'city',
+                        'country',
+                        'phone',
+                        'shipper',
+                        'payment',
+                        'lsvs',
+                        'orderItems',
+                        'vatAmount',
+                        'shipmentAmount',
+                        'paymentAmount',
+                        'sum',
+                        'note'
+                    )
+                );
+
+                $options['fields'] = array(
+                    'id' => array(
+                        'showOverview' => true,
+                        'showDetail' => true,
+                    ),
+                    'customerId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'currencyId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'sum' => array(
+                        'showOverview' => true,
+                    ),
+                    'dateTime' => array(
+                        'showOverview' => true,
+                    ),
+                    'status' => array(
+                        'showOverview' => true,
+                    ),
+                    'gender' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'company' => array(
+                        'showOverview' => false,
+                    ),
+                    'firstname' => array(
+                        'showOverview' => false,
+                    ),
+                    'lastname' => array(
+                        'showOverview' => false,
+                    ),
+                    'address' => array(
+                        'showOverview' => false,
+                    ),
+                    'city' => array(
+                        'showOverview' => false,
+                    ),
+                    'zip' => array(
+                        'showOverview' => false,
+                    ),
+                    'countryId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'phone' => array(
+                        'showOverview' => false,
+                    ),
+                    'vatAmount' => array(
+                        'showOverview' => false,
+                    ),
+                    'shipmentAmount' => array(
+                        'showOverview' => false,
+                    ),
+                    'shipmentId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'paymentId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'paymentAmount' => array(
+                        'showOverview' => false,
+                    ),
+                    'ip' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'langId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'note' => array(
+                        'showOverview' => true,
+                    ),
+                    'modifiedOn' => array(
+                        'showOverview' => false,
+                    ),
+                    'modifiedBy' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingGender' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingCompany' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingFirstname' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingLastname' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingAddress' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingCity' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingZip' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingCountryId' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingPhone' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingFax' => array(
+                        'showOverview' => false,
+                    ),
+                    'billingEmail' => array(
+                        'showOverview' => false,
+                    ),
+                    'lsvs' => array(
+                        'showOverview' => false,
+                    ),
+                    'orderItems' => array(
+                        'showOverview' => false,
+                    ),
+                    'relCustomerCoupons' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'lang' => array(
+                        'showOverview' => false,
+                    ),
+                    'currencies' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'shipper' => array(
+                        'showOverview' => false,
+                    ),
+                    'payment' => array(
+                        'showOverview' => false,
+                    ),
+                    'customer' => array(
+                        'showOverview' => true,
+                        'showDetail' => false,
+                    ),
+                );
+                break;
+        }
+        return $options;
+    }
 }
