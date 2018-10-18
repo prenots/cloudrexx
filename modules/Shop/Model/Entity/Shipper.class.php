@@ -252,4 +252,14 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     {
         return $this->zones;
     }
+
+    /**
+     * Get Name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getName();
+    }
 }

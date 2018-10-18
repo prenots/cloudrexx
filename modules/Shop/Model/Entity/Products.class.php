@@ -1022,4 +1022,9 @@ class Products extends \Cx\Model\Base\EntityBase {
     {
         return $this->userGroups;
     }
+
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
