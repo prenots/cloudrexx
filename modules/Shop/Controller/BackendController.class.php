@@ -222,6 +222,17 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'status' => array(
                         'showOverview' => true,
                         'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
+                        'table' => array (
+                            'parse' => function ($value, $rowData) {
+                                return $this->getStatusMenu($value);
+                            },
+                        ),
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getStatusMenu($fieldvalue, $fieldname);
+                        },
                         'filterOptionsField' => function (
                             $parseObject, $fieldName, $elementName, $formName
                         ) {
