@@ -63,6 +63,23 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         \Cx\Core\ContentManager\Model\Entity\Page $page
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
+        $_GET['act']= lcfirst($_GET['act']);
+        switch($_GET['act'])  {
+            case 'categories':
+            case 'products':
+            case 'manufacturer':
+            case 'customers':
+            case 'statistics':
+            case 'import':
+            case 'settings':
+                break;
+            case 'orders':
+            default:
+                $_GET['act']= ucfirst($_GET['act']);
+                parent::getPage($page);
+                return;
+        }
+
         $this->cx->getTemplate()->addBlockfile(
             'CONTENT_OUTPUT',
             'content_master',
@@ -76,4 +93,30 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $objShopManager->getPage();
     }
 
+    /**
+     * Returns a list of available commands (?act=XY)
+     * @return array List of acts
+     */
+    public function getCommands()
+    {
+        return array(
+            'Orders',
+            'Categories',
+            'Products',
+            'Manufacturer',
+            'Customers',
+            'Statistics',
+            'Import',
+            'Settings'
+        );
+    }
+
+    /**
+     * Return true here if you want the first tab to be an entity view
+     * @return boolean True if overview should be shown, false otherwise
+     */
+    protected function showOverviewPage()
+    {
+        return false;
+    }
 }
