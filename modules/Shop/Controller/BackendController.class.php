@@ -199,6 +199,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'allowSearching' => true,
                         'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_ID'],
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        },
                     ),
                     'customerId' => array(
                         'showOverview' => false,
@@ -218,6 +224,22 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => true,
                         'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_DATETIME'],
+                        'table' => array (
+                            'parse' => function ($value, $rowData) {
+                                $date = new \DateTime($value);
+                                $fieldvalue = $date->format('d.m.Y h:m:s');
+                                return $fieldvalue;
+                            },
+                        ),
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            $date = new \DateTime($fieldvalue);
+                            $fieldvalue = $date->format('d-m-Y h:m:s');
+
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        }
                     ),
                     'status' => array(
                         'showOverview' => true,
@@ -317,18 +339,57 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'note' => array(
                         'showOverview' => true,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        },
                     ),
                     'modifiedOn' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            $date = new \DateTime($fieldvalue);
+                            $fieldvalue = $date->format('d-m-Y h:m:s');
+
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        }
                     ),
                     'modifiedBy' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        }
                     ),
                     'billingGender' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            global $_ARRAYLANG;
+
+                            $validData = array(
+                                'gender_undefined' => $_ARRAYLANG['TXT_SHOP_GENDER_UNDEFINED'],
+                                'gender_male' => $_ARRAYLANG['TXT_SHOP_GENDER_MALE'],
+                                'gender_female' => $_ARRAYLANG['TXT_SHOP_GENDER_FEMALE']
+                            );
+
+                            $genderDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+                                $fieldname, $fieldvalue, 'select', null, $validData
+                            );
+
+                            return $genderDropdown;
+                        }
                     ),
                     'billingCompany' => array(
                         'showOverview' => false,
@@ -387,6 +448,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'lang' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        }
                     ),
                     'currencies' => array(
                         'showOverview' => false,
@@ -400,6 +467,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'payment' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getTextElement($fieldname, $fieldvalue);
+                        }
                     ),
                     'customer' => array(
                         'showOverview' => true,
@@ -414,6 +487,19 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
         }
         return $options;
+    }
+
+    protected function getTextElement($fieldname, $fieldvalue)
+    {
+        $textField = new \Cx\Core\Html\Model\Entity\TextElement(
+            $fieldvalue
+        );
+        $textField->setAttribute('name', $fieldname);
+        $textField->setAttribute('type', 'text');
+        $textField->setAttribute('id', $fieldname);
+        $textField->setAttribute('class', 'form-control');
+
+        return $textField;
     }
 
     protected function getCustomerGroupMenu($elementName)

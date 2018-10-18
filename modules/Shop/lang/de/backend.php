@@ -95,6 +95,10 @@ $_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'] = "-- Kundengruppe --
 $_ARRAYLANG['TXT_CUSTOMER'] = "Kunde";
 $_ARRAYLANG['TXT_RESELLER'] = "Reseller";
 
+$_ARRAYLANG['TXT_SHOP_GENDER_FEMALE'] = "Frau";
+$_ARRAYLANG['TXT_SHOP_GENDER_MALE'] = "Herr";
+$_ARRAYLANG['TXT_SHOP_GENDER_UNDEFINED'] = "Unbekannt";
+
 
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";
