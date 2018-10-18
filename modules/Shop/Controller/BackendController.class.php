@@ -196,6 +196,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'id' => array(
                         'showOverview' => true,
                         'showDetail' => true,
+                        'formtext' => $_ARRAYLANG['DETAIL_ID'],
                     ),
                     'customerId' => array(
                         'showOverview' => false,
@@ -210,9 +211,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'dateTime' => array(
                         'showOverview' => true,
+                        'formtext' => $_ARRAYLANG['DETAIL_DATETIME'],
                     ),
                     'status' => array(
                         'showOverview' => true,
+                        'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
                     ),
                     'gender' => array(
                         'showOverview' => false,
@@ -235,6 +238,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'zip' => array(
                         'showOverview' => false,
+                        'formtext' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
                     ),
                     'countryId' => array(
                         'showOverview' => false,
@@ -297,6 +301,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'billingZip' => array(
                         'showOverview' => false,
+                        'formtext' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
                     ),
                     'billingCountryId' => array(
                         'showOverview' => false,
