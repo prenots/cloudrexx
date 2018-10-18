@@ -101,10 +101,6 @@ $_ARRAYLANG['TXT_CUSTOMER'] = "Kunde";
 $_ARRAYLANG['TXT_RESELLER'] = "Reseller";
 
 $_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE'] = 'Nettopreis';
-$_ARRAYLANG['TXT_SHOP_DETAIL_TAXPRICE'] = 'inkl. MwSt.';
-$_ARRAYLANG['TXT_SHOP_DETAIL_SHIPPINGPRICE'] = 'Versandkosten';
-$_ARRAYLANG['TXT_SHOP_DETAIL_PAYMENTPRICE'] = 'Zahlungskosten';
-$_ARRAYLANG['TXT_SHOP_DETAIL_CURRENCYORDERSUM'] = 'Total';
 
 $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'] = "Diese Aktion kann nicht rückgängig gemacht werden!";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_ORDER'] = "Möchten Sie diese Bestellung(en) wirklich löschen?";
