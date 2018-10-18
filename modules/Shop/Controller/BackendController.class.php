@@ -468,6 +468,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'orderItems' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->generateOrderItemView();
+                        },
                     ),
                     'relCustomerCoupons' => array(
                         'showOverview' => false,
@@ -639,4 +645,222 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         return $wrapper;
     }
+
+    protected function generateOrderItemView()
+    {
+        global $_ARRAYLANG;
+
+        $tableConfig['header'] = array(
+            'quantity' => array(
+                'type' => 'input',
+            ),
+            'product_name' => array(
+                'type' => 'text',
+            ),
+            'weight' => array(
+                'type' => 'input',
+                'addition' => 'g',
+            ),
+            'price' => array(
+                'type' => 'input',
+                'addition' => 'CHF',
+            ),
+            'vat_rate' => array(
+                'type' => 'input',
+                'addition' => '%',
+            ),
+            'sum' => array(
+                'type' => 'input',
+                'addition' => 'CHF',
+            ),
+        );
+
+        $tableConfig['customRows'] = array(
+            1 => array(
+                'empty' => 4,
+                'title' => 'netPrice',
+            ),
+            2 => array(
+                'empty' => 4,
+                'title' => 'taxPrice',
+            ),
+            3 => array(
+                'empty' =>  6,
+            ),
+            4 => array(
+                'empty' => 4,
+                'title' => 'shippingPrice',
+            ),
+            5 => array(
+                'empty' => 4,
+                'title' => 'paymentPrice',
+            ),
+            6 => array(
+                'empty' => 4,
+                'title' => 'currencyOrderSum',
+            ),
+        );
+        $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
+        $tableConfig['criteria'] = array('orderId' => 6);
+
+        $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
+        $tableBody = new \Cx\Core\Html\Model\Entity\HtmlElement('tbody');;
+        $headerTr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+
+        $table->addChild($tableBody);
+        $tableBody->addChild($headerTr);
+
+        foreach ($tableConfig['header'] as $key => $header) {
+            $th = new \Cx\Core\Html\Model\Entity\HtmlElement('th');
+            $title = $_ARRAYLANG[$key];
+            $title = new \Cx\Core\Html\Model\Entity\TextElement($title);
+            $th->addChild($title);
+            $th->setAttributes(
+                array(
+                    'id' => $key,
+                    'name' => $key,
+                )
+            );
+            $headerTr->addChild($th);
+        }
+        $cols = $this->cx->getDb()->getEntityManager()->getClassMetadata(
+            $tableConfig['entity']
+        )->getColumnNames();
+
+        $orderItems = $this->cx->getDb()->getEntityManager()->getRepository(
+            $tableConfig['entity']
+        )->findBy($tableConfig['criteria']);
+
+        foreach ($orderItems as $orderItem) {
+            $tr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+            $id = $orderItem->getId();
+
+            foreach ($tableConfig['header'] as $key => $header) {
+                $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+
+                // Replace _ and set new word to uppercase, to get the getter name
+                $methodName = str_replace(
+                    " ",
+                    "",
+                    mb_convert_case(
+                        str_replace(
+                            "_",
+                            " ",
+                            $key
+                        ),
+                        MB_CASE_TITLE
+                    )
+                );
+
+                $getter = 'get' . ucfirst($methodName);
+                $value = '';
+                if (in_array($key, $cols)) {
+                    $value = $orderItem->$getter();
+                }
+
+                if ($header['type'] == 'input') {
+                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
+                        'product' . $key .'-'. $id,
+                        $value,
+                        'input'
+                    );
+                } else {
+                    $field = new \Cx\Core\Html\Model\Entity\TextElement(
+                        $value
+                    );
+                    $field->setAttribute('name', 'product' . $key .'-'. $id);
+                }
+
+                $td->addChild($field);
+                $tr->addChild($td);
+
+                if (empty($header['addition'])) {
+                    continue;
+                }
+                $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
+                $td->addChild($addition);
+            }
+
+            // add new empty order item
+            $trEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+
+            foreach ($tableConfig['header'] as $key => $header) {
+                $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+                $value = '';
+
+                if ($key == 'product_name') {
+                    $validValues[0] = '-';
+                    $products = $this->cx->getDb()->getEntityManager()
+                        ->getRepository(
+                            '\Cx\Modules\Shop\Model\Entity\Products'
+                        )->findAll();
+
+                    $validValues = array_merge($validValues, $products);
+
+                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
+                        'product' . $key .'-0',
+                        0,
+                        'select',
+                        null,
+                        $validValues
+                    );
+                } else if ($header['type'] == 'input') {
+                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
+                        'product' . $key .'-0',
+                        $value,
+                        'input'
+                    );
+                } else {
+                    $field = new \Cx\Core\Html\Model\Entity\TextElement(
+                        $value
+                    );
+                    $field->setAttribute('name', 'product' . $key .'-0');
+                }
+
+                $td->addChild($field);
+                $trEmpty->addChild($td);
+
+                if (empty($header['addition'])) {
+                    continue;
+                }
+                $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
+                $td->addChild($addition);
+            }
+
+            $tableBody->addChild($tr);
+            $tableBody->addChild($trEmpty);
+        }
+
+        // add custom row
+        $trCustom = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+        $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $tdEmpty->setAttribute('colspan', 4);
+        $trCustom->addChild($tdEmpty);
+
+        $tdTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $title = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE']
+        );
+        $tdTitle->addChild($title);
+
+        $tdInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $input = new \Cx\Core\Html\Model\Entity\DataElement(
+            'netprice',
+            '',
+            'input'
+        );
+
+        $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
+
+        $tdInput->addChild($input);
+        $tdInput->addChild($addition);
+
+        $trCustom->addChild($tdTitle);
+        $trCustom->addChild($tdInput);
+        $tableBody->addChild($trCustom);
+
+        return $table;
+
+    }
+
 }
