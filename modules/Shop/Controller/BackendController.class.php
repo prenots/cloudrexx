@@ -205,6 +205,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ) {
                             return $this->getTextElement($fieldname, $fieldvalue);
                         },
+                        'sorting' => true,
                     ),
                     'customerId' => array(
                         'showOverview' => false,
@@ -219,10 +220,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'sum' => array(
                         'showOverview' => true,
                         'allowFiltering' => false,
+                        'sorting' => false,
                     ),
                     'dateTime' => array(
                         'showOverview' => true,
                         'allowFiltering' => false,
+                        'sorting' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_DATETIME'],
                         'table' => array (
                             'parse' => function ($value, $rowData) {
@@ -243,6 +246,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'status' => array(
                         'showOverview' => true,
+                        'sorting' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
                         'table' => array (
                             'parse' => function ($value, $rowData) {
@@ -339,6 +343,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'note' => array(
                         'showOverview' => true,
                         'allowFiltering' => false,
+                        'sorting' => false,
                         'formfield' => function (
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
@@ -477,6 +482,20 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'customer' => array(
                         'showOverview' => true,
                         'showDetail' => false,
+                        'sorting' => false,
+                        'table' => array (
+                            'parse' => function ($value, $rowData) {
+                                $objUser = \FWUser::getFWUserObject()->objUser
+                                    ->getUser($id = (int)$value);
+                                ;
+
+                                return $objUser->getProfileAttribute(
+                                        'lastname'
+                                    ) . ' ' .$objUser->getProfileAttribute(
+                                        'firstname'
+                                    );
+                            },
+                        ),
                         'filterOptionsField' => function (
                             $parseObject, $fieldName, $elementName, $formName
                         ) {
