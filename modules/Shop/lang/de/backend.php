@@ -81,6 +81,20 @@ $_ARRAYLANG['DETAIL_DATETIME'] = 'Bestelldatum';
 $_ARRAYLANG['DETAIL_STATUS'] = 'Bestellstatus';
 $_ARRAYLANG['DETAIL_ZIP_CITY'] = 'PLZ / Ort';
 
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS'] = 'Status';
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_0'] = "pendent";
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_1'] = "bestätigt";
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_2'] = "gelöscht";
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_3'] = "annuliert";
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_4'] = "abgeschlossen";
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_5'] = "bezahlt";
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_6'] = "versandt";
+
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_PLEASE_CHOOSE'] = "-- Status --";
+$_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'] = "-- Kundengruppe --";
+$_ARRAYLANG['TXT_CUSTOMER'] = "Kunde";
+$_ARRAYLANG['TXT_RESELLER'] = "Reseller";
+
 
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";

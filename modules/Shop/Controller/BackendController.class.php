@@ -196,155 +196,289 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'id' => array(
                         'showOverview' => true,
                         'showDetail' => true,
+                        'allowSearching' => true,
+                        'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_ID'],
                     ),
                     'customerId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'currencyId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'sum' => array(
                         'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'dateTime' => array(
                         'showOverview' => true,
+                        'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_DATETIME'],
                     ),
                     'status' => array(
                         'showOverview' => true,
                         'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
+                        'filterOptionsField' => function (
+                            $parseObject, $fieldName, $elementName, $formName
+                        ) {
+                            return $this->getStatusMenu(
+                                '',
+                                $elementName,
+                                $formName
+                            );
+                        },
                     ),
                     'gender' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'company' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'firstname' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'lastname' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'address' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'city' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'zip' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
                     ),
                     'countryId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'phone' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'vatAmount' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'shipmentAmount' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'shipmentId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'paymentId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'paymentAmount' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'ip' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'langId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'note' => array(
                         'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'modifiedOn' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'modifiedBy' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingGender' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingCompany' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingFirstname' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingLastname' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingAddress' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingCity' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingZip' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
                     ),
                     'billingCountryId' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingPhone' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingFax' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'billingEmail' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'lsvs' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'orderItems' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'relCustomerCoupons' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'lang' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'currencies' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'shipper' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'payment' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                     ),
                     'customer' => array(
                         'showOverview' => true,
                         'showDetail' => false,
+                        'filterOptionsField' => function (
+                            $parseObject, $fieldName, $elementName, $formName
+                        ) {
+                            return $this->getCustomerGroupMenu($elementName);
+                        },
                     ),
                 );
                 break;
         }
         return $options;
+    }
+
+    protected function getCustomerGroupMenu($elementName)
+    {
+        global $_ARRAYLANG;
+
+        $resellerGroup = \Cx\Core\Setting\Controller\Setting::getValue(
+            'usergroup_id_reseller',
+            'Shop'
+        );
+
+        $customerGroup = \Cx\Core\Setting\Controller\Setting::getValue(
+            'usergroup_id_customer',
+            'Shop'
+        );
+
+        //ToDo: use $resserGroup and $customerGroup for array keys
+        $validValues = array(
+            '' => $_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'],
+            6 => $_ARRAYLANG['TXT_CUSTOMER'],
+            7 => $_ARRAYLANG['TXT_RESELLER'],
+        );
+        $searchField = new \Cx\Core\Html\Model\Entity\DataElement(
+            $elementName,
+            '',
+            'select',
+            null,
+            $validValues
+        );
+        return $searchField;
+    }
+
+    protected function getStatusMenu($value, $name = '', $formName = '')
+    {
+        global $_ARRAYLANG;
+
+        $validValues = array();
+        $statusValues = $this->cx->getDb()
+            ->getEntityManager()->getRepository(
+                $this->getNamespace()
+                . '\\Model\Entity\Orders'
+            )->getStatusValues();
+        if (!empty($formName)) {
+            $validValues = array(
+                '' => $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_PLEASE_CHOOSE'],
+            );
+        }
+        $validValues = array_merge($validValues, $statusValues);
+
+        $statusField = new \Cx\Core\Html\Model\Entity\DataElement(
+            'status',
+            $value,
+            'select',
+            null,
+            $validValues
+        );
+
+        if (!empty($name)) {
+            $statusField->setAttributes(
+                array(
+                    'name' => $name,
+                )
+            );
+        }
+
+        if (!empty($formName)) {
+            $statusField->setAttributes(
+                array(
+                    'form' => $formName,
+                    'data-vg-attrgroup' => 'search',
+                    'data-vg-field' => 'status',
+                    'class' => 'vg-encode'
+                )
+            );
+        }
+
+        return $statusField;
     }
 }
