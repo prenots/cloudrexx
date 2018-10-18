@@ -221,6 +221,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => true,
                         'allowFiltering' => false,
                         'sorting' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                        }
                     ),
                     'dateTime' => array(
                         'showOverview' => true,
@@ -311,10 +317,22 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'vatAmount' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                        }
                     ),
                     'shipmentAmount' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                        }
                     ),
                     'shipmentId' => array(
                         'showOverview' => false,
@@ -329,6 +347,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'paymentAmount' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength,
+                            $fieldvalue, $fieldoptions
+                        ) {
+                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                        }
                     ),
                     'ip' => array(
                         'showOverview' => false,
@@ -596,5 +620,23 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         }
 
         return $statusField;
+    }
+
+    protected function getCustomInputFields($fieldname, $fieldvalue)
+    {
+        global $_ARRAYLANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $wrapper->addClass('custom-input');
+
+        $title = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG[$fieldname]);
+        $input = new \Cx\Core\Html\Model\Entity\DataElement($fieldname, $fieldvalue, 'input');
+        $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
+
+        $wrapper->addChild($title);
+        $wrapper->addChild($input);
+        $wrapper->addChild($addition);
+
+        return $wrapper;
     }
 }
