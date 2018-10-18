@@ -81,6 +81,7 @@ $_ARRAYLANG['DETAIL_DATETIME'] = 'Bestelldatum';
 $_ARRAYLANG['DETAIL_STATUS'] = 'Bestellstatus';
 $_ARRAYLANG['DETAIL_ZIP_CITY'] = 'PLZ / Ort';
 
+
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS'] = 'Status';
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_0'] = "pendent";
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_1'] = "bestätigt";
@@ -90,15 +91,24 @@ $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_4'] = "abgeschlossen";
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_5'] = "bezahlt";
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_6'] = "versandt";
 
+$_ARRAYLANG['TXT_SHOP_GENDER_FEMALE'] = "Frau";
+$_ARRAYLANG['TXT_SHOP_GENDER_MALE'] = "Herr";
+$_ARRAYLANG['TXT_SHOP_GENDER_UNDEFINED'] = "Unbekannt";
+
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_PLEASE_CHOOSE'] = "-- Status --";
 $_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'] = "-- Kundengruppe --";
 $_ARRAYLANG['TXT_CUSTOMER'] = "Kunde";
 $_ARRAYLANG['TXT_RESELLER'] = "Reseller";
 
-$_ARRAYLANG['TXT_SHOP_GENDER_FEMALE'] = "Frau";
-$_ARRAYLANG['TXT_SHOP_GENDER_MALE'] = "Herr";
-$_ARRAYLANG['TXT_SHOP_GENDER_UNDEFINED'] = "Unbekannt";
+$_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE'] = 'Nettopreis';
+$_ARRAYLANG['TXT_SHOP_DETAIL_TAXPRICE'] = 'inkl. MwSt.';
+$_ARRAYLANG['TXT_SHOP_DETAIL_SHIPPINGPRICE'] = 'Versandkosten';
+$_ARRAYLANG['TXT_SHOP_DETAIL_PAYMENTPRICE'] = 'Zahlungskosten';
+$_ARRAYLANG['TXT_SHOP_DETAIL_CURRENCYORDERSUM'] = 'Total';
 
+$_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'] = "Diese Aktion kann nicht rückgängig gemacht werden!";
+$_ARRAYLANG['TXT_CONFIRM_DELETE_ORDER'] = "Möchten Sie diese Bestellung(en) wirklich löschen?";
+$_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'] = 'Soll der Lagerbestand zurückgesetzt werden?';
 
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";
@@ -109,7 +119,6 @@ $_ARRAYLANG['TXT_ACCOUNT_HOLDER'] = "Kontoinhaber";
 $_ARRAYLANG['TXT_ACCOUNT_ID'] = "Konto-ID";
 $_ARRAYLANG['TXT_ACTION'] = "Funktionen";
 $_ARRAYLANG['TXT_ACTION_AFTER_SAVEING'] = "Gewünschte Aktion nach Speicherung";
-$_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'] = "Diese Aktion kann nicht rückgängig gemacht werden!";
 $_ARRAYLANG['TXT_ACTIVATE_TAXES'] = "Mehrwertsteuer aktivieren";
 $_ARRAYLANG['TXT_ACTIVE'] = "Aktiv";
 $_ARRAYLANG['TXT_ADD'] = "Hinzufügen";
@@ -153,8 +162,7 @@ $_ARRAYLANG['TXT_CONFIRM_DELETE_CURRENCY'] = "Diese Währung wirklich löschen?"
 $_ARRAYLANG['TXT_CONFIRM_DELETE_CUSTOMER'] = "Möchten Sie diese(n) Kunden wirklich löschen?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_DATA'] = "Datensatz wirklich löschen?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_OPTION'] = "Möchten Sie diese Option wirklich löschen?";
-$_ARRAYLANG['TXT_CONFIRM_DELETE_ORDER'] = "Möchten Sie diese Bestellung(en) wirklich löschen?";
-$_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'] = 'Soll der Lagerbestand zurückgesetzt werden?';
+
 $_ARRAYLANG['TXT_SHOP_CONFIRM_REDUCE_STOCK'] = 'Möchten Sie den Lagerbestand entsprechend vermindern?';
 $_ARRAYLANG['TXT_CONFIRM_DELETE_PAYMENT'] = "Diese Zahlungsart wirklich löschen?";
 $_ARRAYLANG['TXT_CONFIRM_DELETE_PRODUCT'] = "Möchten Sie diese(s) Produkt(e) wirklich löschen?";

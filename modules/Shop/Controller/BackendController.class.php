@@ -144,6 +144,34 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options['functions']['paging'] = true;
                 $options['functions']['add'] = false;
 
+                $options['multiActions']['delete'] = array(
+                    'title' => $_ARRAYLANG['TXT_DELETE'],
+                    'jsEvent' => 'delete:order'
+                );
+
+                // Delete Event
+                $scope = 'order';
+                \ContrexxJavascript::getInstance()->setVariable(
+                    'CSRF_PARAM',
+                    \Cx\Core\Csrf\Controller\Csrf::code(),
+                    $scope
+                );
+                \ContrexxJavascript::getInstance()->setVariable(
+                    'TXT_CONFIRM_DELETE_ORDER',
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_ORDER'],
+                    $scope
+                );
+                \ContrexxJavascript::getInstance()->setVariable(
+                    'TXT_ACTION_IS_IRREVERSIBLE',
+                    $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'],
+                    $scope
+                );
+                \ContrexxJavascript::getInstance()->setVariable(
+                    'TXT_SHOP_CONFIRM_RESET_STOCK',
+                    $_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'],
+                    $scope
+                );
+
                 $options['order'] = array(
                     'overview' => array(
                         'id',
