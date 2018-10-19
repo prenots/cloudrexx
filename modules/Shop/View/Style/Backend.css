@@ -1,0 +1,42 @@
+#content > div:nth-of-type(1) {
+    float: left;
+    width: 12%;
+}
+
+#content > div:nth-of-type(1) tr:nth-child(2) input[type="button"],
+#content > div:nth-of-type(1) tr:nth-child(2) a,
+#vg-0-extendedSearch tr:nth-child(-n+3) td:nth-child(1) {
+    display: none;
+}
+
+#content > div:nth-of-type(1) tr:nth-child(2) input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#vg-0-extendedSearch {
+    float: right;
+    width: 88%;
+    display:block !important;
+}
+
+#vg-0-extendedSearch .adminlist th {
+    color: #0071bc;
+}
+
+#vg-0-extendedSearch .adminlist td,
+#vg-0-extendedSearch .adminlist tr:nth-child(n+2) {
+    float: left;
+}
+
+#content > table.adminlist tr:nth-child(n+1) td:nth-child(1) {
+    width: 20px;
+}
+
+.custom-input {
+    float: right;
+    margin-right: 114px;
+}
+.custom-input input {
+    margin-left: 4px;
+}
