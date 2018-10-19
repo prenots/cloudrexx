@@ -63,7 +63,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         \Cx\Core\ContentManager\Model\Entity\Page $page
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
-        $_GET['act']= lcfirst($_GET['act']);
+
         switch($_GET['act'])  {
             case 'categories':
             case 'products':
@@ -75,7 +75,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
             case 'orders':
             default:
-                $_GET['act']= ucfirst($_GET['act']);
                 parent::getPage($page);
                 return;
         }
@@ -101,13 +100,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         return array(
             'Orders',
-            'Categories',
-            'Products',
-            'Manufacturer',
-            'Customers',
-            'Statistics',
-            'Import',
-            'Settings'
+            'categories',
+            'products',
+            'manufacturer',
+            'customers',
+            'statistics',
+            'import',
+            'settings'
         );
     }
 
