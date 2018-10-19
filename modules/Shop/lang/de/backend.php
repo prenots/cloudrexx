@@ -76,11 +76,14 @@ $_ARRAYLANG['weight'] = 'Gewicht';
 $_ARRAYLANG['price'] = 'Stückpreis';
 $_ARRAYLANG['vat_rate'] = 'Mehrwertsteuer Satz';
 
+$_ARRAYLANG['holder'] = 'Kontoinhaber';
+$_ARRAYLANG['bank'] = 'Kreditinstitut';
+$_ARRAYLANG['blz'] = 'Bankleitzahl (BLZ)';
+
 $_ARRAYLANG['DETAIL_ID'] = 'Auftragsnummer';
 $_ARRAYLANG['DETAIL_DATETIME'] = 'Bestelldatum';
 $_ARRAYLANG['DETAIL_STATUS'] = 'Bestellstatus';
 $_ARRAYLANG['DETAIL_ZIP_CITY'] = 'PLZ / Ort';
-
 
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS'] = 'Status';
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_0'] = "pendent";

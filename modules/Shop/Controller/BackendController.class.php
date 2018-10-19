@@ -491,6 +491,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'lsvs' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength, $fieldvalue,
+                            $fieldoptions
+                        ) {
+                            return $this->generateLsvs($fieldvalue);
+                        }
                     ),
                     'orderItems' => array(
                         'showOverview' => false,
@@ -673,6 +679,64 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $wrapper;
     }
 
+    protected function generateLsvs($entity)
+    {
+        global $_ARRAYLANG;
+        if (empty($entity)) {
+            $empty = new \Cx\Core\Html\Model\Entity\TextElement('');
+            return $empty;
+        }
+
+        $entity = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Lsv'
+        )->findOneBy(array('orderId' => 3));
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $meta = $em->getClassMetadata('\Cx\Modules\Shop\Model\Entity\Lsv');
+        $attributes = $meta->getFieldNames();
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $doNotShow = array('orderId');
+
+        foreach ($attributes as $attribute) {
+
+            if (in_array($attribute, $doNotShow)) {
+                continue;
+            }
+
+            $divGroup = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+            $title = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG[$attribute]);
+            $divControls = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $input = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+
+            $getter = 'get' . ucfirst($attribute);
+
+            $divGroup->addClass('group');
+            $label->setAttribute('for', 'form-0-' . $attribute);
+            $divControls->addClass('controls');
+            $input->setAttributes(
+                array(
+                    'name' => $attribute,
+                    'value' => $entity->$getter(),
+                    'type' => 'text',
+                    'id' => 'form-0-'.$attribute,
+                    'onkeyup' => 'return true;',
+                    'class' => 'form-control'
+                )
+            );
+
+            $label->addChild($title);
+            $divGroup->addChild($label);
+            $divGroup->addChild($divControls);
+            $divControls->addChild($input);
+            $wrapper->addChild($divGroup);
+        }
+
+        return $wrapper;
+    }
+
+
     protected function generateOrderItemView()
     {
         global $_ARRAYLANG;
@@ -807,56 +871,56 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
                 $td->addChild($addition);
             }
+            $tableBody->addChild($tr);
+        }
 
-            // add new empty order item
-            $trEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+        // add new empty order item
+        $trEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
 
-            foreach ($tableConfig['header'] as $key => $header) {
-                $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-                $value = '';
+        foreach ($tableConfig['header'] as $key => $header) {
+            $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+            $value = '';
 
-                if ($key == 'product_name') {
-                    $validValues[0] = '-';
-                    $products = $this->cx->getDb()->getEntityManager()
-                        ->getRepository(
-                            '\Cx\Modules\Shop\Model\Entity\Products'
-                        )->findAll();
+            if ($key == 'product_name') {
+                $validValues[0] = '-';
+                $products = $this->cx->getDb()->getEntityManager()
+                    ->getRepository(
+                        '\Cx\Modules\Shop\Model\Entity\Products'
+                    )->findAll();
 
-                    $validValues = array_merge($validValues, $products);
+                $validValues = array_merge($validValues, $products);
 
-                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                        'product' . $key .'-0',
-                        0,
-                        'select',
-                        null,
-                        $validValues
-                    );
-                } else if ($header['type'] == 'input') {
-                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                        'product' . $key .'-0',
-                        $value,
-                        'input'
-                    );
-                } else {
-                    $field = new \Cx\Core\Html\Model\Entity\TextElement(
-                        $value
-                    );
-                    $field->setAttribute('name', 'product' . $key .'-0');
-                }
-
-                $td->addChild($field);
-                $trEmpty->addChild($td);
-
-                if (empty($header['addition'])) {
-                    continue;
-                }
-                $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
-                $td->addChild($addition);
+                $field = new \Cx\Core\Html\Model\Entity\DataElement(
+                    'product' . $key .'-0',
+                    0,
+                    'select',
+                    null,
+                    $validValues
+                );
+            } else if ($header['type'] == 'input') {
+                $field = new \Cx\Core\Html\Model\Entity\DataElement(
+                    'product' . $key .'-0',
+                    $value,
+                    'input'
+                );
+            } else {
+                $field = new \Cx\Core\Html\Model\Entity\TextElement(
+                    $value
+                );
+                $field->setAttribute('name', 'product' . $key .'-0');
             }
 
-            $tableBody->addChild($tr);
-            $tableBody->addChild($trEmpty);
+            $td->addChild($field);
+            $trEmpty->addChild($td);
+
+            if (empty($header['addition'])) {
+                continue;
+            }
+            $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
+            $td->addChild($addition);
         }
+
+        $tableBody->addChild($trEmpty);
 
         // add custom row
         $trCustom = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
