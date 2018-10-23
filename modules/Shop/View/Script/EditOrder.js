@@ -4,7 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('He');
         calcPrice(getArrProduct()[i]['id']);
     }
+
+    document.getElementById('form-0-shipper').onchange = function() {
+        calcPrice(0);
+    }
 });
+
 
 // weight settings
 // units -- *MUST* be all lowercase!
