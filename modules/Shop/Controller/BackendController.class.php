@@ -999,10 +999,51 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $trCustom->addChild($tdInput);
         $tableBody->addChild($trCustom);
 
+        $order = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Orders'
+        )->findOneBy(array('id' => $orderId));
+
+        $customerId = $order->getCustomerId();
+        $this->defineJsVariables($customerId);
+
         // Load custom Js File for order edit view
         \JS::registerJS('modules/Shop/View/Script/EditOrder.js');
 
         return $table;
+    }
+
+    /**
+     * Defines variables that are used in the javascript file EditOrder.js.
+     *
+     * @param int $customerId Id of customer
+     * @throws \Doctrine\ORM\ORMException
+     */
+    protected function defineJsVariables($customerId)
+    {
+        $products = new \Cx\Modules\Shop\Model\Entity\Products();
+        $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
+
+        // ToDo: Rename and use function when setting variables work
+        $isReseller = false; // $customer->is_reseller();
+        // ToDo: Rename and use function when setting variables work
+        $groupId = 2; // $customer->group_id();
+        $productsJsArr = $products->getJsArray($groupId, $isReseller);
+
+        $jsVariables = array(
+            array(
+                'name' => 'PRODUCT_LIST',
+                'content' => $productsJsArr,
+            ),
+        );
+
+        $scope = 'order';
+        foreach ($jsVariables as $jsVariable) {
+            \ContrexxJavascript::getInstance()->setVariable(
+                $jsVariable['name'],
+                $jsVariable['content'],
+                $scope
+            );
+        }
     }
 
 }
