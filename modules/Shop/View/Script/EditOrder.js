@@ -1,7 +1,6 @@
 var scope = 'order';
 document.addEventListener('DOMContentLoaded', function () {
     for (var i = 0; i < getArrProduct().length; ++i) {
-        console.log('He');
         calcPrice(getArrProduct()[i]['id']);
     }
 
@@ -55,7 +54,6 @@ function getArrProduct()
 // doesn't exist already
 function changeProduct(orderItemId, newProductId)
 {
-//console.log("changeProduct("+orderItemId+", "+newProductId+")");
     // list of product items in the order
     var arrProductId = getArrProduct();
     // try to find the new product id in the order array.
@@ -223,8 +221,6 @@ function updateShipment()
         // get the shipment conditions that are closest to our order:
         // we have to make sure the maximum weight is big enough for the order,
         // or that it's unspecified (don't care)
-        console.log(price_free);
-        console.log(price);
         if ((max_weight > 0 && weight <= max_weight ) || max_weight == 0) {
             // if price_free is set, the order amount has to be higher than that
             // in order to get the shipping for free.
