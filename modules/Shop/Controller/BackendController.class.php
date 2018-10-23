@@ -1020,6 +1020,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      */
     protected function defineJsVariables($customerId)
     {
+        $shipper = new \Cx\Modules\Shop\Model\Entity\Shipper();
         $products = new \Cx\Modules\Shop\Model\Entity\Products();
         $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
 
@@ -1029,7 +1030,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $groupId = 2; // $customer->group_id();
         $productsJsArr = $products->getJsArray($groupId, $isReseller);
 
+        $shipmentCostJsArr = $shipper->getJsArray();
+
         $jsVariables = array(
+            array(
+                'name' => 'SHIPPER_INFORMATION',
+                'content' => $shipmentCostJsArr,
+            ),
             array(
                 'name' => 'PRODUCT_LIST',
                 'content' => $productsJsArr,
