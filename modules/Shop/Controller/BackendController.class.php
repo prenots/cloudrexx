@@ -774,31 +774,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             ),
         );
 
-        $tableConfig['customRows'] = array(
-            1 => array(
-                'empty' => 4,
-                'title' => 'netPrice',
-            ),
-            2 => array(
-                'empty' => 4,
-                'title' => 'taxPrice',
-            ),
-            3 => array(
-                'empty' =>  6,
-            ),
-            4 => array(
-                'empty' => 4,
-                'title' => 'shippingPrice',
-            ),
-            5 => array(
-                'empty' => 4,
-                'title' => 'paymentPrice',
-            ),
-            6 => array(
-                'empty' => 4,
-                'title' => 'currencyOrderSum',
-            ),
-        );
         $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
         $tableConfig['criteria'] = array('orderId' => $orderId);
 
@@ -974,29 +949,67 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         // add custom row
         $trCustom = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
         $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $tdEmpty->setAttribute('colspan', 4);
         $trCustom->addChild($tdEmpty);
 
-        $tdTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $title = new \Cx\Core\Html\Model\Entity\TextElement(
+        $tdWeightTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $weightTitle = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_TOTAL_WEIGHT']
+        );
+        $tdWeightTitle->setAttribute('style', 'text-align: right;');
+        $tdWeightTitle->addChild($weightTitle);
+
+        $tdWeightInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $weightInput = new \Cx\Core\Html\Model\Entity\DataElement(
+            'total-weight',
+            '',
+            'input'
+        );
+
+        $weightInput->setAttributes(
+            array(
+                'id' => 'total-weight',
+                'readonly' => 'readonly',
+            )
+        );
+
+        $additionG = new \Cx\Core\Html\Model\Entity\TextElement('g');
+
+        $tdWeightInput->addChild($weightInput);
+        $tdWeightInput->addChild($additionG);
+
+        $trCustom->addChild($tdWeightTitle);
+        $trCustom->addChild($tdWeightInput);
+
+        $trCustom->addChild($tdEmpty);
+
+        $tdNetpriceTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $netpriceTitle = new \Cx\Core\Html\Model\Entity\TextElement(
             $_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE']
         );
-        $tdTitle->addChild($title);
+        $tdNetpriceTitle->setAttribute('style', 'text-align: right;');
+        $tdNetpriceTitle->addChild($netpriceTitle);
 
-        $tdInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $input = new \Cx\Core\Html\Model\Entity\DataElement(
+        $tdNetpriceInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+        $netpriceInput = new \Cx\Core\Html\Model\Entity\DataElement(
             'netprice',
             '',
             'input'
         );
 
-        $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
+        $netpriceInput->setAttributes(
+            array(
+                'id' => 'netprice',
+                'readonly' => 'readonly'
+            )
+        );
 
-        $tdInput->addChild($input);
-        $tdInput->addChild($addition);
+        $additionChf = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
 
-        $trCustom->addChild($tdTitle);
-        $trCustom->addChild($tdInput);
+        $tdNetpriceInput->addChild($netpriceInput);
+        $tdNetpriceInput->addChild($additionChf);
+
+        $trCustom->addChild($tdNetpriceTitle);
+        $trCustom->addChild($tdNetpriceInput);
         $tableBody->addChild($trCustom);
 
         $order = $this->cx->getDb()->getEntityManager()->getRepository(
