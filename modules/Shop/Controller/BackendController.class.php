@@ -290,7 +290,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getStatusMenu($fieldvalue, $fieldname);
+                            return $this->getDetailStatusMenu($fieldvalue, $fieldname);
                         },
                         'filterOptionsField' => function (
                             $parseObject, $fieldName, $elementName, $formName
@@ -659,6 +659,42 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         }
 
         return $statusField;
+    }
+
+    protected function getDetailStatusMenu($fieldvalue, $fieldname)
+    {
+        global $_ARRAYLANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $statusMenu = $this->getStatusMenu($fieldvalue, $fieldname);
+
+        $wrapperEmail = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $textEmail = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['TXT_SEND_MAIL']);
+        $labelEmail = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $inputEmail = new \Cx\Core\Html\Model\Entity\DataElement(
+            'sendMail',
+            '1',
+            'input'
+        );
+
+        $wrapperEmail->setAttribute('id', 'sendMailDiv');
+        $labelEmail->setAttribute('for', 'sendMail');
+        $inputEmail->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'sendMail',
+                'onclick' => 'swapSendToStatus();',
+                'checked' => 'checked'
+            )
+        );
+
+        $labelEmail->addChild($textEmail);
+        $wrapperEmail->addChild($inputEmail);
+        $wrapperEmail->addChild($labelEmail);
+        $wrapper->addChild($statusMenu);
+        $wrapper->addChild($wrapperEmail);
+
+        return $wrapper;
     }
 
     protected function getCustomInputFields($fieldname, $fieldvalue)

@@ -112,6 +112,7 @@ $_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'] = 'Soll der Lagerbestand zurückgese
 $_ARRAYLANG['TXT_PRODUCT_ALREADY_PRESENT'] = "Dieses Produkt ist bereits auf der Bestellungsliste vorhanden!";
 $_ARRAYLANG['TXT_WARNING_SHIPPER_WEIGHT'] = "Warnung: Das Gesamtgewicht der Bestellung ist zu gross für diese Versandart!";
 $_ARRAYLANG['TXT_TOTAL_WEIGHT'] = "Gesamtgewicht";
+$_ARRAYLANG['TXT_SEND_MAIL'] = "E-Mail \"Auftrag abgeschlossen\" an Kunde senden?";
 
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";

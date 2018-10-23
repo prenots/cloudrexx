@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('form-0-shipper').onchange = function() {
         calcPrice(0);
     }
+    document.getElementsByName('status')[0].onchange = function() {
+        swapSendToStatus(this.value);
+    }
+    swapSendToStatus();
 });
 
 
@@ -310,7 +314,8 @@ function calcPrice(orderItemId)
 
 function swapSendToStatus()
 {
-    if (document.getElementById("order_status").selectedIndex == 4) {
+    console.log("SASD");
+    if (document.getElementsByName("status")[0].selectedIndex == 4) {
         document.getElementById("sendMailDiv").style.display = 'inline';
     } else {
         document.getElementById("sendMailDiv").style.display = 'none';
