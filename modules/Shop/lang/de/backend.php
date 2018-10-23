@@ -109,6 +109,10 @@ $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'] = "Diese Aktion kann nicht rückgängi
 $_ARRAYLANG['TXT_CONFIRM_DELETE_ORDER'] = "Möchten Sie diese Bestellung(en) wirklich löschen?";
 $_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'] = 'Soll der Lagerbestand zurückgesetzt werden?';
 
+$_ARRAYLANG['TXT_PRODUCT_ALREADY_PRESENT'] = "Dieses Produkt ist bereits auf der Bestellungsliste vorhanden!";
+$_ARRAYLANG['TXT_WARNING_SHIPPER_WEIGHT'] = "Warnung: Das Gesamtgewicht der Bestellung ist zu gross für diese Versandart!";
+$_ARRAYLANG['TXT_TOTAL_WEIGHT'] = "Gesamtgewicht";
+
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";
 $_ARRAYLANG['TXT_ACCEPT_CHANGES'] = "Änderungen übernehmen";
@@ -364,7 +368,6 @@ $_ARRAYLANG['TXT_PRICE'] = "Preis";
 $_ARRAYLANG['TXT_PRICE_PREFIX'] = "Vorzeichen";
 $_ARRAYLANG['TXT_PRICELIST_MESSAGE_DELETED'] = "Preisliste(n) wurde(n) gelöscht.";
 $_ARRAYLANG['TXT_PRODUCT'] = "Produkt";
-$_ARRAYLANG['TXT_PRODUCT_ALREADY_PRESENT'] = "Dieses Produkt ist bereits auf der Bestellungsliste vorhanden!";
 $_ARRAYLANG['TXT_PRODUCT_CATALOG'] = "Produktekatalog";
 $_ARRAYLANG['TXT_PRODUCT_CHARACTERISTICS'] = "Produktemerkmale";
 $_ARRAYLANG['TXT_PRODUCT_ID'] = "Produkt ID";
@@ -1008,7 +1011,6 @@ $_ARRAYLANG['TXT_TOTAL'] = "Total";
 $_ARRAYLANG['TXT_TOTAL_ORDERS'] = "Total Bestellungen";
 $_ARRAYLANG['TXT_TOTAL_SOLD_ARITCLES'] = "Total verkaufte Artikel";
 $_ARRAYLANG['TXT_TOTAL_TURNOVER'] = "Gesamtumsatz";
-$_ARRAYLANG['TXT_TOTAL_WEIGHT'] = "Gesamtgewicht";
 $_ARRAYLANG['TXT_TURNOVER'] = "Umsatz";
 $_ARRAYLANG['TXT_UNIT_PRICE'] = "Stückpreis";
 $_ARRAYLANG['TXT_USE_TEST_ACCOUNT'] = "Testaccount verwenden";
@@ -1018,7 +1020,6 @@ $_ARRAYLANG['TXT_VALUE'] = "Wert";
 $_ARRAYLANG['TXT_VALUES'] = "Werte";
 $_ARRAYLANG['TXT_VIEW_DETAILS'] = "Details anzeigen";
 $_ARRAYLANG['TXT_VIEW_SPECIAL_OFFERS'] = "Zeige Sonderangebote";
-$_ARRAYLANG['TXT_WARNING_SHIPPER_WEIGHT'] = "Warnung: Das Gesamtgewicht der Bestellung ist zu gross für diese Versandart!";
 $_ARRAYLANG['TXT_WEIGHT'] = "Gewicht";
 $_ARRAYLANG['TXT_WEIGHT_INVALID_IGNORED'] = "Ungültiges Gewicht; Änderung ignoriert!";
 $_ARRAYLANG['TXT_WHOIS'] = "Informationen zu dieser IP-Adresse abfragen";

@@ -1015,11 +1015,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     /**
      * Defines variables that are used in the javascript file EditOrder.js.
      *
+     * @global array $_ARRAYLANG array containing the language variables
      * @param int $customerId Id of customer
      * @throws \Doctrine\ORM\ORMException
      */
     protected function defineJsVariables($customerId)
     {
+        global $_ARRAYLANG;
+
         $shipper = new \Cx\Modules\Shop\Model\Entity\Shipper();
         $products = new \Cx\Modules\Shop\Model\Entity\Products();
         $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
@@ -1044,6 +1047,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             array(
                 'name' => 'PRODUCT_LIST',
                 'content' => $productsJsArr,
+            ),
+            array(
+                'name' => 'TXT_WARNING_SHIPPER_WEIGHT',
+                'content' => $_ARRAYLANG['TXT_WARNING_SHIPPER_WEIGHT'],
+            ),
+            array(
+                'name' => 'TXT_PRODUCT_ALREADY_PRESENT',
+                'content' => $_ARRAYLANG['TXT_PRODUCT_ALREADY_PRESENT'],
             ),
         );
 
