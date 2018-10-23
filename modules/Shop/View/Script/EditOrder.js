@@ -314,7 +314,6 @@ function calcPrice(orderItemId)
 
 function swapSendToStatus()
 {
-    console.log("SASD");
     if (document.getElementsByName("status")[0].selectedIndex == 4) {
         document.getElementById("sendMailDiv").style.display = 'inline';
     } else {
