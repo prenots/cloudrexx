@@ -736,10 +736,18 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $wrapper;
     }
 
-
     protected function generateOrderItemView()
     {
         global $_ARRAYLANG;
+
+        // Until we know how to get the editId without the $_GET param
+        $orderId = explode(
+            '}',
+            explode(
+                ',',
+                $this->cx->getRequest()->getParam('editid')
+            )[1]
+        )[0];
 
         $tableConfig['header'] = array(
             'quantity' => array(
@@ -792,7 +800,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             ),
         );
         $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
-        $tableConfig['criteria'] = array('orderId' => 6);
+        $tableConfig['criteria'] = array('orderId' => $orderId);
 
         $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
         $tableBody = new \Cx\Core\Html\Model\Entity\HtmlElement('tbody');;
@@ -851,15 +859,36 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
                 if ($header['type'] == 'input') {
                     $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                        'product' . $key .'-'. $id,
+                        'product_' . $key .'-'. $id,
                         $value,
                         'input'
                     );
+                    $field->setAttributes(
+                        array(
+                            'onchange' => 'calcPrice(' . $id . ')',
+                            'id' => 'product_' . $key .'-'. $id
+                        )
+                    );
                 } else {
-                    $field = new \Cx\Core\Html\Model\Entity\TextElement(
+                    $field = new \Cx\Core\Html\Model\Entity\HtmlElement(
+                        'label'
+                    );
+                    $text = new \Cx\Core\Html\Model\Entity\TextElement(
                         $value
                     );
-                    $field->setAttribute('name', 'product' . $key .'-'. $id);
+                    $field->setAttributes(
+                        array(
+                            'name' => 'product_' . $key .'-'. $id,
+                            'id' => 'product_' . $key .'-'. $id,
+                            'data-product-key' => $orderItem->getProductId(),
+                            'class' => 'product',
+                        )
+                    );
+                    $field->addChild($text);
+                }
+
+                if ($key == 'sum') {
+                    $field->setAttribute('readonly', 'readonly');
                 }
 
                 $td->addChild($field);
@@ -879,7 +908,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         foreach ($tableConfig['header'] as $key => $header) {
             $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $value = '';
+            $value = '0';
 
             if ($key == 'product_name') {
                 $validValues[0] = '-';
@@ -888,7 +917,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         '\Cx\Modules\Shop\Model\Entity\Products'
                     )->findAll();
 
-                $validValues = array_merge($validValues, $products);
+                foreach ($products as $product) {
+                    $validValues[$product->getId()] = $product->getName();
+                }
 
                 $field = new \Cx\Core\Html\Model\Entity\DataElement(
                     'product' . $key .'-0',
@@ -897,17 +928,35 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     null,
                     $validValues
                 );
+                $field->setAttributes(
+                    array(
+                        'onchange' =>'changeProduct(0,this.value);',
+                        'id' => 'product_' . $key .'-0',
+                        'class' => 'product',
+                        'data-product-key' => '0'
+                    )
+                );
             } else if ($header['type'] == 'input') {
                 $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                    'product' . $key .'-0',
+                    'product_' . $key .'-0',
                     $value,
                     'input'
+                );
+                $field->setAttributes(
+                    array(
+                        'onchange' => 'calcPrice(0)',
+                        'id' => 'product_' . $key .'-0',
+                    )
                 );
             } else {
                 $field = new \Cx\Core\Html\Model\Entity\TextElement(
                     $value
                 );
                 $field->setAttribute('name', 'product' . $key .'-0');
+            }
+
+            if ($key == 'sum') {
+                $field->setAttribute('readonly', 'readonly');
             }
 
             $td->addChild($field);
