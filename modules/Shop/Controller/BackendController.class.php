@@ -999,8 +999,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $trCustom->addChild($tdInput);
         $tableBody->addChild($trCustom);
 
-        return $table;
+        // Load custom Js File for order edit view
+        \JS::registerJS('modules/Shop/View/Script/EditOrder.js');
 
+        return $table;
     }
 
 }
