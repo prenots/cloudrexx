@@ -1038,6 +1038,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'content' => $shipmentCostJsArr,
             ),
             array(
+                'name' => 'VAT_INCLUDED',
+                'content' => 1, //\Cx\Modules\Shop\Model\Entity\Vat::isIncluded(),
+            ),
+            array(
                 'name' => 'PRODUCT_LIST',
                 'content' => $productsJsArr,
             ),
