@@ -36,6 +36,7 @@
 .custom-input {
     float: right;
     margin-right: 114px;
+    font-weight: bold;
 }
 .custom-input input {
     margin-left: 4px;
