@@ -3,6 +3,7 @@
 namespace Cx\Modules\Shop\Model\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping;
 
 /**
  * LsvRepository
@@ -12,4 +13,34 @@ use Doctrine\ORM\EntityRepository;
  */
 class LsvRepository extends EntityRepository
 {
+    public function __construct()
+    {
+        $this->_entityName = '\Cx\Modules\Shop\Model\Entity\Lsv';
+        $this->_em         = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+    }
+
+    public function save($values, $orderId)
+    {
+        $lsv = $this->find($orderId);
+
+        if (empty($lsv)) {
+            $lsv = new $this->_entityName();
+        }
+
+        $columnNames = $this->_em->getClassMetadata(
+            $this->_entityName
+        )->getColumnNames();
+
+        foreach ($columnNames as $columnName) {
+            $value = $values[$columnName];
+            if (empty($value)) {
+                continue;
+            }
+
+            $setter = 'set' . ucfirst($columnName);
+            $lsv->$setter($value);
+        }
+        $this->_em->persist($lsv);
+        $this->_em->flush();
+    }
 }
