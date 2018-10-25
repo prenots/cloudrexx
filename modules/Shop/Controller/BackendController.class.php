@@ -781,6 +781,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         global $_ARRAYLANG;
 
         // Until we know how to get the editId without the $_GET param
+        if (!$this->cx->getRequest()->hasParam('editid')) {
+            return;
+        }
         $orderId = explode(
             '}',
             explode(
