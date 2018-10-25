@@ -31,6 +31,12 @@ class OrderItemsRepository extends EntityRepository
             if (empty($orderItem)) {
                 $orderItem = new $this->_entityName();
             }
+
+            if (empty($values['product_quantity-' . $orderItemId])) {
+                $this->_em->remove($orderItem);
+                continue;
+            }
+
             $orderItem->setOrders($order);
 
             foreach ($settersAndIds['setters'] as $key => $setter) {
