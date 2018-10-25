@@ -289,7 +289,8 @@ function calcPrice(orderItemId)
     }
     var couponAmount = document.getElementById('coupon-amount');
     if (couponAmount) {
-        totalSum += Number(couponAmount.innerText);
+        couponAmount.value = '-' + (totalSum / 100 * Number(couponAmount.dataset.rate)).toFixed(2);
+        totalSum = (totalSum / 100 * (100-Number(couponAmount.dataset.rate))).toFixed(2);
     }
     // store totalSum as net total before adding VAT
     document.getElementById("netprice").value =

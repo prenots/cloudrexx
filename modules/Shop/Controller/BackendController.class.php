@@ -1015,11 +1015,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $tableBody->addChild($trEmpty);
 
         // add coupon
-        $coupon = $this->cx->getDb()->getEntityManager()->getRepository(
+        $couponRel = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
         )->findOneBy(array('orderId' => $orderId));
 
-        if (!empty($coupon)) {
+        if (!empty($couponRel)) {
             $trCoupon = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
             $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
             $trCoupon->addChild($tdEmpty);
@@ -1027,7 +1027,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $tdName = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
             $text = new \Cx\Core\Html\Model\Entity\TextElement(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'] . ' ' .
-                $coupon->getCode()
+                $couponRel->getCode()
             );
             $tdName->addChild($text);
             $trCoupon->addChild($tdName);
@@ -1037,11 +1037,19 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $trCoupon->addChild($tdEmpty);
 
             $tdAmount = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                '-' . $coupon->getAmount()
+            $input = new \Cx\Core\Html\Model\Entity\DataElement(
+                'amount',
+                '-' . $couponRel->getAmount(),
+                'input'
             );
-            $tdAmount->addChild($text);
-            $tdAmount->setAttribute('id', 'coupon-amount');
+            $input->setAttributes(
+                array(
+                    'id' => 'coupon-amount',
+                    'data-rate' => $couponRel->getDiscountCoupon()->getDiscountRate(),
+                    'readonly' => 'readonly'
+                )
+            );
+            $tdAmount->addChild($input);
             $trCoupon->addChild($tdAmount);
 
             $tableBody->addChild($trCoupon);
