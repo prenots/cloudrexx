@@ -20,7 +20,6 @@ class OrderItemsRepository extends EntityRepository
 
     public function save($values, $order)
     {
-        var_dump($values);
         $settersAndIds = $this->getSettersAndIds($values);
 
         foreach ($settersAndIds['ids'] as $orderItemId) {
