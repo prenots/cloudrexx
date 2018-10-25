@@ -898,11 +898,21 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         array(
                             'name' => 'product_' . $key .'-'. $id,
                             'id' => 'product_' . $key .'-'. $id,
-                            'data-product-key' => $orderItem->getProductId(),
                             'class' => 'product',
                         )
                     );
                     $field->addChild($text);
+                    $hiddenField = new \Cx\Core\Html\Model\Entity\DataElement(
+                        'product_product_id-'. $id, $orderItem->getProductId(), 'input'
+                    );
+                    $hiddenField->setAttributes(
+                        array(
+                            'id' => 'product_product_id-'. $id,
+                            'class' => 'product_ids',
+                            'type' => 'hidden'
+                        )
+                    );
+                    $td->addChild($hiddenField);
                 }
 
                 if ($key == 'sum') {
@@ -940,7 +950,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 }
 
                 $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                    'product' . $key .'-0',
+                    'product_' . $key .'-0',
                     0,
                     'select',
                     null,
@@ -951,9 +961,20 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'onchange' =>'changeProduct(0,this.value);',
                         'id' => 'product_' . $key .'-0',
                         'class' => 'product',
-                        'data-product-key' => '0'
                     )
                 );
+                $hiddenField = new \Cx\Core\Html\Model\Entity\DataElement(
+                    'product_product_id-0', '0', 'input'
+                );
+                $hiddenField->setAttributes(
+                    array(
+                        'id' => 'product_product_id-0',
+                        'class' => 'product_ids',
+                        'type' => 'hidden'
+                    )
+                );
+
+                $td->addChild($hiddenField);
             } else if ($header['type'] == 'input') {
                 $field = new \Cx\Core\Html\Model\Entity\DataElement(
                     'product_' . $key .'-0',
@@ -1123,5 +1144,4 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             );
         }
     }
-
 }

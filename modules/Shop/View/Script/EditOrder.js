@@ -31,23 +31,21 @@ function getArrProduct()
     var arrProductId = new Array();
     var indexId = 0;
     // Loop through all input tags
-    var arrElements = document.getElementsByClassName("product");
+    var arrElements = document.getElementsByClassName("product_ids");
     for (var i = 0; i < arrElements.length; i++) {
         var element = arrElements[i];
         // input tags' id attribute
         var elementId = element.getAttribute("id");
         if (!elementId) continue;
-        var match = elementId.match(/product_product_name-(\d+)/);
+        var match = elementId.match(/product_product_id-(\d+)/);
         if (!match) continue;
         var orderItemId = Number(match[1]);
-        // the containing row has the product ID
-        //if (element.value == "0") continue;
         arrProductId[indexId] = new Array();
         // Order item ID
         arrProductId[indexId]['id'] = orderItemId;
         // Product ID
         arrProductId[indexId]['value'] =
-            element.dataset.productKey;
+            element.value;
         ++indexId;
     }
     return arrProductId;
@@ -67,7 +65,8 @@ function changeProduct(orderItemId, newProductId)
             if (newProductId == arrProductId[i]['value']
                 && orderItemId != arrProductId[i]['id']) {
                 alert(cx.variables.get('TXT_PRODUCT_ALREADY_PRESENT',scope));
-                document.getElementById("product_product_name-"+orderItemId).selectedIndex = 0;
+                document.getElementById("product_product_name-"+orderItemId).selectedIndex =
+                    document.getElementById("product_id-"+orderItemId).value;
                 return;
             }
         }
@@ -75,7 +74,7 @@ function changeProduct(orderItemId, newProductId)
     if (newProductId == "0") {
         // the new product ID is zero, so an item is to be deleted
         if (orderItemId == 0) {
-            document.getElementById("product_product_name-"+orderItemId).dataset.productKey = "0";
+            document.getElementById("product_product_id-"+orderItemId).value = "0";
         }
         document.getElementById("product_quantity-"+orderItemId).value = 0;
         document.getElementById("product_price-"+orderItemId).value = '0.00';
@@ -89,7 +88,7 @@ function changeProduct(orderItemId, newProductId)
             quantity = 1;
             document.getElementById("product_quantity-"+orderItemId).value = quantity;
         }
-        document.getElementById("product_product_name-"+orderItemId).dataset.productKey = newProductId;
+        document.getElementById("product_product_id-"+orderItemId).value = newProductId;
         document.getElementById("product_vat_rate-"+orderItemId).value =
             arrProducts[newProductId]['percent'].toFixed(2);
         document.getElementById("product_weight-"+orderItemId).value =
@@ -111,9 +110,6 @@ function changeProduct(orderItemId, newProductId)
         document.getElementById("product_price-"+orderItemId).value =
             price.toFixed(2);
     }
-    // Store the current product id
-    document.getElementById("product_product_name-"+orderItemId).dataset.productKey =
-        document.getElementById("product_product_name-"+orderItemId).selectedIndex;
     // Calculate the product price, row sum and the total order sum
     calcPrice(orderItemId);
 }
@@ -266,7 +262,7 @@ function calcPrice(orderItemId)
     var price = 0;
     var quantity = 0;
     var newProductId =
-        document.getElementById("product_product_name-"+orderItemId).dataset.productKey;
+        document.getElementById("product_product_id-"+orderItemId).value;
     if (newProductId > 0) {
         var price =
             document.getElementById("product_price-"+orderItemId).value;
