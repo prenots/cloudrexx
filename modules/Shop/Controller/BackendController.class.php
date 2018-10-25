@@ -1014,7 +1014,40 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $tableBody->addChild($trEmpty);
 
-        // add custom row
+        // add coupon
+        $coupon = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
+        )->findOneBy(array('orderId' => $orderId));
+
+        if (!empty($coupon)) {
+            $trCoupon = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+            $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+            $trCoupon->addChild($tdEmpty);
+
+            $tdName = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+            $text = new \Cx\Core\Html\Model\Entity\TextElement(
+                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'] . ' ' .
+                $coupon->getCode()
+            );
+            $tdName->addChild($text);
+            $trCoupon->addChild($tdName);
+
+            $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+            $tdEmpty->setAttribute('colspan', 3);
+            $trCoupon->addChild($tdEmpty);
+
+            $tdAmount = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
+            $text = new \Cx\Core\Html\Model\Entity\TextElement(
+                '-' . $coupon->getAmount()
+            );
+            $tdAmount->addChild($text);
+            $tdAmount->setAttribute('id', 'coupon-amount');
+            $trCoupon->addChild($tdAmount);
+
+            $tableBody->addChild($trCoupon);
+        }
+
+        // add weight and netprice
         $trCustom = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
         $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
         $trCustom->addChild($tdEmpty);

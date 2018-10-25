@@ -114,6 +114,8 @@ $_ARRAYLANG['TXT_WARNING_SHIPPER_WEIGHT'] = "Warnung: Das Gesamtgewicht der Best
 $_ARRAYLANG['TXT_TOTAL_WEIGHT'] = "Gesamtgewicht";
 $_ARRAYLANG['TXT_SEND_MAIL'] = "E-Mail \"Auftrag abgeschlossen\" an Kunde senden?";
 
+$_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'] = "Gutschein Code";
+
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";
 $_ARRAYLANG['TXT_ACCEPT_CHANGES'] = "Änderungen übernehmen";
@@ -535,7 +537,6 @@ $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUNT_TIP'] = "Um eine Zeile zu löschen, lassen 
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ADD'] = "Hinzufügen";
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ADDED_SUCCESSFULLY'] = "Der Gutscheincode '%1\$s' wurde erfolgreich hinzugefügt";
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'] = "Guthaben (%1\$s)";
-$_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'] = "Gutschein Code";
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE_FORMAT'] = "Gutschein Code: %1\$s";
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE_NEW'] = "Neuen Code generieren";
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODES'] = "Gutschein Codes";
