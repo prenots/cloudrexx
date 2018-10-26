@@ -122,27 +122,28 @@ class Vat extends \Cx\Model\Base\EntityBase {
      */
     static function init()
     {
+        \Cx\Core\Setting\Controller\Setting::init('Shop');
         static::$arrVatEnabled = array(
             // Foreign countries
             0 => array(
                 // Customer
                 0 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_enabled_foreign_customer', 'Shop'
+                    'vat_enabled_foreign_customer'
                 ),
                 // Reseller
                 1 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_enabled_foreign_reseller', 'Shop'
+                    'vat_enabled_foreign_reseller'
                 ),
             ),
             // Home country
             1 => array(
                 // Customer
                 0 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_enabled_home_customer', 'Shop'
+                    'vat_enabled_home_customer'
                 ),
                 // Reseller
                 1 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_enabled_home_reseller', 'Shop'
+                    'vat_enabled_home_reseller'
                 ),
             ),
         );
@@ -151,22 +152,22 @@ class Vat extends \Cx\Model\Base\EntityBase {
             0 => array(
                 // Customer
                 0 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_included_foreign_customer', 'Shop'
+                    'vat_included_foreign_customer'
                 ),
                 // Reseller
                 1 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_included_foreign_reseller', 'Shop'
+                    'vat_included_foreign_reseller'
                 ),
             ),
             // Home country
             1 => array(
                 // Customer
                 0 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_included_home_customer', 'Shop'
+                    'vat_included_home_customer'
                 ),
                 // Reseller
                 1 => \Cx\Core\Setting\Controller\Setting::getValue(
-                    'vat_included_home_reseller', 'Shop'
+                    'vat_included_home_reseller'
                 ),
             ),
         );
