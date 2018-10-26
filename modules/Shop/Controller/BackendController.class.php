@@ -636,6 +636,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $options;
     }
 
+    /**
+     * Get a text element so they cannot be edited.
+     *
+     * @param string $fieldname  name of field
+     * @param string $fieldvalue value of field
+     * @return \Cx\Core\Html\Model\Entity\TextElement
+     */
     protected function getTextElement($fieldname, $fieldvalue)
     {
         $textField = new \Cx\Core\Html\Model\Entity\TextElement(
@@ -649,6 +656,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $textField;
     }
 
+    /**
+     * Get dropdown to search for customer groups.
+     *
+     * @param string $elementName name of element
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
     protected function getCustomerGroupMenu($elementName)
     {
         global $_ARRAYLANG;
@@ -679,6 +692,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $searchField;
     }
 
+    /**
+     * Get a dropdown with all status values.
+     *
+     * @param string $value    value of field
+     * @param string $name     name of field
+     * @param string $formName name of form
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     * @throws \Doctrine\ORM\ORMException
+     */
     protected function getStatusMenu($value, $name = '', $formName = '')
     {
         global $_ARRAYLANG;
@@ -726,6 +748,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $statusField;
     }
 
+    /**
+     * Get status menu for detail view. It has a custom field to send a mail.
+     *
+     * @param string $fieldvalue value of field
+     * @param string $fieldname  name of field
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     * @throws \Doctrine\ORM\ORMException
+     */
     protected function getDetailStatusMenu($fieldvalue, $fieldname)
     {
         global $_ARRAYLANG;
@@ -764,6 +794,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $wrapper;
     }
 
+    /**
+     * Get custom input fields to align them on the right side.
+     *
+     * @param string $fieldname  name of field
+     * @param string $fieldvalue value of field
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
     protected function getCustomInputFields($fieldname, $fieldvalue)
     {
         global $_ARRAYLANG;
@@ -788,6 +825,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $wrapper;
     }
 
+    /**
+     * Return custom lsv edit field.
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\Lsv $entity lsv entity
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
     protected function generateLsvs($entity)
     {
         global $_ARRAYLANG;
@@ -848,6 +891,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $wrapper;
     }
 
+    /**
+     * Get the order item table.
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     * @throws \Cx\Core\Setting\Controller\SettingException
+     * @throws \Doctrine\ORM\ORMException
+     */
     protected function generateOrderItemView()
     {
         global $_ARRAYLANG;
@@ -1214,7 +1264,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * Defines variables that are used in the javascript file EditOrder.js.
      *
      * @global array $_ARRAYLANG array containing the language variables
-     * @param int $customerId Id of customer
+     * @param  int   $customerId Id of customer
      * @throws \Doctrine\ORM\ORMException
      * @throws \Cx\Core\Setting\Controller\SettingException
      */
@@ -1268,7 +1318,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     /**
      * Return a tooltip containing the note of the order.
      *
-     * @param $value string order message
+     * @param string $value order message
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      */
     protected function getNoteToolTip($value)
