@@ -25,7 +25,8 @@
  */
 
 /**
- * Specific BackendController for this Component. Use this to easily create a backend view
+ * Specific BackendController for this Component. Use this to easily create a
+ * backend view
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -37,7 +38,8 @@ namespace Cx\Modules\Shop\Controller;
 
 
 /**
- * Specific BackendController for this Component. Use this to easily create a backend view
+ * Specific BackendController for this Component. Use this to easily create a
+ * backend view
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -125,14 +127,18 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * @access protected
      * @global $_ARRAYLANG
      * @param $entityClassName contains the FQCN from entity
-     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used for better partition
+     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used
+     *                           for better partition
      * @return array with options
      */
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
     {
         global $_ARRAYLANG;
 
-        $options = parent::getViewGeneratorOptions($entityClassName, $dataSetIdentifier);
+        $options = parent::getViewGeneratorOptions(
+            $entityClassName,
+            $dataSetIdentifier
+        );
 
         switch ($entityClassName) {
             case 'Cx\Modules\Shop\Model\Entity\Orders':
@@ -230,7 +236,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         },
                         'sorting' => true,
                     ),
@@ -252,7 +261,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                            return $this->getCustomInputFields(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'dateTime' => array(
@@ -274,7 +286,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $date = new \DateTime($fieldvalue);
                             $fieldvalue = $date->format('d-m-Y h:m:s');
 
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'status' => array(
@@ -290,7 +305,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getDetailStatusMenu($fieldvalue, $fieldname);
+                            return $this->getDetailStatusMenu(
+                                $fieldvalue,
+                                $fieldname
+                            );
                         },
                         'filterOptionsField' => function (
                             $parseObject, $fieldName, $elementName, $formName
@@ -348,7 +366,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                            return $this->getCustomInputFields(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'shipmentAmount' => array(
@@ -358,7 +379,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                            return $this->getCustomInputFields(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'shipmentId' => array(
@@ -378,7 +402,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getCustomInputFields($fieldname, $fieldvalue);
+                            return $this->getCustomInputFields(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'ip' => array(
@@ -399,7 +426,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         },
                         'table' => array(
                             'parse' => function($value, $rowData) {
@@ -417,7 +447,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $date = new \DateTime($fieldvalue);
                             $fieldvalue = $date->format('d-m-Y h:m:s');
 
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'modifiedBy' => array(
@@ -427,7 +460,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'billingGender' => array(
@@ -440,13 +476,23 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             global $_ARRAYLANG;
 
                             $validData = array(
-                                'gender_undefined' => $_ARRAYLANG['TXT_SHOP_GENDER_UNDEFINED'],
-                                'gender_male' => $_ARRAYLANG['TXT_SHOP_GENDER_MALE'],
-                                'gender_female' => $_ARRAYLANG['TXT_SHOP_GENDER_FEMALE']
+                                'gender_undefined' => $_ARRAYLANG[
+                                    'TXT_SHOP_GENDER_UNDEFINED'
+                                ],
+                                'gender_male' => $_ARRAYLANG[
+                                    'TXT_SHOP_GENDER_MALE'
+                                ],
+                                'gender_female' => $_ARRAYLANG[
+                                    'TXT_SHOP_GENDER_FEMALE'
+                                ]
                             );
 
                             $genderDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
-                                $fieldname, $fieldvalue, 'select', null, $validData
+                                $fieldname,
+                                $fieldvalue,
+                                'select',
+                                null,
+                                $validData
                             );
 
                             return $genderDropdown;
@@ -533,7 +579,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'currencies' => array(
@@ -552,7 +601,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
                         ) {
-                            return $this->getTextElement($fieldname, $fieldvalue);
+                            return $this->getTextElement(
+                                $fieldname,
+                                $fieldvalue
+                            );
                         }
                     ),
                     'customer' => array(
@@ -566,10 +618,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 ;
 
                                 return $objUser->getProfileAttribute(
-                                        'lastname'
-                                    ) . ' ' .$objUser->getProfileAttribute(
-                                        'firstname'
-                                    );
+                                    'lastname'
+                                ) . ' ' .$objUser->getProfileAttribute(
+                                    'firstname'
+                                );
                             },
                         ),
                         'filterOptionsField' => function (
@@ -682,7 +734,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $statusMenu = $this->getStatusMenu($fieldvalue, $fieldname);
 
         $wrapperEmail = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $textEmail = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['TXT_SEND_MAIL']);
+        $textEmail = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_SEND_MAIL']
+        );
         $labelEmail = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
         $inputEmail = new \Cx\Core\Html\Model\Entity\DataElement(
             'sendMail',
@@ -717,8 +771,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $wrapper->addClass('custom-input');
 
-        $title = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG[$fieldname]);
-        $input = new \Cx\Core\Html\Model\Entity\DataElement($fieldname, $fieldvalue, 'input');
+        $title = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG[$fieldname]
+        );
+        $input = new \Cx\Core\Html\Model\Entity\DataElement(
+            $fieldname,
+            $fieldvalue,
+            'input'
+        );
         $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
 
         $wrapper->addChild($title);
@@ -740,7 +800,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             '\Cx\Modules\Shop\Model\Entity\Lsv'
         )->findOneBy(array('orderId' => 3));
 
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()
+            ->getEntityManager();
         $meta = $em->getClassMetadata('\Cx\Modules\Shop\Model\Entity\Lsv');
         $attributes = $meta->getFieldNames();
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
@@ -755,7 +816,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
             $divGroup = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
             $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
-            $title = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG[$attribute]);
+            $title = new \Cx\Core\Html\Model\Entity\TextElement(
+                $_ARRAYLANG[$attribute]
+            );
             $divControls = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
             $input = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
 
@@ -864,7 +927,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             foreach ($tableConfig['header'] as $key => $header) {
                 $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
 
-                // Replace _ and set new word to uppercase, to get the getter name
+                // Replace _ and set new word to uppercase, to get the getter
+                // name
                 $methodName = str_replace(
                     " ",
                     "",
@@ -912,7 +976,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     );
                     $field->addChild($text);
                     $hiddenField = new \Cx\Core\Html\Model\Entity\DataElement(
-                        'product_product_id-'. $id, $orderItem->getProductId(), 'input'
+                        'product_product_id-'. $id,
+                        $orderItem->getProductId(),
+                        'input'
                     );
                     $hiddenField->setAttributes(
                         array(
@@ -934,7 +1000,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 if (empty($header['addition'])) {
                     continue;
                 }
-                $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
+                $addition = new \Cx\Core\Html\Model\Entity\TextElement(
+                    $header['addition']
+                );
                 $td->addChild($addition);
             }
             $tableBody->addChild($tr);
@@ -1013,7 +1081,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             if (empty($header['addition'])) {
                 continue;
             }
-            $addition = new \Cx\Core\Html\Model\Entity\TextElement($header['addition']);
+            $addition = new \Cx\Core\Html\Model\Entity\TextElement(
+                $header['addition']
+            );
             $td->addChild($addition);
         }
 
@@ -1050,7 +1120,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $input->setAttributes(
                 array(
                     'id' => 'coupon-amount',
-                    'data-rate' => $couponRel->getDiscountCoupon()->getDiscountRate(),
+                    'data-rate' => $couponRel->getDiscountCoupon()
+                        ->getDiscountRate(),
                     'readonly' => 'readonly'
                 )
             );
