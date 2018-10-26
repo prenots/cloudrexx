@@ -41,3 +41,7 @@
 .custom-input input {
     margin-left: 4px;
 }
+
+.tooltip-wrapper {
+    padding: 6px;
+}

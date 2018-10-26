@@ -401,6 +401,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ) {
                             return $this->getTextElement($fieldname, $fieldvalue);
                         },
+                        'table' => array(
+                            'parse' => function($value, $rowData) {
+                                return $this->getNoteToolTip($value);
+                            }
+                        )
                     ),
                     'modifiedOn' => array(
                         'showOverview' => false,
@@ -1187,5 +1192,38 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $scope
             );
         }
+    }
+
+    /**
+     * Return a tooltip containing the note of the order.
+     *
+     * @param $value string order message
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function getNoteToolTip($value)
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $wrapper->addClass('tooltip-wrapper');
+
+        if (empty($value) || $value === ' ') {
+            return $wrapper;
+        }
+
+        $tooltipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $tooltipTrigger->setAttribute(
+            'class',
+            'icon-info tooltip-trigger icon-comment'
+        );
+        $tooltipTrigger->allowDirectClose(false);
+
+        $tooltipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $tooltipMessage->setAttribute('class', 'tooltip-message');
+        $tooltipMessage->addChild(
+            new \Cx\Core\Html\Model\Entity\TextElement($value)
+        );
+
+        $wrapper->addChild($tooltipTrigger);
+        $wrapper->addChild($tooltipMessage);
+        return $wrapper;
     }
 }
