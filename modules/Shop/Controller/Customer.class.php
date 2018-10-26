@@ -288,8 +288,14 @@ class Customer extends \User
      */
     function is_reseller($is_reseller=null)
     {
+        $this->isReseller();
+    }
+
+    public function isReseller() {
         // get defined groups in shop
-        $group_reseller = \Cx\Core\Setting\Controller\Setting::getValue('usergroup_id_reseller','Shop');
+        \Cx\Core\Setting\Controller\Setting::init('Shop');
+        $group_reseller = \Cx\Core\Setting\Controller\Setting::getValue('usergroup_id_reseller');
+
         if (empty($group_reseller)) {
             self::errorHandler();
             $group_reseller = \Cx\Core\Setting\Controller\Setting::getValue('usergroup_id_reseller','Shop');
