@@ -1140,6 +1140,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * @global array $_ARRAYLANG array containing the language variables
      * @param int $customerId Id of customer
      * @throws \Doctrine\ORM\ORMException
+     * @throws \Cx\Core\Setting\Controller\SettingException
      */
     protected function defineJsVariables($customerId)
     {
