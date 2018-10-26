@@ -66,7 +66,7 @@ function changeProduct(orderItemId, newProductId)
                 && orderItemId != arrProductId[i]['id']) {
                 alert(cx.variables.get('TXT_PRODUCT_ALREADY_PRESENT',scope));
                 document.getElementById("product_product_name-"+orderItemId).selectedIndex =
-                    document.getElementById("product_id-"+orderItemId).value;
+                    document.getElementById("product_product_id-"+orderItemId).value;
                 return;
             }
         }
