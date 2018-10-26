@@ -1150,8 +1150,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
 
         $isReseller = $customer->isReseller();
-        // ToDo: Rename and use function when setting variables work
-        $groupId = 2; // $customer->group_id();
+        $groupId = $customer->getGroupId();
         $productsJsArr = $products->getJsArray($groupId, $isReseller);
 
         $shipmentCostJsArr = $shipper->getJsArray();
