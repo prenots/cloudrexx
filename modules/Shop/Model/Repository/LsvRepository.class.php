@@ -13,12 +13,6 @@ use Doctrine\ORM\Mapping;
  */
 class LsvRepository extends EntityRepository
 {
-    public function __construct()
-    {
-        $this->_entityName = '\Cx\Modules\Shop\Model\Entity\Lsv';
-        $this->_em         = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-    }
-
     public function save($values, $orderId)
     {
         $lsv = $this->find($orderId);

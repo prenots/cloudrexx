@@ -549,8 +549,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             return $this->generateLsvs($fieldvalue);
                         },
                         'storecallback' => function($value, $entity) {
-                            $lsvRepo = new \Cx\Modules\Shop\Model\Repository\LsvRepository();
-                            $lsvRepo->save($value, $entity->getId());
+                            $repo = $this->cx->getDb()->getEntityManager()
+                                ->getRepository(
+                                    '\Cx\Modules\Shop\Model\Entity\Lsv'
+                                );
+                            $repo->save($value, $entity->getId());
                         }
                     ),
                     'orderItems' => array(
