@@ -232,6 +232,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'allowSearching' => true,
                         'allowFiltering' => false,
                         'formtext' => $_ARRAYLANG['DETAIL_ID'],
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'order-id',
+                            ),
+                        ),
                         'formfield' => function (
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
@@ -257,6 +262,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => true,
                         'allowFiltering' => false,
                         'sorting' => false,
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'order-sum',
+                            ),
+                        ),
                         'formfield' => function (
                             $fieldname, $fieldtype, $fieldlength,
                             $fieldvalue, $fieldoptions
@@ -278,6 +288,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 $fieldvalue = $date->format('d.m.Y h:m:s');
                                 return $fieldvalue;
                             },
+                            'attributes' => array(
+                                'class' => 'order-date-time',
+                            ),
                         ),
                         'formfield' => function (
                             $fieldname, $fieldtype, $fieldlength,
@@ -300,6 +313,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'parse' => function ($value, $rowData) {
                                 return $this->getStatusMenu($value);
                             },
+                            'attributes' => array(
+                                'class' => 'order-status',
+                            ),
                         ),
                         'formfield' => function (
                             $fieldname, $fieldtype, $fieldlength,
@@ -434,7 +450,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'table' => array(
                             'parse' => function($value, $rowData) {
                                 return $this->getNoteToolTip($value);
-                            }
+                            },
+                            'attributes' => array(
+                                'class' => 'order-note',
+                            ),
                         )
                     ),
                     'modifiedOn' => array(
@@ -626,6 +645,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                     'firstname'
                                 );
                             },
+                            'attributes' => array(
+                                'class' => 'order-customer',
+                            ),
                         ),
                         'filterOptionsField' => function (
                             $parseObject, $fieldName, $elementName, $formName
