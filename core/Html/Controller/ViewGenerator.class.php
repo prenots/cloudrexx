@@ -175,6 +175,15 @@ class ViewGenerator {
             ) {
                 $this->removeEntry($entityWithNS);
             }
+
+            // execute copy if entry is a doctrine entity (or execute callback if specified in configuration)
+            // post edit
+            if (
+                !empty($this->options['functions']['copy']) &&
+                $this->options['functions']['copy'] != false
+            ) {
+                $this->saveEntry($entityWithNS);
+            }
         } catch (\Exception $e) {
             \Message::add($e->getMessage(), \Message::CLASS_ERROR);
             return;
@@ -691,6 +700,18 @@ class ViewGenerator {
             $isSingle = true;
             return $this->renderFormForEntry(null);
         }
+
+        // this case is used to copy the entry
+        if (
+            !empty($_GET['copy']) &&
+            !empty($this->options['functions']['copy']) &&
+            $this->options['functions']['copy'] != false
+        ) {
+            $isSingle = true;
+            $eId = intval($this->getVgParam($_GET['copy']));
+            return $this->renderFormForEntry($eId);
+        }
+
         $template = new \Cx\Core\Html\Sigma(\Env::get('cx')->getCodeBaseCorePath().'/Html/View/Template/Generic');
         $template->loadTemplateFile('TableView.html');
         $template->setGlobalVariable($_ARRAYLANG);
@@ -1256,10 +1277,14 @@ class ViewGenerator {
             $this->savePropertiesToClass($entity, $entityClassMetadata);
             $param = 'editid';
             $successMessage = $_ARRAYLANG['TXT_CORE_RECORD_UPDATED_SUCCESSFUL'];
-        } else { // add case
+        } else {
+            if (!empty($_GET['copy'])) { // copy case
+                $param = 'copy';
+            } else { // add case
+                $param = 'add';
+            }
             // save main formular class data to its class over $_POST
             $this->savePropertiesToClass($entity, $entityClassMetadata);
-            $param = 'add';
             $successMessage = $_ARRAYLANG['TXT_CORE_RECORD_ADDED_SUCCESSFUL'];
         }
 
@@ -1487,6 +1512,16 @@ class ViewGenerator {
     }
 
     /**
+     * Get the Url to copy an entry in this VG instance
+     * @param int|string|array|object $entryOrId Entity or entity key
+     * @param \Cx\Core\Routing\Url $url (optional) If supplied necessary params are applied
+     * @return \Cx\Core\Routing\Url URL with copy arguments
+     */
+    public function getCopyUrl($entryOrId, $url = null) {
+        return static::getVgCopyUrl($this->viewId, $entryOrId, $url);
+    }
+
+    /**
      * Get the Url to delete an entry of this VG instance
      * @param int|string|array|object $entryOrId Entity or entity key
      * @return \Cx\Core\Routing\Url URL with delete arguments
@@ -1557,7 +1592,7 @@ class ViewGenerator {
             $url,
             $vgId,
             'editid',
-            static::getEditId($entryOrId)
+            static::getId($entryOrId)
         );
         return $url;
     }
@@ -1567,14 +1602,31 @@ class ViewGenerator {
      * @param int|string|array|object $entryOrId Entity or entity key
      * @return string Entity identifier
      */
-    protected static function getEditId($entryOrId) {
+    protected static function getId($entryOrId) {
         if (is_array($entryOrId)) {
             return implode('/', $entryOrId);
         }
-        if (is_object($entryOrId)) {
-            // find id using doctrine or dataset
+        return (string) $entryOrId;
+    }
+
+    /**
+     * Get the Url to copy an entry of a VG instance
+     * @param int $vgId ViewGenerator id
+     * @param int|string|array|object $entryOrId Entity or entity key
+     * @param \Cx\Core\Routing\Url $url (optional) If supplied necessary params are applied
+     * @return \Cx\Core\Routing\Url URL with copy arguments
+     */
+    public static function getVgCopyUrl($vgId, $entryOrId, $url = null) {
+        if (!$url) {
+            $url = static::getBaseUrl();
         }
-        return $entryOrId;
+        static::appendVgParam(
+            $url,
+            $vgId,
+            'copy',
+            static::getId($entryOrId)
+        );
+        return $url;
     }
 
     /**
@@ -1611,11 +1663,11 @@ class ViewGenerator {
     public static function getVgDeleteUrl($vgId, $entryOrId) {
         $url = static::getBaseUrl();
         // this is temporary:
-        $url->setParam('deleteid', static::getEditId($entryOrId));
+        $url->setParam('deleteid', static::getId($entryOrId));
         $url->setParam('vg_increment_number', $vgId);
         return $url;
         // this would be the way to go:
-        static::appendVgParam($url, $vgId, 'deleteid', static::getEditId($entryOrId));
+        static::appendVgParam($url, $vgId, 'deleteid', static::getId($entryOrId));
         return $url;
     }
 
