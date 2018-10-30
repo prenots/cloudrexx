@@ -911,7 +911,7 @@ class ViewGenerator {
                         array(
                             'id' => $checkboxName,
                             'type' => 'checkbox',
-                            'form' => 'vg-'. $this->viewId .'-searchForm',
+                            //'form' => 'vg-'. $this->viewId .'-searchForm',
                             'class' => 'vg-encode search-checkboxes',
                             'data-vg-attrgroup' => 'checkbox',
                             'data-vg-field' => $key,

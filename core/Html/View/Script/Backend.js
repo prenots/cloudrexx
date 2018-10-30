@@ -356,13 +356,10 @@ cx.ready(function() {
         uri = uri.replace(/%2F/g, "/");
         return uri;
     }
-
-    var checked = false;
     
     // If any of the dropdowns change or search button is pressed:
     // manually generate url and document.location it
     var getSubmitHandler = function(ev) {
-        ev.preventDefault();
         var formId = jQuery(this).attr("form");
         var elements = cx.jQuery("[form=" + formId + "]").filter("select,input,textarea").not("[type=button]").not("[type=submit]");
         var vgId = jQuery("#" + formId).data("vg-id");
@@ -370,9 +367,6 @@ cx.ready(function() {
         var attrGroups = {}
         elements.each(function(index, el) {
             el = cx.jQuery(el);
-            if (el.is('.search-checkboxes') && !checked) {
-                return;
-            }
             var regex = new RegExp("([?&])" + el.attr("name") + "[^&]+");
             var replacement = "";
             if (el.val().length) {
@@ -426,14 +420,15 @@ cx.ready(function() {
             });
         }
         document.location = url;
+        ev.preventDefault();
     };
     cx.jQuery("select.vg-searchSubmit").change(getSubmitHandler);
     cx.jQuery(".vg-searchSubmit").filter("a,input").click(getSubmitHandler);
-    cx.jQuery(".search-checkboxes").filter("input").click(function() {
-        if (checked) {
-            checked = false;
+    cx.jQuery(".search-checkboxes").filter("input").click(function(ev) {
+        if (cx.jQuery(this).attr('form')) {
+            cx.jQuery(this).removeAttr('form');
         } else {
-            checked = true;
+            cx.jQuery(this).attr('form', 'vg-0-searchForm');
         }
     });
     cx.jQuery(".search-checkboxes").filter("input").click(getSubmitHandler);
@@ -468,17 +463,14 @@ cx.ready(function() {
                     if (attribute[0] == "search") {
                         formElement = cx.jQuery("[form=" + formId + "][data-vg-field=" + matches[2] + "]");
                         var checkBoxElement = cx.jQuery("#vg-"+ matches[1] +"-checkbox-field-" + matches[2]);
-                        console.log(checkBoxElement.val());console.log(matches[3]);
-                        if(checkBoxElement && checkBoxElement.val() == matches[3]) {
+                        if(checkBoxElement) {
                             checkBoxElement.prop('checked', true);
                             checkBoxElement.attr('form', 'vg-0-searchForm');
-                            checked = true;
                         }
                     } else if (attribute[0] == "checkbox") {
                         formElement = cx.jQuery("#vg-"+ matches[1] +"-checkbox-field-" + matches[2]);
                         formElement.prop('checked', true);
                         formElement.attr('form', 'vg-0-searchForm');
-                        checked = true;
                     } else {
                         formElement = cx.jQuery("[form=" + formId + "][name=" + attribute[0] + "]");
                     }
