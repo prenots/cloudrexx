@@ -895,6 +895,41 @@ class ViewGenerator {
                 $template->touchBlock('filter');
                 $template->parse('filter');
             }
+            if ($searchCheckboxes) {
+                foreach($searchCheckboxes as $key=>$value)  {
+                    $checkboxName = 'vg-'. $this->viewId .'-checkbox-field-'
+                        . $key;
+                    $checkboxWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+                    $checkboxLabel = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+                    $labelText = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['SEARCH_' . strtoupper($key)]);
+                    $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+                        $checkboxName,
+                        $value,
+                        'input'
+                    );
+                    $checkbox->setAttributes(
+                        array(
+                            'id' => $checkboxName,
+                            'type' => 'checkbox',
+                            //'form' => 'vg-'. $this->viewId .'-searchForm',
+                            'class' => 'vg-encode search-checkboxes',
+                            'data-vg-attrgroup' => 'checkbox',
+                            'data-vg-field' => $key,
+                        )
+                    );
+                    $checkboxLabel->setAttribute('for', $checkboxName);
+                    $checkboxWrapper->setClass('search-checkbox');
+
+                    $checkboxLabel->addChild($labelText);
+                    $checkboxWrapper->addChild($checkboxLabel);
+                    $checkboxWrapper->addChild($checkbox);
+
+                    //set option
+                    $template->setVariable('FIELD_SEARCH_CHECKBOX', $checkboxWrapper);
+                    $template->parse('search-checkbox');
+                }
+            }
+
 
             return $template->get();
         }

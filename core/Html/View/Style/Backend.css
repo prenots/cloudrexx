@@ -200,3 +200,11 @@ body.loading {
 table.sortable .sorter-loading {
     background-image: url(../../../../core_modules/News/View/Media/loading.gif) !important;
 }
+.search-checkbox {
+    display: inline-block;
+    width: auto;
+    padding: 5px;
+}
+.search-checkbox input {
+    vertical-align: middle;
+}

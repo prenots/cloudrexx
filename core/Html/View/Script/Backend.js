@@ -424,6 +424,14 @@ cx.ready(function() {
     };
     cx.jQuery("select.vg-searchSubmit").change(getSubmitHandler);
     cx.jQuery(".vg-searchSubmit").filter("a,input").click(getSubmitHandler);
+    cx.jQuery(".search-checkboxes").filter("input").click(function(ev) {
+        if (cx.jQuery(this).attr('form')) {
+            cx.jQuery(this).removeAttr('form');
+        } else {
+            cx.jQuery(this).attr('form', 'vg-0-searchForm');
+        }
+    });
+    cx.jQuery(".search-checkboxes").filter("input").click(getSubmitHandler);
     
     (function() {
         var url = cx.tools.decodeURI(document.location.href);
@@ -442,7 +450,7 @@ cx.ready(function() {
             if (attribute[0] == "csrf") {
                 return;
             }
-            if (attribute[0] == "search" || attribute[0] == "term") {
+            if (attribute[0] == "search" || attribute[0] == "term" || attribute[0] == "checkbox") {
                 var conditions = attribute[1].substr(1, attribute[1].length - 1).split("},{");
                 cx.jQuery.each(conditions, function(index, condition) {
                     condition = "{" + condition + "}";
@@ -452,8 +460,17 @@ cx.ready(function() {
                     }
                     var formId = "vg-" + matches[1] + "-searchForm";
                     var formElement;
-                    if (matches[2]) {
+                    if (attribute[0] == "search") {
                         formElement = cx.jQuery("[form=" + formId + "][data-vg-field=" + matches[2] + "]");
+                        var checkBoxElement = cx.jQuery("#vg-"+ matches[1] +"-checkbox-field-" + matches[2]);
+                        if(checkBoxElement) {
+                            checkBoxElement.prop('checked', true);
+                            checkBoxElement.attr('form', 'vg-0-searchForm');
+                        }
+                    } else if (attribute[0] == "checkbox") {
+                        formElement = cx.jQuery("#vg-"+ matches[1] +"-checkbox-field-" + matches[2]);
+                        formElement.prop('checked', true);
+                        formElement.attr('form', 'vg-0-searchForm');
                     } else {
                         formElement = cx.jQuery("[form=" + formId + "][name=" + attribute[0] + "]");
                     }
