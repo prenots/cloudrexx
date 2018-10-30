@@ -76,6 +76,12 @@ class Resolver {
     protected $page = null;
 
     /**
+     * Aliaspage if we resolve an alias
+     * @var Cx\Core\ContentManager\Model\Entity\Page
+     */
+    protected $aliaspage = null;
+
+    /**
      * @var Cx\Core\ContentManager\Model\Entity\Page
      */
     protected $urlPage = null;
@@ -141,6 +147,12 @@ class Resolver {
     protected $headers = array();
 
     /**
+     * Passed path after the resolved page's path
+     * @var string
+     */
+    protected $additionalPath = '';
+
+    /**
      * @param Url $url the url to resolve
      * @param integer $lang the language Id
      * @param $entityManager
@@ -190,12 +202,12 @@ class Resolver {
 
     public function resolve() {
         // $this->resolveAlias() also sets $this->page
-        $aliaspage = $this->resolveAlias();
+        $this->aliaspage = $this->resolveAlias();
 
-        if ($aliaspage != null) {
-            $this->lang = $aliaspage->getTargetLangId();
-            $aliaspage = clone $aliaspage;
-            $aliaspage->setVirtual(true);
+        if ($this->aliaspage != null) {
+            $this->lang = $this->aliaspage->getTargetLangId();
+            $this->aliaspage = clone $this->aliaspage;
+            $this->aliaspage->setVirtual(true);
         } else {
             // if the current URL points to a file:
             if (
@@ -428,12 +440,12 @@ class Resolver {
             $this->page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION
         ) {
             // does this work for fallback(/aliases)?
-            $additionalPath = substr('/' . $this->originalUrl->getSuggestedTargetPath(), strlen($this->page->getPath()));
+            $this->additionalPath = substr('/' . $this->originalUrl->getSuggestedTargetPath(), strlen($this->page->getPath()));
             $componentController = $this->em->getRepository('Cx\Core\Core\Model\Entity\SystemComponent')->findOneBy(array('name'=>$this->page->getModule()));
             if ($componentController) {
                 $parts = array();
-                if (!empty($additionalPath)) {
-                    $parts = explode('/', substr($additionalPath, 1));
+                if (!empty($this->additionalPath)) {
+                    $parts = explode('/', substr($this->additionalPath, 1));
                 }
                 $componentController->resolve($parts, $this->page);
             }
@@ -1042,9 +1054,25 @@ class Resolver {
                 if (isset($_GET['redirect'])) {
                     $link = $_GET['redirect'];
                 } else {
-                    $link=base64_encode(\Env::get('cx')->getRequest()->getUrl()->toString());
+                    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                    if ($this->aliaspage) {
+                        $link = \Cx\Core\Routing\Url::fromPage(
+                            $this->aliaspage,
+                            $cx->getRequest()->getUrl()->getParamArray()
+                        )->toString();
+                    } else {
+                        $link = \Env::get('cx')->getRequest()->getUrl()->toString();
+                    }
+                    $link = base64_encode($link);
                 }
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', '', array('redirect' => $link)));
+                \Cx\Core\Csrf\Controller\Csrf::header(
+                    'Location: '. \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Login',
+                        '',
+                        '',
+                        array('redirect' => $link)
+                    )
+                );
                 exit;
             }
         }
@@ -1098,5 +1126,13 @@ class Resolver {
             $this->headers['Expires'] = $response->getExpirationDate()->format('r');
         }
         return $this->headers;
+    }
+
+    /**
+     * Returns the passed path additional to the resolved page's path
+     * @return string Offset path without leading slash
+     */
+    public function getAdditionalPath() {
+        return substr($this->additionalPath, 1);
     }
 }
