@@ -308,6 +308,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'status' => array(
                         'showOverview' => true,
                         'sorting' => false,
+                        'searchCheckbox' => 0,
                         'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
                         'table' => array (
                             'parse' => function ($value, $rowData) {
