@@ -359,6 +359,7 @@ class ViewGenerator {
             $renderObject,
             $searchCriteria,
             contrexx_input2raw($this->getVgParam($_GET['term'])),
+            $searchCheckboxes,
             $lcOptions
         );
     }

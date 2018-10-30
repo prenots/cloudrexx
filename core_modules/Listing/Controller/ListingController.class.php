@@ -153,6 +153,12 @@ class ListingController {
     protected $filterFields = array();
 
     /**
+     * List of checkboxes that can be filtered
+     * @var array
+     */
+    protected $checkboxes = array();
+
+    /**
      * List of field names that can be searched by a term
      * @var array
      */
@@ -175,7 +181,7 @@ class ListingController {
      * @param array $crit (optional) Doctrine style criteria array to use
      * @param array $options (Unused)
      */
-    public function __construct($entities, $crit = array(), $filter = '', $options = array()) {
+    public function __construct($entities, $crit = array(), $filter = '', $checkboxes = array(), $options = array()) {
         if (isset($options['paging'])) {
             $this->paging = $options['paging'];
         }
@@ -195,6 +201,9 @@ class ListingController {
         $this->searching = isset($options['searching']) && $options['searching'];
         if (isset($options['searchFields'])) {
             $this->searchFields = $options['searchFields'];
+        }
+        if (!empty($checkboxes)) {
+            $this->checkboxes = $checkboxes;
         }
         // init handlers (filtering, paging and sorting)
         $this->handlers[] = new FilteringController();
@@ -233,21 +242,23 @@ class ListingController {
             return $this->data;
         }
         $params = array(
-            'offset'    => $this->offset,
-            'count'     => $this->count,
-            'order'     => $this->order,
-            'criteria'  => $this->criteria,
-            'filter'    => $this->filter,
-            'entity'    => $this->entityName,
+            'offset'     => $this->offset,
+            'count'      => $this->count,
+            'order'      => $this->order,
+            'criteria'   => $this->criteria,
+            'filter'     => $this->filter,
+            'entity'     => $this->entityName,
+            'checkboxes' => $this->checkboxes,
         );
         foreach ($this->handlers as $handler) {
             $params = $handler->handle($params, $this->args);
         }
-        $this->offset   = $params['offset'];
-        $this->count    = $params['count'];
-        $this->order    = $params['order'];
-        $this->criteria = $params['criteria'];
-        $this->filter   = $params['filter'];
+        $this->offset     = $params['offset'];
+        $this->count      = $params['count'];
+        $this->order      = $params['order'];
+        $this->criteria   = $params['criteria'];
+        $this->filter     = $params['filter'];
+        $this->checkboxes = $params['checkboxes'];
 
         // handle ajax requests
         if (false /* ajax request for this listing */) {
@@ -315,6 +326,9 @@ class ListingController {
             if (!empty($this->filter)) {
                 \DBG::msg('YAMLRepository does not support "filter" yet');
             }
+            if (!empty($this->checkboxes)) {
+                \DBG::msg('YAMLRepository does not support "checkboxes" yet');
+            }
             $entities = $entityRepository->findBy(
                 $this->criteria,
                 $this->order,
@@ -326,6 +340,8 @@ class ListingController {
             $qb = $em->createQueryBuilder();
             $qb->select('x')->from($this->entityClass, 'x');
             $i = 1;
+            $j = 1;
+
             // filtering: advanced search
             if ($this->filtering) {
                 foreach ($this->criteria as $field=>$crit) {
@@ -355,13 +371,22 @@ class ListingController {
                     $qb->setParameter($i, '%' . $this->filter . '%');
                 }
             }
+
+            if ($this->checkboxes) {
+                foreach ($this->checkboxes as $checkboxField=>$value) {
+                    $param = 'check' . $j;
+                    $qb->orWhere($qb->expr()->eq('x.' . $checkboxField, ':' . $param));
+                    $qb->setParameter($param, $value);
+                    $j++;
+                }
+            }
+
             foreach ($this->order as $field=>&$order) {
                 $qb->orderBy('x.' . $field, $order);
             }
             $qb->setFirstResult($offset);
             $qb->setMaxResults($this->count ? $this->count : null);
             $entities = $qb->getQuery()->getResult();
-
             $metaData = $em->getClassMetaData($this->entityClass);
             $qb->select(
                 'count(x.' . reset($metaData->getIdentifierFieldNames()) . ')'
