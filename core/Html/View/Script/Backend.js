@@ -12,8 +12,8 @@ cx.ready(function() {
         sortable = {
             ajaxCall : function(opt) {
                 var data = 'sortOrder=' + opt.sortOrder + '&curPosition=' + opt.curIndex
-                            + '&prePosition=' + opt.preIndex + '&sortField=' + opt.sortField
-                            + '&pagingPosition=' + opt.position,
+                    + '&prePosition=' + opt.preIndex + '&sortField=' + opt.sortField
+                    + '&pagingPosition=' + opt.position,
                     recordCount = 0;
                 if (opt.component && opt.entity) {
                     data += '&component=' + opt.component + '&entity=' + opt.entity;
@@ -72,8 +72,8 @@ cx.ready(function() {
                 //we need to update all the entries.
                 if (options.repeat) {
                     var pagingCnt = isDescOrder
-                                    ? (recordCnt - options.position) + 1
-                                    : options.position;
+                        ? (recordCnt - options.position) + 1
+                        : options.position;
                     obj.each(function() {
                         isDescOrder ? pagingCnt-- : pagingCnt++;
                         jQuery(this).text(pagingCnt);
@@ -314,24 +314,24 @@ function createAjaxRequest(entityClass, mappedBy, className, sessionKey, existin
     cx.ajax(
         'Html',
         'getViewOverJson',
-    {
-        data: {
-            entityClass: entityClass,
-            mappedBy:    mappedBy,
-            sessionKey:  sessionKey
-        },
-        success: function(data) {
-            openDialogForAssociation(
-                data.data,
-                className,
-                existingData,
-                currentElement
-            );
-            jQuery('.datepicker').datepicker({
-                dateFormat: 'dd.mm.yy'
-            });
-        }
-    });
+        {
+            data: {
+                entityClass: entityClass,
+                mappedBy:    mappedBy,
+                sessionKey:  sessionKey
+            },
+            success: function(data) {
+                openDialogForAssociation(
+                    data.data,
+                    className,
+                    existingData,
+                    currentElement
+                );
+                jQuery('.datepicker').datepicker({
+                    dateFormat: 'dd.mm.yy'
+                });
+            }
+        });
 }
 
 // Search and filter functionalities
@@ -357,7 +357,7 @@ cx.ready(function() {
         return uri;
     }
 
-    var checked = false;
+    var checked = new Array();
 
     // If any of the dropdowns change or search button is pressed:
     // manually generate url and document.location it
@@ -370,7 +370,9 @@ cx.ready(function() {
         var attrGroups = {}
         elements.each(function(index, el) {
             el = cx.jQuery(el);
-            if (el.is('.search-checkboxes') && !checked) {
+            var name = el.attr('name');
+            var parts = JavaSplit(name, "-", 5);
+            if (el.is('.search-checkboxes') && !checked[parts[4]]) {
                 return;
             }
             var regex = new RegExp("([?&])" + el.attr("name") + "[^&]+");
@@ -430,10 +432,12 @@ cx.ready(function() {
     cx.jQuery("select.vg-searchSubmit").change(getSubmitHandler);
     cx.jQuery(".vg-searchSubmit").filter("a,input").click(getSubmitHandler);
     cx.jQuery(".search-checkboxes").filter("input").click(function() {
-        if (checked) {
-            checked = false;
+        var name = cx.jQuery(this).attr('name');
+        var parts = JavaSplit(name, "-", 5);
+        if (checked[parts[4]]) {
+            checked[parts[4]] = false;
         } else {
-            checked = true;
+            checked[parts[4]] = true;
         }
     });
     cx.jQuery(".search-checkboxes").filter("input").click(getSubmitHandler);
@@ -471,13 +475,13 @@ cx.ready(function() {
                         if(checkBoxElement && checkBoxElement.val() == matches[3]) {
                             checkBoxElement.prop('checked', true);
                             checkBoxElement.attr('form', 'vg-0-searchForm');
-                            checked = true;
+                            checked[matches[2]] = true;
                         }
                     } else if (attribute[0] == "checkbox") {
                         formElement = cx.jQuery("#vg-"+ matches[1] +"-checkbox-field-" + matches[2]);
                         formElement.prop('checked', true);
                         formElement.attr('form', 'vg-0-searchForm');
-                        checked = true;
+                        checked[matches[2]] = true;
                     } else {
                         formElement = cx.jQuery("[form=" + formId + "][name=" + attribute[0] + "]");
                     }
