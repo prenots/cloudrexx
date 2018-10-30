@@ -307,6 +307,38 @@ class ViewGenerator {
         } else {
             $lcOptions['searchFields'] = array();
         }
+        if ($lcOptions['searching']) {
+            $searchCheckboxes = array();
+            $em = $this->cx->getDb()->getEntityManager();
+            $metaData = $em->getClassMetadata($entityClass);
+            if ($this->cx->getRequest()->hasParam('checkbox')) {
+                $checkedFields = explode(
+                    '},',
+                    $this->cx->getRequest()->getParam('checkbox')
+                );
+                foreach ($checkedFields as $fieldInfo) {
+                    $fieldInfo = explode(
+                        '}',
+                        explode(
+                            ',',
+                            $fieldInfo
+                        )[1]
+                    )[0];
+                    $field = explode('=', $fieldInfo)[0];
+                    $value = explode('=', $fieldInfo)[1];
+
+                    if (!in_array($field, $metaData->getFieldNames())) {
+                        continue;
+                    }
+                    if (isset($this->options['fields'][$field]['searchCheckbox'])) {
+                        $searchCheckboxes[$field] = $value;
+                    }
+                }
+            }
+
+        } else {
+            $lcOptions['searchCheckboxes'] = array();
+        }
         if (!isset($lcOptions['filterFields'])) {
             $lcOptions['filterFields'] = false;
         }
@@ -772,6 +804,13 @@ class ViewGenerator {
                 isset($this->options['functions']['filtering']) &&
                 $this->options['functions']['filtering']
             );
+            $searchCheckboxes = array();
+            foreach ($this->options['fields'] as $key=>$field) {
+                if(is_null($field['searchCheckbox'])) {
+                    continue;
+                }
+                $searchCheckboxes[$key] = $field['searchCheckbox'];
+            }
             if ($searching || $filtering) {
                 \JS::registerJS(substr($this->cx->getCoreFolderName() . '/Html/View/Script/Backend.js', 1));
             }
