@@ -10,7 +10,7 @@ cx.bind("delete", function (deleteIds) {
             stockUpdate = true;
         }
         window.location.replace(
-            "?deleteids=" + encodeURI(deleteIds)  + (stockUpdate ? '&stock_update=1' : '')
+            "?deleteids=" + encodeURI(deleteIds)  + (stockUpdate ? '&update_stock=1' : '')
             + "&csrf=" + cx.variables.get('CSRF_PARAM', scope) + "&vg_increment_number=0"
         );
     }
