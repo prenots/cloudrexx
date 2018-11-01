@@ -162,6 +162,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options['functions']['editable'] = true;
                 $options['functions']['paging'] = true;
                 $options['functions']['add'] = false;
+                $options['functions']['onclick']['delete'] = 'deleteOrder';
 
                 $options['functions']['searchCallback'] = function(
                     $qb,
