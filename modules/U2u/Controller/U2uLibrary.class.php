@@ -139,13 +139,11 @@ class U2uLibrary {
                         sentMsg.date_time
                         FROM
                         '.DBPREFIX.'module_u2u_sent_messages sentMsg,
-                        '.DBPREFIX.'module_u2u_message_log Log,
-                        '.DBPREFIX.'access_users User
+                        '.DBPREFIX.'module_u2u_message_log Log
 
                         WHERE
                         sentMsg.receiver_id='.$userID.' AND
-                        User.id=sentMsg.userid AND
-                        User.active!=0 AND
+                        sentMsg.userid='.$userID.' AND
                         Log.message_id=sentMsg.message_id'.$whereCondition.'
                         ORDER BY sentMsg.date_time DESC';
       $objResult = $objDatabase->Execute($selMessage);
@@ -163,13 +161,11 @@ class U2uLibrary {
                         sentMsg.date_time
                         FROM
                         '.DBPREFIX.'module_u2u_sent_messages sentMsg,
-                        '.DBPREFIX.'module_u2u_message_log Log,
-                        '.DBPREFIX.'access_users User
+                        '.DBPREFIX.'module_u2u_message_log Log
 
                         WHERE
                         sentMsg.receiver_id='.$userID.' AND
-                        User.id=sentMsg.userid AND
-                        User.active!=0 AND
+                        sentMsg.userid='.$userID.' AND
                         Log.message_id=sentMsg.message_id'.$whereCondition.'
                         ORDER BY sentMsg.date_time DESC';
 
@@ -199,23 +195,22 @@ class U2uLibrary {
     function createEntryDetailsOutbox($userID, $pos) {
         global $objDatabase,$_CONFIG,$_ARRAYLANG;
 
+        $objFWUser = \FWUser::getFWUserObject();
+
         $userID = intval($userID);
         $selMessage ='SELECT
                         Log.message_text,
                         Log.message_title,
                         Log.message_id,
-                        User.username,
                         sentMsg.userid,
                         sentMsg.date_time
                         FROM
                         '.DBPREFIX.'module_u2u_sent_messages sentMsg,
-                        '.DBPREFIX.'module_u2u_message_log Log,
-                        '.DBPREFIX.'access_users User
+                        '.DBPREFIX.'module_u2u_message_log Log
 
                         WHERE
                         sentMsg.userid='.$userID.' AND
-                        User.id=sentMsg.receiver_id AND
-                        User.active!=0 AND
+                        sentMsg.receiver_id='.$userID.' AND
                         Log.message_id=sentMsg.message_id AND
                         sentMsg.mesage_open_status="0"
                         ORDER BY sentMsg.date_time DESC';
@@ -239,12 +234,10 @@ class U2uLibrary {
 
                         WHERE
                         sentMsg.userid='.$userID.' AND
-                        User.id=sentMsg.receiver_id AND
-                        User.active!=0 AND
+                        sentMsg.receiver_id='.$userID.' AND
                         Log.message_id=sentMsg.message_id AND
                         sentMsg.mesage_open_status="0"
                         ORDER BY sentMsg.date_time DESC';
-
 
       $objResult = $objDatabase->SelectLimit($selMessage, $_CONFIG['corePagingLimit'], $pos);
       $this->paginationCount=$paging;
@@ -256,10 +249,15 @@ class U2uLibrary {
           $arrMessage[$messageID] = array();
           $arrMessage[$messageID]["message"]        =   $objResult->fields['message_text'];
           $arrMessage[$messageID]["message_title"]  =   $objResult->fields['message_title'];
-          $arrMessage[$messageID]["username"]       =   $objResult->fields['username'];
           $arrMessage[$messageID]["date_time"]      =   $objResult->fields['date_time'];
           $objResult->MoveNext();
        }
+       //use user library
+       $objUser = $objFWUser->objUser->getUsers(array('id' => intval($userID)));
+       if ($objUser !== false) {
+           $arrMessage[$messageID]["username"] = $objUser->getRealUsername();
+       }
+
        return $arrMessage;
     }
 
@@ -277,18 +275,17 @@ class U2uLibrary {
                         COUNT(Log.message_id) AS numberofEntries
                         FROM
                         '.DBPREFIX.'module_u2u_sent_messages sentMsg,
-                        '.DBPREFIX.'module_u2u_message_log Log,
-                        '.DBPREFIX.'access_users User
+                        '.DBPREFIX.'module_u2u_message_log Log
 
                         WHERE
                         sentMsg.receiver_id='.$userID.' AND
-                        User.id=sentMsg.userid AND
+                        sentMsg.userid='.$userID.' AND
                         Log.message_id=sentMsg.message_id
                         AND sentMsg.mesage_open_status="0"
-                        AND User.active!=0
                         ORDER BY sentMsg.date_time';
         $objResult = $objDatabase->Execute($selMessageCount);
         $newMessages=$objResult->fields['numberofEntries'];
+
         return $newMessages;
     }
 
@@ -299,6 +296,8 @@ class U2uLibrary {
      */
     function createEntryShowMessage($messageID) {
         global $objDatabase;
+
+        $objFWUser = \FWUser::getFWUserObject();
 
         $messageID = intval($messageID);
         if($_REQUEST["status"]=="outboxmsg" || !empty($_REQUEST['send'])) {
@@ -312,13 +311,11 @@ class U2uLibrary {
                         Log.message_text,
                         Log.message_title,
                         Log.message_id,
-                        User.regdate,
                         sentMsg.userid,
                         sentMsg.date_time
                         FROM
                         '.DBPREFIX.'module_u2u_sent_messages sentMsg,
-                        '.DBPREFIX.'module_u2u_message_log Log,
-                        '.DBPREFIX.'access_users User
+                        '.DBPREFIX.'module_u2u_message_log Log
                         WHERE
                         Log.message_id='.$messageID.' AND
                         sentMsg.message_id=Log.message_id
@@ -452,14 +449,13 @@ class U2uLibrary {
      */
     function _getStatus($userID) {
 
-        global $objDatabase;
         $userID = intval($userID);
-        $selStatusUser      = 'select u2u_active from '.DBPREFIX.'access_users
-                              where id="'.$userID.'" and active="1"';
-        $objResult          = $objDatabase->Execute($selStatusUser);
-        $countStatus        = $objResult->RecordCount();
-        return $countStatus;
 
+        $objUser = \FWUser::getFWUserObject()->objUser->getUser($id = $userID);
+
+        $activeStatus = intval($objUser->getActiveStatus());
+
+        return $activeStatus;
     }
 
     /**
@@ -468,12 +464,13 @@ class U2uLibrary {
      * @global      $objDatabase
      */
     function _getEmail($id) {
-        global $objDatabase;
-
-        $id = intval($id);
-        $emailQuery='SELECT email from '.DBPREFIX.'access_users WHERE id='.$id.'';
-        $objResult=$objDatabase->Execute($emailQuery);
-        $arrShowEmail['email']        =$objResult->fields['email'];
+        $userId = intval($id);
+        $objUser = \FWUser::getFWUserObject()->objUser->getUser($id = $userId);
+        if ($objUser !== false) {
+            $arrShowEmail['email'] = $objUser->getEmail();
+        } else {
+            $arrShowEmail['email'] = '';
+        }
         return $arrShowEmail;
     }
 
@@ -494,12 +491,14 @@ class U2uLibrary {
      * @global      $objDatabase
      */
     function _getCity($id) {
-        global $objDatabase;
+        $userId = intval($id);
 
-        $id = intval($id);
-        $cityQuery='SELECT city from '.DBPREFIX.'access_user_profile WHERE user_id='.$id.'';
-        $objResult=$objDatabase->Execute($cityQuery);
-        $arrShowcity['city']        =$objResult->fields['city'];
+        $objUser = \FWUser::getFWUserObject()->objUser->getUser($id = $userId);
+        if ($objUser !== false) {
+            $arrShowcity['city'] = $objUser->getProfileAttribute('city');
+        } else {
+            $arrShowcity['city'] = '';
+        }
         return $arrShowcity;
     }
 
@@ -509,12 +508,14 @@ class U2uLibrary {
      * @global      $objDatabase
      */
     function _getSite($id) {
-        global $objDatabase;
+        $userId = intval($id);
 
-        $id = intval($id);
-        $siteQuery='SELECT website from '.DBPREFIX.'access_user_profile WHERE user_id='.$id.'';
-        $objResult=$objDatabase->Execute($siteQuery);
-        $arrShowsite['website'] = $objResult->fields['website'];
+        $objUser = \FWUser::getFWUserObject()->objUser->getUser($id = $userId);
+        if ($objUser !== false) {
+            $arrShowsite['website'] = $objUser->getProfileAttribute('website');
+        } else {
+            $arrShowsite['website'] = '';
+        }
         return $arrShowsite;
     }
 
@@ -549,7 +550,6 @@ class U2uLibrary {
 
         if (!isset($arrIds)) {
             $arrIds = array();
-
             $objFWUser = \FWUser::getFWUserObject();
             if ($objFWUser->objUser->login()) {
                 $objResult = $objDatabase->Execute('SELECT `buddies_id` FROM `'.DBPREFIX.'module_u2u_address_list` WHERE `user_id` = '.$objFWUser->objUser->getId());
