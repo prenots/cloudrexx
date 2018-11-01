@@ -43,7 +43,8 @@ Cx\Modules\Shop\Model\Entity\Orders:
       options:
         default: '0000-00-00 00:00:00'
     status:
-      type: boolean
+      type: integer
+      length: 1
       options:
         unsigned: true
         default: '0'
