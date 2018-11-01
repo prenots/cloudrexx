@@ -671,14 +671,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'table' => array (
                             'parse' => function ($value, $rowData) {
                                 $objUser = \FWUser::getFWUserObject()->objUser
-                                    ->getUser($id = (int)$value);
+                                    ->getUser($value->getId());
                                 ;
 
                                 return $objUser->getProfileAttribute(
-                                    'lastname'
-                                ) . ' ' .$objUser->getProfileAttribute(
-                                    'firstname'
-                                );
+                                        'lastname'
+                                    ) . ' ' .$objUser->getProfileAttribute(
+                                        'firstname'
+                                    );
                             },
                             'attributes' => array(
                                 'class' => 'order-customer',
