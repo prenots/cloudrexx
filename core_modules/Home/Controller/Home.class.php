@@ -188,14 +188,16 @@ class Home {
 // TODO: Unused
 //        $objFWUser = \FWUser::getFWUserObject();
         $objResult = $objDatabase->SelectLimit(
-           'SELECT `logs`.`datetime`, `users`.`username`
+           'SELECT `logs`.`datetime`, `logs`.`userid`
             FROM `'.DBPREFIX.'log` AS `logs`
-            LEFT JOIN `'.DBPREFIX.'access_users` AS `users`
-            ON `users`.`id`=`logs`.`userid`
             ORDER BY `logs`.`id` DESC', 1);
         if ($objResult && $objResult->RecordCount() > 0) {
+            $objUser = \FWUser::getFWUserObject()->objUser->getUser($id = $objResult->fields['userid']);
+            if ($objUser !== false) {
+                $username = $objUser->getRealUsername();
+            }
             $objTemplate->setVariable(array(
-                'LAST_LOGIN_USERNAME' => contrexx_raw2xhtml($objResult->fields['username']),
+                'LAST_LOGIN_USERNAME' => contrexx_raw2xhtml($username),
                 'LAST_LOGIN_TIME'     => date('d.m.Y', strtotime($objResult->fields['datetime'])),
             ));
             $objTemplate->parse('last_login');
