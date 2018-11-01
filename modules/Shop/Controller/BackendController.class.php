@@ -479,6 +479,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'class' => 'readonly',
                             'readonly' => 'readonly'
                         ),
+                        'storecallback' => function($value, $entity) {
+                            $date = new \DateTime('now');
+                            return $date->format('Y-m-d H:i:s');
+                        }
 
                     ),
                     'modifiedBy' => array(
@@ -488,6 +492,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'class' => 'readonly',
                             'readonly' => 'readonly',
                         ),
+                        'storecallback' => function($value, $entity) {
+                            return $objFWUser = \FWUser::getFWUserObject()->objUser->getEmail();
+                        }
                     ),
                     'billingGender' => array(
                         'showOverview' => false,
