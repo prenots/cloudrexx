@@ -36,12 +36,7 @@ class OrderEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListene
         )->deleteById($entityId, $updateStock);
 
         $url = \Cx\Core\Routing\Url::fromRequest();
-        $url->setParams(
-            array(
-                'deleteid' => 0,
-                'updateStock' => false
-            )
-        );
+        $url->removeAllParams();
         \Cx\Core\Csrf\Controller\Csrf::redirect($url->__toString());
     }
 }
