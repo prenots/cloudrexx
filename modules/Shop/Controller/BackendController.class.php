@@ -163,6 +163,26 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options['functions']['paging'] = true;
                 $options['functions']['add'] = false;
 
+                $options['functions']['searchCallback'] = function(
+                    $qb,
+                    $field,
+                    $crit,
+                    $i
+                ) {
+                    if ($field == 'customer') {
+                        $qb->join(
+                            '\Cx\Core\User\Model\Entity\User',
+                            'u', 'WITH', 'u.id = x.customerId'
+                        );
+                        $qb->andWhere('?'.$i.' MEMBER OF u.group');
+                        $qb->setParameter($i, $crit);
+                    } else {
+                        $qb->andWhere($qb->expr()->eq('x.' . $field, '?' . $i));
+                        $qb->setParameter($i, $crit);
+                    }
+                    return $qb;
+                };
+
                 $options['multiActions']['delete'] = array(
                     'title' => $_ARRAYLANG['TXT_DELETE'],
                     'jsEvent' => 'delete:order'
@@ -667,7 +687,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'filterOptionsField' => function (
                             $parseObject, $fieldName, $elementName, $formName
                         ) {
-                            return $this->getCustomerGroupMenu($elementName);
+                            return $this->getCustomerGroupMenu($elementName, $formName);
                         },
                     ),
                 );
@@ -702,7 +722,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * @param string $elementName name of element
      * @return \Cx\Core\Html\Model\Entity\DataElement
      */
-    protected function getCustomerGroupMenu($elementName)
+    protected function getCustomerGroupMenu($elementName, $formName)
     {
         global $_ARRAYLANG;
 
@@ -728,6 +748,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             'select',
             null,
             $validValues
+        );
+
+        $searchField->setAttributes(
+            array(
+                'form' => $formName,
+                'data-vg-attrgroup' => 'search',
+                'data-vg-field' => 'customer',
+                'class' => 'vg-encode'
+            )
         );
         return $searchField;
     }
