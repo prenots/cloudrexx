@@ -671,15 +671,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'sorting' => false,
                         'table' => array (
                             'parse' => function ($value, $rowData) {
-                                $objUser = \FWUser::getFWUserObject()->objUser
-                                    ->getUser($value->getId());
-                                ;
-
-                                return $objUser->getProfileAttribute(
-                                        'lastname'
-                                    ) . ' ' .$objUser->getProfileAttribute(
-                                        'firstname'
-                                    );
+                                return $this->getCustomerLink($value, $rowData);
                             },
                             'attributes' => array(
                                 'class' => 'order-customer',
@@ -715,6 +707,29 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $textField->setAttribute('class', 'form-control');
 
         return $textField;
+    }
+
+    protected function getCustomerLink($value, $rowData)
+    {
+        $objUser = \FWUser::getFWUserObject()->objUser->getUser(
+            $value->getId()
+        );
+
+        $name = $objUser->getProfileAttribute(
+                'lastname'
+            ) . ' ' .$objUser->getProfileAttribute(
+                'firstname'
+            );
+
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $nameElement = new \Cx\Core\Html\Model\Entity\TextElement($name);
+        $link->addChild($nameElement);
+        // Use this when Ticket CLX-2296 is merged into master
+        // \Cx\Core\Html\Controller\ViewGenerator::getVgShowUrl(0, $rowData['id']);
+        $showUrl = '';
+        $link->setAttribute('href', $showUrl);
+
+        return $link;
     }
 
     /**
