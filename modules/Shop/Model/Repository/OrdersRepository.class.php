@@ -72,7 +72,7 @@ class OrdersRepository extends \Doctrine\ORM\EntityRepository
 
             $order->setStatus($this::STATUS_DELETED);
             $order->setModifiedBy(contrexx_raw2db($objUser->getUsername()));
-            $order->setModifiedOn(new DateTime('now'));
+            $order->setModifiedOn(new \DateTime('now'));
 
             if ($updateStock) {
                 $this->updateStock($order);
