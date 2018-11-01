@@ -16,6 +16,7 @@ cx.bind("delete", function (deleteIds) {
     }
 }, 'order');
 
+// Function to overwrite delete onclick event. See BackendController $option['functions]['onclick']['delete']
 function deleteOrder(deleteUrl) {
     if (confirm(
         cx.variables.get('TXT_CONFIRM_DELETE_ORDER', scope)+'\n'+ cx.variables.get('TXT_ACTION_IS_IRREVERSIBLE', scope)
