@@ -48,6 +48,9 @@ namespace Cx\Modules\Shop\Controller;
  */
 class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBackendController
 {
+    // Order Id to edit
+    protected $orderId = 0;
+
     /**
      * This is called by the ComponentController and does all the repeating work
      *
@@ -134,6 +137,17 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
     {
         global $_ARRAYLANG;
+
+        // Until we know how to get the editId without the $_GET param
+        if ($this->cx->getRequest()->hasParam('editid')) {
+            $this->orderId = explode(
+                '}',
+                explode(
+                    ',',
+                    $this->cx->getRequest()->getParam('editid')
+                )[1]
+            )[0];
+        }
 
         $options = parent::getViewGeneratorOptions(
             $entityClassName,
@@ -867,7 +881,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $entity = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Lsv'
-        )->findOneBy(array('orderId' => 3));
+        )->findOneBy(array('orderId' => $this->orderId));
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()
             ->getEntityManager();
@@ -928,18 +942,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         global $_ARRAYLANG;
 
-        // Until we know how to get the editId without the $_GET param
-        if (!$this->cx->getRequest()->hasParam('editid')) {
-            return;
-        }
-        $orderId = explode(
-            '}',
-            explode(
-                ',',
-                $this->cx->getRequest()->getParam('editid')
-            )[1]
-        )[0];
-
         $tableConfig['header'] = array(
             'quantity' => array(
                 'type' => 'input',
@@ -966,7 +968,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         );
 
         $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
-        $tableConfig['criteria'] = array('orderId' => $orderId);
+        $tableConfig['criteria'] = array('orderId' => $this->orderId);
 
         $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
         $tableBody = new \Cx\Core\Html\Model\Entity\HtmlElement('tbody');;
@@ -1168,7 +1170,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         // add coupon
         $couponRel = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
-        )->findOneBy(array('orderId' => $orderId));
+        )->findOneBy(array('orderId' => $this->orderId));
 
         if (!empty($couponRel)) {
             $trCoupon = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
@@ -1275,7 +1277,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $order = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Orders'
-        )->findOneBy(array('id' => $orderId));
+        )->findOneBy(array('id' => $this->orderId));
 
         $customerId = $order->getCustomerId();
         $this->defineJsVariables($customerId);
