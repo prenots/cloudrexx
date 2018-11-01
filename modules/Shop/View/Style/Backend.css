@@ -60,3 +60,9 @@
 .order-customer {
     width: 38%;
 }
+
+.readonly {
+    border: none !important;
+    padding-left: 0 !important;
+    background: #fff;
+}

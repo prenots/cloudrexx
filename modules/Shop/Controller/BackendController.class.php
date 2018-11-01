@@ -272,15 +272,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 'class' => 'order-id',
                             ),
                         ),
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        },
+                        'attributes' => array(
+                            'class' => 'readonly',
+                        ),
+                        'readonly' => true,
                         'sorting' => true,
                     ),
                     'customerId' => array(
@@ -327,18 +322,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 'class' => 'order-date-time',
                             ),
                         ),
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            $date = new \DateTime($fieldvalue);
-                            $fieldvalue = $date->format('d-m-Y h:m:s');
-
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        }
+                        'attributes' => array(
+                            'class' => 'readonly',
+                        ),
+                        'readonly' => true,
+                        'type' => 'input',
                     ),
                     'status' => array(
                         'showOverview' => true,
@@ -474,15 +462,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => true,
                         'allowFiltering' => false,
                         'sorting' => false,
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        },
+                        'type' => 'div',
                         'table' => array(
                             'parse' => function($value, $rowData) {
                                 return $this->getNoteToolTip($value);
@@ -495,31 +475,19 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'modifiedOn' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            $date = new \DateTime($fieldvalue);
-                            $fieldvalue = $date->format('d-m-Y h:m:s');
+                        'attributes' => array(
+                            'class' => 'readonly',
+                            'readonly' => 'readonly'
+                        ),
 
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        }
                     ),
                     'modifiedBy' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        }
+                        'attributes' => array(
+                            'class' => 'readonly',
+                            'readonly' => 'readonly',
+                        ),
                     ),
                     'billingGender' => array(
                         'showOverview' => false,
@@ -633,15 +601,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'lang' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        }
+                        'attributes' => array(
+                            'class' => 'readonly',
+                        ),
+                        'readonly' => true,
+                        'type' => 'input',
                     ),
                     'currencies' => array(
                         'showOverview' => false,
@@ -655,15 +619,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'payment' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength,
-                            $fieldvalue, $fieldoptions
-                        ) {
-                            return $this->getTextElement(
-                                $fieldname,
-                                $fieldvalue
-                            );
-                        }
+                        'attributes' => array(
+                            'class' => 'readonly',
+                        ),
+                        'readonly' => true,
+                        'type' => 'input',
                     ),
                     'customer' => array(
                         'showOverview' => true,
@@ -687,26 +647,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
         }
         return $options;
-    }
-
-    /**
-     * Get a text element so they cannot be edited.
-     *
-     * @param string $fieldname  name of field
-     * @param string $fieldvalue value of field
-     * @return \Cx\Core\Html\Model\Entity\TextElement
-     */
-    protected function getTextElement($fieldname, $fieldvalue)
-    {
-        $textField = new \Cx\Core\Html\Model\Entity\TextElement(
-            $fieldvalue
-        );
-        $textField->setAttribute('name', $fieldname);
-        $textField->setAttribute('type', 'text');
-        $textField->setAttribute('id', $fieldname);
-        $textField->setAttribute('class', 'form-control');
-
-        return $textField;
     }
 
     protected function getCustomerLink($value, $rowData)
