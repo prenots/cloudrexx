@@ -903,14 +903,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     protected function generateLsvs($entity)
     {
         global $_ARRAYLANG;
-        if (empty($entity)) {
-            $empty = new \Cx\Core\Html\Model\Entity\TextElement('');
-            return $empty;
-        }
 
         $entity = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Lsv'
         )->findOneBy(array('orderId' => $this->orderId));
+
+        if (empty($entity)) {
+            $empty = new \Cx\Core\Html\Model\Entity\TextElement('');
+            return $empty;
+        }
 
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()
             ->getEntityManager();
@@ -970,6 +971,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     protected function generateOrderItemView()
     {
         global $_ARRAYLANG;
+
+        if (empty($this->orderId)) {
+            return;
+        }
 
         $tableConfig['header'] = array(
             'quantity' => array(
