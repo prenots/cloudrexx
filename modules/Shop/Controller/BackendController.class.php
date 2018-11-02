@@ -163,7 +163,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options['functions']['paging'] = true;
                 $options['functions']['add'] = false;
                 $options['functions']['onclick']['delete'] = 'deleteOrder';
-
+                $options['functions']['order']['id'] = SORT_DESC;
                 $options['functions']['searchCallback'] = function(
                     $qb,
                     $field,
