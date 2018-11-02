@@ -319,7 +319,7 @@ class Currencies extends \Cx\Model\Base\EntityBase {
      */
     static function getCurrencyPrice($price)
     {
-        $activeCurrencyId = 1;
+        $activeCurrencyId = (int)$_SESSION['shop']['currencyId'];
         $currency = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Currencies'
         )->findOneBy(array('id' => $activeCurrencyId));
