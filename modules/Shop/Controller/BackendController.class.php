@@ -959,6 +959,19 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return;
         }
 
+        $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
+        $tableConfig['criteria'] = array('orderId' => $this->orderId);
+
+        $orderItems = $this->cx->getDb()->getEntityManager()->getRepository(
+            $tableConfig['entity']
+        )->findBy($tableConfig['criteria']);
+
+        $order = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Orders'
+        )->findOneBy(array('id' => $this->orderId));
+
+        $currency = $order->getCurrencies()->getCode();
+
         $tableConfig['header'] = array(
             'quantity' => array(
                 'type' => 'input',
@@ -968,11 +981,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             ),
             'weight' => array(
                 'type' => 'input',
-                'addition' => 'g',
             ),
             'price' => array(
                 'type' => 'input',
-                'addition' => 'CHF',
+                'addition' => $currency,
             ),
             'vat_rate' => array(
                 'type' => 'input',
@@ -980,12 +992,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             ),
             'sum' => array(
                 'type' => 'input',
-                'addition' => 'CHF',
+                'addition' => $currency,
             ),
         );
-
-        $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
-        $tableConfig['criteria'] = array('orderId' => $this->orderId);
 
         $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
         $tableBody = new \Cx\Core\Html\Model\Entity\HtmlElement('tbody');;
@@ -1010,10 +1019,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $cols = $this->cx->getDb()->getEntityManager()->getClassMetadata(
             $tableConfig['entity']
         )->getColumnNames();
-
-        $orderItems = $this->cx->getDb()->getEntityManager()->getRepository(
-            $tableConfig['entity']
-        )->findBy($tableConfig['criteria']);
 
         foreach ($orderItems as $orderItem) {
             $tr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
@@ -1252,10 +1257,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             )
         );
 
-        $additionG = new \Cx\Core\Html\Model\Entity\TextElement('g');
-
         $tdWeightInput->addChild($weightInput);
-        $tdWeightInput->addChild($additionG);
 
         $trCustom->addChild($tdWeightTitle);
         $trCustom->addChild($tdWeightInput);
@@ -1291,10 +1293,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $trCustom->addChild($tdNetpriceTitle);
         $trCustom->addChild($tdNetpriceInput);
         $tableBody->addChild($trCustom);
-
-        $order = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Orders'
-        )->findOneBy(array('id' => $this->orderId));
 
         $customerId = $order->getCustomerId();
         $this->defineJsVariables($customerId);
