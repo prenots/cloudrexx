@@ -94,7 +94,9 @@ ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
 
 /** To insert relations without problems **/
 ALTER TABLE contrexx_module_shop_discount_coupon
+  ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   CHANGE customer_id customer_id INT NULL,
+  ADD UNIQUE( `code`, `customer_id`),
   CHANGE payment_id payment_id INT UNSIGNED DEFAULT NULL,
   CHANGE product_id product_id INT UNSIGNED DEFAULT NULL;
 UPDATE `contrexx_module_shop_discount_coupon` SET `payment_id`=NULL WHERE `payment_id`= 0;
@@ -106,6 +108,7 @@ UPDATE `contrexx_module_shop_products` SET `group_id`=NULL WHERE `group_id`= 0;
 
 ALTER TABLE contrexx_module_shop_categories CHANGE parent_id parent_id INT UNSIGNED DEFAULT NULL;
 UPDATE `contrexx_module_shop_categories` SET `parent_id`=NULL WHERE `parent_id`= 0;
+
 
 /** Constraints **/
 ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
@@ -219,10 +222,6 @@ CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
-
-/** customer_id is no longer a primary key, because it can also be null.**/
-ALTER TABLE contrexx_module_shop_discount_coupon ADD PRIMARY KEY (code);
-
 
 /** Merge Data **/
 INSERT INTO contrexx_module_shop_rel_category_product SELECT
