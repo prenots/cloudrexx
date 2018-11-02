@@ -479,6 +479,26 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'class' => 'readonly',
                             'readonly' => 'readonly'
                         ),
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength, $fieldvalue,
+                            $fieldoptions
+                        ) {
+                            global $_ARRAYLANG;
+                            if (empty($fieldvalue)) {
+                                $field = new \Cx\Core\Html\Model\Entity\TextElement(
+                                    $_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED']
+                                );
+                                return $field;
+                            }
+
+                            $field = new \Cx\Core\Html\Model\Entity\DataElement(
+                                $fieldname,
+                                $fieldvalue,
+                                'input'
+                            );
+                            $field->setAttributes($fieldoptions['attributes']);
+                            return $field;
+                        },
                         'storecallback' => function($value, $entity) {
                             $date = new \DateTime('now');
                             return $date->format('Y-m-d H:i:s');

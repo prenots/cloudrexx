@@ -116,6 +116,8 @@ $_ARRAYLANG['TXT_SEND_MAIL'] = "E-Mail \"Auftrag abgeschlossen\" an Kunde senden
 
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'] = "Gutschein Code";
 
+$_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED'] = "Diese Bestellung wurde noch nicht bearbeitet.";
+
 /*** OLD **/
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "Das Gesamtgewicht der Bestellung übersteigt die verfügbaren Versandmöglichkeiten.";
 $_ARRAYLANG['TXT_ACCEPT_CHANGES'] = "Änderungen übernehmen";
@@ -334,7 +336,6 @@ $_ARRAYLANG['TXT_ORDER_CONFIRMATION'] = "Bestellungsbestätigung";
 $_ARRAYLANG['TXT_ORDER_DELETED'] = "Die Bestellung(en) wurde(n) gelöscht.";
 $_ARRAYLANG['TXT_ORDER_DETAILS'] = "Bestellungsdetails";
 $_ARRAYLANG['TXT_ORDER_SUM'] = "Bestellsumme";
-$_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED'] = "Diese Bestellung wurde noch nicht bearbeitet.";
 $_ARRAYLANG['TXT_ORDERDATE'] = "Bestelldatum";
 $_ARRAYLANG['TXT_ORDERNUMBER'] = "Auftragsnummer";
 $_ARRAYLANG['TXT_ORDERS'] = $_ARRAYLANG['TXT_MODULE_SHOP_ACT_ORDERS'];
