@@ -1090,7 +1090,7 @@ class Orders extends \Cx\Model\Base\EntityBase {
      */
     public function setLang(\Cx\Core\Locale\Model\Entity\Locale $lang = null)
     {
-        $this->currencies = $lang;
+        $this->lang = $lang;
     }
 
     /**
