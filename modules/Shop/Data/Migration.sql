@@ -32,47 +32,47 @@ ALTER TABLE contrexx_module_shop_orders
   CHANGE modified_on modified_on DATETIME DEFAULT NULL;
 
 ALTER TABLE contrexx_module_shop_manufacturer
-  ADD uri VARCHAR(55) DEFAULT '' NOT NULL,
-  ADD name VARCHAR(35) DEFAULT '' NOT NULL;
+  ADD uri VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_currencies
-  ADD name VARCHAR(35) DEFAULT '' NOT NULL;
+  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_option
-  ADD name VARCHAR(45) DEFAULT '' NOT NULL;
+  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_products
-  ADD uri VARCHAR(55) DEFAULT '' NOT NULL,
-  ADD short LONGTEXT NOT NULL,
-  ADD `long` LONGTEXT NOT NULL,
-  ADD name VARCHAR(45) DEFAULT '' NOT NULL,
-  ADD `keys` LONGTEXT NOT NULL,
-  ADD code VARCHAR(45) DEFAULT '' NOT NULL,
+  ADD uri VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD short TEXT NOT NULL,
+  ADD `long` TEXT NOT NULL,
+  ADD name VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `keys` TEXT NOT NULL,
+  ADD code VARCHAR(255) DEFAULT '' NOT NULL,
   CHANGE date_start date_start DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
   CHANGE date_end date_end DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_payment ADD name VARCHAR(45) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_payment ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_shipper ADD name VARCHAR(30) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_shipper ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_vat ADD class VARCHAR(35) NOT NULL;
+ALTER TABLE contrexx_module_shop_vat ADD class VARCHAR(255) NOT NULL;
 
-ALTER TABLE contrexx_module_shop_article_group ADD name VARCHAR(45) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_article_group ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_categories
-  ADD name VARCHAR(45) DEFAULT '' NOT NULL,
-  ADD description LONGTEXT NOT NULL;
+  ADD name VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD description TEXT NOT NULL;
 
 ALTER TABLE contrexx_module_shop_pricelists CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_rel_customer_coupon CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_discountgroup_count_name
-  ADD unit VARCHAR(30) DEFAULT '' NOT NULL,
-  ADD name VARCHAR(45) DEFAULT '' NOT NULL;
-ALTER TABLE contrexx_module_shop_attribute ADD name VARCHAR(35) DEFAULT '' NOT NULL;
+  ADD unit VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_attribute ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_zones ADD name VARCHAR(45) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_zones ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 ALTER TABLE contrexx_module_shop_rel_payment
   CHANGE zone_id zone_id INT UNSIGNED NOT NULL,
   CHANGE payment_id payment_id INT UNSIGNED NOT NULL;
@@ -82,7 +82,7 @@ ALTER TABLE contrexx_module_shop_rel_shipper
   CHANGE shipper_id shipper_id INT UNSIGNED NOT NULL,
   CHANGE zone_id zone_id INT UNSIGNED NOT NULL;
 
-ALTER TABLE contrexx_module_shop_customer_group ADD name VARCHAR(45) DEFAULT '' NOT NULL;
+ALTER TABLE contrexx_module_shop_customer_group ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_categories CHANGE description description LONGTEXT DEFAULT '' NOT NULL;
 
@@ -94,7 +94,9 @@ ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
 
 /** To insert relations without problems **/
 ALTER TABLE contrexx_module_shop_discount_coupon
+  ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   CHANGE customer_id customer_id INT NULL,
+  ADD UNIQUE( `code`, `customer_id`),
   CHANGE payment_id payment_id INT UNSIGNED DEFAULT NULL,
   CHANGE product_id product_id INT UNSIGNED DEFAULT NULL;
 UPDATE `contrexx_module_shop_discount_coupon` SET `payment_id`=NULL WHERE `payment_id`= 0;
@@ -106,6 +108,7 @@ UPDATE `contrexx_module_shop_products` SET `group_id`=NULL WHERE `group_id`= 0;
 
 ALTER TABLE contrexx_module_shop_categories CHANGE parent_id parent_id INT UNSIGNED DEFAULT NULL;
 UPDATE `contrexx_module_shop_categories` SET `parent_id`=NULL WHERE `parent_id`= 0;
+
 
 /** Constraints **/
 ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
@@ -219,10 +222,6 @@ CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
-
-/** customer_id is no longer a primary key, because it can also be null.**/
-ALTER TABLE contrexx_module_shop_discount_coupon ADD PRIMARY KEY (code);
-
 
 /** Merge Data **/
 INSERT INTO contrexx_module_shop_rel_category_product SELECT
@@ -362,30 +361,3 @@ UPDATE contrexx_module_shop_customer_group AS z
 	INNER JOIN contrexx_core_text AS t ON z.id = t.id
   SET z.name = t.text
   WHERE t.section = 'Shop' AND t.key = 'discount_group_customer' AND t.lang_id = 1;
-
-
-/** Drop **/
-ALTER TABLE contrexx_module_shop_pricelists DROP categories;
-ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
-
-DELETE FROM `contrexx_core_text` WHERE `key` = 'zone_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'shipper_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'product_uri';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'product_short';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'product_long';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'product_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'product_keys';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'product_code';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'attribute_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'option_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'category_description';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'category_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'manufacturer_uri';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'manufacturer_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'payment_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'currency_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'vat_class';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'discount_group_unit';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'discount_group_name';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'discount_group_article';
-DELETE FROM `contrexx_core_text` WHERE `key` = 'discount_group_customer';
