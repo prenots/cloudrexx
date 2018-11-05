@@ -110,18 +110,4 @@ class JS
     public static function findCss(&$content) {
         return static::getInstance()->findCss($content);
     }
-
-    /**
-     * This wrapper is necessary since __callStatic() cannot handle "by reference"
-     */
-    public static function grabComments(&$content) {
-        return static::getInstance()->grabComments($content);
-    }
-
-    /**
-     * This wrapper is necessary since __callStatic() cannot handle "by reference"
-     */
-    public static function restoreComments(&$content) {
-        return static::getInstance()->restoreComments($content);
-    }
 }

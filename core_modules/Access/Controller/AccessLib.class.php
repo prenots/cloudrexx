@@ -627,13 +627,15 @@ class AccessLib
     {
         global $_CORELANG;
 
-        $arrScope = array('frontend', 'backend');
         $this->arrAccountAttributes['frontend_language']['children'][0] = $this->arrAccountAttributes['backend_language']['children'][0] = $_CORELANG['TXT_ACCESS_DEFAULT'];
         foreach (\FWLanguage::getLanguageArray() as $langId => $arrLanguage) {
-            foreach ($arrScope as $scope) {
-                if ($arrLanguage[$scope]) {
-                    $this->arrAccountAttributes[$scope.'_language']['children'][$langId] = $arrLanguage['name'];
-                }
+            if ($arrLanguage['frontend']) {
+                $this->arrAccountAttributes['frontend_language']['children'][$langId] = $arrLanguage['name'];
+            }
+        }
+        foreach (\FWLanguage::getBackendLanguageArray() as $langId => $arrLanguage) {
+            if ($arrLanguage['backend']) {
+                $this->arrAccountAttributes['backend_language']['children'][$langId] = $arrLanguage['name'];
             }
         }
     }
@@ -1221,13 +1223,13 @@ class AccessLib
 function accessSetWebsite(elInput, elDiv, elLink)
 {
     website = elInput.value;
-    newWebsite = prompt('{$_CORELANG['TXT_ACCESS_SET_ADDRESS_OF_WEBSITE']}', (website != '' ? website : 'http://'));
+    newWebsite = prompt('{$_CORELANG['TXT_ACCESS_SET_ADDRESS_OF_WEBSITE']}', (website != '' ? website : 'https://'));
 
     if (typeof(newWebsite) == 'string') {
-        if (newWebsite == 'http://') {
+        if (newWebsite.match(/^https?:\/\/$/)) {
             newWebsite = '';
-        } else if (newWebsite != '' && newWebsite.substring(0, 7) != 'http://') {
-            newWebsite = 'http://'+newWebsite;
+        } else if (newWebsite != '' && !newWebsite.match(/^https?:\/\//)) {
+            newWebsite = 'https://'+newWebsite;
         }
 
         elInput.value = newWebsite;
@@ -1918,24 +1920,43 @@ JS
     }
 
 
-    protected function removeUselessImages()
+    public static function removeUselessImages()
     {
         global $objDatabase;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        // fetch thumbnails of fallback images
+        $noAvatarThumbnails =
+            $cx->getMediaSourceManager()
+            ->getThumbnailGenerator()
+            ->getThumbnailsFromFile(
+                $cx->getWebsiteImagesAccessProfileWebPath(),
+                \User_Profile::$arrNoAvatar['src'],
+                true
+            );
+        $noPictureThumbnails =
+            $cx->getMediaSourceManager()
+            ->getThumbnailGenerator()
+            ->getThumbnailsFromFile(
+                $cx->getWebsiteImagesAccessPhotoWebPath(),
+                \User_Profile::$arrNoPicture['src'],
+                true
+            );
+        $noThumbnails = array_merge($noAvatarThumbnails, $noPictureThumbnails);
+
+        // strip path from fallback thumbnails
+        $excludeFiles = array_map('basename', $noThumbnails);
+
+        // add fallback images
+        $excludeFiles[] = \User_Profile::$arrNoAvatar['src'];
+        $excludeFiles[] = \User_Profile::$arrNoPicture['src'];
+
+        // quote images for REGEXP
+        $excludeFiles = array_map('preg_quote', $excludeFiles);
+
         // Regex matching folders and files not to be deleted
-        $noAvatarThumbSrc = \ImageManager::getThumbnailFilename(
-            $cx->getWebsiteImagesAccessProfileWebPath() .'/'.
-            \User_Profile::$arrNoAvatar['src']);
-        $noPictureThumbSrc = \ImageManager::getThumbnailFilename(
-            $cx->getWebsiteImagesAccessPhotoWebPath() .'/'.
-            \User_Profile::$arrNoPicture['src']);
-        $ignoreRe =
-            '/(?:\.(?:\.?|svn)'.
-            '|'.preg_quote(\User_Profile::$arrNoAvatar['src'], '/').
-            '|'.preg_quote($noAvatarThumbSrc, '/').
-            '|'.preg_quote(\User_Profile::$arrNoPicture['src'], '/').
-            '|'.preg_quote($noPictureThumbSrc, '/').')$/';
+        $ignoreRe = '#^(?:\.(?:\.?|svn|git|htaccess|ftpaccess)|' . implode('|', $excludeFiles) . ')$#';
 
         $arrTrueFalse = array(true, false);
         foreach ($arrTrueFalse as $profilePics) {
@@ -1946,21 +1967,8 @@ JS
             $arrImages = array();
             $offset = 0;
             $step = 50000;
-// TODO: Never used
-//            $removeImages = array();
 
-            if (CONTREXX_PHP5) {
-                $arrImages = scandir($imagePath);
-            } else {
-// TODO: We're PHP5 *ONLY* now.  This is obsolete
-                $dh  = opendir($imagePath);
-                $image = readdir($dh);
-                while ($image !== false) {
-                    $arrImages[] = $image;
-                    $image = readdir($dh);
-                }
-                closedir($dh);
-            }
+            $arrImages = scandir($imagePath);
             foreach ($arrImages as $index => $file) {
                 if (preg_match($ignoreRe, $file)) unset($arrImages[$index]);
             }
@@ -2004,18 +2012,28 @@ JS
                     $arrImagesDb = array();
                     while (!$objImage->EOF) {
                         $arrImagesDb[] = $objImage->fields['picture'];
-                        $arrImagesDb[] = basename(
-                            \ImageManager::getThumbnailFilename(
-                                $imageWebPath
-                                .'/'. $objImage->fields['picture']
-                        ));
+
+                        // fetch all thumbnails of image
+                        $thumbnails =
+                            $cx->getMediaSourceManager()
+                            ->getThumbnailGenerator()
+                            ->getThumbnailsFromFile(
+                                $imageWebPath,
+                                $objImage->fields['picture'],
+                                true
+                            );
+                        $thumbnails = array_map('basename', $thumbnails);
+                        $arrImagesDb = array_merge($arrImagesDb, $thumbnails);
+
                         $objImage->MoveNext();
                     }
                     $offset += $step;
                     $arrImages = array_diff($arrImages, $arrImagesDb);
                 }
             }
-            array_walk($arrImages, create_function('$img', 'unlink("'.$imagePath.'/".$img);'));
+            array_walk($arrImages, function ($img) use ($imagePath) {
+                unlink($imagePath.'/'.$img);
+            });
         }
 
         return true;
@@ -2087,7 +2105,7 @@ JS
      */
     protected function parseNewsletterLists($objUser)
     {
-        global $_CONFIG, $objDatabase, $objInit;
+        global $_CONFIG, $objDatabase, $objInit, $_ARRAYLANG;
 
         if (!$this->_objTpl->blockExists('access_newsletter')) return;
 
@@ -2100,12 +2118,57 @@ JS
                 return;
             }
 
+            $consent = array();
+            if (
+                \Cx\Core\Core\Controller\Cx::instanciate()->getMode() ==
+                    \Cx\Core\Core\Controller\Cx::MODE_BACKEND &&
+                !empty($objUser->getId())
+            ) {
+                // load additional newsletter data
+                $query = '
+                    SELECT
+                        `newsletterCategoryID` as `category`,
+                        `source`,
+                        `consent`
+                    FROM
+                        `' . DBPREFIX . 'module_newsletter_access_user`
+                    WHERE
+                        `accessUserID` = ' . $objUser->getId() . '
+                ';
+                $consentResult = $objDatabase->Execute($query);
+                while (!$consentResult->EOF) {
+                    $consent[$consentResult->fields['category']] = array(
+                        'source' => $consentResult->fields['source'],
+                        'consent' => $consentResult->fields['consent'],
+                    );
+                    $consentResult->MoveNext();
+                }
+                $_ARRAYLANG += $objInit->getComponentSpecificLanguageData(
+                    'Newsletter',
+                    false
+                );
+            }
+
             $row = 0;
             foreach ($arrNewsletterLists as $listId => $arrList) {
                 if ($objInit->mode != 'backend' && !$arrList['status'] && !in_array($listId, $arrSubscribedNewsletterListIDs)) {
                     continue;
                 }
 
+                if (count($consent)) {
+                    if (!isset($consent[$listId])) {
+                        $consent[$listId] = array(
+                            'source' => 'undefined',
+                            'consent' => '',
+                        );
+                    }
+                    $this->_objTpl->setVariable(array(
+                        $this->modulePrefix.'NEWSLETTER_CONSENT' => \Cx\Modules\Newsletter\Controller\NewsletterLib::parseConsentView(
+                            $consent[$listId]['source'],
+                            $consent[$listId]['consent']
+                        ),
+                    ));
+                }
                 $this->_objTpl->setVariable(array(
                     $this->modulePrefix.'NEWSLETTER_ID'        => $listId,
                     $this->modulePrefix.'NEWSLETTER_NAME'      => contrexx_raw2xhtml($arrList['name']),

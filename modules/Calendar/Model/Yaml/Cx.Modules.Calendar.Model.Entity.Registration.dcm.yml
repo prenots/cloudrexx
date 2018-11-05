@@ -13,22 +13,13 @@ Cx\Modules\Calendar\Model\Entity\Registration:
     date:
       type: integer
     submissionDate:
-      type: datetime
-      nullable: true
+      type: timestamp
+      nullable: false
       column: submission_date
-    hostName:
-      type: string
-      length: 255
-      column: host_name
-    ipAddress:
-      type: string
-      length: 15
-      column: ip_address
+      options:
+        default: "0000-00-00 00:00:00"
     type:
       type: integer
-    key:
-      type: string
-      length: 45
     userId:
       type: integer
       column: user_id
@@ -42,6 +33,14 @@ Cx\Modules\Calendar\Model\Entity\Registration:
       column: payment_method
     paid:
       type: integer
+  oneToOne:
+    invite:
+      targetEntity: Cx\Modules\Calendar\Model\Entity\Invite
+      inversedBy: registration
+      joinColumn:
+        name: invite_id
+        referencedColumnName: id
+        nullable: true
   oneToMany:
     registrationFormFieldValues:
       targetEntity: Cx\Modules\Calendar\Model\Entity\RegistrationFormFieldValue
@@ -52,4 +51,5 @@ Cx\Modules\Calendar\Model\Entity\Registration:
       inversedBy: registrations
       joinColumn:
         name: event_id
+        nullable: false
         referencedColumnName: id
