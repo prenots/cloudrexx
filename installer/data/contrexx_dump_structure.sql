@@ -498,7 +498,7 @@ CREATE TABLE `contrexx_core_module_multisite_affiliate_credit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) DEFAULT NULL,
   `currency_id` int(11) DEFAULT NULL,
-  `referee_id` int(5) unsigned NOT NULL,
+  `referee_id` int NOT NULL,
   `payout_id` int(11) DEFAULT NULL,
   `credited` tinyint(1) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
@@ -506,23 +506,17 @@ CREATE TABLE `contrexx_core_module_multisite_affiliate_credit` (
   UNIQUE KEY `subscription_id` (`subscription_id`),
   KEY `currency_id` (`currency_id`),
   KEY `payout_id` (`payout_id`),
-  KEY `referee_id` (`referee_id`),
-  CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_currency_id` FOREIGN KEY (`currency_id`) REFERENCES `contrexx_module_crm_currency` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_payout_id` FOREIGN KEY (`payout_id`) REFERENCES `contrexx_core_module_multisite_affiliate_payout` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_referee_id` FOREIGN KEY (`referee_id`) REFERENCES `contrexx_access_users` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_subid` FOREIGN KEY (`subscription_id`) REFERENCES `contrexx_module_order_subscription` (`id`)
+  KEY `referee_id` (`referee_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_affiliate_payout` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `currency_id` int(11) DEFAULT NULL,
-  `referee_id` int(5) unsigned NOT NULL,
+  `referee_id` int NOT NULL,
   `date` datetime NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `currency_id` (`currency_id`),
-  KEY `referee_id` (`referee_id`),
-  CONSTRAINT `contrexx_core_module_multisite_affiliate_payout_ibfk_currency_id` FOREIGN KEY (`currency_id`) REFERENCES `contrexx_module_crm_currency` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_affiliate_payout_ibfk_referee_id` FOREIGN KEY (`referee_id`) REFERENCES `contrexx_access_users` (`id`)
+  KEY `referee_id` (`referee_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_cron_mail` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -587,7 +581,7 @@ CREATE TABLE `contrexx_core_module_multisite_website` (
   `secretKey` varchar(255) NOT NULL,
   `ipAddress` varchar(45) NOT NULL,
   `mode` enum('standalone','server','client') NOT NULL DEFAULT 'standalone',
-  `ownerId` int(5) unsigned NOT NULL,
+  `ownerId` int NOT NULL,
   `themeId` int(11) DEFAULT NULL,
   `installationId` varchar(40) NOT NULL,
   `ftpUser` varchar(200) DEFAULT NULL,
@@ -599,11 +593,7 @@ CREATE TABLE `contrexx_core_module_multisite_website` (
   KEY `websiteCollectionId` (`websiteCollectionId`),
   KEY `ownerId` (`ownerId`),
   KEY `mailServiceServerId` (`mailServiceServerId`),
-  KEY `server_website_id` (`server_website_id`),
-  CONSTRAINT `contrexx_core_module_multisite_website_ibfk_mailServiceServerId` FOREIGN KEY (`mailServiceServerId`) REFERENCES `contrexx_core_module_multisite_mail_service_server` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_website_ibfk_ownerId` FOREIGN KEY (`ownerId`) REFERENCES `contrexx_access_users` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_website_ibfk_websiteCollectionId` FOREIGN KEY (`websiteCollectionId`) REFERENCES `contrexx_core_module_multisite_website_collection` (`id`),
-  CONSTRAINT `contrexx_core_module_multisite_website_ibfk_server_website_id` FOREIGN KEY (`server_website_id`) REFERENCES `contrexx_core_module_multisite_website` (`id`)
+  KEY `server_website_id` (`server_website_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_core_module_multisite_website_collection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -4020,3 +4010,16 @@ ALTER TABLE contrexx_core_module_sync_change_host ADD CONSTRAINT FK_92C38FE01FB8
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_locale` FOREIGN KEY (`language`) REFERENCES `contrexx_core_locale_locale` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_theme` FOREIGN KEY (`theme`) REFERENCES `contrexx_skins` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_locale_backend ADD CONSTRAINT FK_B8F1327C4FC20EF FOREIGN KEY (iso_1) REFERENCES contrexx_core_locale_language (iso_1) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `contrexx_core_module_multisite_affiliate_credit`
+  ADD CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_currency_id` FOREIGN KEY (`currency_id`) REFERENCES `contrexx_module_crm_currency` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_payout_id` FOREIGN KEY (`payout_id`) REFERENCES `contrexx_core_module_multisite_affiliate_payout` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_referee_id` FOREIGN KEY (`referee_id`) REFERENCES `contrexx_access_users` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_affiliate_credit_ibfk_subid` FOREIGN KEY (`subscription_id`) REFERENCES `contrexx_module_order_subscription` (`id`);
+ALTER TABLE `contrexx_core_module_multisite_affiliate_payout`
+  ADD CONSTRAINT `contrexx_core_module_multisite_affiliate_payout_ibfk_currency_id` FOREIGN KEY (`currency_id`) REFERENCES `contrexx_module_crm_currency` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_affiliate_payout_ibfk_referee_id` FOREIGN KEY (`referee_id`) REFERENCES `contrexx_access_users` (`id`);
+ALTER TABLE `contrexx_core_module_multisite_website`
+  ADD CONSTRAINT `contrexx_core_module_multisite_website_ibfk_mailServiceServerId` FOREIGN KEY (`mailServiceServerId`) REFERENCES `contrexx_core_module_multisite_mail_service_server` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_website_ibfk_ownerId` FOREIGN KEY (`ownerId`) REFERENCES `contrexx_access_users` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_website_ibfk_websiteCollectionId` FOREIGN KEY (`websiteCollectionId`) REFERENCES `contrexx_core_module_multisite_website_collection` (`id`),
+  ADD CONSTRAINT `contrexx_core_module_multisite_website_ibfk_server_website_id` FOREIGN KEY (`server_website_id`) REFERENCES `contrexx_core_module_multisite_website` (`id`);
