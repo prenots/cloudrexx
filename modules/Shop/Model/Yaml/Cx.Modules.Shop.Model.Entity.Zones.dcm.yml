@@ -17,7 +17,7 @@ Cx\Modules\Shop\Model\Entity\Zones:
         default: 1
     name:
       type: string
-      length: 45
+      length: 255
       options:
         default: ''
   oneToMany:

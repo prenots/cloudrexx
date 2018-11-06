@@ -12,7 +12,7 @@ Cx\Modules\Shop\Model\Entity\CustomerGroup:
   fields:
     name:
       type: string
-      length: 45
+      length: 255
       options:
         default: ''
   oneToMany:

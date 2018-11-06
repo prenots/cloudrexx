@@ -22,7 +22,7 @@ Cx\Modules\Shop\Model\Entity\Shipper:
         default: 0
     name:
       type: string
-      length: 30
+      length: 255
       options:
         default: ''
   oneToMany:

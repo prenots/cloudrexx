@@ -7,13 +7,20 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       columns: [ product_id ]
     fk_module_shop_discount_coupon_module_shop_payment1_idx:
       columns: [ payment_id ]
+  uniqueConstraints:
+    fk_module_shop_discount_coupon_unique_idx:
+      columns: code, customer_id
   id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
     code:
       type: string
       length: 20
       options:
         default: ''
-  fields:
     customerId:
       type: integer
       nullable: true

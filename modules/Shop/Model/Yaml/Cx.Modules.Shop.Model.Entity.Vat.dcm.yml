@@ -19,7 +19,7 @@ Cx\Modules\Shop\Model\Entity\Vat:
         default: 0.00
     class:
       type: string
-      length: 35
+      length: 255
   oneToMany:
     products:
       targetEntity: Cx\Modules\Shop\Model\Entity\Products

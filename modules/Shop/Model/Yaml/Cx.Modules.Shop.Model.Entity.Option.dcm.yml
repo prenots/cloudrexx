@@ -26,7 +26,7 @@ Cx\Modules\Shop\Model\Entity\Option:
         default: 0.00
     name:
       type: string
-      length: 45
+      length: 255
       options:
         default: ''
   oneToMany:

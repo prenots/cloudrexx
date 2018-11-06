@@ -133,7 +133,7 @@ Cx\Modules\Shop\Model\Entity\Products:
       column: minimum_order_quantity
     uri:
       type: string
-      length: 55
+      length: 255
       options:
         default: ''
     short:
@@ -142,14 +142,14 @@ Cx\Modules\Shop\Model\Entity\Products:
       type: text
     name:
       type: string
-      length: 45
+      length: 255
       options:
         default: ''
     keys:
       type: text
     code:
       type: string
-      length: 45
+      length: 255
       options:
         default: ''
   oneToMany:
