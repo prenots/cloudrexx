@@ -12,12 +12,12 @@ Cx\Modules\Shop\Model\Entity\Manufacturer:
   fields:
     uri:
       type: string
-      length: 55
+      length: 255
       options:
         default: ''
     name:
       type: string
-      length: 35
+      length: 255
       options:
         default: ''
   oneToMany:
