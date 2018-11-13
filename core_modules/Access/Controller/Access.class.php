@@ -424,6 +424,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             $userFilter['AND'][] = array('group_id' => $groupId);
         }
 
+        // fetch user framework object
         $objFWUser = \FWUser::getFWUserObject();
         $objGroup = $objFWUser->objGroup->getGroup($groupId);
         if ($objGroup->getType() == 'frontend' && $objGroup->getUserCount() > 0 && ($objUser = $objFWUser->objUser->getUsers($userFilter, $search, $sort, null, $limit, $limitOffset)) && $userCount = $objUser->getFilteredSearchUserCount()) {
