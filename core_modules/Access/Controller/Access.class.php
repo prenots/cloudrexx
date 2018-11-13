@@ -470,7 +470,10 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 $arrBuddyIds = \Cx\Modules\U2u\Controller\U2uLibrary::getIdsOfBuddies();
             }
 
+            // index used for alternating row class
             $nr = 0;
+
+            // parse user list
             while (!$objUser->EOF) {
                 $this->parseAccountAttributes($objUser);
                 $this->_objTpl->setVariable('ACCESS_USER_ID', $objUser->getId());
@@ -503,7 +506,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                     }
                 }
 
-                if($this->_objTpl->blockExists('u2u_addaddress')){
+                if ($this->_objTpl->blockExists('u2u_addaddress')) {
                     if($objUser->getId() == $objFWUser->objUser->getId() || in_array($objUser->getId(), $arrBuddyIds)){
                         $this->_objTpl->hideBlock('u2u_addaddress');
                     }else{
@@ -514,7 +517,11 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 $objUser->next();
             }
 
+            // parse block containing the user list
             $this->_objTpl->parse('access_members');
+
+            // hide the template block used to output a message
+            // in case no users matched the applied filer
             if ($this->_objTpl->blockExists('access_no_members')) {
                 $this->_objTpl->hideBlock('access_no_members');
             }
