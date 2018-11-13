@@ -432,7 +432,6 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             // UserGroup::getGroup() always return a UserGroup instance
             $objGroup = $objFWUser->objGroup->getGroup($groupId);
         }
-
         if (
             $objGroup && (
                 $objGroup->EOF ||
@@ -453,12 +452,15 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             $objGroup &&
             $objGroup->getUserCount() == 0
         ) {
-            // selected group has non members,
-            // therefore we can abort here
-            $this->_objTpl->hideBlock('access_members');
+            if ($this->_objTpl->blockExists('access_members')) {
+                $this->_objTpl->hideBlock('access_members');
+            }
             if ($this->_objTpl->blockExists('access_no_members')) {
                 $this->_objTpl->touchBlock('access_no_members');
             }
+
+            // selected group has non members,
+            // therefore we can abort here
             return;
         }
 
@@ -471,12 +473,15 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             $objUser->EOF ||
             !$objUser->getFilteredSearchUserCount()
         ) {
-            // selected filter returned no users
-            // therefore we can abort here
-            $this->_objTpl->hideBlock('access_members');
+            if ($this->_objTpl->blockExists('access_members')) {
+                $this->_objTpl->hideBlock('access_members');
+            }
             if ($this->_objTpl->blockExists('access_no_members')) {
                 $this->_objTpl->touchBlock('access_no_members');
             }
+
+            // selected filter returned no users
+            // therefore we can abort here
             return;
         }
 
