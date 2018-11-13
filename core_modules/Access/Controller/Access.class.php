@@ -423,8 +423,6 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
         if ($groupId) {
             $userFilter['AND'][] = array('group_id' => $groupId);
         }
-        if ($usernameFilter !== null) {
-        }
 
         $objFWUser = \FWUser::getFWUserObject();
         $objGroup = $objFWUser->objGroup->getGroup($groupId);
