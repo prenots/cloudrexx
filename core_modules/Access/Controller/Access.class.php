@@ -339,7 +339,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
      */
     protected function members($groupIdFromCmd = 0)
     {
-        global $_ARRAYLANG, $_CONFIG;
+        global $_CONFIG;
 
         $groupId = $groupIdFromCmd = 0;
 
@@ -426,109 +426,154 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
         // fetch user framework object
         $objFWUser = \FWUser::getFWUserObject();
-        $objGroup = $objFWUser->objGroup->getGroup($groupId);
-        if ($objGroup->getType() == 'frontend' && $objGroup->getUserCount() > 0 && ($objUser = $objFWUser->objUser->getUsers($userFilter, $search, $sort, null, $limit, $limitOffset)) && $userCount = $objUser->getFilteredSearchUserCount()) {
 
-            if ($limit && $userCount > $limit) {
-                $params = '';
-                if ($groupIdFromRequest) {
-                    $params .= '&groupId='.$groupIdFromRequest;
-                }
-                if (count($search)) {
-                    $params .= '&search='.htmlspecialchars(implode(' ',$search), ENT_QUOTES, CONTREXX_CHARSET);
-                }
-                if ($usernameFilter) {
-                    $params .= '&username_filter='.$usernameFilter;
-                }
-                if (count($profileFilter)) {
-                    $params .= '&'.http_build_query(array('profile_filter' => $profileFilter));
-                }
-                $this->_objTpl->setVariable(
-                    'ACCESS_USER_PAGING',
-                    getPaging(
-                        $userCount,
-                        $limitOffset,
-                        $params,
-                        '<strong>' . $_ARRAYLANG['TXT_ACCESS_MEMBERS'] . '</strong>'
-                    )
-                );
-            }
-
+        $objGroup = null;
+        if ($groupId) {
             // UserGroup::getGroup() always return a UserGroup instance
-            $objGroup = $objFWUser->objGroup->getGroup(current($groupId));
+            $objGroup = $objFWUser->objGroup->getGroup($groupId);
+        }
 
-            // parse filtered group info
-            if ($objGroup) {
-                $this->_objTpl->setVariable('ACCESS_GROUP_NAME', contrexx_raw2xhtml($objGroup->getName()));
-            } else {
-                $this->_objTpl->setVariable('ACCESS_GROUP_NAME', $_ARRAYLANG['TXT_ACCESS_MEMBERS']);
-            }
-
-            // fetch buddy-IDs of currently sign-in user
-            if ($this->_objTpl->blockExists('u2u_addaddress')) {
-                $arrBuddyIds = \Cx\Modules\U2u\Controller\U2uLibrary::getIdsOfBuddies();
-            }
-
-            // index used for alternating row class
-            $nr = 0;
-
-            // parse user list
-            while (!$objUser->EOF) {
-                $this->parseAccountAttributes($objUser);
-                $this->_objTpl->setVariable('ACCESS_USER_ID', $objUser->getId());
-                $this->_objTpl->setVariable('ACCESS_USER_CLASS', $nr++ % 2 + 1);
-                $this->_objTpl->setVariable('ACCESS_USER_REGDATE', date(ASCMS_DATE_FORMAT_DATE, $objUser->getRegistrationDate()));
-
-                if ($objUser->getProfileAccess() == 'everyone' ||
-                    $objFWUser->objUser->login() &&
-                    (
-                        $objUser->getId() == $objFWUser->objUser->getId() ||
-                        $objUser->getProfileAccess() == 'members_only' ||
-                        $objFWUser->objUser->getAdminStatus()
-                    )
-                ) {
-                    $objUser->objAttribute->first();
-
-                    while (!$objUser->objAttribute->EOF) {
-                        $objAttribute = $objUser->objAttribute->getById($objUser->objAttribute->getId());
-                        if ($objAttribute->checkReadPermission()) {
-                            $this->parseAttribute($objUser, $objAttribute->getId(), 0, false, false, false, false, false);
-                        }
-                        $objUser->objAttribute->next();
-                    }
-                } else {
-                    foreach (array('picture', 'gender') as $attributeId) {
-                        $objAttribute = $objUser->objAttribute->getById($attributeId);
-                        if ($objAttribute->checkReadPermission()) {
-                            $this->parseAttribute($objUser, $attributeId, 0, false, false, false, false, false);
-                        }
-                    }
-                }
-
-                if ($this->_objTpl->blockExists('u2u_addaddress')) {
-                    if($objUser->getId() == $objFWUser->objUser->getId() || in_array($objUser->getId(), $arrBuddyIds)){
-                        $this->_objTpl->hideBlock('u2u_addaddress');
-                    }else{
-                        $this->_objTpl->touchBlock('u2u_addaddress');
-                    }
-                }
-                $this->_objTpl->parse('access_user');
-                $objUser->next();
-            }
-
-            // parse block containing the user list
-            $this->_objTpl->parse('access_members');
-
-            // hide the template block used to output a message
-            // in case no users matched the applied filer
-            if ($this->_objTpl->blockExists('access_no_members')) {
-                $this->_objTpl->hideBlock('access_no_members');
-            }
-        } else {
+        if (
+            $objGroup && (
+                $objGroup->EOF ||
+                $objGroup->getType() != 'frontend'
+            )
+        ) {
+            // abort as an invalid group-filter had been specified
             $this->_objTpl->hideBlock('access_members');
             if ($this->_objTpl->blockExists('access_no_members')) {
                 $this->_objTpl->touchBlock('access_no_members');
             }
+            return;
+        }
+
+        // in case we're filtering by a specific group,
+        // do check if the group has any members at all
+        if (
+            $objGroup &&
+            $objGroup->getUserCount() == 0
+        ) {
+            // selected group has non members,
+            // therefore we can abort here
+            $this->_objTpl->hideBlock('access_members');
+            if ($this->_objTpl->blockExists('access_no_members')) {
+                $this->_objTpl->touchBlock('access_no_members');
+            }
+            return;
+        }
+
+        // fetch users
+        $objUser = $objFWUser->objUser->getUsers($userFilter, $search, $sort, null, $limit, $limitOffset);
+
+        // abort in case no users matched the supplied filter
+        if (
+            !$objUser ||
+            $objUser->EOF ||
+            !$objUser->getFilteredSearchUserCount()
+        ) {
+            // selected filter returned no users
+            // therefore we can abort here
+            $this->_objTpl->hideBlock('access_members');
+            if ($this->_objTpl->blockExists('access_no_members')) {
+                $this->_objTpl->touchBlock('access_no_members');
+            }
+            return;
+        }
+
+        // fetch selected user count
+        $userCount = $objUser->getFilteredSearchUserCount();
+
+        if ($limit && $userCount > $limit) {
+            $params = '';
+            if ($groupIdFromRequest) {
+                $params .= '&groupId='.$groupIdFromRequest;
+            }
+            if (count($search)) {
+                $params .= '&search='.htmlspecialchars(implode(' ',$search), ENT_QUOTES, CONTREXX_CHARSET);
+            }
+            if ($usernameFilter) {
+                $params .= '&username_filter='.$usernameFilter;
+            }
+            if (count($profileFilter)) {
+                $params .= '&'.http_build_query(array('profile_filter' => $profileFilter));
+            }
+            $this->_objTpl->setVariable(
+                'ACCESS_USER_PAGING',
+                getPaging(
+                    $userCount,
+                    $limitOffset,
+                    $params,
+                    '<strong>' . $_ARRAYLANG['TXT_ACCESS_MEMBERS'] . '</strong>'
+                )
+            );
+        }
+
+        // parse filtered group info
+        if ($objGroup) {
+            $this->_objTpl->setVariable('ACCESS_GROUP_NAME', contrexx_raw2xhtml($objGroup->getName()));
+        } else {
+            $this->_objTpl->setVariable('ACCESS_GROUP_NAME', $_ARRAYLANG['TXT_ACCESS_MEMBERS']);
+        }
+
+        // fetch buddy-IDs of currently sign-in user
+        if ($this->_objTpl->blockExists('u2u_addaddress')) {
+            $arrBuddyIds = \Cx\Modules\U2u\Controller\U2uLibrary::getIdsOfBuddies();
+        }
+
+        // index used for alternating row class
+        $nr = 0;
+
+        // parse user list
+        while (!$objUser->EOF) {
+            $this->parseAccountAttributes($objUser);
+            $this->_objTpl->setVariable('ACCESS_USER_ID', $objUser->getId());
+            $this->_objTpl->setVariable('ACCESS_USER_CLASS', $nr++ % 2 + 1);
+            $this->_objTpl->setVariable('ACCESS_USER_REGDATE', date(ASCMS_DATE_FORMAT_DATE, $objUser->getRegistrationDate()));
+
+            if ($objUser->getProfileAccess() == 'everyone' ||
+                $objFWUser->objUser->login() &&
+                (
+                    $objUser->getId() == $objFWUser->objUser->getId() ||
+                    $objUser->getProfileAccess() == 'members_only' ||
+                    $objFWUser->objUser->getAdminStatus()
+                )
+            ) {
+                $objUser->objAttribute->first();
+
+                while (!$objUser->objAttribute->EOF) {
+                    $objAttribute = $objUser->objAttribute->getById($objUser->objAttribute->getId());
+                    if ($objAttribute->checkReadPermission()) {
+                        $this->parseAttribute($objUser, $objAttribute->getId(), 0, false, false, false, false, false);
+                    }
+                    $objUser->objAttribute->next();
+                }
+            } else {
+                foreach (array('picture', 'gender') as $attributeId) {
+                    $objAttribute = $objUser->objAttribute->getById($attributeId);
+                    if ($objAttribute->checkReadPermission()) {
+                        $this->parseAttribute($objUser, $attributeId, 0, false, false, false, false, false);
+                    }
+                }
+            }
+
+            if ($this->_objTpl->blockExists('u2u_addaddress')) {
+                if($objUser->getId() == $objFWUser->objUser->getId() || in_array($objUser->getId(), $arrBuddyIds)){
+                    $this->_objTpl->hideBlock('u2u_addaddress');
+                }else{
+                    $this->_objTpl->touchBlock('u2u_addaddress');
+                }
+            }
+            $this->_objTpl->parse('access_user');
+            $objUser->next();
+        }
+
+        // parse block containing the user list
+        $this->_objTpl->parse('access_members');
+
+        // hide the template block used to output a message
+        // in case no users matched the applied filer
+        if ($this->_objTpl->blockExists('access_no_members')) {
+            $this->_objTpl->hideBlock('access_no_members');
         }
     }
 
