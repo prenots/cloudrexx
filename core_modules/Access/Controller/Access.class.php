@@ -465,7 +465,10 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 $this->_objTpl->setVariable('ACCESS_GROUP_NAME', $_ARRAYLANG['TXT_ACCESS_MEMBERS']);
             }
 
-            $arrBuddyIds = \Cx\Modules\U2u\Controller\U2uLibrary::getIdsOfBuddies();
+            // fetch buddy-IDs of currently sign-in user
+            if ($this->_objTpl->blockExists('u2u_addaddress')) {
+                $arrBuddyIds = \Cx\Modules\U2u\Controller\U2uLibrary::getIdsOfBuddies();
+            }
 
             $nr = 0;
             while (!$objUser->EOF) {
