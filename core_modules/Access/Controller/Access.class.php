@@ -61,7 +61,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
     public function getPage(&$metaPageTitle, &$pageTitle)
     {
         $cmd = isset($_REQUEST['cmd']) ? explode('_', $_REQUEST['cmd']) : array(0 => null);
-        $groupId = isset($cmd[1]) ? intval($cmd[1]) : null;
+        $groupId = isset($cmd[1]) ? intval($cmd[1]) : 0;
 
         // add whole component's language data to every application page of component
         $this->_objTpl->setVariable(\Env::get('init')->getComponentSpecificLanguageData('Access'));
@@ -257,7 +257,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
     /**
      * Identifies all valid filter keys (of the current request) to be used
-     * for filtering the users. 
+     * for filtering the users.
      * Valid filter arguments can be specified in the application
      * template in the form of template placeholders. I.e. add the
      * following placeholder to allow filtering by firstname:
@@ -310,7 +310,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
      * in descending order:
      * {ACCESS_SORT_FIRSTNAME_DESC}
      *
-     * @return  array   Array consisting of valid sort flagsto be used for
+     * @return  array   Array consisting of valid sort flags to be used for
      *                  sorting the users.
      */
     protected function fetchSortFlags() {
@@ -330,12 +330,30 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
         return $sortBy;
     }
 
-    private function members($groupId = null)
+    /**
+     * List users
+     *
+     * @param   integer $groupIdFromCmd List only users that are a member of
+     *                                  the user group identified by ID
+     *                                  $groupId.
+     */
+    protected function members($groupIdFromCmd = 0)
     {
         global $_ARRAYLANG, $_CONFIG;
 
-        if (empty($groupId)) {
-            $groupId = isset($_REQUEST['groupId']) ? intval($_REQUEST['groupId']) : 0;
+        $groupId = $groupIdFromCmd = 0;
+
+        // group-filter set through GET or POST data
+        $groupIdFromRequest = 0;
+
+        // if no group-filter is set yet (which would be done through the
+        // requested page's CMD property), check if
+        // a group-filter has been set through GET or POST data
+        if (
+            !$groupIdFromCmd &&
+            !empty($_REQUEST['groupId'])
+        ) {
+            $groupId = $groupIdFromRequest = intval($_REQUEST['groupId']);
         }
 
         $search = isset($_REQUEST['search']) && !empty($_REQUEST['search']) ? preg_split('#\s+#', $_REQUEST['search']) : array();
@@ -346,11 +364,13 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
         $userFilter['AND'][] = array('active' => true);
         $profileFilter = array();
 
+        // set listing limit
         $limit = $_CONFIG['corePagingLimit'];
         if ($this->_objTpl->placeholderExists($this->modulePrefix . 'LIMIT_OFF')) {
             $limit = null;
         }
 
+        // parse user profile filter arguments
         if (isset($_REQUEST['profile_filter']) && is_array($_REQUEST['profile_filter'])) {
             $profileFilter = $_REQUEST['profile_filter'];
 
