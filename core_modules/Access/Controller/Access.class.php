@@ -455,7 +455,15 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 );
             }
 
-            $this->_objTpl->setVariable('ACCESS_GROUP_NAME', (($objGroup = $objFWUser->objGroup->getGroup($groupId)) && $objGroup->getId()) ? htmlentities($objGroup->getName(), ENT_QUOTES, CONTREXX_CHARSET) : $_ARRAYLANG['TXT_ACCESS_MEMBERS']);
+            // UserGroup::getGroup() always return a UserGroup instance
+            $objGroup = $objFWUser->objGroup->getGroup(current($groupId));
+
+            // parse filtered group info
+            if ($objGroup) {
+                $this->_objTpl->setVariable('ACCESS_GROUP_NAME', contrexx_raw2xhtml($objGroup->getName()));
+            } else {
+                $this->_objTpl->setVariable('ACCESS_GROUP_NAME', $_ARRAYLANG['TXT_ACCESS_MEMBERS']);
+            }
 
             $arrBuddyIds = \Cx\Modules\U2u\Controller\U2uLibrary::getIdsOfBuddies();
 
