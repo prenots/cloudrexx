@@ -405,6 +405,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             }
         }
 
+        // parse sort arguments
         $sort = array('username' => 'asc');
         $sortFlags = $this->fetchSortFlags();
         if ($sortFlags) {
