@@ -358,10 +358,31 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
         $search = isset($_REQUEST['search']) && !empty($_REQUEST['search']) ? preg_split('#\s+#', $_REQUEST['search']) : array();
         $limitOffset = isset($_GET['pos']) ? intval($_GET['pos']) : 0;
-        $usernameFilter = isset($_REQUEST['username_filter']) && $_REQUEST['username_filter'] != '' && in_array(ord($_REQUEST['username_filter']), array_merge(array(48), range(65, 90))) ? $_REQUEST['username_filter'] : null;
 
         $userFilter = array('AND' => array());
         $userFilter['AND'][] = array('active' => true);
+
+        // parse username filter
+        $usernameFilter = '';
+        if (
+            isset($_REQUEST['username_filter']) &&
+            $_REQUEST['username_filter'] != '' &&
+            in_array(
+                ord($_REQUEST['username_filter']),
+                array_merge(array(48), range(65, 90))
+            )
+        ) {
+            $usernameFilter = $filter = $_REQUEST['username_filter'];
+            if ($filter == '0') {
+                $filter = '[0-9]|-|_';
+            }
+            $userFilter['AND'][] = array(
+                'username' => array(
+                    'REGEXP' => '^' . $filter
+                )
+            );
+        }
+
         $profileFilter = array();
 
         // set listing limit
@@ -398,7 +419,6 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             $userFilter['AND'][] = array('group_id' => $groupId);
         }
         if ($usernameFilter !== null) {
-            $userFilter['AND'][] = array('username' => array('REGEXP' => '^'.($usernameFilter == '0' ? '[0-9]|-|_' : $usernameFilter)));
         }
 
         $objFWUser = \FWUser::getFWUserObject();
