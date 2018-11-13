@@ -444,7 +444,15 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 if (count($profileFilter)) {
                     $params .= '&'.http_build_query(array('profile_filter' => $profileFilter));
                 }
-                $this->_objTpl->setVariable('ACCESS_USER_PAGING', getPaging($userCount, $limitOffset, $params, "<strong>".$_ARRAYLANG['TXT_ACCESS_MEMBERS']."</strong>"));
+                $this->_objTpl->setVariable(
+                    'ACCESS_USER_PAGING',
+                    getPaging(
+                        $userCount,
+                        $limitOffset,
+                        $params,
+                        '<strong>' . $_ARRAYLANG['TXT_ACCESS_MEMBERS'] . '</strong>'
+                    )
+                );
             }
 
             $this->_objTpl->setVariable('ACCESS_GROUP_NAME', (($objGroup = $objFWUser->objGroup->getGroup($groupId)) && $objGroup->getId()) ? htmlentities($objGroup->getName(), ENT_QUOTES, CONTREXX_CHARSET) : $_ARRAYLANG['TXT_ACCESS_MEMBERS']);
