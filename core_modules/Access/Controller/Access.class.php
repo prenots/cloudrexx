@@ -420,9 +420,50 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
         $this->_objTpl->setVariable('ACCESS_SEARCH_VALUE', htmlentities(join(' ', $search), ENT_QUOTES, CONTREXX_CHARSET));
 
-        if ($groupId) {
-            $userFilter['AND'][] = array('group_id' => $groupId);
+        if (!$this->listUsers($groupId, $userFilter, $search, $sort, $limit, $limitOffset, $userCount)) {
+            if ($this->_objTpl->blockExists('access_members')) {
+                $this->_objTpl->hideBlock('access_members');
+            }
+            if ($this->_objTpl->blockExists('access_no_members')) {
+                $this->_objTpl->touchBlock('access_no_members');
+            }
         }
+
+        // abort in case no paging is required
+        if (
+            !$limit ||
+            $userCount <= $limit
+        ) {
+            return;
+        }
+
+        // parse paging
+        $params = '';
+        if ($groupIdFromRequest) {
+            $params .= '&groupId='.$groupIdFromRequest;
+        }
+        if (count($search)) {
+            $params .= '&search='.htmlspecialchars(implode(' ',$search), ENT_QUOTES, CONTREXX_CHARSET);
+        }
+        if ($usernameFilter) {
+            $params .= '&username_filter='.$usernameFilter;
+        }
+        if (count($profileFilter)) {
+            $params .= '&'.http_build_query(array('profile_filter' => $profileFilter));
+        }
+        $this->_objTpl->setVariable(
+            'ACCESS_USER_PAGING',
+            getPaging(
+                $userCount,
+                $limitOffset,
+                $params,
+                '<strong>' . $_ARRAYLANG['TXT_ACCESS_MEMBERS'] . '</strong>'
+            )
+        );
+    }
+
+    protected function listUsers($groupId, $userFilter, $search, $sort, $limit, $limitOffset, &$userCount = 0) {
+        global $_ARRAYLANG;
 
         // fetch user framework object
         $objFWUser = \FWUser::getFWUserObject();
@@ -439,11 +480,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             )
         ) {
             // abort as an invalid group-filter had been specified
-            $this->_objTpl->hideBlock('access_members');
-            if ($this->_objTpl->blockExists('access_no_members')) {
-                $this->_objTpl->touchBlock('access_no_members');
-            }
-            return;
+            return false;
         }
 
         // in case we're filtering by a specific group,
@@ -461,7 +498,12 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
             // selected group has non members,
             // therefore we can abort here
-            return;
+            return true;
+        }
+
+        // set group-filter
+        if ($groupId) {
+            $userFilter['AND'][] = array('group_id' => $groupId);
         }
 
         // fetch users
@@ -482,36 +524,11 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
             // selected filter returned no users
             // therefore we can abort here
-            return;
+            return true;
         }
 
         // fetch selected user count
         $userCount = $objUser->getFilteredSearchUserCount();
-
-        if ($limit && $userCount > $limit) {
-            $params = '';
-            if ($groupIdFromRequest) {
-                $params .= '&groupId='.$groupIdFromRequest;
-            }
-            if (count($search)) {
-                $params .= '&search='.htmlspecialchars(implode(' ',$search), ENT_QUOTES, CONTREXX_CHARSET);
-            }
-            if ($usernameFilter) {
-                $params .= '&username_filter='.$usernameFilter;
-            }
-            if (count($profileFilter)) {
-                $params .= '&'.http_build_query(array('profile_filter' => $profileFilter));
-            }
-            $this->_objTpl->setVariable(
-                'ACCESS_USER_PAGING',
-                getPaging(
-                    $userCount,
-                    $limitOffset,
-                    $params,
-                    '<strong>' . $_ARRAYLANG['TXT_ACCESS_MEMBERS'] . '</strong>'
-                )
-            );
-        }
 
         // parse filtered group info
         if ($objGroup) {
@@ -580,6 +597,8 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
         if ($this->_objTpl->blockExists('access_no_members')) {
             $this->_objTpl->hideBlock('access_no_members');
         }
+
+        return true;
     }
 
     private function settings()
