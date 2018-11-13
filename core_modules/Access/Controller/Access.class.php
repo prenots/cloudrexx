@@ -462,6 +462,25 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
         );
     }
 
+    /**
+     * @param   integer $groupId        User group ID by which the
+     *                                  users shall be filtered by.
+     * @param   array   $userFilter     Argument to be passed as argument
+     *                                  $filter to method \User::getUsers()
+     * @param   array   $search         Argument to be passed as argument
+     *                                  $search to method \User::getUsers()
+     * @param   array   $sort           Argument to be passed as argument
+     *                                  $sort to method \User::getUsers()
+     * @param   integer $limit          Argument to be passed as argument
+     *                                  $limit to method \User::getUsers()
+     * @param   integer $limitOffset    Argument to be passed as argument
+     *                                  $limitOffset to method \User::getUsers()
+     * @param   integer $userCount      The number of listed users will be
+     *                                  set into $userCount.
+     * @return  boolean                 TRUE if one or more users have been
+     *                                  listed. Otherwise FALSE if no user
+     *                                  has been listed.
+     */
     protected function listUsers($groupId, $userFilter, $search, $sort, $limit, $limitOffset, &$userCount = 0) {
         global $_ARRAYLANG;
 
