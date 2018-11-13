@@ -412,7 +412,11 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             $sort = $sortFlags;
         }
 
-        $this->parseLetterIndexList('index.php?section=Access&amp;cmd=members&amp;groupId='.$groupId, 'username_filter', $usernameFilter);
+        $indexUrl = 'index.php?section=Access&amp;cmd=members';
+        if ($groupIdFromRequest) {
+            $indexUrl .= '&amp;groupId='.$groupIdFromRequest;
+        }
+        $this->parseLetterIndexList($indexUrl, 'username_filter', $usernameFilter);
 
         $this->_objTpl->setVariable('ACCESS_SEARCH_VALUE', htmlentities(join(' ', $search), ENT_QUOTES, CONTREXX_CHARSET));
 
@@ -428,8 +432,8 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
             if ($limit && $userCount > $limit) {
                 $params = '';
-                if ($groupId) {
-                    $params .= '&groupId='.$groupId;
+                if ($groupIdFromRequest) {
+                    $params .= '&groupId='.$groupIdFromRequest;
                 }
                 if (count($search)) {
                     $params .= '&search='.htmlspecialchars(implode(' ',$search), ENT_QUOTES, CONTREXX_CHARSET);
