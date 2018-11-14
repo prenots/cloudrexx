@@ -902,13 +902,11 @@ class Resolver {
 
         $page = $this->pageRepo->findOneById($data['pageId']);
         if (!$page) {
-            $parentNode = null;
+            $parentNode = $this->nodeRepo->getRoot();
             if (!empty($data['parentNode'])) {
                 $parentNode = $this->nodeRepo->findOneById($data['parentNode']);
             }
-            if ($parentNode == null) {
-                $parentNode = $this->nodeRepo->getRoot();
-            }
+
             $page = new \Cx\Core\ContentManager\Model\Entity\Page();
             $node = new \Cx\Core\ContentManager\Model\Entity\Node();
             $node->setParent($parentNode);
