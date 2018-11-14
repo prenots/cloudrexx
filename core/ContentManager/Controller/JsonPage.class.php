@@ -802,6 +802,7 @@ class JsonPage implements JsonAdapter {
         $page = $this->validatePageArray($params['post']['page']);
         $page['pageId'] = $params['post']['page']['id'];
         $page['lang'] = $params['post']['page']['lang'];
+        $page['parentNode'] = $params['post']['parent_node'];
 
         $_SESSION['page'] = $page;
     }

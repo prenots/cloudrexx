@@ -448,7 +448,7 @@ cx.ready(function() {
             cx.jQuery('#page input[name="page[id]"]').val("new");
             cx.jQuery('#page input[name="page[lang]"]').val(str);
             cx.jQuery('#page input[name="page[node]"]').val(node);
-            cx.jQuery('#page #preview').attr('href', cx.variables.get('basePath', 'contrexx') + str + '/index.php?pagePreview=1');
+            cx.cm.setPreviewLink();
         }
 
         cx.jQuery('#site-tree>ul li .jstree-wrapper').each(function() {
@@ -976,9 +976,12 @@ cx.cm = function(target) {
                     element.val(val);
                 }
             });
-            var previewTarget = cx.variables.get("basePath", "contrexx") + cx.jQuery("#page_slug_breadcrumb").text() + val;
-            cx.jQuery("#preview").attr("href", previewTarget + "?pagePreview=1");
+            cx.cm.setPreviewLink();
         }
+    });
+
+    cx.jQuery('#page_slug').blur(function() {
+        cx.cm.setPreviewLink();
     });
 
     cx.jQuery("select#page_application").change(function() {
@@ -1909,6 +1912,7 @@ cx.cm.performAction = function(action, pageId, nodeId) {
             cx.jQuery("#parent_node").val(nodeId);
             cx.cm.createEditor();
             cx.cm.setEditorData("");
+            cx.cm.setPreviewLink();
             return;
         case "copy":
             url = "index.php?cmd=JsonData&object=node&act=copy&id=" + nodeId;
@@ -2912,7 +2916,7 @@ cx.cm.pageLoaded = function(page, selectTab, reloadHistory, historyId) {
     if (page.type == 'redirect' || page.type == 'symlink') {
         cx.jQuery('#preview').hide();
     }
-    cx.jQuery('#page #preview').attr('href', cx.variables.get('basePath', 'contrexx') + page.lang + '/' + page.parentPath + page.slug + '?pagePreview=1');
+    cx.cm.setPreviewLink(page.node);
 
     cx.cm.loadAccess(page.accessData);
 
@@ -3216,4 +3220,32 @@ cx.cm.setSelectedMetaimage = function (data) {
         var url = data.data[0].datainfo;
         document.getElementById('page_metaimage').value = url.filepath;
     }
+}
+
+/**
+ * Set a page preview link
+ */
+cx.cm.setPreviewLink = function(nodeId = '') {
+    var parentNodeId = cx.jQuery('#parent_node').val(),
+        language = cx.jQuery('#language :selected').val(),
+        path, slug = cx.jQuery('#page_slug').val();
+
+    if (slug === '') {
+        slug = cx.jQuery('#page_name').val();
+    }
+
+    if (nodeId !== '') {
+        var obj = cx.jQuery.parseJSON(cx.jQuery('#node_' + nodeId + ' > a.' + language).attr('data-href'));
+        path = obj.path.substring(1) + '/';
+    } else if (parentNodeId !== '') {
+        var obj = cx.jQuery.parseJSON(cx.jQuery('#node_' + parentNodeId + ' > a.' + language).attr('data-href'));
+        path = obj.path.substring(1) + '/' + slug;
+    } else {
+        var arrOfSlug = cx.jQuery("#page_slug_breadcrumb").text().split('/');
+        arrOfSlug.shift();
+        path = arrOfSlug.join('/') + slug;
+    }
+
+    var previewTarget = cx.variables.get('basePath', 'contrexx') + language + '/' + path;
+    cx.jQuery('#preview').attr('href', previewTarget + '?pagePreview=1');
 }
