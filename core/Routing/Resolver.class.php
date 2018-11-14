@@ -619,12 +619,17 @@ class Resolver {
 
         $path = $this->url->getSuggestedTargetPath();
 
+        if (
+            !$this->page &&
+            !$internal &&
+            $this->pagePreview &&
+            !empty($this->sessionPage) &&
+            !empty($this->sessionPage['pageId'])
+        ) {
+            $this->page = $this->getPreviewPage();
+        }
+
         if (!$this->page || $internal) {
-            if ($this->pagePreview) {
-                if (!empty($this->sessionPage) && !empty($this->sessionPage['pageId'])) {
-                    $this->getPreviewPage();
-                }
-            }
 
             //(I) see what the model has for us
             $langDirPath = '';
@@ -672,6 +677,7 @@ class Resolver {
 
             $this->page = $result['page'];
         }
+
         if (!$this->urlPage) {
             $this->urlPage = clone $this->page;
         }
@@ -896,11 +902,18 @@ class Resolver {
 
         $page = $this->pageRepo->findOneById($data['pageId']);
         if (!$page) {
+            $parentNode = null;
+            if (!empty($data['parentNode'])) {
+                $parentNode = $this->nodeRepo->findOneById($data['parentNode']);
+            }
+            if ($parentNode == null) {
+                $parentNode = $this->nodeRepo->getRoot();
+            }
             $page = new \Cx\Core\ContentManager\Model\Entity\Page();
             $node = new \Cx\Core\ContentManager\Model\Entity\Node();
-            $node->setParent($this->nodeRepo->getRoot());
+            $node->setParent($parentNode);
             $node->setLvl(1);
-            $this->nodeRepo->getRoot()->addChildren($node);
+            $parentNode->addChildren($node);
             $node->addPage($page);
             $page->setNode($node);
 
@@ -908,6 +921,7 @@ class Resolver {
         }
 
         unset($data['pageId']);
+        unset($data['parentNode']);
         $page->setLang(\FWLanguage::getLanguageIdByCode($data['lang']));
         unset($data['lang']);
         $page->updateFromArray($data);
@@ -915,6 +929,11 @@ class Resolver {
         $page->setActive(true);
         $page->setVirtual(true);
         $page->validate();
+
+        // Return the page object if the sessionPage path and the current url path is same otherwise null
+        if (substr($page->getPath(), 1) !== $this->url->getSuggestedTargetPath()) {
+            return null;
+        }
 
         return $page;
     }
@@ -925,14 +944,17 @@ class Resolver {
      * @param boolean $requestedPage Set to TRUE (default) if the $page passed by $page is the first resolved page (actual requested page)
      * @throws ResolverException
      */
-    public function handleFallbackContent($page, $requestedPage = true) {
+    public function handleFallbackContent($pageObj, $requestedPage = true) {
         //handle untranslated pages - replace them by the right language version.
 
         // Important: We must reset the modified $page object here.
         // Otherwise the EntityManager holds false information about the page.
         // I.e. type might be 'application' instead of 'fallback'
         // See bug-report #1536
-        $page = $this->pageRepo->findOneById($page->getId());
+        $page = $this->pageRepo->findOneById($pageObj->getId());
+        if (!$page) {
+            $page = $pageObj;
+        }
 
         if (
             $page->getType() == \Cx\Core\ContentManager\Model\Entity\Page::TYPE_FALLBACK ||
