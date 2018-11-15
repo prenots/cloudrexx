@@ -40,3 +40,4 @@ FROM
         ON d.usergroup_ids REGEXP CONCAT('[[:<:]]', c.group_id, '[[:>:]]');
 
 ALTER TABLE contrexx_module_shop_products DROP category_id;
+ALTER TABLE contrexx_module_shop_pricelists DROP categories;

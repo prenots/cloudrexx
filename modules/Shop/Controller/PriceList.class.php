@@ -573,7 +573,7 @@ class PriceList
         $objResult = $objDatabase->Execute("
             SELECT `id`, `name`, `lang_id`,
                    `border_on`, `header_on`, `header_left`, `header_right`,
-                   `footer_on`, `footer_left`, `footer_right`, `categories`
+                   `footer_on`, `footer_left`, `footer_right`
               FROM ".DBPREFIX."module_shop".MODULE_INDEX."_pricelists
              WHERE id=$this->id");
         if (!$objResult) {
@@ -593,8 +593,33 @@ class PriceList
         $this->footer = $objResult->fields['footer_on'];
         $this->footer_left = self::decode($objResult->fields['footer_left']);
         $this->footer_right = self::decode($objResult->fields['footer_right']);
-        $this->category_ids($objResult->fields['categories']);
+        $this->category_ids(self::getCategoriesByListId($this->id));
         return true;
+    }
+
+    /**
+     * Array with all category ids from pricelist
+     *
+     * @param int $listId id of pricelist
+     * @return array
+     */
+    static function getCategoriesByListId($listId)
+    {
+        global $objDatabase;
+        $objCatResult = $objDatabase->Execute("
+            SELECT `category_id`
+              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_pricelist
+             WHERE pricelist_id=$listId");
+        if (!$objCatResult) {
+            return false;
+        }
+        $arrCategoryIds = array();
+        while (!$objCatResult->EOF) {
+            $arrCategoryIds[] = $objCatResult->fields['category_id'];
+            $objCatResult->MoveNext();
+        }
+
+        return $arrCategoryIds;
     }
 
 
@@ -672,8 +697,7 @@ class PriceList
             SELECT `id`, `name`, `lang_id`,
                    `border_on`,
                    `header_on`, `header_left`, `header_right`,
-                   `footer_on`, `footer_left`, `footer_right`,
-                   `categories`
+                   `footer_on`, `footer_left`, `footer_right`
               FROM ".DBPREFIX."module_shop".MODULE_INDEX."_pricelists
              WHERE id=$list_id";
         $objResult = $objDatabase->Execute($query);
@@ -692,7 +716,7 @@ class PriceList
         $objList->footer($objResult->fields['footer_on']);
         $objList->footer_left($objResult->fields['footer_left']);
         $objList->footer_right($objResult->fields['footer_right']);
-        $objList->category_ids($objResult->fields['categories']);
+        $objList->category_ids(self::getCategoriesByListId($list_id));
         return $objList;
     }
 
@@ -799,7 +823,9 @@ class PriceList
 
         $query = "
             DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
-             WHERE `id`=$list_id";
+             WHERE `id`=$list_id; 
+            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_pricelist`
+             WHERE `pricelist_id`=$list_id; ";
         return (boolean)$objDatabase->Execute($query);
     }
 
@@ -825,6 +851,23 @@ class PriceList
     {
         global $objDatabase, $_ARRAYLANG;
 
+        $allCategories = array();
+        if ($this->arrCategoryId[0] == '*') {
+            $queryCat = 'SELECT id FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_categories`';
+            $catResult = $objDatabase->Execute($queryCat);
+
+            if (!$catResult) {
+                return false;
+            }
+
+            while ($catResult && !$catResult->EOF) {
+                $allCategories[] = $catResult->fields['id'];
+                $catResult->MoveNext();
+            }
+        } else {
+            $allCategories = $this->arrCategoryId;
+        }
+
         $query = "
             UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
                SET `name`='".contrexx_raw2db($this->name)."',
@@ -835,15 +878,79 @@ class PriceList
                    `header_right`='".contrexx_raw2db($this->header_right)."',
                    `footer_on`=".intval($this->footer).",
                    `footer_left`='".contrexx_raw2db($this->footer_left)."',
-                   `footer_right`='".contrexx_raw2db($this->footer_right)."',
-                   `categories`='".join(',', $this->arrCategoryId)."'
+                   `footer_right`='".contrexx_raw2db($this->footer_right)."'
              WHERE `id`=$this->id";
+
+        if (!$this->updateCategoryRelation($allCategories)) {
+            return false;
+        }
+
         if ($objDatabase->Execute($query)) {
             return \Message::ok($_ARRAYLANG['TXT_SHOP_PRICELIST_UPDATED_SUCCESSFULLY']);
         }
         return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_UPDATING']);
     }
 
+    /**
+     * Update category pricelist relation in intermediate table.
+     *
+     * @param array array with all category ids
+     * @return bool
+     */
+    function updateCategoryRelation($arrCategoryIdsInput)
+    {
+        global $objDatabase;
+
+        $queryCategories = "
+            SELECT `category_id`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_pricelist`
+              WHERE `pricelist_id`=$this->id;";
+        $objSelectResult = $objDatabase->Execute($queryCategories);
+
+        $arrCategoryIdsDb = array();
+        while ($objSelectResult && !$objSelectResult->EOF) {
+            $arrCategoryIdsDb[] = $objSelectResult->fields['category_id'];
+            $objSelectResult->MoveNext();
+        }
+
+        // Get all ids where new
+        $newCategoryIds = array_diff(
+            $arrCategoryIdsInput,
+            $arrCategoryIdsDb
+        );
+
+        // Get all ids where not selected anymore
+        $deletedCategoryIds = array_diff(
+            $arrCategoryIdsDb,
+            $arrCategoryIdsInput
+        );
+
+        if (empty($newCategoryIds) && empty($deletedCategoryIds)) {
+            return true;
+        }
+        $updateQuery = '';
+        foreach ($newCategoryIds as $categoryId) {
+            $updateArgs[] = $categoryId;
+            $updateArgs[] = $this->id;
+            $updateQuery .= 'INSERT INTO `' .
+                DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_pricelist`' .
+                '(category_id, pricelist_id) VALUES (?,?);';
+        }
+        foreach ($deletedCategoryIds as $categoryId) {
+            $updateArgs[] = $this->id;
+            $updateArgs[] = $categoryId;
+            $updateQuery .= 'DELETE FROM `' .
+                DBPREFIX . 'module_shop' . MODULE_INDEX . '_rel_category_pricelist`' .
+                'WHERE pricelist_id = ? AND category_id = ?; ';
+        }
+        $objSelectResult = $objDatabase->Execute($updateQuery, $updateArgs);
+
+        if (!$objSelectResult) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Inserts this Pricelist
@@ -859,8 +966,7 @@ class PriceList
             INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists` (
               `name`, `lang_id`, `border_on`,
               `header_on`, `header_left`, `header_right`,
-              `footer_on`, `footer_left`, `footer_right`,
-              `categories`
+              `footer_on`, `footer_left`, `footer_right`
             ) VALUES (
               '".contrexx_raw2db($this->name)."',
               ".intval($this->lang_id).",
@@ -870,12 +976,34 @@ class PriceList
               '".contrexx_raw2db($this->header_right)."',
               ".intval($this->footer).",
               '".contrexx_raw2db($this->footer_left)."',
-              '".contrexx_raw2db($this->footer_right)."',
-              '".join(',', $this->arrCategoryId)."'
+              '".contrexx_raw2db($this->footer_right)."'
             )";
         if ($objDatabase->Execute($query)) {
             $this->id($objDatabase->Insert_ID());
-            return \Message::ok($_ARRAYLANG['TXT_SHOP_PRICELIST_INSERTED_SUCCESSFULLY']);
+
+            $queryCatArgs = array();
+            if ($this->arrCategoryId[0] == '*') {
+                $queryCat = 'INSERT INTO `'.DBPREFIX.'module_shop'.MODULE_INDEX.
+                    '_rel_category_pricelist` (SELECT `id` AS `category_id`, '
+                    .$objDatabase->Insert_ID().' AS `pricelist_id` ' . 'FROM `'.DBPREFIX
+                    .'module_shop'.MODULE_INDEX.'_categories`)';
+
+            } else {
+                $queryCat = '';
+                foreach ($this->arrCategoryId as $categoryId) {
+                    $queryCatArgs[] = $categoryId;
+                    $queryCatArgs[] = $objDatabase->Insert_ID();
+                    $queryCat .= 'INSERT INTO `'.DBPREFIX.'module_shop'.MODULE_INDEX.
+                        '_rel_category_pricelist` (`category_id`, `pricelist_id`) 
+                        VALUES (?,?);';
+                }
+            }
+
+            $catResult = $objDatabase->Execute($queryCat, $queryCatArgs);
+
+            if ($catResult) {
+                return \Message::ok($_ARRAYLANG['TXT_SHOP_PRICELIST_INSERTED_SUCCESSFULLY']);
+            }
         }
         return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_INSERTING']);
     }
