@@ -66,10 +66,10 @@ class Product
      */
     private $code = null;
     /**
-     * @var     string          $category_id         ShopCategory ID or IDs of the Product
+     * @var     array          $category_id         ShopCategory ID or IDs of the Product
      * @access  private
      */
-    private $category_id = '';
+    private $category_id = array();
     /**
      * @var     string          $name               Product name
      * @access  private
@@ -247,7 +247,7 @@ class Product
     ) {
         // Assign & check
         $this->code         = trim(strip_tags($code));
-        $this->category_id  = trim(strip_tags($category_id));
+        $this->category_id  = $category_id;
         $this->name         = trim($name);
         $this->distribution = trim(strip_tags($distribution));
         $this->price        = floatval($price);
@@ -1000,6 +1000,15 @@ class Product
         if (!$objResult) {
             return false;
         }
+
+        $objCatResult = $objDatabase->Execute("
+            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product
+                WHERE product_id=$this->id");
+
+        if (!$objCatResult) {
+            return false;
+        }
+
         \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
 
         $objDatabase->Execute("
@@ -1100,7 +1109,6 @@ class Product
         \Env::get('cx')->getEvents()->triggerEvent('model/preUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
         $args = array(
             $this->pictures,
-            $this->category_id,
             $this->distribution,
             $this->price,
             $this->resellerprice,
@@ -1130,7 +1138,6 @@ class Product
                 `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_products`
             SET
                 `picture` = ?,
-                `category_id` = ?,
                 `distribution` = ?,
                 `normalprice` = ?,
                 `resellerprice` = ?,
@@ -1156,6 +1163,9 @@ class Product
                 `id` = ?
         ';
 
+        if (!$this->updateCategoryRelation()) {
+            return false;
+        }
         $objResult = $objDatabase->Execute($query, $args);
         if ($objResult) {
             \Env::get('cx')->getEvents()->triggerEvent('model/postUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
@@ -1164,6 +1174,61 @@ class Product
         return false;
     }
 
+    function updateCategoryRelation()
+    {
+        global $objDatabase;
+
+        $arrCategoryIdsInput = explode (',', $this->category_id);
+
+        $queryCategories = "
+            SELECT `category_id`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product`
+              WHERE `product_id`=$this->id;";
+        $objSelectResult = $objDatabase->Execute($queryCategories);
+
+        $arrCategoryIdsDb = array();
+        while ($objSelectResult && !$objSelectResult->EOF) {
+            $arrCategoryIdsDb[] = $objSelectResult->fields['category_id'];
+            $objSelectResult->MoveNext();
+        }
+
+        // Get all ids where in
+        $newCategoryIds = array_diff(
+            $arrCategoryIdsInput,
+            $arrCategoryIdsDb
+        );
+
+        $deletedCategoryIds = array_diff(
+            $arrCategoryIdsDb,
+            $arrCategoryIdsInput
+        );
+
+        if (empty($newCategoryIds) && empty($deletedCategoryIds)) {
+            return true;
+        }
+        $updateQuery = '';
+        foreach ($newCategoryIds as $categoryId) {
+            $updateArgs[] = $categoryId;
+            $updateArgs[] = $this->id;
+            $updateQuery .= 'INSERT INTO `' .
+                DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_product`' .
+                '(category_id, product_id) VALUES (?,?);';
+        }
+        foreach ($deletedCategoryIds as $categoryId) {
+            $updateArgs[] = $this->id;
+            $updateArgs[] = $categoryId;
+            $updateQuery .= 'DELETE FROM `' .
+                DBPREFIX . 'module_shop' . MODULE_INDEX . '_rel_category_product`' .
+                'WHERE product_id = ? AND category_id = ?; ';
+        }
+        $objSelectResult = $objDatabase->Execute($updateQuery, $updateArgs);
+
+        if (!$objSelectResult) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Insert this Product into the database.
@@ -1181,7 +1246,7 @@ class Product
         \Env::get('cx')->getEvents()->triggerEvent('model/prePersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
         $query = "
             INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_products (
-                picture, category_id, distribution,
+                picture, distribution,
                 normalprice, resellerprice,
                 stock, stock_visible, discountprice, discount_active,
                 active, b2b, b2c, date_start, date_end,
@@ -1189,7 +1254,6 @@ class Product
                 flags, usergroup_ids, group_id, article_id, minimum_order_quantity
             ) VALUES (
                 '$this->pictures',
-                '".addslashes($this->category_id)."',
                 '$this->distribution',
                 $this->price, $this->resellerprice,
                 $this->stock, ".($this->stock_visible ? 1 : 0).",
@@ -1205,11 +1269,32 @@ class Product
                 ".($this->article_id ? $this->article_id : 'NULL').",
                 ".($this->minimum_order_quantity ? $this->minimum_order_quantity : '0')."
             )";
+
         $objResult = $objDatabase->Execute($query);
+
         if ($objResult) {
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
             // My brand new ID
             $this->id = $objDatabase->Insert_ID();
+            $categoryIds = explode (',', $this->category_id);
+            $categoryArgs = array();
+            $queryCategory = '';
+            foreach ($categoryIds as $categoryId) {
+                $categoryArgs[] = $categoryId;
+                $categoryArgs[] = $this->id;
+                $queryCategory .= '
+            INSERT INTO  
+            `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_rel_category_product`
+            (
+                `category_id`,
+                `product_id` 
+            ) VALUES (?,?);';
+            }
+            $objCatResult = $objDatabase->Execute($queryCategory, $categoryArgs);
+
+            if (!$objCatResult) {
+                return false;
+            }
             return true;
         }
         return false;
@@ -1242,7 +1327,7 @@ class Product
             )
         );
         $query = "
-            SELECT `product`.`id`, `product`.`category_id`,
+            SELECT `product`.`id`,
                    `product`.`ord`, `product`.`active`, `product`.`weight`,
                    `product`.`picture`,
                    `product`.`normalprice`, `product`.`resellerprice`,
@@ -1259,7 +1344,7 @@ class Product
                    `product`.`minimum_order_quantity`, ".
                    $arrSql['field']."
               FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `product`".
-                   $arrSql['join']."
+                   $arrSql['join']." 
              WHERE `product`.`id`=$id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
@@ -1289,9 +1374,21 @@ class Product
         if ($strKeys === null) {
             $strKeys = \Text::getById($id, 'Shop', self::TEXT_KEYS)->content();
         }
+
+        $queryCategories = "
+            SELECT `category_id`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product`
+              WHERE `product_id`=$id";
+        $objResultCategories = $objDatabase->Execute($queryCategories);
+        $arrCategoryIds = array();
+        while (!$objResultCategories->EOF) {
+            $arrCategoryIds[] = $objResultCategories->fields['category_id'];
+            $objResultCategories->MoveNext();
+        }
+
         $objProduct = new Product(
             $strCode,
-            $objResult->fields['category_id'],
+            implode(",", $arrCategoryIds),
             $strName,
             $objResult->fields['distribution'],
             $objResult->fields['normalprice'],

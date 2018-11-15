@@ -249,8 +249,10 @@ class Products
         $queryCount = "SELECT COUNT(*) AS `numof_products`";
         $queryJoin = '
             FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_products` AS `product`
-            LEFT JOIN `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_categories` AS `category`
-              ON `category`.`id`=`product`.`category_id`'.
+            LEFT JOIN `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_product` AS `category_product`
+              ON `category_product`.`product_id`=`product`.`id` 
+            LEFT JOIN `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_categories` AS `category` 
+              ON `category_product`.`category_id`=`category`.`id` '.
             $arrSql['join'];
         $queryWhere = ' WHERE 1'.
             // Limit Products to available and active in the frontend
@@ -356,9 +358,8 @@ class Products
             if ($category_id) {
                 $queryCategories = '';
                 foreach (preg_split('/\s*,\s*/', $category_id) as $id) {
-                    $queryCategories .=
-                        ($queryCategories ? ' OR ' : '')."
-                        FIND_IN_SET($id, `product`.`category_id`)";
+                    $queryCategories .= '`category_product`.`category_id` = '
+                        .$id;
                 }
                 $queryWhere .= ' AND ('.$queryCategories.')';
             }
