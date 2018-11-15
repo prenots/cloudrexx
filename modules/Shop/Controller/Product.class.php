@@ -1176,54 +1176,61 @@ class Product
 
     function updateCategoryRelation()
     {
+        $table = 'rel_category_product';
+        $attr = 'category_id';
+
+        return $this->updateRelation($table, $attr);
+    }
+
+    function updateRelation($table, $attr)
+    {
         global $objDatabase;
 
-        $arrCategoryIdsInput = explode (',', $this->category_id);
+        $arrIdsInput = explode (',', $this->$attr);
 
         $queryCategories = "
-            SELECT `category_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product`
+            SELECT `$attr`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_$table`
               WHERE `product_id`=$this->id;";
         $objSelectResult = $objDatabase->Execute($queryCategories);
 
-        $arrCategoryIdsDb = array();
+        $arrIdsDb = array();
         while ($objSelectResult && !$objSelectResult->EOF) {
-            $arrCategoryIdsDb[] = $objSelectResult->fields['category_id'];
+            $arrIdsDb[] = $objSelectResult->fields[$attr];
             $objSelectResult->MoveNext();
         }
 
         // Get all ids where in
-        $newCategoryIds = array_diff(
-            $arrCategoryIdsInput,
-            $arrCategoryIdsDb
+        $newRelationIds = array_diff(
+            $arrIdsInput,
+            $arrIdsDb
         );
 
-        $deletedCategoryIds = array_diff(
-            $arrCategoryIdsDb,
-            $arrCategoryIdsInput
+        $deletedRelationIds = array_diff(
+            $arrIdsDb,
+            $arrIdsInput
         );
 
-        if (empty($newCategoryIds) && empty($deletedCategoryIds)) {
+        if (empty($newRelationIds) && empty($deletedRelationIds)) {
             return true;
         }
         $updateQuery = '';
-        foreach ($newCategoryIds as $categoryId) {
-            $updateArgs[] = $categoryId;
+        foreach ($newRelationIds as $id) {
+            $updateArgs[] = $id;
             $updateArgs[] = $this->id;
-            $updateQuery .= 'INSERT INTO `' .
-                DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_product`' .
-                '(category_id, product_id) VALUES (?,?);';
+            $updateQuery .= 'INSERT INTO `' . DBPREFIX.'module_shop'.MODULE_INDEX
+                .'_'.$table.'`' . '('.$attr.', product_id)' .'VALUES (?,?);';
         }
-        foreach ($deletedCategoryIds as $categoryId) {
+        foreach ($deletedRelationIds as $id) {
             $updateArgs[] = $this->id;
-            $updateArgs[] = $categoryId;
+            $updateArgs[] = $id;
             $updateQuery .= 'DELETE FROM `' .
-                DBPREFIX . 'module_shop' . MODULE_INDEX . '_rel_category_product`' .
-                'WHERE product_id = ? AND category_id = ?; ';
+                DBPREFIX . 'module_shop' . MODULE_INDEX . '_'.$table.'`' .
+                'WHERE product_id = ? AND '.$attr.' = ?; ';
         }
-        $objSelectResult = $objDatabase->Execute($updateQuery, $updateArgs);
+        $objResult = $objDatabase->Execute($updateQuery, $updateArgs);
 
-        if (!$objSelectResult) {
+        if (!$objResult) {
             return false;
         }
 
