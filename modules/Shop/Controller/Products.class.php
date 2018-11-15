@@ -357,9 +357,13 @@ class Products
             // (Pricelists use comma separated values, for example)
             if ($category_id) {
                 $queryCategories = '';
-                foreach (preg_split('/\s*,\s*/', $category_id) as $id) {
+                $catIds = preg_split('/\s*,\s*/', $category_id);
+                foreach ($catIds as $id) {
                     $queryCategories .= '`category_product`.`category_id` = '
                         .$id;
+                    if ($catIds[count($catIds)-1] != $id) {
+                        $queryCategories .= ' OR ';
+                    }
                 }
                 $queryWhere .= ' AND ('.$queryCategories.')';
             }
