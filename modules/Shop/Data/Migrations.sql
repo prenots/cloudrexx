@@ -39,5 +39,5 @@ FROM
     JOIN contrexx_module_shop_products d
         ON d.usergroup_ids REGEXP CONCAT('[[:<:]]', c.group_id, '[[:>:]]');
 
-ALTER TABLE contrexx_module_shop_products DROP category_id;
+ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
 ALTER TABLE contrexx_module_shop_pricelists DROP categories;
