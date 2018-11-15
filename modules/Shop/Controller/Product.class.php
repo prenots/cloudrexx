@@ -1089,6 +1089,9 @@ class Product
                 )) return false;
                 }
             }
+        if (!$this->updateCategoryRelation()) {
+            return false;
+        }
         return true;
     }
 
@@ -1163,9 +1166,6 @@ class Product
                 `id` = ?
         ';
 
-        if (!$this->updateCategoryRelation()) {
-            return false;
-        }
         $objResult = $objDatabase->Execute($query, $args);
         if ($objResult) {
             \Env::get('cx')->getEvents()->triggerEvent('model/postUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
@@ -1276,25 +1276,8 @@ class Product
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
             // My brand new ID
             $this->id = $objDatabase->Insert_ID();
-            $categoryIds = explode (',', $this->category_id);
-            $categoryArgs = array();
-            $queryCategory = '';
-            foreach ($categoryIds as $categoryId) {
-                $categoryArgs[] = $categoryId;
-                $categoryArgs[] = $this->id;
-                $queryCategory .= '
-            INSERT INTO  
-            `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_rel_category_product`
-            (
-                `category_id`,
-                `product_id` 
-            ) VALUES (?,?);';
-            }
-            $objCatResult = $objDatabase->Execute($queryCategory, $categoryArgs);
 
-            if ($objCatResult) {
-                return true;
-            }
+            return true;
         }
         return false;
     }
