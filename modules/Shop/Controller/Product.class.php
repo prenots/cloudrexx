@@ -1292,10 +1292,9 @@ class Product
             }
             $objCatResult = $objDatabase->Execute($queryCategory, $categoryArgs);
 
-            if (!$objCatResult) {
-                return false;
+            if ($objCatResult) {
+                return true;
             }
-            return true;
         }
         return false;
     }
