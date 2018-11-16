@@ -15,6 +15,11 @@ Cx\Modules\Shop\Model\Entity\Attribute:
       options:
         unsigned: true
         default: 1
+    name:
+      type: string
+      length: 35
+      options:
+        default: ''
   oneToMany:
     options:
       targetEntity: Cx\Modules\Shop\Model\Entity\Option

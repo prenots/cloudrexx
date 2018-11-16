@@ -19,6 +19,11 @@ class Vat extends \Cx\Model\Base\EntityBase {
     protected $rate;
 
     /**
+     * @var string
+     */
+    protected $class;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $products;
@@ -45,7 +50,6 @@ class Vat extends \Cx\Model\Base\EntityBase {
      * Set rate
      *
      * @param string $rate
-     * @return Vat
      */
     public function setRate($rate)
     {
@@ -65,10 +69,29 @@ class Vat extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+     * Set class
+     *
+     * @param string $class
+     */
+    public function setClass($class)
+    {
+        $this->class = $class;
+    }
+
+    /**
+     * Get class
+     *
+     * @return string
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    /**
      * Add products
      *
      * @param \Cx\Modules\Shop\Model\Entity\Products $products
-     * @return Vat
      */
     public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
     {

@@ -15,6 +15,11 @@ Cx\Modules\Shop\Model\Entity\Zones:
       options:
         unsigned: true
         default: 1
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
   oneToMany:
     relCountries:
       targetEntity: Cx\Modules\Shop\Model\Entity\RelCountries

@@ -24,6 +24,11 @@ Cx\Modules\Shop\Model\Entity\Option:
       scale: 2
       options:
         default: 0.00
+    name:
+      type: string
+      length: 45
+      options:
+        default: ''
   oneToMany:
     relProductAttributes:
       targetEntity: Cx\Modules\Shop\Model\Entity\RelProductAttribute

@@ -124,6 +124,36 @@ class Products extends \Cx\Model\Base\EntityBase {
     protected $minimumOrderQuantity;
 
     /**
+     * @var string
+     */
+    protected $uri;
+
+    /**
+     * @var string
+     */
+    protected $short;
+
+    /**
+     * @var string
+     */
+    protected $long;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $keys;
+
+    /**
+     * @var string
+     */
+    protected $code;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $discountCoupons;
@@ -678,6 +708,126 @@ class Products extends \Cx\Model\Base\EntityBase {
     public function getMinimumOrderQuantity()
     {
         return $this->minimumOrderQuantity;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set uri
+     *
+     * @param string $uri
+     */
+    public function setUri($uri)
+    {
+        $this->uri = $uri;
+    }
+
+    /**
+     * Get uri
+     *
+     * @return string
+     */
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * Set short
+     *
+     * @param string $short
+     */
+    public function setShort($short)
+    {
+        $this->short = $short;
+    }
+
+    /**
+     * Get short
+     *
+     * @return string
+     */
+    public function getShort()
+    {
+        return $this->short;
+    }
+
+    /**
+     * Set long
+     *
+     * @param string $long
+     */
+    public function setLong($long)
+    {
+        $this->long = $long;
+    }
+
+    /**
+     * Get long
+     *
+     * @return string
+     */
+    public function getLong()
+    {
+        return $this->long;
+    }
+
+    /**
+     * Set keys
+     *
+     * @param string $keys
+     */
+    public function setKeys($keys)
+    {
+        $this->keys = $keys;
+    }
+
+    /**
+     * Get keys
+     *
+     * @return string
+     */
+    public function getKeys()
+    {
+        return $this->keys;
+    }
+
+    /**
+     * Set code
+     *
+     * @param string $code
+     */
+    public function code($code)
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * Get code
+     *
+     * @return string
+     */
+    public function getCode()
+    {
+        return $this->code;
     }
 
     /**

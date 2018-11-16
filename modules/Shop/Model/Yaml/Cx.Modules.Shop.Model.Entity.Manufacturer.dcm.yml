@@ -9,6 +9,17 @@ Cx\Modules\Shop\Model\Entity\Manufacturer:
         unsigned: true
       generator:
         strategy: AUTO
+  fields:
+    uri:
+      type: string
+      length: 55
+      options:
+        default: ''
+    name:
+      type: string
+      length: 35
+      options:
+        default: ''
   oneToMany:
     products:
       targetEntity: Cx\Modules\Shop\Model\Entity\Products

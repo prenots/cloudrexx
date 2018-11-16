@@ -19,6 +19,11 @@ class Zones extends \Cx\Model\Base\EntityBase {
     protected $active;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $relCountries;
@@ -74,6 +79,26 @@ class Zones extends \Cx\Model\Base\EntityBase {
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

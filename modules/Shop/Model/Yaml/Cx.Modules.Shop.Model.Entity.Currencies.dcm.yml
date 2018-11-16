@@ -50,6 +50,11 @@ Cx\Modules\Shop\Model\Entity\Currencies:
       options:
         unsigned: true
         default: 0.01000
+    name:
+      type: string
+      length: 35
+      options:
+        default: ''
   oneToMany:
     orders:
       targetEntity: Cx\Modules\Shop\Model\Entity\Orders

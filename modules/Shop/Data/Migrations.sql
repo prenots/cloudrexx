@@ -17,6 +17,46 @@ CREATE TABLE contrexx_module_shop_rel_product_user_group (
   PRIMARY KEY(product_id, usergroup_id)
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
+/** Core Text **/
+ALTER TABLE contrexx_module_shop_manufacturer
+  ADD `uri` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_products
+  ADD `uri` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `short` TEXT NOT NULL,
+  ADD `long` TEXT NOT NULL,
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `keys` TEXT NOT NULL,
+  ADD `code` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_categories
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `description` TEXT NOT NULL;
+
+ALTER TABLE contrexx_module_shop_discountgroup_count_name
+  ADD `unit` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_currencies ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_option ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_payment ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_shipper ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_vat ADD `class` VARCHAR(255) NOT NULL;
+
+ALTER TABLE contrexx_module_shop_article_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_attribute ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_zones ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_customer_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+
 /** Merge Data **/
 INSERT INTO contrexx_module_shop_rel_category_product SELECT
     c.id AS category_id, d.id AS product_id
