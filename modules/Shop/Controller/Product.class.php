@@ -1184,78 +1184,38 @@ class Product
         }
         return false;
     }
-
+    /**
+     * Update usergroup-product relation in intermediate table.
+     *
+     * @param array array with all category ids
+     * @return bool
+     */
     function updateUserGroupRelation()
     {
         $table = 'rel_product_user_group';
-        $attr = 'usergroup_id';
-        $getter = 'usergroup_ids';
+        $attr = array('entity' => 'product_id', 'foreign' => 'usergroup_id');
+        $arrIdsInput = explode (',', $this->usergroup_ids);
 
-        return $this->updateRelation($table, $attr, $getter);
+        return \Cx\Modules\Shop\Controller\ShopLibrary::updateRelation(
+            $table, $attr, $arrIdsInput, $this->id
+        );
     }
 
+    /**
+     * Update category-product relation in intermediate table.
+     *
+     * @param array array with all category ids
+     * @return bool
+     */
     function updateCategoryRelation()
     {
         $table = 'rel_category_product';
-        $attr = 'category_id';
-        $getter = $attr;
+        $attr = array('entity' => 'product_id', 'foreign' => 'category_id');
+        $arrIdsInput = explode (',', $this->category_id);
 
-        return $this->updateRelation($table, $attr, $getter);
-    }
-
-    function updateRelation($table, $attr, $getter)
-    {
-        global $objDatabase;
-
-        $arrIdsInput = explode (',', $this->$getter);
-
-        $queryCategories = "
-            SELECT `$attr`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_$table`
-              WHERE `product_id`=$this->id;";
-        $objSelectResult = $objDatabase->Execute($queryCategories);
-
-        $arrIdsDb = array();
-        while ($objSelectResult && !$objSelectResult->EOF) {
-            $arrIdsDb[] = $objSelectResult->fields[$attr];
-            $objSelectResult->MoveNext();
-        }
-
-        // Get all ids where in
-        $newRelationIds = array_diff(
-            $arrIdsInput,
-            $arrIdsDb
+        return \Cx\Modules\Shop\Controller\ShopLibrary::updateRelation(
+            $table, $attr, $arrIdsInput, $this->id
         );
-
-        $deletedRelationIds = array_diff(
-            $arrIdsDb,
-            $arrIdsInput
-        );
-
-        if (empty($newRelationIds) && empty($deletedRelationIds)) {
-            return true;
-        }
-        $updateQuery = '';
-        foreach ($newRelationIds as $id) {
-            $updateArgs[] = $id;
-            $updateArgs[] = $this->id;
-            $updateQuery .= 'INSERT INTO `' . DBPREFIX.'module_shop'.MODULE_INDEX
-                .'_'.$table.'`' . '('.$attr.', product_id)' .'VALUES (?,?);';
-        }
-        foreach ($deletedRelationIds as $id) {
-            $updateArgs[] = $this->id;
-            $updateArgs[] = $id;
-            $updateQuery .= 'DELETE FROM `' .
-                DBPREFIX . 'module_shop' . MODULE_INDEX . '_'.$table.'`' .
-                'WHERE product_id = ? AND '.$attr.' = ?; ';
-        }
-        $objResult = $objDatabase->Execute($updateQuery, $updateArgs);
-
-        if (!$objResult) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
