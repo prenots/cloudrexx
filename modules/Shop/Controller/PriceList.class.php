@@ -821,11 +821,16 @@ class PriceList
     {
         global $objDatabase;
 
+        $queryRelation = '
+            DELETE FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_pricelist`
+             WHERE `pricelist_id`='.$list_id;
+        if (!$objDatabase->Execute($queryRelation)) {
+            return false;
+        }
+
         $query = "
             DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
-             WHERE `id`=$list_id; 
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_pricelist`
-             WHERE `pricelist_id`=$list_id; ";
+             WHERE `id`=$list_id;";
         return (boolean)$objDatabase->Execute($query);
     }
 
