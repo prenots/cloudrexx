@@ -892,64 +892,22 @@ class PriceList
     }
 
     /**
-     * Update category pricelist relation in intermediate table.
+     * Update category-pricelist relation in intermediate table.
      *
      * @param array array with all category ids
      * @return bool
      */
-    function updateCategoryRelation($arrCategoryIdsInput)
+    function updateCategoryRelation($allCategories)
     {
-        global $objDatabase;
-
-        $queryCategories = "
-            SELECT `category_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_pricelist`
-              WHERE `pricelist_id`=$this->id;";
-        $objSelectResult = $objDatabase->Execute($queryCategories);
-
-        $arrCategoryIdsDb = array();
-        while ($objSelectResult && !$objSelectResult->EOF) {
-            $arrCategoryIdsDb[] = $objSelectResult->fields['category_id'];
-            $objSelectResult->MoveNext();
-        }
-
-        // Get all ids where new
-        $newCategoryIds = array_diff(
-            $arrCategoryIdsInput,
-            $arrCategoryIdsDb
+        $table = 'rel_category_pricelist';
+        $attr = array(
+            'entity' => 'pricelist_id',
+            'foreign' => 'category_id'
         );
 
-        // Get all ids where not selected anymore
-        $deletedCategoryIds = array_diff(
-            $arrCategoryIdsDb,
-            $arrCategoryIdsInput
+        return \Cx\Modules\Shop\Controller\ShopLibrary::updateRelation(
+            $table, $attr, $allCategories, $this->id
         );
-
-        if (empty($newCategoryIds) && empty($deletedCategoryIds)) {
-            return true;
-        }
-        $updateQuery = '';
-        foreach ($newCategoryIds as $categoryId) {
-            $updateArgs[] = $categoryId;
-            $updateArgs[] = $this->id;
-            $updateQuery .= 'INSERT INTO `' .
-                DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_pricelist`' .
-                '(category_id, pricelist_id) VALUES (?,?);';
-        }
-        foreach ($deletedCategoryIds as $categoryId) {
-            $updateArgs[] = $this->id;
-            $updateArgs[] = $categoryId;
-            $updateQuery .= 'DELETE FROM `' .
-                DBPREFIX . 'module_shop' . MODULE_INDEX . '_rel_category_pricelist`' .
-                'WHERE pricelist_id = ? AND category_id = ?; ';
-        }
-        $objSelectResult = $objDatabase->Execute($updateQuery, $updateArgs);
-
-        if (!$objSelectResult) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
