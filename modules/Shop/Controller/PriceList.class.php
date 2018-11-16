@@ -606,12 +606,12 @@ class PriceList
     static function getCategoriesByListId($listId)
     {
         global $objDatabase;
-        $objCatResult = $objDatabase->Execute("
+        $objCatResult = $objDatabase->Execute('
             SELECT `category_id`
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_pricelist
-             WHERE pricelist_id=$listId");
+              FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_pricelist
+             WHERE pricelist_id='.$listId);
         if (!$objCatResult) {
-            return false;
+            return array();
         }
         $arrCategoryIds = array();
         while (!$objCatResult->EOF) {
