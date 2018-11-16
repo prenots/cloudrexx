@@ -1001,17 +1001,19 @@ class Product
             return false;
         }
 
-        $objCatResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product
-                WHERE product_id=$this->id");
+        $objCatResult = $objDatabase->Execute('
+            DELETE FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_product
+                WHERE product_id='.$this->id
+        );
 
         if (!$objCatResult) {
             return false;
         }
 
-        $objUserGroupResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_user_group
-                WHERE product_id=$this->id");
+        $objUserGroupResult = $objDatabase->Execute('
+            DELETE FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_product_user_group
+                WHERE product_id='.$this->id
+        );
 
         if (!$objUserGroupResult) {
             return false;
@@ -1345,10 +1347,10 @@ class Product
             $strKeys = \Text::getById($id, 'Shop', self::TEXT_KEYS)->content();
         }
 
-        $queryCategories = "
+        $queryCategories = '
             SELECT `category_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product`
-              WHERE `product_id`=$id";
+              FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_product`
+              WHERE `product_id`='.$id;
         $objResultCategories = $objDatabase->Execute($queryCategories);
         $arrCategoryIds = array();
         while (!$objResultCategories->EOF) {
@@ -1356,10 +1358,10 @@ class Product
             $objResultCategories->MoveNext();
         }
 
-        $queryUserGroups = "
+        $queryUserGroups = '
             SELECT `usergroup_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_user_group`
-              WHERE `product_id`=$id";
+              FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_product_user_group`
+              WHERE `product_id`='.$id;
         $objResultUserGroups = $objDatabase->Execute($queryUserGroups);
         $arrUserGroupIds = array();
         while (!$objResultUserGroups->EOF) {
@@ -1369,7 +1371,7 @@ class Product
 
         $objProduct = new Product(
             $strCode,
-            implode(",", $arrCategoryIds),
+            implode(',', $arrCategoryIds),
             $strName,
             $objResult->fields['distribution'],
             $objResult->fields['normalprice'],
@@ -1394,7 +1396,7 @@ class Product
         $objProduct->uri = $strUri;
         $objProduct->vat_id = $objResult->fields['vat_id'];
         $objProduct->flags = $objResult->fields['flags'];
-        $objProduct->usergroup_ids = implode(",", $arrUserGroupIds);
+        $objProduct->usergroup_ids = implode(',', $arrUserGroupIds);
         $objProduct->group_id = $objResult->fields['group_id'];
         $objProduct->article_id = $objResult->fields['article_id'];
         $objProduct->keywords = $strKeys;

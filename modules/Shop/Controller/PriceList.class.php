@@ -609,7 +609,8 @@ class PriceList
         $objCatResult = $objDatabase->Execute('
             SELECT `category_id`
               FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_pricelist
-             WHERE pricelist_id='.$listId);
+             WHERE pricelist_id='.$listId
+        );
         if (!$objCatResult) {
             return array();
         }
