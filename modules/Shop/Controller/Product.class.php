@@ -66,10 +66,10 @@ class Product
      */
     private $code = null;
     /**
-     * @var     array          $category_id         ShopCategory ID or IDs of the Product
+     * @var     string          $category_id         ShopCategory ID or IDs of the Product
      * @access  private
      */
-    private $category_id = array();
+    private $category_id = '';
     /**
      * @var     string          $name               Product name
      * @access  private
