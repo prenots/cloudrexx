@@ -1354,7 +1354,7 @@ class Product
                    `product`.`minimum_order_quantity`, ".
                    $arrSql['field']."
               FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `product`".
-                   $arrSql['join']." 
+                   $arrSql['join']."
              WHERE `product`.`id`=$id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
