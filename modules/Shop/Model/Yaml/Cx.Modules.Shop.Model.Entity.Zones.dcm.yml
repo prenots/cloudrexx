@@ -1,7 +1,6 @@
 Cx\Modules\Shop\Model\Entity\Zones:
   type: entity
   table: module_shop_zones
-  repositoryClass: Cx\Modules\Shop\Model\Repository\ZonesRepository
   id:
     id:
       type: integer

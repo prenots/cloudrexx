@@ -1,7 +1,6 @@
 Cx\Modules\Shop\Model\Entity\Manufacturer:
   type: entity
   table: module_shop_manufacturer
-  repositoryClass: Cx\Modules\Shop\Model\Repository\ManufacturerRepository
   id:
     id:
       type: integer

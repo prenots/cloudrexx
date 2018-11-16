@@ -1,7 +1,6 @@
 Cx\Modules\Shop\Model\Entity\Shipper:
   type: entity
   table: module_shop_shipper
-  repositoryClass: Cx\Modules\Shop\Model\Repository\ShipperRepository
   id:
     id:
       type: integer

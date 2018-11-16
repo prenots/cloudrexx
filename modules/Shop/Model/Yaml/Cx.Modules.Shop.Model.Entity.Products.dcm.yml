@@ -1,7 +1,6 @@
 Cx\Modules\Shop\Model\Entity\Products:
   type: entity
   table: module_shop_products
-  repositoryClass: Cx\Modules\Shop\Model\Repository\ProductsRepository
   indexes:
     group_id:
       columns: [ group_id ]

@@ -1,7 +1,6 @@
 Cx\Modules\Shop\Model\Entity\PaymentProcessors:
   type: entity
   table: module_shop_payment_processors
-  repositoryClass: Cx\Modules\Shop\Model\Repository\PaymentProcessorsRepository
   id:
     id:
       type: integer

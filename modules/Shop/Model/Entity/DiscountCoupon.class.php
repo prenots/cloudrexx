@@ -9,6 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     /**
+     * @var integer
+     */
+    protected $id;
+    /**
      * @var string
      */
     protected $code;
@@ -73,6 +77,26 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      */
     protected $products;
 
+
+    /**
+     * Set id
+     *
+     * @param integer $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set code

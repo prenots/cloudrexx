@@ -1,7 +1,6 @@
 Cx\Modules\Shop\Model\Entity\Payment:
   type: entity
   table: module_shop_payment
-  repositoryClass: Cx\Modules\Shop\Model\Repository\PaymentRepository
   indexes:
     fk_module_shop_payment_module_shop_payment_processors1_idx:
       columns: [ processor_id ]
