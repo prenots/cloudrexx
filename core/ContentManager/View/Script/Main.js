@@ -3225,7 +3225,7 @@ cx.cm.setSelectedMetaimage = function (data) {
 /**
  * Set a page preview link
  */
-cx.cm.setPreviewLink = function(nodeId = '') {
+cx.cm.setPreviewLink = function(nodeId = 0) {
     var parentNodeId = cx.jQuery('#parent_node').val(),
         language = cx.jQuery('#language :selected').val(),
         path, slug = cx.jQuery('#page_slug').val();
@@ -3234,7 +3234,7 @@ cx.cm.setPreviewLink = function(nodeId = '') {
         slug = cx.jQuery('#page_name').val();
     }
 
-    if (nodeId !== '') {
+    if (nodeId) {
         var obj = cx.jQuery.parseJSON(cx.jQuery('#node_' + nodeId + ' > a.' + language).attr('data-href'));
         path = obj.path.substring(1) + '/';
     } else if (parentNodeId !== '') {
