@@ -39,7 +39,7 @@ Cx\Modules\Shop\Model\Entity\Orders:
         unsigned: true
         default: 0.00
     dateTime:
-      type: datetime
+      type: timestamp
       column: date_time
       options:
         default: '0000-00-00 00:00:00'
@@ -136,7 +136,7 @@ Cx\Modules\Shop\Model\Entity\Orders:
     note:
       type: text
     modifiedOn:
-      type: datetime
+      type: timestamp
       nullable: true
       column: modified_on
     modifiedBy:

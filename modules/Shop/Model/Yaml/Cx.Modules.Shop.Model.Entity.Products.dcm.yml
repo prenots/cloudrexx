@@ -78,12 +78,12 @@ Cx\Modules\Shop\Model\Entity\Products:
         unsigned: true
         default: 1
     dateStart:
-      type: datetime
+      type: timestamp
       options:
         default: '0000-00-00 00:00:00'
       column: date_start
     dateEnd:
-      type: datetime
+      type: timestamp
       options:
         default: '0000-00-00 00:00:00'
       column: date_end
