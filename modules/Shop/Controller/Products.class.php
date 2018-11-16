@@ -356,15 +356,8 @@ class Products
             // Limit Products by ShopCategory ID or IDs, if any
             // (Pricelists use comma separated values, for example)
             if ($category_id) {
-                $queryCategories = '';
-                $catIds = preg_split('/\s*,\s*/', $category_id);
-                foreach ($catIds as $id) {
-                    $queryCategories .= '`category_product`.`category_id` = '
-                        .$id;
-                    if ($catIds[count($catIds)-1] != $id) {
-                        $queryCategories .= ' OR ';
-                    }
-                }
+                $queryCategories = '`category_product`.`category_id` IN ('
+                    .$category_id.')';
                 $queryWhere .= ' AND ('.$queryCategories.')';
             }
             // Limit Products by search pattern, if any

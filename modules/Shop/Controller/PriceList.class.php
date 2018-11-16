@@ -498,7 +498,7 @@ class PriceList
         // empty array!
         $arrProduct = Products::getByShopParams($count, 0, null,
             $category_ids, null, '%', null, null,
-            '`category_id` ASC, `name` ASC');
+            '`category_product`.`category_id` ASC, `name` ASC');
         $arrCategoryName = ShopCategories::getNameArray();
         $arrOutput = array();
         foreach ($arrProduct as $product_id => $objProduct) {
