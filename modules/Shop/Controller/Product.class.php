@@ -1259,14 +1259,11 @@ class Product
                 ".($this->article_id ? $this->article_id : 'NULL').",
                 ".($this->minimum_order_quantity ? $this->minimum_order_quantity : '0')."
             )";
-
         $objResult = $objDatabase->Execute($query);
-
         if ($objResult) {
             \Env::get('cx')->getEvents()->triggerEvent('model/postPersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
             // My brand new ID
             $this->id = $objDatabase->Insert_ID();
-
             return true;
         }
         return false;

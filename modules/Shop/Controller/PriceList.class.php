@@ -831,7 +831,7 @@ class PriceList
 
         $query = "
             DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
-             WHERE `id`=$list_id;";
+             WHERE `id`=$list_id";
         return (boolean)$objDatabase->Execute($query);
     }
 
