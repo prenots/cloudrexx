@@ -942,29 +942,22 @@ class PriceList
               '".contrexx_raw2db($this->footer_right)."'
             )";
         if ($objDatabase->Execute($query)) {
-            $this->id($objDatabase->Insert_ID());
+            $this->id = $objDatabase->Insert_ID();
 
-            $queryCatArgs = array();
             if ($this->arrCategoryId[0] == '*') {
-                $queryCat = 'INSERT INTO `'.DBPREFIX.'module_shop'.MODULE_INDEX.
-                    '_rel_category_pricelist` (SELECT `id` AS `category_id`, '
-                    .$objDatabase->Insert_ID().' AS `pricelist_id` ' . 'FROM `'.DBPREFIX
-                    .'module_shop'.MODULE_INDEX.'_categories`)';
-
-            } else {
-                $queryCat = '';
-                foreach ($this->arrCategoryId as $categoryId) {
-                    $queryCatArgs[] = $categoryId;
-                    $queryCatArgs[] = $objDatabase->Insert_ID();
-                    $queryCat .= 'INSERT INTO `'.DBPREFIX.'module_shop'.MODULE_INDEX.
-                        '_rel_category_pricelist` (`category_id`, `pricelist_id`) 
-                        VALUES (?,?);';
+                $queryCat = 'SELECT `id` FROM `'.DBPREFIX
+                    .'module_shop'.MODULE_INDEX.'_categories`';
+                $objCatResult = $objDatabase->Execute($queryCat);
+                $arrCategoryIds = array();
+                while (!$objCatResult->EOF) {
+                    $arrCategoryIds[] = $objCatResult->fields['id'];
+                    $objCatResult->MoveNext();
                 }
+            } else {
+                $arrCategoryIds = $this->arrCategoryId;
             }
 
-            $catResult = $objDatabase->Execute($queryCat, $queryCatArgs);
-
-            if ($catResult) {
+            if ($this->updateCategoryRelation($arrCategoryIds)) {
                 return \Message::ok($_ARRAYLANG['TXT_SHOP_PRICELIST_INSERTED_SUCCESSFULLY']);
             }
         }
