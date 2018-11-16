@@ -247,7 +247,7 @@ class Product
     ) {
         // Assign & check
         $this->code         = trim(strip_tags($code));
-        $this->category_id  = $category_id;
+        $this->category_id  = trim(strip_tags($category_id));
         $this->name         = trim($name);
         $this->distribution = trim(strip_tags($distribution));
         $this->price        = floatval($price);
