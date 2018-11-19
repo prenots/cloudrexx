@@ -514,6 +514,7 @@ class ShopCategory
             return false;
         }
         $this->id = $objDatabase->Insert_ID();
+        $this->insertPricelistRelation();
         return true;
     }
 
@@ -560,6 +561,21 @@ class ShopCategory
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_categories");
         return true;
+    }
+
+    /**
+     * If pricelist has the attribute all_categories set to true, each newly
+     * created category is referenced to this pricelist.
+     */
+    function insertPricelistRelation()
+    {
+        global $objDatabase;
+
+        $query = 'INSERT INTO '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_'
+            .'pricelist (SELECT '.$this->id().' AS 
+            category_id, id AS pricelist_id FROM '.DBPREFIX.'module_shop'
+            .MODULE_INDEX.'_pricelists WHERE all_categories = 1)';
+        $objDatabase->Execute($query);
     }
 
 
