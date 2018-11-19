@@ -1006,23 +1006,19 @@ class Product
                 WHERE product_id='.$this->id
         );
 
-        if (!$objCatResult) {
-            return false;
-        }
-
         $objUserGroupResult = $objDatabase->Execute('
             DELETE FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_product_user_group
                 WHERE product_id='.$this->id
         );
 
-        if (!$objUserGroupResult) {
-            return false;
-        }
-
         \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
 
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_products");
+
+        if (!$objCatResult || $objUserGroupResult) {
+            return false;
+        }
         return true;
     }
 
