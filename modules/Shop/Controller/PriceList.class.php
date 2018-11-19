@@ -698,7 +698,7 @@ class PriceList
             SELECT `id`, `name`, `lang_id`,
                    `border_on`,
                    `header_on`, `header_left`, `header_right`,
-                   `footer_on`, `footer_left`, `footer_right`
+                   `footer_on`, `footer_left`, `footer_right`, `all_categories`
               FROM ".DBPREFIX."module_shop".MODULE_INDEX."_pricelists
              WHERE id=$list_id";
         $objResult = $objDatabase->Execute($query);
@@ -717,7 +717,9 @@ class PriceList
         $objList->footer($objResult->fields['footer_on']);
         $objList->footer_left($objResult->fields['footer_left']);
         $objList->footer_right($objResult->fields['footer_right']);
-        $objList->category_ids(self::getCategoriesByListId($list_id));
+        $objList->category_ids($objResult->fields['all_categories'] ?
+            array('*') : self::getCategoriesByListId($list_id)
+        );
         return $objList;
     }
 
