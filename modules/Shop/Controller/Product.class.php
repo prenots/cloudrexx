@@ -1016,7 +1016,7 @@ class Product
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_products");
 
-        if (!$objCatResult || $objUserGroupResult) {
+        if (!$objCatResult || !$objUserGroupResult) {
             return false;
         }
         return true;
