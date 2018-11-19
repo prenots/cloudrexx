@@ -1138,7 +1138,6 @@ class Product
             $this->vat_id,
             $this->weight,
             addslashes($this->flags),
-            $this->usergroup_ids ? $this->usergroup_ids : 'NULL',
             $this->group_id ? $this->group_id : 'NULL',
             $this->article_id ? $this->article_id : 'NULL',
             $this->minimum_order_quantity ? $this->minimum_order_quantity : '0',
@@ -1167,7 +1166,6 @@ class Product
                 `vat_id` = ?,
                 `weight` = ?,
                 `flags` = ?,
-                `usergroup_ids` = ?,
                 `group_id` = ?,
                 `article_id` = ?,
                 `minimum_order_quantity` = ?
@@ -1237,7 +1235,7 @@ class Product
                 stock, stock_visible, discountprice, discount_active,
                 active, b2b, b2c, date_start, date_end,
                 manufacturer_id, ord, vat_id, weight,
-                flags, usergroup_ids, group_id, article_id, minimum_order_quantity
+                flags, group_id, article_id, minimum_order_quantity
             ) VALUES (
                 '$this->pictures',
                 '$this->distribution',
@@ -1250,7 +1248,6 @@ class Product
                 $this->manufacturer_id,
                 $this->ord, $this->vat_id, $this->weight,
                 '".addslashes($this->flags)."',
-                '".($this->usergroup_ids ? $this->usergroup_ids : 'NULL')."',
                 ".($this->group_id ? $this->group_id : 'NULL').",
                 ".($this->article_id ? $this->article_id : 'NULL').",
                 ".($this->minimum_order_quantity ? $this->minimum_order_quantity : '0')."
