@@ -886,7 +886,10 @@ class PriceList
                    `header_right`='".contrexx_raw2db($this->header_right)."',
                    `footer_on`=".intval($this->footer).",
                    `footer_left`='".contrexx_raw2db($this->footer_left)."',
-                   `footer_right`='".contrexx_raw2db($this->footer_right)."'
+                   `footer_right`='".contrexx_raw2db($this->footer_right)."',
+                   `all_categories`=". contrexx_raw2db(
+                       $this->arrCategoryId[0] == '*' ? 1:0
+                    ) ."
              WHERE `id`=$this->id";
 
         if (!$this->updateCategoryRelation($allCategories)) {
@@ -932,7 +935,7 @@ class PriceList
             INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists` (
               `name`, `lang_id`, `border_on`,
               `header_on`, `header_left`, `header_right`,
-              `footer_on`, `footer_left`, `footer_right`
+              `footer_on`, `footer_left`, `footer_right`, all_categories
             ) VALUES (
               '".contrexx_raw2db($this->name)."',
               ".intval($this->lang_id).",
@@ -942,7 +945,8 @@ class PriceList
               '".contrexx_raw2db($this->header_right)."',
               ".intval($this->footer).",
               '".contrexx_raw2db($this->footer_left)."',
-              '".contrexx_raw2db($this->footer_right)."'
+              '".contrexx_raw2db($this->footer_right)."',
+              ".contrexx_raw2db($this->arrCategoryId[0] == '*' ? 1:0) ."
             )";
         if ($objDatabase->Execute($query)) {
             $this->id = $objDatabase->Insert_ID();
