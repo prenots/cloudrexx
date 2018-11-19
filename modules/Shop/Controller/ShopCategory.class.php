@@ -558,9 +558,32 @@ class ShopCategory
         if (!$objResult) {
             return false;
         }
+
+        $this->deleteRelation();
+
         $objDatabase->Execute("
             OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_categories");
         return true;
+    }
+
+    /**
+     * Delete entries in intermediate table
+     */
+    function deleteRelation()
+    {
+        global $objDatabase;
+
+        $arrRelation = array(
+            'pricelist',
+            'product'
+        );
+
+        foreach ($arrRelation as $relation) {
+            $objDatabase->Execute(
+                'DELETE FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_'
+                . $relation.' WHERE category_id = '.$this->id()
+            );
+        }
     }
 
     /**
