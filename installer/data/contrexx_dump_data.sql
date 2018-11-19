@@ -4218,7 +4218,7 @@ INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `de
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (13,'external','paymill_elv','','https://www.paymill.com',1,'');
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (14,'external','paymill_iban','','https://www.paymill.com',1,'');
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (15,'external','payrexx','Payrexx is a payment gateway solution developed in Switzerland.','https://www.payrexx.com',1,'');
-INSERT INTO `contrexx_module_shop_pricelists` (`id`, `name`, `lang_id`, `border_on`, `header_on`, `header_left`, `header_right`, `footer_on`, `footer_left`, `footer_right`) VALUES (1,'Beispiel Preisliste',1,1,1,'Beispiel Preisliste',NULL,1,'<--DATE-->','<--PAGENUMBER-->');
+INSERT INTO `contrexx_module_shop_pricelists` (`id`, `name`, `lang_id`, `border_on`, `header_on`, `header_left`, `header_right`, `footer_on`, `footer_left`, `footer_right`, `all_categories`) VALUES (1,'Beispiel Preisliste',1,1,1,'Beispiel Preisliste',NULL,1,'<--DATE-->','<--PAGENUMBER-->', 1);
 INSERT INTO `contrexx_module_shop_rel_category_pricelist` (`category_id`, `pricelist_id`) VALUES (9,1);
 INSERT INTO `contrexx_module_shop_rel_category_pricelist` (`category_id`, `pricelist_id`) VALUES (10,1);
 INSERT INTO `contrexx_module_shop_rel_category_pricelist` (`category_id`, `pricelist_id`) VALUES (11,1);
