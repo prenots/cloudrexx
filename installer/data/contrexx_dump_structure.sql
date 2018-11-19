@@ -3351,6 +3351,7 @@ CREATE TABLE `contrexx_module_shop_pricelists` (
   `footer_on` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `footer_left` text,
   `footer_right` text,
+  `all_categories` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_products` (

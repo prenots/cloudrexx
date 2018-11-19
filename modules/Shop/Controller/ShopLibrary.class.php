@@ -426,7 +426,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         $queryCategories = '
             SELECT `'.$attr['foreign'].'`
               FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_'.$table.'`
-              WHERE `'.$attr['entity'].'`='.$entityId.';';
+              WHERE `'.$attr['entity'].'`='.$entityId;
         $objSelectResult = $objDatabase->Execute($queryCategories);
 
         $arrIdsDb = array();
@@ -456,7 +456,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             }
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'INSERT INTO `' . DBPREFIX.'module_shop'.MODULE_INDEX
-                .'_'.$table.'`' . ' ('.$attr['entity'].', '.$attr['foreign'].')' .' VALUES (?,?);';
+                .'_'.$table.'`' . ' ('.$attr['entity'].', '.$attr['foreign'].')' .' VALUES (?,?)';
 
             $objResult = $objDatabase->Execute($updateQuery, $updateArgs);
             if (!$objResult) {
@@ -470,7 +470,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'DELETE FROM `' .
                 DBPREFIX . 'module_shop' . MODULE_INDEX . '_'.$table.'`' .
-                'WHERE '.$attr['entity'].' = ? AND '.$attr['foreign'].' = ?; ';
+                'WHERE '.$attr['entity'].' = ? AND '.$attr['foreign'].' = ? ';
 
             $objResult = $objDatabase->Execute($updateQuery, $updateArgs);
             if (!$objResult) {

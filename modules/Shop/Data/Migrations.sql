@@ -17,6 +17,8 @@ CREATE TABLE contrexx_module_shop_rel_product_user_group (
   PRIMARY KEY(product_id, usergroup_id)
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
+ALTER TABLE contrexx_module_shop_pricelists ADD all_categories TINYINT NOT NULL DEFAULT 0;
+
 /** Core Text **/
 ALTER TABLE contrexx_module_shop_manufacturer
   ADD `uri` VARCHAR(255) DEFAULT '' NOT NULL,
@@ -56,7 +58,6 @@ ALTER TABLE contrexx_module_shop_zones ADD `name` VARCHAR(255) DEFAULT '' NOT NU
 
 ALTER TABLE contrexx_module_shop_customer_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
 
-
 /** Merge Data **/
 INSERT INTO contrexx_module_shop_rel_category_product SELECT
     c.id AS category_id, d.id AS product_id
@@ -78,6 +79,15 @@ FROM
     contrexx_access_user_groups c
     JOIN contrexx_module_shop_products d
         ON d.usergroup_ids REGEXP CONCAT('[[:<:]]', c.group_id, '[[:>:]]');
+
+UPDATE contrexx_module_shop_pricelists
+	SET all_categories = (
+      SELECT (
+          CASE
+          WHEN categories = '*' THEN 1
+          ELSE 0 END
+      ) AS all_categories
+  );
 
 ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
 ALTER TABLE contrexx_module_shop_pricelists DROP categories;

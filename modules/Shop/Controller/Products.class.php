@@ -586,15 +586,15 @@ class Products
 
         $category_id = intval($category_id);
         $query = "
-            SELECT `id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products`
-             WHERE FIND_IN_SET($category_id, `category_id`)
-          ORDER BY `ord` ASC";
+            SELECT `product_id`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product`
+             WHERE  `category_id` = $category_id
+        ";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
         $arrProductId = array();
         while (!$objResult->EOF) {
-            $arrProductId[] = $objResult->fields['id'];
+            $arrProductId[] = $objResult->fields['product_id'];
             $objResult->MoveNext();
         }
         return $arrProductId;
