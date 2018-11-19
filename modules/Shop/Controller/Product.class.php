@@ -1304,7 +1304,6 @@ class Product
                    `product`.`b2b`, `product`.`b2c`,
                    `product`.`vat_id`,
                    `product`.`flags`,
-                   `product`.`usergroup_ids`,
                    `product`.`group_id`, `product`.`article_id`,
                    `product`.`minimum_order_quantity`, ".
                    $arrSql['field']."
