@@ -357,3 +357,8 @@ JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
 JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
 WHERE name.name = 'picture' AND lang_id = 0 AND value.user_id = users.id) AS 'picture'
 FROM contrexx_access_users AS users);
+
+/*Add unique index to access_user_attribute_name*/
+ALTER TABLE contrexx_access_user_attribute_name DROP PRIMARY KEY;
+ALTER TABLE contrexx_access_user_attribute_name ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY;
+CREATE UNIQUE INDEX fk_module_user_attribute_name_unique_idx ON contrexx_access_user_attribute_name (attribute_id, lang_id);

@@ -1,9 +1,20 @@
 Cx\Core\User\Model\Entity\UserAttributeName:
   type: entity
   table: access_user_attribute_name
+  uniqueConstraints:
+      fk_module_user_attribute_name_unique_idx:
+        columns: attribute_id, lang_id
+  gedmo:
+    translation:
+      locale: locale
+      entity: Cx\Core\Locale\Model\Entity\Translation
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
   fields:
     attributeId:
-      id: true
       type: integer
       associationKey: true
       unsigned: true
@@ -11,7 +22,6 @@ Cx\Core\User\Model\Entity\UserAttributeName:
       options:
         default: 0
     langId:
-      id: true
       type: integer
       unsigned: true
       column: lang_id
@@ -19,6 +29,8 @@ Cx\Core\User\Model\Entity\UserAttributeName:
         default: 0
     name:
       type: string
+      gedmo:
+        - translatable
       length: 255
       nullable: false
       options:

@@ -49,6 +49,11 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
+    protected $id;
+
+    /**
+     * @var integer
+     */
     protected $attributeId = 0;
 
     /**
@@ -66,6 +71,15 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
      */
     protected $userAttribute;
 
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set attributeId
