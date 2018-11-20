@@ -574,6 +574,20 @@ die("Obsolete method Text::getByKey() called");
         $objText->content($strText);
         // The language may be empty!
         $objText->lang_id($lang_id);
+
+        $pattern = str_replace(
+            '%', '.*', preg_quote(
+                'core_mail%', '/'
+            )
+        );
+        if ($section == 'Shop' && !preg_match("/^{$pattern}$/i", $key)) {
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'Text:Replace',
+                array(array($id, $key, $strText))
+            );
+        }
+
 //DBG::log("Text::replace($id, $lang_id, $section, $key, $strText): Storing ".var_export($objText, true));
         if (!$objText->store()) {
 DBG::log("Text::replace($id, $lang_id, $section, $key, $strText): Error: failed to store Text");
