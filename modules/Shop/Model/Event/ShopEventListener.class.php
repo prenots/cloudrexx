@@ -186,6 +186,40 @@ class ShopEventListener extends DefaultEventListener {
     }
 
     /**
+     * Delete entries from translatable entities
+     *
+     * @param $deleteInfo
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function textDelete($deleteInfo)
+    {
+        $id = $deleteInfo[0];
+        $key = $deleteInfo[1];
+
+        $em = $this->cx->getDb()->getEntityManager();
+        $entityAndAttr = $this->getEntityNameAndAttr($key);
+
+        $entities = $em->getRepository(
+            '\Cx\Core\Locale\Model\Entity\Translation'
+        )->findBy(
+            array(
+                'objectClass' => $entityAndAttr['entityName'],
+                'field' => $entityAndAttr['attrName'],
+                'foreignKey' => $id
+            )
+        );
+
+        if (!$entities) {
+            return;
+        }
+        foreach ($entities as $entity) {
+            $em->remove($entity);
+        }
+
+        $em->flush();
+    }
+
+    /**
      * Get the entity namespace and attribute name from key
      *
      * @param $key array include key of \Text
