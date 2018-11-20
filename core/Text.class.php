@@ -617,6 +617,18 @@ DBG::log("Text::replace($id, $lang_id, $section, $key, $strText): Error: failed 
 DBG::log("Text::delete($all_languages): ERROR: Empty ID ($this->id), lang_id ($this->lang_id), or key ($this->key)");
             return false;
         }
+        $pattern = str_replace(
+            '%', '.*', preg_quote(
+                'core_mail%', '/'
+            )
+        );
+        if ($this->section == 'Shop' && !preg_match("/^{$pattern}$/i", $this->key)) {
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $cx->getEvents()->triggerEvent(
+                'Text:Delete',
+                array(array($this->id, $this->key))
+            );
+        }
         $query = "
             DELETE FROM `".DBPREFIX."core_text`
              WHERE `id`=$this->id".
