@@ -214,6 +214,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
         $this->cx->getEvents()->addEventListener('Text:Replace', $eventListener);
+        $this->cx->getEvents()->addEventListener('Text:Delete', $eventListener);
     }
 
     /**
@@ -224,6 +225,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function registerEvents() {
         $this->cx->getEvents()->addEvent('Text:Replace');
+        $this->cx->getEvents()->addEvent('Text:Delete');
     }
 
     public function preFinalize(\Cx\Core\Html\Sigma $template)
