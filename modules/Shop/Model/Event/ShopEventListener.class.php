@@ -51,6 +51,63 @@ use Cx\Core\Event\Model\Entity\DefaultEventListener;
  */
 class ShopEventListener extends DefaultEventListener {
 
+    protected $mappedAttributes =
+        array(
+            'category_description' => array(
+                'entity' => 'Categories',
+                'attr' => 'description'
+            ),
+            'category_name' => array(
+                'entity' => 'Categories',
+                'attr' => 'name'
+            ),
+            'currency_name' => array(
+                'entity' => 'Currencies',
+                'attr' => 'name'
+            ),
+            'discount_group_article' => array(
+                'entity' => 'ArticleGroup',
+                'attr' => 'name'
+            ),
+            'discount_group_customer' => array(
+                'entity' => 'CustomerGroup',
+                'attr' => 'name'
+            ),
+            'discount_group_name' => array(
+                'entity' => 'DiscountgroupCountName',
+                'attr' => 'name'
+            ),
+            'discount_group_unit' => array(
+                'entity' => 'DiscountgroupCountName',
+                'attr' => 'name'
+            ),
+            'product_code' => array(
+                'entity' => 'Products',
+                'attr' => 'code'
+            ),
+            'product_keys' => array(
+                'entity' => 'Products',
+                'attr' => 'keys'
+            ),
+            'product_long' => array(
+                'entity' => 'Products',
+                'attr' => 'long'
+            ),
+            'product_name' => array(
+                'entity' => 'Products',
+                'attr' => 'name'
+            ),
+            'product_short' => array(
+                'entity' => 'Products',
+                'attr' => 'short'
+            ),
+            'product_uri' => array(
+                'entity' => 'Products',
+                'attr' => 'uri'
+            ),
+        );
+
+
     public function SearchFindContent($search) {
         $term_db = $search->getTerm();
 
@@ -97,6 +154,40 @@ class ShopEventListener extends DefaultEventListener {
      */
     public function textReplace($replaceInfo)
     {
+        $id = $replaceInfo[0];
+        $key = $replaceInfo[1];
+        $value = $replaceInfo[2];
 
+        $setter = 'set';
+        if (array_key_exists($key, $this->mappedAttributes)) {
+            $entityName = $this->mappedAttributes[$key]['entity'];
+            $setter .= ucfirst($this->mappedAttributes[$key]['attr']);
+        } else {
+            $keyFragments = explode('_', $key);
+            $entityName = ucfirst($keyFragments[0]);
+            $setter .= ucfirst($keyFragments[1]);
+        }
+
+        $em = $this->cx->getDb()->getEntityManager();
+        $repo = $em->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\\' . $entityName
+        );
+        // Save old translatable locale to set it after updating the attribute
+        $oldLocale = $this->cx->getDb()->getTranslationListener()
+            ->getTranslatableLocale();
+        // Set translatable locale by frontend lang id
+        $this->cx->getDb()->getTranslationListener()->setTranslatableLocale(
+            \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID)
+        );
+        // Only entities with a identifier named id affected
+        $entity = $repo->find($id);
+        $entity->$setter($value);
+
+        $this->cx->getDb()->getTranslationListener()->setTranslatableLocale(
+            $oldLocale
+        );
+
+        $em->persist($entity);
+        $em->flush();
     }
 }
