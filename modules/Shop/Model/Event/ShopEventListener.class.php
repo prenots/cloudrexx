@@ -149,7 +149,8 @@ class ShopEventListener extends DefaultEventListener {
     /**
      * Update translatable entities with doctrine
      *
-     * @param $replaceInfo info includes id of entity, key and value of \Text
+     * @param $replaceInfo array info includes id of entity, key and value of
+     *                           \Text
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function textReplace($replaceInfo)
@@ -158,19 +159,12 @@ class ShopEventListener extends DefaultEventListener {
         $key = $replaceInfo[1];
         $value = $replaceInfo[2];
 
-        $setter = 'set';
-        if (array_key_exists($key, $this->mappedAttributes)) {
-            $entityName = $this->mappedAttributes[$key]['entity'];
-            $setter .= ucfirst($this->mappedAttributes[$key]['attr']);
-        } else {
-            $keyFragments = explode('_', $key);
-            $entityName = ucfirst($keyFragments[0]);
-            $setter .= ucfirst($keyFragments[1]);
-        }
+        $entityAndAttr = $this->getEntityNameAndAttr($key);
+        $setter = 'set' . $entityAndAttr['attrName'];
 
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $em->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\\' . $entityName
+            '\\'.$entityAndAttr['entityName']
         );
         // Save old translatable locale to set it after updating the attribute
         $oldLocale = $this->cx->getDb()->getTranslationListener()
@@ -189,5 +183,28 @@ class ShopEventListener extends DefaultEventListener {
 
         $em->persist($entity);
         $em->flush();
+    }
+
+    /**
+     * Get the entity namespace and attribute name from key
+     *
+     * @param $key array include key of \Text
+     * @return array
+     */
+    protected function getEntityNameAndAttr($key)
+    {
+        if (array_key_exists($key, $this->mappedAttributes)) {
+            $entityName = 'Cx\Modules\Shop\Model\Entity\\'.
+                $this->mappedAttributes[$key]['entity'];
+            $attrName = ucfirst($this->mappedAttributes[$key]['attr']);
+        } else {
+            $keyFragments = explode('_', $key);
+            $entityName = 'Cx\Modules\Shop\Model\Entity\\'. ucfirst(
+                $keyFragments[0]
+            );
+            $attrName = ucfirst($keyFragments[1]);
+        }
+
+        return array('entityName' => $entityName, 'attrName' => $attrName);
     }
 }
