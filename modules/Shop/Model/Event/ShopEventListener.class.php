@@ -89,4 +89,14 @@ class ShopEventListener extends DefaultEventListener {
         $mediaBrowserConfiguration->addMediaType($mediaType);
     }
 
+    /**
+     * Update translatable entities with doctrine
+     *
+     * @param $replaceInfo info includes id of entity, key and value of \Text
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function textReplace($replaceInfo)
+    {
+
+    }
 }
