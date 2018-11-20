@@ -1,6 +1,10 @@
 Cx\Modules\Shop\Model\Entity\Vat:
   type: entity
   table: module_shop_vat
+  gedmo:
+    translation:
+      locale: locale
+      entity: Cx\Core\Locale\Model\Entity\Translation
   id:
     id:
       type: integer
@@ -18,6 +22,8 @@ Cx\Modules\Shop\Model\Entity\Vat:
         default: 0.00
     class:
       type: string
+      gedmo:
+        - translatable
       length: 255
   oneToMany:
     products:
