@@ -7,7 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * ArticleGroup
  */
-class ArticleGroup extends \Cx\Model\Base\EntityBase {
+class ArticleGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -34,6 +38,16 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase {
     public function __construct()
     {
         $this->relDiscountGroups = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        $this->locale = $locale;
     }
 
     /**
