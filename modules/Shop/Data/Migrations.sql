@@ -32,7 +32,7 @@ INSERT INTO contrexx_module_shop_rel_category_pricelist SELECT
 FROM
     contrexx_module_shop_categories c
     JOIN contrexx_module_shop_pricelists d
-        ON d.categories REGEXP CONCAT('[[:<:]]', c.id, '[[:>:]]') OR d.categories = '*';
+        ON d.categories REGEXP CONCAT('[[:<:]]', c.id, '[[:>:]]') AND d.categories NOT LIKE '*';
 
 INSERT INTO contrexx_module_shop_rel_product_user_group SELECT
     c.group_id AS usergroup_id, d.id AS product_id
