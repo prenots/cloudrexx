@@ -452,9 +452,9 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getRelCustomerCoupon()
+    public function getRelCustomerCoupons()
     {
-        return $this->relCustomerCoupon;
+        return $this->relCustomerCoupons;
     }
 
 }
