@@ -593,7 +593,9 @@ class PriceList
         $this->footer = $objResult->fields['footer_on'];
         $this->footer_left = self::decode($objResult->fields['footer_left']);
         $this->footer_right = self::decode($objResult->fields['footer_right']);
-        $this->category_ids(self::getCategoriesByListId($this->id));
+        $this->category_ids($objResult->fields['all_categories'] ?
+            array('*') : self::getCategoriesByListId($this->id)
+        );
         return true;
     }
 
