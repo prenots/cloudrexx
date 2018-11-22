@@ -862,19 +862,7 @@ class PriceList
         global $objDatabase, $_ARRAYLANG;
 
         $allCategories = array();
-        if ($this->arrCategoryId[0] == '*') {
-            $queryCat = 'SELECT id FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_categories`';
-            $catResult = $objDatabase->Execute($queryCat);
-
-            if (!$catResult) {
-                return false;
-            }
-
-            while ($catResult && !$catResult->EOF) {
-                $allCategories[] = $catResult->fields['id'];
-                $catResult->MoveNext();
-            }
-        } else {
+        if ($this->arrCategoryId[0] != '*') {
             $allCategories = $this->arrCategoryId;
         }
 
@@ -953,16 +941,7 @@ class PriceList
         if ($objDatabase->Execute($query)) {
             $this->id = $objDatabase->Insert_ID();
 
-            if ($this->arrCategoryId[0] == '*') {
-                $queryCat = 'SELECT `id` FROM `'.DBPREFIX
-                    .'module_shop'.MODULE_INDEX.'_categories`';
-                $objCatResult = $objDatabase->Execute($queryCat);
-                $arrCategoryIds = array();
-                while (!$objCatResult->EOF) {
-                    $arrCategoryIds[] = $objCatResult->fields['id'];
-                    $objCatResult->MoveNext();
-                }
-            } else {
+            if ($this->arrCategoryId[0] != '*') {
                 $arrCategoryIds = $this->arrCategoryId;
             }
 
