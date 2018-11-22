@@ -575,12 +575,7 @@ die("Obsolete method Text::getByKey() called");
         // The language may be empty!
         $objText->lang_id($lang_id);
 
-        $pattern = str_replace(
-            '%', '.*', preg_quote(
-                'core_mail%', '/'
-            )
-        );
-        if ($section == 'Shop' && !preg_match("/^{$pattern}$/i", $key)) {
+        if ($section == 'Shop' && !preg_match('/^core_mail.*$/i', $key)) {
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             $cx->getEvents()->triggerEvent(
                 'Text:Replace',
@@ -617,12 +612,7 @@ DBG::log("Text::replace($id, $lang_id, $section, $key, $strText): Error: failed 
 DBG::log("Text::delete($all_languages): ERROR: Empty ID ($this->id), lang_id ($this->lang_id), or key ($this->key)");
             return false;
         }
-        $pattern = str_replace(
-            '%', '.*', preg_quote(
-                'core_mail%', '/'
-            )
-        );
-        if ($this->section == 'Shop' && !preg_match("/^{$pattern}$/i", $this->key)) {
+        if ($this->section == 'Shop' && !preg_match("/^core_mail.*$/i", $this->key)) {
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             $cx->getEvents()->triggerEvent(
                 'Text:Delete',
