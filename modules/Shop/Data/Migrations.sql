@@ -89,5 +89,43 @@ UPDATE contrexx_module_shop_pricelists
       ) AS all_categories
   );
 
+/** Merge core text attributes **/
+INSERT INTO `contrexx_translations` (`locale`, `object_class`, `field`, `foreign_key`, `content`)
+SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
+    CASE
+      WHEN `t`.`key` LIKE 'vat%' THEN 'Vat'
+    	WHEN `t`.`key` LIKE 'attribute%' THEN 'Attribute'
+    	WHEN `t`.`key` LIKE 'category%' THEN 'Categories'
+    	WHEN `t`.`key` LIKE 'currency%' THEN 'Currencies'
+    	WHEN `t`.`key` = 'discount_group_unit' OR `t`.`key` = 'discount_group_name' THEN 'DiscountgroupCountName'
+    	WHEN `t`.`key` = 'discount_group_article' THEN 'ArticleGroup'
+    	WHEN `t`.`key` LIKE'discount_group_customer' THEN 'CustomerGroup'
+    	WHEN `t`.`key` LIKE 'manufacturer%' THEN 'Manufacturer'
+    	WHEN `t`.`key` LIKE 'option%' THEN 'Option'
+    	WHEN `t`.`key` LIKE 'payment%' THEN 'Payment'
+    	WHEN `t`.`key` LIKE 'product%' THEN 'Products'
+    	WHEN `t`.`key` LIKE 'shipper%' THEN 'Shipper'
+    	WHEN `t`.`key` LIKE 'zone%' THEN 'Zones'
+    	ELSE ''
+    END
+)) AS object_class, (
+    CASE
+      WHEN `t`.`key` LIKE '%_name' THEN 'name'
+    	WHEN `t`.`key` LIKE '%_description' THEN 'description'
+    	WHEN `t`.`key` LIKE '%_article' THEN 'article'
+    	WHEN `t`.`key` LIKE '%_customer' THEN 'customer'
+    	WHEN `t`.`key` LIKE '%_unit' THEN 'unit'
+    	WHEN `t`.`key` LIKE '%_uri' THEN 'uri'
+    	WHEN `t`.`key` LIKE '%_code' THEN 'code'
+    	WHEN `t`.`key` LIKE '%_keys' THEN 'keys'
+    	WHEN `t`.`key` LIKE '%_long' THEN 'long'
+    	WHEN `t`.`key` LIKE '%_short' THEN 'short'
+    	WHEN `t`.`key` LIKE '%_class' THEN 'class'
+    	ELSE ''
+    END
+) AS `field`, `t`.`id` AS `foreign_key`, `t`.`text` AS `content` FROM contrexx_core_text AS `t`
+  LEFT JOIN `contrexx_core_locale_locale` AS `l` ON `t`.`lang_id` = `l`.`id`
+	WHERE `section` LIKE 'Shop' AND `key` NOT LIKE '%core_mail_template%%';
+
 ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
 ALTER TABLE contrexx_module_shop_pricelists DROP categories;
