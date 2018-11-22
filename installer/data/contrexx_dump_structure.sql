@@ -3260,8 +3260,8 @@ CREATE TABLE `contrexx_module_shop_lsv` (
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_manufacturer` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uri` varchar(255) DEFAULT '' NOT NULL,
   `name` varchar(255) DEFAULT '' NOT NULL,
-  `description` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_option` (
