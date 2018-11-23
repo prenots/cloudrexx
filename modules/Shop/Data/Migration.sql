@@ -108,6 +108,8 @@ ALTER TABLE `contrexx_module_shop_discount_coupon` ADD UNIQUE( `code`, `customer
 UPDATE `contrexx_module_shop_products` SET `article_id`=NULL WHERE `article_id`= 0;
 UPDATE `contrexx_module_shop_products` SET `group_id`=NULL WHERE `group_id`= 0;
 
+ALTER TABLE contrexx_module_shop_categories CHANGE parent_id parent_id INT UNSIGNED DEFAULT NULL;
+UPDATE `contrexx_module_shop_categories` SET `parent_id`=NULL WHERE `parent_id`= 0;
 
 /** Constraints **/
 ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
@@ -168,6 +170,7 @@ ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A449
 
 ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
 
+ALTER TABLE contrexx_module_shop_categories ADD CONSTRAINT FK_A9242624727ACA70 FOREIGN KEY (parent_id) REFERENCES contrexx_module_shop_categories (id);
 
 /** Index **/
 CREATE INDEX IDX_DA286BB1B213FA4 ON contrexx_module_shop_orders (lang_id);
@@ -213,6 +216,7 @@ CREATE INDEX IDX_2329A4538459F23 ON contrexx_module_shop_shipment_cost (shipper_
 
 CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id);
 
+CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id);
 
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
