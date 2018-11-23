@@ -230,15 +230,15 @@ class ShopEventListener extends DefaultEventListener {
         if (array_key_exists($key, $this->mappedAttributes)) {
             $entityName = 'Cx\\Modules\Shop\\Model\\Entity\\'.
                 $this->mappedAttributes[$key]['entity'];
-            $attrName = ucfirst($this->mappedAttributes[$key]['attr']);
+            $attrName = $this->mappedAttributes[$key]['attr'];
         } else {
             $keyFragments = explode('_', $key);
             $entityName = 'Cx\\Modules\Shop\\Model\\Entity\\'. ucfirst(
                 $keyFragments[0]
             );
-            $attrName = ucfirst($keyFragments[1]);
+            $attrName = $keyFragments[1];
         }
-
+        $attrName = \Doctrine\Common\Inflector\Inflector::classify($attrName);
         return array('entityName' => $entityName, 'attrName' => $attrName);
     }
 }
