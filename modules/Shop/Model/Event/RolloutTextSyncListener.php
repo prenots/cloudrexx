@@ -190,8 +190,8 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
         } else {
             $keyFragments = explode('_', $key);
             $entityName = 'Cx\\Modules\Shop\\Model\\Entity\\'. ucfirst(
-                    $keyFragments[0]
-                );
+                $keyFragments[0]
+            );
             $attrName = $keyFragments[1];
         }
         $attrName = \Doctrine\Common\Inflector\Inflector::classify($attrName);
