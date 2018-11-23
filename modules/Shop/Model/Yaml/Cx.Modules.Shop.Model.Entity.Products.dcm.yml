@@ -143,15 +143,11 @@ Cx\Modules\Shop\Model\Entity\Products:
       type: text
       gedmo:
         - translatable
-      options:
-        default: ''
     long:
       type: text
       gedmo:
         - translatable
       column: `long`
-      options:
-        default: ''
     name:
       type: string
       length: 255
@@ -164,8 +160,6 @@ Cx\Modules\Shop\Model\Entity\Products:
       gedmo:
         - translatable
       column: `keys`
-      options:
-        default: ''
     code:
       type: string
       length: 255
