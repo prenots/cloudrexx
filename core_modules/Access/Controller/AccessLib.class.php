@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- * 
+ *
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
- 
+
 /**
  * User Management
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
@@ -80,7 +80,7 @@ class AccessLib
      */
     private $attributeNamePrefix = 'access_profile_attribute';
     protected $accountAttributeNamePrefix = 'access_user_';
-    private $modulePrefix = 'ACCESS_';
+    protected $modulePrefix = 'ACCESS_';
 
     private $arrAttributeTypeTemplates;
 
@@ -88,6 +88,14 @@ class AccessLib
 
     private $arrAccountAttributes;
 
+    /**
+     * Static Access id to manage the users(add/edit)
+     */
+    const MANAGE_USER_ACCESS_ID = 202;
+    /**
+     * Static Access id to manage the user groups
+     */
+    const MANAGE_GROUPS_ACCESS_ID = 203;
 
     /**
      * This library can be used to parse/generate the HTML code of a user's
@@ -202,8 +210,8 @@ class AccessLib
         ");
         $this->arrAttributeTypeTemplates = array(
             'textarea'        => '<textarea name="[NAME]" rows="1" cols="1">[VALUE]</textarea>',
-            'text'            => '<input type="text" name="[NAME]" value="[VALUE]" />',
-            'password'        => '<input type="password" name="[NAME]" value="" autocomplete="off" />',
+            'text'            => '<input type="text" name="[NAME]" value="[VALUE]" autocomplete="foobar" />',
+            'password'        => '<input type="text" name="[NAME]" value="" onkeyup="if (this.value == \'\') { this.setAttribute(\'type\', \'text\'); } else { this.setAttribute(\'type\', \'password\'); }" style="text-security: disc; -webkit-text-security: disc;" />',
             'checkbox'        => '<input type="hidden" name="[NAME]" /><input type="checkbox" name="[NAME]" value="1" [CHECKED] />',
             'menu'            => '<select name="[NAME]"[STYLE]>[VALUE]</select>',
             'menu_option'     => '<option value="[VALUE]"[SELECTED][STYLE]>[VALUE_TXT]</option>',
@@ -272,136 +280,160 @@ class AccessLib
         }
 
         switch ($objAttribute->getType()) {
-            case 'date':
-                $value = $objUser->getProfileAttribute($attributeId, $historyId);
-                $arrPlaceholders['_VALUE'] = $value !== false && $value !== '' ? htmlentities(date(ASCMS_DATE_FORMAT_DATE, intval($value)), ENT_QUOTES, CONTREXX_CHARSET) : '';
+        case 'date':
+            $value = $objUser->getProfileAttribute($attributeId, $historyId);
+            $arrPlaceholders['_VALUE'] = $value !== false && $value !== '' ? htmlentities(date(ASCMS_DATE_FORMAT_DATE, intval($value)), ENT_QUOTES, CONTREXX_CHARSET) : '';
+            if ($edit) {
                 $arrPlaceholders['_MONTH'] = $this->getDateMonthMenu($attributeName, date('m', intval($objUser->getProfileAttribute($attributeId, $historyId))));
                 $arrPlaceholders['_DAY'] = $this->getDateDayMenu($attributeName, date('d', intval($objUser->getProfileAttribute($attributeId, $historyId))));
                 $arrPlaceholders['_YEAR'] = $this->getDateYearMenu($attributeName, date('Y', intval($objUser->getProfileAttribute($attributeId, $historyId))));
-                break;
-            case 'text':
-            case 'mail':
-                $arrPlaceholders['_VALUE'] = $edit ? htmlentities($objUser->getProfileAttribute($attributeId, $historyId), ENT_QUOTES, CONTREXX_CHARSET) : html_entity_decode(nl2br($objUser->getProfileAttribute($attributeId, $historyId)), ENT_QUOTES, CONTREXX_CHARSET);
-                break;
-            case 'uri':
-                $uri = $objUser->getProfileAttribute($attributeId, $historyId);
-                if (empty($uri)) {
-                    $arrPlaceholders['_VALUE'] = '';
-                    /*if ($this->_objTpl->blockExists($block.'_no_link')) {
-                        $this->_objTpl->setVariable('TXT_ACCESS_NO_SPECIFIED', $_CORELANG['TXT_ACCESS_NO_SPECIFIED']);
-                        $this->_objTpl->touchBlock($block.'_no_link');
-                    }*/
-                    if ($this->_objTpl->blockExists($block.'_link')) {
-                        $this->_objTpl->hideBlock($block.'_link');
-                    }
-                } else {
-                    $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($attributeId, $historyId), ENT_QUOTES, CONTREXX_CHARSET);
-                    if ($this->_objTpl->blockExists($block.'_link')) {
-                        $this->_objTpl->setVariable(array(
-                            'TXT_ACCESS_URL_OPEN_RISK_MSG' => $_CORELANG['TXT_ACCESS_URL_OPEN_RISK_MSG'],
-                            'TXT_ACCESS_CONFIRM_OPEN_URL'  => $_CORELANG['TXT_ACCESS_CONFIRM_OPEN_URL'],
-                            'TXT_ACCESS_VISIT_WEBSITE'     => $_CORELANG['TXT_ACCESS_VISIT_WEBSITE'],
-                        ));
-                        $this->_objTpl->touchBlock($block.'_link');
-                    }
-                    if ($this->_objTpl->blockExists($block.'_no_link')) {
-                        $this->_objTpl->hideBlock($block.'_no_link');
-                    }
+            } else {
+                $arrPlaceholders['_MONTH'] = date('m', intval($objUser->getProfileAttribute($attributeId, $historyId)));
+                $arrPlaceholders['_DAY'] = date('d', intval($objUser->getProfileAttribute($attributeId, $historyId)));
+                $arrPlaceholders['_YEAR'] = date('Y', intval($objUser->getProfileAttribute($attributeId, $historyId)));
+            }
+            break;
+        case 'text':
+        case 'mail':
+            $arrPlaceholders['_VALUE'] = $edit ? htmlentities($objUser->getProfileAttribute($attributeId, $historyId), ENT_QUOTES, CONTREXX_CHARSET) : html_entity_decode(nl2br($objUser->getProfileAttribute($attributeId, $historyId)), ENT_QUOTES, CONTREXX_CHARSET);
+            break;
+        case 'uri':
+            $uri = $objUser->getProfileAttribute($attributeId, $historyId);
+            if (empty($uri)) {
+                $arrPlaceholders['_VALUE'] = '';
+                /*if ($this->_objTpl->blockExists($block.'_no_link')) {
+                    $this->_objTpl->setVariable('TXT_ACCESS_NO_SPECIFIED', $_CORELANG['TXT_ACCESS_NO_SPECIFIED']);
+                    $this->_objTpl->touchBlock($block.'_no_link');
+                }*/
+                if ($this->_objTpl->blockExists($block.'_link')) {
+                    $this->_objTpl->hideBlock($block.'_link');
                 }
-                break;
-            case 'image':
-                $arrSettings = \User_Setting::getSettings();
+            } else {
+                $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($attributeId, $historyId), ENT_QUOTES, CONTREXX_CHARSET);
+                if ($this->_objTpl->blockExists($block.'_link')) {
+                    $this->_objTpl->setVariable(array(
+                        'TXT_ACCESS_URL_OPEN_RISK_MSG' => $_CORELANG['TXT_ACCESS_URL_OPEN_RISK_MSG'],
+                        'TXT_ACCESS_CONFIRM_OPEN_URL'  => $_CORELANG['TXT_ACCESS_CONFIRM_OPEN_URL'],
+                        'TXT_ACCESS_VISIT_WEBSITE'     => $_CORELANG['TXT_ACCESS_VISIT_WEBSITE'],
+                    ));
+                    $this->_objTpl->touchBlock($block.'_link');
+                }
+                if ($this->_objTpl->blockExists($block.'_no_link')) {
+                    $this->_objTpl->hideBlock($block.'_no_link');
+                }
+            }
+            break;
+        case 'image':
+            $arrSettings = \User_Setting::getSettings();
+            $cx    = \Cx\Core\Core\Controller\Cx::instanciate();
+            $image = $objUser->getProfileAttribute($objAttribute->getId(), $historyId);
+            $imageRepoWeb  = $attributeId == 'picture'
+                                ? $cx->getWebsiteImagesAccessProfileWebPath()
+                                : $cx->getWebsiteImagesAccessPhotoWebPath();
+            $imageRepoPath = $attributeId == 'picture'
+                                ? $cx->getWebsiteImagesAccessProfilePath()
+                                : $cx->getWebsiteImagesAccessPhotoPath();
 
-                $image = $objUser->getProfileAttribute($objAttribute->getId(), $historyId);
-                if (!$edit || file_exists(($attributeId == 'picture' ? ASCMS_ACCESS_PROFILE_IMG_PATH : ASCMS_ACCESS_PHOTO_IMG_PATH).'/'.$image)) {
-                    $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($objAttribute->getId(), $historyId), ENT_QUOTES, CONTREXX_CHARSET);
-                }
-                $arrPlaceholders['_SRC'] = ($attributeId == 'picture' ?
-                                                  ASCMS_ACCESS_PROFILE_IMG_WEB_PATH.'/'
-                                                : ASCMS_ACCESS_PHOTO_IMG_WEB_PATH.'/')
-                                            .(!empty($arrPlaceholders['_VALUE']) ?
-                                                  $arrPlaceholders['_VALUE']
-                                                : ($attributeId == 'picture' ?
-                                                          \User_Profile::$arrNoAvatar['src']
-                                                        : \User_Profile::$arrNoPicture['src']));
-                if (empty($arrPlaceholders['_VALUE'])) {
-                    $arrPlaceholders['_VALUE'] = $_CORELANG['TXT_ACCESS_NO_PICTURE'];
-                }
-                $arrPlaceholders['_THUMBNAIL'] = $this->getImageAttributeCode($objUser, $attributeName, $image, $attributeId, '', $historyId, $edit, true);
-                $arrPlaceholders['_THUMBNAIL_SRC'] =
-                    \ImageManager::getThumbnailFilename($arrPlaceholders['_SRC']);
-                $arrPlaceholders['_UPLOAD_NAME'] = $this->attributeNamePrefix.'_images['.$objAttribute->getId().']['.$historyId.']';
-                $arrPlaceholders['_MAX_FILE_SIZE'] = \FWSystem::getLiteralSizeFormat($arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_size']['value']);
-                $arrPlaceholders['_MAX_WIDTH'] = $arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_width']['value'];
-                $arrPlaceholders['_MAX_HEIGHT'] = $arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_height']['value'];
+            if (!$edit || file_exists($imageRepoPath .'/'. $image)) {
+                $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($objAttribute->getId(), $historyId), ENT_QUOTES, CONTREXX_CHARSET);
+            }
+            if (!empty($arrPlaceholders['_VALUE'])) {
+                $imageFilename = $arrPlaceholders['_VALUE'];
+            } elseif ($attributeId == 'picture') {
+                $imageFilename = \User_Profile::$arrNoAvatar['src'];
+            } else {
+                $imageFilename = \User_Profile::$arrNoPicture['src'];
+            }
+            $arrPlaceholders['_SRC'] = $imageRepoWeb . '/' . $imageFilename;
+            if (empty($arrPlaceholders['_VALUE'])) {
+                $arrPlaceholders['_VALUE'] = $_CORELANG['TXT_ACCESS_NO_PICTURE'];
+            }
+            $arrPlaceholders['_THUMBNAIL'] = $this->getImageAttributeCode($objUser, $attributeName, $image, $attributeId, '', $historyId, $edit, true);
+            $arrPlaceholders['_THUMBNAIL_SRC'] =
+                \ImageManager::getThumbnailFilename($arrPlaceholders['_SRC']);
+            $arrPlaceholders['_UPLOAD_NAME'] = $this->attributeNamePrefix.'_images['.$objAttribute->getId().']['.$historyId.']';
+            $arrPlaceholders['_MAX_FILE_SIZE'] = \FWSystem::getLiteralSizeFormat($arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_size']['value']);
+            $arrPlaceholders['_MAX_WIDTH'] = $arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_width']['value'];
+            $arrPlaceholders['_MAX_HEIGHT'] = $arrSettings['max_'.($attributeId == 'picture' ? 'profile_' : '').'pic_height']['value'];
+            $arrPlaceholders['_CHOOSE_FILE'] = $_CORELANG['TXT_ACCESS_USER_CHOOSE_FILE'];
 //                if ($attributeId == 'picture') {
 //                    $arrPlaceholders['_DESC'] = htmlentities($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET);
 //                }
-                break;
-            case 'checkbox':
-                $arrPlaceholders['_CHECKED'] = $objUser->getProfileAttribute($attributeId, $historyId) ? 'checked="checked"' : '';
-                $arrPlaceholders['_VALUE'] = $objUser->getProfileAttribute($attributeId, $historyId);
-                break;
-            case 'menu':
-                $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($objAttribute->getId(), $historyId), ENT_QUOTES, CONTREXX_CHARSET);
-                if ($arrPlaceholders['_VALUE'] == '0' || $arrPlaceholders['_VALUE'] == 'gender_undefined') {
-                    $arrPlaceholders['_VALUE'] = '';
+            $thumbnailGenerator = $cx->getMediaSourceManager()->getThumbnailGenerator();
+            $thumbnailFormats = $thumbnailGenerator->getThumbnails();
+            $thumbnails = $thumbnailGenerator->getThumbnailsFromFile($imageRepoWeb, $imageFilename, true);
+            foreach ($thumbnailFormats as $thumbnailFormat) {
+                if (!isset($thumbnails[$thumbnailFormat['size']])) {
+                    continue;
                 }
-                if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_children')) {
-                    foreach ($objAttribute->getChildren() as $childAttributeId) {
-                        $this->parseAttribute($objUser, $childAttributeId, $historyId, $edit, false, true, false, $useMagicBlock);
-                    }
+                $format = strtoupper($thumbnailFormat['name']);
+                $arrPlaceholders['_THUMBNAIL_' . $format . '_SRC'] = $thumbnails[$thumbnailFormat['size']];
+            }
+            break;
+        case 'checkbox':
+            $arrPlaceholders['_CHECKED'] = $objUser->getProfileAttribute($attributeId, $historyId) ? 'checked="checked"' : '';
+            $arrPlaceholders['_VALUE'] = $objUser->getProfileAttribute($attributeId, $historyId);
+            break;
+        case 'menu':
+            $arrPlaceholders['_VALUE'] = htmlentities($objUser->getProfileAttribute($objAttribute->getId(), $historyId), ENT_QUOTES, CONTREXX_CHARSET);
+            if ($arrPlaceholders['_VALUE'] == '0' || $arrPlaceholders['_VALUE'] == 'gender_undefined') {
+                $arrPlaceholders['_VALUE'] = '';
+            }
+            if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_children')) {
+                foreach ($objAttribute->getChildren() as $childAttributeId) {
+                    $this->parseAttribute($objUser, $childAttributeId, $historyId, $edit, false, true, false, $useMagicBlock);
                 }
-                break;
-            case 'frame':
+            }
+            break;
+        case 'frame':
+            foreach ($objAttribute->getChildren() as $childAttributeId) {
+                $this->parseAttribute($objUser, $childAttributeId, $historyId, $edit, false, true, true, $useMagicBlock);
+            }
+
+            $arrPlaceholders['_VALUE'] = $objAttribute->getMenuOptionValue();
+            break;
+        case 'menu_option':
+            $arrPlaceholders['_VALUE'] = $objAttribute->getMenuOptionValue();
+            $arrPlaceholders['_SELECTED'] = $objAttribute->getMenuOptionValue() == $objUser->getProfileAttribute($objAttribute->getParent(), $historyId) ? 'selected="selected"' : '';
+
+            if ($objAttribute->isCoreAttribute() && $objAttribute->isUnknownOption()) {
+                $objParentAttribute = $objAttribute->getById($objAttribute->getParent());
+                if ($objParentAttribute->isMandatory()) {
+                    $arrPlaceholders['_DESC'] = $_CORELANG['TXT_ACCESS_PLEASE_SELECT'];
+                }
+            }
+            break;
+        case 'group':
+            if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_children')) {
                 foreach ($objAttribute->getChildren() as $childAttributeId) {
                     $this->parseAttribute($objUser, $childAttributeId, $historyId, $edit, false, true, true, $useMagicBlock);
                 }
+            }
+            break;
+        case 'history':
+            if (!isset($objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
+                $objUser->arrAttributeHistories[$objUser->getId()][$attributeId] = array();
+            }
+            sort($objUser->arrAttributeHistories[$objUser->getId()][$attributeId]);
 
-                $arrPlaceholders['_VALUE'] = $objAttribute->getMenuOptionValue();
-                break;
-            case 'menu_option':
-                $arrPlaceholders['_VALUE'] = $objAttribute->getMenuOptionValue();
-                $arrPlaceholders['_SELECTED'] = $objAttribute->getMenuOptionValue() == $objUser->getProfileAttribute($objAttribute->getParent(), $historyId) ? 'selected="selected"' : '';
-
-                if ($objAttribute->isCoreAttribute() && $objAttribute->isUnknownOption()) {
-                    $objParentAttribute = $objAttribute->getById($objAttribute->getParent());
-                    if ($objParentAttribute->isMandatory()) {
-                        $arrPlaceholders['_DESC'] = $_CORELANG['TXT_ACCESS_PLEASE_SELECT'];
-                    }
-                }
-                break;
-            case 'group':
-                if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_children')) {
+            if ($edit && !in_array(0, $objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
+                $objUser->arrAttributeHistories[$objUser->getId()][$attributeId][] = 0;
+            }
+            foreach ($objUser->arrAttributeHistories[$objUser->getId()][$attributeId] as $attributeHistoryId) {
+                if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_history_list') || $this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId)) {
                     foreach ($objAttribute->getChildren() as $childAttributeId) {
-                        $this->parseAttribute($objUser, $childAttributeId, $historyId, $edit, false, true, true, $useMagicBlock);
+                        $this->parseAttribute($objUser, $childAttributeId, $attributeHistoryId, $edit, false, false, false, $useMagicBlock);
+                    }
+
+                    $this->_objTpl->setVariable($this->modulePrefix.'PROFILE_ATTRIBUTE_'.$attributeIdUC.'_HISTORY_ID', $attributeHistoryId);
+                    if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId)) {
+                        $this->_objTpl->parse($this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId);
+                    } else {
+                        $this->_objTpl->parse($this->attributeNamePrefix.'_'.$attributeId.'_history_list');
                     }
                 }
-                break;
-            case 'history':
-                if (!isset($objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
-                    $objUser->arrAttributeHistories[$objUser->getId()][$attributeId] = array();
-                }
-                sort($objUser->arrAttributeHistories[$objUser->getId()][$attributeId]);
-
-                if ($edit && !in_array(0, $objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
-                    $objUser->arrAttributeHistories[$objUser->getId()][$attributeId][] = 0;
-                }
-                foreach ($objUser->arrAttributeHistories[$objUser->getId()][$attributeId] as $attributeHistoryId) {
-                    if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_history_list') || $this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId)) {
-                        foreach ($objAttribute->getChildren() as $childAttributeId) {
-                            $this->parseAttribute($objUser, $childAttributeId, $attributeHistoryId, $edit, false, false, false, $useMagicBlock);
-                        }
-
-                        $this->_objTpl->setVariable($this->modulePrefix.'PROFILE_ATTRIBUTE_'.$attributeIdUC.'_HISTORY_ID', $attributeHistoryId);
-                        if ($this->_objTpl->blockExists($this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId)) {
-                            $this->_objTpl->parse($this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId);
-                        } else {
-                            $this->_objTpl->parse($this->attributeNamePrefix.'_'.$attributeId.'_history_list');
-                        }
-                    }
-                }
-                break;
+            }
+            break;
         }
 
         if (!$edit && isset($arrPlaceholders['_VALUE']) && $arrPlaceholders['_VALUE'] == '') {
@@ -520,14 +552,14 @@ class AccessLib
                     '_'.$attributeIdUC.($frame ? (
                         '_FRAME'.($frameIdUC ?
                             '_'.$frameIdUC
-                        :    ''))
-                    :    '').
+                            :    ''))
+                        :    '').
                     ($child ? (
                         '_CHILD'.($childIdUC ?
                             '_'.$childIdUC
-                        :    ''))
-                    :    '')
-                : '')
+                            :    ''))
+                        :    '')
+                    : '')
                 .$key;
             $this->_objTpl->setVariable($key, $value);
         }
@@ -607,13 +639,15 @@ class AccessLib
     {
         global $_CORELANG;
 
-        $arrScope = array('frontend', 'backend');
         $this->arrAccountAttributes['frontend_language']['children'][0] = $this->arrAccountAttributes['backend_language']['children'][0] = $_CORELANG['TXT_ACCESS_DEFAULT'];
         foreach (\FWLanguage::getLanguageArray() as $langId => $arrLanguage) {
-            foreach ($arrScope as $scope) {
-                if ($arrLanguage[$scope]) {
-                    $this->arrAccountAttributes[$scope.'_language']['children'][$langId] = $arrLanguage['name'];
-                }
+            if ($arrLanguage['frontend']) {
+                $this->arrAccountAttributes['frontend_language']['children'][$langId] = $arrLanguage['name'];
+            }
+        }
+        foreach (\FWLanguage::getBackendLanguageArray() as $langId => $arrLanguage) {
+            if ($arrLanguage['backend']) {
+                $this->arrAccountAttributes['backend_language']['children'][$langId] = $arrLanguage['name'];
             }
         }
     }
@@ -627,23 +661,23 @@ class AccessLib
 
         foreach (array_keys($this->arrAccountAttributes) as $attributeId) {
             switch ($attributeId) {
-                case 'email_access':
-                    if (!$objUser->isAllowedToChangeEmailAccess()) {
-                        if ($this->_objTpl->blockExists($this->accountAttributeNamePrefix.$attributeId)) {
-                            $this->_objTpl->hideBlock($this->accountAttributeNamePrefix.$attributeId);
-                        }
-                        continue 2;
+            case 'email_access':
+                if (!$objUser->isAllowedToChangeEmailAccess()) {
+                    if ($this->_objTpl->blockExists($this->accountAttributeNamePrefix.$attributeId)) {
+                        $this->_objTpl->hideBlock($this->accountAttributeNamePrefix.$attributeId);
                     }
-                    break;
+                    continue 2;
+                }
+                break;
 
-                case 'profile_access':
-                    if (!$objUser->isAllowedToChangeProfileAccess()) {
-                        if ($this->_objTpl->blockExists($this->accountAttributeNamePrefix.$attributeId)) {
-                            $this->_objTpl->hideBlock($this->accountAttributeNamePrefix.$attributeId);
-                        }
-                        continue 2;
+            case 'profile_access':
+                if (!$objUser->isAllowedToChangeProfileAccess()) {
+                    if ($this->_objTpl->blockExists($this->accountAttributeNamePrefix.$attributeId)) {
+                        $this->_objTpl->hideBlock($this->accountAttributeNamePrefix.$attributeId);
                     }
-                    break;
+                    continue 2;
+                }
+                break;
             }
             $this->parseAccountAttribute($objUser, $attributeId, $edit);
         }
@@ -676,33 +710,33 @@ class AccessLib
         $value = $arrPlaceholders[$placeholderUC.'_VALUE'] = isset($value) ? $value : (isset($this->arrAccountAttributes[$attributeId]['value']) ? $objUser->{$this->arrAccountAttributes[$attributeId]['value']}() : '');
 
         switch ($this->arrAccountAttributes[$attributeId]['type']) {
-            case 'text':
-                $arrPlaceholders[$placeholderUC] = $this->getTextAttributeCode($accountAttributePrefix.$attributeId, $value, $edit);
-                break;
+        case 'text':
+            $arrPlaceholders[$placeholderUC] = $this->getTextAttributeCode($accountAttributePrefix.$attributeId, $value, $edit);
+            break;
 
-            case 'password':
-                $arrPlaceholders[$placeholderUC] = $this->getPasswordAttributeCode($accountAttributePrefix.$attributeId);
-                break;
+        case 'password':
+            $arrPlaceholders[$placeholderUC] = $this->getPasswordAttributeCode($accountAttributePrefix.$attributeId);
+            break;
 
-            case 'email':
-                $arrPlaceholders[$placeholderUC] = $this->getEmailAttributeCode($accountAttributePrefix.$attributeId, $value, $edit);
-                break;
+        case 'email':
+            $arrPlaceholders[$placeholderUC] = $this->getEmailAttributeCode($accountAttributePrefix.$attributeId, $value, $edit);
+            break;
 
-            case 'menu':
-                if ($edit == true) {
-                    $childrenCode = array();
-                    foreach ($this->arrAccountAttributes[$attributeId]['children'] as $childAttributeId => $childAttributeName) {
-                        $childrenCode[] = $this->getMenuOptionAttributeCode($childAttributeId, $value, $childAttributeName);
-                    }
-                    $value = join($childrenCode);
+        case 'menu':
+            if ($edit == true) {
+                $childrenCode = array();
+                foreach ($this->arrAccountAttributes[$attributeId]['children'] as $childAttributeId => $childAttributeName) {
+                    $childrenCode[] = $this->getMenuOptionAttributeCode($childAttributeId, $value, $childAttributeName);
                 }
+                $value = join($childrenCode);
+            }
 
-                $arrPlaceholders[$placeholderUC] = $this->getMenuAttributeCode($accountAttributePrefix.$attributeId, $value, $edit);
-                break;
+            $arrPlaceholders[$placeholderUC] = $this->getMenuAttributeCode($accountAttributePrefix.$attributeId, $value, $edit);
+            break;
 
-            default:
-                $arrPlaceholders[$placeholderUC] = htmlentities($value, ENT_QUOTES, CONTREXX_CHARSET);
-                break;
+        default:
+            $arrPlaceholders[$placeholderUC] = htmlentities($value, ENT_QUOTES, CONTREXX_CHARSET);
+            break;
         }
 
         $this->_objTpl->setVariable($arrPlaceholders);
@@ -851,54 +885,57 @@ class AccessLib
     {
         global $_CORELANG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($attributeId == 'picture') {
-            $imageRepo = ASCMS_ACCESS_PROFILE_IMG_PATH.'/';
-            $imageRepoWeb = ASCMS_ACCESS_PROFILE_IMG_WEB_PATH.'/';
-            $arrNoImage = \User_Profile::$arrNoAvatar;
+            $imageRepo    = $cx->getWebsiteImagesAccessProfilePath().'/';
+            $imageRepoWeb = $cx->getWebsiteImagesAccessProfileWebPath().'/';
+            $arrNoImage   = \User_Profile::$arrNoAvatar;
         } else {
             if ($edit) {
                 $thumbnail = true;
             }
-            $imageRepo = ASCMS_ACCESS_PHOTO_IMG_PATH.'/';
-            $imageRepoWeb = ASCMS_ACCESS_PHOTO_IMG_WEB_PATH.'/';
-            $arrNoImage = \User_Profile::$arrNoPicture;
+            $imageRepo    = $cx->getWebsiteImagesAccessPhotoPath().'/';
+            $imageRepoWeb = $cx->getWebsiteImagesAccessPhotoWebPath().'/';
+            $arrNoImage   = \User_Profile::$arrNoPicture;
         }
 
         if ($value !== false && $value !== '' && (!$edit || file_exists($imageRepo.$value))) {
             $imageSet = true;
             $image['src'] =
-                $imageRepoWeb.($thumbnail
-                    ? \ImageManager::getThumbnailFilename($value) : $value);
+                        ($thumbnail
+                    ? \ImageManager::getThumbnailFilename($imageRepoWeb . $value) : $imageRepoWeb . $value);
             $image['path'] = htmlentities($value, ENT_QUOTES, CONTREXX_CHARSET);
 
         } else {
             $imageSet = false;
             $image['src'] =
-                $imageRepoWeb.($thumbnail
-                    ? \ImageManager::getThumbnailFilename($arrNoImage['src'])
-                    : $arrNoImage['src']);
+                    ($thumbnail
+                    ? \ImageManager::getThumbnailFilename($imageRepoWeb . $arrNoImage['src'])
+                    : $imageRepoWeb . $arrNoImage['src']);
             $image['path'] = '';
         }
 
-        return $edit ?
-            // Input field containing the image source
-            '<input type="hidden" name="'.$name.'" id="'.$attributeHtmlId.'" value="'.$image['path'].'" />'
+        if ($edit) {
+            return
+                '<div class="access_image_uploader_container" id="'. $attributeHtmlId .'" >'
+                // Input field containing the image source
+                .'<input type="hidden" name="'.$name.'" class="image_uploader_source" value="'.$image['path'].'" />'
+                // The image, if defined
+                .'<img src="'.$image['src'].'" class="image_uploader_source_image" alt="'.$image['path'].'" border="0" />'
 
-            // The image, if defined
-            .'<img src="'.$image['src'].'" id="'.$attributeHtmlId.'_image" alt="'.$image['path'].'" border="0" />'
-
-            // Image Link to remove the image
-            .($imageSet ? '<a
+                // Image Link to remove the image
+                .($imageSet ? '<a
                 href="javascript:void(0)"
                 onclick="
-                    document.getElementById(\''.$attributeHtmlId.'_image\').src=\''.$imageRepoWeb.'/'.$arrNoImage['src'].'\';
-                    document.getElementById(\''.$attributeHtmlId.'_image\').style.width=\''.$arrNoImage['width'].'px\';
-                    document.getElementById(\''.$attributeHtmlId.'_image\').style.height=\''.$arrNoImage['height'].'px\';
-                    document.getElementById(\''.$attributeHtmlId.'\').value = \'\';
-                    this.style.display=\'none\'"
+                    var imageContainer = $J(this).closest(\'.access_image_uploader_container\');
+                    imageContainer.find(\'.image_uploader_source_image\')
+                        .attr(\'src\', \''.$imageRepoWeb.'/'.$arrNoImage['src'].'\')
+                        .css({width : \''.$arrNoImage['width'].'px\', height: \''.$arrNoImage['height'].'px\'});
+                    imageContainer.find(\'.image_uploader_source\').val(\'\');
+                    $J(this).hide()"
                 title="'.$_CORELANG['TXT_ACCESS_DELETE_IMAGE'].'">
                 <img
-                    src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/delete.gif"
+                    src="'. $cx->getCodeBaseCoreModuleWebPath() .'/Access/View/Media/delete.gif"
                     alt="'.$_CORELANG['TXT_ACCESS_DELETE_IMAGE'].'"
                     border="0"
                     width="17"
@@ -906,24 +943,33 @@ class AccessLib
                 />
             </a>' : '').'
             <br />'
-
-            // File Upload field to set a new image
-            .'<input
-                type="file"
+                .'<input
+                type="hidden"
                 name="'.$this->attributeNamePrefix.'_images['.$attributeId.']['.$historyId.']"
-                onchange="this.nextSibling.style.display = this.value.length ? \'\' : \'none\';"
+                class="uploader_rel_field_source"
+            /> &nbsp;&nbsp;'
+                .'<input
+                type="text"
+                class="uploader_rel_field"
+            /> &nbsp;&nbsp;'
+                .'<input
+                type="button"
+                value="'. $_CORELANG['TXT_ACCESS_USER_CHOOSE_FILE'] .'"
+                onClick="getImageUploader($J(this).closest(\'.access_image_uploader_container\'));"
             />'
 
-            // Image Link to reset the file upload field
-            .'<a
+                // Image Link to reset the file upload field
+                .'<a
                 href="javascript:void(0)"
                 style="display:none;"
-                onclick="
-                    this.previousSibling.value=\'\';
-                    this.style.display=\'none\'"
+                class="uploader_rel_field_remove_icon"
+                onClick="var imageContainer = $J(this).closest(\'.access_image_uploader_container\');
+                         imageContainer.find(\'.uploader_rel_field\').val(\'\');
+                         imageContainer.find(\'.uploader_rel_field_source\').val(\'\');
+                         $J(this).hide()"
                 title="'.$_CORELANG['TXT_ACCESS_DELETE_IMAGE'].'">
                 <img
-                    src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/delete.gif"
+                    src="'. $cx->getCodeBaseCoreModuleWebPath() .'/Access/View/Media/delete.gif"
                     alt="'.$_CORELANG['TXT_ACCESS_DELETE_IMAGE'].'"
                     border="0"
                     width="17"
@@ -931,7 +977,10 @@ class AccessLib
                     style="vertical-align:bottom;"
                 />
             </a>'
-            : '<img src="'.$image['src'].'" alt="'.($attributeId == 'picture' ? htmlentities($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET) : $image['path']).'" border="0" />';
+                .'</div>';
+        } else {
+            return '<img src="'.$image['src'].'" alt="'.($attributeId == 'picture' ? htmlentities($objUser->getUsername(), ENT_QUOTES, CONTREXX_CHARSET) : $image['path']).'" border="0" />';
+        }
     }
 
 
@@ -1012,172 +1061,158 @@ class AccessLib
 
         switch ($objAttribute->getType())
         {
-            case 'text':
-                $code = $objAttribute->isMultiline() ?
-                    $this->getTextareaAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit)
-                    : $this->getTextAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
-                break;
+        case 'text':
+            $code = $objAttribute->isMultiline() ?
+                $this->getTextareaAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit)
+                : $this->getTextAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
+            break;
 
-            case 'mail':
-                $code = $this->getEmailAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
-                break;
+        case 'mail':
+            $code = $this->getEmailAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
+            break;
 
-            case 'uri':
-                $code = $this->getURIAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
-                break;
+        case 'uri':
+            $code = $this->getURIAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
+            break;
 
-            case 'date':
-                $code = $this->getDateAttributeCode($attributeName, $objUser->getProfileAttribute($attributeId, $historyId), $edit);
-                break;
+        case 'date':
+            $code = $this->getDateAttributeCode($attributeName, $objUser->getProfileAttribute($attributeId, $historyId), $edit);
+            break;
 
-            case 'image':
-                $code = $this->getImageAttributeCode($objUser, $attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $attributeId, $attributeHtmlId, $historyId, $edit);
-                break;
+        case 'image':
+            $code = $this->getImageAttributeCode($objUser, $attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $attributeId, $attributeHtmlId, $historyId, $edit);
+            break;
 
-            case 'checkbox':
-                $code = $this->getCheckboxAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
-                break;
+        case 'checkbox':
+            $code = $this->getCheckboxAttributeCode($attributeName, $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $edit);
+            break;
 
-            case 'menu':
-                if ($edit) {
-                    $childrenCode = array();
-                    if ($objAttribute->isCustomAttribute()) {
-                        if ($objAttribute->isMandatory()) {
-                            $childrenCode[] = $this->getMenuOptionAttributeCode('0', $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $_CORELANG['TXT_ACCESS_PLEASE_SELECT'], 'border-bottom:1px solid #000000;');
-                        } else {
-                            $childrenCode[] = $this->getMenuOptionAttributeCode('0', $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $_CORELANG['TXT_ACCESS_NOT_SPECIFIED'], 'border-bottom:1px solid #000000;');
-                        }
-                    }
-
-                    foreach ($objAttribute->getChildren() as $childAttributeId) {
-                        $childrenCode[] = $this->_getAtrributeCode($objUser, $childAttributeId, $historyId, $edit);
-                    }
-                    $value = join($childrenCode);
-                } elseif ($objAttribute->isCoreAttribute()) {
-                    foreach ($objAttribute->getChildren() as $childAttributeId) {
-                        $objChildAtrribute = $objAttribute->getById($childAttributeId);
-                        if ($objChildAtrribute->getMenuOptionValue() == $objUser->getProfileAttribute($objAttribute->getId(), $historyId)) {
-                            $value = $objChildAtrribute->getName();
-                            break;
-                        }
-                    }
-                } else {
-                    // if menu is not set, the function returns false and we need to set 0 "Please select" as selected value
-                    if($objUser->getProfileAttribute($objAttribute->getId(), $historyId) !== false){
-                        $objSelectedAttribute = $objAttribute->getById($objUser->getProfileAttribute($objAttribute->getId(), $historyId));
-                    }else{
-                        $objSelectedAttribute = $objAttribute->getById(0);
-                    }
-                    $value = $objSelectedAttribute->getName();
-                }
-
-                $code = $this->getMenuAttributeCode($attributeName, $value, $edit);
-                break;
-
-            case 'menu_option':
-                $mandatory = false;
-                $selectOption = false;
-                if ($objAttribute->isCoreAttribute() && $objAttribute->isUnknownOption()) {
-                    $selectOption = true;
-                    $objParentAttribute = $objAttribute->getById($objAttribute->getParent());
-                    if ($objParentAttribute->isMandatory()) {
-                        $mandatory= true;
-                    }
-                }
-                $code = $this->getMenuOptionAttributeCode($objAttribute->getMenuOptionValue(), $objUser->getProfileAttribute($objAttribute->getParent(), $historyId), $mandatory ? $_CORELANG['TXT_ACCESS_PLEASE_SELECT'] : $objAttribute->getName(), $selectOption ? 'border-bottom:1px solid #000000' : '');
-                break;
-
-            case 'group':
-                $code = '<select name="'.$attributeName.'" onchange="for (i=0; i < this.options.length; i++) {document.getElementById(this.options[i].value).style.display = (i == this.selectedIndex ? \'\' : \'none\')}">';
-
-                $arrFramesCode = array();
-                $firstFrame = true;
-                foreach ($objAttribute->getChildren() as $childAttributeId) {
-                    $objChildAtrribute = $objAttribute->getById($childAttributeId);
-                    $code .= $this->_getAtrributeCode($objUser, $childAttributeId, $historyId, $edit);
-
-                    $arrFramesCode[$childAttributeId] = '<div id="'.$this->attributeNamePrefix.'_'.$childAttributeId.'_'.$historyId.'" style="display:'.($firstFrame ? '' : 'none').'"><br />';
-                    if ($objAttribute->hasChildren($childAttributeId)) {
-                        $objChildAtrribute = $objAttribute->getById($childAttributeId);
-                        foreach ($objChildAtrribute->getChildren() as $frameChildAttributeId) {
-                            $objSubChildAttribute = $objChildAtrribute->getById($frameChildAttributeId);
-                            $arrFramesCode[$childAttributeId] .= '<div style="width:100px; float:left;">'.htmlentities($objSubChildAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET).': </div>'.$this->_getAtrributeCode($objUser, $frameChildAttributeId, $historyId, $edit).'<br />';
-                        }
-                    }
-                    $arrFramesCode[$childAttributeId] .= '</div>';
-                    $firstFrame = false;
-                }
-                $code .= '</select>';
-                foreach ($arrFramesCode as $frameCode) {
-                    $code .= $frameCode;
-                }
-
-                break;
-
-            case 'frame':
-                $code = '<option value="'.$attributeHtmlId.'">'.htmlentities($objAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET).'</option>';
-                break;
-
-            case 'history':
-                if (!count($objAttribute->getChildren())) {
-                    break;
-                }
-
-                if (!isset($objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
-                    $objUser->arrAttributeHistories[$objUser->getId()][$attributeId] = array();
-                }
-                sort($objUser->arrAttributeHistories[$objUser->getId()][$attributeId]);
-
-                if ($edit && !in_array(0, $objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
-                    $objUser->arrAttributeHistories[$objUser->getId()][$attributeId][] = 0;
-                }
-
-                foreach ($objAttribute->getChildren() as $childAttributeId) {
-                    $objChildAtrribute = $objAttribute->getById($childAttributeId);
-                    $arrCols[] = $objChildAtrribute->getName();
-                }
-
-                $code = '<table border="0" width="100%" id="'.$this->attributeNamePrefix.'_'.$attributeId.'"><thead><tr><th>'.implode('</th><th>', $arrCols).'</th>'.($edit ? '<th>#</th>' : '').'</tr></thead>';
-
-                $arrRows = array();
-                foreach ($objUser->arrAttributeHistories[$objUser->getId()][$attributeId] as $attributeHistoryId) {
-                    $arrCols = array();
-                    foreach ($objAttribute->getChildren() as $childAttributeId) {
-                        $arrCols[] = $this->_getAtrributeCode($objUser, $childAttributeId, $attributeHistoryId, $edit);
-                    }
-
-                    if (!$attributeHistoryId) {
-                    $arrRows[] = '<tr style="display:none;" id="'.$this->attributeNamePrefix.'_'.$attributeId.'_history_new"><td>'.implode('</td><td>', $arrCols).'</td><td><a href="javascript:void(0);" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);"><img src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/delete.gif" width="17" height="17" border="0" alt="'.$_CORELANG['TXT_ACCESS_DELETE_ENTRY'].'" /></a></td></tr>';
+        case 'menu':
+            if ($edit) {
+                $childrenCode = array();
+                if ($objAttribute->isCustomAttribute()) {
+                    if ($objAttribute->isMandatory()) {
+                        $childrenCode[] = $this->getMenuOptionAttributeCode('0', $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $_CORELANG['TXT_ACCESS_PLEASE_SELECT'], 'border-bottom:1px solid #000000;');
                     } else {
-                        $arrRows[] = '<tr id="'.$this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId.'"><td>'.implode('</td><td>', $arrCols).'</td>'.($edit ? '<td><a href="javascript:void(0);" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);"><img src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/delete.gif" width="17" height="17" border="0" alt="'.$_CORELANG['TXT_ACCESS_DELETE_ENTRY'].'" /></a></td>' : '').'</tr>';
+                        $childrenCode[] = $this->getMenuOptionAttributeCode('0', $objUser->getProfileAttribute($objAttribute->getId(), $historyId), $_CORELANG['TXT_ACCESS_NOT_SPECIFIED'], 'border-bottom:1px solid #000000;');
                     }
                 }
 
-                $code .= '<tbody>'.implode($arrRows).'</tbody></table>';
-                if ($edit) {
-                    $code .= '<br />
+                foreach ($objAttribute->getChildren() as $childAttributeId) {
+                    $childrenCode[] = $this->_getAtrributeCode($objUser, $childAttributeId, $historyId, $edit);
+                }
+                $value = join($childrenCode);
+            } elseif ($objAttribute->isCoreAttribute()) {
+                foreach ($objAttribute->getChildren() as $childAttributeId) {
+                    $objChildAtrribute = $objAttribute->getById($childAttributeId);
+                    if ($objChildAtrribute->getMenuOptionValue() == $objUser->getProfileAttribute($objAttribute->getId(), $historyId)) {
+                        $value = $objChildAtrribute->getName();
+                        break;
+                    }
+                }
+            } else {
+                // if menu is not set, the function returns false and we need to set 0 "Please select" as selected value
+                if($objUser->getProfileAttribute($objAttribute->getId(), $historyId) !== false){
+                    $objSelectedAttribute = $objAttribute->getById($objUser->getProfileAttribute($objAttribute->getId(), $historyId));
+                }else{
+                    $objSelectedAttribute = $objAttribute->getById(0);
+                }
+                $value = $objSelectedAttribute->getName();
+            }
+
+            $code = $this->getMenuAttributeCode($attributeName, $value, $edit);
+            break;
+
+        case 'menu_option':
+            $mandatory = false;
+            $selectOption = false;
+            if ($objAttribute->isCoreAttribute() && $objAttribute->isUnknownOption()) {
+                $selectOption = true;
+                $objParentAttribute = $objAttribute->getById($objAttribute->getParent());
+                if ($objParentAttribute->isMandatory()) {
+                    $mandatory= true;
+                }
+            }
+            $code = $this->getMenuOptionAttributeCode($objAttribute->getMenuOptionValue(), $objUser->getProfileAttribute($objAttribute->getParent(), $historyId), $mandatory ? $_CORELANG['TXT_ACCESS_PLEASE_SELECT'] : $objAttribute->getName(), $selectOption ? 'border-bottom:1px solid #000000' : '');
+            break;
+
+        case 'group':
+            $code = '<select name="'.$attributeName.'" onchange="for (i=0; i < this.options.length; i++) {document.getElementById(this.options[i].value).style.display = (i == this.selectedIndex ? \'\' : \'none\')}">';
+
+            $arrFramesCode = array();
+            $firstFrame = true;
+            foreach ($objAttribute->getChildren() as $childAttributeId) {
+                $objChildAtrribute = $objAttribute->getById($childAttributeId);
+                $code .= $this->_getAtrributeCode($objUser, $childAttributeId, $historyId, $edit);
+
+                $arrFramesCode[$childAttributeId] = '<div id="'.$this->attributeNamePrefix.'_'.$childAttributeId.'_'.$historyId.'" style="display:'.($firstFrame ? '' : 'none').'"><br />';
+                if ($objAttribute->hasChildren($childAttributeId)) {
+                    $objChildAtrribute = $objAttribute->getById($childAttributeId);
+                    foreach ($objChildAtrribute->getChildren() as $frameChildAttributeId) {
+                        $objSubChildAttribute = $objChildAtrribute->getById($frameChildAttributeId);
+                        $arrFramesCode[$childAttributeId] .= '<div style="width:100px; float:left;">'.htmlentities($objSubChildAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET).': </div>'.$this->_getAtrributeCode($objUser, $frameChildAttributeId, $historyId, $edit).'<br />';
+                    }
+                }
+                $arrFramesCode[$childAttributeId] .= '</div>';
+                $firstFrame = false;
+            }
+            $code .= '</select>';
+            foreach ($arrFramesCode as $frameCode) {
+                $code .= $frameCode;
+            }
+
+            break;
+
+        case 'frame':
+            $code = '<option value="'.$attributeHtmlId.'">'.htmlentities($objAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET).'</option>';
+            break;
+
+        case 'history':
+            if (!count($objAttribute->getChildren())) {
+                break;
+            }
+
+            if (!isset($objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
+                $objUser->arrAttributeHistories[$objUser->getId()][$attributeId] = array();
+            }
+            sort($objUser->arrAttributeHistories[$objUser->getId()][$attributeId]);
+
+            if ($edit && !in_array(0, $objUser->arrAttributeHistories[$objUser->getId()][$attributeId])) {
+                $objUser->arrAttributeHistories[$objUser->getId()][$attributeId][] = 0;
+            }
+
+            foreach ($objAttribute->getChildren() as $childAttributeId) {
+                $objChildAtrribute = $objAttribute->getById($childAttributeId);
+                $arrCols[] = $objChildAtrribute->getName();
+            }
+
+            $code = '<table border="0" width="100%" id="'.$this->attributeNamePrefix.'_'.$attributeId.'"><thead><tr><th>'.implode('</th><th>', $arrCols).'</th>'.($edit ? '<th>#</th>' : '').'</tr></thead>';
+
+            $arrRows = array();
+            foreach ($objUser->arrAttributeHistories[$objUser->getId()][$attributeId] as $attributeHistoryId) {
+                $arrCols = array();
+                foreach ($objAttribute->getChildren() as $childAttributeId) {
+                    $arrCols[] = $this->_getAtrributeCode($objUser, $childAttributeId, $attributeHistoryId, $edit);
+                }
+
+                if (!$attributeHistoryId) {
+                    $arrRows[] = '<tr style="display:none;" id="'.$this->attributeNamePrefix.'_'.$attributeId.'_history_new"><td>'.implode('</td><td>', $arrCols).'</td><td><a href="javascript:void(0);" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);"><img src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/delete.gif" width="17" height="17" border="0" alt="'.$_CORELANG['TXT_ACCESS_DELETE_ENTRY'].'" /></a></td></tr>';
+                } else {
+                    $arrRows[] = '<tr id="'.$this->attributeNamePrefix.'_'.$attributeId.'_history_'.$attributeHistoryId.'"><td>'.implode('</td><td>', $arrCols).'</td>'.($edit ? '<td><a href="javascript:void(0);" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);"><img src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/delete.gif" width="17" height="17" border="0" alt="'.$_CORELANG['TXT_ACCESS_DELETE_ENTRY'].'" /></a></td>' : '').'</tr>';
+                }
+            }
+
+            $code .= '<tbody>'.implode($arrRows).'</tbody></table>';
+            if ($edit) {
+                $code .= '<br />
                         <input
                             type="button"
                             value="'.$_CORELANG['TXT_ACCESS_ADD_NEW_ENTRY'].'"
-                            onclick="
-                                newEntry=document.getElementById(\''.$this->attributeNamePrefix.'_'.$attributeId.'_history_new\').cloneNode(true);
-                                newEntry.removeAttribute(\'id\');
-                                regex=/([a-z_]+)\[([0-9]+)]\[(?:[0-9]+)\](?:\[([a-z]+)\])?/;
-                                elTypes=[\'a\',\'input\',\'select\',\'radio\',\'checkbox\'];
-                                for (y=0;y<elTypes.length;y++) {
-                                    for (i=0;i<newEntry.getElementsByTagName(elTypes[y]).length;i++) {
-                                        if (typeof(newEntry.getElementsByTagName(elTypes[y])[i].name) != \'undefined\' && newEntry.getElementsByTagName(elTypes[y])[i].name.length) {
-                                            arrName=regex.exec(newEntry.getElementsByTagName(elTypes[y])[i].name);
-                                            newEntry.getElementsByTagName(elTypes[y])[i].setAttribute(\'name\',arrName[1]+\'[\'+arrName[2]+\'][new][\'+(typeof(arrName[3]) != \'undefined\' ? arrName[3] : \'\')+\']\');
-                                        }
-                                    }
-                                }
-                                newEntry.style.display=\'\';
-                                document.getElementById(\''.$this->attributeNamePrefix.'_'.$attributeId.'\').getElementsByTagName(\'tbody\')[0].appendChild(newEntry)"
+                            onclick="addNewHistroyField(\''.$this->attributeNamePrefix.'_'.$attributeId.'\');"
                         />';
-                }
+            }
 
-                break;
+            break;
         }
 
         return $code.($objAttribute->isMandatory() && $edit ? $this->_mandatorySign : '');
@@ -1200,13 +1235,13 @@ class AccessLib
 function accessSetWebsite(elInput, elDiv, elLink)
 {
     website = elInput.value;
-    newWebsite = prompt('{$_CORELANG['TXT_ACCESS_SET_ADDRESS_OF_WEBSITE']}', (website != '' ? website : 'http://'));
+    newWebsite = prompt('{$_CORELANG['TXT_ACCESS_SET_ADDRESS_OF_WEBSITE']}', (website != '' ? website : 'https://'));
 
     if (typeof(newWebsite) == 'string') {
-        if (newWebsite == 'http://') {
+        if (newWebsite.match(/^https?:\/\/$/)) {
             newWebsite = '';
-        } else if (newWebsite != '' && newWebsite.substring(0, 7) != 'http://') {
-            newWebsite = 'http://'+newWebsite;
+        } else if (newWebsite != '' && !newWebsite.match(/^https?:\/\//)) {
+            newWebsite = 'https://'+newWebsite;
         }
 
         elInput.value = newWebsite;
@@ -1240,7 +1275,7 @@ function accessSetWebsite(elInput, elDiv, elLink)
 // ]]>
 </script>
 JSaccessSetWebsite
-                ,'accessAddEvent' => <<<JSaccessAddEvent
+            ,'accessAddEvent' => <<<JSaccessAddEvent
 <script type="text/javascript">
 // <![CDATA[
 function accessAddEvent( obj, url )
@@ -1258,7 +1293,7 @@ function accessAddEvent( obj, url )
 // ]]>
 </script>
 JSaccessAddEvent
-                ,'accessRemoveChildsOfElement' => <<<JSaccessRemoveChildsOfElement
+            ,'accessRemoveChildsOfElement' => <<<JSaccessRemoveChildsOfElement
 <script type="text/javascript">
 // <![CDATA[
 function accessRemoveChildsOfElement(obj)
@@ -1270,7 +1305,7 @@ function accessRemoveChildsOfElement(obj)
 // ]]>
 </script>
 JSaccessRemoveChildsOfElement
-                ,
+            ,
                 'accessSelectAllGroups'    => <<<JSaccessSelectAllGroups
 <script type="text/javascript">
 // <![CDATA[
@@ -1284,7 +1319,7 @@ function accessSelectAllGroups(CONTROL)
 // ]]>
 </script>
 JSaccessSelectAllGroups
-                ,
+            ,
                 'accessDeselectAllGroups'    => <<<JSaccessDeselectAllGroups
 <script type="text/javascript">
 // <![CDATA[
@@ -1298,7 +1333,7 @@ function accessDeselectAllGroups(CONTROL)
 // ]]>
 </script>
 JSaccessDeselectAllGroups
-                ,
+            ,
                 'accessAddGroupToList'    => <<<JSaccessAddGroupToList
 <script type="text/javascript">
 // <![CDATA[
@@ -1326,7 +1361,7 @@ function accessAddGroupToList(from, dest)
 // ]]>
 </script>
 JSaccessAddGroupToList
-                ,
+            ,
                 'accessRemoveGroupFromList'    => <<<JSaccessRemoveGroupFromList
 <script type="text/javascript">
 // <![CDATA[
@@ -1354,7 +1389,7 @@ function accessRemoveGroupFromList(from,dest)
 // ]]>
 </script>
 JSaccessRemoveGroupFromList
-                ,
+            ,
                 'accessGetFileBrowser' => <<<JSaccessGetFileBrowser
 <script type="text/javascript">
 // <![CDATA[
@@ -1368,7 +1403,7 @@ function accessGetFileBrowser(elementId)
 // ]]>
 </script>
 JSaccessGetFileBrowser
-                ,
+            ,
                 'accessSetUrl' => <<<JSaccessSetUrl
 <script type="text/javascript">
 // <![CDATA[
@@ -1377,7 +1412,7 @@ function SetUrl(data)
     if (data.type === '' || !data.data[0]) {
         return;
     }
-            
+
     switch (data.type) {
         case 'page':
             accessSetWebpage(data.data[0].node);
@@ -1396,7 +1431,7 @@ function SetUrl(data)
 // ]]>
 </script>
 JSaccessSetUrl
-                ,
+            ,
                 'accessSetWebpage' => <<<JSaccessSetWebpage
 <script type="text/javascript">
 // <![CDATA[
@@ -1409,7 +1444,7 @@ function accessSetWebpage(url)
 // ]]>
 </script>
 JSaccessSetWebpage
-                ,
+            ,
                 'accessSetImage' => <<<JSaccessSetImage
 <script type="text/javascript">
 // <![CDATA[
@@ -1461,7 +1496,7 @@ function accessSetImage(url, width, height, alt)
 // ]]>
 </script>
 JSaccessSetImage
-                ,
+            ,
                 'confirmUserNotification' => <<<JSconfirmUserNotification
 <script type="text/javascript">
 // <![CDATA[
@@ -1479,7 +1514,7 @@ function confirmUserNotification(elementIdStatusStorage, status)
 // ]]>
 </script>
 JSconfirmUserNotification
-                ,
+            ,
                 'accessAssignGroupToUser' => <<<JSaccessAssignGroupToUser
 <script type="text/javascript">
 // <![CDATA[
@@ -1499,7 +1534,7 @@ function accessAssignGroupToUser(elPrimaryGroupMenu, from, dest)
 // ]]>
 </script>
 JSaccessAssignGroupToUser
-                ,
+            ,
                 'accessValidatePrimaryGroupAssociation' => <<<JSaccessValidatePrimaryGroupAssociation
 <script type="text/javascript">
 // <![CDATA[
@@ -1534,9 +1569,57 @@ accessRemoveGroupFromList = function(from, dest){
 // ]]>
 </script>
 JSaccessValidatePrimaryGroupAssociation
+            ,
+                'imageUploaderCode' => <<<JSimageUploaderCode
+<script type="text/javascript">
+// <![CDATA[
+    var lastAccessImageUploaderContainer = null;
+    function getImageUploader(sourceElm) {
+        lastAccessImageUploaderContainer = sourceElm;
+        cx.variables.get('jquery','mediabrowser')('#accessImageUploader').trigger('click');
+    }
+    function accessImageUploaderCallback(callback) {
+        if (typeof callback[0] !== 'undefined') {
+            var uploaderField = lastAccessImageUploaderContainer,
+                data       = callback[0].split('/'),
+                fileName   = data.pop();
+            uploaderField.find('.uploader_rel_field_source').val(callback[0]);
+            uploaderField.find('.uploader_rel_field').val(fileName);
+            uploaderField.find('.uploader_rel_field_remove_icon').show();
+        }
+    }
+
+// ]]>
+</script>
+JSimageUploaderCode
+            ,
+                'addHistoryField' => <<<JS
+<script type="text/javascript">
+// <![CDATA[
+
+function addNewHistroyField(fieldId) {
+    \$clone = \$J('#'+ fieldId + '_history_new').clone();
+    \$clone.removeAttr('id');
+    regex=/([a-z_]+)\[([0-9]+)]\[(?:[0-9]+)\](?:\[([a-z]+)\])?/;
+    elTypes=['a','input','select','radio','checkbox', 'textarea'];
+    for (y=0;y<elTypes.length;y++) {
+        \$clone.find(elTypes[y]).each(function() {
+            if (\$J(this).attr('name')) {
+                var arrName = regex.exec(\$J(this).attr('name'));
+                var newName = arrName[1]+'['+arrName[2]+'][new]['+(typeof(arrName[3]) != 'undefined' ? arrName[3] : '')+']';
+                \$J(this).attr('name', newName);
+            }
+        });
+    }
+    \$clone
+        .show()
+        .appendTo('#' + fieldId +' > tbody');
+}
+// ]]>
+</script>
+JS
             );
         }
-
         $javaScriptCode = '';
         foreach ($this->arrAttachedJSFunctions as $function) {
             if (isset($arrFunctions[$function])) {
@@ -1557,28 +1640,37 @@ JSaccessValidatePrimaryGroupAssociation
             $arrLetters = array_merge($arrLetters, range(65, 90)); // ascii codes of characters "A" to "Z"
             $arrLetters[] = '';
 
+            $selfUri = \Cx\Core\Routing\Url::fromPage(\Cx\Core\Core\Controller\Cx::instanciate()->getPage());
+
             foreach ($arrLetters as $letter) {
                 switch ($letter) {
-                    case 48:
-                        $parsedLetter = '#';
-                        break;
+                case 48:
+                    $parsedLetter = '#';
+                    break;
 
-                    case '':
-                        $parsedLetter = $_CORELANG['TXT_ACCESS_ALL'];
-                        break;
+                case '':
+                    $parsedLetter = $_CORELANG['TXT_ACCESS_ALL'];
+                    break;
 
-                    default:
-                        $parsedLetter = chr($letter);
-                        break;
+                default:
+                    $parsedLetter = chr($letter);
+                    break;
                 }
 
                 if ($letter == '' && $selectedLetter == '' || chr($letter) == $selectedLetter) {
                     $parsedLetter = '<strong>'.$parsedLetter.'</strong>';
                 }
 
+                $uriLetter = null;
+                if (!empty($letter)) {
+                    $uriLetter = chr($letter);
+                }
+                $selfUri->setParam($paramName, $uriLetter);
+
                 $this->_objTpl->setVariable(array(
                     $this->modulePrefix.'USER_LETTER_INDEX_URI'        => $URI.(!empty($letter) ? '&amp;'.$paramName.'='.chr($letter) : null),
-                    $this->modulePrefix.'USER_LETTER_INDEX_LETTER'    => $parsedLetter
+                    $this->modulePrefix.'USER_LETTER_INDEX_LETTER'    => $parsedLetter,
+                    $this->modulePrefix.'USER_LETTER_INDEX_URI_SELF' => $selfUri,
                 ));
 
                 $this->_objTpl->parse('access_user_letter_index_list');
@@ -1628,67 +1720,67 @@ JSaccessValidatePrimaryGroupAssociation
         }
     }
 
-
-    protected function addUploadedImagesToProfile($objUser, &$arrProfile, $arrImages)
+    /**
+     * Move the uploaded images into place and link to the user
+     *
+     * @param \User  $objUser    \User object
+     * @param array  $arrProfile Array profile data
+     * @param array  $arrImages  Uploaded images array
+     * @param string $uploaderId Uploader id
+     *
+     * @return boolean TRUE on success false otherwise
+     */
+    protected function addUploadedImagesToProfile($objUser, &$arrProfile, $arrImages, $uploaderId)
     {
         global $_CORELANG;
-
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objSession = $cx->getComponent('Session')->getSession();
         $arrErrorMsg = array();
 
-        foreach ($arrImages['name'] as $attribute => $arrHistories) {
+        foreach ($arrImages as $attribute => $arrHistories) {
             foreach ($arrHistories as $historyId => $data) {
                 $arrUploadedImages = array();
                 if ($historyId === 'new') {
-                    foreach (array_keys($data) as $historyIndex) {
-                        if (\FWValidator::is_file_ending_harmless($arrImages['name'][$attribute][$historyId][$historyIndex])) {
-                            $arrUploadedImages[] = array(
-                                'name'            => \FWValidator::getCleanFileName(urldecode($arrImages['name'][$attribute][$historyId][$historyIndex])),
-                                'tmp_name'        => $arrImages['tmp_name'][$attribute][$historyId][$historyIndex],
-                                'error'            => $arrImages['error'][$attribute][$historyId][$historyIndex],
-                                'size'            => $arrImages['size'][$attribute][$historyId][$historyIndex],
-                                'history_index'    => $historyIndex
-                            );
-                        }
-                    }
-                } else {
-                    if (\FWValidator::is_file_ending_harmless($arrImages['name'][$attribute][$historyId])) {
+                    foreach ($data as $historyIndex => $filePath) {
                         $arrUploadedImages[] = array(
-                            'name'        => \FWValidator::getCleanFileName(urldecode($arrImages['name'][$attribute][$historyId])),
-                            'tmp_name'    => $arrImages['tmp_name'][$attribute][$historyId],
-                            'error'        => $arrImages['error'][$attribute][$historyId],
-                            'size'        => $arrImages['size'][$attribute][$historyId]
+                            'path'            => contrexx_input2raw($filePath),
+                            'history_index'   => $historyIndex,
                         );
                     }
+                } else {
+                    $arrUploadedImages[] = array(
+                        'path'            => contrexx_input2raw($data),
+                    );
                 }
-                
+
                 foreach ($arrUploadedImages as $arrImage) {
-                    if ($arrImage['error'] === UPLOAD_ERR_OK) {
-                        if (!$this->isImageWithinAllowedSize($arrImage['size'], $attribute == 'picture')) {
-                            $objAttribute = $objUser->objAttribute->getById($attribute);
-                            $arrErrorMsg[] = sprintf($_CORELANG['TXT_ACCESS_PIC_TOO_BIG'], htmlentities($objAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET));
-                            continue;
-                        }
-                        // move uploaded image to ASCMS_TEMP_PATH
-                        /*if (($tmpImageName = $this->loadUploadedImage($arrImage['tmp_name'], $arrImage['name'])) === false) {
-                            continue;
-                        }*/
+                    $fileName = basename($arrImage['path']);
+                    $path     = $objSession->getTempPath() .'/' . contrexx_input2raw($uploaderId) . '/' . $fileName;
 
-                        // resize image and put it into place (ASCMS_ACCESS_PHOTO_IMG_PATH / ASCMS_ACCESS_PROFILE_IMG_PATH)
-                        if (($imageName = $this->moveUploadedImageInToPlace($objUser, $arrImage['tmp_name'], $arrImage['name'], $attribute == 'picture')) === false) {
-                            /*$this->unloadUploadedImage($tmpImageName);*/
-                            continue;
-                        }
+                    if (   !\Cx\Lib\FileSystem\FileSystem::exists($path)
+                        || !\FWValidator::is_file_ending_harmless($path)
+                    ) {
+                        continue;
+                    }
+                    $fileSize = filesize($path);
+                    if (!$this->isImageWithinAllowedSize($fileSize, $attribute == 'picture')) {
+                        $objAttribute = $objUser->objAttribute->getById($attribute);
+                        $arrErrorMsg[] = sprintf($_CORELANG['TXT_ACCESS_PIC_TOO_BIG'], htmlentities($objAttribute->getName(), ENT_QUOTES, CONTREXX_CHARSET));
+                        continue;
+                    }
 
-                        // create thumbnail
-                        if ($this->createThumbnailOfImage($imageName, $attribute == 'picture') !== false) {
-                            if ($historyId === 'new') {
-                                $arrProfile[$attribute][$historyId][$arrImage['history_index']] = $imageName;
-                            } else {
-                                $arrProfile[$attribute][$historyId] = $imageName;
-                            }
-                        }
+                    // resize image and put it into place (ASCMS_ACCESS_PHOTO_IMG_PATH / ASCMS_ACCESS_PROFILE_IMG_PATH)
+                    if (($imageName = $this->moveUploadedImageInToPlace($objUser, $path, $fileName, $attribute == 'picture')) === false) {
+                        continue;
+                    }
 
-                        /*$this->unloadUploadedImage($tmpImageName);*/
+                    // create thumbnail
+                    if ($this->createThumbnailOfImage($imageName, $attribute == 'picture') !== false) {
+                        if ($historyId === 'new') {
+                            $arrProfile[$attribute][$historyId][$arrImage['history_index']] = $imageName;
+                        } else {
+                            $arrProfile[$attribute][$historyId] = $imageName;
+                        }
                     }
                 }
             }
@@ -1704,15 +1796,28 @@ JSaccessValidatePrimaryGroupAssociation
 
     private function isImageWithinAllowedSize($size, $profilePic)
     {
-        $arrSettings = \User_Setting::getSettings();
-        return $size <= $arrSettings['max_'.($profilePic ? 'profile_' : '').'pic_size']['value'];
+        return true;
     }
 
 
-    private function moveUploadedImageInToPlace($objUser, $tmpImageName, $name, $profilePic = false)
+    /**
+     * Copy the uploaded images from temp folder to images folder
+     *
+     * @staticvar \ImageManager $objImage    Image object
+     * @staticvar type          $arrSettings User settings
+     *
+     * @param \User   $objUser      User object
+     * @param string  $tmpImagePath Temporary Image path
+     * @param string  $name         Image file name
+     * @param boolean $profilePic   True when processing profile picture
+     *
+     * @return boolean|string False when copying file or file name on success
+     */
+    private function moveUploadedImageInToPlace($objUser, $tmpImagePath, $name, $profilePic = false)
     {
         static $objImage, $arrSettings;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if (empty($objImage)) {
             $objImage = new \ImageManager();
         }
@@ -1720,17 +1825,16 @@ JSaccessValidatePrimaryGroupAssociation
             $arrSettings = \User_Setting::getSettings();
         }
 
-        $imageRepo = $profilePic ? ASCMS_ACCESS_PROFILE_IMG_PATH : ASCMS_ACCESS_PHOTO_IMG_PATH;
+        $imageRepo = $profilePic ? $cx->getWebsiteImagesAccessProfilePath() : ASCMS_ACCESS_PHOTO_IMG_PATH;
         $index = 0;
         $imageName = $objUser->getId().'_'.$name;
         while (file_exists($imageRepo.'/'.$imageName)) {
             $imageName = $objUser->getId().'_'.++$index.'_'.$name;
         }
 
-        if (!$objImage->loadImage($tmpImageName)) {
+        if (!$objImage->loadImage($tmpImagePath)) {
             return false;
         }
-
         // resize image if its dimensions are greater than allowed
         if ($objImage->orgImageWidth > $arrSettings['max_'.($profilePic ? 'profile_' : '').'pic_width']['value'] ||
             $objImage->orgImageHeight > $arrSettings['max_'.($profilePic ? 'profile_' : '').'pic_height']['value']
@@ -1758,7 +1862,7 @@ JSaccessValidatePrimaryGroupAssociation
                 return false;
             }
         } else {
-            if (!copy($tmpImageName, $imageRepo.'/'.$imageName)) {
+            if (!copy($tmpImagePath, $imageRepo.'/'.$imageName)) {
                 return false;
             }
         }
@@ -1778,8 +1882,9 @@ JSaccessValidatePrimaryGroupAssociation
             $arrSettings = \User_Setting::getSettings();
         }
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($profilePic) {
-            if (!$objImage->loadImage(ASCMS_ACCESS_PROFILE_IMG_PATH.'/'.$imageName)) {
+            if (!$objImage->loadImage($cx->getWebsiteImagesAccessProfilePath() .'/'. $imageName)) {
                 return false;
             }
 
@@ -1803,63 +1908,79 @@ JSaccessValidatePrimaryGroupAssociation
             } else {
                 $ration = max($rationWidth, $rationHeight);
                 $objImage->addBackgroundLayer(sscanf($arrSettings['profile_thumbnail_scale_color']['value'], '#%2X%2x%2x'),
-                                                $arrSettings['profile_thumbnail_pic_width']['value'],
-                                                $arrSettings['profile_thumbnail_pic_height']['value']);
+                    $arrSettings['profile_thumbnail_pic_width']['value'],
+                    $arrSettings['profile_thumbnail_pic_height']['value']);
             }
 
-            $thumb_name = \ImageManager::getThumbnailFilename($imageName);
-            return $objImage->saveNewImage(ASCMS_ACCESS_PROFILE_IMG_PATH.'/'.$thumb_name);
+            $thumb_name = \ImageManager::getThumbnailFilename($cx->getWebsiteImagesAccessProfilePath() .'/'.$imageName);
+            return $objImage->saveNewImage($thumb_name, true);
         } else {
+            $thumb_name = \ImageManager::getThumbnailFilename($imageName);
             return $objImage->_createThumbWhq(
-                ASCMS_ACCESS_PHOTO_IMG_PATH.'/',
-                ASCMS_ACCESS_PHOTO_IMG_WEB_PATH.'/',
+                $cx->getWebsiteImagesAccessPhotoPath().'/',
+                $cx->getWebsiteImagesAccessPhotoWebPath().'/',
                 $imageName,
                 $arrSettings['max_thumbnail_pic_width']['value'],
                 $arrSettings['max_thumbnail_pic_height']['value'],
-                70
+                70,
+                '',
+                $cx->getWebsiteImagesAccessPhotoPath().'/',
+                $cx->getWebsiteImagesAccessPhotoWebPath().'/',
+                basename($cx->getWebsiteImagesAccessProfilePath() .'/'. $thumb_name)
             );
         }
     }
 
 
-    protected function removeUselessImages()
+    public static function removeUselessImages()
     {
         global $objDatabase;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        // fetch thumbnails of fallback images
+        $noAvatarThumbnails =
+            $cx->getMediaSourceManager()
+            ->getThumbnailGenerator()
+            ->getThumbnailsFromFile(
+                $cx->getWebsiteImagesAccessProfileWebPath(),
+                \User_Profile::$arrNoAvatar['src'],
+                true
+            );
+        $noPictureThumbnails =
+            $cx->getMediaSourceManager()
+            ->getThumbnailGenerator()
+            ->getThumbnailsFromFile(
+                $cx->getWebsiteImagesAccessPhotoWebPath(),
+                \User_Profile::$arrNoPicture['src'],
+                true
+            );
+        $noThumbnails = array_merge($noAvatarThumbnails, $noPictureThumbnails);
+
+        // strip path from fallback thumbnails
+        $excludeFiles = array_map('basename', $noThumbnails);
+
+        // add fallback images
+        $excludeFiles[] = \User_Profile::$arrNoAvatar['src'];
+        $excludeFiles[] = \User_Profile::$arrNoPicture['src'];
+
+        // quote images for REGEXP
+        $excludeFiles = array_map('preg_quote', $excludeFiles);
+
         // Regex matching folders and files not to be deleted
-        $noAvatarThumbSrc = \ImageManager::getThumbnailFilename(
-            \User_Profile::$arrNoAvatar['src']);
-        $noPictureThumbSrc = \ImageManager::getThumbnailFilename(
-            \User_Profile::$arrNoPicture['src']);
-        $ignoreRe =
-            '/(?:\.(?:\.?|svn)'.
-            '|'.preg_quote(\User_Profile::$arrNoAvatar['src'], '/').
-            '|'.preg_quote($noAvatarThumbSrc, '/').
-            '|'.preg_quote(\User_Profile::$arrNoPicture['src'], '/').
-            '|'.preg_quote($noPictureThumbSrc, '/').')$/';
+        $ignoreRe = '#^(?:\.(?:\.?|svn|git|htaccess|ftpaccess)|' . implode('|', $excludeFiles) . ')$#';
 
         $arrTrueFalse = array(true, false);
         foreach ($arrTrueFalse as $profilePics) {
+            $imageWebPath = ($profilePics
+                ? $cx->getWebsiteImagesAccessProfileWebPath() : $cx->getWebsiteImagesAccessPhotoWebPath());
             $imagePath = ($profilePics
-                ? ASCMS_ACCESS_PROFILE_IMG_PATH : ASCMS_ACCESS_PHOTO_IMG_PATH);
+                ? $cx->getWebsiteImagesAccessProfilePath() : $cx->getWebsiteImagesAccessPhotoPath());
             $arrImages = array();
             $offset = 0;
             $step = 50000;
-// TODO: Never used
-//            $removeImages = array();
 
-            if (CONTREXX_PHP5) {
-                $arrImages = scandir($imagePath);
-            } else {
-// TODO: We're PHP5 *ONLY* now.  This is obsolete
-                $dh  = opendir($imagePath);
-                $image = readdir($dh);
-                while ($image !== false) {
-                    $arrImages[] = $image;
-                    $image = readdir($dh);
-                }
-                closedir($dh);
-            }
+            $arrImages = scandir($imagePath);
             foreach ($arrImages as $index => $file) {
                 if (preg_match($ignoreRe, $file)) unset($arrImages[$index]);
             }
@@ -1903,15 +2024,28 @@ JSaccessValidatePrimaryGroupAssociation
                     $arrImagesDb = array();
                     while (!$objImage->EOF) {
                         $arrImagesDb[] = $objImage->fields['picture'];
-                        $arrImagesDb[] = \ImageManager::getThumbnailFilename(
-                            $objImage->fields['picture']);
+
+                        // fetch all thumbnails of image
+                        $thumbnails =
+                            $cx->getMediaSourceManager()
+                            ->getThumbnailGenerator()
+                            ->getThumbnailsFromFile(
+                                $imageWebPath,
+                                $objImage->fields['picture'],
+                                true
+                            );
+                        $thumbnails = array_map('basename', $thumbnails);
+                        $arrImagesDb = array_merge($arrImagesDb, $thumbnails);
+
                         $objImage->MoveNext();
                     }
                     $offset += $step;
                     $arrImages = array_diff($arrImages, $arrImagesDb);
                 }
             }
-            array_walk($arrImages, create_function('$img', 'unlink("'.$imagePath.'/".$img);'));
+            array_walk($arrImages, function ($img) use ($imagePath) {
+                unlink($imagePath.'/'.$img);
+            });
         }
 
         return true;
@@ -1983,7 +2117,7 @@ JSaccessValidatePrimaryGroupAssociation
      */
     protected function parseNewsletterLists($objUser)
     {
-        global $_CONFIG, $objDatabase, $objInit;
+        global $_CONFIG, $objDatabase, $objInit, $_ARRAYLANG;
 
         if (!$this->_objTpl->blockExists('access_newsletter')) return;
 
@@ -1996,12 +2130,57 @@ JSaccessValidatePrimaryGroupAssociation
                 return;
             }
 
+            $consent = array();
+            if (
+                \Cx\Core\Core\Controller\Cx::instanciate()->getMode() ==
+                    \Cx\Core\Core\Controller\Cx::MODE_BACKEND &&
+                !empty($objUser->getId())
+            ) {
+                // load additional newsletter data
+                $query = '
+                    SELECT
+                        `newsletterCategoryID` as `category`,
+                        `source`,
+                        `consent`
+                    FROM
+                        `' . DBPREFIX . 'module_newsletter_access_user`
+                    WHERE
+                        `accessUserID` = ' . $objUser->getId() . '
+                ';
+                $consentResult = $objDatabase->Execute($query);
+                while (!$consentResult->EOF) {
+                    $consent[$consentResult->fields['category']] = array(
+                        'source' => $consentResult->fields['source'],
+                        'consent' => $consentResult->fields['consent'],
+                    );
+                    $consentResult->MoveNext();
+                }
+                $_ARRAYLANG += $objInit->getComponentSpecificLanguageData(
+                    'Newsletter',
+                    false
+                );
+            }
+
             $row = 0;
             foreach ($arrNewsletterLists as $listId => $arrList) {
                 if ($objInit->mode != 'backend' && !$arrList['status'] && !in_array($listId, $arrSubscribedNewsletterListIDs)) {
                     continue;
                 }
 
+                if (count($consent)) {
+                    if (!isset($consent[$listId])) {
+                        $consent[$listId] = array(
+                            'source' => 'undefined',
+                            'consent' => '',
+                        );
+                    }
+                    $this->_objTpl->setVariable(array(
+                        $this->modulePrefix.'NEWSLETTER_CONSENT' => \Cx\Modules\Newsletter\Controller\NewsletterLib::parseConsentView(
+                            $consent[$listId]['source'],
+                            $consent[$listId]['consent']
+                        ),
+                    ));
+                }
                 $this->_objTpl->setVariable(array(
                     $this->modulePrefix.'NEWSLETTER_ID'        => $listId,
                     $this->modulePrefix.'NEWSLETTER_NAME'      => contrexx_raw2xhtml($arrList['name']),
@@ -2044,4 +2223,371 @@ JSaccessValidatePrimaryGroupAssociation
         return $_ARRAYLANG['TXT_ACCESS_PASSWORD_MINIMAL_CHARACTERS'];
     }
 
+    /**
+     * Initialize the access image uploader and get the uploader instance
+     *
+     * @return \Cx\Core_Modules\Uploader\Model\Entity\Uploader
+     */
+    public function getImageUploader()
+    {
+        // init uploader to upload images
+        $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader();
+        $uploader->setCallback('accessImageUploaderCallback');
+        $uploader->setOptions(array(
+            'id'                 => 'accessImageUploader',
+            'allowed-extensions' => array('jpg', 'jpeg', 'png', 'gif'),
+            'style'              => 'display:none',
+            'data-upload-limit'  => 1,
+        ));
+        $this->attachJavaScriptFunction('imageUploaderCode');
+
+        return $uploader;
+    }
+
+    /**
+     * Additional permission check for users with access permission
+     * MANAGE_GROUPS_ACCESS_ID.
+     *
+     * Exists to avoid that the user removes his permission to manage access groups
+     *
+     * Will return false when the group which is edited/deactivated/deleted
+     * is the only group which grants the user the permission to edit groups
+     *
+     * Will return true otherwise (or if the user has administrator privileges)
+     *
+     * @param integer $groupId The id of the group which is edited
+     * @return boolean
+     */
+    public function checkManageGroupAccessPermission($groupId) {
+
+        $fwUser = \FWUser::getFWUserObject();
+
+        // case 1: user is admin, dont bother
+        if ($fwUser->objUser->getAdminStatus()) {
+            return true;
+        }
+
+        // get the active groups associated to the user
+        $userGroups = $fwUser->objUser->getAssociatedGroupIds(true);
+
+        // case 2: user has only one associated group
+        if (count($userGroups) == 1) {
+            // when the edited group is the user's group, return false,
+            // otherwise true
+            return !($groupId == $userGroups[0]);
+        }
+        // case 3: user has multiple associated groups
+        // if the edited group isn't in the user's groups,
+        // don't bother and return true already
+        if (!in_array($groupId, $userGroups)) {
+            return true;
+        }
+        // now we have to check if another group exists,
+        // which gives the user the right to edit groups
+
+        // 1. exclude edited group id from the selection
+        $userGroups = array_diff($userGroups, array($groupId));
+        // 2. check if the remaining groups have the access permission
+        //    AccessLib::MANAGE_GROUPS_ACCESS_ID
+        foreach ($userGroups as $id) {
+            $group = $fwUser->objGroup->getGroup($id);
+            if (
+                in_array(
+                    static::MANAGE_GROUPS_ACCESS_ID,
+                    $group->getStaticPermissionIds()
+                )
+            ) {
+                return true;
+            }
+        }
+        // no other group found, removing of permission not allowed
+        return false;
+    }
+
+
+    /**
+     * Export users of a group as CSV
+     * @param   integer $groupId Id of a user group to filter the export by
+     * @param   integer $langId Id of frontend locale to filter the export by
+     * @throws  \Cx\Core\Core\Controller\InstanceException  At the end of the
+     *          CSV export to properly end the script execution.
+     */
+    protected function exportUsers($groupId = 0, $langId = null)
+    {
+        global $_CORELANG, $_ARRAYLANG, $objInit;
+
+        $csvSeparator = ";";
+        $groupId = intval($groupId);
+
+        $objFWUser = \FWUser::getFWUserObject();
+        $arrLangs = \FWLanguage::getLanguageArray();
+
+        if($groupId){
+            $objGroup = $objFWUser->objGroup->getGroup($groupId);
+            $groupName = $objGroup->getName(LANG_ID);
+        }else{
+            $groupName = $_CORELANG['TXT_USER_ALL'];
+        }
+
+        header("Content-Type: text/comma-separated-values", true);
+        header(
+            "Content-Disposition: attachment; filename=\"".
+            str_replace(array(' ', ',', '.', '\'', '"'), '_', $groupName).
+            ($langId != null ? '_lang_'.$arrLangs[$langId]['lang'] : '').
+            '.csv"', true);
+
+        // check if we're in frontend mode
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $isFrontend =
+            $cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND;
+
+        // used to hold the list of CSV columns
+        $arrFields = array();
+
+        // output active status of users only if we're not in frontend mode
+        if (!$isFrontend) {
+            $arrFields = array (
+                'active'            => $_ARRAYLANG['TXT_ACCESS_ACTIVE'],
+            );
+        }
+
+        // add core user attributes to CSV
+        $arrFields = array_merge($arrFields, array(
+            'frontend_lang_id'  => $_ARRAYLANG['TXT_ACCESS_LANGUAGE'] . ' ('.$_CORELANG['TXT_LANGUAGE_FRONTEND'].')',
+            'backend_lang_id'   => $_ARRAYLANG['TXT_ACCESS_LANGUAGE'] . ' ('.$_CORELANG['TXT_LANGUAGE_BACKEND'].')',
+            'username'          => $_ARRAYLANG['TXT_ACCESS_USERNAME'],
+            'email'             => $_ARRAYLANG['TXT_ACCESS_EMAIL'],
+            'regdate'           => $_ARRAYLANG['TXT_ACCESS_REGISTERED_SINCE'],
+        ));
+
+        // fetch custom attributes
+        $customAttributeIds = $objFWUser->objUser->objAttribute->getCustomAttributeIds();
+        foreach ($customAttributeIds as $idx => $customAttributeId) {
+            // fetch custom attribute
+            $objCustomAttribute = $objFWUser->objUser->objAttribute->getById(
+                $customAttributeId
+            );
+            if ($objCustomAttribute->EOF) {
+                continue;
+            }
+            // filter out child attributes
+            switch ($objCustomAttribute->getType()) {
+                case 'menu_option':
+                    unset($customAttributeIds[$idx]);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // set profile attributes
+        $arrProfileFields = array_merge(
+            $objFWUser->objUser->objAttribute->getCoreAttributeIds(),
+            $customAttributeIds
+        );
+
+        // print header for core attributes
+        foreach ($arrFields as $field) {
+            print $this->escapeCsvValue($field).$csvSeparator;
+        }
+
+        // print header for user groups
+        print $this->escapeCsvValue($_ARRAYLANG['TXT_ACCESS_GROUPS']).$csvSeparator;
+
+        // print header for profile attributes
+        foreach ($arrProfileFields as $profileField) {
+            $arrFields[$profileField] = $objFWUser->objUser->objAttribute->getById($profileField)->getName();
+            print $this->escapeCsvValue($arrFields[$profileField]).$csvSeparator;
+        }
+        print "\n";
+
+        $filter = array();
+        if (!empty($groupId)) {
+            $filter['group_id'] = $groupId;
+        }
+        if (!empty($langId)) {
+            if (\FWLanguage::getLanguageParameter($langId, 'is_default') == 'true') {
+                $filter['frontend_lang_id'] = array($langId, 0);
+            } else {
+                $filter['frontend_lang_id'] = $langId;
+            }
+        }
+        $objUser = $objFWUser->objUser->getUsers($filter, null, array('username'), array_keys($arrFields));
+        if ($objUser) {
+            while (!$objUser->EOF) {
+                // do not export users without any group membership
+                // in frontend export
+                if (
+                    $isFrontend &&
+                    empty($objUser->getAssociatedGroupIds(true))
+                ) {
+                    $objUser->next();
+                    continue;
+                }
+
+                // fetch associated user groups
+                $groups = $this->getGroupListOfUser($objUser);
+
+                // do not export users without any group membership
+                // in frontend export
+                if (
+                    $isFrontend &&
+                    empty($groups)
+                ) {
+                    $objUser->next();
+                    continue;
+                }
+
+                $frontendLangId = $objUser->getFrontendLanguage();
+                if (empty($frontendLangId)) {
+                    $frontendLangId = $objInit->getDefaultFrontendLangId();
+                }
+                $frontendLang = $arrLangs[$frontendLangId]['name']." (".$arrLangs[$frontendLangId]['lang'].")";
+
+                $backendLangId = $objUser->getBackendLanguage();
+                if (empty($backendLangId)) {
+                    $backendLangId = $objInit->getDefaultBackendLangId();
+                }
+                $backendLang = $arrLangs[$backendLangId]['name']." (".$arrLangs[$backendLangId]['lang'].")";
+
+                // active status of user
+                // note: do not output in frontend
+                if (!$isFrontend) {
+                    $activeStatus = $objUser->getActiveStatus() ? $_CORELANG['TXT_YES'] : $_CORELANG['TXT_NO'];
+                    print $this->escapeCsvValue($activeStatus).$csvSeparator;
+                }
+
+                // frontend_lang_id
+                print $this->escapeCsvValue($frontendLang).$csvSeparator;
+
+                // backend_lang_id
+                print $this->escapeCsvValue($backendLang).$csvSeparator;
+
+                // username
+                print $this->escapeCsvValue($objUser->getUsername()).$csvSeparator;
+
+                // email
+                print $this->escapeCsvValue($objUser->getEmail()).$csvSeparator;
+
+                // regdate
+                print $this->escapeCsvValue(date(ASCMS_DATE_FORMAT_DATE, $objUser->getRegistrationDate())).$csvSeparator;
+
+                // user groups
+                print $this->escapeCsvValue(join(',', $groups)).$csvSeparator;
+
+                // profile attributes
+                foreach ($arrProfileFields as $field) {
+                    $value = $objUser->getProfileAttribute($field);
+
+                    switch ($field) {
+                        case 'gender':
+                            switch ($value) {
+                                case 'gender_male':
+                                   $value = $_CORELANG['TXT_ACCESS_MALE'];
+                                break;
+
+                                case 'gender_female':
+                                   $value = $_CORELANG['TXT_ACCESS_FEMALE'];
+                                break;
+
+                                default:
+                                   $value = $_CORELANG['TXT_ACCESS_NOT_SPECIFIED'];
+                                break;
+                            }
+                            break;
+
+                        case 'title':
+                        case 'country':
+                            $title = '';
+                            $value = $objUser->objAttribute->getById($field . '_' . $value)->getName();
+                            break;
+
+                        default:
+                            $objAttribute = $objUser->objAttribute->getById($field);
+                            if (!empty($value) && $objAttribute->getType() == 'date') {
+                                $date = new \DateTime();
+                                $date ->setTimestamp($value);
+                                $value = $date->format(ASCMS_DATE_FORMAT_DATE);
+                            }
+                            if ($objAttribute->getType() == 'menu') {
+                                $option = '';
+                                if (!empty($value)) {
+                                    $objAttributeChild = $objUser->objAttribute->getById($value);
+                                    if (!$objAttributeChild->EOF) {
+                                        $option = $objAttributeChild->getName();
+                                    }
+                                }
+                                $value = $option;
+                            }
+                            break;
+                    }
+                    print $this->escapeCsvValue($value).$csvSeparator;
+                }
+
+                // add line break at end of row
+                print "\n";
+
+                $objUser->next();
+            }
+        }
+
+        throw new \Cx\Core\Core\Controller\InstanceException();
+    }
+
+    /**
+     * Get a list of user groups a user is a member of
+     *
+     * Returns an array of all user groups the supplied user (identified by
+     * $objUser) is a member of.
+     * In frontend mode, this method does only return frontend user groups.
+     * Whereas in every other mode, it does return all associated user groups.
+     *
+     * @param   \User   $objUser    The user of whom the associated groups
+     *                              shall be returned.
+     * @return  array   An array containing the names of the associated groups.
+     */
+    protected function getGroupListOfUser($objUser) {
+        // check if we're in frontend mode
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $activeOnly =
+            $cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND;
+        $groupIds = $objUser->getAssociatedGroupIds($activeOnly);
+        $arrGroupNames = array();
+
+        foreach ($groupIds as $groupId) {
+            $objGroup = \FWUser::getFWUserObject()->objGroup->getGroup($groupId);
+            if ($objGroup->EOF) {
+                continue;
+            }
+
+            if (
+                $activeOnly &&
+                $objGroup->getType() != 'frontend'
+            ) {
+                continue;
+            }
+
+            $arrGroupNames[] = $objGroup->getName();
+        }
+
+        return $arrGroupNames;
+    }
+
+    /**
+     * Escape a value that it could be inserted into a csv file.
+     *
+     * @param string $value
+     * @return string
+     */
+    protected function escapeCsvValue($value) {
+        $csvSeparator = ";";
+        $value = in_array(strtolower(CONTREXX_CHARSET), array('utf8', 'utf-8')) ? utf8_decode($value) : $value;
+        $value = preg_replace('/\r\n/', "\n", $value);
+        $valueModified = str_replace('"', '""', $value);
+
+        if ($valueModified != $value || preg_match('/['.$csvSeparator.'\n]+/', $value)) {
+            $value = '"'.$valueModified.'"';
+        }
+        return $value;
+    }
 }

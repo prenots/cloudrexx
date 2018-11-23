@@ -27,7 +27,7 @@
 
 /**
  * Main controller for Media
- * 
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -38,7 +38,7 @@ namespace Cx\Core_Modules\Media\Controller;
 
 /**
  * Main controller for Media
- * 
+ *
  * @copyright   Cloudrexx AG
  * @author      Project Team SS4U <info@cloudrexx.com>
  * @package     cloudrexx
@@ -53,7 +53,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
      /**
      * Load your component.
-     * 
+     *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
@@ -67,7 +67,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
                 $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
                 $objTemplate = $this->cx->getTemplate();
-                
+
                 $subMenuTitle = $_CORELANG['TXT_MEDIA_MANAGER'];
                 $objMedia = new MediaManager();
                 $objMedia->getMediaPage();
@@ -78,13 +78,125 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
     }
 
+    /**
+     * Register your event listeners here
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * Keep in mind, that you can also register your events later.
+     * Do not do anything else here than initializing your event listeners and
+     * list statements like
+     * $this->cx->getEvents()->addEventListener($eventName, $listener);
+     */
+    public function registerEventListeners() {
+        $evm = $this->cx->getEvents();
+        $eventListener = new \Cx\Core_Modules\Media\Model\Event\MediaEventListener($this->cx);
+        $evm->addEventListener('SearchFindContent',$eventListener);
+        $evm->addEventListener('mediasource.load', $eventListener);
+    }
 
     /**
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page
+     * Find Media files by keyword $searchTerm and return them in a
+     * two-dimensional array compatible to be used by Search component.
      *
-     * @throws \Cx\Core\Event\Controller\EventManagerException
+     * @param   string  $searchTerm The keyword to search by
+     * @return  array   Two-dimensional array of Media files found by keyword
+     *                  $searchTerm.
      */
-    public function preContentParse(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        $this->cx->getEvents()->addEventListener('mediasource.load', new \Cx\Core_Modules\Media\Model\Event\MediaEventListener($this->cx));
+    public function getMediaForSearchComponent($searchTerm) {
+
+        $media = new MediaLibrary();
+        $settings = $media->createSettingsArray();
+        $em = \Env::get('cx')->getDb()->getEntityManager();
+        $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
+        $paths = array(
+            'Media1' => $this->cx->getWebsitePath() . ASCMS_MEDIA1_WEB_PATH . '/',
+            'Media2' => $this->cx->getWebsitePath() . ASCMS_MEDIA2_WEB_PATH . '/',
+            'Media3' => $this->cx->getWebsitePath() . ASCMS_MEDIA3_WEB_PATH . '/',
+            'Media4' => $this->cx->getWebsitePath() . ASCMS_MEDIA4_WEB_PATH . '/'
+        );
+        $result = array();
+        foreach ($paths as $archive => $path) {
+            // skip if search functionality is not active
+            $settingKey    = strtolower($archive) . '_frontend_search';
+            if (
+                !isset($settings[$settingKey]) ||
+                $settings[$settingKey] != 'on'
+            ) {
+                continue;
+            }
+
+            // only list results in case the associated page of the module is active
+            $page = $pageRepo->findOneBy(array(
+                'module' => $archive,
+                'lang'   => FRONTEND_LANG_ID,
+                'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
+            ));
+
+            // skip in case no associated application page does exist or is
+            // published
+            if (!$page || !$page->isActive()) {
+                continue;
+            }
+
+            \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
+            $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue('coreListProtectedPages','Config');
+            $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue('searchVisibleContentOnly','Config');
+
+            // skip if the application page is invisible
+            if (
+                $searchVisibleContentOnly == 'on' &&
+                !$page->isVisible()
+            ) {
+                continue;
+            }
+
+            // skip if the application page is protected
+            if (
+                $coreListProtectedPages == 'off' &&
+                $page->isFrontendProtected() &&
+                $this->getComponent('Session')->getSession() &&
+                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
+            ) {
+                continue;
+            }
+
+            $data = array();
+            $media->getDirectoryTree($path, $searchTerm, $data, true);
+            if (empty($data['file']['name'])) {
+                continue;
+            }
+
+            foreach ($data['file']['name'] as $idx => $name) {
+                if (MediaLibrary::isIllegalFileName($name)) {
+                    continue;
+                }
+
+                $mediaPath    = $data['file']['path'][$idx] .'/';
+                $mediaWebPath = $mediaPath;
+                \Cx\Lib\FileSystem\FileSystem::path_relative_to_root($mediaWebPath);
+                $mediaWebPath = '/'. $mediaWebPath; // Filesysystem removes the beginning slash(/)
+
+                $url = \Cx\Core\Routing\Url::fromPage($page, array(
+                    'path' => rawurlencode($mediaWebPath),
+                    'act' => 'download',
+                    'file' => rawurlencode($name),
+                ));
+                if (!$url) {
+                    continue;
+                }
+                $link = $url->toString(false);
+
+                $result[] = array(
+                    'Score'     => 100,
+                    'Title'     => $name,
+                    'Content'   => '',
+                    'Link'      => $link,
+                    'Component' => $this->getName(),
+                );
+            }
+        }
+
+        return $result;
     }
 }

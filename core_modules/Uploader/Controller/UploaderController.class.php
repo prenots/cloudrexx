@@ -85,13 +85,13 @@ class UploaderController {
      * @var array
      */
     protected static $_errors = array(
-        PLUPLOAD_MOVE_ERR => "Failed to move uploaded file.",
-        PLUPLOAD_INPUT_ERR => "Failed to open input stream.",
-        PLUPLOAD_OUTPUT_ERR => "Failed to open output stream.",
-        PLUPLOAD_TMPDIR_ERR => "Failed to open temp directory.",
-        PLUPLOAD_TYPE_ERR => "File type not allowed.",
-        PLUPLOAD_UNKNOWN_ERR => "Failed due to unknown error.",
-        PLUPLOAD_SECURITY_ERR => "File didn't pass security check."
+        PLUPLOAD_MOVE_ERR => 'Failed to move uploaded file.',
+        PLUPLOAD_INPUT_ERR => 'Failed to open input stream.',
+        PLUPLOAD_OUTPUT_ERR => 'Failed to open output stream.',
+        PLUPLOAD_TMPDIR_ERR => 'Failed to open temp directory.',
+        PLUPLOAD_TYPE_ERR => 'File type not allowed.',
+        PLUPLOAD_UNKNOWN_ERR => 'Failed due to unknown error.',
+        PLUPLOAD_SECURITY_ERR => 'File didn\'t pass security check.'
     );
 
     /**
@@ -133,6 +133,7 @@ class UploaderController {
     static function handleRequest($conf = array()) {
 
         $cx = Cx::instanciate();
+        $session = $cx->getComponent('Session')->getSession();
         // 5 minutes execution time
         @set_time_limit(5 * 60);
 
@@ -140,8 +141,8 @@ class UploaderController {
 
         $conf = self::$conf = array_merge(array(
             'file_data_name' => 'file',
-            'tmp_dir' => $_SESSION->getTempPath(),
-            'target_dir' => 'images/content/',
+            'tmp_dir' => $session->getTempPath(),
+            'target_dir' => $session->getTempPath(),
             'cleanup' => true,
             'max_file_age' => 5 * 3600,
             'chunk' => isset($_REQUEST['chunk']) ? intval($_REQUEST['chunk']) : 0,
@@ -179,8 +180,17 @@ class UploaderController {
                 $fileName = $conf['fileName'];
             }
 
+            if ($conf['allow_extensions']) {
+                if (is_string($conf['allow_extensions'])) {
+                    $conf['allow_extensions'] = explode(',', $conf['allow_extensions']);
+                }
+                if (!in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), $conf['allow_extensions'])) {
+                    throw new UploaderException('', PLUPLOAD_TYPE_ERR);
+                }
+            }
+
             $file_path = rtrim($conf['tmp_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $fileName;
-            $tmp_path = $file_path . ".part";
+            $tmp_path = $file_path . '.part';
 
             // Write file or chunk to appropriate temp location
             if ($conf['chunks']) {
@@ -211,8 +221,8 @@ class UploaderController {
 
                 \Cx\Lib\FileSystem\FileSystem::move($tmp_path, $new_path, true);
 
-                $rootPath      = $cx->getWebsitePath() . $conf['target_dir'];
-                $rootPathFull  = $cx->getWebsitePath() . $new_path;
+                $rootPath      = $conf['target_dir'];
+                $rootPathFull  = $new_path;
                 $filePathinfo  = pathinfo($rootPathFull);
                 $fileExtension = $filePathinfo['extension'];
                 $fileNamePlain = $filePathinfo['filename'];
@@ -226,7 +236,7 @@ class UploaderController {
                         $thumbnail
                     ) {
                         $im->_createThumb(
-                            $rootPath, $conf['target_dir'], $fileName,
+                            $rootPath, '', $fileName,
                             $thumbnail['size'], $thumbnail['quality'],
                             $fileNamePlain . $thumbnail['value'] . '.'
                             . $fileExtension
@@ -269,17 +279,17 @@ class UploaderController {
         }
 
         if (!empty($_FILES) && isset($_FILES[$file_data_name])) {
-            if ($_FILES[$file_data_name]["error"] || !is_uploaded_file($_FILES[$file_data_name]["tmp_name"])) {
+            if ($_FILES[$file_data_name]['error'] || !is_uploaded_file($_FILES[$file_data_name]['tmp_name'])) {
                 throw new UploaderException('', PLUPLOAD_MOVE_ERR);
             }
-            move_uploaded_file($_FILES[$file_data_name]["tmp_name"], $file_path);
+            move_uploaded_file($_FILES[$file_data_name]['tmp_name'], $file_path);
         } else {
             // Handle binary streams
-            if (!$in = @fopen("php://input", "rb")) {
+            if (!$in = @fopen('php://input', 'rb')) {
                 throw new UploaderException('', PLUPLOAD_INPUT_ERR);
             }
 
-            if (!$out = @fopen($file_path, "wb")) {
+            if (!$out = @fopen($file_path, 'wb')) {
                 throw new UploaderException('', PLUPLOAD_OUTPUT_ERR);
             }
 
@@ -301,7 +311,7 @@ class UploaderController {
      * @param string $file_path The file to write the chunks to
      */
     static function writeChunksToFile($chunk_dir, $file_path) {
-        if (!$out = @fopen($file_path, "wb")) {
+        if (!$out = @fopen($file_path, 'wb')) {
             throw new UploaderException('', PLUPLOAD_OUTPUT_ERR);
         }
 
@@ -311,7 +321,7 @@ class UploaderController {
                 throw new UploaderException('', PLUPLOAD_MOVE_ERR);
             }
 
-            if (!$in = @fopen($chunk_path, "rb")) {
+            if (!$in = @fopen($chunk_path, 'rb')) {
                 throw new UploaderException('', PLUPLOAD_INPUT_ERR);
             }
 
@@ -334,11 +344,11 @@ class UploaderController {
      */
     static function noCacheHeaders() {
         // Make sure this file is not cached (as it might happen on iOS devices, for example)
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-        header("Cache-Control: no-store, no-cache, must-revalidate");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache');
     }
 
     /**
@@ -373,7 +383,7 @@ class UploaderController {
      * Cleanup method
      */
     protected static function cleanup() {
-        // Remove old temp files	
+        // Remove old temp files
         if (file_exists(self::$conf['tmp_dir'])) {
             foreach (glob(self::$conf['tmp_dir'] . '/*.part') as $tmpFile) {
                 if (time() - filemtime($tmpFile) < self::$conf['max_file_age']
