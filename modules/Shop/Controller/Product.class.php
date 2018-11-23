@@ -1011,11 +1011,11 @@ class Product
                 WHERE product_id='.$this->id
         );
 
-        \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
-
         if (!$objCatResult || !$objUserGroupResult) {
             return false;
         }
+
+        \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
 
         return true;
     }
