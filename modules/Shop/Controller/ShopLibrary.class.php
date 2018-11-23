@@ -415,11 +415,11 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
      *
      * @param $table        string tablename
      * @param $attr         array  entity attr and foreign attr
-     * @param $arrIdsInput  array  with user input
+     * @param $idsInput  array  with user input
      * @param $entityId     int    id of entity
      * @return bool
      */
-    static function updateRelation($table, $attr, $arrIdsInput, $entityId)
+    static function updateRelation($table, $attr, $idsInput, $entityId)
     {
         global $objDatabase;
 
@@ -437,13 +437,13 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
 
         // Get all ids where in
         $newRelationIds = array_diff(
-            $arrIdsInput,
+            $idsInput,
             $arrIdsDb
         );
 
         $deletedRelationIds = array_diff(
             $arrIdsDb,
-            $arrIdsInput
+            $idsInput
         );
 
         if (empty($newRelationIds) && empty($deletedRelationIds)) {
