@@ -600,7 +600,8 @@ class PriceList
     }
 
     /**
-     * Array with all category ids from pricelist
+     * Array with all category IDs from pricelist, except if all_categories
+     * is true. Then an empty array is returned.
      *
      * @param int $listId id of pricelist
      * @return array
@@ -895,8 +896,8 @@ class PriceList
     /**
      * Update category-pricelist relation in intermediate table.
      *
-     * @param array array with all category ids
-     * @return bool
+     * @param array $allCategories array with all category ids
+     * @return bool true on success, false otherwise
      */
     function updateCategoryRelation($allCategories)
     {
