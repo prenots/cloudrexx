@@ -104,7 +104,7 @@ class Weight
      * The unit, if missing, defaults to 'g' (grams).
      * If no float value is found at the beginning of the string,
      * if it is out of range, or if the unit is set but unknown,
-     * 'NULL' will be returned.
+     * null will be returned.
      * Note that, as weights are stored as integers, they are
      * rounded *down* to whole grams.
      * @access  public
