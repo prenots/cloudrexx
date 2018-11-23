@@ -164,7 +164,7 @@ class ShopEventListener extends DefaultEventListener {
 
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $em->getRepository(
-            '\\'.$entityAndAttr['entityName']
+            $entityAndAttr['entityName']
         );
         // Save old translatable locale to set it after updating the attribute
         $oldLocale = $this->cx->getDb()->getTranslationListener()
@@ -228,12 +228,12 @@ class ShopEventListener extends DefaultEventListener {
     protected function getEntityNameAndAttr($key)
     {
         if (array_key_exists($key, $this->mappedAttributes)) {
-            $entityName = 'Cx\Modules\Shop\Model\Entity\\'.
+            $entityName = 'Cx\\Modules\Shop\\Model\\Entity\\'.
                 $this->mappedAttributes[$key]['entity'];
             $attrName = ucfirst($this->mappedAttributes[$key]['attr']);
         } else {
             $keyFragments = explode('_', $key);
-            $entityName = 'Cx\Modules\Shop\Model\Entity\\'. ucfirst(
+            $entityName = 'Cx\\Modules\Shop\\Model\\Entity\\'. ucfirst(
                 $keyFragments[0]
             );
             $attrName = ucfirst($keyFragments[1]);
