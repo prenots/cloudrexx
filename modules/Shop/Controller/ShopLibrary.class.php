@@ -451,9 +451,6 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         }
 
         foreach ($newRelationIds as $foreignId) {
-            if (empty($foreignId)) {
-                continue;
-            }
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'INSERT INTO `' . DBPREFIX.'module_shop'.MODULE_INDEX
                 .'_'.$table.'` ('.$attr['entity'].', '.$attr['foreign'].')'
@@ -465,9 +462,6 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             }
         }
         foreach ($deletedRelationIds as $foreignId) {
-            if (empty($foreignId)) {
-                continue;
-            }
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'DELETE FROM `' .
                 DBPREFIX . 'module_shop' . MODULE_INDEX . '_'.$table.'`' .
