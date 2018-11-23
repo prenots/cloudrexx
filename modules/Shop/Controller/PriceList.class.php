@@ -942,6 +942,7 @@ class PriceList
         if ($objDatabase->Execute($query)) {
             $this->id = $objDatabase->Insert_ID();
 
+            $arrCategoryIds = array();
             if ($this->arrCategoryId[0] != '*') {
                 $arrCategoryIds = $this->arrCategoryId;
             }
