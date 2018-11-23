@@ -211,10 +211,11 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function registerEventListeners() {
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
+        $eventListenerTemp = new \Cx\Modules\Shop\Model\Event\RolloutTextSyncListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
-        $this->cx->getEvents()->addEventListener('Text:Replace', $eventListener);
-        $this->cx->getEvents()->addEventListener('Text:Delete', $eventListener);
+        $this->cx->getEvents()->addEventListener('Text:Replace', $eventListenerTemp);
+        $this->cx->getEvents()->addEventListener('Text:Delete', $eventListenerTemp);
     }
 
     /**
