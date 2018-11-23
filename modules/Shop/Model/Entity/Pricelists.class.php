@@ -341,7 +341,7 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set currencies
+     * Set lang
      *
      * @param \Cx\Core\Locale\Model\Entity\Locale $lang
      */
