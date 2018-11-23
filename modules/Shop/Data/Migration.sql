@@ -154,6 +154,7 @@ ALTER TABLE contrexx_module_shop_lsv ADD CONSTRAINT FK_889921958D9F6D38 FOREIGN 
 
 ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE248D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
 ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE249395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id);
+ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE2477153098 FOREIGN KEY (code) REFERENCES contrexx_module_shop_discount_coupon (code);
 
 ALTER TABLE contrexx_module_shop_rel_discount_group ADD CONSTRAINT FK_93D6FD61D2919A68 FOREIGN KEY (customer_group_id) REFERENCES contrexx_module_shop_customer_group (id);
 ALTER TABLE contrexx_module_shop_rel_discount_group ADD CONSTRAINT FK_93D6FD61ABBC2D2C FOREIGN KEY (article_group_id) REFERENCES contrexx_module_shop_article_group (id);
@@ -203,6 +204,7 @@ CREATE INDEX IDX_BB867D48B213FA4 ON contrexx_module_shop_pricelists (lang_id);
 
 CREATE INDEX IDX_6A7FBE248D9F6D38 ON contrexx_module_shop_rel_customer_coupon (order_id);
 CREATE INDEX IDX_6A7FBE249395C3F3 ON contrexx_module_shop_rel_customer_coupon (customer_id);
+CREATE INDEX IDX_6A7FBE2477153098 ON contrexx_module_shop_rel_customer_coupon (code);
 
 CREATE INDEX IDX_93D6FD61D2919A68 ON contrexx_module_shop_rel_discount_group (customer_group_id);
 CREATE INDEX IDX_93D6FD61ABBC2D2C ON contrexx_module_shop_rel_discount_group (article_group_id);
