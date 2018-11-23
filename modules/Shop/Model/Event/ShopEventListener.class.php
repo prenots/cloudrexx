@@ -88,4 +88,5 @@ class ShopEventListener extends DefaultEventListener {
         $mediaType->setAccessIds(array(13));
         $mediaBrowserConfiguration->addMediaType($mediaType);
     }
+
 }
