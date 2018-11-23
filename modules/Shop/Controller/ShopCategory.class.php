@@ -560,9 +560,6 @@ class ShopCategory
         }
 
         $this->deleteRelation();
-
-        $objDatabase->Execute("
-            OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_categories");
         return true;
     }
 
