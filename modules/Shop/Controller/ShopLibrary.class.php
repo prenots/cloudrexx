@@ -456,7 +456,8 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             }
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'INSERT INTO `' . DBPREFIX.'module_shop'.MODULE_INDEX
-                .'_'.$table.'`' . ' ('.$attr['entity'].', '.$attr['foreign'].')' .' VALUES (?,?)';
+                .'_'.$table.'` ('.$attr['entity'].', '.$attr['foreign'].')'
+                .' VALUES (?,?)';
 
             $objResult = $objDatabase->Execute($updateQuery, $updateArgs);
             if (!$objResult) {
