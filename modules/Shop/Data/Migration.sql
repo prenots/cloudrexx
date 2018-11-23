@@ -24,6 +24,45 @@ CREATE TABLE contrexx_module_shop_rel_product_user_group (
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 
+/** Core Text **/
+ALTER TABLE contrexx_module_shop_manufacturer
+  ADD `uri` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_products
+  ADD `uri` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `short` TEXT NOT NULL,
+  ADD `long` TEXT NOT NULL,
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `keys` TEXT NOT NULL,
+  ADD `code` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_categories
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `description` TEXT NOT NULL;
+
+ALTER TABLE contrexx_module_shop_discountgroup_count_name
+  ADD `unit` VARCHAR(255) DEFAULT '' NOT NULL,
+  ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_currencies ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_option ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_payment ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_shipper ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_vat ADD `class` VARCHAR(255) NOT NULL;
+
+ALTER TABLE contrexx_module_shop_article_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_attribute ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_zones ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
+ALTER TABLE contrexx_module_shop_customer_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
 /** Structural adjustments  **/
 ALTER TABLE contrexx_module_shop_orders
   CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL,
@@ -32,48 +71,14 @@ ALTER TABLE contrexx_module_shop_orders
   CHANGE modified_on modified_on DATETIME DEFAULT NULL,
   CHANGE status status INT UNSIGNED DEFAULT 0 NOT NULL;
 
-ALTER TABLE contrexx_module_shop_manufacturer
-  ADD uri VARCHAR(255) DEFAULT '' NOT NULL,
-  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_currencies
-  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_option
-  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
 ALTER TABLE contrexx_module_shop_products
-  ADD uri VARCHAR(255) DEFAULT '' NOT NULL,
-  ADD short TEXT NOT NULL,
-  ADD `long` TEXT NOT NULL,
-  ADD name VARCHAR(255) DEFAULT '' NOT NULL,
-  ADD `keys` TEXT NOT NULL,
-  ADD code VARCHAR(255) DEFAULT '' NOT NULL,
   CHANGE date_start date_start DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
   CHANGE date_end date_end DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_payment ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_shipper ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_vat ADD class VARCHAR(255) NOT NULL;
-
-ALTER TABLE contrexx_module_shop_article_group ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_categories
-  ADD name VARCHAR(255) DEFAULT '' NOT NULL,
-  ADD description TEXT NOT NULL;
 
 ALTER TABLE contrexx_module_shop_pricelists CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_rel_customer_coupon CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL;
 
-ALTER TABLE contrexx_module_shop_discountgroup_count_name
-  ADD unit VARCHAR(255) DEFAULT '' NOT NULL,
-  ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-ALTER TABLE contrexx_module_shop_attribute ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_zones ADD name VARCHAR(255) DEFAULT '' NOT NULL;
 ALTER TABLE contrexx_module_shop_rel_payment
   CHANGE zone_id zone_id INT UNSIGNED NOT NULL,
   CHANGE payment_id payment_id INT UNSIGNED NOT NULL;
@@ -82,10 +87,6 @@ ALTER TABLE contrexx_module_shop_rel_shipper DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_shipper
   CHANGE shipper_id shipper_id INT UNSIGNED NOT NULL,
   CHANGE zone_id zone_id INT UNSIGNED NOT NULL;
-
-ALTER TABLE contrexx_module_shop_customer_group ADD name VARCHAR(255) DEFAULT '' NOT NULL;
-
-ALTER TABLE contrexx_module_shop_categories CHANGE description description LONGTEXT DEFAULT '' NOT NULL;
 
 
 /** Drop Primary Keys **/
