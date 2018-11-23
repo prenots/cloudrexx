@@ -54,6 +54,11 @@ Cx\Modules\Shop\Model\Entity\Pricelists:
       type: text
       nullable: true
       column: footer_right
+    allCategories:
+      type: boolean
+      options:
+        default: 0
+      column: all_categories
   manyToMany:
     categories:
       targetEntity: Cx\Modules\Shop\Model\Entity\Categories
