@@ -109,7 +109,7 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
      *                           \Text
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function textReplace($replaceInfo)
+    public function tmpShopTextReplace($replaceInfo)
     {
         $id = $replaceInfo[0];
         $key = $replaceInfo[1];
@@ -147,7 +147,7 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
      * @param $deleteInfo
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function textDelete($deleteInfo)
+    public function tmpShopTextDelete($deleteInfo)
     {
         $id = $deleteInfo[0];
         $key = $deleteInfo[1];

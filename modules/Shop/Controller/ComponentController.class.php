@@ -214,8 +214,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $eventListenerTemp = new \Cx\Modules\Shop\Model\Event\RolloutTextSyncListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
-        $this->cx->getEvents()->addEventListener('Text:Replace', $eventListenerTemp);
-        $this->cx->getEvents()->addEventListener('Text:Delete', $eventListenerTemp);
+        $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
+        $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
     }
 
     /**
@@ -225,8 +225,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * $this->cx->getEvents()->addEvent($eventName);
      */
     public function registerEvents() {
-        $this->cx->getEvents()->addEvent('Text:Replace');
-        $this->cx->getEvents()->addEvent('Text:Delete');
+        $this->cx->getEvents()->addEvent('TmpShopText:Replace');
+        $this->cx->getEvents()->addEvent('TmpShopText:Delete');
     }
 
     public function preFinalize(\Cx\Core\Html\Sigma $template)

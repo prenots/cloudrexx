@@ -578,7 +578,7 @@ die("Obsolete method Text::getByKey() called");
         if ($section == 'Shop' && !preg_match('/^core_mail.*$/i', $key)) {
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             $cx->getEvents()->triggerEvent(
-                'Text:Replace',
+                'TmpShopText:Replace',
                 array(array($id, $key, $strText))
             );
         }
@@ -615,7 +615,7 @@ DBG::log("Text::delete($all_languages): ERROR: Empty ID ($this->id), lang_id ($t
         if ($this->section == 'Shop' && !preg_match("/^core_mail.*$/i", $this->key)) {
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
             $cx->getEvents()->triggerEvent(
-                'Text:Delete',
+                'TmpShopText:Delete',
                 array(array($this->id, $this->key))
             );
         }
