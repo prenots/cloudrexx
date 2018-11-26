@@ -2172,23 +2172,8 @@ class NewsLibrary
         $i = 0;
         while (!$relatedNews->EOF) {
             $arrNewsCategories = $this->getCategoriesByNewsId($relatedNews->fields['newsid']);
-            $newsUrl = '';
-            if (!empty($relatedNews->fields['redirect'])) {
-                $newsUrl = $relatedNews->fields['redirect'];
-            } elseif (!empty($relatedNews->fields['newscontent'])) {
-                $newsUrl = \Cx\Core\Routing\Url::fromModuleAndCmd(
-                    'News',
-                    $this->findCmdById(
-                        'details',
-                        array_keys($arrNewsCategories)
-                    ),
-                    FRONTEND_LANG_ID,
-                    array('newsid' => $relatedNews->fields['newsid'])
-                );
-            }
-
             // Parse all the news placeholders
-            $this->parseNewsPlaceholders($objTpl, $relatedNews, $newsUrl, 'news_related_');
+            $this->parseNewsPlaceholders($objTpl, $relatedNews, $arrNewsCategories, 'news_related_');
 
             $objTpl->setVariable(array(
                'NEWS_RELATED_NEWS_CSS'            => 'row'.($i % 2 + 1),
@@ -3020,15 +3005,18 @@ EOF;
     /**
      * Parse the news placeholders
      *
-     * @param object $objTpl       Template object \Cx\Core\Html\Sigma
-     * @param array  $objResult    Result Array
-     * @param array  $categories   Categories id
-     * @param array  $parameters   News details page parameters
-     *
+     * @param object $objTpl         Template object \Cx\Core\Html\Sigma
+     * @param array  $objResult      Result Array
+     * @param array  $categories     Categories id
+     * @param string $templatePrefix News template prefix
      * @return string
      */
-    public function parseNewsPlaceholders($objTpl, $objResult, $categories = array(), $parameters = array())
-    {
+    public function parseNewsPlaceholders(
+        $objTpl,
+        $objResult,
+        $categories = array(),
+        $templatePrefix = ''
+    ) {
         global $_ARRAYLANG;
 
         $newsid = $objResult->fields['newsid'];
@@ -3053,7 +3041,7 @@ EOF;
         $newsTeaser           = '';
         $arrNewsCategories = $this->getCategoriesByNewsId($newsid);
         $categoriesId      = empty($categories) ? array_keys($arrNewsCategories) : self::sortCategoryIdByPriorityId(array_keys($arrNewsCategories), $categories);
-        $urlParameters     = empty($parameters) ? array('newsid' => $newsid) : $parameters;
+        $urlParameters     = array('newsid' => $newsid);
         $newsUrl           = empty($redirect)
                                 ? (empty($objResult->fields['newscontent'])
                                     ? ''

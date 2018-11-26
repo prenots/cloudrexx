@@ -883,9 +883,8 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
             &&  $validToShowList
         ) {
             while (!$objResult->EOF) {
-                $parameters['newsid'] = $objResult->fields['newsid'];
                 // Parse all the news placeholders
-                $this->parseNewsPlaceholders($this->_objTpl, $objResult, $categories, $parameters);
+                $this->parseNewsPlaceholders($this->_objTpl, $objResult, $categories);
                 $this->_objTpl->setVariable(array(
                    'NEWS_CSS' => 'row'.($i % 2 + 1),
                 ));

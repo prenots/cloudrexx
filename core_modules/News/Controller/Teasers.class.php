@@ -469,8 +469,7 @@ class Teasers extends \Cx\Core_Modules\News\Controller\NewsLibrary
                         $emulatedResult->fields = $this->arrTeasers[$this->arrFrameTeaserIds[$id][$nr]];
                         $this->parseNewsPlaceholders(
                             $teaserBlockTpl,
-                            $emulatedResult,
-                            $teaserUrl
+                            $emulatedResult
                         );
                         $teaserBlockCode = $teaserBlockTpl->get();
                     } elseif ($this->administrate) {
