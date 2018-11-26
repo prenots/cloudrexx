@@ -122,20 +122,10 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
         $repo = $em->getRepository(
             $entityAndAttr['entityName']
         );
-        // Save old translatable locale to set it after updating the attribute
-        $oldLocale = $this->cx->getDb()->getTranslationListener()
-            ->getTranslatableLocale();
-        // Set translatable locale by frontend lang id
-        $this->cx->getDb()->getTranslationListener()->setTranslatableLocale(
-            \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID)
-        );
+
         // Only entities with a identifier named id affected
         $entity = $repo->find($id);
         $entity->$setter($value);
-
-        $this->cx->getDb()->getTranslationListener()->setTranslatableLocale(
-            $oldLocale
-        );
 
         $em->persist($entity);
         $em->flush();
