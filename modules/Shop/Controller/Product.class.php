@@ -1005,8 +1005,6 @@ class Product
         //clear cache
         $shopLib = new ShopLibrary();
         $shopLib->clearEsiCache();
-        $objDatabase->Execute("
-            OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_products");
         return true;
     }
 

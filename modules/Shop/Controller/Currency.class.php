@@ -555,7 +555,7 @@ class Currency
         $shopLib = new ShopLibrary();
         $shopLib->clearEsiCache();
         unset(self::$arrCurrency[$currency_id]);
-        $objDatabase->Execute("OPTIMIZE TABLE `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`");
+
         return true;
     }
 
