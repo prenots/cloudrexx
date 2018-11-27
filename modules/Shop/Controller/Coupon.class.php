@@ -1472,8 +1472,9 @@ class Coupon
 
         $table_name = DBPREFIX.'module_shop_discount_coupon';
         $table_structure = array(
-            'code' => array('type' => 'varchar(20)', 'default' => '', 'primary' => true),
-            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'primary' => true),
+            'id' => array('type' => 'INT(10)', 'auto_increment' => true, 'primary' => true),
+            'code' => array('type' => 'varchar(20)', 'default' => '', 'unique' => true),
+            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'unique' => true),
             'payment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
             'product_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
             'start_time' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
