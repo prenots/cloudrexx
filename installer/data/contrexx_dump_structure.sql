@@ -3193,7 +3193,8 @@ CREATE TABLE `contrexx_module_shop_categories` (
   `picture` varchar(255) NOT NULL DEFAULT '',
   `flags` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  FULLTEXT KEY `flags` (`flags`)
+  FULLTEXT KEY `flags` (`flags`),
+  INDEX `IDX_A9242624727ACA70` (`parent_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_currencies` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3223,7 +3224,10 @@ CREATE TABLE `contrexx_module_shop_discount_coupon` (
   `minimum_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `discount_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `discount_rate` decimal(3,0) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `IDX_7E70AB1A4C3A3BB` (`payment_id`),
+  INDEX `IDX_7E70AB1A4584665A` (`product_id`),
+  UNIQUE INDEX `fk_module_shop_discount_coupon_unique_idx` (`code`, `customer_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_discountgroup_count_name` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3234,7 +3238,9 @@ CREATE TABLE `contrexx_module_shop_discountgroup_count_rate` (
   `group_id` int(10) unsigned NOT NULL DEFAULT '0',
   `count` int(10) unsigned NOT NULL DEFAULT '1',
   `rate` decimal(5,2) unsigned NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`group_id`,`count`)
+  PRIMARY KEY (`group_id`,`count`),
+  INDEX `IDX_3F3DD477FE54D947` (`group_id`),
+  INDEX `fk_contrexx_module_shop_discountgroup_count_rate_contrexx_m_idx` (`count`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_importimg` (
   `img_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3259,7 +3265,8 @@ CREATE TABLE `contrexx_module_shop_option` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `attribute_id` int(10) unsigned NOT NULL,
   `price` decimal(9,2) NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `IDX_658196EFB6E62EFA` (`attribute_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_order_attributes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3280,7 +3287,8 @@ CREATE TABLE `contrexx_module_shop_order_items` (
   `vat_rate` decimal(5,2) unsigned DEFAULT NULL,
   `weight` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `order` (`order_id`)
+  KEY `order` (`order_id`),
+  INDEX `IDX_1D79476B4584665A` (`product_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_orders` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3319,6 +3327,11 @@ CREATE TABLE `contrexx_module_shop_orders` (
   `billing_phone` varchar(20) DEFAULT NULL,
   `billing_fax` varchar(20) DEFAULT NULL,
   `billing_email` varchar(255) DEFAULT NULL,
+  INDEX `IDX_DA286BB1B213FA4` (`lang_id`),
+  INDEX `IDX_DA286BB138248176` (`currency_id`),
+  INDEX `IDX_DA286BB17BE036FC` (`shipment_id`),
+  INDEX `IDX_DA286BB14C3A3BB` (`payment_id`),
+  INDEX `IDX_DA286BB19395C3F3` (`customer_id`),
   PRIMARY KEY (`id`),
   KEY `status` (`status`)
 ) ENGINE=InnoDB ;
@@ -3329,7 +3342,8 @@ CREATE TABLE `contrexx_module_shop_payment` (
   `free_from` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `ord` int(5) unsigned NOT NULL DEFAULT '0',
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `IDX_96C3CFFE37BAC19A` (`processor_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_payment_processors` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3353,7 +3367,8 @@ CREATE TABLE `contrexx_module_shop_pricelists` (
   `footer_left` text,
   `footer_right` text,
   `categories` text NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `IDX_BB867D48B213FA4` (`lang_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_products` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3383,12 +3398,15 @@ CREATE TABLE `contrexx_module_shop_products` (
   PRIMARY KEY (`id`),
   KEY `group_id` (`group_id`),
   KEY `article_id` (`article_id`),
-  FULLTEXT KEY `flags` (`flags`)
+  FULLTEXT KEY `flags` (`flags`),
+  INDEX `IDX_97F512B7A23B42D` (`manufacturer_id`),
+  INDEX `IDX_97F512B7B5B63A6B` (`vat_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_rel_countries` (
   `zone_id` int(10) unsigned NOT NULL DEFAULT '0',
   `country_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`country_id`,`zone_id`)
+  PRIMARY KEY (`zone_id`, `country_id`),
+  INDEX `IDX_C859EA8B9F2C3FAB` (`zone_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_rel_customer_coupon` (
   `code` varchar(20) NOT NULL DEFAULT '',
@@ -3396,29 +3414,41 @@ CREATE TABLE `contrexx_module_shop_rel_customer_coupon` (
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   `count` int(10) unsigned NOT NULL DEFAULT '0',
   `amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`code`,`customer_id`,`order_id`)
+  PRIMARY KEY (`code`,`customer_id`,`order_id`),
+  INDEX `IDX_6A7FBE248D9F6D38` (`order_id`),
+  INDEX `IDX_6A7FBE249395C3F3` (`customer_id`),
+  INDEX `IDX_6A7FBE2477153098` (`code`)
 ) ENGINE=InnoDB;
+
 CREATE TABLE `contrexx_module_shop_rel_discount_group` (
   `customer_group_id` int(10) unsigned NOT NULL DEFAULT '0',
   `article_group_id` int(10) unsigned NOT NULL DEFAULT '0',
   `rate` decimal(9,2) NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`customer_group_id`,`article_group_id`)
+  PRIMARY KEY (`customer_group_id`,`article_group_id`),
+  INDEX `IDX_93D6FD61D2919A68` (`customer_group_id`),
+  INDEX `IDX_93D6FD61ABBC2D2C` (`article_group_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_rel_payment` (
   `zone_id` int(10) unsigned NOT NULL,
   `payment_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`zone_id`,`payment_id`)
+  PRIMARY KEY (`zone_id`,`payment_id`),
+  INDEX `IDX_43EB87989F2C3FAB` (`zone_id`),
+  INDEX `IDX_43EB87984C3A3BB` (`payment_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_rel_product_attribute` (
   `product_id` int(10) unsigned NOT NULL DEFAULT '0',
   `option_id` int(10) unsigned NOT NULL,
   `ord` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`product_id`,`option_id`)
+  PRIMARY KEY (`product_id`,`option_id`),
+  INDEX `IDX_E17E240B4584665A` (`product_id`),
+  INDEX `IDX_E17E240BA7C41D6F` (`option_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_rel_shipper` (
   `zone_id` int(10) unsigned NOT NULL,
   `shipper_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`shipper_id`)
+  PRIMARY KEY (`zone_id`, `shipper_id`),
+  INDEX `IDX_87E5C9689F2C3FAB` (`zone_id`),
+  INDEX `IDX_87E5C96838459F23` (`shipper_id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_module_shop_shipment_cost` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3426,7 +3456,8 @@ CREATE TABLE `contrexx_module_shop_shipment_cost` (
   `max_weight` int(10) unsigned DEFAULT NULL,
   `fee` decimal(9,2) unsigned DEFAULT NULL,
   `free_from` decimal(9,2) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `IDX_2329A4538459F23` (`shipper_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_shipper` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -3906,33 +3937,3 @@ ALTER TABLE contrexx_module_shop_rel_shipper ADD CONSTRAINT FK_87E5C96838459F23 
 ALTER TABLE contrexx_module_shop_shipment_cost ADD CONSTRAINT FK_2329A4538459F23 FOREIGN KEY (shipper_id) REFERENCES contrexx_module_shop_shipper (id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
 ALTER TABLE contrexx_module_shop_categories ADD CONSTRAINT FK_A9242624727ACA70 FOREIGN KEY (parent_id) REFERENCES contrexx_module_shop_categories (id);
-CREATE INDEX IDX_DA286BB1B213FA4 ON contrexx_module_shop_orders (lang_id);
-CREATE INDEX IDX_DA286BB138248176 ON contrexx_module_shop_orders (currency_id);
-CREATE INDEX IDX_DA286BB17BE036FC ON contrexx_module_shop_orders (shipment_id);
-CREATE INDEX IDX_DA286BB14C3A3BB ON contrexx_module_shop_orders (payment_id);
-CREATE INDEX IDX_DA286BB19395C3F3 ON contrexx_module_shop_orders (customer_id);
-CREATE INDEX IDX_658196EFB6E62EFA ON contrexx_module_shop_option (attribute_id);
-CREATE INDEX IDX_97F512B7A23B42D ON contrexx_module_shop_products (manufacturer_id);
-CREATE INDEX IDX_97F512B7B5B63A6B ON contrexx_module_shop_products (vat_id);
-CREATE INDEX IDX_96C3CFFE37BAC19A ON contrexx_module_shop_payment (processor_id);
-CREATE INDEX IDX_E17E240B4584665A ON contrexx_module_shop_rel_product_attribute (product_id);
-CREATE INDEX IDX_E17E240BA7C41D6F ON contrexx_module_shop_rel_product_attribute (option_id);
-CREATE INDEX IDX_1D79476B4584665A ON contrexx_module_shop_order_items (product_id);
-CREATE INDEX IDX_7E70AB1A4C3A3BB ON contrexx_module_shop_discount_coupon (payment_id);
-CREATE INDEX IDX_7E70AB1A4584665A ON contrexx_module_shop_discount_coupon (product_id);
-CREATE INDEX IDX_7E70AB1A9395C3F3 ON contrexx_module_shop_discount_coupon (customer_id);
-CREATE INDEX IDX_3F3DD477FE54D947 ON contrexx_module_shop_discountgroup_count_rate (group_id);
-CREATE INDEX fk_contrexx_module_shop_discountgroup_count_rate_contrexx_m_idx ON contrexx_module_shop_discountgroup_count_rate (count);
-CREATE INDEX IDX_BB867D48B213FA4 ON contrexx_module_shop_pricelists (lang_id);
-CREATE INDEX IDX_6A7FBE248D9F6D38 ON contrexx_module_shop_rel_customer_coupon (order_id);
-CREATE INDEX IDX_6A7FBE249395C3F3 ON contrexx_module_shop_rel_customer_coupon (customer_id);
-CREATE INDEX IDX_6A7FBE2477153098 ON contrexx_module_shop_rel_customer_coupon (code);
-CREATE INDEX IDX_93D6FD61D2919A68 ON contrexx_module_shop_rel_discount_group (customer_group_id);
-CREATE INDEX IDX_93D6FD61ABBC2D2C ON contrexx_module_shop_rel_discount_group (article_group_id);
-CREATE INDEX IDX_43EB87989F2C3FAB ON contrexx_module_shop_rel_payment (zone_id);
-CREATE INDEX IDX_43EB87984C3A3BB ON contrexx_module_shop_rel_payment (payment_id);
-CREATE INDEX IDX_87E5C9689F2C3FAB ON contrexx_module_shop_rel_shipper (zone_id);
-CREATE INDEX IDX_87E5C96838459F23 ON contrexx_module_shop_rel_shipper (shipper_id);
-CREATE INDEX IDX_2329A4538459F23 ON contrexx_module_shop_shipment_cost (shipper_id);
-CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id);
-CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id);
