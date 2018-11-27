@@ -1118,9 +1118,9 @@ class Product
             $this->vat_id,
             $this->weight,
             addslashes($this->flags),
-            $this->usergroup_ids ? $this->usergroup_ids : 'NULL',
-            $this->group_id ? $this->group_id : 'NULL',
-            $this->article_id ? $this->article_id : 'NULL',
+            $this->usergroup_ids ? $this->usergroup_ids : null,
+            $this->group_id ? $this->group_id : null,
+            $this->article_id ? $this->article_id : null,
             $this->minimum_order_quantity ? $this->minimum_order_quantity : '0',
             $this->id
         );
@@ -1197,8 +1197,10 @@ class Product
                 ($this->active ? 1 : 0).", ".
                 ($this->b2b ? 1 : 0).", ".($this->b2c ? 1 : 0).",
                 '$this->date_start', '$this->date_end',
-                $this->manufacturer_id,
-                $this->ord, $this->vat_id, $this->weight,
+                ".($this->manufacturer_id ? $this->manufacturer_id : 'NULL').",
+                $this->ord, 
+                ".($this->vat_id ? $this->vat_id : 'NULL').", 
+                $this->weight,
                 '".addslashes($this->flags)."',
                 '".($this->usergroup_ids ? $this->usergroup_ids : 'NULL')."',
                 ".($this->group_id ? $this->group_id : 'NULL').",
