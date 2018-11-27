@@ -593,12 +593,15 @@ class PriceList
         $this->footer = $objResult->fields['footer_on'];
         $this->footer_left = self::decode($objResult->fields['footer_left']);
         $this->footer_right = self::decode($objResult->fields['footer_right']);
-        $this->category_ids(self::getCategoriesByListId($this->id));
+        $this->category_ids($objResult->fields['all_categories'] ?
+            array('*') : self::getCategoriesByListId($this->id)
+        );
         return true;
     }
 
     /**
-     * Array with all category ids from pricelist
+     * Array with all category IDs from pricelist, except if all_categories
+     * is true. Then an empty array is returned.
      *
      * @param int $listId id of pricelist
      * @return array
@@ -860,19 +863,7 @@ class PriceList
         global $objDatabase, $_ARRAYLANG;
 
         $allCategories = array();
-        if ($this->arrCategoryId[0] == '*') {
-            $queryCat = 'SELECT id FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_categories`';
-            $catResult = $objDatabase->Execute($queryCat);
-
-            if (!$catResult) {
-                return false;
-            }
-
-            while ($catResult && !$catResult->EOF) {
-                $allCategories[] = $catResult->fields['id'];
-                $catResult->MoveNext();
-            }
-        } else {
+        if ($this->arrCategoryId[0] != '*') {
             $allCategories = $this->arrCategoryId;
         }
 
@@ -905,8 +896,8 @@ class PriceList
     /**
      * Update category-pricelist relation in intermediate table.
      *
-     * @param array array with all category ids
-     * @return bool
+     * @param array $allCategories array with all category ids
+     * @return bool true on success, false otherwise
      */
     function updateCategoryRelation($allCategories)
     {
@@ -951,16 +942,8 @@ class PriceList
         if ($objDatabase->Execute($query)) {
             $this->id = $objDatabase->Insert_ID();
 
-            if ($this->arrCategoryId[0] == '*') {
-                $queryCat = 'SELECT `id` FROM `'.DBPREFIX
-                    .'module_shop'.MODULE_INDEX.'_categories`';
-                $objCatResult = $objDatabase->Execute($queryCat);
-                $arrCategoryIds = array();
-                while (!$objCatResult->EOF) {
-                    $arrCategoryIds[] = $objCatResult->fields['id'];
-                    $objCatResult->MoveNext();
-                }
-            } else {
+            $arrCategoryIds = array();
+            if ($this->arrCategoryId[0] != '*') {
                 $arrCategoryIds = $this->arrCategoryId;
             }
 

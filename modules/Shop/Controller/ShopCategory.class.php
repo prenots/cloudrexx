@@ -591,10 +591,16 @@ class ShopCategory
     {
         global $objDatabase;
 
-        $query = 'INSERT INTO '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_'
-            .'pricelist (SELECT '.$this->id().' AS 
-            category_id, id AS pricelist_id FROM '.DBPREFIX.'module_shop'
-            .MODULE_INDEX.'_pricelists WHERE all_categories = 1)';
+        $query = 'INSERT INTO '.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel'
+                .'_category_pricelist (
+                    SELECT 
+                        '.$this->id().' AS category_id, 
+                        id AS pricelist_id 
+                    FROM 
+                        '.DBPREFIX.'module_shop' .MODULE_INDEX.'_pricelists 
+                    WHERE 
+                        all_categories = 1
+                )';
         $objDatabase->Execute($query);
     }
 

@@ -415,11 +415,11 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
      *
      * @param $table        string tablename
      * @param $attr         array  entity attr and foreign attr
-     * @param $arrIdsInput  array  with user input
+     * @param $idsInput  array  with user input
      * @param $entityId     int    id of entity
      * @return bool
      */
-    static function updateRelation($table, $attr, $arrIdsInput, $entityId)
+    static function updateRelation($table, $attr, $idsInput, $entityId)
     {
         global $objDatabase;
 
@@ -437,13 +437,13 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
 
         // Get all ids where in
         $newRelationIds = array_diff(
-            $arrIdsInput,
+            $idsInput,
             $arrIdsDb
         );
 
         $deletedRelationIds = array_diff(
             $arrIdsDb,
-            $arrIdsInput
+            $idsInput
         );
 
         if (empty($newRelationIds) && empty($deletedRelationIds)) {
@@ -451,12 +451,10 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         }
 
         foreach ($newRelationIds as $foreignId) {
-            if (empty($foreignId)) {
-                continue;
-            }
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'INSERT INTO `' . DBPREFIX.'module_shop'.MODULE_INDEX
-                .'_'.$table.'`' . ' ('.$attr['entity'].', '.$attr['foreign'].')' .' VALUES (?,?)';
+                .'_'.$table.'` ('.$attr['entity'].', '.$attr['foreign'].')'
+                .' VALUES (?,?)';
 
             $objResult = $objDatabase->Execute($updateQuery, $updateArgs);
             if (!$objResult) {
@@ -464,9 +462,6 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             }
         }
         foreach ($deletedRelationIds as $foreignId) {
-            if (empty($foreignId)) {
-                continue;
-            }
             $updateArgs = array($entityId, $foreignId);
             $updateQuery = 'DELETE FROM `' .
                 DBPREFIX . 'module_shop' . MODULE_INDEX . '_'.$table.'`' .

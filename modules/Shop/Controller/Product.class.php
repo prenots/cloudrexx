@@ -1011,11 +1011,11 @@ class Product
                 WHERE product_id='.$this->id
         );
 
-        \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
-
         if (!$objCatResult || !$objUserGroupResult) {
             return false;
         }
+
+        \Env::get('cx')->getEvents()->triggerEvent('model/postRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
 
         return true;
     }
@@ -1556,12 +1556,10 @@ class Product
             'date_start' => array('type' => 'TIMESTAMP', 'default' => '0000-00-00 00:00:00', 'renamefrom' => 'startdate'),
             'date_end' => array('type' => 'TIMESTAMP', 'default' => '0000-00-00 00:00:00', 'renamefrom' => 'enddate'),
             'weight' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
-            'category_id' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'catid'),
             'vat_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
             'manufacturer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'manufacturer'),
             'group_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
             'article_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
-            'usergroup_ids' => array('type' => 'VARCHAR(4096)', 'notnull' => false, 'default' => null),
             'ord' => array('type' => 'INT(10)', 'default' => '0', 'renamefrom' => 'sort_order'),
             'distribution' => array('type' => 'VARCHAR(16)', 'default' => '', 'renamefrom' => 'handler'),
             'picture' => array('type' => 'VARCHAR(4096)', 'notnull' => false, 'default' => null),
