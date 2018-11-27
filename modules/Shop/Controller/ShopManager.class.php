@@ -3315,7 +3315,7 @@ if ($test === NULL) {
                     $objProduct->vat_id(),
                     'taxId['.$objProduct->id().']'),
                 'SHOP_PRODUCT_VAT_ID' => ($objProduct->vat_id()
-                    ? $objProduct->vat_id() : null),
+                    ? $objProduct->vat_id() : 'NULL'),
                 'SHOP_PRODUCT_DISTRIBUTION' => $objProduct->distribution(),
                 'SHOP_PRODUCT_STOCK' => $objProduct->stock(),
                 'SHOP_PRODUCT_SHORT_DESC' => $objProduct->short(),

@@ -200,7 +200,7 @@ class Manufacturer
             INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_manufacturer` (
                 `id`
             ) VALUES (
-                null
+                'NULL'
             )";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;

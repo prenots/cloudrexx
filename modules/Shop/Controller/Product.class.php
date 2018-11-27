@@ -1118,9 +1118,9 @@ class Product
             $this->vat_id,
             $this->weight,
             addslashes($this->flags),
-            $this->usergroup_ids ? $this->usergroup_ids : null,
-            $this->group_id ? $this->group_id : null,
-            $this->article_id ? $this->article_id : null,
+            $this->usergroup_ids ? $this->usergroup_ids : 'NULL',
+            $this->group_id ? $this->group_id : 'NULL',
+            $this->article_id ? $this->article_id : 'NULL',
             $this->minimum_order_quantity ? $this->minimum_order_quantity : '0',
             $this->id
         );
@@ -1155,6 +1155,7 @@ class Product
             WHERE
                 `id` = ?
         ';
+
         $objResult = $objDatabase->Execute($query, $args);
         if ($objResult) {
             \Env::get('cx')->getEvents()->triggerEvent('model/postUpdate', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
@@ -1199,9 +1200,9 @@ class Product
                 $this->manufacturer_id,
                 $this->ord, $this->vat_id, $this->weight,
                 '".addslashes($this->flags)."',
-                '".($this->usergroup_ids ? $this->usergroup_ids : null)."',
-                ".($this->group_id ? $this->group_id : null).",
-                ".($this->article_id ? $this->article_id : null).",
+                '".($this->usergroup_ids ? $this->usergroup_ids : 'NULL')."',
+                ".($this->group_id ? $this->group_id : 'NULL').",
+                ".($this->article_id ? $this->article_id : 'NULL').",
                 ".($this->minimum_order_quantity ? $this->minimum_order_quantity : '0')."
             )";
         $objResult = $objDatabase->Execute($query);
