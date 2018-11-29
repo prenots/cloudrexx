@@ -386,8 +386,6 @@ class ImageManager
                 break;
             case self::IMG_TYPE_PNG:
                 imagealphablending($this->newImage, false);
-                $colorTransparent = imagecolorallocatealpha($this->newImage, 0, 0, 0, 127);
-                imagefill($this->newImage, 0, 0, $colorTransparent);
                 imagesavealpha($this->newImage, true);
                 break;
         }
