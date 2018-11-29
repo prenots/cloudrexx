@@ -23,6 +23,8 @@ CREATE TABLE contrexx_module_shop_rel_product_user_group (
   PRIMARY KEY(product_id, usergroup_id)
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
+ALTER TABLE contrexx_module_shop_pricelists ADD all_categories TINYINT NOT NULL DEFAULT 0;
+
 
 /** Core Text **/
 ALTER TABLE contrexx_module_shop_manufacturer
@@ -62,6 +64,7 @@ ALTER TABLE contrexx_module_shop_attribute ADD `name` VARCHAR(255) DEFAULT '' NO
 ALTER TABLE contrexx_module_shop_zones ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_customer_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
+
 
 /** Structural adjustments  **/
 ALTER TABLE contrexx_module_shop_orders
@@ -222,3 +225,77 @@ CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id)
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
+
+
+/** Merge Data **/
+INSERT INTO contrexx_module_shop_rel_category_product SELECT
+    c.id AS category_id, d.id AS product_id
+FROM
+    contrexx_module_shop_categories c
+    JOIN contrexx_module_shop_products d
+        ON d.category_id REGEXP CONCAT('[[:<:]]', c.id, '[[:>:]]');
+
+INSERT INTO contrexx_module_shop_rel_category_pricelist SELECT
+    c.id AS category_id, d.id AS pricelist_id
+FROM
+    contrexx_module_shop_categories c
+    JOIN contrexx_module_shop_pricelists d
+        ON d.categories REGEXP CONCAT('[[:<:]]', c.id, '[[:>:]]') OR d.categories = '*';
+
+INSERT INTO contrexx_module_shop_rel_product_user_group SELECT
+    c.group_id AS usergroup_id, d.id AS product_id
+FROM
+    contrexx_access_user_groups c
+    JOIN contrexx_module_shop_products d
+        ON d.usergroup_ids REGEXP CONCAT('[[:<:]]', c.group_id, '[[:>:]]');
+
+UPDATE contrexx_module_shop_pricelists
+	SET all_categories = (
+      SELECT (
+          CASE
+          WHEN categories = '*' THEN 1
+          ELSE 0 END
+      ) AS all_categories
+  );
+
+/** Merge core text attributes **/
+INSERT INTO `contrexx_translations` (`locale`, `object_class`, `field`, `foreign_key`, `content`)
+SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
+    CASE
+      WHEN `t`.`key` LIKE 'vat%' THEN 'Vat'
+    	WHEN `t`.`key` LIKE 'attribute%' THEN 'Attribute'
+    	WHEN `t`.`key` LIKE 'category%' THEN 'Categories'
+    	WHEN `t`.`key` LIKE 'currency%' THEN 'Currencies'
+    	WHEN `t`.`key` = 'discount_group_unit' OR `t`.`key` = 'discount_group_name' THEN 'DiscountgroupCountName'
+    	WHEN `t`.`key` = 'discount_group_article' THEN 'ArticleGroup'
+    	WHEN `t`.`key` LIKE'discount_group_customer' THEN 'CustomerGroup'
+    	WHEN `t`.`key` LIKE 'manufacturer%' THEN 'Manufacturer'
+    	WHEN `t`.`key` LIKE 'option%' THEN 'Option'
+    	WHEN `t`.`key` LIKE 'payment%' THEN 'Payment'
+    	WHEN `t`.`key` LIKE 'product%' THEN 'Products'
+    	WHEN `t`.`key` LIKE 'shipper%' THEN 'Shipper'
+    	WHEN `t`.`key` LIKE 'zone%' THEN 'Zones'
+    	ELSE ''
+    END
+)) AS object_class, (
+    CASE
+      WHEN `t`.`key` LIKE '%_name' THEN 'name'
+    	WHEN `t`.`key` LIKE '%_description' THEN 'description'
+    	WHEN `t`.`key` LIKE '%_article' THEN 'article'
+    	WHEN `t`.`key` LIKE '%_customer' THEN 'customer'
+    	WHEN `t`.`key` LIKE '%_unit' THEN 'unit'
+    	WHEN `t`.`key` LIKE '%_uri' THEN 'uri'
+    	WHEN `t`.`key` LIKE '%_code' THEN 'code'
+    	WHEN `t`.`key` LIKE '%_keys' THEN 'keys'
+    	WHEN `t`.`key` LIKE '%_long' THEN 'long'
+    	WHEN `t`.`key` LIKE '%_short' THEN 'short'
+    	WHEN `t`.`key` LIKE '%_class' THEN 'class'
+    	ELSE ''
+    END
+) AS `field`, `t`.`id` AS `foreign_key`, `t`.`text` AS `content` FROM contrexx_core_text AS `t`
+  LEFT JOIN `contrexx_core_locale_locale` AS `l` ON `t`.`lang_id` = `l`.`id`
+	WHERE `section` LIKE 'Shop' AND `key` NOT LIKE '%core_mail_template%%';
+
+ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
+ALTER TABLE contrexx_module_shop_pricelists DROP categories;
+

@@ -456,7 +456,6 @@ INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scop
 INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (17,3,'navigation','backend','TXT_SYSTEM_SETTINGS',1,'index.php?cmd=Config','_self',80,1,17);
 INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (18,3,'navigation','backend','TXT_USER_ADMINISTRATION',1,'index.php?cmd=Access','_self',23,3,18);
 INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (166,28,'navigation','backend','TXT_CORE_VISITOR_DETAILS',1,'index.php?cmd=Stats&stat=visitors','_self',1,1,166);
-INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (20,3,'navigation','backend','TXT_DATABASE_MANAGER',1,'index.php?cmd=DatabaseManager','_self',73,8,20);
 INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (21,3,'navigation','backend','TXT_DESIGN_MANAGEMENT',1,'index.php?cmd=ViewManager','_self',75,4,21);
 INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (22,3,'navigation','backend','TXT_CORE_LOCALE',1,'index.php?cmd=Locale','_self',121,5,22);
 INSERT INTO `contrexx_backend_areas` (`area_id`, `parent_area_id`, `type`, `scope`, `area_name`, `is_active`, `uri`, `target`, `module_id`, `order_id`, `access_id`) VALUES (23,3,'navigation','backend','TXT_MODULE_MANAGER',1,'index.php?cmd=ComponentManager','_self',76,6,23);
@@ -668,7 +667,6 @@ INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (69,'Crm','module
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (70,'Workbench','core_module');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (71,'FrontendEditing','core_module');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (72,'ContentManager','core');
-INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (73,'DatabaseManager','core');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (74,'SystemInfo','core');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (75,'ViewManager','core');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (76,'ComponentManager','core');
@@ -1480,7 +1478,7 @@ INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, 
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('notification_email','Newsletter',26,0,1);
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('notify_undelivered_email','Newsletter',27,0,1);
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('notify_subscription_list_same','Newsletter',28,0,1);
-INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('consent_confirmation_email','Newsletter',30,0,1);
+INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('consent_confirmation_email','Newsletter',30,1,1);
 INSERT INTO `contrexx_core_mail_template` (`key`, `section`, `text_id`, `html`, `protected`) VALUES ('new_asset_notification','Downloads',30,0,0);
 INSERT INTO `contrexx_core_data_source` (`id`, `identifier`, `options`, `type`) VALUES (1, 'Cx\\Modules\\Calendar\\Model\\Entity\\Event', '', 'doctrineRepository');
 INSERT INTO `contrexx_core_data_source` (`id`, `identifier`, `options`, `type`) VALUES (2, 'Cx\\Modules\\Calendar\\Model\\Entity\\Category', '', 'doctrineRepository');
@@ -2175,6 +2173,7 @@ INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VAL
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Newsletter','core_mail_template_bcc','');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Newsletter','core_mail_template_subject','[NEWSLETTER_DOMAIN_URL] - Newsletter Zustimmungsbestätigung');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Newsletter','core_mail_template_message','[NEWSLETTER_USER_TITLE] [NEWSLETTER_USER_FIRSTNAME]\r\n\r\nBitte bestätigen Sie, dass Sie Mails der folgenden Mailing-Listen erhalten möchten:\r\n[[NEWSLETTER_LISTS]\r\n   [NEWSLETTER_LIST]\r\n[NEWSLETTER_LISTS]]\r\n\r\nUm dies zu bestätigen, klicken Sie bitte auf den folgenden Link oder kopieren Sie ihn in die Adressleiste Ihres Webbrowsers:\r\n\r\n[NEWSLETTER_CONSENT_CONFIRM_CODE]\r\n\r\n--\r\n\r\nDies ist eine automatisch generierte Nachricht.');
+INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Newsletter','core_mail_template_message_html','<html>\r\n<head>\r\n  <title></title>\r\n</head>\r\n<body>[NEWSLETTER_USER_TITLE] [NEWSLETTER_USER_FIRSTNAME]<br />\r\n<br />\r\nBitte best&auml;tigen Sie, dass Sie Mails der folgenden Mailing-Listen erhalten m&ouml;chten:<br />\r\n[[NEWSLETTER_LISTS]<br />\r\n&nbsp; &nbsp;[NEWSLETTER_LIST]<br />\r\n[NEWSLETTER_LISTS]]<br />\r\n<br />\r\nUm dies zu best&auml;tigen, klicken Sie bitte auf den folgenden Link oder kopieren Sie ihn in die Adressleiste Ihres Webbrowsers:<br />\r\n<br />\r\n<a href=\"[NEWSLETTER_CONSENT_CONFIRM_CODE]\">[NEWSLETTER_CONSENT_CONFIRM_CODE]</a><br />\r\n<br />\r\n--<br />\r\n<br />\r\nDies ist eine automatisch generierte Nachricht.</body>\r\n</html>\r\n');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_name','Consent confirmation');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_from','');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_sender','');
@@ -2184,6 +2183,7 @@ INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VAL
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_bcc','');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_subject','[NEWSLETTER_DOMAIN_URL] - Newsletter consent confirmation');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_message','[NEWSLETTER_USER_TITLE] [NEWSLETTER_USER_FIRSTNAME]\r\n\r\nPlease confirm that you would like to receive mails from the following mailing lists:\r\n[[NEWSLETTER_LISTS]\r\n   [NEWSLETTER_LIST]\r\n[NEWSLETTER_LISTS]]\r\n\r\nIn order to confirm this please click on the following link or copy it to the address bar of your webbrowser:\r\n\r\n[NEWSLETTER_CONSENT_CONFIRM_CODE]\r\n\r\n--\r\n\r\nThis is an automatically generated message.');
+INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,2,'Newsletter','core_mail_template_message_html','<html>\r\n<head>\r\n  <title></title>\r\n</head>\r\n<body>[NEWSLETTER_USER_TITLE] [NEWSLETTER_USER_FIRSTNAME]<br />\r\n<br />\r\nPlease confirm that you would like to receive mails from the following mailing lists:<br />\r\n[[NEWSLETTER_LISTS]<br />\r\n&nbsp; &nbsp;[NEWSLETTER_LIST]<br />\r\n[NEWSLETTER_LISTS]]<br />\r\n<br />\r\nIn order to confirm this please click on the following link or copy it to the address bar of your webbrowser:<br />\r\n<br />\r\n<a href=\"[NEWSLETTER_CONSENT_CONFIRM_CODE]\">[NEWSLETTER_CONSENT_CONFIRM_CODE]</a><br />\r\n<br />\r\n--<br />\r\n<br />\r\nThis is an automatically generated message.</body>\r\n</html>\r\n');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Downloads','core_mail_template_bcc','');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Downloads','core_mail_template_cc','');
 INSERT INTO `contrexx_core_text` (`id`, `lang_id`, `section`, `key`, `text`) VALUES (30,1,'Downloads','core_mail_template_from','');
@@ -3916,6 +3916,7 @@ INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_relat
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('news_use_tags','0');
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_previous_next_news_link', '0');
 INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('use_thumbnails', '1');
+INSERT INTO `contrexx_module_news_settings` (`name`, `value`) VALUES ('login_redirect', '0');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_description',1,'Informationen rund um Cloudrexx');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_description',2,'Informationen rund um Cloudrexx');
 INSERT INTO `contrexx_module_news_settings_locale` (`name`, `lang_id`, `value`) VALUES ('news_feed_title',1,'Cloudrexx');
@@ -4215,10 +4216,13 @@ INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `de
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (13,'external','paymill_elv','','https://www.paymill.com',1,'');
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (14,'external','paymill_iban','','https://www.paymill.com',1,'');
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (15,'external','payrexx','Payrexx is a payment gateway solution developed in Switzerland.','https://www.payrexx.com',1,'');
-INSERT INTO `contrexx_module_shop_pricelists` (`id`, `name`, `lang_id`, `border_on`, `header_on`, `header_left`, `header_right`, `footer_on`, `footer_left`, `footer_right`, `categories`) VALUES (1,'Beispiel Preisliste',1,1,1,'Beispiel Preisliste',NULL,1,'<--DATE-->','<--PAGENUMBER-->','*');
-INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `category_id`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `usergroup_ids`, `minimum_order_quantity`) VALUES (12,'aHRjX29uZV94LmpwZw==?NTIw?Mjkx:?MA==?MA==:?MA==?MA==','9','delivery',549.90,0.00,50,0,500.00,1,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',3,0,10,0,'',null,null,'',0);
-INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `category_id`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `usergroup_ids`, `minimum_order_quantity`) VALUES (13,'Y2xvdWRyZXh4LnBuZw==?NDA5?NDgw:??:??','10','delivery',588.00,0.00,10000,0,0.00,0,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',1,0,10,0,'',null,null,'',0);
-INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `category_id`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `usergroup_ids`, `minimum_order_quantity`) VALUES (14,'bWl0Z2xpZWRzY2hhZnQuanBn?NTIy?NTM4:?MA==?MA==:?MA==?MA==','11','none',60.00,0.00,100000,0,0.00,0,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',4,0,10,0,'',null,null,'',0);
+INSERT INTO `contrexx_module_shop_pricelists` (`id`, `name`, `lang_id`, `border_on`, `header_on`, `header_left`, `header_right`, `footer_on`, `footer_left`, `footer_right`, `all_categories`) VALUES (1,'Beispiel Preisliste',1,1,1,'Beispiel Preisliste',NULL,1,'<--DATE-->','<--PAGENUMBER-->', 1);
+INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (12,'aHRjX29uZV94LmpwZw==?NTIw?Mjkx:?MA==?MA==:?MA==?MA==','delivery',549.90,0.00,50,0,500.00,1,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',3,0,10,0,'',0,0,0);
+INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (13,'Y2xvdWRyZXh4LnBuZw==?NDA5?NDgw:??:??','delivery',588.00,0.00,10000,0,0.00,0,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',1,0,10,0,'',0,0,0);
+INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (14,'bWl0Z2xpZWRzY2hhZnQuanBn?NTIy?NTM4:?MA==?MA==:?MA==?MA==','none',60.00,0.00,100000,0,0.00,0,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',4,0,10,0,'',0,0,0);
+INSERT INTO `contrexx_module_shop_rel_category_product` (`category_id`, `product_id`) VALUES (9,12);
+INSERT INTO `contrexx_module_shop_rel_category_product` (`category_id`, `product_id`) VALUES (10,13);
+INSERT INTO `contrexx_module_shop_rel_category_product` (`category_id`, `product_id`) VALUES (11,14);
 INSERT INTO `contrexx_module_shop_rel_countries` (`zone_id`, `country_id`) VALUES (1,1);
 INSERT INTO `contrexx_module_shop_rel_countries` (`zone_id`, `country_id`) VALUES (1,2);
 INSERT INTO `contrexx_module_shop_rel_countries` (`zone_id`, `country_id`) VALUES (1,3);
@@ -4505,6 +4509,94 @@ INSERT INTO `contrexx_module_shop_vat` (`id`, `rate`) VALUES (14,5.00);
 INSERT INTO `contrexx_module_shop_zones` (`id`, `active`) VALUES (1,1);
 INSERT INTO `contrexx_module_shop_zones` (`id`, `active`) VALUES (2,1);
 INSERT INTO `contrexx_module_shop_zones` (`id`, `active`) VALUES (3,1);
+INSERT INTO `contrexx_translations` (`id`, `locale`, `object_class`, `field`, `foreign_key`, `content`) VALUES
+(1, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Attribute', 'name', '1', 'Zusatzleistungen'),
+(2, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Currencies', 'name', '1', 'Schweizer Franken'),
+(3, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\ArticleGroup', 'article', '1', 'Telefone'),
+(4, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\CustomerGroup', 'customer', '1', 'Neukunden'),
+(5, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\DiscountgroupCountName', 'name', '1', 'Mengenrabatt'),
+(6, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\DiscountgroupCountName', 'unit', '1', 'Stück'),
+(7, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '1', 'Cloudrexx AG'),
+(8, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '1', 'https://www.cloudrexx.com'),
+(9, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Option', 'name', '1', 'Leder-Etui'),
+(10, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Shipper', 'name', '1', 'PostPac Priority'),
+(11, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '1', 'Nicht Taxpflichtig'),
+(12, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Zones', 'name', '1', 'All'),
+(13, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Currencies', 'name', '1', 'Schweizer Franken'),
+(14, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '1', 'Cloudrexx AG'),
+(15, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '1', 'https://www.cloudrexx.com'),
+(16, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\CustomerGroup', 'customer', '2', 'Stammkunden'),
+(17, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '2', 'Apple, Inc.'),
+(18, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '2', 'http://www.apple.com/'),
+(19, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Option', 'name', '2', 'Pimp my Handy Kit'),
+(20, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '2', 'VISA, Mastercard (Saferpay)'),
+(21, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Shipper', 'name', '2', 'Express Post'),
+(22, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '2', 'Deutschland Normalsatz'),
+(23, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Zones', 'name', '2', 'Schweiz'),
+(24, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '2', 'Apple, Inc.'),
+(25, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '2', 'http://www.apple.com/'),
+(26, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\CustomerGroup', 'customer', '3', 'Goldkunden'),
+(27, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '3', 'HTC'),
+(28, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '3', 'http://www.htc.com/'),
+(29, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Option', 'name', '3', 'Headset'),
+(30, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Shipper', 'name', '3', 'Schweizerische Post'),
+(31, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '3', 'Deutschland ermässigt'),
+(32, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Zones', 'name', '3', 'Deutschland'),
+(33, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '3', 'HTC'),
+(34, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '3', 'http://www.htc.com/'),
+(35, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Currencies', 'name', '4', 'Euro'),
+(36, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '4', 'MaxMuster-Foundation'),
+(37, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '4', ''),
+(38, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Shipper', 'name', '4', 'Direct to Me'),
+(39, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '4', 'Deutschland stark ermässigt'),
+(40, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Currencies', 'name', '4', 'Euro'),
+(41, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'name', '4', 'MaxMuster-Foundation'),
+(42, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Manufacturer', 'uri', '4', ''),
+(43, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Currencies', 'name', '5', 'United States Dollars'),
+(44, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '5', 'Deutschland Zwischensatz 1'),
+(45, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Currencies', 'name', '5', 'United States Dollars'),
+(46, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '6', 'Deutschland Zwischensatz 2'),
+(47, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '7', 'Österreich Normalsatz'),
+(48, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '8', 'Österreich ermässigt'),
+(49, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Categories', 'description', '9', 'Mobile Phones von über 10 Marken wie Apple, HTC & Samsung.'),
+(50, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Categories', 'name', '9', 'Mobile Phones'),
+(51, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '9', 'Nachnahme'),
+(52, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '9', 'Österreich Zwischensatz'),
+(53, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Categories', 'description', '10', 'Alle Lizenzen für Cloudrexx Download'),
+(54, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Categories', 'name', '10', 'Cloudrexx'),
+(55, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '10', 'Schweiz'),
+(56, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Categories', 'description', '11', 'Zum Erwerben von Mitgliedschaften bei verschiedenen Vereienen und Organisationen.'),
+(57, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Categories', 'name', '11', 'Mitgliedschaft'),
+(58, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '11', 'Schweiz ermässigt 1'),
+(59, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '12', 'Paypal'),
+(60, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'code', '12', ''),
+(61, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'keys', '12', 'HTC, HTC One X'),
+(62, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'long', '12', '<table border=\"0\">\r\n	<tbody>\r\n		<tr>\r\n			<td style=\"width: 120px;\">\r\n				<strong>Gr&ouml;&szlig;e:</strong></td>\r\n			<td>\r\n				134,36 x 69,9 x 8,9 mm</td>\r\n		</tr>\r\n		<tr>\r\n			<td>\r\n				<strong>Gewicht:</strong></td>\r\n			<td>\r\n				130 g mit Akku</td>\r\n		</tr>\r\n		<tr>\r\n			<td>\r\n				<strong>Display:</strong></td>\r\n			<td>\r\n				HD 720P Touchscreen</td>\r\n		</tr>\r\n		<tr>\r\n			<td>\r\n				<strong>Bildschirm:</strong></td>\r\n			<td>\r\n				4,7&ldquo; (1280 x 720 Aufl&ouml;sung)</td>\r\n		</tr>\r\n	</tbody>\r\n</table>'),
+(63, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'name', '12', 'HTC One X'),
+(64, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'short', '12', 'Als eines der ersten Smartphones besitzt das HTC One X einen Quad-Core-Prozessor &ndash; d.h. die Leistung verteilt sich auf 4 Rechenkerne. Dies macht das HTC One X extrem schnell und leistungsf&auml;hig.'),
+(65, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'uri', '12', 'http://www.htc.com/de/'),
+(66, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '12', 'Schweiz ermässigt 2'),
+(67, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '13', 'LSV'),
+(68, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'code', '13', ''),
+(69, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'keys', '13', 'Cloudrexx'),
+(70, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'long', '13', 'Cloudrexx ist die All-in-One Open-Source L&ouml;sung f&uuml;r leistungsstarke Business-Websites und Online-Shops.<br />\n<br />\nMit Cloudrexx EULA Business erhalten Sie professionellen Produktsupport von Ihrer Cloudrexx Agentur.'),
+(71, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'name', '13', 'Cloudrexx Business'),
+(72, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'short', '13', 'Cloudrexx f&uuml;r die schnelle Verwaltung Ihrer Website.'),
+(73, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'uri', '13', 'https://www.cloudrexx.com'),
+(74, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '13', 'Great Britain'),
+(75, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '14', 'PostFinance (PostCard, Kreditkarte)'),
+(76, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'code', '14', ''),
+(77, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'keys', '14', ''),
+(78, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'long', '14', 'Die Foundation hilft Schulen und Ausbildungsinstitutionen seit 10 Jahren sich technisch weiterzuentwickeln und den Lernenden so verbesserte Ausbildungsm&ouml;glichkeiten zu bieten. Durch eine Mitgliedschaft erhalten Sie Rabatte an verschiedenen Firmenanl&auml;ssen der MaxMuster AG.'),
+(79, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'name', '14', 'Mitglied von der MaxMuster-Foundation'),
+(80, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'short', '14', 'Unterst&uuml;tzen Sie die MaxMuster-Foundation und werden Sie noch heute Mitglied! Sie profitieren von MItgliederrabatten an verschiedenen Anl&auml;ssen.'),
+(81, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Products', 'uri', '14', ''),
+(82, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Vat', 'class', '14', 'Great Britain reduced'),
+(83, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '15', 'Datatrans'),
+(84, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '16', 'Kreditkarte (Paymill)'),
+(85, 'en', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '16', 'paymill'),
+(86, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '17', 'ELV (Paymill)'),
+(87, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Payment', 'name', '18', 'IBAN/BIC (Paymill)');
 INSERT INTO `contrexx_module_survey_settings` (`id`, `salutation`, `agegroup`) VALUES (1,'Herr\r--Frau--','Unter 18\r--18 - 22\r--23 - 27\r--28 - 32\r--33 - 37\r--38 - 42\r--43 - 47\r--48 - 52\r--53 - 57\r--58 - 62\r--62 - 65\r--Über 65--');
 INSERT INTO `contrexx_module_survey_surveyAnswers` (`id`, `question_id`, `answer`, `votes`) VALUES (1,0,'Answer','0');
 INSERT INTO `contrexx_module_survey_surveyAnswers` (`id`, `question_id`, `answer`, `votes`) VALUES (2,0,'Medien/Unterhaltung\r','0');
@@ -4611,7 +4703,6 @@ INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variab
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (69,'Crm','Cloudrexx AG','TXT_CRM_MODULE_DESCRIPTION','n',1,0,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (70,'Workbench','Cloudrexx AG','TXT_MODULE_WORKBENCH','n',0,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (71,'FrontendEditing','Cloudrexx AG','TXT_MODULE_FRONTEND_EDITING','n',1,1,1,1,NULL);
-INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (73,'DatabaseManager','Cloudrexx AG','TXT_DATABASEMANAGER_MODULE_DESCRIPTION','n',0,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (74,'SystemInfo','Cloudrexx AG','TXT_SYSTEMINFO_MODULE_DESCRIPTION','n',0,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (77,'LanguageManager','Cloudrexx AG','TXT_LANGUAGEMANAGER_MODULE_DESCRIPTION','n',0,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (75,'ViewManager','Cloudrexx AG','TXT_VIEWMANAGER_MODULE_DESCRIPTION','n',0,1,1,1,NULL);
@@ -4729,5 +4820,7 @@ INSERT INTO `contrexx_voting_results` (`id`, `voting_system_id`, `question`, `vo
 INSERT INTO `contrexx_voting_system` (`id`, `date`, `title`, `question`, `status`, `submit_check`, `votes`, `additional_nickname`, `additional_forename`, `additional_surname`, `additional_phone`, `additional_street`, `additional_zip`, `additional_email`, `additional_city`, `additional_comment`) VALUES (8,'2010-12-13 06:44:32','Wichtige Eingenschaften','Welche wichtige Eigenschaften zeichnen ein anwenderfreundliches Content Management System aus?',0,'email',1,1,1,1,0,0,0,0,1,0);
 INSERT INTO `contrexx_voting_system` (`id`, `date`, `title`, `question`, `status`, `submit_check`, `votes`, `additional_nickname`, `additional_forename`, `additional_surname`, `additional_phone`, `additional_street`, `additional_zip`, `additional_email`, `additional_city`, `additional_comment`) VALUES (11,'2010-12-13 06:44:39','Webprojekte','Mit wem würden Sie Ihr Webprojekt besprechen?',0,'cookie',4,1,1,0,0,0,0,0,1,0);
 INSERT INTO `contrexx_voting_system` (`id`, `date`, `title`, `question`, `status`, `submit_check`, `votes`, `additional_nickname`, `additional_forename`, `additional_surname`, `additional_phone`, `additional_street`, `additional_zip`, `additional_email`, `additional_city`, `additional_comment`) VALUES (12,'2010-12-13 06:44:45','Wie gefällt Ihnen das neue Layout?','Wie gefällt Ihnen das neue Layout?',1,'cookie',2,0,0,0,0,0,0,0,0,0);
-SET FOREIGN_KEY_CHECKS = 1;
 INSERT INTO `contrexx_core_module_cron_job` (`id`, `active`, `expression`, `command`, `last_ran`) VALUES (1,1,'@hourly','Newsletter autoclean','2018-06-11 09:00:00');
+INSERT INTO `contrexx_core_module_cron_job` (`id`, `active`, `expression`, `command`, `last_ran`) VALUES (2,1,'@monthly','Access removeUselessProfileImages','2018-06-11 09:00:00');
+INSERT INTO `contrexx_core_module_cron_job` (`id`, `active`, `expression`, `command`, `last_ran`) VALUES (3,1,'@weekly','Model optimize','2018-06-11 09:00:00');
+SET FOREIGN_KEY_CHECKS = 1;

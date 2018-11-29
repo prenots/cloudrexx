@@ -2,6 +2,10 @@ Cx\Modules\Shop\Model\Entity\Products:
   type: entity
   table: module_shop_products
   repositoryClass: Cx\Modules\Shop\Model\Repository\ProductsRepository
+  gedmo:
+    translation:
+      locale: locale
+      entity: Cx\Core\Locale\Model\Entity\Translation
   indexes:
     group_id:
       columns: [ group_id ]
@@ -134,22 +138,36 @@ Cx\Modules\Shop\Model\Entity\Products:
     uri:
       type: string
       length: 255
+      gedmo:
+        - translatable
       options:
         default: ''
     short:
       type: text
+      gedmo:
+        - translatable
     long:
       type: text
+      gedmo:
+        - translatable
+      column: `long`
     name:
       type: string
       length: 255
+      gedmo:
+        - translatable
       options:
         default: ''
     keys:
       type: text
+      gedmo:
+        - translatable
+      column: `keys`
     code:
       type: string
       length: 255
+      gedmo:
+        - translatable
       options:
         default: ''
   oneToMany:

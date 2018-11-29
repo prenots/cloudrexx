@@ -45,7 +45,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Products extends \Cx\Model\Base\EntityBase {
+class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -241,6 +245,18 @@ class Products extends \Cx\Model\Base\EntityBase {
         $this->relProductAttributes = new \Doctrine\Common\Collections\ArrayCollection();
         $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
         $this->userGroups = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -906,7 +922,7 @@ class Products extends \Cx\Model\Base\EntityBase {
     /**
      * Set discountgroup count name
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName$discountgroupCountName
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName
      */
     public function setDiscountgroupCountName(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountName $discountgroupCountName = null)
     {

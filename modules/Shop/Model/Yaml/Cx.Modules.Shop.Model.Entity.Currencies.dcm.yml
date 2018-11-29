@@ -2,6 +2,10 @@ Cx\Modules\Shop\Model\Entity\Currencies:
   type: entity
   table: module_shop_currencies
   repositoryClass: Cx\Modules\Shop\Model\Repository\CurrenciesRepository
+  gedmo:
+    translation:
+      locale: locale
+      entity: Cx\Core\Locale\Model\Entity\Translation
   id:
     id:
       type: integer
@@ -53,6 +57,8 @@ Cx\Modules\Shop\Model\Entity\Currencies:
     name:
       type: string
       length: 255
+      gedmo:
+        - translatable
       options:
         default: ''
   oneToMany:
