@@ -1,6 +1,9 @@
 Cx\Modules\Shop\Model\Entity\Categories:
   type: entity
   table: module_shop_categories
+  indexes:
+    flags:
+      columns: [ flags ]
   id:
     id:
       type: integer

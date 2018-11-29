@@ -25,6 +25,8 @@ Cx\Modules\Shop\Model\Entity\Vat:
       gedmo:
         - translatable
       length: 255
+      options:
+        default: ''
   oneToMany:
     products:
       targetEntity: Cx\Modules\Shop\Model\Entity\Products

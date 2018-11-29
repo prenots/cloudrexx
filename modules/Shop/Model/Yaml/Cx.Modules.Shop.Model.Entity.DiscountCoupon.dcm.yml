@@ -15,7 +15,6 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
   fields:
     customerId:
       type: integer
-      nullable: true
       options:
         unsigned: true
         default: 0
