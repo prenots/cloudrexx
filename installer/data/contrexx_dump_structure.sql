@@ -3422,17 +3422,23 @@ CREATE TABLE `contrexx_module_shop_products` (
 CREATE TABLE contrexx_module_shop_rel_category_pricelist (
   category_id INT UNSIGNED NOT NULL,
   pricelist_id INT UNSIGNED NOT NULL,
-  PRIMARY KEY(category_id, pricelist_id)
+  PRIMARY KEY(category_id, pricelist_id),
+  INDEX `IDX_B56E91A112469DE2` (`category_id`),
+  INDEX `IDX_B56E91A189045958` (`pricelist_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE contrexx_module_shop_rel_category_product (
   category_id INT UNSIGNED NOT NULL,
   product_id INT UNSIGNED NOT NULL,
-  PRIMARY KEY(category_id, product_id)
+  PRIMARY KEY(category_id, product_id),
+  INDEX `IDX_DA4CA51112469DE2` (`category_id`),
+  INDEX `IDX_DA4CA5114584665A` (`product_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE contrexx_module_shop_rel_product_user_group (
   product_id INT UNSIGNED NOT NULL,
   usergroup_id INT NOT NULL,
-  PRIMARY KEY(product_id, usergroup_id)
+  PRIMARY KEY(product_id, usergroup_id),
+  INDEX `IDX_32A4494A4584665A` (`product_id`),
+  INDEX `IDX_32A4494AD2112630` (`usergroup_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `contrexx_module_shop_rel_countries` (
   `zone_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3970,3 +3976,9 @@ ALTER TABLE contrexx_module_shop_rel_shipper ADD CONSTRAINT FK_87E5C96838459F23 
 ALTER TABLE contrexx_module_shop_shipment_cost ADD CONSTRAINT FK_2329A4538459F23 FOREIGN KEY (shipper_id) REFERENCES contrexx_module_shop_shipper (id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
 ALTER TABLE contrexx_module_shop_categories ADD CONSTRAINT FK_A9242624727ACA70 FOREIGN KEY (parent_id) REFERENCES contrexx_module_shop_categories (id);
+ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A4494A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
+ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A4494AD2112630 FOREIGN KEY (usergroup_id) REFERENCES contrexx_access_user_groups (group_id);
+ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
+ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A189045958 FOREIGN KEY (pricelist_id) REFERENCES contrexx_module_shop_pricelists (id);
+ALTER TABLE contrexx_module_shop_rel_category_product ADD CONSTRAINT FK_DA4CA51112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
+ALTER TABLE contrexx_module_shop_rel_category_product ADD CONSTRAINT FK_DA4CA5114584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
