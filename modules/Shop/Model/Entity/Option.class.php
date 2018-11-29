@@ -96,7 +96,9 @@ class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tr
      */
     public function setTranslatableLocale($locale)
     {
-        $this->locale = $locale;
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**

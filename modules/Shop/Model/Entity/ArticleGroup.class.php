@@ -85,7 +85,9 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translata
      */
     public function setTranslatableLocale($locale)
     {
-        $this->locale = $locale;
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**

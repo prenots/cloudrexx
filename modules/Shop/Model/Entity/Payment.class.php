@@ -124,7 +124,9 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
      */
     public function setTranslatableLocale($locale)
     {
-        $this->locale = $locale;
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
