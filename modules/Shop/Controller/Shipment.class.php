@@ -257,14 +257,12 @@ class Shipment
 //DBG::log("Shipment::getCountriesRelatedShippingIdArray($countryId): Shippers: ".var_export(self::$arrShippers, true));
 //DBG::activate(DBG_ADODB);
         $query = "
-            SELECT DISTINCT `relation`.`shipper_id`
+            SELECT DISTINCT `shipper`.`id`
               FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `country`
               JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
                 ON `country`.`zone_id`=`zone`.`id`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `relation`
-                ON `zone`.`id`=`relation`.`zone_id`
               JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`
-                ON `relation`.`shipper_id`=`shipper`.`id`
+                ON `zone`.`id`=`shipper`.`zone_id`
              WHERE `zone`.`active`=1
                AND `shipper`.`active`=1".
               ($countryId ? " AND `country`.`country_id`=$countryId" : '');
@@ -799,10 +797,8 @@ class Shipment
                 SELECT DISTINCT `country`.`id`,".
                        $arrSqlName['field']."
                   FROM `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`
-                 INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `rel_shipper`
-                    ON `shipper`.`id`=`rel_shipper`.`shipper_id`
                  INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
-                    ON `rel_shipper`.`zone_id`=`zone`.`id`
+                    ON `shipper`.`zone_id`=`zone`.`id`
                  INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `rel_country`
                     ON `zone`.`id`=`rel_country`.`zone_id`
                  INNER JOIN `".DBPREFIX."core_country` AS `country`

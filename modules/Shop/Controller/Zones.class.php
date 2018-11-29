@@ -418,13 +418,11 @@ class Zones
     {
         global $objDatabase;
 
-        $query = "
-            SELECT `relation`.`zone_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `relation`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
-                ON `zone`.`id`=`relation`.`zone_id`
-             WHERE `zone`.`active`=1
-               AND `relation`.`shipper_id`=$shipper_id";
+        $query = '
+            SELECT `zone_id` 
+                FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_shipper` 
+                WHERE `id` ='.$shipper_id;
+
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
             return self::errorHandler();
