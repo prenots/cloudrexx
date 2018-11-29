@@ -390,10 +390,6 @@ class Shipment
              WHERE shipper_id=".$shipper_id);
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper
-             WHERE shipper_id=".$shipper_id);
-        if (!$objResult) return false;
-        $objResult = $objDatabase->Execute("
             DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_shipper
              WHERE id=".$shipper_id);
         if (!$objResult) return false;
