@@ -446,7 +446,9 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             $idsInput
         );
 
-        if (empty($newRelationIds) && empty($deletedRelationIds)) {
+        // $newRelationIds[0] is empty if no category is selected.
+        if (empty($newRelationIds) || empty($newRelationIds[0])
+            && empty($deletedRelationIds)) {
             return true;
         }
 
