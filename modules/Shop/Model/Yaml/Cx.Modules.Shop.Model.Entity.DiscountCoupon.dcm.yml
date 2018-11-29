@@ -100,10 +100,3 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       joinColumn:
         name: customer_id
         referencedColumnName: id
-  oneToMany:
-    relCustomerCoupons:
-      targetEntity: Cx\Modules\Shop\Model\Entity\RelCustomerCoupon
-      mappedBy: discountCoupon
-      joinColumn:
-        name: code
-        referencedColumnName: code

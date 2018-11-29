@@ -123,11 +123,6 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     protected $customer;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
-     */
-    protected $relCustomerCoupons;
-
-    /**
      * Set id
      *
      * @param integer $id
@@ -425,36 +420,6 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     public function getCustomer()
     {
         return $this->customer;
-    }
-
-    /**
-     * Add relCustomerCoupon
-     *
-     * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon
-     */
-    public function addRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon)
-    {
-        $this->relCustomerCoupon[] = $relCustomerCoupon;
-    }
-
-    /**
-     * Remove relCustomerCoupon
-     *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes
-     */
-    public function removeRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon)
-    {
-        $this->relCustomerCoupon->removeElement($relCustomerCoupon);
-    }
-
-    /**
-     * Get relCustomerCoupon
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getRelCustomerCoupons()
-    {
-        return $this->relCustomerCoupons;
     }
 
 }
