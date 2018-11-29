@@ -4477,10 +4477,6 @@ INSERT INTO `contrexx_module_shop_rel_payment` (`zone_id`, `payment_id`) VALUES 
 INSERT INTO `contrexx_module_shop_rel_payment` (`zone_id`, `payment_id`) VALUES (2,15);
 INSERT INTO `contrexx_module_shop_rel_product_attribute` (`product_id`, `option_id`, `ord`) VALUES (12,1,0);
 INSERT INTO `contrexx_module_shop_rel_product_attribute` (`product_id`, `option_id`, `ord`) VALUES (12,3,0);
-INSERT INTO `contrexx_module_shop_rel_shipper` (`zone_id`, `shipper_id`) VALUES (1,1);
-INSERT INTO `contrexx_module_shop_rel_shipper` (`zone_id`, `shipper_id`) VALUES (1,2);
-INSERT INTO `contrexx_module_shop_rel_shipper` (`zone_id`, `shipper_id`) VALUES (1,3);
-INSERT INTO `contrexx_module_shop_rel_shipper` (`zone_id`, `shipper_id`) VALUES (1,4);
 INSERT INTO `contrexx_module_shop_shipment_cost` (`id`, `shipper_id`, `max_weight`, `fee`, `free_from`) VALUES (1,1,1000,20.00,100.00);
 INSERT INTO `contrexx_module_shop_shipment_cost` (`id`, `shipper_id`, `max_weight`, `fee`, `free_from`) VALUES (2,2,250,35.00,150.00);
 INSERT INTO `contrexx_module_shop_shipment_cost` (`id`, `shipper_id`, `max_weight`, `fee`, `free_from`) VALUES (3,3,1000,10.00,100.00);
