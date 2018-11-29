@@ -426,15 +426,16 @@ class Shipment
      * @static
      * @access  private
      */
-    private function _add_shipper($name, $active=false)
+    private function _add_shipper($name, $active=false, $zoneId)
     {
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
             INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` (
-                `active`
+                `active`,
+                `zone_id`
             ) VALUES (
-                ".($active ? 1 : 0)."
+                ".($active ? 1 : 0).", ".$zoneId."
             )");
         if (!$objResult) return false;
         $id = $objDatabase->Insert_ID();
@@ -513,8 +514,6 @@ class Shipment
             !empty($_POST['active_new']),
             intval($_POST['zone_id_new']));
         if (!$shipper_id) return false;
-        return Zones::update_shipper_relation(
-            intval($_POST['zone_id_new']), $shipper_id);
     }
 
 
@@ -617,7 +616,7 @@ class Shipment
      * @static
      * @access  private
      */
-    private static function _update_shipment($shipment_id, $shipper_id, $fee, $free_from, $max_weight)
+    private static function _update_shipment($shipment_id, $shipper_id, $fee, $free_from, $max_weight,$zoneId)
     {
         global $objDatabase;
 
