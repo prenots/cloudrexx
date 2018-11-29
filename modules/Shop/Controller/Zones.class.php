@@ -232,7 +232,7 @@ class Zones
              WHERE zone_id=$zone_id");
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper
+            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_shipper
                SET zone_id=1
              WHERE zone_id=$zone_id");
         if (!$objResult) return false;
@@ -359,11 +359,10 @@ class Zones
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            REPLACE INTO ".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper (
-               `zone_id`, `shipper_id`
-             ) VALUES (
-               $zone_id, $shipper_id
-             )");
+            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_shipper 
+            SET `zone_id` = $zone_id
+            WHERE `id` = $shipper_id
+        ");
         return (boolean)$objResult;
     }
 

@@ -630,7 +630,8 @@ class Shipment
                SET `shipper_id`=$shipper_id,
                    `fee`=$fee,
                    `free_from`=$free_from,
-                   `max_weight`=$max_weight
+                   `max_weight`=$max_weight,
+                   `zone_id`=$zoneId
              WHERE `id`=$shipment_id");
         return (boolean)$objResult;
     }
