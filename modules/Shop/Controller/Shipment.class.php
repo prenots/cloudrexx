@@ -892,6 +892,7 @@ class Shipment
             'id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'auto_increment' => true, 'primary' => true),
             'ord' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0'),
             'active' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'notnull' => true, 'default' => '1', 'renamefrom' => 'status'),
+            'zone_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => 'NULL')
         );
         $table_index = array();
         $default_lang_id = \FWLanguage::getDefaultLangId();

@@ -488,19 +488,6 @@ class Zones
         }
         \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
 
-        $table_name_old = DBPREFIX.'module_shop_rel_shipment';
-        $table_name_new = DBPREFIX.'module_shop_rel_shipper';
-        if (   !\Cx\Lib\UpdateUtil::table_exist($table_name_new)
-            && \Cx\Lib\UpdateUtil::table_exist($table_name_old)) {
-            \Cx\Lib\UpdateUtil::table_rename($table_name_old, $table_name_new);
-        }
-        $table_structure = array(
-            'shipper_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'primary' => true, 'renamefrom' => 'shipment_id'),
-            'zone_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'renamefrom' => 'zones_id'),
-        );
-        $table_index = array();
-        \Cx\Lib\UpdateUtil::table($table_name_new, $table_structure, $table_index);
-
         $table_name = DBPREFIX.'module_shop_rel_countries';
         $table_structure = array(
             'country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => true, 'default' => '0', 'primary' => true, 'renamefrom' => 'countries_id'),
