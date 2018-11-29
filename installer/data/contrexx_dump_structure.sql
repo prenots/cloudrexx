@@ -3494,7 +3494,9 @@ CREATE TABLE `contrexx_module_shop_shipper` (
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `ord` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(255) DEFAULT '' NOT NULL,
-  PRIMARY KEY (`id`)
+  `zone_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `IDX_52CD810E9F2C3FAB` (`zone_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_vat` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
