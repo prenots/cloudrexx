@@ -26,7 +26,7 @@
 
 /**
  * Temporary controller for Shop to sync \Text with \Gedmo\Translatable, until
- * code in Shop, is updated
+ * code in Shop is updated
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -37,7 +37,7 @@ namespace Cx\Modules\Shop\Model\Event;
 
 /**
  * Temporary controller for Shop to sync \Text with \Gedmo\Translatable, until
- * code in Shop, is updated
+ * code in Shop is updated
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
