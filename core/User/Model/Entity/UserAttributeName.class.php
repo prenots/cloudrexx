@@ -62,6 +62,11 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     protected $langId = 0;
 
     /**
+     * @var integer
+     */
+    protected $order = 0;
+
+    /**
      * @var string
      */
     protected $name = '';
@@ -132,8 +137,6 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     public function setName($name)
     {
         $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -144,6 +147,26 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set order
+     *
+     * @param string $order
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
+    }
+
+    /**
+     * Get order
+     *
+     * @return string
+     */
+    public function getOrder()
+    {
+        return $this->order;
     }
 
     /**
