@@ -1,11 +1,10 @@
 Cx\Modules\Shop\Model\Entity\Category:
   type: entity
   table: module_shop_categories
-  repositoryClass: Cx\Modules\Shop\Model\Repository\CategoriesRepository
+  repositoryClass: Cx\Modules\Shop\Model\Repository\CategoryRepository
   indexes:
     flags:
       columns: [ flags ]
-  repositoryClass: Cx\Modules\Shop\Model\Repository\CategoryRepository
   id:
     id:
       type: integer
