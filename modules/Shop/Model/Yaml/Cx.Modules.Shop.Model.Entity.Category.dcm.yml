@@ -4,6 +4,7 @@ Cx\Modules\Shop\Model\Entity\Category:
   indexes:
     flags:
       columns: [ flags ]
+  repositoryClass: Cx\Modules\Shop\Model\Repository\CategoriesRepository
   id:
     id:
       type: integer

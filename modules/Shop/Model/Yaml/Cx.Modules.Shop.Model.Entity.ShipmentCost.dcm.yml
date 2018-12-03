@@ -1,6 +1,7 @@
 Cx\Modules\Shop\Model\Entity\ShipmentCost:
   type: entity
   table: module_shop_shipment_cost
+  repositoryClass: Cx\Modules\Shop\Model\Repository\ShipmentCostRepository
   indexes:
     fk_contrexx_module_shop_shipment_cost_contrexx_module_shop__idx:
       columns: [ shipper_id ]

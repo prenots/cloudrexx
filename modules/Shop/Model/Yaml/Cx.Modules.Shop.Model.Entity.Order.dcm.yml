@@ -1,6 +1,7 @@
 Cx\Modules\Shop\Model\Entity\Order:
   type: entity
   table: module_shop_orders
+  repositoryClass: Cx\Modules\Shop\Model\Repository\OrdersRepository
   indexes:
     status:
       columns: [ status ]

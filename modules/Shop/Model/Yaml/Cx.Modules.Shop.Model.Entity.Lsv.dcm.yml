@@ -1,6 +1,7 @@
 Cx\Modules\Shop\Model\Entity\Lsv:
   type: entity
   table: module_shop_lsv
+  repositoryClass: Cx\Modules\Shop\Model\Repository\LsvRepository
   id:
     orderId:
       type: integer

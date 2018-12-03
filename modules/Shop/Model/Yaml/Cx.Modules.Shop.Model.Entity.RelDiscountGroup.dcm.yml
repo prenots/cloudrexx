@@ -1,6 +1,7 @@
 Cx\Modules\Shop\Model\Entity\RelDiscountGroup:
   type: entity
   table: module_shop_rel_discount_group
+  repositoryClass: Cx\Modules\Shop\Model\Repository\RelDiscountGroupRepository
   indexes:
     fk_contrexx_module_shop_rel_discount_group_contrexx_module__idx:
       columns: [ customer_group_id ]

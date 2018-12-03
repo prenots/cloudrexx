@@ -1,6 +1,7 @@
 Cx\Modules\Shop\Model\Entity\RelCustomerCoupon:
   type: entity
   table: module_shop_rel_customer_coupon
+  repositoryClass: Cx\Modules\Shop\Model\Repository\RelCustomerCouponRepository
   indexes:
     fk_contrexx_module_shop_rel_customer_coupon_contrexx_module_idx:
       columns: [ order_id ]

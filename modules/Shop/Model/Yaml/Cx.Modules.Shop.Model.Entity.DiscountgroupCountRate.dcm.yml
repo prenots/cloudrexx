@@ -1,6 +1,7 @@
 Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate:
   type: entity
   table: module_shop_discountgroup_count_rate
+  repositoryClass: Cx\Modules\Shop\Model\Repository\DiscountgroupCountRateRepository
   indexes:
     fk_contrexx_module_shop_discountgroup_count_rate_contrexx_m_idx:
       columns: [ count ]
