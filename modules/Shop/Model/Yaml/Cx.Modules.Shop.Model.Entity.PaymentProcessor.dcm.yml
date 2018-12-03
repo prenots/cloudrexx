@@ -40,7 +40,7 @@ Cx\Modules\Shop\Model\Entity\PaymentProcessor:
   oneToMany:
     payments:
       targetEntity: Cx\Modules\Shop\Model\Entity\Payment
-      mappedBy: paymentProcessors
+      mappedBy: paymentProcessor
       joinColumn:
         name: id
         referencedColumnName: processor_id

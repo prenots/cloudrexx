@@ -63,7 +63,7 @@ Cx\Modules\Shop\Model\Entity\Currency:
   oneToMany:
     orders:
       targetEntity: Cx\Modules\Shop\Model\Entity\Order
-      mappedBy: currencies
+      mappedBy: currency
       joinColumn:
         name: id
         referencedColumnName: currency_id

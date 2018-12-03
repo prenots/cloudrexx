@@ -28,7 +28,7 @@ Cx\Modules\Shop\Model\Entity\Zone:
   oneToMany:
     relCountries:
       targetEntity: Cx\Modules\Shop\Model\Entity\RelCountry
-      mappedBy: zones
+      mappedBy: zone
       joinColumn:
         name: id
         referencedColumnName: zone_id
