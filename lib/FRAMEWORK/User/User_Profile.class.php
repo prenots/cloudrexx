@@ -236,11 +236,8 @@ class User_Profile
                         $value = 'NULL';
                     }
                     $query = $this->objAttribute->isCoreAttribute($attributeId) ?
-                        "UPDATE `".DBPREFIX."access_user_profile` SET `".$attributeId."` = " . $value . " WHERE `user_id` = ".$this->id :
-                        ($newValue ?
-                            "INSERT INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", ".$attributeId.", ".$historyId.", " . $value . ")" :
-                            "UPDATE `".DBPREFIX."access_user_attribute_value` SET `value` = " . $value . " WHERE `user_id` = ".$this->id." AND `attribute_id` = ".$attributeId." AND `history_id` = ".$historyId
-                        );
+                        "REPLACE INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", (SELECT `attribute_id` FROM `".DBPREFIX."access_user_attribute_name` WHERE `name` = '" . $attributeId . "'), ".$historyId.", " . $value . ")" :
+                        "REPLACE INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", $attributeId, ".$historyId.", " . $value . ")";
 
                     if ($objDatabase->Execute($query) === false) {
                         $objAttribute = $this->objAttribute->getById($attributeId);
@@ -281,14 +278,8 @@ class User_Profile
      */
     protected function createProfile()
     {
-        global $objDatabase;
-        if ($objDatabase->Execute('INSERT INTO `'.DBPREFIX.'access_user_profile` SET `user_id` = '.$this->id . ', `title` = NULL') !== false) {
-            $this->arrLoadedUsers[$this->id]['profile'] = isset($this->arrLoadedUsers[0]['profile']) ? $this->arrLoadedUsers[0]['profile'] : array();
-            return true;
-        } else {
-            $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_user_profile` WHERE `user_id` = '.$this->id);
-            return false;
-        }
+        $this->arrLoadedUsers[$this->id]['profile'] = isset($this->arrLoadedUsers[0]['profile']) ? $this->arrLoadedUsers[0]['profile'] : array();
+        return true;
     }
 
 
