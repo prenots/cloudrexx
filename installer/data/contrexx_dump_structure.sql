@@ -3830,7 +3830,7 @@ ALTER TABLE contrexx_core_module_sync_change_host ADD CONSTRAINT FK_92C38FE01FB8
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_locale` FOREIGN KEY (`language`) REFERENCES `contrexx_core_locale_locale` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_theme` FOREIGN KEY (`theme`) REFERENCES `contrexx_skins` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_locale_backend ADD CONSTRAINT FK_B8F1327C4FC20EF FOREIGN KEY (iso_1) REFERENCES contrexx_core_locale_language (iso_1) ON DELETE NO ACTION ON UPDATE NO ACTION;
-CREATE VIEW `contrexx_access_user_title` AS SELECT `order` AS id, name, 0 as order_id
+CREATE VIEW `contrexx_access_user_title` AS SELECT `order` AS id, name as title, 0 as order_id
 FROM `contrexx_access_user_attribute_name` AS `name`
 WHERE `name`.`order` > 0;
 CREATE VIEW `contrexx_access_user_core_attribute` AS SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`
