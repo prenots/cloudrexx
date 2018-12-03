@@ -1,7 +1,7 @@
 Cx\Modules\Shop\Model\Entity\OrderItem:
   type: entity
   table: module_shop_order_items
-  repositoryClass: Cx\Modules\Shop\Model\Repository\OrderItemsRepository
+  repositoryClass: Cx\Modules\Shop\Model\Repository\OrderItemRepository
   indexes:
     order:
       columns: [ order_id ]
