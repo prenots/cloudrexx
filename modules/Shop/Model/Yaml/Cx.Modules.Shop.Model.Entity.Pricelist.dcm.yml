@@ -1,7 +1,7 @@
 Cx\Modules\Shop\Model\Entity\Pricelist:
   type: entity
   table: module_shop_pricelists
-  repositoryClass: Cx\Modules\Shop\Model\Repository\PricelistsRepository
+  repositoryClass: Cx\Modules\Shop\Model\Repository\PricelistRepository
   id:
     id:
       type: integer
