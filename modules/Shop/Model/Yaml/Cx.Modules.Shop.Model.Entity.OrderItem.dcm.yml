@@ -61,7 +61,7 @@ Cx\Modules\Shop\Model\Entity\OrderItem:
   oneToMany:
     orderAttributes:
       targetEntity: Cx\Modules\Shop\Model\Entity\OrderAttribute
-      mappedBy: orderItems
+      mappedBy: orderItem
       joinColumn:
         name: id
         referencedColumnName: item_id

@@ -173,19 +173,19 @@ Cx\Modules\Shop\Model\Entity\Product:
   oneToMany:
     discountCoupons:
       targetEntity: Cx\Modules\Shop\Model\Entity\DiscountCoupon
-      mappedBy: products
+      mappedBy: product
       joinColumn:
         name: id
         referencedColumnName: product_id
     orderItems:
       targetEntity: Cx\Modules\Shop\Model\Entity\OrderItem
-      mappedBy: products
+      mappedBy: product
       joinColumn:
         name: id
         referencedColumnName: product_id
     relProductAttributes:
       targetEntity: Cx\Modules\Shop\Model\Entity\RelProductAttribute
-      mappedBy: products
+      mappedBy: product
       joinColumn:
         name: id
         referencedColumnName: product_id

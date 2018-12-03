@@ -296,7 +296,7 @@ class OrderItem extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function setOrders(\Cx\Modules\Shop\Model\Entity\Order $order = null)
+    public function setOrder(\Cx\Modules\Shop\Model\Entity\Order $order = null)
     {
         $this->order = $order;
     }

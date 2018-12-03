@@ -69,7 +69,7 @@ Cx\Modules\Shop\Model\Entity\Payment:
         name: id
         referencedColumnName: payment_id
   manyToOne:
-    paymentProcessors:
+    paymentProcessor:
       targetEntity: Cx\Modules\Shop\Model\Entity\PaymentProcessor
       inversedBy: payments
       joinColumn:
