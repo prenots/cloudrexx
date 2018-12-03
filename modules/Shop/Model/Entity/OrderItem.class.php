@@ -47,7 +47,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class OrderItems extends \Cx\Model\Base\EntityBase {
+class OrderItem extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -94,14 +94,14 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
     protected $orderAttributes;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Orders
+     * @var \Cx\Modules\Shop\Model\Entity\Order
      */
-    protected $orders;
+    protected $order;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Products
+     * @var \Cx\Modules\Shop\Model\Entity\Product
      */
-    protected $products;
+    protected $product;
 
     /**
      * Constructor
@@ -262,21 +262,21 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add orderAttributes
+     * Add orderAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttribute
      */
-    public function addOrderAttribute(\Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes)
+    public function addOrderAttribute(\Cx\Modules\Shop\Model\Entity\OrderAttribute $orderAttribute)
     {
-        $this->orderAttributes[] = $orderAttributes;
+        $this->orderAttributes[] = $orderAttribute;
     }
 
     /**
-     * Remove orderAttributes
+     * Remove orderAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\OrderAttribute $orderAttribute
      */
-    public function removeOrderAttribute(\Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes)
+    public function removeOrderAttribute(\Cx\Modules\Shop\Model\Entity\OrderAttribute $orderAttribute)
     {
         $this->orderAttributes->removeElement($orderAttributes);
     }
@@ -292,42 +292,42 @@ class OrderItems extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set orders
+     * Set order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = null)
+    public function setOrders(\Cx\Modules\Shop\Model\Entity\Order $order = null)
     {
-        $this->orders = $orders;
+        $this->order = $order;
     }
 
     /**
-     * Get orders
+     * Get order
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Orders 
+     * @return \Cx\Modules\Shop\Model\Entity\Order
      */
-    public function getOrders()
+    public function getOrder()
     {
-        return $this->orders;
+        return $this->order;
     }
 
     /**
-     * Set products
+     * Set product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = null)
+    public function setProduct(\Cx\Modules\Shop\Model\Entity\Product $product = null)
     {
-        $this->products = $products;
+        $this->product = $product;
     }
 
     /**
-     * Get products
+     * Get product
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Products 
+     * @return \Cx\Modules\Shop\Model\Entity\Product
      */
-    public function getProducts()
+    public function getProduct()
     {
-        return $this->products;
+        return $this->product;
     }
 }

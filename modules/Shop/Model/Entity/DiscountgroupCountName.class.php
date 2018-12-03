@@ -172,23 +172,23 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo
     }
 
     /**
-     * Add discountgroupCountRates
+     * Add discountgroupCountRate
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate
      */
-    public function addDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates)
+    public function addDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate)
     {
-        $this->discountgroupCountRates[] = $discountgroupCountRates;
+        $this->discountgroupCountRates[] = $discountgroupCountRate;
     }
 
     /**
-     * Remove discountgroupCountRates
+     * Remove discountgroupCountRate
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate
      */
-    public function removeDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates)
+    public function removeDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate)
     {
-        $this->discountgroupCountRates->removeElement($discountgroupCountRates);
+        $this->discountgroupCountRates->removeElement($discountgroupCountRate);
     }
 
     /**
@@ -202,23 +202,23 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo
     }
 
     /**
-     * Add products
+     * Add product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Products $product
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products[] = $products;
+        $this->products[] = $product;
     }
 
     /**
-     * Remove products
+     * Remove product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products->removeElement($products);
+        $this->products->removeElement($product);
     }
 
     /**

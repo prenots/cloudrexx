@@ -180,23 +180,23 @@ class Shipper extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     }
 
     /**
-     * Add orders
+     * Add order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function addOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders[] = $orders;
+        $this->orders[] = $order;
     }
 
     /**
-     * Remove orders
+     * Remove order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Orders $order
      */
-    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders->removeElement($orders);
+        $this->orders->removeElement($order);
     }
 
     /**
@@ -210,23 +210,23 @@ class Shipper extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     }
 
     /**
-     * Add shipmentCosts
+     * Add shipmentCost
      *
-     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts
+     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost
      */
-    public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
+    public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost)
     {
-        $this->shipmentCosts[] = $shipmentCosts;
+        $this->shipmentCosts[] = $shipmentCost;
     }
 
     /**
-     * Remove shipmentCosts
+     * Remove shipmentCost
      *
-     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts
+     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost
      */
-    public function removeShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
+    public function removeShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost)
     {
-        $this->shipmentCosts->removeElement($shipmentCosts);
+        $this->shipmentCosts->removeElement($shipmentCost);
     }
 
     /**

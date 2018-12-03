@@ -45,7 +45,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class RelCountries extends \Cx\Model\Base\EntityBase {
+class RelCountry extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -57,9 +57,9 @@ class RelCountries extends \Cx\Model\Base\EntityBase {
     protected $countryId;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Zones
+     * @var \Cx\Modules\Shop\Model\Entity\Zone
      */
-    protected $zones;
+    protected $zone;
 
 
     /**
@@ -103,22 +103,22 @@ class RelCountries extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set zones
+     * Set zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
+     * @param \Cx\Modules\Shop\Model\Entity\Zone $zone
      */
-    public function setZones(\Cx\Modules\Shop\Model\Entity\Zones $zones = null)
+    public function setZone(\Cx\Modules\Shop\Model\Entity\Zone $zone = null)
     {
-        $this->zones = $zones;
+        $this->zone = $zone;
     }
 
     /**
-     * Get zones
+     * Get zone
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Zones 
+     * @return \Cx\Modules\Shop\Model\Entity\Zone
      */
-    public function getZones()
+    public function getZone()
     {
-        return $this->zones;
+        return $this->zone;
     }
 }

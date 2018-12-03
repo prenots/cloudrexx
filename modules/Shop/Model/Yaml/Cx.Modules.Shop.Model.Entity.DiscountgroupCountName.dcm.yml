@@ -41,7 +41,7 @@ Cx\Modules\Shop\Model\Entity\DiscountgroupCountName:
         name: id
         referencedColumnName: count
     products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       mappedBy: discountgroupCountName
       joinColumn:
         name: id

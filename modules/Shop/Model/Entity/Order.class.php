@@ -46,7 +46,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Orders extends \Cx\Model\Base\EntityBase {
+class Order extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -248,9 +248,9 @@ class Orders extends \Cx\Model\Base\EntityBase {
     protected $lang;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Currencies
+     * @var \Cx\Modules\Shop\Model\Entity\Currency
      */
-    protected $currencies;
+    protected $currency;
 
     /**
      * @var \Cx\Modules\Shop\Model\Entity\Shipper
@@ -994,23 +994,23 @@ class Orders extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add lsvs
+     * Add lsv
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Lsv $lsvs
+     * @param \Cx\Modules\Shop\Model\Entity\Lsv $lsv
      */
-    public function addLsv(\Cx\Modules\Shop\Model\Entity\Lsv $lsvs)
+    public function addLsv(\Cx\Modules\Shop\Model\Entity\Lsv $lsv)
     {
-        $this->lsvs[] = $lsvs;
+        $this->lsvs[] = $lsv;
     }
 
     /**
-     * Remove lsvs
+     * Remove lsv
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Lsv $lsvs
+     * @param \Cx\Modules\Shop\Model\Entity\Lsv $lsv
      */
-    public function removeLsv(\Cx\Modules\Shop\Model\Entity\Lsv $lsvs)
+    public function removeLsv(\Cx\Modules\Shop\Model\Entity\Lsv $lsv)
     {
-        $this->lsvs->removeElement($lsvs);
+        $this->lsvs->removeElement($lsv);
     }
 
     /**
@@ -1024,23 +1024,23 @@ class Orders extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add orderItems
+     * Add orderItem
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
+     * @param \Cx\Modules\Shop\Model\Entity\OrderItem $orderItem
      */
-    public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
+    public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItem $orderItem)
     {
-        $this->orderItems[] = $orderItems;
+        $this->orderItems[] = $orderItem;
     }
 
     /**
-     * Remove orderItems
+     * Remove orderItem
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
+     * @param \Cx\Modules\Shop\Model\Entity\OrderItem $orderItem
      */
-    public function removeOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
+    public function removeOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItem $orderItem)
     {
-        $this->orderItems->removeElement($orderItems);
+        $this->orderItems->removeElement($orderItem);
     }
 
     /**
@@ -1054,23 +1054,23 @@ class Orders extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add relCustomerCoupons
+     * Add relCustomerCoupon
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupons
+     * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon
      */
-    public function addRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupons)
+    public function addRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon)
     {
-        $this->relCustomerCoupons[] = $relCustomerCoupons;
+        $this->relCustomerCoupons[] = $relCustomerCoupon;
     }
 
     /**
-     * Remove relCustomerCoupons
+     * Remove relCustomerCoupon
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupons
+     * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon
      */
-    public function removeRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupons)
+    public function removeRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon)
     {
-        $this->relCustomerCoupons->removeElement($relCustomerCoupons);
+        $this->relCustomerCoupons->removeElement($relCustomerCoupon);
     }
 
     /**
@@ -1104,23 +1104,23 @@ class Orders extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set currencies
+     * Set currency
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Currencies $currencies
+     * @param \Cx\Modules\Shop\Model\Entity\Currency $currency
      */
-    public function setCurrencies(\Cx\Modules\Shop\Model\Entity\Currencies $currencies = null)
+    public function setCurrency(\Cx\Modules\Shop\Model\Entity\Currency $currency = null)
     {
-        $this->currencies = $currencies;
+        $this->currency = $currency;
     }
 
     /**
-     * Get currencies
+     * Get currency
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Currencies 
+     * @return \Cx\Modules\Shop\Model\Entity\Currency
      */
-    public function getCurrencies()
+    public function getCurrency()
     {
-        return $this->currencies;
+        return $this->currency;
     }
 
     /**

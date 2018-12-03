@@ -30,7 +30,7 @@ Cx\Modules\Shop\Model\Entity\Manufacturer:
         default: ''
   oneToMany:
     products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       mappedBy: manufacturer
       joinColumn:
         name: id

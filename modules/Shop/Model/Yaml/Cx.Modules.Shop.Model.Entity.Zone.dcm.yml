@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\Zones:
+Cx\Modules\Shop\Model\Entity\Zone:
   type: entity
   table: module_shop_zones
   repositoryClass: Cx\Modules\Shop\Model\Repository\ZonesRepository
@@ -28,7 +28,7 @@ Cx\Modules\Shop\Model\Entity\Zones:
         default: ''
   oneToMany:
     relCountries:
-      targetEntity: Cx\Modules\Shop\Model\Entity\RelCountries
+      targetEntity: Cx\Modules\Shop\Model\Entity\RelCountry
       mappedBy: zones
       joinColumn:
         name: id

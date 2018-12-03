@@ -46,7 +46,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Pricelists extends \Cx\Model\Base\EntityBase {
+class Pricelist extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -311,23 +311,23 @@ class Pricelists extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add categories
+     * Add category
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
+     * @param \Cx\Modules\Shop\Model\Entity\Category $categoy
      */
-    public function addCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
+    public function addCategory(\Cx\Modules\Shop\Model\Entity\Category $category)
     {
-        $this->categories[] = $categories;
+        $this->categories[] = $category;
     }
 
     /**
-     * Remove categories
+     * Remove category
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
+     * @param \Cx\Modules\Shop\Model\Entity\Category $category
      */
-    public function removeCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
+    public function removeCategory(\Cx\Modules\Shop\Model\Entity\Category $category)
     {
-        $this->categories->removeElement($categories);
+        $this->categories->removeElement($category);
     }
 
     /**

@@ -45,7 +45,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
     /**
      * @var string
      */
@@ -810,23 +810,23 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     }
 
     /**
-     * Add discountCoupons
+     * Add discountCoupon
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon
      */
-    public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
+    public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
     {
-        $this->discountCoupons[] = $discountCoupons;
+        $this->discountCoupons[] = $discountCoupon;
     }
 
     /**
-     * Remove discountCoupons
+     * Remove discountCoupon
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon
      */
-    public function removeDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
+    public function removeDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
     {
-        $this->discountCoupons->removeElement($discountCoupons);
+        $this->discountCoupons->removeElement($discountCoupon);
     }
 
     /**
@@ -840,23 +840,23 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     }
 
     /**
-     * Add orderItems
+     * Add orderItem
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
+     * @param \Cx\Modules\Shop\Model\Entity\OrderItem $orderItem
      */
-    public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
+    public function addOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItem $orderItem)
     {
-        $this->orderItems[] = $orderItems;
+        $this->orderItems[] = $orderItem;
     }
 
     /**
-     * Remove orderItems
+     * Remove orderItem
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
+     * @param \Cx\Modules\Shop\Model\Entity\OrderItem $orderItem
      */
-    public function removeOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems)
+    public function removeOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItem $orderItem)
     {
-        $this->orderItems->removeElement($orderItems);
+        $this->orderItems->removeElement($orderItem);
     }
 
     /**
@@ -870,23 +870,23 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     }
 
     /**
-     * Add relProductAttributes
+     * Add relProductAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute
      */
-    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
-        $this->relProductAttributes[] = $relProductAttributes;
+        $this->relProductAttributes[] = $relProductAttribute;
     }
 
     /**
-     * Remove relProductAttributes
+     * Remove relProductAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute
      */
-    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
-        $this->relProductAttributes->removeElement($relProductAttributes);
+        $this->relProductAttributes->removeElement($relProductAttribute);
     }
 
     /**
@@ -980,23 +980,23 @@ class Products extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     }
 
     /**
-     * Add categories
+     * Add category
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
+     * @param \Cx\Modules\Shop\Model\Entity\Category $category
      */
-    public function addCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
+    public function addCategory(\Cx\Modules\Shop\Model\Entity\Category $category)
     {
-        $this->categories[] = $categories;
+        $this->categories[] = $category;
     }
 
     /**
-     * Remove categories
+     * Remove category
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $categories
+     * @param \Cx\Modules\Shop\Model\Entity\Category $category
      */
-    public function removeCategory(\Cx\Modules\Shop\Model\Entity\Categories $categories)
+    public function removeCategory(\Cx\Modules\Shop\Model\Entity\Category $category)
     {
-        $this->categories->removeElement($categories);
+        $this->categories->removeElement($category);
     }
 
     /**

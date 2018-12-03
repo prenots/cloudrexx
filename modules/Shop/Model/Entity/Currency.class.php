@@ -46,7 +46,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Currencies extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+class Currency extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
     /**
      * @var string
      */
@@ -294,21 +294,21 @@ class Currencies extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatabl
     /**
      * Add orders
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function addOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders[] = $orders;
+        $this->orders[] = $order;
     }
 
     /**
      * Remove orders
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders->removeElement($orders);
+        $this->orders->removeElement($order);
     }
 
     /**

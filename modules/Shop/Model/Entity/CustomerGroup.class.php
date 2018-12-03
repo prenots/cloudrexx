@@ -119,23 +119,23 @@ class CustomerGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translat
     }
 
     /**
-     * Add relDiscountGroups
+     * Add relDiscountGroup
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
+     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup
      */
-    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
-        $this->relDiscountGroups[] = $relDiscountGroups;
+        $this->relDiscountGroups[] = $relDiscountGroup;
     }
 
     /**
-     * Remove relDiscountGroups
+     * Remove relDiscountGroup
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
      */
-    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
-        $this->relDiscountGroups->removeElement($relDiscountGroups);
+        $this->relDiscountGroups->removeElement($relDiscountGroup);
     }
 
     /**

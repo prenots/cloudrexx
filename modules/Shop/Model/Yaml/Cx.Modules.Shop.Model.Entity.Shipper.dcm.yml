@@ -33,7 +33,7 @@ Cx\Modules\Shop\Model\Entity\Shipper:
         default: ''
   oneToMany:
     orders:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+      targetEntity: Cx\Modules\Shop\Model\Entity\Order
       mappedBy: shipper
       joinColumn:
         name: id
@@ -46,7 +46,7 @@ Cx\Modules\Shop\Model\Entity\Shipper:
         referencedColumnName: shipper_id
   manyToOne:
     zone:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Zones
+      targetEntity: Cx\Modules\Shop\Model\Entity\Zone
       inversedBy: shippers
       joinColumn:
         name: zone_id
