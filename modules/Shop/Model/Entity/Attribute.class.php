@@ -154,21 +154,21 @@ class Attribute extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable
     /**
      * Add options
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Option $options
+     * @param \Cx\Modules\Shop\Model\Entity\Option $option
      */
-    public function addOption(\Cx\Modules\Shop\Model\Entity\Option $options)
+    public function addOption(\Cx\Modules\Shop\Model\Entity\Option $option)
     {
-        $this->options[] = $options;
+        $this->options[] = $option;
     }
 
     /**
      * Remove options
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Option $options
+     * @param \Cx\Modules\Shop\Model\Entity\Option $option
      */
-    public function removeOption(\Cx\Modules\Shop\Model\Entity\Option $options)
+    public function removeOption(\Cx\Modules\Shop\Model\Entity\Option $option)
     {
-        $this->options->removeElement($options);
+        $this->options->removeElement($option);
     }
 
     /**

@@ -62,19 +62,19 @@ Cx\Modules\Shop\Model\Entity\Payment:
         name: id
         referencedColumnName: payment_id
     orders:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+      targetEntity: Cx\Modules\Shop\Model\Entity\Order
       mappedBy: payment
       joinColumn:
         name: id
         referencedColumnName: payment_id
   manyToOne:
     paymentProcessors:
-      targetEntity: Cx\Modules\Shop\Model\Entity\PaymentProcessors
+      targetEntity: Cx\Modules\Shop\Model\Entity\PaymentProcessor
       inversedBy: payments
       joinColumn:
         name: processor_id
         referencedColumnName: id
   manyToMany:
     zones:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Zones
+      targetEntity: Cx\Modules\Shop\Model\Entity\Zone
       mappedBy: payments

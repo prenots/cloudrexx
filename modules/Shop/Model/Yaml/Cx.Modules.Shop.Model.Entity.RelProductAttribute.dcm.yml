@@ -22,8 +22,8 @@ Cx\Modules\Shop\Model\Entity\RelProductAttribute:
       options:
         default: 0
   manyToOne:
-    products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+    product:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       inversedBy: relProductAttributes
       joinColumn:
         name: product_id

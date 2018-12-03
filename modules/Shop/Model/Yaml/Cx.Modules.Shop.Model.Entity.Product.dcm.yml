@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\Products:
+Cx\Modules\Shop\Model\Entity\Product:
   type: entity
   table: module_shop_products
   gedmo:
@@ -177,7 +177,7 @@ Cx\Modules\Shop\Model\Entity\Products:
         name: id
         referencedColumnName: product_id
     orderItems:
-      targetEntity: Cx\Modules\Shop\Model\Entity\OrderItems
+      targetEntity: Cx\Modules\Shop\Model\Entity\OrderItem
       mappedBy: products
       joinColumn:
         name: id
@@ -219,7 +219,7 @@ Cx\Modules\Shop\Model\Entity\Products:
         nullable: true
   manyToMany:
     categories:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      targetEntity: Cx\Modules\Shop\Model\Entity\Category
       mappedBy: products
       joinTable:
         name: module_shop_rel_category_product

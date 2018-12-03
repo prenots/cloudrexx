@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\Orders:
+Cx\Modules\Shop\Model\Entity\Order:
   type: entity
   table: module_shop_orders
   indexes:
@@ -207,7 +207,7 @@ Cx\Modules\Shop\Model\Entity\Orders:
         name: id
         referencedColumnName: order_id
     orderItems:
-      targetEntity: Cx\Modules\Shop\Model\Entity\OrderItems
+      targetEntity: Cx\Modules\Shop\Model\Entity\OrderItem
       mappedBy: orders
       joinColumn:
         name: id
@@ -225,8 +225,8 @@ Cx\Modules\Shop\Model\Entity\Orders:
       joinColumn:
         name: lang_id
         referencedColumnName: id
-    currencies:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Currencies
+    currency:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Currency
       inversedBy: orders
       joinColumn:
         name: currency_id

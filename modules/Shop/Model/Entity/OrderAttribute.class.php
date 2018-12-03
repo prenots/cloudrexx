@@ -47,7 +47,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class OrderAttributes extends \Cx\Model\Base\EntityBase {
+class OrderAttribute extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -74,9 +74,9 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
     protected $price;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\OrderItems
+     * @var \Cx\Modules\Shop\Model\Entity\OrderItem
      */
-    protected $orderItems;
+    protected $orderItem;
 
 
     /**
@@ -170,22 +170,22 @@ class OrderAttributes extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set orderItems
+     * Set orderItem
      *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderItems $orderItems
+     * @param \Cx\Modules\Shop\Model\Entity\OrderItem $orderItem
      */
-    public function setOrderItems(\Cx\Modules\Shop\Model\Entity\OrderItems $orderItems = null)
+    public function setOrderItem(\Cx\Modules\Shop\Model\Entity\OrderItem $orderItem = null)
     {
-        $this->orderItems = $orderItems;
+        $this->orderItem = $orderItem;
     }
 
     /**
-     * Get orderItems
+     * Get orderItem
      *
-     * @return \Cx\Modules\Shop\Model\Entity\OrderItems 
+     * @return \Cx\Modules\Shop\Model\Entity\OrderItem
      */
-    public function getOrderItems()
+    public function getOrderItem()
     {
-        return $this->orderItems;
+        return $this->orderItem;
     }
 }

@@ -123,21 +123,21 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translata
     /**
      * Add relDiscountGroups
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
+     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup
      */
-    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
-        $this->relDiscountGroups[] = $relDiscountGroups;
+        $this->relDiscountGroups[] = $relDiscountGroup;
     }
 
     /**
      * Remove relDiscountGroups
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
+     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup
      */
-    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
-        $this->relDiscountGroups->removeElement($relDiscountGroups);
+        $this->relDiscountGroups->removeElement($relDiscountGroup);
     }
 
     /**
@@ -153,9 +153,9 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translata
     /**
      * Add products
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
         $this->products[] = $products;
     }
@@ -163,9 +163,9 @@ class ArticleGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translata
     /**
      * Remove products
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $product)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $produc)
     {
         $this->products->removeElement($product);
     }

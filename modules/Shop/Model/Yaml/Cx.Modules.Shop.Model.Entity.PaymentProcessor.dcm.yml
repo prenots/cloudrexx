@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\PaymentProcessors:
+Cx\Modules\Shop\Model\Entity\PaymentProcessor:
   type: entity
   table: module_shop_payment_processors
   id:

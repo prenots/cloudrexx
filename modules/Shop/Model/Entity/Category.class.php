@@ -46,7 +46,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Categories extends \Cx\Model\Base\EntityBase {
+class Category extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -103,7 +103,7 @@ class Categories extends \Cx\Model\Base\EntityBase {
     protected $children;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Categories
+     * @var \Cx\Modules\Shop\Model\Entity\Category
      */
     protected $parentCategory;
 
@@ -268,23 +268,23 @@ class Categories extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add pricelists
+     * Add pricelist
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Pricelists $pricelists
+     * @param \Cx\Modules\Shop\Model\Entity\Pricelist $pricelist
      */
-    public function addPricelist(\Cx\Modules\Shop\Model\Entity\Pricelists $pricelists)
+    public function addPricelist(\Cx\Modules\Shop\Model\Entity\Pricelist $pricelist)
     {
-        $this->pricelists[] = $pricelists;
+        $this->pricelists[] = $pricelist;
     }
 
     /**
-     * Remove pricelists
+     * Remove pricelist
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Pricelists $pricelists
+     * @param \Cx\Modules\Shop\Model\Entity\Pricelist $pricelist
      */
-    public function removePricelist(\Cx\Modules\Shop\Model\Entity\Pricelists $pricelists)
+    public function removePricelist(\Cx\Modules\Shop\Model\Entity\Pricelist $pricelist)
     {
-        $this->pricelists->removeElement($pricelists);
+        $this->pricelists->removeElement($pricelist);
     }
 
     /**
@@ -298,23 +298,23 @@ class Categories extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add products
+     * Add product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $products
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products[] = $products;
+        $this->products[] = $product;
     }
 
     /**
-     * Remove products
+     * Remove product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products->removeElement($products);
+        $this->products->removeElement($product);
     }
 
     /**
@@ -330,9 +330,9 @@ class Categories extends \Cx\Model\Base\EntityBase {
     /**
      * Add child
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $child
+     * @param \Cx\Modules\Shop\Model\Entity\Category $child
      */
-    public function addChild(\Cx\Modules\Shop\Model\Entity\Categories $child)
+    public function addChild(\Cx\Modules\Shop\Model\Entity\Category $child)
     {
         $this->children[] = $child;
     }
@@ -340,9 +340,9 @@ class Categories extends \Cx\Model\Base\EntityBase {
     /**
      * Remove child
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Categories $child
+     * @param \Cx\Modules\Shop\Model\Entity\Category $child
      */
-    public function removeChild(\Cx\Modules\Shop\Model\Entity\Categories $child)
+    public function removeChild(\Cx\Modules\Shop\Model\Entity\Category $child)
     {
         $this->children->removeElement($child);
     }

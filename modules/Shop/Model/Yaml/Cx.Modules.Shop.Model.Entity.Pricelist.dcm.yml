@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\Pricelists:
+Cx\Modules\Shop\Model\Entity\Pricelist:
   type: entity
   table: module_shop_pricelists
   id:
@@ -61,7 +61,7 @@ Cx\Modules\Shop\Model\Entity\Pricelists:
       column: all_categories
   manyToMany:
     categories:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      targetEntity: Cx\Modules\Shop\Model\Entity\Category
       mappedBy: pricelists
       joinTable:
         name: module_shop_rel_category_pricelist

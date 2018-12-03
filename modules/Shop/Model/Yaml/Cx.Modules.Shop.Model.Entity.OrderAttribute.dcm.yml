@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\OrderAttributes:
+Cx\Modules\Shop\Model\Entity\OrderAttribute:
   type: entity
   table: module_shop_order_attributes
   indexes:
@@ -34,8 +34,8 @@ Cx\Modules\Shop\Model\Entity\OrderAttributes:
       options:
         default: 0.00
   manyToOne:
-    orderItems:
-      targetEntity: Cx\Modules\Shop\Model\Entity\OrderItems
+    orderItem:
+      targetEntity: Cx\Modules\Shop\Model\Entity\OrderItem
       inversedBy: orderAttributes
       joinColumn:
         name: item_id

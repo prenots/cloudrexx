@@ -29,7 +29,7 @@ Cx\Modules\Shop\Model\Entity\Vat:
         default: ''
   oneToMany:
     products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       mappedBy: vat
       joinColumn:
         name: id

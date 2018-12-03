@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\RelCountries:
+Cx\Modules\Shop\Model\Entity\RelCountry:
   type: entity
   table: module_shop_rel_countries
   indexes:
@@ -18,8 +18,8 @@ Cx\Modules\Shop\Model\Entity\RelCountries:
         default: '0'
       column: country_id
   manyToOne:
-    zones:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Zones
+    zone:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Zone
       inversedBy: relCountries
       joinColumn:
         name: zone_id

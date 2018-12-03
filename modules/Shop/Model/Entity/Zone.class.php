@@ -46,7 +46,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Zones extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+class Zone extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
     /**
      * @var string
      */
@@ -154,23 +154,23 @@ class Zones extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tra
     }
 
     /**
-     * Add relCountries
+     * Add relCountry
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelCountries $relCountries
+     * @param \Cx\Modules\Shop\Model\Entity\RelCountry $relCountry
      */
-    public function addRelCountry(\Cx\Modules\Shop\Model\Entity\RelCountries $relCountries)
+    public function addRelCountry(\Cx\Modules\Shop\Model\Entity\RelCountry $relCountry)
     {
-        $this->relCountries[] = $relCountries;
+        $this->relCountries[] = $relCountry;
     }
 
     /**
-     * Remove relCountries
+     * Remove relCountry
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelCountries $relCountries
+     * @param \Cx\Modules\Shop\Model\Entity\RelCountry $relCountry
      */
-    public function removeRelCountry(\Cx\Modules\Shop\Model\Entity\RelCountries $relCountries)
+    public function removeRelCountry(\Cx\Modules\Shop\Model\Entity\RelCountry $relCountry)
     {
-        $this->relCountries->removeElement($relCountries);
+        $this->relCountries->removeElement($relCountry);
     }
 
     /**
@@ -184,23 +184,23 @@ class Zones extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tra
     }
 
     /**
-     * Add payments
+     * Add payment
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Payment $payments
+     * @param \Cx\Modules\Shop\Model\Entity\Payment $payment
      */
-    public function addPayment(\Cx\Modules\Shop\Model\Entity\Payment $payments)
+    public function addPayment(\Cx\Modules\Shop\Model\Entity\Payment $payment)
     {
-        $this->payments[] = $payments;
+        $this->payments[] = $payment;
     }
 
     /**
-     * Remove payments
+     * Remove payment
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Payment $payments
+     * @param \Cx\Modules\Shop\Model\Entity\Payment $payment
      */
-    public function removePayment(\Cx\Modules\Shop\Model\Entity\Payment $payments)
+    public function removePayment(\Cx\Modules\Shop\Model\Entity\Payment $payment)
     {
-        $this->payments->removeElement($payments);
+        $this->payments->removeElement($payment);
     }
 
     /**
@@ -214,23 +214,23 @@ class Zones extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tra
     }
 
     /**
-     * Add shippers
+     * Add shipper
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Shipper $shippers
+     * @param \Cx\Modules\Shop\Model\Entity\Shipper $shipper
      */
-    public function addShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shippers)
+    public function addShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shipper)
     {
-        $this->shippers[] = $shippers;
+        $this->shippers[] = $shipper;
     }
 
     /**
-     * Remove shippers
+     * Remove shipper
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Shipper $shippers
+     * @param \Cx\Modules\Shop\Model\Entity\Shipper $shipper
      */
-    public function removeShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shippers)
+    public function removeShipper(\Cx\Modules\Shop\Model\Entity\Shipper $shipper)
     {
-        $this->shippers->removeElement($shippers);
+        $this->shippers->removeElement($shipper);
     }
 
     /**

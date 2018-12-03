@@ -172,23 +172,23 @@ class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Tr
     }
 
     /**
-     * Add relProductAttributes
+     * Add relProductAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute
      */
-    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
-        $this->relProductAttributes[] = $relProductAttributes;
+        $this->relProductAttributes[] = $relProductAttribute;
     }
 
     /**
-     * Remove relProductAttributes
+     * Remove relProductAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute
      */
-    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
-        $this->relProductAttributes->removeElement($relProductAttributes);
+        $this->relProductAttributes->removeElement($relProductAttribute);
     }
 
     /**
