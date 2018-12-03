@@ -141,23 +141,23 @@ class Vat extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Trans
     }
 
     /**
-     * Add products
+     * Add product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products[] = $products;
+        $this->products[] = $product;
     }
 
     /**
-     * Remove products
+     * Remove product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products->removeElement($products);
+        $this->products->removeElement($product);
     }
 
     /**

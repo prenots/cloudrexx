@@ -45,7 +45,7 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class PaymentProcessors extends \Cx\Model\Base\EntityBase {
+class PaymentProcessor extends \Cx\Model\Base\EntityBase {
     /**
      * @var integer
      */
@@ -108,13 +108,10 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      * Set type
      *
      * @param string $type
-     * @return PaymentProcessors
      */
     public function setType($type)
     {
         $this->type = $type;
-
-        return $this;
     }
 
     /**
@@ -131,13 +128,10 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      * Set name
      *
      * @param string $name
-     * @return PaymentProcessors
      */
     public function setName($name)
     {
         $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -154,13 +148,10 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      * Set description
      *
      * @param string $description
-     * @return PaymentProcessors
      */
     public function setDescription($description)
     {
         $this->description = $description;
-
-        return $this;
     }
 
     /**
@@ -177,13 +168,10 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      * Set companyUrl
      *
      * @param string $companyUrl
-     * @return PaymentProcessors
      */
     public function setCompanyUrl($companyUrl)
     {
         $this->companyUrl = $companyUrl;
-
-        return $this;
     }
 
     /**
@@ -200,13 +188,10 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      * Set status
      *
      * @param boolean $status
-     * @return PaymentProcessors
      */
     public function setStatus($status)
     {
         $this->status = $status;
-
-        return $this;
     }
 
     /**
@@ -223,13 +208,10 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      * Set picture
      *
      * @param string $picture
-     * @return PaymentProcessors
      */
     public function setPicture($picture)
     {
         $this->picture = $picture;
-
-        return $this;
     }
 
     /**
@@ -243,16 +225,13 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add payments
+     * Add payment
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Payment $payments
-     * @return PaymentProcessors
+     * @param \Cx\Modules\Shop\Model\Entity\Payment $payment
      */
-    public function addPayment(\Cx\Modules\Shop\Model\Entity\Payment $payments)
+    public function addPayment(\Cx\Modules\Shop\Model\Entity\Payment $payment)
     {
-        $this->payments[] = $payments;
-
-        return $this;
+        $this->payments[] = $payment;
     }
 
     /**
@@ -260,9 +239,9 @@ class PaymentProcessors extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Modules\Shop\Model\Entity\Payment $payments
      */
-    public function removePayment(\Cx\Modules\Shop\Model\Entity\Payment $payments)
+    public function removePayment(\Cx\Modules\Shop\Model\Entity\Payment $payment)
     {
-        $this->payments->removeElement($payments);
+        $this->payments->removeElement($payment);
     }
 
     /**

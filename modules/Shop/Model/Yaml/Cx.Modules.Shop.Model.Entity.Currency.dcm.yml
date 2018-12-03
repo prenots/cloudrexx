@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\Currencies:
+Cx\Modules\Shop\Model\Entity\Currency:
   type: entity
   table: module_shop_currencies
   repositoryClass: Cx\Modules\Shop\Model\Repository\CurrenciesRepository
@@ -63,7 +63,7 @@ Cx\Modules\Shop\Model\Entity\Currencies:
         default: ''
   oneToMany:
     orders:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+      targetEntity: Cx\Modules\Shop\Model\Entity\Order
       mappedBy: currencies
       joinColumn:
         name: id

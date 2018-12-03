@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\Categories:
+Cx\Modules\Shop\Model\Entity\Category:
   type: entity
   table: module_shop_categories
   repositoryClass: Cx\Modules\Shop\Model\Repository\CategoriesRepository
@@ -48,7 +48,7 @@ Cx\Modules\Shop\Model\Entity\Categories:
       type: text
   manyToMany:
     pricelists:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Pricelists
+      targetEntity: Cx\Modules\Shop\Model\Entity\Pricelist
       inversedBy: categories
       joinTable:
         name: module_shop_rel_category_pricelist
@@ -59,7 +59,7 @@ Cx\Modules\Shop\Model\Entity\Categories:
           pricelist_id:
             referencedColumnName: id
     products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       inversedBy: categories
       joinTable:
         name: module_shop_rel_category_product
@@ -71,11 +71,11 @@ Cx\Modules\Shop\Model\Entity\Categories:
             referencedColumnName: id
   oneToMany:
     children:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      targetEntity: Cx\Modules\Shop\Model\Entity\Category
       mappedBy: parentCategory
   manyToOne:
     parentCategory:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Categories
+      targetEntity: Cx\Modules\Shop\Model\Entity\Category
       inversedBy: children
       joinColumn:
         name: parent_id

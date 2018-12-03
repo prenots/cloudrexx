@@ -89,8 +89,8 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       joinColumn:
         name: payment_id
         referencedColumnName: id
-    products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+    product:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       inversedBy: discountCoupons
       joinColumn:
         name: product_id

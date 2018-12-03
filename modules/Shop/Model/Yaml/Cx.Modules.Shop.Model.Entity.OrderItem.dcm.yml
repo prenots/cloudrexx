@@ -1,4 +1,4 @@
-Cx\Modules\Shop\Model\Entity\OrderItems:
+Cx\Modules\Shop\Model\Entity\OrderItem:
   type: entity
   table: module_shop_order_items
   repositoryClass: Cx\Modules\Shop\Model\Repository\OrderItemsRepository
@@ -60,20 +60,20 @@ Cx\Modules\Shop\Model\Entity\OrderItems:
         default: 0
   oneToMany:
     orderAttributes:
-      targetEntity: Cx\Modules\Shop\Model\Entity\OrderAttributes
+      targetEntity: Cx\Modules\Shop\Model\Entity\OrderAttribute
       mappedBy: orderItems
       joinColumn:
         name: id
         referencedColumnName: item_id
   manyToOne:
-    orders:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+    order:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Order
       inversedBy: orderItems
       joinColumn:
         name: order_id
         referencedColumnName: id
-    products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+    product:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       inversedBy: orderItems
       joinColumn:
         name: product_id

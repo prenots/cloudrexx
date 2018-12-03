@@ -68,9 +68,9 @@ class Lsv extends \Cx\Model\Base\EntityBase {
     protected $blz;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Orders
+     * @var \Cx\Modules\Shop\Model\Entity\Order
      */
-    protected $orders;
+    protected $order;
 
 
     /**
@@ -154,22 +154,22 @@ class Lsv extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set orders
+     * Set order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = null)
+    public function setOrder(\Cx\Modules\Shop\Model\Entity\Order $order = null)
     {
-        $this->orders = $orders;
+        $this->order = $order;
     }
 
     /**
-     * Get orders
+     * Get order
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Orders 
+     * @return \Cx\Modules\Shop\Model\Entity\Order
      */
-    public function getOrders()
+    public function getOrder()
     {
-        return $this->orders;
+        return $this->order;
     }
 }
