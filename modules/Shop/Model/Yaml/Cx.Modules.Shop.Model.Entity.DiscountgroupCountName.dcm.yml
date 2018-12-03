@@ -6,6 +6,7 @@ Cx\Modules\Shop\Model\Entity\DiscountgroupCountName:
     translation:
       locale: locale
       entity: Cx\Core\Locale\Model\Entity\Translation
+  repositoryClass: Cx\Modules\Shop\Model\Repository\DiscountgroupCountNameRepository
   id:
     id:
       type: integer
