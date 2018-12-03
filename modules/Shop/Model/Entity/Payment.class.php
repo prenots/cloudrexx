@@ -101,7 +101,7 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     /**
      * @var \Cx\Modules\Shop\Model\Entity\PaymentProcessors
      */
-    protected $paymentProcessors;
+    protected $paymentProcessor;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
