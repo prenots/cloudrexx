@@ -387,7 +387,7 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function setProduct(\Cx\Modules\Shop\Model\Entity\Products $product = null)
+    public function setProduct(\Cx\Modules\Shop\Model\Entity\Product $product = null)
     {
         $this->product = $product;
     }
