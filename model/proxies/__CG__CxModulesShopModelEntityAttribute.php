@@ -255,23 +255,23 @@ class Attribute extends \Cx\Modules\Shop\Model\Entity\Attribute implements \Doct
     /**
      * {@inheritDoc}
      */
-    public function addOption(\Cx\Modules\Shop\Model\Entity\Option $options)
+    public function addOption(\Cx\Modules\Shop\Model\Entity\Option $option)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOption', array($options));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOption', array($option));
 
-        return parent::addOption($options);
+        return parent::addOption($option);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeOption(\Cx\Modules\Shop\Model\Entity\Option $options)
+    public function removeOption(\Cx\Modules\Shop\Model\Entity\Option $option)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeOption', array($options));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeOption', array($option));
 
-        return parent::removeOption($options);
+        return parent::removeOption($option);
     }
 
     /**

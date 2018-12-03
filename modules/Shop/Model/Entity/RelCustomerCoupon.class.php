@@ -185,7 +185,7 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function setOrder(\Cx\Modules\Shop\Model\Entity\Orders $order = null)
+    public function setOrder(\Cx\Modules\Shop\Model\Entity\Order $order = null)
     {
         $this->order = $order;
     }

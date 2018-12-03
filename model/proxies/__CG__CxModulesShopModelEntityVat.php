@@ -255,23 +255,23 @@ class Vat extends \Cx\Modules\Shop\Model\Entity\Vat implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addProduct', array($products));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addProduct', array($product));
 
-        return parent::addProduct($products);
+        return parent::addProduct($product);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeProduct', array($products));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeProduct', array($product));
 
-        return parent::removeProduct($products);
+        return parent::removeProduct($product);
     }
 
     /**

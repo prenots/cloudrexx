@@ -73,10 +73,10 @@ class RelCustomerCoupon extends \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon 
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'code', 'customerId', 'orderId', 'count', 'amount', 'orders', 'customer', 'validators', 'virtual');
+            return array('__isInitialized__', 'code', 'customerId', 'orderId', 'count', 'amount', 'order', 'customer', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'code', 'customerId', 'orderId', 'count', 'amount', 'orders', 'customer', 'validators', 'virtual');
+        return array('__isInitialized__', 'code', 'customerId', 'orderId', 'count', 'amount', 'order', 'customer', 'validators', 'virtual');
     }
 
     /**
@@ -307,23 +307,23 @@ class RelCustomerCoupon extends \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon 
     /**
      * {@inheritDoc}
      */
-    public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = NULL)
+    public function setOrder(\Cx\Modules\Shop\Model\Entity\Order $order = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOrders', array($orders));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOrder', array($order));
 
-        return parent::setOrders($orders);
+        return parent::setOrder($order);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getOrders()
+    public function getOrder()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOrders', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOrder', array());
 
-        return parent::getOrders();
+        return parent::getOrder();
     }
 
     /**

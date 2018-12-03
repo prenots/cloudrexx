@@ -277,23 +277,23 @@ class Option extends \Cx\Modules\Shop\Model\Entity\Option implements \Doctrine\O
     /**
      * {@inheritDoc}
      */
-    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addRelProductAttribute', array($relProductAttributes));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addRelProductAttribute', array($relProductAttribute));
 
-        return parent::addRelProductAttribute($relProductAttributes);
+        return parent::addRelProductAttribute($relProductAttribute);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeRelProductAttribute', array($relProductAttributes));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeRelProductAttribute', array($relProductAttribute));
 
-        return parent::removeRelProductAttribute($relProductAttributes);
+        return parent::removeRelProductAttribute($relProductAttribute);
     }
 
     /**
