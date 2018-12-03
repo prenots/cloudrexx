@@ -95,17 +95,17 @@ SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
     CASE
       WHEN `t`.`key` LIKE 'vat%' THEN 'Vat'
     	WHEN `t`.`key` LIKE 'attribute%' THEN 'Attribute'
-    	WHEN `t`.`key` LIKE 'category%' THEN 'Categories'
-    	WHEN `t`.`key` LIKE 'currency%' THEN 'Currencies'
+    	WHEN `t`.`key` LIKE 'category%' THEN 'Category'
+    	WHEN `t`.`key` LIKE 'currency%' THEN 'Currency'
     	WHEN `t`.`key` = 'discount_group_unit' OR `t`.`key` = 'discount_group_name' THEN 'DiscountgroupCountName'
     	WHEN `t`.`key` = 'discount_group_article' THEN 'ArticleGroup'
     	WHEN `t`.`key` LIKE'discount_group_customer' THEN 'CustomerGroup'
     	WHEN `t`.`key` LIKE 'manufacturer%' THEN 'Manufacturer'
     	WHEN `t`.`key` LIKE 'option%' THEN 'Option'
     	WHEN `t`.`key` LIKE 'payment%' THEN 'Payment'
-    	WHEN `t`.`key` LIKE 'product%' THEN 'Products'
+    	WHEN `t`.`key` LIKE 'product%' THEN 'Product'
     	WHEN `t`.`key` LIKE 'shipper%' THEN 'Shipper'
-    	WHEN `t`.`key` LIKE 'zone%' THEN 'Zones'
+    	WHEN `t`.`key` LIKE 'zone%' THEN 'Zone'
     	ELSE ''
     END
 )) AS object_class, (
