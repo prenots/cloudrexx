@@ -73,10 +73,10 @@ class Shipper extends \Cx\Modules\Shop\Model\Entity\Shipper implements \Doctrine
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'locale', 'id', 'active', 'ord', 'name', 'orders', 'shipmentCosts', 'zone', 'validators', 'virtual');
+            return array('__isInitialized__', 'locale', 'id', 'active', 'ord', 'name', 'orders', 'shipmentCosts', 'zones', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'locale', 'id', 'active', 'ord', 'name', 'orders', 'shipmentCosts', 'zone', 'validators', 'virtual');
+        return array('__isInitialized__', 'locale', 'id', 'active', 'ord', 'name', 'orders', 'shipmentCosts', 'zones', 'validators', 'virtual');
     }
 
     /**
@@ -277,23 +277,23 @@ class Shipper extends \Cx\Modules\Shop\Model\Entity\Shipper implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function addOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOrder', array($orders));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOrder', array($order));
 
-        return parent::addOrder($orders);
+        return parent::addOrder($order);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeOrder', array($orders));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeOrder', array($order));
 
-        return parent::removeOrder($orders);
+        return parent::removeOrder($order);
     }
 
     /**
@@ -310,23 +310,23 @@ class Shipper extends \Cx\Modules\Shop\Model\Entity\Shipper implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
+    public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addShipmentCost', array($shipmentCosts));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addShipmentCost', array($shipmentCost));
 
-        return parent::addShipmentCost($shipmentCosts);
+        return parent::addShipmentCost($shipmentCost);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
+    public function removeShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeShipmentCost', array($shipmentCosts));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeShipmentCost', array($shipmentCost));
 
-        return parent::removeShipmentCost($shipmentCosts);
+        return parent::removeShipmentCost($shipmentCost);
     }
 
     /**
@@ -343,23 +343,34 @@ class Shipper extends \Cx\Modules\Shop\Model\Entity\Shipper implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function setZone(\Cx\Modules\Shop\Model\Entity\Zones $zone)
+    public function addZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setZone', array($zone));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addZone', array($zone));
 
-        return parent::setZone($zone);
+        return parent::addZone($zone);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getZone()
+    public function removeZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getZone', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeZone', array($zone));
 
-        return parent::getZone();
+        return parent::removeZone($zone);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getZones()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getZones', array());
+
+        return parent::getZones();
     }
 
     /**

@@ -73,10 +73,10 @@ class RelProductAttribute extends \Cx\Modules\Shop\Model\Entity\RelProductAttrib
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'productId', 'optionId', 'ord', 'products', 'option', 'validators', 'virtual');
+            return array('__isInitialized__', 'productId', 'optionId', 'ord', 'product', 'option', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'productId', 'optionId', 'ord', 'products', 'option', 'validators', 'virtual');
+        return array('__isInitialized__', 'productId', 'optionId', 'ord', 'product', 'option', 'validators', 'virtual');
     }
 
     /**
@@ -259,23 +259,23 @@ class RelProductAttribute extends \Cx\Modules\Shop\Model\Entity\RelProductAttrib
     /**
      * {@inheritDoc}
      */
-    public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = NULL)
+    public function setProduct(\Cx\Modules\Shop\Model\Entity\Product $product = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProducts', array($products));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProduct', array($product));
 
-        return parent::setProducts($products);
+        return parent::setProduct($product);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getProducts()
+    public function getProduct()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProducts', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProduct', array());
 
-        return parent::getProducts();
+        return parent::getProduct();
     }
 
     /**

@@ -73,10 +73,10 @@ class Lsv extends \Cx\Modules\Shop\Model\Entity\Lsv implements \Doctrine\ORM\Pro
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'orderId', 'holder', 'bank', 'blz', 'orders', 'validators', 'virtual');
+            return array('__isInitialized__', 'orderId', 'holder', 'bank', 'blz', 'order', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'orderId', 'holder', 'bank', 'blz', 'orders', 'validators', 'virtual');
+        return array('__isInitialized__', 'orderId', 'holder', 'bank', 'blz', 'order', 'validators', 'virtual');
     }
 
     /**
@@ -277,23 +277,23 @@ class Lsv extends \Cx\Modules\Shop\Model\Entity\Lsv implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = NULL)
+    public function setOrder(\Cx\Modules\Shop\Model\Entity\Order $order = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOrders', array($orders));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOrder', array($order));
 
-        return parent::setOrders($orders);
+        return parent::setOrder($order);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getOrders()
+    public function getOrder()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOrders', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOrder', array());
 
-        return parent::getOrders();
+        return parent::getOrder();
     }
 
     /**

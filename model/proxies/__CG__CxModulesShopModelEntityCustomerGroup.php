@@ -233,23 +233,23 @@ class CustomerGroup extends \Cx\Modules\Shop\Model\Entity\CustomerGroup implemen
     /**
      * {@inheritDoc}
      */
-    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addRelDiscountGroup', array($relDiscountGroups));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addRelDiscountGroup', array($relDiscountGroup));
 
-        return parent::addRelDiscountGroup($relDiscountGroups);
+        return parent::addRelDiscountGroup($relDiscountGroup);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeRelDiscountGroup', array($relDiscountGroups));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeRelDiscountGroup', array($relDiscountGroup));
 
-        return parent::removeRelDiscountGroup($relDiscountGroups);
+        return parent::removeRelDiscountGroup($relDiscountGroup);
     }
 
     /**
