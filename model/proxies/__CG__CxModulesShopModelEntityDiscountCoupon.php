@@ -73,10 +73,10 @@ class DiscountCoupon extends \Cx\Modules\Shop\Model\Entity\DiscountCoupon implem
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'code', 'customerId', 'paymentId', 'productId', 'startTime', 'endTime', 'uses', 'global', 'minimumAmount', 'discountAmount', 'discountRate', 'payment', 'products', 'customer', 'validators', 'virtual');
+            return array('__isInitialized__', 'id', 'code', 'customerId', 'paymentId', 'productId', 'startTime', 'endTime', 'uses', 'global', 'minimumAmount', 'discountAmount', 'discountRate', 'payment', 'product', 'customer', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'id', 'code', 'customerId', 'paymentId', 'productId', 'startTime', 'endTime', 'uses', 'global', 'minimumAmount', 'discountAmount', 'discountRate', 'payment', 'products', 'customer', 'validators', 'virtual');
+        return array('__isInitialized__', 'id', 'code', 'customerId', 'paymentId', 'productId', 'startTime', 'endTime', 'uses', 'global', 'minimumAmount', 'discountAmount', 'discountRate', 'payment', 'product', 'customer', 'validators', 'virtual');
     }
 
     /**
@@ -198,10 +198,6 @@ class DiscountCoupon extends \Cx\Modules\Shop\Model\Entity\DiscountCoupon implem
      */
     public function getId()
     {
-        if ($this->__isInitialized__ === false) {
-            return (int)  parent::getId();
-        }
-
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getId', array());
 
@@ -224,6 +220,10 @@ class DiscountCoupon extends \Cx\Modules\Shop\Model\Entity\DiscountCoupon implem
      */
     public function getCode()
     {
+        if ($this->__isInitialized__ === false) {
+            return  parent::getCode();
+        }
+
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCode', array());
 
@@ -475,23 +475,23 @@ class DiscountCoupon extends \Cx\Modules\Shop\Model\Entity\DiscountCoupon implem
     /**
      * {@inheritDoc}
      */
-    public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = NULL)
+    public function setProduct(\Cx\Modules\Shop\Model\Entity\Product $product = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProducts', array($products));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProduct', array($product));
 
-        return parent::setProducts($products);
+        return parent::setProduct($product);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getProducts()
+    public function getProduct()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProducts', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProduct', array());
 
-        return parent::getProducts();
+        return parent::getProduct();
     }
 
     /**

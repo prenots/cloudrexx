@@ -73,10 +73,10 @@ class Payment extends \Cx\Modules\Shop\Model\Entity\Payment implements \Doctrine
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'locale', 'id', 'processorId', 'fee', 'freeFrom', 'ord', 'active', 'name', 'discountCoupons', 'orders', 'paymentProcessors', 'zones', 'validators', 'virtual');
+            return array('__isInitialized__', 'locale', 'id', 'processorId', 'fee', 'freeFrom', 'ord', 'active', 'name', 'discountCoupons', 'orders', 'paymentProcessor', 'zones', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'locale', 'id', 'processorId', 'fee', 'freeFrom', 'ord', 'active', 'name', 'discountCoupons', 'orders', 'paymentProcessors', 'zones', 'validators', 'virtual');
+        return array('__isInitialized__', 'locale', 'id', 'processorId', 'fee', 'freeFrom', 'ord', 'active', 'name', 'discountCoupons', 'orders', 'paymentProcessor', 'zones', 'validators', 'virtual');
     }
 
     /**
@@ -343,23 +343,23 @@ class Payment extends \Cx\Modules\Shop\Model\Entity\Payment implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
+    public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addDiscountCoupon', array($discountCoupons));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addDiscountCoupon', array($discountCoupon));
 
-        return parent::addDiscountCoupon($discountCoupons);
+        return parent::addDiscountCoupon($discountCoupon);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
+    public function removeDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeDiscountCoupon', array($discountCoupons));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeDiscountCoupon', array($discountCoupon));
 
-        return parent::removeDiscountCoupon($discountCoupons);
+        return parent::removeDiscountCoupon($discountCoupon);
     }
 
     /**
@@ -376,23 +376,23 @@ class Payment extends \Cx\Modules\Shop\Model\Entity\Payment implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function addOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOrder', array($orders));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addOrder', array($order));
 
-        return parent::addOrder($orders);
+        return parent::addOrder($order);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeOrder', array($orders));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeOrder', array($order));
 
-        return parent::removeOrder($orders);
+        return parent::removeOrder($order);
     }
 
     /**
@@ -409,45 +409,45 @@ class Payment extends \Cx\Modules\Shop\Model\Entity\Payment implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function setPaymentProcessors(\Cx\Modules\Shop\Model\Entity\PaymentProcessors $paymentProcessors = NULL)
+    public function setPaymentProcessor(\Cx\Modules\Shop\Model\Entity\PaymentProcessor $paymentProcessor = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setPaymentProcessors', array($paymentProcessors));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setPaymentProcessor', array($paymentProcessor));
 
-        return parent::setPaymentProcessors($paymentProcessors);
+        return parent::setPaymentProcessor($paymentProcessor);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getPaymentProcessors()
+    public function getPaymentProcessor()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getPaymentProcessors', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getPaymentProcessor', array());
 
-        return parent::getPaymentProcessors();
+        return parent::getPaymentProcessor();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function addZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
+    public function addZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addZone', array($zones));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addZone', array($zone));
 
-        return parent::addZone($zones);
+        return parent::addZone($zone);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
+    public function removeZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeZone', array($zones));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeZone', array($zone));
 
-        return parent::removeZone($zones);
+        return parent::removeZone($zone);
     }
 
     /**
