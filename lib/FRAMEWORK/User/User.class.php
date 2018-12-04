@@ -667,7 +667,6 @@ class User extends User_Profile
                 $objDatabase->startTrans();
                 if (
                     $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_user_attribute_value` WHERE `user_id` = ' . $this->id) !== false &&
-                    $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_user_profile` WHERE `user_id` = ' . $this->id) !== false &&
                     $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_rel_user_group` WHERE `user_id` = ' . $this->id) !== false &&
                     $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_user_network` WHERE `user_id` = ' . $this->id) !== false &&
                     $objDatabase->Execute('DELETE FROM `'.DBPREFIX.'access_users` WHERE `id` = ' . $this->id) !== false
