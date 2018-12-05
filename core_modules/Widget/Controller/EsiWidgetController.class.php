@@ -214,6 +214,7 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
     protected function objectifyParams($params) {
         $possibleGetParams = array(
             'page' => function($pageId) use ($params) {
+                $page = null;
                 if (!isset(static::$esiParamPage[$pageId])) {
                     $em = $this->cx->getDb()->getEntityManager();
                     $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
@@ -328,6 +329,7 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
             'theme' => function($themeId) {
                 $themeRepo = new \Cx\Core\View\Model\Repository\ThemeRepository();
                 $theme = $themeRepo->findById($themeId);
+                $this->cx->getResponse()->setTheme($theme);
                 return $theme;
             },
             'channel' => function($channel) {

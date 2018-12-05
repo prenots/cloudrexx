@@ -176,6 +176,13 @@ class BackendTable extends HTML_Table {
                         isset($options['fields'][$origHeader]['table']['parse'])
                     ) {
                         $callback = $options['fields'][$origHeader]['table']['parse'];
+                        $vgId = null;
+                        if (
+                            isset($options['functions']) &&
+                            isset($options['functions']['vg_increment_number'])
+                        ) {
+                            $vgId = $options['functions']['vg_increment_number'];
+                        }
                         if (
                             is_array($callback) &&
                             isset($callback['adapter']) &&
@@ -188,13 +195,20 @@ class BackendTable extends HTML_Table {
                                 array(
                                     'data' => $data,
                                     'rows' => $rows,
+                                    'options' => $options['fields'][$origHeader],
+                                    'vgId' => $vgId,
                                 )
                             );
                             if ($jsonResult['status'] == 'success') {
                                 $data = $jsonResult["data"];
                             }
                         } else if(is_callable($callback)){
-                            $data = $callback($data, $rows);
+                            $data = $callback(
+                                $data,
+                                $rows,
+                                $options['fields'][$origHeader],
+                                $vgId
+                            );
                         }
                         $encode = false; // todo: this should be set by callback
                     } else if (is_object($data) && get_class($data) == 'DateTime') {
@@ -383,12 +397,13 @@ class BackendTable extends HTML_Table {
     function setCellContents($row, $col, $contents, $type = 'TD', $body = 0, $encode = false)
     {
         if ($encode) {
-            //1->n relations
+            // 1->n & n->n relations
+            $displayedRelationsLimit = 3;
             if (is_object($contents) && $contents instanceof \Doctrine\ORM\PersistentCollection) {
-                $contents = $contents->toArray();
+                // EXTRA_LAZY fetched can be sliced (results in a LIMIT)
+                $contents = $contents->slice(0, $displayedRelationsLimit + 1);
             }
             if (is_array($contents)) {
-                $displayedRelationsLimit = 3;
                 if (count($contents) > $displayedRelationsLimit) {
                     $contents = array_slice($contents, 0, $displayedRelationsLimit);
                     $contents[] = '...';
@@ -419,6 +434,9 @@ class BackendTable extends HTML_Table {
             return true;
         }
         if (!$virtual && isset($functions['delete']) && $functions['delete']) {
+            return true;
+        }
+        if (!$virtual && isset($functions['copy']) && $functions['copy']) {
             return true;
         }
         return false;
@@ -463,6 +481,18 @@ class BackendTable extends HTML_Table {
         }
 
         if(!$virtual){
+            if (isset($functions['copy']) && $functions['copy']) {
+                $actionUrl = clone \Cx\Core\Core\Controller\Cx::instanciate()->getRequest()->getUrl();
+                $actionUrl->setParam('copy', $editId);
+                //remove the parameter 'vg_increment_number' from actionUrl
+                //if the baseUrl contains the parameter 'vg_increment_number'
+                $params = $actionUrl->getParamArray();
+                if (isset($params['vg_increment_number'])) {
+                    \Html::stripUriParam($actionUrl, 'vg_increment_number');
+                }
+                $code = '<a href="'.$actionUrl.'" class="copy" title="'.$_ARRAYLANG['TXT_CORE_RECORD_COPY_TITLE'].'"></a>';
+
+            }
             if (isset($functions['edit']) && $functions['edit']) {
                 $editUrl->setParam('editid', $editId);
                 //remove the parameter 'vg_increment_number' from editUrl
