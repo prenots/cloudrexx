@@ -1,11 +1,49 @@
 <?php
 
-namespace Cx\Core\User\Model\Entity;
-
-use Doctrine\ORM\Mapping as ORM;
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2018
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
 
 /**
- * User
+ * Users can be created and managed.
+ *
+ * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @author      Dario Graf <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_user
+ * @version     5.0.0
+ */
+namespace Cx\Core\User\Model\Entity;
+
+/**
+ * Users can be created and managed.
+ *
+ * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @author      Dario Graf <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_user
+ * @version     5.0.0
  */
 class User extends \Cx\Model\Base\EntityBase {
     /**
@@ -160,8 +198,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setIsAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin;
-
-        return $this;
     }
 
     /**
@@ -183,8 +219,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setUsername($username)
     {
         $this->username = $username;
-
-        return $this;
     }
 
     /**
@@ -206,8 +240,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setPassword($password)
     {
         $this->password = $password;
-
-        return $this;
     }
 
     /**
@@ -229,8 +261,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setAuthToken($authToken)
     {
         $this->authToken = $authToken;
-
-        return $this;
     }
 
     /**
@@ -252,8 +282,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setAuthTokenTimeout($authTokenTimeout)
     {
         $this->authTokenTimeout = $authTokenTimeout;
-
-        return $this;
     }
 
     /**
@@ -275,8 +303,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setRegdate($regdate)
     {
         $this->regdate = $regdate;
-
-        return $this;
     }
 
     /**
@@ -298,8 +324,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setExpiration($expiration)
     {
         $this->expiration = $expiration;
-
-        return $this;
     }
 
     /**
@@ -321,8 +345,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setValidity($validity)
     {
         $this->validity = $validity;
-
-        return $this;
     }
 
     /**
@@ -344,8 +366,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setLastAuth($lastAuth)
     {
         $this->lastAuth = $lastAuth;
-
-        return $this;
     }
 
     /**
@@ -367,8 +387,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setLastAuthStatus($lastAuthStatus)
     {
         $this->lastAuthStatus = $lastAuthStatus;
-
-        return $this;
     }
 
     /**
@@ -390,8 +408,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setLastActivity($lastActivity)
     {
         $this->lastActivity = $lastActivity;
-
-        return $this;
     }
 
     /**
@@ -413,8 +429,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setEmail($email)
     {
         $this->email = $email;
-
-        return $this;
     }
 
     /**
@@ -436,8 +450,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setEmailAccess($emailAccess)
     {
         $this->emailAccess = $emailAccess;
-
-        return $this;
     }
 
     /**
@@ -459,8 +471,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setFrontendLangId($frontendLangId)
     {
         $this->frontendLangId = $frontendLangId;
-
-        return $this;
     }
 
     /**
@@ -482,8 +492,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setBackendLangId($backendLangId)
     {
         $this->backendLangId = $backendLangId;
-
-        return $this;
     }
 
     /**
@@ -505,8 +513,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setActive($active)
     {
         $this->active = $active;
-
-        return $this;
     }
 
     /**
@@ -528,8 +534,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setVerified($verified)
     {
         $this->verified = $verified;
-
-        return $this;
     }
 
     /**
@@ -551,8 +555,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setPrimaryGroup($primaryGroup)
     {
         $this->primaryGroup = $primaryGroup;
-
-        return $this;
     }
 
     /**
@@ -574,8 +576,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setProfileAccess($profileAccess)
     {
         $this->profileAccess = $profileAccess;
-
-        return $this;
     }
 
     /**
@@ -597,8 +597,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setRestoreKey($restoreKey)
     {
         $this->restoreKey = $restoreKey;
-
-        return $this;
     }
 
     /**
@@ -620,8 +618,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setRestoreKeyTime($restoreKeyTime)
     {
         $this->restoreKeyTime = $restoreKeyTime;
-
-        return $this;
     }
 
     /**
@@ -643,8 +639,6 @@ class User extends \Cx\Model\Base\EntityBase {
     public function setU2uActive($u2uActive)
     {
         $this->u2uActive = $u2uActive;
-
-        return $this;
     }
 
     /**
@@ -691,13 +685,23 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set userAttributeValue
+     * Add userAttributeValue
      *
      * @param \Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue
      */
-    public function setUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue = null)
+    public function addUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue)
     {
-        $this->userAttributeValue = $userAttributeValue;
+        $this->userAttributeValue[] = $userAttributeValue;
+    }
+
+    /**
+     * Remove userAttributeValue
+     *
+     * @param \Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue
+     */
+    public function removeUserAttributeValue(\Cx\Core\User\Model\Entity\UserAttributeValue $userAttributeValue)
+    {
+        $this->userAttributeValue->removeElement($userAttributeValue);
     }
 
     /**

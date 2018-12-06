@@ -1,11 +1,49 @@
 <?php
 
-namespace Cx\Core\User\Model\Entity;
-
-use Doctrine\ORM\Mapping as ORM;
+/**
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2018
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
 
 /**
- * Group
+ * Users can be assigned to groups.
+ *
+ * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @author      Dario Graf <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_user
+ * @version     5.0.0
+ */
+namespace Cx\Core\User\Model\Entity;
+
+/**
+ * Users can be assigned to groups.
+ *
+ * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
+ * @author      Dario Graf <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_user
+ * @version     5.0.0
  */
 class Group extends \Cx\Model\Base\EntityBase {
     /**
@@ -75,8 +113,6 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function setGroupName($groupName)
     {
         $this->groupName = $groupName;
-
-        return $this;
     }
 
     /**
@@ -98,8 +134,6 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function setGroupDescription($groupDescription)
     {
         $this->groupDescription = $groupDescription;
-
-        return $this;
     }
 
     /**
@@ -121,8 +155,6 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function setIsActive($isActive)
     {
         $this->isActive = $isActive;
-
-        return $this;
     }
 
     /**
@@ -144,8 +176,6 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function setType($type)
     {
         $this->type = $type;
-
-        return $this;
     }
 
     /**
@@ -167,8 +197,6 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function setHomepage($homepage)
     {
         $this->homepage = $homepage;
-
-        return $this;
     }
 
     /**
@@ -190,8 +218,6 @@ class Group extends \Cx\Model\Base\EntityBase {
     public function setToolbar($toolbar)
     {
         $this->toolbar = $toolbar;
-
-        return $this;
     }
 
     /**

@@ -30,7 +30,7 @@ Cx\Core\User\Model\Entity\UserAttributeValue:
   manyToOne:
     userAttribute:
       targetEntity: Cx\Core\User\Model\Entity\UserAttribute
-      inversedBy: userAttributeName
+      inversedBy: userAttributeValue
       joinColumns:
         attribute_id:
           referencedColumnName: id
@@ -38,7 +38,7 @@ Cx\Core\User\Model\Entity\UserAttributeValue:
       targetEntity: Cx\Core\User\Model\Entity\User
       inversedBy: userAttributeValue
       joinColumns:
-        onDelete: RESTRICT
-        onUpdate: RESTRICT
-        name: user_id:
-        referencedColumnName: id
+        user_id:
+          onDelete: RESTRICT
+          onUpdate: RESTRICT
+          referencedColumnName: id

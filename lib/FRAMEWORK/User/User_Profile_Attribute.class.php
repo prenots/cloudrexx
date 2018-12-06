@@ -669,9 +669,11 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 `parent_id`,
                 `access_special`,
                 `access_id`,
-                `read_access_id`
+                `read_access_id`,
+                `is_default`
             FROM
                 `' . DBPREFIX . 'access_user_attribute`
+            WHERE `is_default` = 0
             ORDER BY
                 `order_id`,
                 `id`
