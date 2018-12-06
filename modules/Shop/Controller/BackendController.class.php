@@ -133,6 +133,46 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         );
 
         switch ($entityClassName) {
+            case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
+                $options['order']['overview'] = array(
+                    'id',
+                    'name',
+                    'uri'
+                );
+                $options['order']['form'] = array(
+                    'name',
+                    'uri'
+                );
+
+                $options['fields'] = array(
+                    'id' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'manufacturer-id',
+                            ),
+                        ),
+                    ),
+                    'name' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'manufacturer-name',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'uri' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'manufacturer-uri',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'products' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
 
         }
         return $options;
