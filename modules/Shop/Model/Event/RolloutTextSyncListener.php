@@ -49,15 +49,15 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
     protected $mappedAttributes =
         array(
             'category_description' => array(
-                'entity' => 'Categories',
+                'entity' => 'Category',
                 'attr' => 'description'
             ),
             'category_name' => array(
-                'entity' => 'Categories',
+                'entity' => 'Category',
                 'attr' => 'name'
             ),
             'currency_name' => array(
-                'entity' => 'Currencies',
+                'entity' => 'Currency',
                 'attr' => 'name'
             ),
             'discount_group_article' => array(
@@ -77,27 +77,27 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
                 'attr' => 'name'
             ),
             'product_code' => array(
-                'entity' => 'Products',
+                'entity' => 'Product',
                 'attr' => 'code'
             ),
             'product_keys' => array(
-                'entity' => 'Products',
+                'entity' => 'Product',
                 'attr' => 'keys'
             ),
             'product_long' => array(
-                'entity' => 'Products',
+                'entity' => 'Product',
                 'attr' => 'long'
             ),
             'product_name' => array(
-                'entity' => 'Products',
+                'entity' => 'Product',
                 'attr' => 'name'
             ),
             'product_short' => array(
-                'entity' => 'Products',
+                'entity' => 'Product',
                 'attr' => 'short'
             ),
             'product_uri' => array(
-                'entity' => 'Products',
+                'entity' => 'Product',
                 'attr' => 'uri'
             ),
         );
