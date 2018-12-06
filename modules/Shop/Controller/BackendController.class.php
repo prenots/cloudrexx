@@ -64,10 +64,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
 
-        switch($_GET['act'])  {
-            case 'newShopPages':
+        switch(lcfirst($_GET['act']))  {
+            case 'manufacturer':
+                $_GET['act'] = ucfirst($_GET['act']);
                 parent::getPage($page);
                 return;
+            default:
+                break;
         }
 
         $this->cx->getTemplate()->addBlockfile(
