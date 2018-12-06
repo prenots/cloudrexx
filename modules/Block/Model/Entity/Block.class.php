@@ -163,7 +163,6 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
      */
     protected $versionRelPageDirect;
 
-
     public function __construct()
     {
         $this->relLangContents = new \Doctrine\Common\Collections\ArrayCollection();
@@ -661,8 +660,25 @@ class Block extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
     }
 
     /**
+     * Returns this block's content. Required WidgetParseTarget getter
+     * @param int $langId Internal language/locale ID
+     * @return string Block content
+     */
+    public function getContent($localeId) {
+        foreach ($this->relLangContents as $content) {
+            if (!$content->getActive()) {
+                continue;
+            }
+            if ($content->getLocale()->getId() == $localeId) {
+                return $content->getContent();
+            }
+        }
+
+        return '';
+    }
+
+    /**
      * Returns the name of the attribute which contains content that may contain a widget
-     *
      * @param string $widgetName
      * @return string Attribute name
      */
