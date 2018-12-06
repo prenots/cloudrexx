@@ -354,7 +354,7 @@ class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     /**
      * Remove zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zone
+     * @param \Cx\Modules\Shop\Model\Entity\Zone $zone
      */
     public function removeZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
