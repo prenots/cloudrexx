@@ -242,9 +242,9 @@ class Shipper extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     /**
      * Set zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zone
+     * @param \Cx\Modules\Shop\Model\Entity\Zone $zone
      */
-    public function setZone(\Cx\Modules\Shop\Model\Entity\Zones $zone)
+    public function setZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
         $this->zone = $zone;
     }

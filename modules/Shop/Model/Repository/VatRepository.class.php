@@ -2,8 +2,6 @@
 
 namespace Cx\Modules\Shop\Model\Repository;
 
-use Doctrine\ORM\EntityRepository;
-
 /**
  * VatRepository
  *
