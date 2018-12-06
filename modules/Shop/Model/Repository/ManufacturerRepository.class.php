@@ -33,7 +33,7 @@ class ManufacturerRepository extends \Doctrine\ORM\EntityRepository
      *    'url' => Manufacturer URI,
      *  )
      * @static
-     * @param   string            $order      The optional sorting order.
+     * @param   array            $order      The optional sorting order.
      *                                        Defaults to null (unsorted)
      * @return  boolean                       True on success, false otherwise
      * @global  ADONewConnection  $objDatabase
@@ -42,39 +42,21 @@ class ManufacturerRepository extends \Doctrine\ORM\EntityRepository
      */
     protected function init($order=null)
     {
-        global $objDatabase;
+        $manufactures = $this->findBy(array(), $order);
 
-        $arrSql = \Text::getSqlSnippets('`manufacturer`.`id`',
-            FRONTEND_LANG_ID, 'Shop',
-            array('name' => self::TEXT_NAME, 'url' => self::TEXT_URI));
-        $query = "
-            SELECT `manufacturer`.`id`, ".
-            $arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_manufacturer` AS `manufacturer`".
-            $arrSql['join'].
-            ($order ? " ORDER BY $order" : '');
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return $this->errorHandler();
+        if (!$manufactures) return false;
         $this->arrManufacturer = array();
-        while (!$objResult->EOF) {
-            $id = $objResult->fields['id'];
-            $strName = $objResult->fields['name'];
-            // Replace Text in a missing language by another, if available
-            if ($strName === null) {
-                $strName = \Text::getById(
-                    $id, 'Shop', self::TEXT_NAME)->content();
-            }
-            $strUrl = $objResult->fields['url'];
-            if ($strUrl === null) {
-                $strUrl = \Text::getById(
-                    $id, 'Shop', self::TEXT_URI)->content();
-            }
+
+        foreach ($manufactures as $manufacture) {
+            $id = $manufacture->getId();
+            $strName = $manufacture->getName();
+            $strUrl = $manufacture->getUri();
+
             $this->arrManufacturer[$id] = array(
                 'id' => $id,
                 'name' => $strName,
                 'url' => $strUrl,
             );
-            $objResult->MoveNext();
         }
         return true;
     }
@@ -139,7 +121,7 @@ class ManufacturerRepository extends \Doctrine\ORM\EntityRepository
         if (is_null($arrManufacturerName)) {
             $arrManufacturerName = array();
             $count = 0;
-            foreach ($this->getArray($count, '`name` ASC', 0, 1000)
+            foreach ($this->getArray($count, array('name' => 'ASC'), 0, 1000)
                      as $id => $arrManufacturer) {
                 $arrManufacturerName[$id] = $arrManufacturer['name'];
             }
@@ -156,7 +138,7 @@ class ManufacturerRepository extends \Doctrine\ORM\EntityRepository
      * database table.
      * See {@link init()} for details on the array.
      * @param   integer   $count    The count, by reference
-     * @param   string    $order    The optional sorting order.
+     * @param   array    $order    The optional sorting order.
      *                              Defaults to null
      * @param   integer   $offset   The optional record offset.
      *                              Defaults to 0 (zero)
@@ -171,7 +153,7 @@ class ManufacturerRepository extends \Doctrine\ORM\EntityRepository
     protected function getArray(&$count, $order=null, $offset=0, $limit=null)//, $filter=null)
     {
 //        $filter; // Shut up the code analyzer
-        if (is_null($this->arrManufacturer)) self::init($order);
+        if (is_null($this->arrManufacturer)) $this->init($order);
         $count = count($this->arrManufacturer);
         return array_slice($this->arrManufacturer, $offset, $limit, true);
     }
