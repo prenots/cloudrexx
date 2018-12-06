@@ -46,9 +46,7 @@ namespace Cx\Modules\Block\Controller;
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class JsonBlockException extends \Exception
-{
-}
+class JsonBlockException extends \Exception {}
 
 /**
  * Cx\Modules\Block\Controller\NotEnoughArgumentsException
@@ -59,9 +57,7 @@ class JsonBlockException extends \Exception
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class NotEnoughArgumentsException extends JsonBlockException
-{
-}
+class NotEnoughArgumentsException extends JsonBlockException {}
 
 /**
  * Cx\Modules\Block\Controller\NoBlockFoundException
@@ -72,9 +68,7 @@ class NotEnoughArgumentsException extends JsonBlockException
  * @package     cloudrexx
  * @subpackage  module_block
  */
-class NoBlockFoundException extends JsonBlockException
-{
-}
+class NoBlockFoundException extends JsonBlockException {}
 
 /**
  * Cx\Modules\Block\Controller\NoBlockFoundException
@@ -155,8 +149,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      * Returns all messages as string
      * @return String HTML encoded error messages
      */
-    public function getMessagesAsString()
-    {
+    public function getMessagesAsString() {
         return implode('<br />', $this->messages);
     }
 
@@ -179,12 +172,12 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         if (!defined('FRONTEND_LANG_ID')) {
             define('FRONTEND_LANG_ID', 1);
         }
-        $arrCountries = \Cx\Core\Country\Controller\Country::searchByName($term, null, false);
+        $arrCountries = \Cx\Core\Country\Controller\Country::searchByName($term,null,false);
         foreach ($arrCountries as $country) {
             $countries[] = array(
-                'id' => $country['id'],
+                'id'    => $country['id'],
                 'label' => $country['name'],
-                'val' => $country['name'],
+                'val'   => $country['name'],
             );
         }
         return array(
@@ -197,8 +190,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      *
      * @return array List of blocks (lang => id )
      */
-    public function getBlocks()
-    {
+    public function getBlocks() {
         global $objInit, $_CORELANG;
 
         if (!\FWUser::getFWUserObject()->objUser->login() || $objInit->mode != 'backend') {
@@ -211,7 +203,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $blockLib = new \Cx\Modules\Block\Controller\BlockLibrary();
         $blocks = $blockLib->getBlocks();
         $data = array();
-        foreach ($blocks as $id => $block) {
+        foreach ($blocks as $id=>$block) {
             $data[$id] = array(
                 'id' => $id,
                 'name' => $block['name'],
@@ -287,7 +279,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $content = $relLangContent->getContent();
 
         $this->cx->parseGlobalPlaceholders($content);
-        $template = new \Cx\Core\Html\Sigma();
+        $template = new \Cx\Core_Modules\Widget\Model\Entity\Sigma();
         $template->setTemplate($content);
         $this->getComponent('Widget')->parseWidgets(
             $template,

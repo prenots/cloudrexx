@@ -56,12 +56,62 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
      * Parses a widget
      *
      * @param string                                 $name     Widget name
-     * @param \Cx\Core\Html\Sigma Widget             $template Template
+     * @param \Cx\Core\Html\Sigma              $template Template
      * @param \Cx\Core\Routing\Model\Entity\Response $response Response object
      * @param array                                  $params   Get parameters
      */
     public function parseWidget($name, $template, $response, $params)
     {
+        if ($name == 'locale_navbar') {
+
+            $currentPage = $params['page'];
+
+            $listProtectedPages = \Cx\Core\Setting\Controller\Setting::getValue(
+                'coreListProtectedPages',
+                'Config'
+            ) == 'on';
+
+            foreach (\FWLanguage::getActiveFrontendLanguages() as $lang) {
+                $languageCode = $lang['iso1'];
+                $langId = $lang['id'];
+                $lang = $lang['lang'];
+                $langPage = $currentPage->getNode()->getPage($langId);
+                // if page is not translated,
+                // inactive (incl. scheduled publishing) or protected
+                if (
+                    !$langPage ||
+                    !$langPage->isActive() ||
+                    (
+                        !$listProtectedPages &&
+                        $langPage->isFrontendProtected() &&
+                        !\Permission::checkAccess(
+                            $langPage->getFrontendAccessId(),
+                            'dynamic',
+                            true
+                        )
+                    )
+                ) {
+                    continue;
+                }
+
+                $template->setVariable(
+                    array(
+                        'PAGE_LINK' => contrexx_raw2xhtml(
+                            \Cx\Core\Routing\Url::fromPage($langPage)->toString()
+                        ),
+                        'PAGE_TITLE' => contrexx_raw2xhtml($langPage->getTitle()),
+                        'LOCALE' => $lang,
+                        'LANGUAGE_CODE' => $languageCode,
+                    )
+                );
+                if ($lang == $params['locale']->getShortForm()) {
+                    $template->touchBlock('current_locale');
+                }
+                $template->parse($name);
+            }
+            return;
+        }
+
         if ($name === 'CHARSET') {
             $template->setVariable($name, CONTREXX_CHARSET);
             return;
@@ -70,22 +120,23 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         if ($name == 'ACTIVE_LANGUAGE_NAME') {
             $template->setVariable(
                 $name,
-                \FWLanguage::getLanguageCodeById($params['lang'])
+                $params['locale']->getShortForm()
             );
             return;
         }
 
         $matches = null;
+
         if (
             preg_match(
-                '/^LANG_SELECTED_([A-Z]{1,2}(?:-[A-Z]{2,4})?)$/',
+                '/^LANG_SELECTED_([A-Z]{1,2}(?:_[A-Z]{2,4})?)$/',
                 $name,
-                $matches
+                $matches // E.g., "FR_CH"
             )
         ) {
             $selected = '';
-            $langCode = \FWLanguage::getLanguageCodeById($params['lang']);
-            if ($matches[1] === strtoupper($langCode)) {
+            $langCode = $params['locale']->getShortForm(); // E.g., "fr-CH"
+            if (str_replace('_', '-', $matches[1]) === strtoupper($langCode)) {
                 $selected = 'selected';
             }
             $template->setVariable($name, $selected);
@@ -99,27 +150,46 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
 
         $navbar = new \Navigation($page->getId(), $page);
         if ($name === 'LANGUAGE_NAVBAR') {
-            $template->setVariable($name, $navbar->getFrontendLangNavigation($page));
+            $template->setVariable(
+                $name,
+                $navbar->getFrontendLangNavigation($page)
+            );
             return;
         }
 
         if ($name === 'LANGUAGE_NAVBAR_SHORT') {
-            $template->setVariable($name, $navbar->getFrontendLangNavigation($page, true));
+            $template->setVariable(
+                $name,
+                $navbar->getFrontendLangNavigation($page, true)
+            );
             return;
         }
 
         $langMatches = null;
         if (
             preg_match(
-                '/^LANG_CHANGE_([A-Z]{1,2}(?:-[A-Z]{2,4})?)$/',
+                '/^LANG_CHANGE_([A-Z]{1,2}(?:_[A-Z]{2,4})?)$/',
                 $name,
                 $langMatches
             )
         ) {
-            $langId = \FWLanguage::getLanguageIdByCode($langMatches[1]);
+            // make iso1 part of code lowercase (e.g DE-CH --> de-CH)
+            $code = explode('_', $langMatches[1]);
+            $code[0] = strtolower($code[0]);
+            $code = implode('-', $code);
+
+            $locale = $this->cx->getDb()->getEntityManager()
+                ->getRepository('\Cx\Core\Locale\Model\Entity\Locale')
+                ->findOneByCode($code);
+
+            // return early and don't set variable if locale doesn't exist
+            if (!$locale) {
+                return;
+            }
+
             $template->setVariable(
                 $name,
-                $navbar->getLanguageLinkById($page, $langId)
+                $navbar->getLanguageLinkById($page, $locale->getId())
             );
         }
     }

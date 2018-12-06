@@ -31,6 +31,7 @@
  * Provides some commonly used HTML elements
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
+ * @deprecated  This class is deprected in favor of using Sigma or \Cx\Core\Html\Model\Entity\...
  * @version     3.0.0
  * @package     cloudrexx
  * @subpackage  core
@@ -42,6 +43,7 @@
  * Provides some commonly used HTML elements
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Reto Kohli <reto.kohli@comvation.com>
+ * @deprecated  This class is deprected in favor of using Sigma or \Cx\Core\Html\Model\Entity\...
  * @version     3.0.0
  * @package     cloudrexx
  * @subpackage  core
@@ -641,9 +643,17 @@ var _active_tab = '.
         foreach ($arrOptions as $key => $value) {
             $options .=
                 '<option value="' . $key . '"'
-                . (is_array($selected) && array_key_exists($key, $selected)
-                    || "$selected" === "$key"
-                        ? Html::ATTRIBUTE_SELECTED : '')
+                . (
+                    (
+                        is_array($selected) &&
+                        array_key_exists($key, $selected)
+                    ) || 
+                    (
+                        !is_array($selected) &&
+                        "$selected" === "$key"
+                    )
+                    ? Html::ATTRIBUTE_SELECTED : ''
+                )
                 . ($attribute ? ' ' . $attribute : '') . '>'
                 . ($value != '' ? contrexx_raw2xhtml($value) : '&nbsp;')
                 . "</option>\n";
@@ -2070,9 +2080,8 @@ cx.jQuery(document).ready(function($) {
 
         $key_off = $class_off = $key_on = $class_on = $key_nop =
         $class_nop = $title_off = $title_on = $title_nop = null;
-        list ($key_off, $class_off) = each($arrStatus);
-        list ($key_on, $class_on) = each($arrStatus);
-        list ($key_nop, $class_nop) = each($arrStatus);
+        list ($key_off, $key_on, $key_nop)       = array_keys($arrStatus);
+        list ($class_off, $class_on, $class_nop) = array_values($arrStatus);
         list ($title_off, $title_on, $title_nop) =
             (is_array($arrTitle) && count($arrTitle) == 3
               ? array_values($arrTitle) : array('', '', ''));

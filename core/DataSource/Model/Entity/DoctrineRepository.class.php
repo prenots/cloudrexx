@@ -48,13 +48,30 @@ namespace Cx\Core\DataSource\Model\Entity;
 class DoctrineRepository extends DataSource {
 
     /**
+     * List of operations supported by this DataSource
+     * @var array List of operations
+     */
+    protected $supportedOperations = array('lt', 'gt', 'lte', 'gte', 'in', 'eq', 'not');
+
+    /**
+     * Returns a list of field names this DataSource consists of
+     * @return array List of field names
+     */
+    public function listFields() {
+        $em = $this->cx->getDb()->getEntityManager();
+        return $em->getClassMetadata($this->getIdentifier())->getFieldNames();
+    }
+
+    /**
      * Gets one or more entries from this DataSource
      *
      * If an argument is not provided, no restriction is made for this argument.
      * So if this is called without any arguments, all entries of this
      * DataSource are returned.
      * If no entry is found, an empty array is returned.
-     * @param string $elementId (optional) ID of the element if only one is to be returned
+     * @todo test relations with composite key
+     * @todo test n:n relations
+     * @param array $elementId (optional) field=>value-type condition array identifying an entry
      * @param array $filter (optional) field=>value-type condition array, only supports = for now
      * @param array $order (optional) field=>order-type array, order is either "ASC" or "DESC"
      * @param int $limit (optional) If set, no more than $limit results are returned
@@ -64,33 +81,40 @@ class DoctrineRepository extends DataSource {
      * @return array Two dimensional array (/table) of results (array($row=>array($fieldName=>$value)))
      */
     public function get(
-        $elementId = null,
+        $elementId = array(),
         $filter = array(),
         $order = array(),
         $limit = 0,
         $offset = 0,
         $fieldList = array()
     ) {
-        $repo = $this->getRepository();
         $em = $this->cx->getDb()->getEntityManager();
 
         $criteria = array();
 
-        // $filter
-        if (count($fieldList)) {
-            foreach ($filter as $field=>$value) {
-                if (!in_array($field, $fieldList)) {
-                    continue;
+        // Add filters
+        foreach ($filter as $field => $filterExpr) {
+            foreach ($filterExpr as $operation=>$value) {
+                if (!$this->supportsOperation($operation)) {
+                    throw new \InvalidArgumentException(
+                        'Operation "' . $operation . '" is not supported'
+                    );
                 }
-                $criteria[$field] = $value;
+                if ($operation == 'in') {
+                    $value = explode(',', $value);
+                }
+                $criteria[$field] = array($operation => $value);
             }
         }
 
-        // $elementId
-        if (isset($elementId)) {
-            $meta = $em->getClassMetadata($this->getIdentifier());
-            $identifierField = $meta->getSingleIdentifierFieldName();
-            $criteria[$identifierField] = $elementId;
+        // Add id to filter (after other filters to prevent override)
+        if (isset($elementId) && count($elementId)) {
+            foreach ($elementId as $field=>$id) {
+                if (empty($id)) {
+                    continue;
+                }
+                $criteria[$field] = array('eq' => $id);
+            }
         }
 
         // $order
@@ -103,25 +127,54 @@ class DoctrineRepository extends DataSource {
             }
         }
 
-        // order, limit and offset are not supported by our doctrine version
-        // yet! This would be the nice way to solve this:
-        /*$result = $repo->findBy(
-            $criteria,
-            $order,
-            (int) $limit,
-            (int) $offset
-        );//*/
+        // if recursion is on we recurse for all "to 1" and n:n relations.
+        // additionally we recurse for recursions forced by options.
+        $configuredRecursions = array();
+        if ($this->getOption('recurse')) {
+            $configValues = array(
+                'forcedRecursions' => array(),
+                'skippedRecursions' => array(),
+            );
+            foreach ($configValues as $config=>&$configValue) {
+                $configValue = $this->getOption($config);
+                if (!is_array($configValue)) {
+                    $configValue = array();
+                }
+            }
+            $configuredRecursions = $this->resolveRecursedRelations(
+                $configValues['forcedRecursions'],
+                $configValues['skippedRecursions']
+            );
+        }
 
-        // but for now we'll have to:
+        $mappingTable = array();
         $qb = $em->createQueryBuilder();
-        $qb->select('x')
-            ->from($this->getIdentifier(), 'x');
+        // Note: our hydrator takes over the indexing
+        $qb->select('x')->from($this->getIdentifier(), 'x');
+        // joins
+        $i = 1;
+        foreach ($configuredRecursions as $property=>$class) {
+            $mappedProperty = str_replace(
+                array_keys($mappingTable),
+                array_values($mappingTable),
+                $property
+            );
+            $mappingTable[$mappedProperty . '.'] = 'x' . $i . '.';
+
+            $qb->addSelect('x' . $i);
+            // Note: our hydrator takes over the indexing
+            $qb->leftJoin($mappedProperty, 'x' . $i);
+            $i++;
+        }
+
         // $filter
         $i = 1;
-        foreach ($criteria as $field=>$value) {
-            $qb->andWhere($qb->expr()->eq('x.' . $field, '?' . $i));
-            $qb->setParameter($i, $value);
-            $i++;
+        foreach ($criteria as $field=>$filterExpr) {
+            foreach ($filterExpr as $operation=>$value) {
+                $qb->andWhere($qb->expr()->$operation('x.' . $field, '?' . $i));
+                $qb->setParameter($i, $value);
+                $i++;
+            }
         }
         // $order, $limit, $offset
         foreach ($order as $field=>$ascdesc) {
@@ -134,7 +187,7 @@ class DoctrineRepository extends DataSource {
                 $qb->setFirstResult($offset);
             }
         }
-        $result = $qb->getQuery()->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+        $result = $qb->getQuery()->getResult('IndexedArray');
 
         // $fieldList
         $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($result);
@@ -152,6 +205,61 @@ class DoctrineRepository extends DataSource {
         }
 
         return $dataSet->toArray();
+    }
+
+    /**
+     * Prepares an array with all relation recursions to do for this DataSource
+     *
+     * Automatically recurses all "to 1" and n:n reltions
+     * @param array $forcedRecursions List of relations to force anyway
+     * @param array $skippedRecursions List of relations to not recurse to
+     * @param string? $entityClass Fully qualified entity class name to parse relations of
+     * @param array? $output Previously generated part of end result
+     * @param string? $prefix Prefix for keys in $output
+     * @param array? $exclusionList List of fully qualified class names to ignore
+     */
+    protected function resolveRecursedRelations($forcedRecursions, $skippedRecursions, $entityClass = '', $output = array(), $prefix = 'x.', $exclusionList = array()) {
+        if (empty($entityClass)) {
+            $entityClass = $this->getIdentifier();
+        }
+        if (in_array($entityClass, $exclusionList)) {
+            return $output;
+        }
+        $exclusionList[] = $entityClass;
+        $em = $this->cx->getDb()->getEntityManager();
+        $metaData = $em->getClassMetadata($entityClass);
+        // foreach relation
+        foreach ($metaData->associationMappings as $relationField => $associationMapping) {
+            if (in_array($associationMapping['targetEntity'], $exclusionList)) {
+                continue;
+            }
+            // if is "to 1" or n:n or is forced by config
+            if (
+                (
+                    in_array($associationMapping['type'], array(
+                        \Doctrine\ORM\Mapping\ClassMetadata::ONE_TO_ONE,
+                        \Doctrine\ORM\Mapping\ClassMetadata::MANY_TO_ONE,
+                        \Doctrine\ORM\Mapping\ClassMetadata::MANY_TO_MANY,
+                    )) ||
+                    in_array(substr($prefix . $relationField, 2), $forcedRecursions)
+                ) &&
+                !in_array(substr($prefix . $relationField, 2), $skippedRecursions)
+            ) {
+                // add to array
+                $output[$prefix . $relationField] = $associationMapping['targetEntity'];
+                // recurse
+                $output = $this->resolveRecursedRelations(
+                    $forcedRecursions,
+                    $skippedRecursions,
+                    $associationMapping['targetEntity'],
+                    $output,
+                    $prefix . $relationField . '.',
+                    $exclusionList
+                );
+            }
+        }
+        ksort($output);
+        return $output;
     }
 
     /**
@@ -189,7 +297,7 @@ class DoctrineRepository extends DataSource {
 
     /**
      * Updates an existing entry of this DataSource
-     * @param string $elementId ID of the element to update
+     * @param array $elementId field=>value-type condition array identifying an entry
      * @param array $data Field=>value-type array. Not all fields are required.
      * @throws \Exception If something did not go as planned
      */
@@ -197,7 +305,7 @@ class DoctrineRepository extends DataSource {
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $this->getRepository();
 
-        $entity = $repo->find($elementId);
+        $entity = $repo->findBy($elementId);
 
         if (!$entity) {
             throw new \Exception('Entry not found!');
@@ -211,14 +319,14 @@ class DoctrineRepository extends DataSource {
 
     /**
      * Drops an entry from this DataSource
-     * @param string $elementId ID of the element to update
+     * @param array $elementId field=>value-type condition array identifying an entry
      * @throws \Exception If something did not go as planned
      */
     public function remove($elementId) {
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $this->getRepository();
 
-        $entity = $repo->find($elementId);
+        $entity = $repo->findBy($elementId);
 
         if (!$entity) {
             throw new \Exception('Entry not found!');
@@ -279,8 +387,43 @@ class DoctrineRepository extends DataSource {
         $associationMappings = $entityClassMetadata->getAssociationMappings();
         $classMethods = get_class_methods($entity);
         foreach ($associationMappings as $field => $associationMapping) {
-            if (   $entityClassMetadata->isSingleValuedAssociation($field)
-                && in_array('set'.ucfirst($field), $classMethods)
+            if (!isset($data[$field])) {
+                continue;
+            }
+            // handle many to many relations
+            if ($associationMapping['type'] == \Doctrine\ORM\Mapping\ClassMetadata::MANY_TO_MANY) {
+                // prepare data
+                $foreignEntityIndexes = explode(',', $data[$field]);
+                $targetRepo = $em->getRepository($associationMapping['targetEntity']);
+                $primaryKeys = $entityClassMetadata->getIdentifierFieldNames();
+                $addMethod = 'add'.preg_replace('/_([a-z])/', '\1', ucfirst($field));
+                // foreach distant entity
+                foreach ($foreignEntityIndexes as $foreignEntityIndex) {
+                    // prepare data
+                    $foreignEntityIds = explode('/', $foreignEntityIndex);
+                    $foreignEntityIndexData = array();
+                    foreach ($primaryKeys as $i=>$primaryFieldName) {
+                        $foreignEntityIndexData[$primaryFieldName] = $foreignEntityIds[$i];
+                    }
+                    $this->cx->getEvents()->triggerEvent(
+                        'preDistantEntityLoad',
+                        array(
+                            'targetEntityClassName' => $associationMapping['targetEntity'],
+                            'targetId' => &$foreignEntityIndexData,
+                        )
+                    );
+                    // find and add entity
+                    $targetEntity = $targetRepo->findOneBy($foreignEntityIndexData);
+                    if (!$targetEntity) {
+                        throw new \Exception(
+                            'Entity not found (' . $associationMapping['targetEntity'] . ' with ID ' . var_export($foreignEntityIndexData, true) . ')'
+                        );
+                    }
+                    $entity->$addMethod($targetEntity);
+                }
+            } else if (
+                $entityClassMetadata->isSingleValuedAssociation($field) &&
+                in_array('set'.ucfirst($field), $classMethods)
             ) {
                 $foreignId = $data[$field];
                 if (is_array($foreignId)) {
