@@ -1243,6 +1243,12 @@ die("Failed to update the Cart!");
                 $category_id = null;
             }
         }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $manufacturer = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Manufacturer'
+        );
+
         $shopMenu =
             '<form method="post" action="'.
             \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', '').'">'.
@@ -1252,7 +1258,7 @@ die("Failed to update the Cart!");
             '<select name="catId" style="width:150px;">'.
             '<option value="0">'.$_ARRAYLANG['TXT_ALL_PRODUCT_GROUPS'].
             '</option>'.ShopCategories::getMenuoptions($category_id).
-            '</select>&nbsp;'.Manufacturer::getMenu(
+            '</select>&nbsp;'.$manufacturer->getMenu(
                 'manufacturerId', $manufacturer_id, true).
             '<input type="submit" name="bsubmit" value="'.$_ARRAYLANG['TXT_SEARCH'].
             '" style="width:66px;" />'.
@@ -1266,7 +1272,7 @@ die("Failed to update the Cart!");
             'SHOP_CATEGORIES_MENUOPTIONS' =>
                 ShopCategories::getMenuoptions($category_id, true, 0, true),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
-                Manufacturer::getMenuoptions($manufacturer_id, true),
+                $manufacturer->getMenuoptions($manufacturer_id, true),
         ));
         // Only show the cart info when the JS cart is not active!
         global $_CONFIGURATION;
@@ -1681,9 +1687,9 @@ die("Failed to update the Cart!");
             $manufacturer_id = $objProduct->manufacturer_id();
             if ($manufacturer_id) {
                 $manufacturer_name =
-                    Manufacturer::getNameById($manufacturer_id, FRONTEND_LANG_ID);
+                    $manufacturer->getNameById($manufacturer_id, FRONTEND_LANG_ID);
                 $manufacturer_url =
-                    Manufacturer::getUrlById($manufacturer_id, FRONTEND_LANG_ID);
+                    $manufacturer->getUrlById($manufacturer_id, FRONTEND_LANG_ID);
             }
             if (!empty($manufacturer_url) || !empty($manufacturer_name)) {
                 if (empty($manufacturer_name)) {

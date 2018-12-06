@@ -1541,7 +1541,11 @@ class Product
         // Fix the Text, Discount, and Manufacturer tables first
         \Text::errorHandler();
 //        Discount::errorHandler(); // Called by Customer::errorHandler();
-        Manufacturer::errorHandler();
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $manufacturer = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Manufacturer'
+        );
+        $manufacturer->errorHandler();
 
         $table_name = DBPREFIX.'module_shop_products';
         $table_structure = array(
