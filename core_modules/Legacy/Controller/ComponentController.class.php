@@ -26,10 +26,7 @@
  */
 
 /**
- * Specific ComponentController for this Component.
- *
- * Use the examples here to easily customize your component. Delete this file
- * if you don't need it. Remove any methods you don't need! 
+ * Replaces legacy blocks and placeholders
  * @copyright   Cloudrexx AG
  * @author      Michael Ritter <michael.ritter@cloudrexx.com>
  * @package     cloudrexx
@@ -39,10 +36,7 @@
 namespace Cx\Core_Modules\Legacy\Controller;
 
 /**
- * Specific ComponentController for this Component.
- *
- * Use the examples here to easily customize your component. Delete this file
- * if you don't need it. Remove any methods you don't need! 
+ * Replaces legacy blocks and placeholders
  * @copyright   Cloudrexx AG
  * @author      Michael Ritter <michael.ritter@cloudrexx.com>
  * @package     cloudrexx
@@ -51,30 +45,23 @@ namespace Cx\Core_Modules\Legacy\Controller;
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController implements \Cx\Core\Event\Model\Entity\EventListener {
 
     /**
-     * Returns all Controller class names for this component (except this)
-     *
-     * Be sure to return all your controller classes if you add your own
-     * @return array List of Controller class names (without namespace)
+     * @inheritDoc
      */
     public function getControllerClasses() {
         return array();
     }
 
     /**
-     * Register your event listeners here
-     *
-     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
-     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
-     * Keep in mind, that you can also register your events later.
-     * Do not do anything else here than initializing your event listeners and
-     * list statements like
-     * $this->cx->getEvents()->addEventListener($eventName, $listener);
+     * @inheritDoc
      */
     public function registerEventListeners() {
         $this->cx->getEvents()->addEventListener('View.Sigma:loadContent', $this);
         $this->cx->getEvents()->addEventListener('View.Sigma:setVariable', $this);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function onEvent($eventName, array $eventArgs) {
     }
 }
