@@ -70,7 +70,7 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         );
 
         if (
-            $name == 'shopJsCart' &&
+            $name == 'shop_js_cart' &&
             \Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop') &&
             (
                 $showShopNav ||

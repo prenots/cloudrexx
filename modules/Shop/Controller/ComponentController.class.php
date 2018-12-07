@@ -241,7 +241,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             array('redirect', 'catId', 'productId', 'referer')
         );
 
-        // parse global product blocks and based on its category/shopJsCart
+        // parse global product blocks and based on its category/shop_js_cart
         $this->registerWidgets(
             $shopLibrary->getShopWidgetNames('block'),
             \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::TYPE_BLOCK,
@@ -282,7 +282,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $widgetController = $this->getComponent('Widget');
         foreach ($widgetNames as $widgetName) {
-            if ($widgetName === 'shopJsCart') {
+            if ($widgetName === 'shop_js_cart') {
                 $widget = new \Cx\Core_Modules\Widget\Model\Entity\EsiWidget(
                     $this,
                     $widgetName,

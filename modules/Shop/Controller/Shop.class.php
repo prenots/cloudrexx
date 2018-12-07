@@ -636,7 +636,7 @@ die("Failed to get Customer for ID $customer_id");
      * Sets up the JavsScript cart
      *
      * Searches all $themesPages elements for the first occurrence of the
-     * "shopJsCart" template block.
+     * "shop_js_cart" template block.
      * Generates the structure of the Javascript cart, puts it in the template,
      * and registers all required JS code.
      * Note that this is only ever called when the JS cart is enabled in the
@@ -651,13 +651,13 @@ die("Failed to get Customer for ID $customer_id");
         if (!\Cx\Core\Setting\Controller\Setting::getValue('use_js_cart', 'Shop')) {
             return;
         }
-        if (!$template->blockExists('shopJsCart')) {
+        if (!$template->blockExists('shop_js_cart')) {
             return;
         }
 
         $div_cart = '';
         $div_product = '';
-        //$template->setCurrentBlock('shopJsCart');
+        //$template->setCurrentBlock('shop_js_cart');
         $template->setGlobalVariable($_ARRAYLANG);
 
         // Prepare template for "extraction"
@@ -672,20 +672,20 @@ die("Failed to get Customer for ID $customer_id");
             );
         }
         $template->touchBlock('shopJsCartProducts');
-        $template->touchBlock('shopJsCart');
-        $template->parse('shopJsCart');
-        $div_cart = $template->get('shopJsCart');
-        // Keep the surrounding element if it has id "shopJsCart"
+        $template->touchBlock('shop_js_cart');
+        $template->parse('shop_js_cart');
+        $div_cart = $template->get('shop_js_cart');
+        // Keep the surrounding element if it has id "shop_js_cart"
         $match = array();
         preg_match(
-            '#^([\n\r]?[^<]*<.*id=["\']shopJsCart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
+            '#^([\n\r]?[^<]*<.*id=["\']shop_js_cart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
             $div_cart,
             $match
         );
 
         // add original template as JS template and replace it by our JS code
         $template->setRoot(ASCMS_MODULE_PATH . '/Shop/View/Template/Frontend');
-        $template->replaceBlockFile('shopJsCart', 'JsCart.html');
+        $template->replaceBlockFile('shop_js_cart', 'JsCart.html');
         $template->setVariable($_ARRAYLANG);
         $template->setVariable(array(
             'SURROUNDING_ELEMENT_START' => $match[1],
@@ -713,7 +713,7 @@ die("Failed to get Customer for ID $customer_id");
                 1
             ),
         ));
-        $template->touchBlock('shopJsCart');
+        $template->touchBlock('shop_js_cart');
     }
 
 
