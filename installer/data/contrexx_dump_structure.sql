@@ -3196,6 +3196,7 @@ CREATE TABLE `contrexx_module_shop_categories` (
   `flags` varchar(255) NOT NULL DEFAULT '',
   `name` varchar(255) DEFAULT '' NOT NULL,
   `description` text NOT NULL,
+  `short_description` text NOT NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `flags` (`flags`),
   INDEX `IDX_A9242624727ACA70` (`parent_id`)

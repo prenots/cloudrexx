@@ -56,6 +56,10 @@ class RolloutTextSyncListener extends \Cx\Core\Event\Model\Entity\DefaultEventLi
                 'entity' => 'Category',
                 'attr' => 'name'
             ),
+            'category_short_description' => array(
+                'entity' => 'Category',
+                'attr' => 'shortDescription'
+            ),
             'currency_name' => array(
                 'entity' => 'Currency',
                 'attr' => 'name'
