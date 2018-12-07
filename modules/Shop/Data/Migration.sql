@@ -34,7 +34,8 @@ ALTER TABLE contrexx_module_shop_products
 
 ALTER TABLE contrexx_module_shop_categories
   ADD `name` VARCHAR(255) DEFAULT '' NOT NULL,
-  ADD `description` TEXT NOT NULL;
+  ADD `description` TEXT NOT NULL,
+  ADD `short_description` TEXT NOT NULL;
 
 ALTER TABLE contrexx_module_shop_discountgroup_count_name
   ADD `unit` VARCHAR(255) DEFAULT '' NOT NULL,
@@ -111,6 +112,7 @@ SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
 )) AS object_class, (
     CASE
       WHEN `t`.`key` LIKE '%_name' THEN 'name'
+      WHEN `t`.`key` LIKE '%_short_description' THEN 'short_description'
     	WHEN `t`.`key` LIKE '%_description' THEN 'description'
     	WHEN `t`.`key` LIKE '%_article' THEN 'article'
     	WHEN `t`.`key` LIKE '%_customer' THEN 'customer'

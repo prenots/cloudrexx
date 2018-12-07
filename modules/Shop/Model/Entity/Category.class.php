@@ -289,6 +289,26 @@ class Category extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
     }
 
     /**
+     * Set short description
+     *
+     * @param string $shortDescription
+     */
+    public function setShortDescription($shortDescription)
+    {
+        $this->shortDescription = $shortDescription;
+    }
+
+    /**
+     * Get short description
+     *
+     * @return string
+     */
+    public function getShortDescription()
+    {
+        return $this->shortDescription;
+    }
+
+    /**
      * Add pricelist
      *
      * @param \Cx\Modules\Shop\Model\Entity\Pricelist $pricelist
