@@ -54,6 +54,11 @@ Cx\Modules\Shop\Model\Entity\Category:
       type: text
       gedmo:
         - translatable
+    shortDescription:
+      type: text
+      gedmo:
+        - translatable
+      column: short_description
   manyToMany:
     pricelists:
       targetEntity: Cx\Modules\Shop\Model\Entity\Pricelist
