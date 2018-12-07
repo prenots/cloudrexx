@@ -332,6 +332,7 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             function($cx, $page) {
                 $urlParams = $cx->getRequest()->getUrl()->getParamArray();
                 return (
+                    $page &&
                     $page->getModule() == 'Shop' &&
                     isset($urlParams['act']) &&
                     $urlParams['act'] == 'destroy'
