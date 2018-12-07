@@ -45,6 +45,13 @@ namespace Cx\Core_Modules\Legacy\Controller;
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController implements \Cx\Core\Event\Model\Entity\EventListener {
 
     /**
+     * @var array List of placeholders (needle=>replacement)
+     */
+    protected $blocksToReplace = array(
+        'shopJsCart' => 'shop_js_cart',
+    );
+
+    /**
      * @inheritDoc
      */
     public function getControllerClasses() {
@@ -63,5 +70,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @inheritDoc
      */
     public function onEvent($eventName, array $eventArgs) {
+        if (!isset($eventArgs['content'])) {
+            return;
+        }
+        foreach ($this->blocksToReplace as $legacyName=>$niceName) {
+            $eventArgs['content'] = preg_replace(
+                '/(<!--\s+(?:BEGIN|END)\s+)' . $legacyName . '(\s+-->)/',
+                '\1' . $niceName . '\2',
+                $eventArgs['content']
+            );
+        }
+        // TODO: Add placeholder replacement list.
+        // TODO: Handle callback widgets. These are parsed already!
     }
 }
