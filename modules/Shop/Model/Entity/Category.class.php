@@ -46,7 +46,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Category extends \Cx\Model\Base\EntityBase {
+class Category extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -88,6 +92,11 @@ class Category extends \Cx\Model\Base\EntityBase {
     protected $description;
 
     /**
+     * @var string
+     */
+    protected $shortDescription;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $pricelists;
@@ -115,6 +124,18 @@ class Category extends \Cx\Model\Base\EntityBase {
         $this->pricelists = new \Doctrine\Common\Collections\ArrayCollection();
         $this->products = new \Doctrine\Common\Collections\ArrayCollection();
         $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -265,6 +286,26 @@ class Category extends \Cx\Model\Base\EntityBase {
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set short description
+     *
+     * @param string $shortDescription
+     */
+    public function setShortDescription($shortDescription)
+    {
+        $this->shortDescription = $shortDescription;
+    }
+
+    /**
+     * Get short description
+     *
+     * @return string
+     */
+    public function getShortDescription()
+    {
+        return $this->shortDescription;
     }
 
     /**
