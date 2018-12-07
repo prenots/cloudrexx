@@ -64,15 +64,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
 
-        $mappedEntities = array(
-            'categories' => 'category',
-        );
-        if (array_key_exists(lcfirst($_GET['act']), $mappedEntities)) {
-            $_GET['act'] = $mappedEntities[lcfirst($_GET['act'])];
-        }
-
         switch(lcfirst($_GET['act']))  {
-            case 'category':
             case 'manufacturer':
                 $_GET['act'] = ucfirst($_GET['act']);
                 parent::getPage($page);
@@ -80,7 +72,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             default:
                 break;
         }
-
 
         $this->cx->getTemplate()->addBlockfile(
             'CONTENT_OUTPUT',
@@ -103,7 +94,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         return array(
             'orders',
-            'category',
+            'categories',
             'products',
             'manufacturer',
             'customers',
