@@ -64,7 +64,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
 
+        $mappedEntities = array(
+            'categories' => 'category',
+        );
+        if (array_key_exists(lcfirst($_GET['act']), $mappedEntities)) {
+            $_GET['act'] = $mappedEntities[lcfirst($_GET['act'])];
+        }
+
         switch(lcfirst($_GET['act']))  {
+            case 'category':
             case 'manufacturer':
                 $_GET['act'] = ucfirst($_GET['act']);
                 parent::getPage($page);
@@ -72,6 +80,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             default:
                 break;
         }
+
 
         $this->cx->getTemplate()->addBlockfile(
             'CONTENT_OUTPUT',
@@ -94,7 +103,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         return array(
             'orders',
-            'categories',
+            'category',
             'products',
             'manufacturer',
             'customers',
@@ -196,7 +205,85 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showDetail' => false,
                     ),
                 );
+            break;
+            case 'Cx\Modules\Shop\Model\Entity\Category':
+                $options['order']['overview'] = array(
+                    'id',
+                    'active',
+                    'name'
+                );
+                $options['order']['form'] = array(
+                    'name',
+                    'parentCategory',
+                    'active',
+                    'picture',
+                    'shortDescription',
+                    'description'
+                );
 
+                $options['fields'] = array(
+                    'id' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'category-id',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'active' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'category-active',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'name' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'category-name',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'parentCategory' => array(
+                        'showOverview' => false,
+                    ),
+                    'parentId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'picture' => array(
+                        'showOverview' => false,
+                    ),
+                    'shortDescription' => array(
+                        'showOverview' => false,
+                    ),
+                    'description' => array(
+                        'showOverview' => false,
+                    ),
+                    'ord' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'flags' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'children' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'pricelists' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'products' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
+            break;
         }
         return $options;
     }
