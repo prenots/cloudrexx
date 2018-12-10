@@ -153,27 +153,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'uri'
                 );
 
-                $options['multiActions']['delete'] = array(
-                    'title' => $_ARRAYLANG['TXT_DELETE'],
-                    'jsEvent' => 'delete:manufacturer'
-                );
-
-                // Delete Event
-                $scope = 'order';
-                \ContrexxJavascript::getInstance()->setVariable(
-                    'CSRF_PARAM',
-                    \Cx\Core\Csrf\Controller\Csrf::code(),
-                    $scope
-                );
-                \ContrexxJavascript::getInstance()->setVariable(
-                    'TXT_CONFIRM_DELETE_MANUFACTURER',
+                // Delete event
+                $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
-                    $scope
-                );
-                \ContrexxJavascript::getInstance()->setVariable(
-                    'TXT_ACTION_IS_IRREVERSIBLE',
-                    $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'],
-                    $scope
+                    $options
                 );
 
                 $options['fields'] = array(
@@ -219,6 +202,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'picture',
                     'shortDescription',
                     'description'
+                );
+
+                // Delete event
+                $options = $this->normalDelete(
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+                    $options
                 );
 
                 $options['fields'] = array(
@@ -283,8 +272,39 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showDetail' => false,
                     ),
                 );
-            break;
+
+                break;
         }
+        return $options;
+    }
+
+    protected function normalDelete($message, $options)
+    {
+        global $_ARRAYLANG;
+
+        $options['multiActions']['delete'] = array(
+            'title' => $_ARRAYLANG['TXT_DELETE'],
+            'jsEvent' => 'delete:shopDelete'
+        );
+
+        // Delete Event
+        $scope = 'shopDelete';
+        \ContrexxJavascript::getInstance()->setVariable(
+            'CSRF_PARAM',
+            \Cx\Core\Csrf\Controller\Csrf::code(),
+            $scope
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_CONFIRM_DELETE',
+            $message,
+            $scope
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_ACTION_IS_IRREVERSIBLE',
+            $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'],
+            $scope
+        );
+
         return $options;
     }
 }
