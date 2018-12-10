@@ -188,7 +188,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showDetail' => false,
                     ),
                 );
-            break;
+                break;
             case 'Cx\Modules\Shop\Model\Entity\Category':
                 $options['order']['overview'] = array(
                     'id',
