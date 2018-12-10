@@ -203,6 +203,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'shortDescription',
                     'description'
                 );
+                $options['functions']['sortBy'] = array(
+                    'field' => array('ord' => SORT_ASC)
+                );
+                $options['functions']['sorting'] = false;
 
                 // Delete event
                 $options = $this->normalDelete(
@@ -217,7 +221,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 'class' => 'category-id',
                             ),
                         ),
-                        'sorting' => false,
                     ),
                     'active' => array(
                         'table' => array(
@@ -233,7 +236,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                 'class' => 'category-name',
                             ),
                         ),
-                        'sorting' => false,
                     ),
                     'parentCategory' => array(
                         'showOverview' => false,
