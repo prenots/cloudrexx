@@ -116,27 +116,27 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * Do something after content is loaded from DB
      *
-     * @param \Cx\Core\ContentManager\Model\Entity\Page $page The resolved page
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page)
     {
         if ($this->cx->getMode() !== \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
             return;
         }
-        // Show the Shop navbar in the Shop, or on every page if configured to do so
-        if (!Shop::isInitialized()
-        // Optionally limit to the first instance
-        // && MODULE_INDEX == ''
-        ) {
-            \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
+                // Show the Shop navbar in the Shop, or on every page if configured to do so
+                if (!Shop::isInitialized()
+                // Optionally limit to the first instance
+                // && MODULE_INDEX == ''
+                ) {
+                    \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
             if (
                 !\Cx\Core\Setting\Controller\Setting::getValue(
                     'shopnavbar_on_all_pages',
                     'Shop'
-                )
+                        )
             ) {
                 return;
-            }
+                }
             Shop::init();
         }
     }
@@ -278,7 +278,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     $params[$paramName] = $requestParams[$paramName];
                 }
             }
-        }
+    }
 
         $widgetController = $this->getComponent('Widget');
         foreach ($widgetNames as $widgetName) {
@@ -307,6 +307,15 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_CURRENCY |
                     \Cx\Core_Modules\Widget\Model\Entity\EsiWidget::ESI_VAR_ID_USER
                 );
+                $matches = array();
+                if (preg_match('/SHOPNAVBAR_FILE(|[1-3])/', $widgetName, $matches)) {
+                    if (empty($matches[1])) {
+                        $matches[1] = 1;
+                    }
+                    $widget->setCustomParseTarget(
+                        new \Cx\Modules\Shop\Model\Entity\Shopnavbar($matches[1])
+                    );
+                }
             }
             $widgetController->registerWidget(
                 $widget
