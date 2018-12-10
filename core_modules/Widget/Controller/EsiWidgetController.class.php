@@ -200,11 +200,12 @@ abstract class EsiWidgetController extends \Cx\Core\Core\Model\Entity\Controller
         );
         $this->getComponent('Widget')->parseWidgets(
             $widgetTemplate,
-            $params['get']['targetComponent'],
-            $params['get']['targetEntity'],
-            $params['get']['targetId'],
+            $targetComponent,
+            $targetEntity,
+            $targetId,
             array($params['get']['name'])
         );
+
         $_GET = $backupGetParams;
         $_REQUEST = $backupRequestParams;
         $content = $widgetTemplate->get();
