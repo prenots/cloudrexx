@@ -223,11 +223,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         ),
                     ),
                     'active' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'category-active',
-                            ),
-                        ),
+                        'showOverview' => false,
                         'sorting' => false,
                     ),
                     'name' => array(
@@ -246,6 +242,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'picture' => array(
                         'showOverview' => false,
+                        'type' => 'image',
                     ),
                     'shortDescription' => array(
                         'showOverview' => false,
@@ -255,11 +252,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'ord' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'type' => 'hidden',
                     ),
                     'flags' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'type' => 'hidden',
                     ),
                     'children' => array(
                         'showOverview' => false,
