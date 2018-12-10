@@ -443,31 +443,6 @@ class Theme extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget
                 file_get_contents($sidebarFile)
             );
         }
-        //set content for shop navbar
-        foreach (
-            array(
-                'shopnavbar',
-                'shopnavbar2',
-                'shopnavbar3'
-            ) as $fileName
-        ) {
-            $placeholderName = strtoupper($fileName) . '_FILE';
-            if (!$template->placeholderExists($placeholderName)) {
-                continue;
-            }
-            $shopnavFile = $this->getFilePath(
-                $this->getFolderName() . '/' . $fileName . '.html'
-            );
-            if (!$shopnavFile || !file_exists($shopnavFile)) {
-                continue;
-            }
-            $template->addBlock(
-                $placeholderName,
-                 strtolower($placeholderName),
-                file_get_contents($shopnavFile)
-            );
-        }
-
         return $template;
     }
 }
