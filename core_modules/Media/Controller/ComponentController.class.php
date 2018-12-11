@@ -57,10 +57,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
     public function load(\Cx\Core\ContentManager\Model\Entity\Page $page) {
-        global $_CORELANG, $subMenuTitle, $objTemplate, $plainSection;
+        global $_CORELANG, $subMenuTitle, $objTemplate, $section;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $objMedia = new Media(\Env::get('cx')->getPage()->getContent(), $plainSection);
+                $objMedia = new Media(\Env::get('cx')->getPage()->getContent(), $section);
                 \Env::get('cx')->getPage()->setContent($objMedia->getMediaPage());
                 break;
 
