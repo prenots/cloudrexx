@@ -8,7 +8,7 @@ function tidyTags(caller)
     $J.ajax({url: "index.php",
         method: "get",
         data: {
-            cmd : "knowledge{MODULE_INDEX}",
+            cmd : "knowledge",
             act : "settings",
             tpl : "tidyTags"
         },
@@ -23,7 +23,7 @@ function resetVotes()
         url: "index.php",
         method: "get",
         data: {
-            cmd : "knowledge{MODULE_INDEX}",
+            cmd : "knowledge",
             act : "settings",
             tpl : "resetVotes"
         },
@@ -44,7 +44,7 @@ var showOkMessage = function(data){
 
 <div id="errormessagetarget"></div>
 
-<form action="index.php?cmd=Knowledge{MODULE_INDEX}&act=settings&tpl=update" method="post">
+<form action="index.php?cmd=Knowledge&act=settings&tpl=update" method="post">
 <table class="adminlist" cellspacing="0" cellpadding="3" border="0" style="width: 100%;">
     <thead>
         <tr>
@@ -62,7 +62,7 @@ var showOkMessage = function(data){
                 {TXT_REPLACE_PLACEHOLDERS_DESCRIPTION}
             </td>
             <td>
-                <input type="checkbox" name="useKnowledge{MODULE_INDEX}Placeholders" value="1" {REPLACE_PLACEHOLDERS_CHECKED}/>
+                <input type="checkbox" name="useKnowledgePlaceholders" value="1" {REPLACE_PLACEHOLDERS_CHECKED}/>
             </td>
         </tr>
         <tr class="row2">
