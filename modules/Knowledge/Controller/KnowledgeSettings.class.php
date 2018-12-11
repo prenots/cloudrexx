@@ -65,7 +65,7 @@ class KnowledgeSettings
      */
     public function __construct()
     {
-        $this->table = "module_knowledge_".MODULE_INDEX."settings";
+        $this->table = "module_knowledge_settings";
 
         $this->readSettings();
     }

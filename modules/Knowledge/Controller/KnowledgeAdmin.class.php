@@ -107,7 +107,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
         \Permission::checkAccess(ACCESS_ID_KNOWLEDGE, 'static');
 
         parent::__construct();
-        $this->tpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Knowledge'.MODULE_INDEX.'/View/Template/Backend');
+        $this->tpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Knowledge/View/Template/Backend');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->tpl);
         $this->tpl->setErrorHandling(PEAR_ERROR_DIE);
 
@@ -123,9 +123,9 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $objTemplate->setVariable(
             'CONTENT_NAVIGATION',
-            '<a href="index.php?cmd=Knowledge' . MODULE_INDEX . '&amp;act=articles" class="' . ($this->act == 'articles' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_KNOWLEDGE_ARTICLES'] . '</a>
-             <a href="index.php?cmd=Knowledge' . MODULE_INDEX . '&amp;act=categories" class="' . ($this->act == 'categories' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_KNOWLEDGE_CATEGORIES'] . '</a>
-             <a href="index.php?cmd=Knowledge' . MODULE_INDEX . '&amp;act=settings" class="' . ($this->act == 'settings' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_KNOWLEDGE_SETTINGS'] . '</a>'
+            '<a href="index.php?cmd=Knowledge&amp;act=articles" class="' . ($this->act == 'articles' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_KNOWLEDGE_ARTICLES'] . '</a>
+             <a href="index.php?cmd=Knowledge&amp;act=categories" class="' . ($this->act == 'categories' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_KNOWLEDGE_CATEGORIES'] . '</a>
+             <a href="index.php?cmd=Knowledge&amp;act=settings" class="' . ($this->act == 'settings' ? 'active' : '') . '">' . $_ARRAYLANG['TXT_KNOWLEDGE_SETTINGS'] . '</a>'
         );
     }
 
@@ -160,12 +160,12 @@ class KnowledgeAdmin extends KnowledgeLibrary
                     case 'update':
                         \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
                         $id = $this->updateCategory();
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=categories&tpl=overview&highlight=' . $id);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge&act=categories&tpl=overview&highlight=' . $id);
                         break;
                     case 'insert':
                         \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
                         $id = $this->insertCategory();
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=categories&tpl=overview&highlight=' . $id);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge&act=categories&tpl=overview&highlight=' . $id);
                         break;
                     case 'delete':
                         \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
@@ -212,7 +212,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
                         \Permission::checkAccess(ACCESS_ID_EDIT_ARTICLES, 'static');
                         $id = $this->updateArticle();
                         $content = $this->articleOverview();
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=articles&tpl=edit&id=' . $id . '&updated=true');
+                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge&act=articles&tpl=edit&id=' . $id . '&updated=true');
                         break;
                     case 'getArticles':
                         \Permission::checkAccess(ACCESS_ID_OVERVIEW, 'static');
@@ -276,7 +276,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
                 $this->settings($content, $active);
                 break;
             default:
-                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=articles');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge&act=articles');
         }
 
         $objTemplate->setVariable(array(
@@ -335,7 +335,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
         global $_ARRAYLANG;
 
         $this->tpl->loadTemplateFile('module_knowledge_categories.html', true, true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $this->tpl->setVariable(array(
             "CATEGORIES_FILE"       => $content,
@@ -456,7 +455,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $this->pageTitle = $_ARRAYLANG['TXT_KNOWLEDGE_CATEGORIES'];
         $this->tpl->loadTemplateFile('module_knowledge_categories_overview.html',true,true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $this->tpl->setVariable(array(
             'TXT_CATEGORIES'                       => $_ARRAYLANG['TXT_KNOWLEDGE_CATEGORIES'],
@@ -608,7 +606,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $this->pageTitle = $_ARRAYLANG['TXT_EDIT_CATEGORY'];
         $this->tpl->loadTemplateFile('module_knowledge_categories_edit.html',true,true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         // the language variables
         $this->tpl->setGlobalVariable(array(
@@ -798,7 +795,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
         global $_ARRAYLANG;
 
         $this->tpl->loadTemplateFile('module_knowledge_articles.html', true, true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $this->tpl->setVariable(array(
             "ARTICLES_FILE"                 => $content,
@@ -826,7 +822,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $this->pageTitle = $_ARRAYLANG['TXT_KNOWLEDGE_ARTICLES'];
         $this->tpl->loadTemplateFile("module_knowledge_articles_overview.html");
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         try {
             $this->categories->readCategories();
@@ -918,7 +913,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
         $tpl->loadTemplateFile("module_knowledge_articles_overview_articlelist.html");
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
-        $tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
         $tpl->setGlobalVariable(array(
             // language variables
             "TXT_NAME"          => $_ARRAYLANG['TXT_NAME'],
@@ -1010,7 +1004,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $this->pageTitle = $_ARRAYLANG['TXT_EDIT_ARTICLE'];
         $this->tpl->loadTemplateFile('module_knowledge_articles_edit.html', true, true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $id = (empty($_GET['id'])) ? 0 : $_GET['id'];
 
@@ -1299,7 +1292,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
             $this->sendAjaxError($e->formatted());
         }
         $this->tpl->loadTemplateFile('module_knowledge_articles_edit_taglist.html');
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
         $return_tags = array();
         $classnumber = 1;
         foreach ($tags as $tag) {
@@ -1335,7 +1327,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
         global $_ARRAYLANG, $_CORELANG;
 
         $this->tpl->loadTemplateFile('module_knowledge_settings_top.html', true, true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $this->tpl->setVariable(array(
             "SETTINGS_FILE"                 => $content,
@@ -1362,7 +1353,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $this->pageTitle = $_ARRAYLANG['TXT_SETTINGS'];
         $this->tpl->loadTemplateFile('module_knowledge_settings.html',true,true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $this->tpl->setVariable(array(
            'TXT_SETTINGS'                          => $_ARRAYLANG['TXT_SETTINGS'],
@@ -1497,7 +1487,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
         $this->pageTitle = $_ARRAYLANG['TXT_SETTINGS'];
         $this->tpl->loadTemplateFile('module_knowledge_settings_placeholder.html',true,true);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
 
         $this->tpl->setVariable(array(
            'TXT_PLACEHOLDERS'      => $_ARRAYLANG['TXT_KNOWLEDGE_PLACEHOLDER'],

@@ -36,10 +36,6 @@
 
 namespace Cx\Modules\Knowledge\Controller;
 
-if (!defined("MODULE_INDEX")) {
-    define("MODULE_INDEX", "");
-}
-
 /**
  * searchKnowledge
  *
@@ -88,10 +84,10 @@ class SearchKnowledge extends SearchInterface  {
         }
 
         $query = "  SELECT DISTINCT(articles.id) as id" . $additionalSelectField . ", content.question as title, MATCH (content.answer, content.question) AGAINST ('%".$this->term."%' IN BOOLEAN MODE) as Relevance
-                    FROM `".DBPREFIX."module_knowledge".MODULE_INDEX."_articles` AS articles
-                    LEFT JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_article_content` AS content ON articles.id = content.article " . $joinLangContent . "
-                    LEFT JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_tags_articles` AS relTags ON relTags.article = articles.id
-                    LEFT JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_tags` AS tags ON tags.id = relTags.tag " . $joinLangTag . "
+                    FROM `".DBPREFIX."module_knowledge_articles` AS articles
+                    LEFT JOIN `".DBPREFIX."module_knowledge_article_content` AS content ON articles.id = content.article " . $joinLangContent . "
+                    LEFT JOIN `".DBPREFIX."module_knowledge_tags_articles` AS relTags ON relTags.article = articles.id
+                    LEFT JOIN `".DBPREFIX."module_knowledge_tags` AS tags ON tags.id = relTags.tag " . $joinLangTag . "
                     WHERE 
                         articles.active = 1
                     AND (   content.answer like '%".$this->term."%' OR
@@ -124,14 +120,14 @@ class SearchKnowledge extends SearchInterface  {
         }
 
         $query = "  SELECT categories.id as id" . $additionalSelectField . ", content.name as title, MATCH (content.name) AGAINST ('".htmlentities($this->term, ENT_QUOTES, CONTREXX_CHARSET)."' IN BOOLEAN MODE) as Relevance
-                    FROM `".DBPREFIX."module_knowledge".MODULE_INDEX."_categories_content` AS content
-                    INNER JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_categories` AS categories ON content.category = categories.id
+                    FROM `".DBPREFIX."module_knowledge_categories_content` AS content
+                    INNER JOIN `".DBPREFIX."module_knowledge_categories` AS categories ON content.category = categories.id
                     WHERE " . $additionalWhere . "
                         active = 1
                     AND MATCH (content.name) AGAINST ('".htmlentities($this->term, ENT_QUOTES, CONTREXX_CHARSET)."' IN BOOLEAN MODE) HAVING Relevance > 0.2
                     ORDER BY Relevance DESC";
         if (($rs = $objDatabase->Execute($query)) === false) {
-            throw new DatabaseError("error searching knowledge".MODULE_INDEX." categories");
+            throw new DatabaseError("error searching knowledge categories");
         }
 
         return $rs;
@@ -170,7 +166,7 @@ class SearchKnowledge extends SearchInterface  {
      */
     private function formatCategoryURI($id)
     {
-        return "index.php?section=Knowledge".MODULE_INDEX."&amp;id=".intval($id);
+        return "index.php?section=Knowledge&amp;id=".intval($id);
     }
 
     /**
@@ -181,7 +177,7 @@ class SearchKnowledge extends SearchInterface  {
      */
     private function formatArticleURI($id)
     {
-        return "index.php?section=Knowledge".MODULE_INDEX."&cmd=article&amp;id=".intval($id);
+        return "index.php?section=Knowledge&cmd=article&amp;id=".intval($id);
     }
 }
 

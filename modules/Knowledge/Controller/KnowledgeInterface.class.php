@@ -93,7 +93,7 @@ class KnowledgeInterface extends KnowledgeLibrary
         $tagCloud->setTags($tags);
         $tagCloud->setTagVals($tags_pop[0]['popularity'], $tags_pop[count($tags_pop)-1]['popularity']);
         $tagCloud->setFont(20, 10);
-        $tagCloud->setUrlFormat("index.php?section=Knowledge".MODULE_INDEX."&amp;tid=%id");
+        $tagCloud->setUrlFormat("index.php?section=Knowledge&amp;tid=%id");
 
 
         $tpl->setVariable("CLOUD", $tagCloud->getCloud());

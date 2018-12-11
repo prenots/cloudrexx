@@ -72,7 +72,6 @@ class Knowledge extends KnowledgeLibrary
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->tpl);
         $this->tpl->setErrorHandling(PEAR_ERROR_DIE);
         $this->tpl->setTemplate($pageContent);
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
     }
 
     /**
@@ -213,8 +212,8 @@ class Knowledge extends KnowledgeLibrary
          * This counter is needed so every answer does have a unique id
          */
         $counter = 0;
-        $counter = $this->parseArticleList($mostRead, $_ARRAYLANG['TXT_KNOWLEDGE_MOST_READ_ARTICLES'], $counter, "index.php?section=Knowledge".MODULE_INDEX."&amp;act=mostRead");
-        $this->parseArticleList($bestRated, $_ARRAYLANG['TXT_KNOWLEDGE_BEST_RATED_ARTICLES'], $counter, "index.php?section=Knowledge".MODULE_INDEX."&amp;act=bestRated");
+        $counter = $this->parseArticleList($mostRead, $_ARRAYLANG['TXT_KNOWLEDGE_MOST_READ_ARTICLES'], $counter, "index.php?section=Knowledge&amp;act=mostRead");
+        $this->parseArticleList($bestRated, $_ARRAYLANG['TXT_KNOWLEDGE_BEST_RATED_ARTICLES'], $counter, "index.php?section=Knowledge&amp;act=bestRated");
 
         \JS::activate('prototype');
         \JS::activate('scriptaculous');
