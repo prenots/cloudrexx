@@ -40,6 +40,7 @@ CREATE TABLE `contrexx_access_user_attribute` (
   `access_id` int NOT NULL,
   `read_access_id` int NOT NULL,
   `is_default` tinyint(1) DEFAULT '0' NOT NULL,
+  `tmp_name` varchar(255),
   PRIMARY KEY (`id`),
   INDEX `contrexx_access_user_attribute_parent_id_ibfk` (`parent_id`)
 ) ENGINE=InnoDB ;
@@ -3836,7 +3837,7 @@ CREATE VIEW `contrexx_access_user_title` AS
   FROM `contrexx_access_user_attribute_name` AS `name`
   WHERE `name`.`order` > 0;
 CREATE VIEW `contrexx_access_user_core_attribute` AS
-  SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`
+  SELECT `tmp_name` AS `id`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`
   FROM `contrexx_access_user_attribute`
   WHERE `is_default` = '1';
 CREATE VIEW `contrexx_access_user_profile` AS (
