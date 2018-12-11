@@ -2,10 +2,10 @@
 <script type="text/javascript">//<![CDATA[
 function deleteCustomer(customer_id) {
   if (confirm('{TXT_CONFIRM_DELETE_CUSTOMER}\n {TXT_ALL_ORDERS_WILL_BE_DELETED}\n {TXT_ACTION_IS_IRREVERSIBLE}'))
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=delcustomer&customer_id="+customer_id);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=delcustomer&customer_id="+customer_id);
 }
 function toggleCustomer(id) {
-  window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop{MODULE_INDEX}&act=customers&toggle_customer_id="+id);
+  window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop&act=customers&toggle_customer_id="+id);
 }
 function sendForm(letter) {
     document.shop_filter.listletter.value = letter;
@@ -16,14 +16,14 @@ function customersDoAction(strForm, strCheckbox, objSelect) {
   if (checkboxIsChecked(strForm, strCheckbox) == true) {
     switch (objSelect.value) {
       case 'activate':
-        document.forms[strForm].action = "index.php?cmd=Shop{MODULE_INDEX}&act=customer_activate";
+        document.forms[strForm].action = "index.php?cmd=Shop&act=customer_activate";
         break;
       case 'deactivate':
-        document.forms[strForm].action = "index.php?cmd=Shop{MODULE_INDEX}&act=customer_deactivate";
+        document.forms[strForm].action = "index.php?cmd=Shop&act=customer_deactivate";
         break;
       case 'delete':
         if (confirm('{TXT_CONFIRM_DELETE_CUSTOMER}\n {TXT_ALL_ORDERS_WILL_BE_DELETED}\n {TXT_ACTION_IS_IRREVERSIBLE}')) {
-          document.forms[strForm].action = "index.php?cmd=Shop{MODULE_INDEX}&act=delcustomer";
+          document.forms[strForm].action = "index.php?cmd=Shop&act=delcustomer";
         }
         break;
     }
@@ -43,7 +43,7 @@ function customersDoAction(strForm, strCheckbox, objSelect) {
 </div>
 <br />
 <form name="shop_filter" method="get" action="index.php">
-  <input type="hidden" name="cmd" value="Shop{MODULE_INDEX}" />
+  <input type="hidden" name="cmd" value="Shop" />
   <input type="hidden" name="act" value="customers" />
   <table width="100%" border="0" cellspacing="0" cellpadding="2" class="adminlist">
     <tr>
@@ -71,7 +71,7 @@ function customersDoAction(strForm, strCheckbox, objSelect) {
 </form>
 <br />
 <!-- BEGIN shop_customers -->
-<form name="shop_customers" method="post" action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=customers">
+<form name="shop_customers" method="post" action="index.php?cmd=Shop&amp;act=customers">
   <table class="adminlist" border="0" width="100%" cellpadding="2" cellspacing="0">
     <tr>
       <th width="01%" class="a_center">#</th>
@@ -111,17 +111,17 @@ function customersDoAction(strForm, strCheckbox, objSelect) {
         <td>{SHOP_CITY}</td>
         <td>{SHOP_PHONE}</td>
         <td>
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=settings&amp;tpl=mail&amp;strTab=shopMailSend&amp;shopMailTo={SHOP_EMAIL}"
+          <a href="index.php?cmd=Shop&amp;act=settings&amp;tpl=mail&amp;strTab=shopMailSend&amp;shopMailTo={SHOP_EMAIL}"
              title="{TXT_SEND_MAIL_TO_ADDRESS}">
             {SHOP_EMAIL}
           </a>
         </td>
         <td class="a_right">
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=customerdetails&amp;customer_id={SHOP_CUSTOMERID}"
+          <a href="index.php?cmd=Shop&amp;act=customerdetails&amp;customer_id={SHOP_CUSTOMERID}"
              title="{TXT_VIEW_DETAILS}">
             <img src="../core/Core/View/Media/icons/pages.gif" alt="{TXT_VIEW_DETAILS}" border="0" />
           </a>
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=neweditcustomer&amp;customer_id={SHOP_CUSTOMERID}"
+          <a href="index.php?cmd=Shop&amp;act=neweditcustomer&amp;customer_id={SHOP_CUSTOMERID}"
              title="{TXT_EDIT}">
             <img src="../core/Core/View/Media/icons/edit.gif" alt="{TXT_EDIT}" border="0" />
           </a>
@@ -146,7 +146,7 @@ function customersDoAction(strForm, strCheckbox, objSelect) {
 <br />
 <p>{SHOP_CUSTOMER_PAGING}&nbsp;</p>
 <br />
-<form name="formNewCustomer" method="post" action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=neweditcustomer">
+<form name="formNewCustomer" method="post" action="index.php?cmd=Shop&amp;act=neweditcustomer">
   <input type="submit" name="addNewCustomer" value="{TXT_ADD_NEW_CUSTOMER}" />
 </form>
 <!-- END shop_customers.html -->

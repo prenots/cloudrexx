@@ -1,6 +1,6 @@
 <!-- START shop_customer_details.html -->
 <br />
-<form name="formCustomer" method="post" action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=neweditcustomer&amp;customer_id={SHOP_CUSTOMERID}">
+<form name="formCustomer" method="post" action="index.php?cmd=Shop&amp;act=neweditcustomer&amp;customer_id={SHOP_CUSTOMERID}">
   <table width="100%" cellspacing="0" cellpadding="2" class="adminlist" border="0">
     <tr>
       <th colspan="4" class="f_bold">{TXT_CUSTOMER_DATA}</th>
@@ -61,7 +61,7 @@
     </tr>
     <tr class="row2">
       <td width="15%">{TXT_EMAIL}</td>
-      <td width="35%"><a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=settings&amp;tpl=mail&amp;strTab=shopMailSend&shopMailTo={SHOP_EMAIL}" title="{TXT_SEND_MAIL_TO_ADDRESS}">{SHOP_EMAIL}</a></td>
+      <td width="35%"><a href="index.php?cmd=Shop&amp;act=settings&amp;tpl=mail&amp;strTab=shopMailSend&shopMailTo={SHOP_EMAIL}" title="{TXT_SEND_MAIL_TO_ADDRESS}">{SHOP_EMAIL}</a></td>
       <td width="15%">&nbsp;</td>
       <td width="35%">&nbsp;</td>
     </tr>
@@ -101,25 +101,25 @@
     <!-- BEGIN orderRow -->
       <tr class="{SHOP_ROWCLASS}">
         <td>
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
+          <a href="index.php?cmd=Shop&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
              title="{TXT_VIEW_DETAILS}">
             {SHOP_ORDER_ID}
           </a>
         </td>
         <td>
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
+          <a href="index.php?cmd=Shop&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
              title="{TXT_VIEW_DETAILS}">
             {SHOP_ORDER_DATE}
           </a>
         </td>
         <td>
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
+          <a href="index.php?cmd=Shop&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
              title="{TXT_VIEW_DETAILS}">
             {SHOP_ORDER_STATUS}
           </a>
         </td>
         <td class="a_right">
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
+          <a href="index.php?cmd=Shop&amp;act=orderdetails&amp;order_id={SHOP_ORDER_ID}"
              title="{TXT_VIEW_DETAILS}">
             {SHOP_ORDER_SUM}
           </a>

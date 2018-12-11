@@ -98,7 +98,7 @@
 <!-- end content1 div -->
 <!-- start content2 div -->
 <div id="content2" class="attributeTab" style="display:none">
-  <form action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;tpl=attributes" method="post" name="shopProductsForm" onsubmit="return storeNewOption()">
+  <form action="index.php?cmd=Shop&amp;act=products&amp;tpl=attributes" method="post" name="shopProductsForm" onsubmit="return storeNewOption()">
     <table border="0" cellspacing="0" cellpadding="2" width="100%" class="adminlist">
       <tr>
         <th width="2%">&nbsp;</th>
@@ -208,13 +208,13 @@ function storeChanges()
       }
     }
   }
-  document.getElementById('shopSelectOptions').action = "index.php?cmd=Shop{MODULE_INDEX}&act=products&tpl=attributes";
+  document.getElementById('shopSelectOptions').action = "index.php?cmd=Shop&act=products&tpl=attributes";
 }
 
 function deleteOption(id)
 {
   if (confirm('{TXT_SHOP_ATTRIBUTE_DELETE_CONFIRM}\n{TXT_ACTION_IS_IRREVERSIBLE}'))
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=products&tpl=attributes&delete_attribute_id="+id);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=products&tpl=attributes&delete_attribute_id="+id);
 }
 
 function swapEdit(id)
@@ -369,7 +369,7 @@ function shopOptionDoAction(strForm,strCheckbox,objSelect,strAct)
     switch (strAct) {
       case 'delete':
         if (confirm('{TXT_SHOP_ATTRIBUTE_DELETE_CONFIRM}\n{TXT_ACTION_IS_IRREVERSIBLE}')) {
-          document.getElementById('shopSelectOptions').action = "index.php?cmd=Shop{MODULE_INDEX}&act=products&tpl=attributes";
+          document.getElementById('shopSelectOptions').action = "index.php?cmd=Shop&act=products&tpl=attributes";
           document.getElementById('shopSelectOptions').submit();
         }
         break;

@@ -4,7 +4,7 @@
 function deleteProduct(id)
 {
   if (confirm('{TXT_CONFIRM_DELETE_PRODUCT}\n{TXT_ACTION_IS_IRREVERSIBLE}'))
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=delProduct&id="+id);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=delProduct&id="+id);
 }
 
 function shopProductsDoAction(obj,act)
@@ -16,14 +16,14 @@ function shopProductsDoAction(obj,act)
   switch (act) {
     case 'delete':
       if (confirm('{TXT_CONFIRM_DELETE_PRODUCT}\n{TXT_ACTION_IS_IRREVERSIBLE}')) {
-        document.product_list.action = "index.php?cmd=Shop{MODULE_INDEX}&act=deleteProduct";
+        document.product_list.action = "index.php?cmd=Shop&act=deleteProduct";
       }
       break;
     case 'activate':
-      document.product_list.action = "index.php?cmd=Shop{MODULE_INDEX}&act=products";
+      document.product_list.action = "index.php?cmd=Shop&act=products";
       break;
     case 'deactivate':
-      document.product_list.action = "index.php?cmd=Shop{MODULE_INDEX}&act=products";
+      document.product_list.action = "index.php?cmd=Shop&act=products";
       break;
     default:
       alert("{TXT_MAKE_SELECTION}");
@@ -52,7 +52,7 @@ function shopProductsIsChecked(fieldName)
 // ]]>
 </script>
 <form name="product_search" method="get" action="index.php">
-  <input type="hidden" name="cmd" value="Shop{MODULE_INDEX}" />
+  <input type="hidden" name="cmd" value="Shop" />
   <input type="hidden" name="act" value="products" />
   <table width="100%" border="0" cellspacing="0" cellpadding="2" class="adminlist">
     <tr>
@@ -65,7 +65,7 @@ function shopProductsIsChecked(fieldName)
         <input type="submit" name="submit" value="{TXT_SEARCH}" />
       </td>
       <td class="a_right">
-        <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;specialoffer=1" title="{TXT_VIEW_SPECIAL_OFFERS}">
+        <a href="index.php?cmd=Shop&amp;act=products&amp;specialoffer=1" title="{TXT_VIEW_SPECIAL_OFFERS}">
           {TXT_VIEW_SPECIAL_OFFERS}
         </a>
       </td>
@@ -73,7 +73,7 @@ function shopProductsIsChecked(fieldName)
   </table>
 </form>
 
-<form name="product_list" method="post" action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products">
+<form name="product_list" method="post" action="index.php?cmd=Shop&amp;act=products">
   <br />
   {SHOP_PRODUCT_PAGING}
   <br />
@@ -120,7 +120,7 @@ function shopProductsIsChecked(fieldName)
         <input type="hidden" name="product_id[{SHOP_PRODUCT_ID}]" value="{SHOP_PRODUCT_ID}" /></td>
       <td class="a_center">
           <a class="schedule_status {SHOP_PRODUCT_STATUS_CLASS}"
-             href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}">
+             href="index.php?cmd=Shop&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}">
             &nbsp;
           </a>
       </td>
@@ -134,7 +134,7 @@ function shopProductsIsChecked(fieldName)
         <input type="hidden" name="shownonstartpageOld[{SHOP_PRODUCT_ID}]" value="{SHOP_SHOW_PRODUCT_ON_START_PAGE_OLD}" />
       </td>
       <td>
-        <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}"
+        <a href="index.php?cmd=Shop&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}"
            title="{SHOP_PRODUCT_NAME}">
           {SHOP_PRODUCT_NAME}
         </a>
@@ -177,19 +177,19 @@ function shopProductsIsChecked(fieldName)
                value="{SHOP_PRODUCT_STOCK}" />
       </td>
       <td class="a_right">
-        <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}&amp;new=1"
+        <a href="index.php?cmd=Shop&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}&amp;new=1"
            title="{TXT_AS_TEMPLATE}">
           <img src="../core/Core/View/Media/icons/pages.gif" alt="{TXT_AS_TEMPLATE}" border="0" />
         </a>
 
 <!-- BEGIN product_language -->
-        <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}&amp;userFrontendLangId={SHOP_PRODUCT_LANGUAGE_ID}">
+        <a href="index.php?cmd=Shop&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}&amp;userFrontendLangId={SHOP_PRODUCT_LANGUAGE_ID}">
           <img src="../core/Core/View/Media/icons/edit.gif" border="0"
                alt="{SHOP_PRODUCT_LANGUAGE_EDIT}"
                title="{SHOP_PRODUCT_LANGUAGE_EDIT}" />
         </a>
 <!-- END product_language -->
-<!--        <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}"
+<!--        <a href="index.php?cmd=Shop&amp;act=products&amp;tpl=manage&amp;id={SHOP_PRODUCT_ID}"
            title="{TXT_SHOP_EDIT}">
           <img src="../core/Core/View/Media/icons/edit.gif"
                alt="{TXT_SHOP_EDIT}" border="0" />

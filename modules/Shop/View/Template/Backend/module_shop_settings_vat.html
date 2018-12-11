@@ -4,26 +4,26 @@
 function deleteVat(vatId)
 {
   if (confirm("{TXT_SHOP_VAT_CONFIRM_DELETE}\n{TXT_ACTION_IS_IRREVERSIBLE}"))
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=settings&tpl=vat&vatid=" + vatId);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=settings&tpl=vat&vatid=" + vatId);
 }
 function setVatAll()
 {
   if (confirm("{TXT_SHOP_VAT_CONFIRM_SET_ALL}\n{TXT_ACTION_IS_IRREVERSIBLE}")) {
     var vatId = document.forms.form_vat.vat_default_id.value;
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=settings&tpl=vat&setVatAll=" + vatId);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=settings&tpl=vat&setVatAll=" + vatId);
   }
 }
 function setVatUnset()
 {
   if (confirm("{TXT_SHOP_VAT_CONFIRM_SET_UNSET}\n{TXT_ACTION_IS_IRREVERSIBLE}")) {
     var vatId = document.forms.form_vat.vat_default_id.value;
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=settings&tpl=vat&setVatUnset=" + vatId);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=settings&tpl=vat&setVatUnset=" + vatId);
   }
 }
 // ]]>
 </script>
 
-<form name="form_vat" method="post" action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=settings&amp;tpl=vat">
+<form name="form_vat" method="post" action="index.php?cmd=Shop&amp;act=settings&amp;tpl=vat">
   <table border="0" cellspacing="0" cellpadding="2" width="100%" class="adminlist">
     <colgroup><col width="20%" /><col width="20%" /><col width="40%" /><col width="20%" /></colgroup>
     <tr>

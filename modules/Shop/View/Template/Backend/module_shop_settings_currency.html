@@ -4,7 +4,7 @@
 function deleteCurrency(cId)
 {
   if (confirm('{TXT_CONFIRM_DELETE_CURRENCY}\n{TXT_ACTION_IS_IRREVERSIBLE}!'))
-    window.location.replace("index.php?cmd=Shop{MODULE_INDEX}&{CSRF_PARAM}&act=settings&tpl=currency&currencyId="+cId);
+    window.location.replace("index.php?cmd=Shop&{CSRF_PARAM}&act=settings&tpl=currency&currencyId="+cId);
 }
 
 {SHOP_CURRENCY_INCREMENT_JS_ARRAY}
@@ -88,7 +88,7 @@ function updateExchangeRates(selectedElement)
 <li><a id="currencyTab_content1" class="active" href="javascript:{}" onclick="selectTab('content1')" title="{TXT_CURRENCIES}">{TXT_CURRENCIES}</a></li>
 <li><a id="currencyTab_content2" href="javascript:{}" onclick="selectTab('content2')" title="W&auml;hrung hinzuf&uuml;gen">{TXT_ADD}</a></li>
 </ul>
-<form name="shopForm" method="post" action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=settings&amp;tpl=currency">
+<form name="shopForm" method="post" action="index.php?cmd=Shop&amp;act=settings&amp;tpl=currency">
 <!-- start content1 div -->
 <div id="content1" class="currencyTab" style="display:block">
 <table border="0" cellspacing="0" cellpadding="2" width="100%" class="adminlist">

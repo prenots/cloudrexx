@@ -1,8 +1,8 @@
 <!-- START shop_categories.html -->
 <div id="subnavbar_level2">
   <ul>
-    <li><a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories" title="{TXT_CATEGORIES}">{TXT_CATEGORIES}</a></li>
-    <li><a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories&amp;tpl=pricelists" title="{TXT_PDF_OVERVIEW}">{TXT_PDF_OVERVIEW}</a></li>
+    <li><a href="index.php?cmd=Shop&amp;act=categories" title="{TXT_CATEGORIES}">{TXT_CATEGORIES}</a></li>
+    <li><a href="index.php?cmd=Shop&amp;act=categories&amp;tpl=pricelists" title="{TXT_PDF_OVERVIEW}">{TXT_PDF_OVERVIEW}</a></li>
   </ul>
 </div>
 <br />
@@ -23,7 +23,7 @@
 <div id="content1" class="categoryTab"
   style="display:{SHOP_CATEGORY_LIST_DISPLAY};">
   <form name="selectCat" method="post"
-      action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories">
+      action="index.php?cmd=Shop&amp;act=categories">
     <table width="100%" cellspacing="0" cellpadding="2" border="0" class="adminlist">
       <tr>
         <th colspan="6">{TXT_CATEGORIES}&nbsp;({TXT_TOTAL}&nbsp;{SHOP_TOTAL_CATEGORIES})</th>
@@ -60,12 +60,12 @@
           {SHOP_CATEGORY_LEVELSPACE}<input type="text" name="ord[{SHOP_CATEGORY_ID}]"
               value="{SHOP_CATEGORY_ORD}" size="3" maxlength="4" />
           &nbsp;
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories&amp;category_id={SHOP_CATEGORY_ID}"
+          <a href="index.php?cmd=Shop&amp;act=categories&amp;category_id={SHOP_CATEGORY_ID}"
              title="{SHOP_CATEGORY_NAME}">
             <b>{SHOP_CATEGORY_NAME}</b>
           </a>
           &nbsp;
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=products&amp;category_id={SHOP_CATEGORY_ID}"
+          <a href="index.php?cmd=Shop&amp;act=products&amp;category_id={SHOP_CATEGORY_ID}"
             title="{TXT_PREVIEW}">
             <img src="../core/Core/View/Media/icons/details.gif" width="14" height="16"
                 border="0" alt="{TXT_PREVIEW}" />
@@ -81,13 +81,13 @@
         </td-->
         <td class="a_right">
 <!-- BEGIN category_language -->
-          <a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories&amp;category_id={SHOP_CATEGORY_ID}&amp;userFrontendLangId={SHOP_CATEGORY_LANGUAGE_ID}">
+          <a href="index.php?cmd=Shop&amp;act=categories&amp;category_id={SHOP_CATEGORY_ID}&amp;userFrontendLangId={SHOP_CATEGORY_LANGUAGE_ID}">
             <img src="../core/Core/View/Media/icons/edit.gif" border="0"
                  alt="{SHOP_CATEGORY_LANGUAGE_EDIT}"
                  title="{SHOP_CATEGORY_LANGUAGE_EDIT}" />
           </a>
 <!-- END category_language -->
-<!--a href="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories&amp;category_id={SHOP_CATEGORY_ID}"
+<!--a href="index.php?cmd=Shop&amp;act=categories&amp;category_id={SHOP_CATEGORY_ID}"
                 title="{TXT_EDIT}">
               <img src="../core/Core/View/Media/icons/edit.gif" alt="{TXT_EDIT}" border="0" />
             </a-->
@@ -114,7 +114,7 @@
 <!-- BEGIN category_edit -->
 <div id="content2" class="categoryTab" style="display:{SHOP_CATEGORY_EDIT_DISPLAY};">
   <form name="categoryForm" method="post"
-      action="index.php?cmd=Shop{MODULE_INDEX}&amp;act=categories">
+      action="index.php?cmd=Shop&amp;act=categories">
     <input type="hidden" name="category_id" value="{SHOP_CATEGORY_ID}" />
     <table width="100%" border="0" cellspacing="0" cellpadding="2" class="adminlist">
       <tr>
@@ -210,7 +210,7 @@
           <input type="text" name="document" maxlength="255" id="doc"
               style="width: 300px;" value="{SHOP_CATEGORY_DOCUMENT}" />
           <input type="button" value="{TXT_SHOP_CATEGORY_DOCUMENT_CHOOSE}"
-              onclick="openBrowser('index.php?cmd=FileBrowser&amp;{CSRF_PARAM}&amp;standalone=true&amp;type=Shop{MODULE_INDEX}','doc','width=800,height=640,resizable=yes,status=no,scrollbars=yes');" />
+              onclick="openBrowser('index.php?cmd=FileBrowser&amp;{CSRF_PARAM}&amp;standalone=true&amp;type=Shop','doc','width=800,height=640,resizable=yes,status=no,scrollbars=yes');" />
         </td>
       </tr-->
     </table>
@@ -225,17 +225,17 @@
 // <![CDATA[
 function deleteCategory(id) {
   if (confirm('{TXT_CONFIRM_DELETE_SHOP_CATEGORIES}\n{TXT_ACTION_IS_IRREVERSIBLE}'))
-    window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop{MODULE_INDEX}&act=categories&delete_category_id="+id);
+    window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop&act=categories&delete_category_id="+id);
 }
 function toggleCategory(id) {
-  window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop{MODULE_INDEX}&act=categories&toggle_category_id="+id);
+  window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop&act=categories&toggle_category_id="+id);
 }
 function shopCatDoAction(strForm, strCheckbox, objSelect, strAct) {
   if (checkboxIsChecked(strForm, strCheckbox)) {
     switch (strAct) {
       case 'del':
         if (confirm('{TXT_CONFIRM_DELETE_SHOP_CATEGORIES}\n{TXT_ACTION_IS_IRREVERSIBLE}')) {
-//          document.forms[strForm].action = "index.php?cmd=Shop{MODULE_INDEX}&act=categories";
+//          document.forms[strForm].action = "index.php?cmd=Shop&act=categories";
           document.forms[strForm].submit();
         }
         break;
@@ -288,7 +288,7 @@ function setSelectedImage(data) {
 
 }
 function cancelEdit() {
-  window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop{MODULE_INDEX}&act=categories");
+  window.location.replace("index.php?{CSRF_PARAM}&cmd=Shop&act=categories");
 }
 function remove_image() {
   cx.jQuery("#img").val("");
