@@ -1664,7 +1664,8 @@ namespace Cx\Core\Core\Controller {
          * @param int $no Hook number
          */
         protected function legacyGlobalsHook($no) {
-            global $objFWUser, $objTemplate, $cl, $objInit, $_LANGID, $_CORELANG, $url;
+            global $objFWUser, $objTemplate, $cl, $objInit, $_LANGID, $_CORELANG,
+                $url, $section, $cmd, $plainSection, $plainCmd;
 
             switch ($no) {
                 case 1:
@@ -1680,7 +1681,10 @@ namespace Cx\Core\Core\Controller {
                     // Code to set language
                     // @todo: move this to somewhere else
                     // in backend it's in Language->postResolve
+                    $plainVar = 'cmd';
                     if ($this->mode == self::MODE_FRONTEND) {
+                        $plainVar = 'section';
+
                         $_LANGID = FRONTEND_LANG_ID;
                         $objInit->setFrontendLangId($_LANGID);
                         define('LANG_ID', $_LANGID);
@@ -1688,6 +1692,15 @@ namespace Cx\Core\Core\Controller {
                         // Load interface language data
                         $_CORELANG = $objInit->loadLanguageData('core');
                     }
+
+                    $arrMatch = array();
+                    $plain = $$plainVar;
+                    if (preg_match('/^(\D+)(\d+)$/', $$plainVar, $arrMatch)) {
+                        // The plain section/module name, used below
+                        $plain = $arrMatch[1];
+                    }
+                    $plainVar = 'plain' . ucfirst($plainVar);
+                    $$plainVar = $plain;
 
                     \Env::set('Resolver', $this->resolver);
 
