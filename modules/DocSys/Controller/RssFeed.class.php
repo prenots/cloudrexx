@@ -86,7 +86,7 @@ class RssFeed
         $this->channelGenerator = $_CONFIG['coreCmsName'];
         $this->channelWebMaster = $_CONFIG['coreAdminEmail'];
         $this->channelLanguage  = $langShort;
-        $this->itemLink = ASCMS_PROTOCOL."://".$_SERVER['SERVER_NAME']."/?section=DocSys".MODULE_INDEX."&amp;cmd=details&amp;id=";
+        $this->itemLink = ASCMS_PROTOCOL."://".$_SERVER['SERVER_NAME']."/?section=DocSys&amp;cmd=details&amp;id=";
         $this->fileName[1] = 'docsys_headlines_'.$langShort.'.xml';
         $this->fileName[2] = 'docsys_'.$langShort.'.xml';
 
@@ -159,7 +159,7 @@ class RssFeed
                                n.lang,
                                n.userid,
                                u.id
-                        FROM ".DBPREFIX."module_docsys".MODULE_INDEX." AS n,
+                        FROM ".DBPREFIX."module_docsys AS n,
                              ".DBPREFIX."access_users AS u
                         WHERE n.userid = u.id AND n.lang = ".$_LANGID."
                         ORDER BY n.id DESC";

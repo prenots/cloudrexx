@@ -67,7 +67,7 @@ class DocSysLibrary
         $query_where = ($cmdName ? " AND cmd='$cmdName'" : '');
         $query = "
             SELECT catid, name
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_categories
+              FROM " . DBPREFIX . "module_docsys_categories
              WHERE lang=$langId
             $query_where
              ORDER BY catid";
@@ -97,7 +97,7 @@ class DocSysLibrary
         $id = intval($id);
         $query = "
             SELECT category
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category
+              FROM " . DBPREFIX . "module_docsys_entry_category
              WHERE entry=$id";
         $objResult = $objDatabase->Execute($query);
         if ($objResult === false) {
@@ -126,7 +126,7 @@ class DocSysLibrary
         $query = "
             SELECT entry.id, entry.date, entry.author, entry.title,
                    entry.status, entry.changelog, users.username
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . " AS entry
+              FROM " . DBPREFIX . "module_docsys AS entry
               LEFT JOIN " . DBPREFIX . "access_users as users ON entry.userid=users.id
              WHERE entry.lang=$this->langId
              ORDER BY entry.id";
@@ -150,10 +150,10 @@ class DocSysLibrary
         }
         $query = "
             SELECT entry.id, cat.name
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . " AS entry
-              LEFT JOIN " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category AS joined
+              FROM " . DBPREFIX . "module_docsys AS entry
+              LEFT JOIN " . DBPREFIX . "module_docsys_entry_category AS joined
                 ON entry.id=joined.entry
-              LEFT JOIN " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_categories AS cat
+              LEFT JOIN " . DBPREFIX . "module_docsys_categories AS cat
                 ON joined.category=cat.catid
              WHERE entry.lang=$this->langId
                  AND entry.id IN (".join(',', array_keys($retval)).")
@@ -181,7 +181,7 @@ class DocSysLibrary
 
         $query = "
             SELECT COUNT(id) AS count
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . "
+              FROM " . DBPREFIX . "module_docsys
              WHERE lang=$this->langId";
         $objResult = $objDatabase->Execute($query);
         if ($objResult === false) {
@@ -205,7 +205,7 @@ class DocSysLibrary
         $err = false;
         foreach ($categories as $cat) {
             $query = "
-                INSERT INTO " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category (
+                INSERT INTO " . DBPREFIX . "module_docsys_entry_category (
                     entry, category
                 ) VALUES (
                     $entry, " . intval($cat) . "
@@ -229,7 +229,7 @@ class DocSysLibrary
 
         $entry = intval($entry);
         $query = "
-            DELETE FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category
+            DELETE FROM " . DBPREFIX . "module_docsys_entry_category
              WHERE entry=$entry";
         return $objDatabase->Execute($query);
     }
@@ -253,8 +253,8 @@ class DocSysLibrary
         }
         $query = "
             SELECT DISTINCT entry.date, entry.id, entry.title, entry.author
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . " AS entry
-              LEFT JOIN " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category AS j
+              FROM " . DBPREFIX . "module_docsys AS entry
+              LEFT JOIN " . DBPREFIX . "module_docsys_entry_category AS j
                 ON entry.id=j.entry
              WHERE entry.lang=$this->langId
                AND (startdate<=" . time() . " OR startdate=0)
@@ -296,10 +296,10 @@ class DocSysLibrary
         }
         $query = "
             SELECT entry.id, cat.name
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . " AS entry
-              LEFT JOIN " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category AS j
+              FROM " . DBPREFIX . "module_docsys AS entry
+              LEFT JOIN " . DBPREFIX . "module_docsys_entry_category AS j
                 ON entry.id=j.entry
-              LEFT JOIN " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_categories AS cat
+              LEFT JOIN " . DBPREFIX . "module_docsys_categories AS cat
                 ON j.category=cat.catid
              WHERE entry.lang=$this->langId
                AND entry.id IN (".join(',', array_keys($retval)).")".
@@ -336,8 +336,8 @@ class DocSysLibrary
         $category = intval($category);
         $query = "
             SELECT COUNT(id) AS count
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . " AS e
-              LEFT JOIN " . DBPREFIX . "module_docsys" . MODULE_INDEX . "_entry_category as j
+              FROM " . DBPREFIX . "module_docsys AS e
+              LEFT JOIN " . DBPREFIX . "module_docsys_entry_category as j
                 ON e.id=j.entry
              WHERE j.category=$category
              AND `status` = 1";

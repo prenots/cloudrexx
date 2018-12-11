@@ -93,17 +93,15 @@ class DocSys extends DocSysLibrary
         global $objDatabase, $_ARRAYLANG;
 
         $this->_objTpl->setTemplate($this->pageContent);
-        // Global module index for clones
-        $this->_objTpl->setGlobalVariable('MODULE_INDEX', MODULE_INDEX);
         $id = intval($_GET['id']);
         if ($id <= 0) {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ?section=DocSys" . MODULE_INDEX);
+            \Cx\Core\Csrf\Controller\Csrf::header("Location: ?section=DocSys");
             exit;
         }
         $query = "
             SELECT id, source, changelog, url1, url2,
                    text, date, changelog, title, author
-              FROM " . DBPREFIX . "module_docsys" . MODULE_INDEX . "
+              FROM " . DBPREFIX . "module_docsys
              WHERE status = 1
                AND id = $id
                AND lang=$this->langId
@@ -165,13 +163,12 @@ class DocSys extends DocSysLibrary
             $_REQUEST['cmd'] = '';
         }
         $this->_objTpl->setTemplate($this->pageContent);
-        $this->_objTpl->setGlobalVariable('MODULE_INDEX', MODULE_INDEX);
         $sortType = '';
         if (!empty($_REQUEST['category'])) {
             $selectedId = intval($_REQUEST['category']);
             $query = "
                 SELECT `sort_style`
-                  FROM `" . DBPREFIX . "module_docsys" . MODULE_INDEX . "_categories`
+                  FROM `" . DBPREFIX . "module_docsys_categories`
                  WHERE `catid`=$selectedId";
             $objRS = $objDatabase->SelectLimit($query, 1);
             if (!$objRS) {
@@ -188,7 +185,7 @@ class DocSys extends DocSysLibrary
         $count = $this->countOverviewEntries($selectedId);
         $entries = $this->getOverviewTitles($pos, $selectedId, $sortType);
         if ($count > intval($_CONFIG['corePagingLimit'])) {
-            $paging = getPaging($count, $pos, "&section=DocSys" . MODULE_INDEX,
+            $paging = getPaging($count, $pos, "&section=DocSys",
                 $_ARRAYLANG['TXT_DOCUMENTS'], true);
         }
         $this->_objTpl->setVariable("DOCSYS_PAGING", $paging);
@@ -204,7 +201,7 @@ class DocSys extends DocSysLibrary
                         $entry['date']),
                     'DOCSYS_DATE' => date($this->dateFormat, $entry['date']),
                     'DOCSYS_LINK' => "<a href=\"" . CONTREXX_SCRIPT_PATH .
-                        "?section=DocSys" . MODULE_INDEX . "&amp;cmd=$cmd&amp;id=" .
+                        "?section=DocSys&amp;cmd=$cmd&amp;id=" .
                         $entry['id'] . "\" title=\"" . contrexx_raw2xhtml($entry['title']) .
                         "\">" . contrexx_raw2xhtml($entry['title']) . "</a>",
                     'DOCSYS_CATEGORY' => contrexx_raw2xhtml(
