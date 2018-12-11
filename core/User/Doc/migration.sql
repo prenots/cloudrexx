@@ -187,7 +187,7 @@ UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT name.attribu
 ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name, CHANGE attribute_id attribute_id INT NOT NULL;
 
 /*Drop tables*/
-ALTER TABLE `contrexx_access_user_attribute` DROP `tmp_name`;
+/*ALTER TABLE `contrexx_access_user_attribute` DROP `tmp_name`;*/
 
 DROP TABLE contrexx_access_user_profile;
 DROP TABLE contrexx_access_user_title;
@@ -203,7 +203,7 @@ WHERE `name`.`order` > 0;
 /* View for user core attribute
  * This view is only temporary
  */
-CREATE VIEW `contrexx_access_user_core_attribute` AS SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`
+CREATE VIEW `contrexx_access_user_core_attribute` AS SELECT `tmp_name` AS `id`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`
 FROM `contrexx_access_user_attribute`
 WHERE `is_default` = '1';
 
