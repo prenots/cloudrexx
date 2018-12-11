@@ -66,7 +66,6 @@ class EsiWidgetController extends \Cx\Core_Modules\Widget\Controller\EsiWidgetCo
         $matches = null;
         if (
             !preg_match('/^EVENTS(\d{1,2}|)_FILE$/', $name, $matches) ||
-            MODULE_INDEX >= 2 ||
             !\Cx\Core\Setting\Controller\Setting::getValue(
                 'calendarheadlines',
                 'Config'

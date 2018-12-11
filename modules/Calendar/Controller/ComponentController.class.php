@@ -81,10 +81,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         global $_CORELANG, $subMenuTitle, $objTemplate;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-
-                define('CALENDAR_MANDATE', MODULE_INDEX);
-
-                $objCalendar = new \Cx\Modules\Calendar\Controller\Calendar($page->getContent(), MODULE_INDEX);
+                $objCalendar = new \Cx\Modules\Calendar\Controller\Calendar($page->getContent());
                 $page->setContent($objCalendar->getCalendarPage($page));
                 break;
 
