@@ -748,6 +748,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
 
     public function getById($id)
     {
+
         $objAttribute = clone $this;
         $objAttribute->arrAttributes = &$this->arrAttributes;
         $objAttribute->arrAttributeTree = &$this->arrAttributeTree;
@@ -937,6 +938,9 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 $this->isCoreAttribute($this->id) && $this->storeCoreAttribute() ||
                 $this->storeCustomAttribute()
             ) {
+                $this->storeProtection($this->protected, $this->access_id, 'access_id', $this->access_group_ids);
+                $this->storeProtection($this->readProtected, $this->readAccessId, 'read_access_id', $this->readAccessGroupIds, 'read');
+
                 if (preg_match('/^title_[0-9]+|title$/', $_GET['id']) ||
                     ($this->isCoreAttribute($this->id) || $this->storeNames()) &&
                     $this->storeChildrenOrder() &&
@@ -1045,8 +1049,8 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     {
         global $objDatabase;
 
-        if (($this->customized && $objDatabase->Execute("UPDATE `".DBPREFIX."access_user_core_attribute` SET `sort_type` = '".$this->sort_type."', `order_id` = ".$this->order_id.", `mandatory` = '".$this->mandatory."' WHERE `id` = '".$this->id."'") !== false) ||
-        ($objDatabase->Execute("INSERT INTO `".DBPREFIX."access_user_core_attribute` (`id`, `sort_type`, `order_id`, `mandatory`) VALUES ('".$this->id."', '".$this->sort_type."', ".$this->order_id.", '".$this->mandatory."')") !== false)) {
+        if (($objDatabase->Execute("UPDATE `".DBPREFIX."access_user_attribute` SET `sort_type` = '".$this->sort_type."', `order_id` = ".$this->order_id.", `mandatory` = '".$this->mandatory."' WHERE `id` = (SELECT `attribute_id` FROM `contrexx_access_user_attribute_name` WHERE `name` = '".$this->id."')") !== false) ||
+        ($objDatabase->Execute("INSERT INTO `".DBPREFIX."access_user_attribute` (`id`, `sort_type`, `order_id`, `mandatory`) VALUES ((SELECT `attribute_id` FROM `contrexx_access_user_attribute_name` WHERE `name` = '".$this->id."'), '".$this->sort_type."', ".$this->order_id.", '".$this->mandatory."')") !== false)) {
             return true;
         }
         return false;
@@ -1139,8 +1143,9 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     {
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
         $tableName = 'access_user_attribute';
+        $where = $this->id;
         if ($this->isCoreAttribute($this->id)) {
-            $tableName = 'access_user_core_attribute';
+            $where = '(SELECT `attribute_id` FROM `contrexx_access_user_attribute_name` WHERE `name` = "'. $this->id .'")';
         }
 
         if (!$protected) {
@@ -1153,7 +1158,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 $objDatabase->Execute('
                     UPDATE `' . DBPREFIX . $tableName . '`
                        SET ' . $updateFields . '
-                       WHERE `id` = "' . $this->id . '"'
+                       WHERE `id` = ' . $where
                 ) !== false &&
                 (
                     !isset($this->arrAttributes[$this->id][$fieldName]) ||
@@ -1189,7 +1194,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 $objDatabase->Execute('
                     UPDATE `' . DBPREFIX . $tableName . '`
                         SET `' . $fieldName . '` = ' . contrexx_input2db($accessId) . '
-                        WHERE `id` = "' . $this->id . '"'
+                        WHERE `id` = ' . $where
                 ) === false
             ) {
                 return false;
@@ -1207,7 +1212,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
             $objDatabase->Execute('
                 UPDATE `' . DBPREFIX . $tableName . '`
                    SET `access_special` = "' . contrexx_input2db($this->access_special) . '"
-                   WHERE `id` = "' . $this->id . '"'
+                   WHERE `id` = ' . $where
             ) === false
         ) {
             return false;
