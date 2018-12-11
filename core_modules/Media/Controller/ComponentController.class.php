@@ -60,7 +60,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         global $_CORELANG, $subMenuTitle, $objTemplate, $plainSection;
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
-                $objMedia = new Media(\Env::get('cx')->getPage()->getContent(), $plainSection.MODULE_INDEX);
+                $objMedia = new Media(\Env::get('cx')->getPage()->getContent(), $plainSection);
                 \Env::get('cx')->getPage()->setContent($objMedia->getMediaPage());
                 break;
 
