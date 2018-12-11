@@ -786,10 +786,6 @@ namespace Cx\Core\Core\Controller {
                  * Command mode is different ;-)
                  */
                 if ($this->mode == self::MODE_MINIMAL) {
-                    // Legacy:
-                    if (!defined('MODULE_INDEX')) {
-                        define('MODULE_INDEX', '');
-                    }
                     return;
                 }
                 $this->loadContrexx();
@@ -1514,11 +1510,6 @@ namespace Cx\Core\Core\Controller {
             // command mode is different
             if ($this->getMode() == static::MODE_COMMAND) {
                 global $argv;
-                
-                // Legacy:
-                if (!defined('MODULE_INDEX')) {
-                    define('MODULE_INDEX', '');
-                }
 
                 try {
                     // cleanup params
@@ -2131,7 +2122,6 @@ namespace Cx\Core\Core\Controller {
                 'BANNER'                         => isset($objBanner) ? $objBanner->getBannerJS() : '',
                 'RANDOM'                         => md5(microtime()),
                 'TXT_SEARCH'                     => $_CORELANG['TXT_SEARCH'],
-                'MODULE_INDEX'                   => MODULE_INDEX,
                 'LOGIN_URL'                      => '<a href="' . contrexx_raw2xhtml(\Env::get('init')->getUriBy('section', 'Login')) . '" class="start-frontend-editing">' . $_CORELANG['TXT_FRONTEND_EDITING_LOGIN'] . '</a>',
                 'FACEBOOK_LIKE_IFRAME'           => '<div id="fb-root"></div>
                                                     <script type="text/javascript">
@@ -2319,9 +2309,6 @@ namespace Cx\Core\Core\Controller {
                     'TXT_LOG_OUT' => $_CORELANG['TXT_LOG_OUT'],
                 // TODO: This function call returns the empty string -- always!  What's the use?
                 //    'CONTENT_WYSIWYG_CODE' => get_wysiwyg_code(),
-                    // Mind: The module index is not used in any non-module template
-                    // for the time being, but is provided for future use and convenience.
-                    'MODULE_INDEX' => MODULE_INDEX,
                     // The Shop module for one heavily uses custom JS code that is properly
                     // handled by that class -- finally
                     'JAVASCRIPT' => \JS::getCode(),
