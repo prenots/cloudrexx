@@ -170,7 +170,7 @@ class Vat
             array('name' => self::TEXT_CLASS));
         $query = "
             SELECT `vat`.`id`, `vat`.`rate`, ".$arrSqlClass['field']."
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_vat as `vat`".
+              FROM ".DBPREFIX."module_shop_vat as `vat`".
             $arrSqlClass['join'];
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
@@ -541,7 +541,7 @@ class Vat
                     return false;
                 }
                 $query = "
-                    UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_vat
+                    UPDATE ".DBPREFIX."module_shop_vat
                        SET `rate`=$rate
                      WHERE `id`=$id";
                 $objResult = $objDatabase->Execute($query);
@@ -580,7 +580,7 @@ class Vat
         $vatRate = number_format($vatRate, 2);
         if ($vatRate < 0) return false;
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_vat (
+            INSERT INTO ".DBPREFIX."module_shop_vat (
                 `rate`
             ) VALUES (
                 $vatRate
@@ -592,7 +592,7 @@ class Vat
             'Shop', self::TEXT_CLASS, $vatClass)) {
             // Rollback
             $objDatabase->Execute("
-                DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_vat
+                DELETE FROM ".DBPREFIX."module_shop_vat
                 WHERE `id`=$id");
             return false;
         }
@@ -625,7 +625,7 @@ class Vat
         if (!\Text::deleteById($vatId, 'Shop', self::TEXT_CLASS))
             return false;
         $query = "
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_vat
+            DELETE FROM ".DBPREFIX."module_shop_vat
              WHERE id=$vatId";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -686,8 +686,8 @@ class Vat
         global $objDatabase;
 
         $query = "
-            SELECT percent FROM ".DBPREFIX."module_shop".MODULE_INDEX."_vat vat
-             INNER JOIN ".DBPREFIX."module_shop".MODULE_INDEX."_products products
+            SELECT percent FROM ".DBPREFIX."module_shop_vat vat
+             INNER JOIN ".DBPREFIX."module_shop_products products
                 ON vat.id=products.vat_id
              WHERE products.id=$product_id";
         $objResult = $objDatabase->Execute($query);

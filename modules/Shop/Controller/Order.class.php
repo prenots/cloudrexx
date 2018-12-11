@@ -917,7 +917,7 @@ class Order
                    `ip`,
                    `note`,
                    `date_time`, `modified_on`, `modified_by`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_orders`
+              FROM `".DBPREFIX."module_shop_orders`
              WHERE `id`=".intval($id);
 //DBG::activate(DBG_ADODB);
         $objResult = $objDatabase->Execute($query);
@@ -990,7 +990,7 @@ class Order
         }
         // Ignores the shipment if not applicable
         $query = "
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_orders` (
+            INSERT INTO `".DBPREFIX."module_shop_orders` (
                 `customer_id`, `currency_id`, `sum`,
                 `date_time`, `status`,
                 `payment_id`, `payment_amount`,
@@ -1089,8 +1089,8 @@ class Order
         $query = "
             SELECT `attribute`.`id`, `attribute`.`item_id`, `attribute`.`attribute_name`,
                    `attribute`.`option_name`, `attribute`.`price`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_attributes` AS `attribute`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_order_items` AS `item`
+              FROM `".DBPREFIX."module_shop_order_attributes` AS `attribute`
+              JOIN `".DBPREFIX."module_shop_order_items` AS `item`
                 ON `attribute`.`item_id`=`item`.`id`
              WHERE `item`.`order_id`=".$this->id()."
              ORDER BY `attribute`.`attribute_name` ASC, `attribute`.`option_name` ASC";
@@ -1155,14 +1155,14 @@ class Order
             if ($orderItemId != 0 && $product_id == 0) {
                 // delete the product from the list
                 $query = "
-                    DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_items
+                    DELETE FROM ".DBPREFIX."module_shop_order_items
                      WHERE id=$orderItemId";
                 $objResult = $objDatabase->Execute($query);
                 if (!$objResult) {
                     return self::errorHandler();
                 }
                 $query = "
-                    DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_attributes
+                    DELETE FROM ".DBPREFIX."module_shop_order_attributes
                      WHERE id=$orderItemId";
                 $objResult = $objDatabase->Execute($query);
                 if (!$objResult) {
@@ -1213,7 +1213,7 @@ class Order
         // Store the order details
 // TODO: Should add verification for POSTed fields and ignore unset values!
         $query = "
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+            UPDATE ".DBPREFIX."module_shop_orders
                SET `sum`=".floatval($totalOrderSum).",
                    `shipment_amount`=".floatval($_POST['shippingPrice']).",
                    `payment_amount`=".floatval($_POST['paymentPrice']).",
@@ -1335,7 +1335,7 @@ class Order
         $objUser = \FWUser::getFWUserObject()->objUser;
         $query = '
             UPDATE
-                `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_orders`
+                `' . DBPREFIX . 'module_shop_orders`
             SET
                 `status` = '. Order::STATUS_DELETED .',
                 `modified_by` = "' . contrexx_raw2db($objUser->getUsername()) . '",
@@ -1401,7 +1401,7 @@ class Order
         $order_id = intval($order_id);
         $query = "
             SELECT `id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_items`
+              FROM `".DBPREFIX."module_shop_order_items`
              WHERE `order_id`=$order_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -1474,7 +1474,7 @@ class Order
             return \Message::error($_ARRAYLANG['TXT_SHOP_ORDER_ITEM_ERROR_INVALID_WEIGHT']);
         }
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_order_items (
+            INSERT INTO ".DBPREFIX."module_shop_order_items (
                 order_id, product_id, product_name,
                 price, quantity, vat_rate, weight
             ) VALUES (
@@ -1539,7 +1539,7 @@ class Order
             return \Message::error($_ARRAYLANG['TXT_SHOP_ORDER_ITEM_ERROR_INVALID_WEIGHT']);
         }
         $query = "
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_order_items
+            UPDATE ".DBPREFIX."module_shop_order_items
                SET `product_id`=$product_id,
                    `product_name`='".addslashes($name)."',
                    `price`='".Currency::formatPrice($price)."',
@@ -1604,7 +1604,7 @@ class Order
                 continue;
             }
             $query = "
-                INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_order_attributes`
+                INSERT INTO `".DBPREFIX."module_shop_order_attributes`
                    SET `item_id`=$item_id,
                        `attribute_name`='".addslashes($name)."',
                        `option_name`='".addslashes($arrOption['value'])."',
@@ -1632,7 +1632,7 @@ class Order
         $item_id = intval($item_id);
         if ($item_id > 0) {
             $query = "
-                DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_attributes`
+                DELETE FROM `".DBPREFIX."module_shop_order_attributes`
                  WHERE `item_id`=$item_id";
             if ($objDatabase->Execute($query)) {
                 return true;
@@ -1693,7 +1693,7 @@ class Order
         // lsv data
         $query = "
             SELECT `holder`, `bank`, `blz`
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_lsv
+              FROM ".DBPREFIX."module_shop_lsv
              WHERE order_id=$order_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -1948,7 +1948,7 @@ class Order
         $query = "
             SELECT `id`, `product_id`, `product_name`,
                    `price`, `quantity`, `vat_rate`, `weight`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_items`
+              FROM `".DBPREFIX."module_shop_order_items`
              WHERE `order_id`=?";
         $objResult = $objDatabase->Execute($query, array($this->id));
         if (!$objResult) {
@@ -2087,7 +2087,7 @@ class Order
 
         $query = "
             SELECT `lang_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_orders`
+              FROM `".DBPREFIX."module_shop_orders`
              WHERE `customer_id`=$customer_id
              ORDER BY `id` DESC";
         $objResult = $objDatabase->Execute($query);
@@ -2314,7 +2314,7 @@ class Order
         $query = "
             SELECT `id`, `product_id`, `product_name`,
                    `price`, `quantity`, `vat_rate`, `weight`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_items`
+              FROM `".DBPREFIX."module_shop_order_items`
              WHERE `order_id`=?";
         $objResult = $objDatabase->Execute($query, array($this->id));
         if (!$objResult) {

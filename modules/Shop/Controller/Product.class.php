@@ -965,7 +965,7 @@ class Product
                 // Verify that no other Product uses the same picture.
                 // $arrPicture[0] contains the encoded file name
                 $query = "
-                    SELECT picture FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
+                    SELECT picture FROM ".DBPREFIX."module_shop_products
                      WHERE picture LIKE '%".addslashes($arrPicture[0])."%'";
                 $objResult = $objDatabase->Execute($query);
                 if ($objResult->RecordCount() == 1) {
@@ -994,7 +994,7 @@ class Product
         \Env::get('cx')->getEvents()->triggerEvent('model/preRemove', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
 
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
+            DELETE FROM ".DBPREFIX."module_shop_products
                 WHERE id=$this->id");
 
         if (!$objResult) {
@@ -1019,7 +1019,7 @@ class Product
 
         $query = "
             SELECT 1
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
+              FROM ".DBPREFIX."module_shop_products
              WHERE id=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) return false;
@@ -1125,7 +1125,7 @@ class Product
 
         $query = '
             UPDATE
-                `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_products`
+                `' . DBPREFIX . 'module_shop_products`
             SET
                 `picture` = ?,
                 `category_id` = ?,
@@ -1178,7 +1178,7 @@ class Product
 
         \Env::get('cx')->getEvents()->triggerEvent('model/prePersist', array(new \Doctrine\ORM\Event\LifecycleEventArgs($this, \Env::get('em'))));
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_products (
+            INSERT INTO ".DBPREFIX."module_shop_products (
                 picture, category_id, distribution,
                 normalprice, resellerprice,
                 stock, stock_visible, discountprice, discount_active,
@@ -1256,7 +1256,7 @@ class Product
                    `product`.`group_id`, `product`.`article_id`,
                    `product`.`minimum_order_quantity`, ".
                    $arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `product`".
+              FROM `".DBPREFIX."module_shop_products` AS `product`".
                    $arrSql['join']."
              WHERE `product`.`id`=$id";
         $objResult = $objDatabase->Execute($query);
@@ -1390,7 +1390,7 @@ class Product
         global $objDatabase;
 
         $query = "
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_products
+            UPDATE ".DBPREFIX."module_shop_products
                SET stock=stock-$quantity
              WHERE id=$this->id
                AND distribution='delivery'";

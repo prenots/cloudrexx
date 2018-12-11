@@ -393,7 +393,7 @@ class Attribute
         if (empty($this->arrValues[$option_id])) return true;
         // Remove relations to Products
         $query = "
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute
+            DELETE FROM ".DBPREFIX."module_shop_rel_product_attribute
              WHERE option_id=$option_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -402,7 +402,7 @@ class Attribute
             return false;
         // Remove the value
         $query = "
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_option
+            DELETE FROM ".DBPREFIX."module_shop_option
              WHERE id=$option_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -428,10 +428,10 @@ class Attribute
 
         // Delete references to products first
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute`
+            DELETE FROM `".DBPREFIX."module_shop_rel_product_attribute`
              WHERE `option_id` IN (
                 SELECT `id`
-                  FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option`
+                  FROM `".DBPREFIX."module_shop_option`
                  WHERE `attribute_id`=$this->id)";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -445,7 +445,7 @@ class Attribute
         }
         // Delete option
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option`
+            DELETE FROM `".DBPREFIX."module_shop_option`
              WHERE `attribute_id`=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -456,7 +456,7 @@ class Attribute
         }
         // Delete Attribute
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_attribute`
+            DELETE FROM `".DBPREFIX."module_shop_attribute`
              WHERE `id`=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -504,7 +504,7 @@ class Attribute
 
         $query = "
             SELECT 1
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_attribute
+              FROM ".DBPREFIX."module_shop_attribute
              WHERE id=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) return false;
@@ -525,7 +525,7 @@ class Attribute
         global $objDatabase;
 
         $query = "
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_attribute
+            UPDATE ".DBPREFIX."module_shop_attribute
                SET type=$this->type
              WHERE id=$this->id";
         $objResult = $objDatabase->Execute($query);
@@ -547,7 +547,7 @@ class Attribute
         global $objDatabase;
 
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_attribute (
+            INSERT INTO ".DBPREFIX."module_shop_attribute (
                 type
             ) VALUES (
                 $this->type
@@ -603,7 +603,7 @@ class Attribute
         global $objDatabase;
 
         $query = "
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_option
+            UPDATE ".DBPREFIX."module_shop_option
                SET attribute_id=$this->id,
                    price=".floatval($arrValue['price'])."
              WHERE id=".$arrValue['id'];
@@ -629,7 +629,7 @@ class Attribute
         global $objDatabase;
 
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_option (
+            INSERT INTO ".DBPREFIX."module_shop_option (
                 attribute_id, price
             ) VALUES (
                 $this->id, ".floatval($arrValue['price'])."
@@ -655,7 +655,7 @@ class Attribute
 
         $query = "
             SELECT 1
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_option
+              FROM ".DBPREFIX."module_shop_option
              WHERE id=$option_id";
         $objResult = $objDatabase->Execute($query);
         if ($objResult && $objResult->RecordCount()) return true;
@@ -726,7 +726,7 @@ class Attribute
 
         $query = "
             SELECT attribute_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_option
+              FROM ".DBPREFIX."module_shop_option
              WHERE id=$option_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->RecordCount() != 1)
@@ -759,7 +759,7 @@ class Attribute
             array('name' => self::TEXT_OPTION_NAME));
         $query = "
             SELECT `id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option` AS `option`".
+              FROM `".DBPREFIX."module_shop_option` AS `option`".
             $arrSqlValue['join']."
              WHERE `name`='".addslashes($value)."'";
         $objResult = $objDatabase->Execute($query);

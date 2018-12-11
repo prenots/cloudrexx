@@ -619,10 +619,10 @@ if (!$limit) {
                        B.stock AS shopColumn3,
                        C.currency_id, ".
                 $arrSql['field']."
-                  FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_items AS A
-                  JOIN ".DBPREFIX."module_shop".MODULE_INDEX."_orders AS C
+                  FROM ".DBPREFIX."module_shop_order_items AS A
+                  JOIN ".DBPREFIX."module_shop_orders AS C
                     ON A.order_id=C.id
-                  JOIN ".DBPREFIX."module_shop".MODULE_INDEX."_products AS B
+                  JOIN ".DBPREFIX."module_shop_products AS B
                     ON A.product_id=B.id".
                 $arrSql['join']."
                  WHERE C.date_time>='$start_date'
@@ -645,8 +645,8 @@ if (!$limit) {
                        A.currency_id AS currency_id,
                        sum(B.quantity) AS shopColumn3,
                        A.customer_id AS id
-                  FROM ".DBPREFIX."module_shop".MODULE_INDEX."_orders AS A
-                  JOIN ".DBPREFIX."module_shop".MODULE_INDEX."_order_items AS B
+                  FROM ".DBPREFIX."module_shop_orders AS A
+                  JOIN ".DBPREFIX."module_shop_order_items AS B
                     ON A.id=B.order_id
                  WHERE A.date_time>='$start_date'
                    AND A.date_time<'$end_date'
@@ -671,8 +671,8 @@ if (!$limit) {
                        B.sum AS sum,
                        DATE_FORMAT(B.date_time, '%m') AS month,
                        DATE_FORMAT(B.date_time, '%Y') AS year
-                  FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_items AS A,
-                       ".DBPREFIX."module_shop".MODULE_INDEX."_orders AS B
+                  FROM ".DBPREFIX."module_shop_order_items AS A,
+                       ".DBPREFIX."module_shop_orders AS B
                  WHERE A.order_id=B.id
                    AND B.date_time>='$start_date'
                    AND B.date_time<'$end_date'
@@ -697,7 +697,7 @@ if (!$limit) {
                 if (!isset($arrayResults[$key])) {
                     $arrayResults[$key] = array(
                         'column1' =>
-                            '<a href="index.php?cmd=Shop'.MODULE_INDEX.
+                            '<a href="index.php?cmd=Shop'.
                             '&amp;act=products&amp;tpl=manage&amp;id='.
                             $objResult->fields['id'].
                             '" title="'.$objResult->fields['title'].'">'.
@@ -740,7 +740,7 @@ if (!$limit) {
                     }
                     $arrayResults[$key] = array(
                         'column1' =>
-                            '<a href="index.php?cmd=Shop'.MODULE_INDEX.
+                            '<a href="index.php?cmd=Shop'.
                             '&amp;act=customerdetails&amp;customer_id='.
                             $objResult->fields['id'].'">'.$name.'</a>',
                         'column2' => $company,
@@ -799,7 +799,7 @@ if (!$limit) {
             SELECT currency_id, sum,
                    DATE_FORMAT(date_time, '%m') AS month,
                    DATE_FORMAT(date_time, '%Y') AS year
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+              FROM ".DBPREFIX."module_shop_orders
              WHERE status=".Order::STATUS_CONFIRMED."
                 OR status=".Order::STATUS_COMPLETED."
              ORDER BY date_time DESC";
@@ -810,8 +810,8 @@ if (!$limit) {
         $totalSoldProducts = 0;
         $query_totalproducts = "
             SELECT sum(A.quantity) AS shopTotalSoldProducts
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_items AS A,
-                   ".DBPREFIX."module_shop".MODULE_INDEX."_orders AS B
+              FROM ".DBPREFIX."module_shop_order_items AS A,
+                   ".DBPREFIX."module_shop_orders AS B
              WHERE A.order_id=B.id
                AND (   B.status=".Order::STATUS_CONFIRMED."
                     OR B.status=".Order::STATUS_COMPLETED.")";
@@ -956,12 +956,12 @@ if (!$limit) {
             SELECT
                 `status`
             FROM
-                `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_orders`
+                `'.DBPREFIX.'module_shop_orders`
             WHERE
                 `id`=' . contrexx_input2int($order_id));
 
         $query = "
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_orders`
+            UPDATE `".DBPREFIX."module_shop_orders`
                SET `status`=$status,
                    `modified_by`='".addslashes($objUser->getUsername())."',
                    `modified_on`='".date('Y-m-d H:i:s')."'
@@ -1047,7 +1047,7 @@ if (!$limit) {
         }
         $query = "
             SELECT status, payment_id, shipment_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+              FROM ".DBPREFIX."module_shop_orders
              WHERE id=$order_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) {
@@ -1117,7 +1117,7 @@ if (!$limit) {
             }
         }
         $query = "
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+            UPDATE ".DBPREFIX."module_shop_orders
                SET status='$newOrderStatus'
              WHERE id=$order_id";
         $objResult = $objDatabase->Execute($query);

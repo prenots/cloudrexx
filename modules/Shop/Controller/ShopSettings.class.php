@@ -392,7 +392,7 @@ class ShopSettings
         global $objDatabase;
 
         if (isset($_GET['currencyId']) && !empty($_GET['currencyId'])) {
-            $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_currencies WHERE id=".intval($_GET['currencyId'])." AND is_default=0");
+            $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_shop_currencies WHERE id=".intval($_GET['currencyId'])." AND is_default=0");
         }
     }
      */
@@ -611,7 +611,7 @@ class ShopSettings
         if ($vatId) {
             self::$changed = true;
             self::$success = self::$success && (boolean)$objDatabase->Execute("
-                UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_products
+                UPDATE ".DBPREFIX."module_shop_products
                    SET vat_id=$vatId".$query_where
             );
         }

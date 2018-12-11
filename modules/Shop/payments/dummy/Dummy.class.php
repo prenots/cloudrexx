@@ -64,10 +64,10 @@ class Dummy
     function getForm()
     {
         $order_id    = isset($_SESSION['shop']['order_id']) ? $_SESSION['shop']['order_id'] : 0;
-        $confirmURI = "index.php?section=Shop".MODULE_INDEX."&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=-1";
-        $failureURI = "index.php?section=Shop".MODULE_INDEX."&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=0";
-        $successURI = "index.php?section=Shop".MODULE_INDEX."&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=1";
-        $cancelURI  = "index.php?section=Shop".MODULE_INDEX."&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=2";
+        $confirmURI = "index.php?section=Shop&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=-1";
+        $failureURI = "index.php?section=Shop&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=0";
+        $successURI = "index.php?section=Shop&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=1";
+        $cancelURI  = "index.php?section=Shop&amp;cmd=success&amp;handler=dummy&amp;order_id=$order_id&amp;result=2";
         return <<<_
 Please choose one:
 <hr />

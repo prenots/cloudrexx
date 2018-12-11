@@ -218,7 +218,7 @@ class Attributes
         $query_select = "
             SELECT `attribute`.`id`, ".$arrSqlName['field'];
         $query_from = "
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_attribute` AS `attribute`".
+              FROM `".DBPREFIX."module_shop_attribute` AS `attribute`".
                    $arrSqlName['join'];
         $query_where =
             (empty($filter['name'])
@@ -227,9 +227,9 @@ class Attributes
         if (!empty($filter['product_id'])) {
             //$query_select = "";
             $query_from .= "
-                INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_option` AS `option`
+                INNER JOIN `".DBPREFIX."module_shop_option` AS `option`
                    ON `attribute`.`id`=`option`.`attribute_id`
-                INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute` AS `rel`
+                INNER JOIN `".DBPREFIX."module_shop_rel_product_attribute` AS `rel`
                    ON `option`.`id`=`rel`.`option_id`";
             $query_where = "
                   AND `rel`.`product_id`=".$filter['product_id'];
@@ -304,7 +304,7 @@ class Attributes
         $query = "
             SELECT `attribute`.`id`, `attribute`.`type`, ".
                    $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_attribute` AS `attribute`".
+              FROM `".DBPREFIX."module_shop_attribute` AS `attribute`".
                    $arrSqlName['join'].
             ($attribute_id ? " WHERE `attribute`.`id`=$attribute_id" : '');
         $objResult = $objDatabase->Execute($query);
@@ -388,7 +388,7 @@ class Attributes
         $query = "
             SELECT `value`.`id`, `value`.`attribute_id`,
                    `value`.`price`, ".$arrSqlValue['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option` as `value`".
+              FROM `".DBPREFIX."module_shop_option` as `value`".
                    $arrSqlValue['join'].
             ($attribute_id ? " WHERE `value`.`attribute_id`=$attribute_id" : '');
         $objResult = $objDatabase->Execute($query);
@@ -437,7 +437,7 @@ class Attributes
             array('name' => Attribute::TEXT_OPTION_NAME));
         $query = "
             SELECT 1, ".$arrSqlValue['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option` AS `option`".
+              FROM `".DBPREFIX."module_shop_option` AS `option`".
                    $arrSqlValue['join']."
              WHERE `option`.`id`=$option_id";
         $objResult = $objDatabase->Execute($query);
@@ -468,7 +468,7 @@ class Attributes
 
         $query = "
             SELECT `price`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option`
+              FROM `".DBPREFIX."module_shop_option`
              WHERE `id`=$option_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) return false;
@@ -577,7 +577,7 @@ class Attributes
 
         $query = "
             SELECT `product_id`, `option_id`, `ord`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute`".
+              FROM `".DBPREFIX."module_shop_rel_product_attribute`".
             ($product_id ? " WHERE `product_id`=$product_id" : '')."
              ORDER BY `ord` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -613,7 +613,7 @@ class Attributes
         global $objDatabase;
 
         $query = "
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute` (
+            INSERT INTO `".DBPREFIX."module_shop_rel_product_attribute` (
                 `product_id`,
                 `option_id`,
                 `ord`
@@ -640,7 +640,7 @@ class Attributes
         global $objDatabase;
 
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute`
+            DELETE FROM `".DBPREFIX."module_shop_rel_product_attribute`
              WHERE `product_id`=$product_id";
         $objResult = $objDatabase->Execute($query);
         return (boolean)$objResult;

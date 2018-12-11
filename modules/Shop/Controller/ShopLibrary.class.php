@@ -130,7 +130,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
 
         $query = "
             SELECT from_mail, xsender, subject, message
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_mail_content
+              FROM ".DBPREFIX."module_shop_mail_content
              WHERE tpl_id=$shopTemplateId
                AND lang_id=$lang_id";
         $objResult = $objDatabase->Execute($query);
@@ -165,7 +165,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
 
         $query = "
             SELECT `customer_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_orders`
+              FROM `".DBPREFIX."module_shop_orders`
              WHERE `id`=$order_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) {

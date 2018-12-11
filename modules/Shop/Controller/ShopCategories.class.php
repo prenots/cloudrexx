@@ -320,7 +320,7 @@ class ShopCategories
             // Get the ShopCategories' children
             $query = "
                SELECT `id`
-                 FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories`
+                 FROM `".DBPREFIX."module_shop_categories`
                 WHERE `parent_id` IN ($tempList)".
                 ($active ? ' AND `active`=1' : '')."
                 ORDER BY `ord` ASC";
@@ -528,7 +528,7 @@ class ShopCategories
         // Look for an image in child Categories
         $query = "
             SELECT `picture`, `id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories`
+              FROM `".DBPREFIX."module_shop_categories`
              WHERE `parent_id`=$catId
                AND `picture`!=''
           ORDER BY `ord` ASC";
@@ -616,7 +616,7 @@ class ShopCategories
         );
         $query = "
             SELECT `category`.`id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories` AS `category`".
+              FROM `".DBPREFIX."module_shop_categories` AS `category`".
              $arrSql['join']."
              WHERE 1 ".
         (!empty($objCategory->id)
@@ -824,7 +824,7 @@ class ShopCategories
         $parent_id = max(0, intval($parent_id));
         $objResult = $objDatabase->Execute("
            SELECT `id`
-             FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories`
+             FROM `".DBPREFIX."module_shop_categories`
             WHERE `parent_id`=?".
             ($active ? ' AND `active`=1' : '')."
             ORDER BY `ord` ASC",
@@ -871,7 +871,7 @@ class ShopCategories
         // Qquery flags: OR flags LIKE '%parent:$parent_id%'
         $objResult = $objDatabase->Execute("
            SELECT `category`.`id`
-             FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories` AS `category`".
+             FROM `".DBPREFIX."module_shop_categories` AS `category`".
             $arrSqlName['join']."
             WHERE ".$arrSqlName['alias']['name']."='".addslashes($strName)."'".
             ($active ? ' AND `active`=1' : '').
@@ -953,7 +953,7 @@ class ShopCategories
         $query = "
            SELECT `category`.`id`, ".
             $arrSqlName['field']."
-             FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories` AS `category`".
+             FROM `".DBPREFIX."module_shop_categories` AS `category`".
             $arrSqlName['join']."
             WHERE flags LIKE '%__VIRTUAL__%'
             ORDER BY ord ASC";
@@ -1001,7 +1001,7 @@ class ShopCategories
         $query = "
             SELECT `category`.`id`, ".
             $arrSqlName['field']."
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_categories AS `category`".
+              FROM ".DBPREFIX."module_shop_categories AS `category`".
             $arrSqlName['join']."
              WHERE `category`.`flags` LIKE '%__VIRTUAL__%'
              ORDER BY `category`.`ord` ASC";

@@ -77,7 +77,7 @@ class Zones
         $query = "
             SELECT `zone`.`id`, `zone`.`active`, ".
                    $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`".
+              FROM `".DBPREFIX."module_shop_zones` AS `zone`".
                    $arrSqlName['join']."
              ORDER BY `name` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -133,7 +133,7 @@ class Zones
 //DBG::log("Zones::getCountryRelationArray(): init()ialising");
             $query = "
                 SELECT zone_id, country_id
-                  FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries";
+                  FROM ".DBPREFIX."module_shop_rel_countries";
             $objResult = $objDatabase->Execute($query);
             if (!$objResult) return false;
             self::$arrRelation = array();
@@ -163,8 +163,8 @@ class Zones
 
         $query = "
             SELECT r.zone_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment AS r
-              JOIN ".DBPREFIX."module_shop".MODULE_INDEX."_zones AS z
+              FROM ".DBPREFIX."module_shop_rel_payment AS r
+              JOIN ".DBPREFIX."module_shop_zones AS z
                 ON z.id=r.zone_id
              WHERE r.payment_id=$payment_id"; // AND z.active=1
         $objResult = $objDatabase->Execute($query);
@@ -222,17 +222,17 @@ class Zones
         if (empty(self::$arrZone[$zone_id])) return null;
         // Delete Country relations
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries
+            DELETE FROM ".DBPREFIX."module_shop_rel_countries
              WHERE zone_id=$zone_id");
         if (!$objResult) return false;
         // Update relations: Move affected Payments and Shipments to Zone "All"
         $objResult = $objDatabase->Execute("
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment
+            UPDATE ".DBPREFIX."module_shop_rel_payment
                SET zone_id=1
              WHERE zone_id=$zone_id");
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper
+            UPDATE ".DBPREFIX."module_shop_rel_shipper
                SET zone_id=1
              WHERE zone_id=$zone_id");
         if (!$objResult) return false;
@@ -240,7 +240,7 @@ class Zones
         if (!\Text::deleteById($zone_id, 'Shop', self::TEXT_NAME))
             return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_zones
+            DELETE FROM ".DBPREFIX."module_shop_zones
              WHERE id=$zone_id");
         if (!$objResult) return false;
 
@@ -259,7 +259,7 @@ class Zones
         if (empty($_POST['zone_name_new'])) return null;
         $strName = $_POST['zone_name_new'];
         $objResult = $objDatabase->Execute("
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_zones (
+            INSERT INTO ".DBPREFIX."module_shop_zones (
                 active
             ) VALUES (
                 ".(isset($_POST['zone_active_new']) ? 1 : 0)."
@@ -273,7 +273,7 @@ class Zones
         if (isset($_POST['selected_countries'])) {
             foreach ($_POST['selected_countries'] as $country_id) {
                 $objResult = $objDatabase->Execute("
-                    INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries (
+                    INSERT INTO ".DBPREFIX."module_shop_rel_countries (
                         zone_id, country_id
                     ) VALUES (
                         $zone_id, $country_id
@@ -317,7 +317,7 @@ class Zones
             }
 //DBG::log("Zones::updateZones(): Different: name $name == ".self::$arrZone[$zone_id]['name'].", active $active == ".self::$arrZone[$zone_id]['active'].", arrCountryId ".var_export($arrCountryId, true)." == ".var_export($arrCountryId_old, true));
             $objResult = $objDatabase->Execute("
-                UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_zones
+                UPDATE ".DBPREFIX."module_shop_zones
                    SET active=$active
                  WHERE id=$zone_id");
             if (!$objResult) return false;
@@ -327,13 +327,13 @@ class Zones
                 return false;
             }
             $objResult = $objDatabase->Execute("
-                DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries
+                DELETE FROM ".DBPREFIX."module_shop_rel_countries
                  WHERE zone_id=$zone_id");
             if (!$objResult) return false;
             if (!empty($arrCountryId)) {
                 foreach ($arrCountryId as $country_id) {
                     $objResult = $objDatabase->Execute("
-                        INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries (
+                        INSERT INTO ".DBPREFIX."module_shop_rel_countries (
                             zone_id, country_id
                         ) VALUES (
                             $zone_id, $country_id
@@ -359,7 +359,7 @@ class Zones
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            REPLACE INTO ".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper (
+            REPLACE INTO ".DBPREFIX."module_shop_rel_shipper (
                `zone_id`, `shipper_id`
              ) VALUES (
                $zone_id, $shipper_id
@@ -420,8 +420,8 @@ class Zones
 
         $query = "
             SELECT `relation`.`zone_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `relation`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
+              FROM `".DBPREFIX."module_shop_rel_shipper` AS `relation`
+              JOIN `".DBPREFIX."module_shop_zones` AS `zone`
                 ON `zone`.`id`=`relation`.`zone_id`
              WHERE `zone`.`active`=1
                AND `relation`.`shipper_id`=$shipper_id";

@@ -363,7 +363,7 @@ class ShopCategory
 
         $query = "
             SELECT 1
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_categories
+              FROM ".DBPREFIX."module_shop_categories
              WHERE id=$this->id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -473,7 +473,7 @@ class ShopCategory
         global $objDatabase;
 
         $query = "
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_categories`
+            UPDATE `".DBPREFIX."module_shop_categories`
               SET `parent_id`=$this->parent_id,
                   `active`=".($this->active ? 1 : 0).",
                   `ord`=$this->ord,
@@ -500,7 +500,7 @@ class ShopCategory
         global $objDatabase;
 
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_categories (
+            INSERT INTO ".DBPREFIX."module_shop_categories (
                 `parent_id`, `active`, `ord`,
                 `picture`, `flags`
                 ".($this->id ? ', id' : '')."
@@ -552,7 +552,7 @@ class ShopCategory
         \Text::deleteById($this->id(), 'Shop', self::TEXT_DESCRIPTION);
         // Delete Category
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_categories
+            DELETE FROM ".DBPREFIX."module_shop_categories
             WHERE id=$this->id");
         if (!$objResult) {
             return false;
@@ -617,7 +617,7 @@ class ShopCategory
                    `category`.`picture`,
                    `category`.`flags`, ".
                    $arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_categories` AS `category`".
+              FROM `".DBPREFIX."module_shop_categories` AS `category`".
                    $arrSql['join']."
              WHERE `category`.`id`=$category_id";
         $objResult = $objDatabase->Execute($query);
@@ -685,7 +685,7 @@ class ShopCategory
 
         $query = "
             SELECT id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_categories
+              FROM ".DBPREFIX."module_shop_categories
              WHERE parent_id=$this->id
           ORDER BY ord ASC";
         $objResult = $objDatabase->Execute($query);
@@ -723,7 +723,7 @@ class ShopCategory
 
         $query = "
            SELECT id
-             FROM ".DBPREFIX."module_shop".MODULE_INDEX."_categories
+             FROM ".DBPREFIX."module_shop_categories
             WHERE ".($active ? 'active=1 AND' : '')."
                   parent_id=$this->parent_id AND
                   catname='".addslashes($strName)."'

@@ -110,7 +110,7 @@ class Currency
                    `currency`.`ord`,
                    `currency`.`active`, `currency`.`default`, ".
                    $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_currencies` AS `currency`".
+              FROM `".DBPREFIX."module_shop_currencies` AS `currency`".
                    $arrSqlName['join']."
              ORDER BY `currency`.`id` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -547,7 +547,7 @@ class Currency
         if (!\Text::deleteById($currency_id, 'Shop', self::TEXT_NAME))
             return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`
+            DELETE FROM `".DBPREFIX."module_shop_currencies`
              WHERE `id`=$currency_id");
         if (!$objResult) return false;
         unset(self::$arrCurrency[$currency_id]);
@@ -591,7 +591,7 @@ class Currency
         $active = (empty($_POST['currencyActiveNew']) ? 0 : 1);
         $default = (empty($_POST['currencyDefaultNew']) ? 0 : 1);
         $query = "
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_currencies` (
+            INSERT INTO `".DBPREFIX."module_shop_currencies` (
                 `code`, `symbol`, `rate`, `increment`, `active`
             ) VALUES (
                 '".contrexx_raw2db($code)."',
@@ -653,7 +653,7 @@ class Currency
                 continue;
             }
             $query = "
-                UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`
+                UPDATE `".DBPREFIX."module_shop_currencies`
                    SET `code`='".contrexx_raw2db($code)."',
                        `symbol`='".contrexx_raw2db($symbol)."',
                        `rate`=$rate,
@@ -680,12 +680,12 @@ class Currency
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`
+            UPDATE `".DBPREFIX."module_shop_currencies`
                SET `default`=0
              WHERE `id`!=$currency_id");
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_currencies`
+            UPDATE `".DBPREFIX."module_shop_currencies`
                SET `default`=1
              WHERE `id`=$currency_id");
         if (!$objResult) return false;

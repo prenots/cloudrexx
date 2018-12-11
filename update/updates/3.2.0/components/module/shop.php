@@ -30,8 +30,6 @@ function _shopUpdate()
 {
     global $objDatabase, $_ARRAYLANG, $objUpdate;
 
-    if (!defined('MODULE_INDEX')) define('MODULE_INDEX', '');
-
     try {
         $table_name = DBPREFIX.'module_shop_config';
         // Mind that this table does no longer exist from version 3
@@ -970,13 +968,13 @@ function _shopUpdate()
         // Replace
         // In <!-- BEGIN subCategoriesRow -->...<!-- END subCategoriesRow -->
         //    [[SHOP_PRODUCT_DETAILLINK_IMAGE]] =>
-        //    index.php?section=shop[[MODULE_INDEX]]&amp;catId=[[SHOP_CATEGORY_ID]]
+        //    index.php?section=shop&amp;catId=[[SHOP_CATEGORY_ID]]
         Cx\Lib\UpdateUtil::migrateContentPageUsingRegex(
             array('module' => 'shop'),
             '/(<!-- *BEGIN *subCategoriesRow *-->.+?)'.
             '{SHOP_PRODUCT_DETAILLINK_IMAGE}'.
             '(.+?<!-- *END *subCategoriesRow *-->)/s',
-            '$1index.php?section=shop{MODULE_INDEX}&amp;catId={SHOP_CATEGORY_ID}$2',
+            '$1index.php?section=shop&amp;catId={SHOP_CATEGORY_ID}$2',
             array('content'),
             '3.0.0'
         );

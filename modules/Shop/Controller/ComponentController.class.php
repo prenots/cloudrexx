@@ -107,10 +107,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // Show the Shop navbar in the Shop, or on every page if configured to do so
-                if (!Shop::isInitialized()
-                // Optionally limit to the first instance
-                // && MODULE_INDEX == ''
-                ) {
+                if (!Shop::isInitialized()) {
                     \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
                     if (\Cx\Core\Setting\Controller\Setting::getValue('shopnavbar_on_all_pages', 'Shop')) {
                         Shop::init();

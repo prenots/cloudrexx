@@ -113,7 +113,7 @@ class Discount
                 'unit' => self::TEXT_UNIT_GROUP_COUNT));
         $query = "
             SELECT `discount`.`id`, `discount`.`cumulative`, ".$arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_name` AS `discount`
+              FROM `".DBPREFIX."module_shop_discountgroup_count_name` AS `discount`
                    ".$arrSql['join']."
              ORDER BY `discount`.`id` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -145,7 +145,7 @@ class Discount
         // Some methods rely on it to find the applicable rate.
         $query = "
             SELECT `group_id`, `count`, `rate`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_rate`
+              FROM `".DBPREFIX."module_shop_discountgroup_count_rate`
              ORDER by `count` DESC";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
@@ -161,7 +161,7 @@ class Discount
             array('customer' => self::TEXT_NAME_GROUP_CUSTOMER));
         $query = "
             SELECT `discount`.`id`, ".$arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_customer_group` AS `discount`
+              FROM `".DBPREFIX."module_shop_customer_group` AS `discount`
                    ".$arrSqlName['join']."
              ORDER BY `discount`.`id` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -185,7 +185,7 @@ class Discount
             array('article' => self::TEXT_NAME_GROUP_ARTICLE));
         $query = "
             SELECT `discount`.`id`, ".$arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_article_group` AS `discount`
+              FROM `".DBPREFIX."module_shop_article_group` AS `discount`
                    ".$arrSqlName['join']."
              ORDER BY `discount`.`id` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -206,7 +206,7 @@ class Discount
 //DBG::log("Discount::init(): Made \$arrArticleGroup: ".var_export(self::$arrArticleGroup, true));
         $query = "
             SELECT `customer_group_id`, `article_group_id`, `rate`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`";
+              FROM `".DBPREFIX."module_shop_rel_discount_group`";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
         self::$arrDiscountRateCustomer = array();
@@ -411,7 +411,7 @@ class Discount
         if (is_null(self::$arrDiscountCountName)) self::init();
         $group_id = intval($group_id);
         $query = "
-            REPLACE INTO `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_name` (
+            REPLACE INTO `".DBPREFIX."module_shop_discountgroup_count_name` (
                 `id`,
                 `cumulative`
             ) VALUES (
@@ -433,7 +433,7 @@ class Discount
         }
         // Remove old counts and rates
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_rate`
+            DELETE FROM `".DBPREFIX."module_shop_discountgroup_count_rate`
              WHERE `group_id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
@@ -442,7 +442,7 @@ class Discount
             $rate = $arrRate[$index];
             if ($count <= 0 || $rate <= 0) continue;
             $query = "
-                INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_rate` (
+                INSERT INTO `".DBPREFIX."module_shop_discountgroup_count_rate` (
                     `group_id`, `count`, `rate`
                 ) VALUES (
                     $group_id, $count, $rate
@@ -474,7 +474,7 @@ class Discount
         if (empty(self::$arrDiscountCountName[$group_id])) return true;
         // Remove counts and rates
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_rate`
+            DELETE FROM `".DBPREFIX."module_shop_discountgroup_count_rate`
              WHERE `group_id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
@@ -486,7 +486,7 @@ class Discount
             return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_COUNT_ERROR_DELETING']);
         }
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discountgroup_count_name`
+            DELETE FROM `".DBPREFIX."module_shop_discountgroup_count_name`
              WHERE `id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -693,7 +693,7 @@ class Discount
         global $objDatabase, $_ARRAYLANG;
 
         $query = "
-            TRUNCATE TABLE `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`";
+            TRUNCATE TABLE `".DBPREFIX."module_shop_rel_discount_group`";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
             return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_ERROR_STORING']);
@@ -704,7 +704,7 @@ class Discount
                 if ($rate <= 0) continue;
                 // Insert
                 $query = "
-                    INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group` (
+                    INSERT INTO `".DBPREFIX."module_shop_rel_discount_group` (
                         `customer_group_id`, `article_group_id`, `rate`
                     ) VALUES (
                         $groupCustomerId, $groupArticleId, $rate
@@ -735,7 +735,7 @@ class Discount
         if (is_null(self::$arrCustomerGroup)) self::init();
         $group_id = intval($group_id);
         $query = "
-            REPLACE INTO `".DBPREFIX."module_shop".MODULE_INDEX."_customer_group` (
+            REPLACE INTO `".DBPREFIX."module_shop_customer_group` (
                 `id`
             ) VALUES (
                 $group_id
@@ -772,7 +772,7 @@ class Discount
         if (is_null(self::$arrArticleGroup)) self::init();
         $group_id = intval($group_id);
         $query = "
-            REPLACE INTO `".DBPREFIX."module_shop".MODULE_INDEX."_article_group` (
+            REPLACE INTO `".DBPREFIX."module_shop_article_group` (
                 `id`
             ) VALUES (
                 $group_id
@@ -811,7 +811,7 @@ class Discount
         if (empty(self::$arrCustomerGroup[$group_id])) return true;
         // Remove related rates
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`
+            DELETE FROM `".DBPREFIX."module_shop_rel_discount_group`
              WHERE `customer_group_id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -823,7 +823,7 @@ class Discount
             return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_ERROR_DELETING']);
         }
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_customer_group`
+            DELETE FROM `".DBPREFIX."module_shop_customer_group`
              WHERE `id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -851,7 +851,7 @@ class Discount
         if (empty(self::$arrArticleGroup[$group_id])) return true;
         // Remove related rates
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`
+            DELETE FROM `".DBPREFIX."module_shop_rel_discount_group`
              WHERE `article_group_id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
@@ -861,7 +861,7 @@ class Discount
             return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_ARTICLE_GROUP_ERROR_DELETING']);
         }
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_article_group`
+            DELETE FROM `".DBPREFIX."module_shop_article_group`
              WHERE `id`=$group_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {

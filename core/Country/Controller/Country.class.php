@@ -846,7 +846,7 @@ class Country
         $query = "
             SELECT `country`.`id`, ".$arrSqlName['field']."
               FROM `".DBPREFIX."core_country` AS `country`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `relation`
+             INNER JOIN `".DBPREFIX."module_shop_rel_countries` AS `relation`
                 ON `country`.`id`=`relation`.`country_id`
                    ".$arrSqlName['join']."
              WHERE `country`.`active`=1

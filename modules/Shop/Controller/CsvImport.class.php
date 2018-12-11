@@ -108,7 +108,7 @@ class CsvImport
 
         $query = "
             SELECT img_id, img_name, img_cats, img_fields_file, img_fields_db
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_importimg
+              FROM ".DBPREFIX."module_shop_importimg
              ORDER BY img_id";
         $objResult = $objDatabase->Execute($query);
         $this->arrTemplateArray = array();

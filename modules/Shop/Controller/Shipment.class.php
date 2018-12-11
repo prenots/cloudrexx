@@ -103,7 +103,7 @@ class Shipment
         $objResult = $objDatabase->Execute("
             SELECT `shipper`.`id`, `shipper`.`active`, ".
             $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`".
+              FROM `".DBPREFIX."module_shop_shipper` AS `shipper`".
             $arrSqlName['join'].
              ($all ? '' : ' WHERE `shipper`.`active`=1')."
              ORDER BY `shipper`.`id` ASC");
@@ -128,8 +128,8 @@ class Shipment
         $objResult = $objDatabase->Execute("
             SELECT `shipment`.`id`, `shipment`.`shipper_id`,
                    `shipment`.`max_weight`, `shipment`.`fee`, `shipment`.`free_from`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_shipment_cost` AS `shipment`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`
+              FROM `".DBPREFIX."module_shop_shipment_cost` AS `shipment`
+             INNER JOIN `".DBPREFIX."module_shop_shipper` AS `shipper`
                 ON `shipper`.`id`=`shipper_id`");
         if (!$objResult) return self::errorHandler();
         while (!$objResult->EOF) {
@@ -258,12 +258,12 @@ class Shipment
 //DBG::activate(DBG_ADODB);
         $query = "
             SELECT DISTINCT `relation`.`shipper_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `country`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
+              FROM `".DBPREFIX."module_shop_rel_countries` AS `country`
+              JOIN `".DBPREFIX."module_shop_zones` AS `zone`
                 ON `country`.`zone_id`=`zone`.`id`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `relation`
+              JOIN `".DBPREFIX."module_shop_rel_shipper` AS `relation`
                 ON `zone`.`id`=`relation`.`zone_id`
-              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`
+              JOIN `".DBPREFIX."module_shop_shipper` AS `shipper`
                 ON `relation`.`shipper_id`=`shipper`.`id`
              WHERE `zone`.`active`=1
                AND `shipper`.`active`=1".
@@ -388,15 +388,15 @@ class Shipment
         if (!\Text::deleteById($shipper_id, 'Shop', self::TEXT_NAME))
             return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_shipment_cost
+            DELETE FROM ".DBPREFIX."module_shop_shipment_cost
              WHERE shipper_id=".$shipper_id);
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper
+            DELETE FROM ".DBPREFIX."module_shop_rel_shipper
              WHERE shipper_id=".$shipper_id);
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_shipper
+            DELETE FROM ".DBPREFIX."module_shop_shipper
              WHERE id=".$shipper_id);
         if (!$objResult) return false;
 
@@ -416,7 +416,7 @@ class Shipment
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_shipment_cost`
+            DELETE FROM `".DBPREFIX."module_shop_shipment_cost`
              WHERE `id`=$shipment_id");
         return (boolean)$objResult;
     }
@@ -437,7 +437,7 @@ class Shipment
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` (
+            INSERT INTO `".DBPREFIX."module_shop_shipper` (
                 `active`
             ) VALUES (
                 ".($active ? 1 : 0)."
@@ -467,7 +467,7 @@ class Shipment
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_shipment_cost` (
+            INSERT INTO `".DBPREFIX."module_shop_shipment_cost` (
                 `shipper_id`, `fee`, `free_from`, `max_weight`
             ) VALUES (
                 $shipper_id, $fee, $free_from, $max_weight
@@ -628,7 +628,7 @@ class Shipment
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_shipment_cost`
+            UPDATE `".DBPREFIX."module_shop_shipment_cost`
                SET `shipper_id`=$shipper_id,
                    `fee`=$fee,
                    `free_from`=$free_from,
@@ -652,7 +652,7 @@ class Shipment
         global $objDatabase;
 
         $objResult = $objDatabase->Execute("
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_shipper`
+            UPDATE `".DBPREFIX."module_shop_shipper`
                SET `active`=".($active ? 1 : 0)."
              WHERE `id`=$shipper_id");
         return (boolean)$objResult;
@@ -798,12 +798,12 @@ class Shipment
             $objResult = $objDatabase->Execute("
                 SELECT DISTINCT `country`.`id`,".
                        $arrSqlName['field']."
-                  FROM `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`
-                 INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `rel_shipper`
+                  FROM `".DBPREFIX."module_shop_shipper` AS `shipper`
+                 INNER JOIN `".DBPREFIX."module_shop_rel_shipper` AS `rel_shipper`
                     ON `shipper`.`id`=`rel_shipper`.`shipper_id`
-                 INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
+                 INNER JOIN `".DBPREFIX."module_shop_zones` AS `zone`
                     ON `rel_shipper`.`zone_id`=`zone`.`id`
-                 INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `rel_country`
+                 INNER JOIN `".DBPREFIX."module_shop_rel_countries` AS `rel_country`
                     ON `zone`.`id`=`rel_country`.`zone_id`
                  INNER JOIN `".DBPREFIX."core_country` AS `country`
                     ON `rel_country`.`country_id`=`country`.`id`".

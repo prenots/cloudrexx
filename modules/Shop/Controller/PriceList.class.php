@@ -574,7 +574,7 @@ class PriceList
             SELECT `id`, `name`, `lang_id`,
                    `border_on`, `header_on`, `header_left`, `header_right`,
                    `footer_on`, `footer_left`, `footer_right`, `categories`
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_pricelists
+              FROM ".DBPREFIX."module_shop_pricelists
              WHERE id=$this->id");
         if (!$objResult) {
             return false;
@@ -638,7 +638,7 @@ class PriceList
 
         $query = "
             SELECT `id`, `name`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
+              FROM `".DBPREFIX."module_shop_pricelists`
              ORDER BY `name` ASC";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -674,7 +674,7 @@ class PriceList
                    `header_on`, `header_left`, `header_right`,
                    `footer_on`, `footer_left`, `footer_right`,
                    `categories`
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_pricelists
+              FROM ".DBPREFIX."module_shop_pricelists
              WHERE id=$list_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -798,7 +798,7 @@ class PriceList
         global $objDatabase;
 
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
+            DELETE FROM `".DBPREFIX."module_shop_pricelists`
              WHERE `id`=$list_id";
         return (boolean)$objDatabase->Execute($query);
     }
@@ -826,7 +826,7 @@ class PriceList
         global $objDatabase, $_ARRAYLANG;
 
         $query = "
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
+            UPDATE `".DBPREFIX."module_shop_pricelists`
                SET `name`='".contrexx_raw2db($this->name)."',
                    `lang_id`=".intval($this->lang_id).",
                    `border_on`=".intval($this->border).",
@@ -856,7 +856,7 @@ class PriceList
         global $objDatabase, $_ARRAYLANG;
 
         $query = "
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists` (
+            INSERT INTO `".DBPREFIX."module_shop_pricelists` (
               `name`, `lang_id`, `border_on`,
               `header_on`, `header_left`, `header_right`,
               `footer_on`, `footer_left`, `footer_right`,

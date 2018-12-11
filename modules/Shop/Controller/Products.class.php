@@ -87,7 +87,7 @@ class Products
         if (empty($customId)) return false;
         $query = "
             SELECT `id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products`
+              FROM `".DBPREFIX."module_shop_products`
              WHERE `product_id`='$customId'
              ORDER BY `id` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -248,8 +248,8 @@ class Products
             SELECT `product`.`id`, ".$arrSql['field'];
         $queryCount = "SELECT COUNT(*) AS `numof_products`";
         $queryJoin = '
-            FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_products` AS `product`
-            LEFT JOIN `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_categories` AS `category`
+            FROM `'.DBPREFIX.'module_shop_products` AS `product`
+            LEFT JOIN `'.DBPREFIX.'module_shop_categories` AS `category`
               ON `category`.`id`=`product`.`category_id`'.
             $arrSql['join'];
         $queryWhere = ' WHERE 1'.
@@ -347,7 +347,7 @@ class Products
             // Limit Products by Manufacturer ID, if any
             if ($manufacturer_id > 0) {
                 $queryJoin .= '
-                    INNER JOIN `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_manufacturer` AS `m`
+                    INNER JOIN `'.DBPREFIX.'module_shop_manufacturer` AS `m`
                        ON `m`.`id`=`product`.`manufacturer_id`';
                 $queryWhere .= ' AND `product`.`manufacturer_id`='.$manufacturer_id;
             }
@@ -589,7 +589,7 @@ class Products
         $category_id = intval($category_id);
         $query = "
             SELECT `id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products`
+              FROM `".DBPREFIX."module_shop_products`
              WHERE FIND_IN_SET($category_id, `category_id`)
           ORDER BY `ord` ASC";
         $objResult = $objDatabase->Execute($query);
@@ -620,7 +620,7 @@ class Products
         $category_id = intval($category_id);
         $query = "
             SELECT `picture`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products`
+              FROM `".DBPREFIX."module_shop_products`
              WHERE FIND_IN_SET($category_id, `category_id`)
                AND `picture`!=''
              ORDER BY `ord` ASC";
@@ -652,7 +652,7 @@ class Products
 
         $query = "
             SELECT DISTINCT category_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
+              FROM ".DBPREFIX."module_shop_products
              WHERE flags LIKE '%$strName%'
           ORDER BY category_id ASC";
         $objResult = $objDatabase->Execute($query);
@@ -1046,7 +1046,7 @@ class Products
                    `product`.`distribution`,
                    `product`.`group_id`, `product`.`article_id`, ".
                    $arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `product`".
+              FROM `".DBPREFIX."module_shop_products` AS `product`".
                    $arrSql['join']."
              WHERE `product`.`active`=1";
         $objResult = $objDatabase->Execute($query);
@@ -1203,7 +1203,7 @@ class Products
         $query = "
             SELECT `product`.`id`, ".
                    $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `product`".
+              FROM `".DBPREFIX."module_shop_products` AS `product`".
                    $arrSqlName['join'].
             (isset($activeonly)
               ? ' WHERE `product`.`active`='.($activeonly ? 1 : 0) : '')."

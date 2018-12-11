@@ -87,7 +87,7 @@ class Manufacturer
         $query = "
             SELECT `manufacturer`.`id`, ".
                    $arrSql['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_manufacturer` AS `manufacturer`".
+              FROM `".DBPREFIX."module_shop_manufacturer` AS `manufacturer`".
                    $arrSql['join'].
              ($order ? " ORDER BY $order" : '');
         $objResult = $objDatabase->Execute($query);
@@ -150,7 +150,7 @@ class Manufacturer
         if (empty($id)) return false;
         $query = "
             SELECT 1
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_manufacturer`
+              FROM `".DBPREFIX."module_shop_manufacturer`
              WHERE `id`=$id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || !$objResult->EOF) return true;
@@ -197,7 +197,7 @@ class Manufacturer
         global $objDatabase;
 
         $query = "
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_manufacturer` (
+            INSERT INTO `".DBPREFIX."module_shop_manufacturer` (
                 `id`
             ) VALUES (
                 'NULL'
@@ -276,7 +276,7 @@ class Manufacturer
                 return \Message::error($_ARRAYLANG['TXT_SHOP_MANUFACTURER_DELETE_FAILED']);
             }
             $query = "
-                DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_manufacturer`
+                DELETE FROM `".DBPREFIX."module_shop_manufacturer`
                  WHERE `id`=$id";
             $objResult = $objDatabase->Execute($query);
             if (!$objResult) {

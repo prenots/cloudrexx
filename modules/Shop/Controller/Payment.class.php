@@ -74,7 +74,7 @@ class Payment
                    `payment`.`fee`, `payment`.`free_from`,
                    `payment`.`ord`, `payment`.`active`, ".
             $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_payment` AS `payment`".
+              FROM `".DBPREFIX."module_shop_payment` AS `payment`".
             $arrSqlName['join']."
              ORDER BY id";
         $objResult = $objDatabase->Execute($query);
@@ -193,12 +193,12 @@ class Payment
         $arrPaymentId = array();
         $query = "
             SELECT DISTINCT `payment`.`id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `country`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
+              FROM `".DBPREFIX."module_shop_rel_countries` AS `country`
+             INNER JOIN `".DBPREFIX."module_shop_zones` AS `zone`
                 ON `country`.`zone_id`=`zone`.`id`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment` AS `rel_payment`
+             INNER JOIN `".DBPREFIX."module_shop_rel_payment` AS `rel_payment`
                 ON `zone`.`id`=`rel_payment`.`zone_id`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_payment` AS `payment`
+             INNER JOIN `".DBPREFIX."module_shop_payment` AS `payment`
                 ON `payment`.`id`=`rel_payment`.`payment_id`
              WHERE `country`.`country_id`=".intval($countryId)."
                AND `payment`.`active`=1
@@ -329,7 +329,7 @@ class Payment
 
         $query = "
             SELECT `processor_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_payment`
+              FROM `".DBPREFIX."module_shop_payment`
              WHERE `id`=$paymentId";
         $objResult = $objDatabase->Execute($query);
         if ($objResult && !$objResult->EOF)
@@ -365,10 +365,10 @@ class Payment
             return \Message::error($_ARRAYLANG['TXT_SHOP_PAYMENT_ERROR_CANNOT_DELETE_LAST_ACTIVE']);
         }
         if (!$objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment
+            DELETE FROM ".DBPREFIX."module_shop_rel_payment
              WHERE payment_id=?", $payment_id)) return false;
         if (!$objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_payment
+            DELETE FROM ".DBPREFIX."module_shop_payment
              WHERE id=?", $payment_id)) return false;
 
         return true;
@@ -390,7 +390,7 @@ class Payment
         if (empty($_POST['payment_add']) || empty($_POST['name_new']))
             return null;
         $query = "
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_payment (
+            INSERT INTO ".DBPREFIX."module_shop_payment (
                 `processor_id`, `fee`, `free_from`, `ord`, `active`
             ) VALUES (
                 ".intval($_POST['processor_id_new']).",
@@ -407,7 +407,7 @@ class Payment
             return false;
         }
         return (boolean)$objDatabase->Execute("
-            INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment (
+            INSERT INTO ".DBPREFIX."module_shop_rel_payment (
                 zone_id, payment_id
             ) VALUES (
                 ".intval($_POST['zone_id_new']).",
@@ -458,7 +458,7 @@ class Payment
                 $result = false;
             }
             $query = "
-                UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_payment
+                UPDATE ".DBPREFIX."module_shop_payment
                    SET processor_id=$processor_id,
                        fee=$fee,
                        free_from=$free_from,
@@ -468,7 +468,7 @@ class Payment
                 $result = false;
             }
             if (!$objDatabase->Execute("
-                UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment
+                UPDATE ".DBPREFIX."module_shop_rel_payment
                    SET `zone_id`=$zone_id
                  WHERE `payment_id`=$payment_id")) {
                 $result = false;

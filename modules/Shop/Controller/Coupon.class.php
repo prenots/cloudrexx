@@ -316,7 +316,7 @@ class Coupon
             SELECT `code`, `payment_id`, `start_time`, `end_time`,
                    `minimum_amount`, `discount_rate`, `discount_amount`,
                    `uses`, `global`, `customer_id`, `product_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
+              FROM `".DBPREFIX."module_shop_discount_coupon`
              WHERE `code`='".addslashes($code)."'";
         $objResult = $objDatabase->Execute($query);
         // Failure
@@ -504,7 +504,7 @@ class Coupon
                    `coupon`.`discount_rate`, `coupon`.`discount_amount`,
                    `coupon`.`uses`, `coupon`.`global`,
                    `coupon`.`customer_id`, `coupon`.`product_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon` AS `coupon`
+              FROM `".DBPREFIX."module_shop_discount_coupon` AS `coupon`
               JOIN `".DBPREFIX."module_shop_rel_customer_coupon` AS `relation`
                 ON `coupon`.`code`=`relation`.`code`
              WHERE `order_id`=$order_id";
@@ -581,7 +581,7 @@ class Coupon
         $uses = intval((boolean)$uses);
         // Insert that use
         $query = "
-            INSERT `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon` (
+            INSERT `".DBPREFIX."module_shop_rel_customer_coupon` (
               `code`, `customer_id`, `order_id`, `count`, `amount`
             ) VALUES (
               '".addslashes($this->code)."', ".intval($customer_id).",
@@ -613,7 +613,7 @@ class Coupon
 
         $query = "
             SELECT SUM(`count`) AS `numof_uses`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon`
+              FROM `".DBPREFIX."module_shop_rel_customer_coupon`
              WHERE `code`='".addslashes($this->code)."'
                AND `count`!=0
              ".($customer_id ? " AND `customer_id`=$customer_id" : '');
@@ -646,7 +646,7 @@ class Coupon
 
         $query = "
             SELECT SUM(`amount`) AS `amount`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon`
+              FROM `".DBPREFIX."module_shop_rel_customer_coupon`
              WHERE `code`='".addslashes($this->code)."'
                AND `count`!=0".
             // Customers with ID 0 are customers without an account
@@ -677,7 +677,7 @@ class Coupon
         global $objDatabase, $_ARRAYLANG;
 
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon`
+            DELETE FROM `".DBPREFIX."module_shop_rel_customer_coupon`
              WHERE `code`='".addslashes($code)."'".
             (isset($customer_id)
                  ? " AND customer_id=".intval($customer_id) : '');
@@ -687,7 +687,7 @@ class Coupon
                 $code));
         }
         $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
+            DELETE FROM `".DBPREFIX."module_shop_discount_coupon`
              WHERE `code`='".addslashes($code)."'".
             (isset($customer_id)
                  ? " AND customer_id=".intval($customer_id) : '');
@@ -747,7 +747,7 @@ class Coupon
             SELECT `code`, `payment_id`, `start_time`, `end_time`,
                    `minimum_amount`, `discount_rate`, `discount_amount`,
                    `uses`, `global`, `customer_id`, `product_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
+              FROM `".DBPREFIX."module_shop_discount_coupon`
              ORDER BY $order";
         $objResult = $objDatabase->SelectLimit($query, $limit, $offset);
         if (!$objResult) return self::errorHandler();
@@ -774,7 +774,7 @@ class Coupon
         }
         $query = "
             SELECT COUNT(*) AS `numof_records`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`";
+              FROM `".DBPREFIX."module_shop_discount_coupon`";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
         $count = $objResult->fields['numof_records'];
@@ -797,7 +797,7 @@ class Coupon
 
         $query = "
             SELECT 1
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
+              FROM `".DBPREFIX."module_shop_discount_coupon`
              WHERE `code`='".addslashes($code)."'";
         $objResult = $objDatabase->Execute($query);
         // Failure or none found
@@ -831,7 +831,7 @@ class Coupon
         if (empty($code)) return false;
         $query = "
             SELECT 1
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
+              FROM `".DBPREFIX."module_shop_discount_coupon`
              WHERE `code`='".addslashes($code)."'
                AND `customer_id`=".intval($customer_id);
         $objResult = $objDatabase->Execute($query);
@@ -861,7 +861,7 @@ class Coupon
 
         $query = "
             SELECT COUNT(*) AS `numof_records`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`";
+              FROM `".DBPREFIX."module_shop_discount_coupon`";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return self::errorHandler();
         if ($objResult->EOF) return 0;
@@ -955,7 +955,7 @@ class Coupon
             // Update
             list($code_prev, $customer_id_prev) = explode('-', $index);
             $query = "
-                UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
+                UPDATE `".DBPREFIX."module_shop_discount_coupon`
                    SET `code`=?,
                        `payment_id`=?,
                        `minimum_amount`=?,
@@ -982,7 +982,7 @@ class Coupon
         } else {
             // Insert
             $query = "
-                REPLACE INTO `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon` (
+                REPLACE INTO `".DBPREFIX."module_shop_discount_coupon` (
                   `code`, `payment_id`,
                   `minimum_amount`, `discount_rate`, `discount_amount`,
                   `start_time`, `end_time`, `uses`, `global`,
@@ -1175,7 +1175,7 @@ class Coupon
                     \Html::getInputText('dummy',
                         'http://'.$_CONFIG['domainUrl'].
                         \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteOffsetPath() . '/' . CONTREXX_DIRECTORY_INDEX .
-                        '?section=Shop'.MODULE_INDEX.
+                        '?section=Shop'.
                         '&coupon_code='.$objCoupon->code, false,
                         'readonly="readonly"'.
                         ' style="width: 200px;"'.

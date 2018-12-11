@@ -153,7 +153,7 @@ class Shop extends ShopLibrary
         }
         self::init_session();
         if (   empty($_REQUEST['section'])
-            || $_REQUEST['section'] != 'Shop'.MODULE_INDEX) {
+            || $_REQUEST['section'] != 'Shop') {
             global $_ARRAYLANG, $objInit;
             $_ARRAYLANG = array_merge($_ARRAYLANG,
                 $objInit->loadLanguageData('Shop'));
@@ -176,12 +176,10 @@ class Shop extends ShopLibrary
         if (   \Cx\Core\Setting\Controller\Setting::getValue('use_js_cart','Shop')
             && (   \Cx\Core\Setting\Controller\Setting::getValue('shopnavbar_on_all_pages','Shop')
                 || (   isset($_REQUEST['section'])
-                    && $_REQUEST['section'] == 'Shop'.MODULE_INDEX
+                    && $_REQUEST['section'] == 'Shop'
                     && (   empty($_REQUEST['cmd'])
                         || in_array($_REQUEST['cmd'],
                               array('discounts', 'details')))))
-// Optionally limit to the first instance
-//            && MODULE_INDEX == ''
         ) {
 //\DBG::log("Shop::init(): section {$_REQUEST['section']}, cmd {$_REQUEST['cmd']}: Calling setJsCart()");
             self::setJsCart();
@@ -250,8 +248,6 @@ class Shop extends ShopLibrary
         self::$objTemplate = new \Cx\Core\Html\Sigma('.');
         self::$objTemplate->setErrorHandling(PEAR_ERROR_DIE);
         self::$objTemplate->setTemplate($template);
-        // Global module index for clones
-        self::$objTemplate->setGlobalVariable('MODULE_INDEX', MODULE_INDEX);
         // Do this *before* calling our friends, especially Customer methods!
         // Pick the default Country for delivery
         if (empty($_SESSION['shop']['countryId2'])) {
@@ -643,7 +639,7 @@ die("Failed to get Customer for ID $customer_id");
 
             // parse the category in shop_breadcrumb
             $objTpl->setVariable(array(
-                'SHOP_BREADCRUMB_PART_SRC'  => \Cx\Core\Routing\URL::fromModuleAndCmd('Shop'.MODULE_INDEX, '', FRONTEND_LANG_ID, array('catId' => $id))->toString(),
+                'SHOP_BREADCRUMB_PART_SRC'  => \Cx\Core\Routing\URL::fromModuleAndCmd('Shop', '', FRONTEND_LANG_ID, array('catId' => $id))->toString(),
                 'SHOP_BREADCRUMB_PART_TITLE'=> contrexx_raw2xhtml($arrShopCategory['name']),
             ));
             $objTpl->parse('shop_breadcrumb_part');
@@ -657,7 +653,7 @@ die("Failed to get Customer for ID $customer_id");
         // parse Product in shop_breadcrumb if a product is being viewed
         if ($product) {
             $objTpl->setVariable(array(
-                'SHOP_BREADCRUMB_PART_SRC'  => \Cx\Core\Routing\URL::fromModuleAndCmd('Shop'.MODULE_INDEX, '', FRONTEND_LANG_ID, array('productId' => $product->id()))->toString(),
+                'SHOP_BREADCRUMB_PART_SRC'  => \Cx\Core\Routing\URL::fromModuleAndCmd('Shop', '', FRONTEND_LANG_ID, array('productId' => $product->id()))->toString(),
                 'SHOP_BREADCRUMB_PART_TITLE'=> contrexx_raw2xhtml($product->name()),
             ));
             $objTpl->parse('shop_breadcrumb_part');
@@ -776,7 +772,7 @@ die("Failed to get Customer for ID $customer_id");
         \ContrexxJavascript::getInstance()->setVariable('TXT_SHOP_CART_IS_LOADING', $_ARRAYLANG['TXT_SHOP_CART_IS_LOADING'] ,'shop/cart');
         \ContrexxJavascript::getInstance()->setVariable('TXT_SHOP_COULD_NOT_LOAD_CART', $_ARRAYLANG['TXT_SHOP_COULD_NOT_LOAD_CART'] ,'shop/cart');
         \ContrexxJavascript::getInstance()->setVariable('TXT_EMPTY_SHOPPING_CART', $_ARRAYLANG['TXT_EMPTY_SHOPPING_CART'] ,'shop/cart');
-        \ContrexxJavascript::getInstance()->setVariable("url", (String)\Cx\Core\Routing\URL::fromModuleAndCMd('Shop'.MODULE_INDEX, 'cart', FRONTEND_LANG_ID, array('remoteJs' => 'addProduct')), 'shop/cart');
+        \ContrexxJavascript::getInstance()->setVariable("url", (String)\Cx\Core\Routing\URL::fromModuleAndCMd('Shop', 'cart', FRONTEND_LANG_ID, array('remoteJs' => 'addProduct')), 'shop/cart');
         \JS::registerJS(substr(\Cx\Core\Core\Controller\Cx::instanciate()->getModuleFolderName() . '/Shop/View/Script/cart.js', 1));
         \JS::registerCode(
             "cartTpl = '".preg_replace(
@@ -1124,8 +1120,8 @@ die("Failed to update the Cart!");
                 'SHOP_CATEGORY_DESCRIPTION' => $description,
 // OBSOLETE since V3.0.0, as are any placeholders for Categories
 // containing "PRODUCT"!
-//                'SHOP_CATEGORY_DETAILLINK_IMAGE' => 'index.php?section=Shop'.MODULE_INDEX.'&amp;catId={SHOP_CATEGORY_ID}',
-//                'SHOP_CATEGORY_SUBMIT_FUNCTION' => 'location.replace("index.php?section=Shop'.MODULE_INDEX.'&catId='.$id.'")',
+//                'SHOP_CATEGORY_DETAILLINK_IMAGE' => 'index.php?section=Shop&amp;catId={SHOP_CATEGORY_ID}',
+//                'SHOP_CATEGORY_SUBMIT_FUNCTION' => 'location.replace("index.php?section=Shop&catId='.$id.'")',
 //                'SHOP_CATEGORY_SUBMIT_TYPE' => "button",
             ));
 
@@ -1409,7 +1405,7 @@ die("Failed to update the Cart!");
         }
         $uri =
 // TODO: Use the alias, if any
-            '&amp;section=Shop'. MODULE_INDEX . $pagingCmd .
+            '&amp;section=Shop' . $pagingCmd .
             $pagingCatId.$pagingManId.$pagingTerm;
         self::$objTemplate->setVariable(array(
             'SHOP_PRODUCT_PAGING' => \Paging::get($uri, '',
@@ -4221,7 +4217,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'payment'));
             }
             $query = "
-                INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_lsv (
+                INSERT INTO ".DBPREFIX."module_shop_lsv (
                     order_id, holder, bank, blz
                 ) VALUES (
                     $order_id,
@@ -4793,7 +4789,7 @@ die("Shop::processRedirect(): This method is obsolete!");
 
         $query = "
             SELECT status
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+              FROM ".DBPREFIX."module_shop_orders
              WHERE id=$order_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) return false;
@@ -4807,7 +4803,7 @@ die("Shop::processRedirect(): This method is obsolete!");
 
         $query = "
             SELECT payment_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+              FROM ".DBPREFIX."module_shop_orders
              WHERE id=$order_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->EOF) return false;

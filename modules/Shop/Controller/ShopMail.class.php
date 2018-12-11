@@ -96,7 +96,7 @@ class ShopMail
         self::$arrTemplate = array();
         $objResult = $objDatabase->Execute("
             SELECT `mail`.`id`, `mail`.`tplname`, `mail`.`protected`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_mail` AS `mail`");
+              FROM `".DBPREFIX."module_shop_mail` AS `mail`");
         if (!$objResult) return false;
         while (!$objResult->EOF) {
             $id = $objResult->fields['id'];
@@ -113,7 +113,7 @@ class ShopMail
             SELECT `content`.`tpl_id`,
                    `content`.`from_mail`, `content`.`xsender`,
                    `content`.`subject`, `content`.`message`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_mail_content` AS `content`
+              FROM `".DBPREFIX."module_shop_mail_content` AS `content`
              WHERE `content`.`lang_id`=$lang_id");
         if (!$objResult) return false;
         while (!$objResult->EOF) {

@@ -102,7 +102,7 @@ die("Obsolete class modules/shop/lib/Country.class.php called");
 
         $query = "
             SELECT zone_id, country_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries
+              FROM ".DBPREFIX."module_shop_rel_countries
              ORDER BY id ASC";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return false;
@@ -233,9 +233,9 @@ die("Obsolete class modules/shop/lib/Country.class.php called");
         $query = "
             SELECT `country`.`id`, `relation`.`country_id`, `zone_id`, ".
                    $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_countries` AS `country`".
+              FROM `".DBPREFIX."module_shop_countries` AS `country`".
                    $arrSqlName['join']."
-              LEFT JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `relation`
+              LEFT JOIN `".DBPREFIX."module_shop_rel_countries` AS `relation`
                 ON `country`.`id`=`relation`.`country_id`
              WHERE `country`.`active`=1
              ORDER BY `name` ASC";

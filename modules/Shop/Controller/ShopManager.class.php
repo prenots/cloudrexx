@@ -173,15 +173,15 @@ class ShopManager extends ShopLibrary
         global $objTemplate, $_ARRAYLANG;
 
         $objTemplate->setVariable('CONTENT_NAVIGATION',
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."' class='".($this->act == '' ? 'active' : '')."'>".$_ARRAYLANG['TXT_ORDERS']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=categories' class='".($this->act == 'categories' ? 'active' : '')."'>".$_ARRAYLANG['TXT_CATEGORIES']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=products' class='".($this->act == 'products' ? 'active' : '')."'>".$_ARRAYLANG['TXT_PRODUCTS']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=manufacturer' class='".($this->act == 'manufacturer' ? 'active' : '')."'>".$_ARRAYLANG['TXT_SHOP_MANUFACTURER']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=customers' class='".($this->act == 'customers' ? 'active' : '')."'>".$_ARRAYLANG['TXT_CUSTOMERS_PARTNERS']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=statistics' class='".($this->act == 'statistics' ? 'active' : '')."'>".$_ARRAYLANG['TXT_STATISTIC']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=import' class='".($this->act == 'import' ? 'active' : '')."'>".$_ARRAYLANG['TXT_IMPORT_EXPORT']."</a>".
-//            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=pricelists' class='".($this->act == 'pricelists' ? 'active' : '')."'>".$_ARRAYLANG['TXT_PDF_OVERVIEW']."</a>".
-            "<a href='index.php?cmd=Shop".MODULE_INDEX."&amp;act=settings' class='".($this->act == 'settings' ? 'active' : '')."'>".$_ARRAYLANG['TXT_SETTINGS']."</a>"
+            "<a href='index.php?cmd=Shop' class='".($this->act == '' ? 'active' : '')."'>".$_ARRAYLANG['TXT_ORDERS']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=categories' class='".($this->act == 'categories' ? 'active' : '')."'>".$_ARRAYLANG['TXT_CATEGORIES']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=products' class='".($this->act == 'products' ? 'active' : '')."'>".$_ARRAYLANG['TXT_PRODUCTS']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=manufacturer' class='".($this->act == 'manufacturer' ? 'active' : '')."'>".$_ARRAYLANG['TXT_SHOP_MANUFACTURER']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=customers' class='".($this->act == 'customers' ? 'active' : '')."'>".$_ARRAYLANG['TXT_CUSTOMERS_PARTNERS']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=statistics' class='".($this->act == 'statistics' ? 'active' : '')."'>".$_ARRAYLANG['TXT_STATISTIC']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=import' class='".($this->act == 'import' ? 'active' : '')."'>".$_ARRAYLANG['TXT_IMPORT_EXPORT']."</a>".
+//            "<a href='index.php?cmd=Shop&amp;act=pricelists' class='".($this->act == 'pricelists' ? 'active' : '')."'>".$_ARRAYLANG['TXT_PDF_OVERVIEW']."</a>".
+            "<a href='index.php?cmd=Shop&amp;act=settings' class='".($this->act == 'settings' ? 'active' : '')."'>".$_ARRAYLANG['TXT_SETTINGS']."</a>"
 // TODO: Workaround for the language selection.  Remove when the new UI
 // is introduced in the shop.
 //            .
@@ -414,7 +414,7 @@ class ShopManager extends ShopLibrary
         // Delete template
         if (isset($_REQUEST['deleteImg'])) {
             $query = "
-                DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_importimg
+                DELETE FROM ".DBPREFIX."module_shop_importimg
                  WHERE img_id=".$_REQUEST['img'];
             if ($objDatabase->Execute($query)) {
                 \Message::ok($_ARRAYLANG['TXT_SHOP_IMPORT_SUCCESSFULLY_DELETED']);
@@ -425,7 +425,7 @@ class ShopManager extends ShopLibrary
         // Save template
         if (isset($_REQUEST['SaveImg'])) {
             $query = "
-                INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_importimg (
+                INSERT INTO ".DBPREFIX."module_shop_importimg (
                     img_name, img_cats, img_fields_file, img_fields_db
                 ) VALUES (
                     '".$_REQUEST['ImgName']."',
@@ -499,7 +499,7 @@ class ShopManager extends ShopLibrary
             $arrFileContent = $objCSVimport->GetFileContent($tmpFile);
             $query = '
                 SELECT img_id, img_name, img_cats, img_fields_file, img_fields_db
-                  FROM '.DBPREFIX.'module_shop'.MODULE_INDEX.'_importimg
+                  FROM '.DBPREFIX.'module_shop_importimg
                  WHERE img_id='.$_REQUEST['ImportImage'];
             $objResult = $objDatabase->Execute($query);
 
@@ -796,7 +796,7 @@ class ShopManager extends ShopLibrary
                                vat_amount, currency_ship_price, shipment_id, payment_id, currency_payment_price,
                                ip, host, lang_id, browser, note,
                                last_modified, modified_by
-                          FROM ".DBPREFIX."module_shop".MODULE_INDEX."_orders
+                          FROM ".DBPREFIX."module_shop_orders
                          ORDER BY id ASC";
                     break;
                 // orders - custom:
@@ -1997,7 +1997,7 @@ if ($test === NULL) {
                 $product_id = $objProduct->id();
                 $query = "
                     SELECT 1
-                      FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_items
+                      FROM ".DBPREFIX."module_shop_order_items
                      WHERE product_id=$product_id";
                 $objResult = $objDatabase->Execute($query);
                 if (!$objResult || $objResult->RecordCount()) {
@@ -2532,12 +2532,12 @@ if ($test === NULL) {
         switch ($_POST['afterStoreAction']) {
           case 'newEmpty':
             \Cx\Core\Csrf\Controller\Csrf::redirect(
-                'index.php?cmd=Shop'.MODULE_INDEX.'&act=products&tpl=manage');
+                'index.php?cmd=Shop&act=products&tpl=manage');
           case 'newTemplate':
-            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop'.MODULE_INDEX.
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop'.
                 '&act=products&tpl=manage&id='.$objProduct->id().'&new=1');
         }
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop'.MODULE_INDEX.'&act=products');
+        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop&act=products');
         // Never reached
         return true;
     }

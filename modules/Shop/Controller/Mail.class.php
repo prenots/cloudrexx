@@ -96,7 +96,7 @@ class Mail
         self::$arrTemplate = array();
         $objResult = $objDatabase->Execute("
             SELECT `mail`.`id`, `mail`.`tplname`, `mail`.`protected`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_mail` AS `mail`");
+              FROM `".DBPREFIX."module_shop_mail` AS `mail`");
         if (!$objResult) return false;
         while (!$objResult->EOF) {
             $id = $objResult->fields['id'];
@@ -113,7 +113,7 @@ class Mail
             SELECT `content`.`tpl_id`,
                    `content`.`from_mail`, `content`.`xsender`,
                    `content`.`subject`, `content`.`message`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_mail_content` AS `content`
+              FROM `".DBPREFIX."module_shop_mail_content` AS `content`
              WHERE `content`.`lang_id`=$lang_id");
         if (!$objResult) return false;
         while (!$objResult->EOF) {
@@ -265,11 +265,11 @@ die("Mail::deleteTemplate(): Obsolete method called!");
         // Cannot delete protected (system) templates
         if (self::$arrTemplate[$template_id]['protected']) return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_mail
+            DELETE FROM ".DBPREFIX."module_shop_mail
              WHERE id=$template_id");
         if (!$objResult) return false;
         $objResult = $objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_mail_content
+            DELETE FROM ".DBPREFIX."module_shop_mail_content
              WHERE tpl_id=$template_id");
         if (!$objResult) return false;
 
@@ -307,10 +307,10 @@ die("Mail::storeTemplate(): Obsolete method called!");
         $query =
             (   $template_id
              && isset(self::$arrTemplate[$template_id])
-            ? "UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_mail
+            ? "UPDATE ".DBPREFIX."module_shop_mail
                   SET `tplname`='".contrexx_input2db($_POST['shopMailTemplate'])."'
                 WHERE `id`=$template_id"
-             : "INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_mail (
+             : "INSERT INTO ".DBPREFIX."module_shop_mail (
                     `protected`, `tplname`
                 ) VALUES (
                     0,
@@ -323,14 +323,14 @@ die("Mail::storeTemplate(): Obsolete method called!");
         $query =
             (   $template_id
              && self::$arrTemplate[$template_id]['available']
-            ? "UPDATE ".DBPREFIX."module_shop".MODULE_INDEX."_mail_content
+            ? "UPDATE ".DBPREFIX."module_shop_mail_content
                   SET `from_mail`='".contrexx_input2db($_POST['shopMailFromAddress'])."',
                       `xsender`='".contrexx_input2db($_POST['shopMailFromName'])."',
                       `subject`='".contrexx_input2db($_POST['shopMailSubject'])."',
                       `message`='".contrexx_input2db($_POST['shopMailBody'])."'
                 WHERE `tpl_id`=$template_id
                   AND `lang_id`=$lang_id" //FRONTEND_LANG_ID"
-            : "INSERT INTO ".DBPREFIX."module_shop".MODULE_INDEX."_mail_content (
+            : "INSERT INTO ".DBPREFIX."module_shop_mail_content (
                     `tpl_id`, `lang_id`,
                     `from_mail`, `xsender`,
                     `subject`, `message`
