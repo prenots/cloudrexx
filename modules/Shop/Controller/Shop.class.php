@@ -669,10 +669,10 @@ die("Failed to get Customer for ID $customer_id");
         $template->touchBlock('shop_js_cart');
         $template->parse('shop_js_cart');
         $div_cart = $template->get('shop_js_cart');
-        // Keep the surrounding element if it has id "shop_js_cart"
+        // Keep the surrounding element if it has id "shopJsCart"
         $match = array();
         preg_match(
-            '#^([\n\r]?[^<]*<.*id=["\']shop_js_cart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
+            '#^([\n\r]?[^<]*<.*id=["\']shopJsCart["\'][^>]*>)(([\n\r].*)*)(</[^>]*>[^<]*[\n\r]?)$#',
             $div_cart,
             $match
         );
