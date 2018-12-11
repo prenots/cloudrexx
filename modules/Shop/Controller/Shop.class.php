@@ -571,11 +571,6 @@ die("Failed to get Customer for ID $customer_id");
             }
 
             // parse shopNavbar
-            $shopUrl = \Cx\Core\Routing\Url::fromModuleAndCmd(
-                'Shop' . MODULE_INDEX,
-                '',
-                FRONTEND_LANG_ID
-            )->toString();
             if ($objTpl->blockExists('shopNavbar')) {
                 $objTpl->setVariable(array(
                     'SHOP_CATEGORY_STYLE' => $style,
@@ -585,7 +580,6 @@ die("Failed to get Customer for ID $customer_id");
                     'SHOP_CATEGORY_NAME' =>
                         str_repeat('&nbsp;', 3*$level).
                         str_replace('"', '&quot;', $arrShopCategory['name']),
-                    'NODE_SHOP' => $shopUrl
                 ));
                 $objTpl->parse("shopNavbar");
             }
