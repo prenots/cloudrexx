@@ -426,7 +426,24 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             return $placeholders;
         }
         $blockNames     = array('shop_js_cart', Shop::block_shop_products);
-        $shopCategories = ShopCategories::getNameArray(true);
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objDatabase = $cx->getDb()->getAdoDb();
+        $objResult = $objDatabase->Execute('
+            SELECT
+                `id`
+            FROM
+                `' . DBPREFIX . 'module_shop_categories`
+            WHERE
+                `active` = 1
+        ');
+        $shopCategories = array();
+        if ($objResult) {
+            while (!$objResult->EOF) {
+                $shopCategories[] = $objResult->fields['id'];
+                $objResult->MoveNext();
+            }
+        }
         if (empty($shopCategories) && empty($criteria)) {
             return array_merge($placeholders, $blockNames);
         }
@@ -435,7 +452,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
             return $blockNames;
         }
 
-        foreach (array_keys($shopCategories) as $shopCategoryId) {
+        foreach ($shopCategories as $shopCategoryId) {
             $blockNames[] = Shop::block_shop_products . '_category_' . $shopCategoryId;
         }
 

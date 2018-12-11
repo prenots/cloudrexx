@@ -612,35 +612,27 @@ class ShopCategory
 
         $category_id = intval($category_id);
         if ($category_id <= 0) return null;
-        $arrSql = array();
-        if (defined('FRONTEND_LANG_ID')) {
-            $arrSql = \Text::getSqlSnippets('`category`.`id`',
-                FRONTEND_LANG_ID, 'Shop',
-                array(
-                    'name' => self::TEXT_NAME,
-                    'shortDescription' => self::TEXT_SHORT_DESCRIPTION,
-                    'description' => self::TEXT_DESCRIPTION,
-                )
-            );
+        if (!defined('FRONTEND_LANG_ID')) {
+            define('FRONTEND_LANG_ID', 1);
         }
-        $field = '';
-        if (isset($arrSql['field'])) {
-            $field = ', ' . $arrSql['field'];
-        }
-        $join = '';
-        if (isset($arrSql['join'])) {
-            $join = $arrSql['join'];
-        }
+        $arrSql = \Text::getSqlSnippets('`category`.`id`',
+            FRONTEND_LANG_ID, 'Shop',
+            array(
+                'name' => self::TEXT_NAME,
+                'shortDescription' => self::TEXT_SHORT_DESCRIPTION,
+                'description' => self::TEXT_DESCRIPTION,
+            )
+        );
         $query = '
             SELECT `category`.`id`,
                    `category`.`parent_id`,
                    `category`.`active`,
                    `category`.`ord`,
                    `category`.`picture`,
-                   `category`.`flags` ' .
-                   $field . '
+                   `category`.`flags`, ' .
+                   $arrSql['field'] . '
             FROM `' . DBPREFIX . 'module_shop' . MODULE_INDEX . '_categories` AS `category`' .
-                $join . '
+                $arrSql['join'] . '
             WHERE `category`.`id` = ' . $category_id;
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
