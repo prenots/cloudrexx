@@ -287,6 +287,20 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
 
                 $options['fields'] = array(
+                    'id' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'pricelist-id',
+                            ),
+                        ),
+                    ),
+                    'name' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'pricelist-name',
+                            ),
+                        ),
+                    ),
                     'langId' => array(
                         'showOverview' => false,
                         'showDetail' => false,
