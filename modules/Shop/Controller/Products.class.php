@@ -146,7 +146,8 @@ class Products
         $flagSpecialoffer=false, $flagLastFive=false,
         $orderSetting='',
         $flagIsReseller=null,
-        $flagShowInactive=false
+        $flagShowInactive=false,
+        $langId = 0
     ) {
         global $objDatabase, $_CONFIG;
 
@@ -182,7 +183,7 @@ class Products
             self::getQueryParts(
                 $product_id, $category_id, $manufacturer_id, $pattern,
                 $flagSpecialoffer, $flagLastFive, $orderSetting,
-                $flagIsReseller, $flagShowInactive);
+                $flagIsReseller, $flagShowInactive, $langId);
         $limit = ($count > 0
             ? $count
             : (!empty($_CONFIG['corePagingLimit'])
@@ -196,7 +197,7 @@ class Products
         $arrProduct = array();
         while (!$objResult->EOF) {
             $product_id = $objResult->fields['id'];
-            $objProduct = Product::getById($product_id);
+            $objProduct = Product::getById($product_id, $langId);
             if ($objProduct)
                 $arrProduct[$product_id] = $objProduct;
             $objResult->MoveNext();
@@ -233,12 +234,17 @@ class Products
         $flagSpecialoffer=false, $flagLastFive=false,
         $orderSetting='',
         $flagIsReseller=null,
-        $flagShowInactive=false)
+        $flagShowInactive=false,
+        $langId = 0)
     {
         // The name and code fields may be used for sorting.
         // Include them in the field list in order to introduce the alias
+        if (empty($langId)) {
+            $langId = FRONTEND_LANG_ID;
+        }
+
         $arrSql = \Text::getSqlSnippets(
-            '`product`.`id`', FRONTEND_LANG_ID, 'Shop',
+            '`product`.`id`', $langId, 'Shop',
             array(
                 'name' => Product::TEXT_NAME,
                 'code' => Product::TEXT_CODE,
@@ -363,7 +369,7 @@ class Products
             // Limit Products by search pattern, if any
             if ($pattern != '') {
                 $arrSqlPattern = \Text::getSqlSnippets(
-                    '`product`.`id`', FRONTEND_LANG_ID, 'Shop',
+                    '`product`.`id`', $langId, 'Shop',
                     array(
                         'short' => Product::TEXT_SHORT,
                         'long' => Product::TEXT_LONG,

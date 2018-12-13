@@ -97,12 +97,16 @@ class Currency
      * @author  Reto Kohli <reto.kohli@comvation.com>
      * @static
      */
-    static function init($active_currency_id=0)
+    static function init($active_currency_id=0, $langId = 0)
     {
         global $objDatabase;
 
+        if (empty($langId)) {
+            $langId = FRONTEND_LANG_ID;
+        }
+
         $arrSqlName = \Text::getSqlSnippets(
-            '`currency`.`id`', FRONTEND_LANG_ID, 'Shop',
+            '`currency`.`id`', $langId, 'Shop',
             array('name' => self::TEXT_NAME));
         $query = "
             SELECT `currency`.`id`, `currency`.`code`, `currency`.`symbol`,
@@ -248,9 +252,9 @@ class Currency
      * @access  public
      * @static
      */
-    static function setActiveCurrencyId($currency_id)
+    static function setActiveCurrencyId($currency_id, $langId)
     {
-        if (!is_array(self::$arrCurrency)) self::init($currency_id);
+        if (!is_array(self::$arrCurrency)) self::init($currency_id, $langId);
         self::$activeCurrencyId = $currency_id;
     }
 
