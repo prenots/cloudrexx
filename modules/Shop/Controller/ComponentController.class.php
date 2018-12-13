@@ -216,6 +216,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
         $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
         $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
+
+        $pricelistListener = new \Cx\Modules\Shop\Model\Event\PricelistEventListener($this->cx);
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::postPersist,
+            'Cx\Modules\Shop\Model\Entity\Pricelist',
+            $pricelistListener
+        );
     }
 
     /**
