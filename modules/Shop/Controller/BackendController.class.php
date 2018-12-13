@@ -328,12 +328,24 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'allCategories' => array(
                         'showOverview' => false,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
+                            return $this->cx->getDb()->getEntityManager()
+                                ->getRepository(
+                                    '\Cx\Modules\Shop\Model\Entity\Pricelist'
+                                )->getAllCategoriesCheckbox($fieldvalue);
+                        },
                     ),
                     'lang' => array(
                         'showOverview' => false
                     ),
                     'categories' => array(
                         'showOverview' => false,
+                        'formfield' => function() {
+                            return $this->cx->getDb()->getEntityManager()
+                                ->getRepository(
+                                    '\Cx\Modules\Shop\Model\Entity\Pricelist'
+                                )->getCategoryCheckboxesForPricelist();
+                        },
                     ),
                 );
                 break;

@@ -14,3 +14,7 @@ td.category-id {
 td.category-name {
     width: 88%;
 }
+
+label.category {
+    display: block;
+}
