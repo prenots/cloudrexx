@@ -66,14 +66,16 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         $mappedEntities = array(
             'categories' => 'category',
+            'category/pricelist' => 'pricelist'
         );
-        if (array_key_exists(lcfirst($_GET['act']), $mappedEntities)) {
-            $_GET['act'] = $mappedEntities[lcfirst($_GET['act'])];
+        if (array_key_exists(strtolower($_GET['act']), $mappedEntities)) {
+            $_GET['act'] = $mappedEntities[strtolower($_GET['act'])];
         }
 
-        switch(lcfirst($_GET['act']))  {
+        switch(strtolower($_GET['act']))  {
             case 'category':
             case 'manufacturer':
+            case 'pricelist':
                 $_GET['act'] = ucfirst($_GET['act']);
                 parent::getPage($page);
                 return;
@@ -103,7 +105,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     {
         return array(
             'orders',
-            'category',
+            'Category' => array(
+                'children' => array(
+                    'Pricelist'
+                ),
+            ),
             'products',
             'manufacturer',
             'customers',
@@ -272,6 +278,50 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                 );
 
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\Pricelist':
+
+                $options['order']['form'] = array(
+                    'name',
+                    'lang',
+                );
+
+                $options['fields'] = array(
+                    'langId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'borderOn' => array(
+                        'showOverview' => false
+                    ),
+                    'headerOn' => array(
+                        'showOverview' => false
+                    ),
+                    'headerLeft' => array(
+                        'showOverview' => false
+                    ),
+                    'headerRight' => array(
+                        'showOverview' => false
+                    ),
+                    'footerOn' => array(
+                        'showOverview' => false
+                    ),
+                    'footerLeft' => array(
+                        'showOverview' => false
+                    ),
+                    'footerRight' => array(
+                        'showOverview' => false
+                    ),
+                    'allCategories' => array(
+                        'showOverview' => false,
+                    ),
+                    'lang' => array(
+                        'showOverview' => false
+                    ),
+                    'categories' => array(
+                        'showOverview' => false,
+                    ),
+                );
                 break;
         }
         return $options;
