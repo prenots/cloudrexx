@@ -22,5 +22,8 @@ class PricelistEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventLis
      */
     public function postPersist(\Doctrine\ORM\Event\LifecycleEventArgs $args)
     {
+        $args->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Pricelist'
+        )->storeCategories($args->getEntity());
     }
 }

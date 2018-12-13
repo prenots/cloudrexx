@@ -108,4 +108,71 @@ class PricelistRepository extends \Doctrine\ORM\EntityRepository
             }
         }
     }
+
+    public function storeCategories($pricelist)
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $categoryRepo = $this->_em->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Category'
+        );
+        $allIdsDb = array();
+        $categoryRelations = $pricelist->getCategories();
+        foreach ($categoryRelations as $relation) {
+            $allIdsDb[] = $relation->getId();
+        }
+        $pricelist->setAllCategories(
+            $cx->getRequest()->hasParam(
+                'category-all',
+                false
+            )
+        );
+        if ($pricelist->getAllCategories()) {
+            foreach ($categoryRelations as $relation) {
+                $pricelist->removeCategory($relation);
+            }
+            $this->_em->persist($pricelist);
+            $this->_em->flush();
+            return;
+        }
+
+        $params = $cx->getRequest()->getParams(false);
+        $categories = array_filter(
+            $params,
+            function($value, $key) {
+                if (preg_match('/category-\d{1,}/', $key)) {
+                    return array($key => $value);
+                }
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+        $categoryIds = array();
+        foreach ($categories as $key=>$category) {
+            $categoryIds[] = (int)explode('-', $key)[1];
+        }
+
+        // Get all ids where in
+        $newRelationIds = array_diff(
+            $categoryIds,
+            $allIdsDb
+        );
+
+        $deletedRelationIds = array_diff(
+            $allIdsDb,
+            $categoryIds
+        );
+
+        if (empty($newRelationIds) && empty($deletedRelationIds)) {
+            return;
+        }
+
+        foreach ($newRelationIds as $foreignId) {
+            $pricelist->addCategory($categoryRepo->find($foreignId));
+        }
+        foreach ($deletedRelationIds as $foreignId) {
+            $pricelist->removeCategory($categoryRepo->find($foreignId));
+        }
+        $this->_em->persist($pricelist);
+        $this->_em->flush();
+    }
 }

@@ -317,6 +317,7 @@ class Pricelist extends \Cx\Model\Base\EntityBase {
      */
     public function addCategory(\Cx\Modules\Shop\Model\Entity\Category $category)
     {
+        $category->addPricelist($this);
         $this->categories[] = $category;
     }
 
@@ -327,6 +328,7 @@ class Pricelist extends \Cx\Model\Base\EntityBase {
      */
     public function removeCategory(\Cx\Modules\Shop\Model\Entity\Category $category)
     {
+        $category->removePricelist($this);
         $this->categories->removeElement($category);
     }
 
