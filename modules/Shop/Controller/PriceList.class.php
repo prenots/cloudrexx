@@ -774,58 +774,6 @@ class PriceList
     }
 
     /**
-     * Stores this Pricelist
-     * @return  boolean         True on success, false otherwise
-     */
-    function store()
-    {
-        if ($this->id) {
-            return self::update();
-        }
-        return self::insert();
-    }
-
-
-    /**
-     * Updates this Pricelist
-     * @return  boolean         True on success, false otherwise
-     */
-    function update()
-    {
-        global $objDatabase, $_ARRAYLANG;
-
-        $allCategories = array();
-        if ($this->arrCategoryId[0] != '*') {
-            $allCategories = $this->arrCategoryId;
-        }
-
-        $query = "
-            UPDATE `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
-               SET `name`='".contrexx_raw2db($this->name)."',
-                   `lang_id`=".intval($this->lang_id).",
-                   `border_on`=".intval($this->border).",
-                   `header_on`=".intval($this->header).",
-                   `header_left`='".contrexx_raw2db($this->header_left)."',
-                   `header_right`='".contrexx_raw2db($this->header_right)."',
-                   `footer_on`=".intval($this->footer).",
-                   `footer_left`='".contrexx_raw2db($this->footer_left)."',
-                   `footer_right`='".contrexx_raw2db($this->footer_right)."',
-                   `all_categories`=". contrexx_raw2db(
-                       $this->arrCategoryId[0] == '*' ? 1:0
-                    ) ."
-             WHERE `id`=$this->id";
-
-        if (!$this->updateCategoryRelation($allCategories)) {
-            return false;
-        }
-
-        if ($objDatabase->Execute($query)) {
-            return \Message::ok($_ARRAYLANG['TXT_SHOP_PRICELIST_UPDATED_SUCCESSFULLY']);
-        }
-        return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_UPDATING']);
-    }
-
-    /**
      * Update category-pricelist relation in intermediate table.
      *
      * @param array $allCategories array with all category ids
@@ -842,48 +790,6 @@ class PriceList
         return \Cx\Modules\Shop\Controller\ShopLibrary::updateRelation(
             $table, $attr, $allCategories, $this->id
         );
-    }
-
-    /**
-     * Inserts this Pricelist
-     *
-     * Updates the ID property accordingly.
-     * @return  boolean         True on success, false otherwise
-     */
-    function insert()
-    {
-        global $objDatabase, $_ARRAYLANG;
-
-        $query = "
-            INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists` (
-              `name`, `lang_id`, `border_on`,
-              `header_on`, `header_left`, `header_right`,
-              `footer_on`, `footer_left`, `footer_right`, all_categories
-            ) VALUES (
-              '".contrexx_raw2db($this->name)."',
-              ".intval($this->lang_id).",
-              ".intval($this->border).",
-              ".intval($this->header).",
-              '".contrexx_raw2db($this->header_left)."',
-              '".contrexx_raw2db($this->header_right)."',
-              ".intval($this->footer).",
-              '".contrexx_raw2db($this->footer_left)."',
-              '".contrexx_raw2db($this->footer_right)."',
-              ".contrexx_raw2db($this->arrCategoryId[0] == '*' ? 1:0) ."
-            )";
-        if ($objDatabase->Execute($query)) {
-            $this->id = $objDatabase->Insert_ID();
-
-            $arrCategoryIds = array();
-            if ($this->arrCategoryId[0] != '*') {
-                $arrCategoryIds = $this->arrCategoryId;
-            }
-
-            if ($this->updateCategoryRelation($arrCategoryIds)) {
-                return \Message::ok($_ARRAYLANG['TXT_SHOP_PRICELIST_INSERTED_SUCCESSFULLY']);
-            }
-        }
-        return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_INSERTING']);
     }
 
 }
