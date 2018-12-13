@@ -773,31 +773,6 @@ class PriceList
         return $objList;
     }
 
-
-    static function deleteByRequest()
-    {
-        global $_ARAYLANG;
-
-        if (!empty($_REQUEST['delete_list_id'])) {
-            $result = self::deleteById($_REQUEST['delete_list_id']);
-            if ($result) {
-                return \Message::ok($_ARAYLANG['TXT_SHOP_PRICELIST_DELETED_SUCCESSFULLY']);
-            }
-            return \Message::error($_ARAYLANG['TXT_SHOP_PRICELIST_ERROR_FAILED_TO_DELETE']);
-        }
-
-        if (   !empty($_REQUEST['multi_action'])
-            && !empty($_POST['list_id'])) {
-            $result = self::deleteById($_POST['list_id']);
-            if ($result) {
-                return \Message::ok($_ARAYLANG['TXT_SHOP_PRICELISTS_DELETED_SUCCESSFULLY']);
-            }
-            return \Message::error($_ARAYLANG['TXT_SHOP_PRICELISTS_ERROR_FAILED_TO_DELETE']);
-        }
-        return null;
-    }
-
-
     /**
      * Deletes one or more Pricelists from the database
      * @param   mixed     $mixed_list_id    A Pricelist ID or an array thereof
