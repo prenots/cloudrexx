@@ -654,34 +654,4 @@ class PriceList
           ? utf8_decode($string) : $string);
     }
 
-
-    /**
-     * Returns an array of Pricelist names, indexed by their respective ID
-     *
-     * Backend use only.
-     * @return  array             The Pricelist name array
-     */
-    static function getNameArray()
-    {
-        global $objDatabase;
-
-        $query = "
-            SELECT `id`, `name`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
-             ORDER BY `name` ASC";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return ShopManager::error_database();
-        }
-        if ($objResult->EOF) {
-            return ShopManager::information_no_data();
-        }
-        $arrName = array();
-        while (!$objResult->EOF) {
-            $arrName[$objResult->fields['id']] = $objResult->fields['name'];
-            $objResult->MoveNext();
-        }
-        return $arrName;
-    }
-
 }
