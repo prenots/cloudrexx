@@ -684,46 +684,4 @@ class PriceList
         return $arrName;
     }
 
-
-    /**
-     * Returns the Pricelist for the given ID
-     *
-     * @param   integer   $list_id    The Pricelist ID
-     * @return  Pricelist             The Pricelist on success, false otherwise
-     */
-    static function getById($list_id)
-    {
-        global $objDatabase;
-
-        $list_id = intval($list_id);
-        if ($list_id <= 0) return false;
-        $query = "
-            SELECT `id`, `name`, `lang_id`,
-                   `border_on`,
-                   `header_on`, `header_left`, `header_right`,
-                   `footer_on`, `footer_left`, `footer_right`, `all_categories`
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_pricelists
-             WHERE id=$list_id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return ShopManager::error_database();
-        }
-        if ($objResult->EOF) {
-            return ShopManager::information_no_data();
-        }
-        $objList = new PriceList($list_id, null, $objResult->fields['lang_id']);
-        $objList->name($objResult->fields['name']);
-        $objList->border($objResult->fields['border_on']);
-        $objList->header($objResult->fields['header_on']);
-        $objList->header_left($objResult->fields['header_left']);
-        $objList->header_right($objResult->fields['header_right']);
-        $objList->footer($objResult->fields['footer_on']);
-        $objList->footer_left($objResult->fields['footer_left']);
-        $objList->footer_right($objResult->fields['footer_right']);
-        $objList->category_ids($objResult->fields['all_categories'] ?
-            array('*') : self::getCategoriesByListId($list_id)
-        );
-        return $objList;
-    }
-
 }
