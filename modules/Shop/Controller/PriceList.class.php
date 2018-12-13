@@ -774,49 +774,6 @@ class PriceList
     }
 
     /**
-     * Deletes one or more Pricelists from the database
-     * @param   mixed     $mixed_list_id    A Pricelist ID or an array thereof
-     * @return  boolean                     True on success, false otherwise
-     */
-    static function deleteById($mixed_list_id)
-    {
-        if (!is_array($mixed_list_id)) {
-            $mixed_list_id = array($mixed_list_id);
-        }
-        $result = true;
-        foreach ($mixed_list_id as $list_id) {
-            $result &= self::_deleteById($list_id);
-        }
-        return $result;
-    }
-
-
-    /**
-     * Deletes the Pricelist with the given ID
-     *
-     * Doesn't care whether the ID exists in the database.
-     * @param   integer   $list_id    The Pricelist ID to be deleted
-     * @return  boolean               True on success, false otherwise
-     */
-    private static function _deleteById($list_id)
-    {
-        global $objDatabase;
-
-        $queryRelation = '
-            DELETE FROM `'.DBPREFIX.'module_shop'.MODULE_INDEX.'_rel_category_pricelist`
-             WHERE `pricelist_id`='.$list_id;
-        if (!$objDatabase->Execute($queryRelation)) {
-            return false;
-        }
-
-        $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_pricelists`
-             WHERE `id`=$list_id";
-        return (boolean)$objDatabase->Execute($query);
-    }
-
-
-    /**
      * Stores this Pricelist
      * @return  boolean         True on success, false otherwise
      */
