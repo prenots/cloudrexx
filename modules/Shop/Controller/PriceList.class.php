@@ -773,23 +773,4 @@ class PriceList
         return $objList;
     }
 
-    /**
-     * Update category-pricelist relation in intermediate table.
-     *
-     * @param array $allCategories array with all category ids
-     * @return bool true on success, false otherwise
-     */
-    function updateCategoryRelation($allCategories)
-    {
-        $table = 'rel_category_pricelist';
-        $attr = array(
-            'entity' => 'pricelist_id',
-            'foreign' => 'category_id'
-        );
-
-        return \Cx\Modules\Shop\Controller\ShopLibrary::updateRelation(
-            $table, $attr, $allCategories, $this->id
-        );
-    }
-
 }
