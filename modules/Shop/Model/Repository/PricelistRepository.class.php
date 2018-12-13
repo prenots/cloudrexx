@@ -175,4 +175,15 @@ class PricelistRepository extends \Doctrine\ORM\EntityRepository
         $this->_em->persist($pricelist);
         $this->_em->flush();
     }
+
+    public function getCategoryIdsByPricelist($pricelist)
+    {
+        $categories = $pricelist->getCategories();
+        $categoryIds = array();
+        foreach ($categories as $category) {
+            $categoryIds[] = $category->getId();
+        }
+
+        return $categoryIds;
+    }
 }
