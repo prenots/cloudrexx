@@ -334,6 +334,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                                     '\Cx\Modules\Shop\Model\Entity\Pricelist'
                                 )->getAllCategoriesCheckbox($fieldvalue);
                         },
+                        'storecallback' => function(){
+                            return $this->cx->getRequest()->hasParam(
+                                'category-all',
+                                false
+                            );
+                        }
                     ),
                     'lang' => array(
                         'showOverview' => false
