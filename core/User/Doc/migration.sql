@@ -21,10 +21,16 @@ INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_i
 UPDATE contrexx_access_user_attribute as userattr SET parent_id =  (SELECT ua.id FROM (SELECT * FROM contrexx_access_user_attribute)AS ua WHERE ua.tmp_name = 'title') WHERE userattr.tmp_name = 'title-w' OR userattr.tmp_name = 'title-m';
 UPDATE contrexx_access_user_attribute SET type = 'menu' WHERE tmp_name = 'title';
 
-INSERT INTO `contrexx_access_user_attribute`(`parent_id`, `access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) SELECT (SELECT ua.id FROM (SELECT * FROM contrexx_access_user_attribute)AS ua WHERE ua.tmp_name = 'title') AS parent_id, 0 AS access_id, 'menu_option' AS type, 0 AS read_access_id, 1 AS is_default, 'title-c' AS tmp_name FROM contrexx_access_user_title;
+INSERT INTO
+	`contrexx_access_user_attribute`(`parent_id`, `access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`)
+SELECT
+	ua.id AS parent_id, 0 AS access_id, 'menu_option' AS TYPE, 0 AS read_access_id, 1 AS is_default, 'title-c' AS tmp_name
+FROM
+	contrexx_access_user_title
+JOIN
+	contrexx_access_user_attribute AS `ua` ON ua.tmp_name = 'title';
+
 UPDATE contrexx_access_user_attribute SET type = 'menu' WHERE tmp_name = 'title';
-
-
 
 ALTER TABLE contrexx_access_user_profile ADD tmp_name TEXT;
 
