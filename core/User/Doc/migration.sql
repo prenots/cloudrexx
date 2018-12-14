@@ -306,3 +306,10 @@ FROM contrexx_access_users AS users);
 ALTER TABLE contrexx_access_user_attribute_name DROP PRIMARY KEY;
 ALTER TABLE contrexx_access_user_attribute_name ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY;
 CREATE UNIQUE INDEX fk_module_user_attribute_name_unique_idx ON contrexx_access_user_attribute_name (attribute_id, lang_id);
+
+UPDATE `contrexx_access_user_attribute` SET `access_id`= null,`read_access_id`= null WHERE `access_id` = 0 AND `read_access_id` = 0;
+ALTER TABLE contrexx_access_user_attribute CHANGE access_id access_id INT DEFAULT NULL, CHANGE read_access_id read_access_id INT DEFAULT NULL;
+ALTER TABLE contrexx_access_user_attribute ADD CONSTRAINT FK_D97727BE4FEA67CF FOREIGN KEY (access_id) REFERENCES contrexx_access_id (id);
+ALTER TABLE contrexx_access_user_attribute ADD CONSTRAINT FK_D97727BE7B600C1B FOREIGN KEY (read_access_id) REFERENCES contrexx_access_id (id);
+CREATE INDEX IDX_D97727BE4FEA67CF ON contrexx_access_user_attribute (access_id);
+CREATE INDEX IDX_D97727BE7B600C1B ON contrexx_access_user_attribute (read_access_id);
