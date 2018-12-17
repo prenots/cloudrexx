@@ -802,7 +802,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
             $this->parent_id = isset($this->arrAttributes[$id]['parent_id']) ? $this->arrAttributes[$id]['parent_id'] : 0;
             $this->access_special = isset($this->arrAttributes[$id]['access_special']) ? $this->arrAttributes[$id]['access_special'] : '';
             $this->access_id = isset($this->arrAttributes[$id]['access_id']) ? $this->arrAttributes[$id]['access_id'] : 0;
-            $this->readAccessId = isset($this->arrAttributes[$id]['read_access_id']) ? $this->arrAttributes[$id]['read_access_id'] : 0;
+            $this->readAccessId = isset($this->arrAttributes[$id]['read_access_id']) ? $this->arrAttributes[$id]['read_access_id'] : NULL;
             $this->children = isset($this->arrAttributeRelations[$id]) ? $this->arrAttributeRelations[$id] : array();
             $this->arrName = isset($this->arrAttributes[$id]['names']) ? $this->arrAttributes[$id]['names'] : array();
             $this->multiline = isset($this->arrAttributes[$id]['multiline']) ? $this->arrAttributes[$id]['multiline'] : false;
@@ -1033,7 +1033,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
 
         $pattern = array();
         if ($this->id && preg_match('#([0-9]+)#', $this->id, $pattern) && $objDatabase->Execute("UPDATE `".DBPREFIX."access_user_title` SET `title` = '".addslashes($this->arrName[0])."' WHERE `id` = '".$pattern[0]."'") ||
-                $objDatabase->Execute("INSERT INTO `".DBPREFIX."access_user_attribute`(`parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default`) VALUES ((SELECT `attribute_id` FROM `contrexx_access_user_attribute_name` WHERE `name` = 'title'),'menu_option',0,'asc',0,0,0,0,1)") &&
+                $objDatabase->Execute("INSERT INTO `".DBPREFIX."access_user_attribute`(`parent_id`, `type`, `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default`) VALUES ((SELECT `attribute_id` FROM `contrexx_access_user_attribute_name` WHERE `name` = 'title'),'menu_option',0,'asc',0,0,NULL,NULL,1)") &&
                 $objDatabase->Execute("INSERT INTO `".DBPREFIX."access_user_attribute_name`(`attribute_id`, `lang_id`, `name`, `order`) VALUES (". $objDatabase->Insert_ID() .", 0, '".addslashes($this->arrName[0])."',(select count(`name`.`order`) + 1 as `order` from `".DBPREFIX."access_user_attribute_name` as name))")
         ) {
             return true;
