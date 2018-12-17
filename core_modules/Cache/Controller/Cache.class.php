@@ -51,8 +51,6 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
     var $strCachePath; //Path to cache-directory
     var $strCacheFilename; //Name of the current cache-file
 
-    var $arrPageContent = array(); //array containing $_SERVER['REQUEST_URI'] and $_REQUEST
-
     var $arrCacheablePages = array(); //array of all pages with activated caching
     
     /**
@@ -92,16 +90,6 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             return;
         }
 
-        // in case the request's origin is from a mobile devie
-        // and this is the first request (the InitCMS object wasn't yet
-        // able to determine of the mobile device wishes to be served
-        // with the system's mobile view), we shall cache the request separately
-        $isMobile = (
-            \InitCMS::_is_mobile_phone() &&
-            !\InitCMS::_is_tablet() &&
-            !isset($_REQUEST['smallscreen'])
-        );
-
         if (isset($_REQUEST['caching']) && $_REQUEST['caching'] == '0') {
             $this->boolIsEnabled = false;
             return;
@@ -135,100 +123,9 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
 
         $this->intCachingTime = intval($_CONFIG['cacheExpiration']);
 
-        // Use data of $_GET and $_POST to uniquely identify a request.
-        // Important: You must not use $_REQUEST instead. $_REQUEST also contains
-        //            the data of $_COOKIE. Whereas the cookie information might
-        //            change in each request, which might break the caching-
-        //            system.
-        $request = array_merge_recursive($_GET, $_POST);
-        ksort($request);
-        $this->currentUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' .
-            (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '') . $_SERVER['REQUEST_URI'];
-
-        $this->arrPageContent = array(
-            'url' => $this->currentUrl,
-            'request' => $request,
-            'isMobile' => $isMobile,
-        );
-        $cachedLocaleData = $this->getCachedLocaleData();
-        if (!$cachedLocaleData) {
-            $this->arrPageContent += $this->selectBestLanguageFromRequest($cx);
-        } else {
-            $requestedLocale = '';
-            // fetch locale from requested url
-            if (
-                count($cachedLocaleData['Hashtables']['IdByCode']) > 1 ||
-                $_CONFIG['useVirtualLanguageDirectories'] != 'off'
-            ) {
-                $requestUrl = new \Cx\Lib\Net\Model\Entity\Url($this->currentUrl);
-                $requestedLocale = current($requestUrl->getPathParts());
-            }
-
-            if (
-                !empty($requestedLocale) &&
-                isset($cachedLocaleData['Hashtables']['IdByCode'][$requestedLocale])
-            ) {
-                // use locale from requested url
-                $this->arrPageContent['locale'] = $cachedLocaleData['Hashtables']['IdByCode'][$requestedLocale];
-            } else {
-                // select locale based on user agent
-                $this->arrPageContent['locale'] = \Cx\Core\Locale\Controller\ComponentController::selectBestLocale(
-                    $cx,
-                    $cachedLocaleData
-                );
-            }
-        }
+        $this->initRequestInfo();
 
         $this->strCacheFilename = md5(serialize($this->arrPageContent));
-    }
-
-    /**
-     * Returns the cached locale data
-     *
-     * Default locale and the following hashtables are cached:
-     * <localeCode> to <localeId>
-     * <localeCountryCode> to <localeCodes>
-     * @return array Cached locale data or empty array
-     */
-    protected function getCachedLocaleData() {
-        $filename = $this->strCachePath . static::CACHE_DIRECTORY_OFFSET_PAGE .
-            static::LOCALE_CACHE_FILE_NAME;
-        if (!file_exists($filename)) {
-            return array();
-        }
-        $cachedData = unserialize(file_get_contents($filename));
-        if ($cachedData === false) {
-            return array();
-        }
-        return $cachedData;
-    }
-
-    /**
-     * Returns the necessary data to later identify the matching locale
-     *
-     * This method does not use database or cached database data
-     * @param \Cx\Core\Core\Controller\Cx $cx Cx instance
-     * @return array Locale info
-     */
-    protected function selectBestLanguageFromRequest(
-        \Cx\Core\Core\Controller\Cx $cx
-    ) {
-        $localeInfo = array(
-            'country' => '',
-        );
-        $geoIp = $cx->getComponent('GeoIp');
-        if ($geoIp) {
-            $countryInfo = $geoIp->getCountryCode(array());
-            if (!empty($countryInfo['content'])) {
-                $localeInfo['country'] = $countryInfo['content'];
-            }
-        }
-        // since crawlers do not send accept language header, we make it optional
-        // in order to keep the logs clean
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $localeInfo['accept_language'] = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-        }
-        return $localeInfo;
     }
 
     /**
@@ -287,7 +184,7 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                 if (is_array($headers)) {
                     foreach ($headers as $name=>$value) {
                         if ($name == static::HTTP_STATUS_CODE_HEADER) {
-                            http_response_code($value);
+                            http_response_code(intval($value));
                             continue;
                         }
                         if (is_numeric($name)) {
@@ -301,12 +198,14 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                             $expireDate = new \DateTime($value);
                             if ($expireDate < new \DateTime()) {
                                 // cache is no longer valid
-                                $headerFile = new \Cx\Lib\FileSystem\File(
-                                    $headerFile
-                                );
-                                $headerFile->delete();
-                                $file = new \Cx\Lib\FileSystem\File($file);
-                                $file->delete();
+                                try {
+                                    $headerFile = new \Cx\Lib\FileSystem\File(
+                                        $headerFile
+                                    );
+                                    $headerFile->delete();
+                                    $file = new \Cx\Lib\FileSystem\File($file);
+                                    $file->delete();
+                                } catch (\Throwable $e) {}
                                 return;
                             }
                         }
@@ -324,15 +223,16 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             \DBG::writeFinishLine($cx, true);
             exit;
         } else {
-            if (file_exists($headerFile)) {
-                $headerFile = new \Cx\Lib\FileSystem\File($headerFile);
-                $headerFile->delete();
-            }
-            $file = new \Cx\Lib\FileSystem\File($file);
-            $file->delete();
+            try {
+                if (file_exists($headerFile)) {
+                    $headerFile = new \Cx\Lib\FileSystem\File($headerFile);
+                    $headerFile->delete();
+                }
+                $file = new \Cx\Lib\FileSystem\File($file);
+                $file->delete();
+            } catch (\Throwable $e) {}
         }
     }
-
 
     /**
      * End caching functions. Check for a sessionId: if not set, write pagecontent to a file.
@@ -352,7 +252,7 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                 }
             }
         }
-        
+
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         
         $this->exceptions = array(
@@ -539,8 +439,10 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             if (!file_exists($cacheFileName)) {
                 continue;
             }
-            $file = new \Cx\Lib\FileSystem\File($cacheFileName);
-            $file->delete();
+            try {
+                $file = new \Cx\Lib\FileSystem\File($cacheFileName);
+                $file->delete();
+            } catch (\Throwable $e) {}
         }
     }
 
@@ -589,8 +491,10 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
                     return file_get_contents($this->strCachePath . static::CACHE_DIRECTORY_OFFSET_ESI . $cacheFile);
                 } else {
                     \DBG::msg('Drop expired cached file ' . $this->strCachePath . static::CACHE_DIRECTORY_OFFSET_ESI . $cacheFile);
-                    $file = new \Cx\Lib\FileSystem\File($this->strCachePath . static::CACHE_DIRECTORY_OFFSET_ESI . $cacheFile);
-                    $file->delete();
+                    try {
+                        $file = new \Cx\Lib\FileSystem\File($this->strCachePath . static::CACHE_DIRECTORY_OFFSET_ESI . $cacheFile);
+                        $file->delete();
+                    } catch (\Throwable $e) {}
                 }
             }
 
@@ -756,14 +660,6 @@ class Cache extends \Cx\Core_Modules\Cache\Controller\CacheLib
             return true;
         }
         return false;
-    }
-
-    /**
-     * Delete all cache files from tmp directory
-     */
-    public function cleanContrexxCaching()
-    {
-        $this->_deleteAllFiles();
     }
 
     /**

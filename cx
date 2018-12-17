@@ -655,6 +655,7 @@ function cmd_envs {
             echo "${BASH_REMATCH[1]}"
             ;;
         exec)
+            ARGUMENTS["real"]=true
             envs="$(cmd_envs list)"
             if [[ "$envs" == "" ]]; then
                 echo "No env up"
@@ -662,15 +663,22 @@ function cmd_envs {
             fi
             shift
             # TODO: Allow interactive decision whether to execute command on this env
-            for env in "${envs[@]}"; do
+            first=true
+            ORIG_ARGS=("${ORIG_ARGS[@]:2}")
+            while read env; do
+                if "$first"; then
+                    first=false
+                else
+                    echo ""
+                fi
                 prevPwd="$(pwd -P)"
                 cd "$(cmd_envs locate "$env")" || continue
                 if [[ ${ARGUMENTS["silent"]} != true ]]; then
                     echo "Execute env command for $env"
                 fi
-                ./cx env "$@"
+                ./cx env "${ORIG_ARGS[@]}"
                 cd "$prevPwd"
-            done
+            done <<< "$envs"
             ;;
         *)
             (>&2 echo "No such subcommand")
@@ -1013,10 +1021,14 @@ SET FOREIGN_KEY_CHECKS = 1;"
             set_config_array
             ;;
         shell)
-            if [[ ${ARGUMENTS["root"]} ]]; then
-                dockerexec exec -ti "<web-container>" bash
+            if [[ ${ARGUMENTS["db"]} ]]; then
+                dockerexec exec -ti "<db-container>" sh -c "cd /tmp/import; /bin/bash"
             else
-                dockerexec exec -ti --user www-data "<web-container>" bash
+                if [[ ${ARGUMENTS["root"]} ]]; then
+                    dockerexec exec -ti "<web-container>" bash
+                else
+                    dockerexec exec -ti --user www-data "<web-container>" bash
+                fi
             fi
             ;;
         exec)
@@ -1619,7 +1631,7 @@ function mysql_exec {
     else
         echo "$1" > "./tmp/db/import.sql"
         shift
-        internal_dockerexec exec -i "<db-container>" bash -c "mysql --defaults-file=${TEMP_FILES["db-connection"]} -A $@ < /tmp/import/import.sql"
+        internal_dockerexec exec -i "<db-container>" bash -c "mysql --defaults-file=${TEMP_FILES["db-connection"]} -e $@ 'SOURCE /tmp/import/import.sql'"
         rm "./tmp/db/import.sql"
     fi
 }
@@ -1629,7 +1641,7 @@ function mysql_load {
         cat "$1" | mysql --defaults-file="${TEMP_FILES["db-connection"]}" -A
     else
         cp "$1" "./tmp/db/import.sql"
-        internal_dockerexec exec -i "<db-container>" bash -c "mysql --defaults-file=${TEMP_FILES["db-connection"]} -A < /tmp/import/import.sql"
+        internal_dockerexec exec -i "<db-container>" bash -c "mysql --defaults-file=${TEMP_FILES["db-connection"]} -e 'SOURCE /tmp/import/import.sql'"
         rm "./tmp/db/import.sql"
     fi
 }
@@ -1769,7 +1781,9 @@ if ! $found; then
     echo "cx not found, you may want to call \`cx env init\`";
     exit
 fi
-if [[ "$(pwd -P)" != "$result" ]]; then
+# get the directory this script lies in
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd -P )"
+if [[ "$(pwd -P)" != "$result" || "$DIR" != "$result" ]]; then
     prevPwd="$(pwd -P)"
     cd "$result" || exit
     ./cx "$@"
@@ -1777,6 +1791,7 @@ if [[ "$(pwd -P)" != "$result" ]]; then
     exit
 fi
 
+ORIG_ARGS=("$@")
 case "${COMMANDS[0]}" in
     envs)
         COMMANDS=("${COMMANDS[@]:1}")
