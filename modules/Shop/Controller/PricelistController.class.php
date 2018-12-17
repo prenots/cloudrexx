@@ -99,4 +99,39 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         }
         return $wrapper;
     }
+
+    public function getAllCategoriesCheckbox($isActive)
+    {
+        global $_ARRAYLANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttributes(
+            array(
+                'class' => 'category',
+                'for' => 'category-all'
+            )
+        );
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES']
+        );
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            'category-all',
+            1
+        );
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'category-all',
+                empty($isActive) ? '' : 'checked' => 'checked'
+            )
+        );
+
+        $label->addChild($checkbox);
+        $label->addChild($text);
+        $wrapper->addChild($label);
+
+        return $wrapper;
+    }
 }
