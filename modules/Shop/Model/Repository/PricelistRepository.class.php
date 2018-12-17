@@ -60,7 +60,7 @@ class PricelistRepository extends \Doctrine\ORM\EntityRepository
 
         $categories = $this->_em->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Category'
-        )->findAll();
+        )->findBy(array('active' => 1));
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $index = count($categories)-1;
 
