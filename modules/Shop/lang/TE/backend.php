@@ -36,10 +36,10 @@ $_ARRAYLANG['footerOn'] = 'Fusszeile anzeigen';
 $_ARRAYLANG['lang'] = 'Sprache';
 $_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
 $_ARRAYLANG['categories'] = ' ';
-$_ARRAYLANG['headerLeft'] = 'Kopfzeile links';
-$_ARRAYLANG['footerLeft'] = 'Fusszeile links';
-$_ARRAYLANG['headerRight'] = 'Kopfzeile rechts';
-$_ARRAYLANG['footerRight'] = 'Fusszeile rechts';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
 $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'Alle Rubriken';
 
 $_ARRAYLANG['TXT_ORDERS'] = "Bestellungen";

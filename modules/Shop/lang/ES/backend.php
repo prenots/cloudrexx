@@ -39,10 +39,10 @@ $_ARRAYLANG['footerOn'] = 'Pie';
 $_ARRAYLANG['lang'] = 'Idioma';
 $_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
 $_ARRAYLANG['categories'] = ' ';
-$_ARRAYLANG['headerLeft'] = 'Cabecera izquierda';
-$_ARRAYLANG['footerLeft'] = 'Pie izquierda';
-$_ARRAYLANG['headerRight'] = 'Cabecera derecho';
-$_ARRAYLANG['footerRight'] = 'Pie derecho';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
 $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'Alle Rubriken';
 
 $_ARRAYLANG['TXT_ORDERS'] = "Pedidos";

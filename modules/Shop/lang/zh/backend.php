@@ -39,10 +39,10 @@ $_ARRAYLANG['footerOn'] = 'Show footer line';
 $_ARRAYLANG['lang'] = 'Language';
 $_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
 $_ARRAYLANG['categories'] = ' ';
-$_ARRAYLANG['headerLeft'] = 'Header line left';
-$_ARRAYLANG['footerLeft'] = 'Footer line left';
-$_ARRAYLANG['headerRight'] = 'Header line right';
-$_ARRAYLANG['footerRight'] = 'Footer line right';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
 $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'Alle Rubriken';
 
 $_ARRAYLANG['TXT_ORDERS'] = "Orders";

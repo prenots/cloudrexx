@@ -33,10 +33,10 @@ $_ARRAYLANG['footerOn'] = 'Show Footer';
 $_ARRAYLANG['lang'] = 'Language';
 $_ARRAYLANG['allCategories'] = 'Contained categories';
 $_ARRAYLANG['categories'] = ' ';
-$_ARRAYLANG['headerLeft'] = 'Header left';
-$_ARRAYLANG['footerLeft'] = 'Footer left';
-$_ARRAYLANG['headerRight'] = 'Header right';
-$_ARRAYLANG['footerRight'] = 'Footer right';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
 $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'All categories';
 
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "The total weight of your order exceeds the available shipment conditions";

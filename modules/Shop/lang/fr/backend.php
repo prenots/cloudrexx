@@ -39,10 +39,10 @@ $_ARRAYLANG['footerOn'] = 'Bas de page';
 $_ARRAYLANG['lang'] = 'Langue';
 $_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
 $_ARRAYLANG['categories'] = ' ';
-$_ARRAYLANG['headerLeft'] = 'Entête gauche';
-$_ARRAYLANG['footerLeft'] = 'Bas de page gauche';
-$_ARRAYLANG['headerRight'] = 'Entête droit';
-$_ARRAYLANG['footerRight'] = 'Bas de page droit';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
 $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'Alle Rubriken';
 
 $_ARRAYLANG['TXT_ORDERS'] = "Commandes";
