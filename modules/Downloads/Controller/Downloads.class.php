@@ -1654,7 +1654,7 @@ JS_CODE;
         $filter = array(
             'is_active'     => true,
             // read_access_id = 0 refers to unprotected categories
-            'read_access_id'=> array(0),
+            'read_access_id'=> array(null),
         );
         if (!empty($arrCategoryIds)) {
             $filter['id'] = $arrCategoryIds;
