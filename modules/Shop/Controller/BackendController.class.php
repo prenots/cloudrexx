@@ -347,10 +347,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => false,
                         'mode' => 'associate',
                         'formfield' => function() {
-                            return $this->cx->getDb()->getEntityManager()
-                                ->getRepository(
-                                    '\Cx\Modules\Shop\Model\Entity\Pricelist'
-                                )->getCategoryCheckboxesForPricelist();
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getCategoryCheckboxesForPricelist();
                         },
                     ),
                 );

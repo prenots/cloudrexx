@@ -43,64 +43,7 @@ class PricelistRepository extends \Doctrine\ORM\EntityRepository
         return $wrapper;
     }
 
-    public function getCategoryCheckboxesForPricelist()
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-
-        // Until we know how to get the editId without the $_GET param
-        if ($cx->getRequest()->hasParam('editid')) {
-            $pricelistId = explode(
-                '}',
-                explode(
-                    ',',
-                    $cx->getRequest()->getParam('editid')
-                )[1]
-            )[0];
-        }
-
-        $categories = $this->_em->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Category'
-        )->findBy(array('active' => 1));
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $index = count($categories)-1;
-
-        foreach ($categories as $category) {
-            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
-            $label->setAttributes(
-                array(
-                    'class' => 'category',
-                    'for' => 'category-'. $category->getId()
-                )
-            );
-            $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                $category->getName()
-            );
-            $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
-                'categories[' . $index-- . ']',
-                $category->getId()
-
-            );
-
-            $isActive = (boolean)$this->getPricelistByCategoryAndId(
-                $category,
-                $pricelistId
-            );
-            $checkbox->setAttributes(
-                array(
-                    'type' => 'checkbox',
-                    'id' => 'category-' . $category->getId(),
-                    empty($isActive) ? '' : 'checked' => 'checked'
-                )
-            );
-
-            $label->addChild($checkbox);
-            $label->addChild($text);
-            $wrapper->addChild($label);
-        }
-        return $wrapper;
-    }
-
-    protected function getPricelistByCategoryAndId($category, $pricelistId)
+    public function getPricelistByCategoryAndId($category, $pricelistId)
     {
         $pricelists = $category->getPricelists();
         foreach ($pricelists as $pricelist) {
