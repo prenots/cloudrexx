@@ -938,9 +938,6 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 $this->isCoreAttribute($this->id) && $this->storeCoreAttribute() ||
                 $this->storeCustomAttribute()
             ) {
-                $this->storeProtection($this->protected, $this->access_id, 'access_id', $this->access_group_ids);
-                $this->storeProtection($this->readProtected, $this->readAccessId, 'read_access_id', $this->readAccessGroupIds, 'read');
-
                 if (preg_match('/^title_[0-9]+|title$/', $_GET['id']) ||
                     ($this->isCoreAttribute($this->id) || $this->storeNames()) &&
                     $this->storeChildrenOrder() &&
