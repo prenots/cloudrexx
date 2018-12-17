@@ -345,6 +345,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'categories' => array(
                         'showOverview' => false,
+                        'mode' => 'associate',
                         'formfield' => function() {
                             return $this->cx->getDb()->getEntityManager()
                                 ->getRepository(

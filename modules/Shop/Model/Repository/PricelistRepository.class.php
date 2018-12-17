@@ -62,6 +62,7 @@ class PricelistRepository extends \Doctrine\ORM\EntityRepository
             '\Cx\Modules\Shop\Model\Entity\Category'
         )->findAll();
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $index = count($categories)-1;
 
         foreach ($categories as $category) {
             $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
@@ -75,8 +76,8 @@ class PricelistRepository extends \Doctrine\ORM\EntityRepository
                 $category->getName()
             );
             $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
-                'category-'. $category->getId(),
-                1
+                'categories[' . $index-- . ']',
+                $category->getId()
 
             );
 
