@@ -311,19 +311,40 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => false
                     ),
                     'headerLeft' => array(
-                        'showOverview' => false
+                        'showOverview' => false,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getLineField($fieldname, $fieldvalue, 'headerRight');
+                        }
                     ),
                     'headerRight' => array(
-                        'showOverview' => false
+                        'showOverview' => false,
+                        'type' => 'hidden'
                     ),
                     'footerOn' => array(
                         'showOverview' => false
                     ),
                     'footerLeft' => array(
-                        'showOverview' => false
+                        'showOverview' => false,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                            global $_ARRAYLANG;
+                            $placeholders = array(
+                                '[DATE]' => $_ARRAYLANG[
+                                'TXT_DATE'
+                                ],
+                                '[PAGENUMBER]' =>$_ARRAYLANG[
+                                'TXT_PAGENUMBER'
+                                ]
+                            );
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
+                        }
                     ),
                     'footerRight' => array(
-                        'showOverview' => false
+                        'showOverview' => false,
+                        'type' => 'hidden'
                     ),
                     'allCategories' => array(
                         'showOverview' => false,

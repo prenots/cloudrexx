@@ -134,4 +134,55 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
 
         return $wrapper;
     }
+
+    public function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $headerLeft = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
+        $headerRight = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
+        $leftText = new \Cx\Core\Html\Model\Entity\TextElement($valueLeft);
+        $rightText = new \Cx\Core\Html\Model\Entity\TextElement('');
+
+        $headerLeft->setAttributes(
+            array(
+                'name' => $nameLeft,
+                'id' => $nameLeft,
+                'rows' => 4
+            )
+        );
+        $headerRight->setAttributes(
+            array(
+                'id' => $nameRight,
+                'rows' => 4
+            )
+        );
+
+        $headerLeft->addChild($leftText);
+        $headerRight->addChild($rightText);
+        $wrapper->addChild($headerLeft);
+        $wrapper->addChild($headerRight);
+
+        if (empty($placeholders)) return $wrapper;
+
+        $wrapperPlaceholders = new \Cx\Core\Html\Model\Entity\HtmlElement(
+            'div'
+        );
+        foreach ($placeholders as $placeholder=>$lang) {
+            $block = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $name = new \Cx\Core\Html\Model\Entity\TextElement(
+                $placeholder
+            );
+            $tt = new \Cx\Core\Html\Model\Entity\HtmlElement('tt');
+            $tt->addChild($name);
+            $block->addChild($tt);
+            $block->addChild(
+                new \Cx\Core\Html\Model\Entity\TextElement(
+                    ': ' . $lang
+                )
+            );
+            $wrapperPlaceholders->addChild($block);
+        }
+        $wrapper->addChild($wrapperPlaceholders);
+        return $wrapper;
+    }
 }

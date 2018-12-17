@@ -13,15 +13,13 @@ cx.bind("delete", function (deleteIds) {
 function toggle_header()
 {
     var disp = (document.getElementsByName('headerOn')[0].checked ? "block" : "none");
-    document.getElementsByName('headerLeft')[0].parentNode.parentElement.style.display = disp;
-    document.getElementsByName('headerRight')[0].parentNode.parentElement.style.display = disp;
+    document.getElementById('headerLeft').parentNode.parentElement.parentElement.style.display = disp;
 }
 
 function toggle_footer()
 {
     var disp = (document.getElementsByName('footerOn')[0].checked ? "block" : "none");
-    document.getElementsByName('footerLeft')[0].parentNode.parentElement.style.display = disp;
-    document.getElementsByName('footerRight')[0].parentNode.parentElement.style.display = disp;
+    document.getElementById('footerLeft').parentNode.parentElement.parentElement.style.display = disp;
 }
 
 function toggle_categories(status)
@@ -56,4 +54,14 @@ jQuery(document).ready(function($){
     toggle_footer();
     toggle_categories(true);
 
+
+    document.getElementById('headerRight').value = document.getElementById('form-0-headerRight').value;
+    document.getElementById('footerRight').value = document.getElementById('form-0-footerRight').value;
+
+    document.getElementById('headerRight').onchange = function () {
+        document.getElementById('form-0-headerRight').value = document.getElementById('headerRight').value
+    };
+    document.getElementById('footerRight').onchange = function () {
+        document.getElementById('form-0-footerRight').value = document.getElementById('footerRight').value
+    };
 });
