@@ -1272,17 +1272,13 @@ class Product
      * @global      ADONewConnection
      * @author      Reto Kohli <reto.kohli@comvation.com>
      */
-    static function getById($id, $langId = 0)
+    static function getById($id)
     {
         global $objDatabase;
 
-        if (empty($langId)) {
-            $langId = FRONTEND_LANG_ID;
-        }
-
         if (!$id) return NULL;
         $arrSql = \Text::getSqlSnippets(
-            '`product`.`id`', $langId, 'Shop',
+            '`product`.`id`', FRONTEND_LANG_ID, 'Shop',
             array(
                 'name' => self::TEXT_NAME,
                 'short' => self::TEXT_SHORT,
