@@ -65,7 +65,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
 
         $mappedEntities = array(
-            'pricelists' => 'pricelist'
+            'pricelists' => 'pricelist',
+            'currency' => 'currency'
         );
 
         if (array_key_exists(strtolower($_GET['tpl']), $mappedEntities)) {
@@ -75,6 +76,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         switch(strtolower($_GET['act']))  {
             case 'manufacturer':
             case 'pricelist':
+            case 'currency':
                 $_GET['act'] = ucfirst($_GET['act']);
                 parent::getPage($page);
                 return;
