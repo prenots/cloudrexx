@@ -79,6 +79,9 @@ ALTER TABLE contrexx_module_shop_products
   CHANGE date_start date_start DATETIME DEFAULT NULL,
   CHANGE date_end date_end DATETIME DEFAULT NULL;
 
+UPDATE `contrexx_module_shop_products` SET `date_start` = NULL WHERE `date_start` = '0000-00-00 00:00:00';
+UPDATE `contrexx_module_shop_products` SET `date_end` = NULL WHERE `date_end` = '0000-00-00 00:00:00';
+
 ALTER TABLE contrexx_module_shop_pricelists CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_rel_customer_coupon CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL;
