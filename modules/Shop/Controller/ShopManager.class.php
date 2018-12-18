@@ -1161,7 +1161,7 @@ class ShopManager extends ShopLibrary
             self::$objTemplate->parse('shopCurrency');
         }
         $str_js = '';
-        foreach (Currency::get_known_currencies_increment_array()
+        foreach (\Cx\Modules\Shop\Controller\CurrencyController::get_known_currencies_increment_array()
                 as $code => $increment) {
             // This seems like a sensible default for the few unknown ones
             if (!is_numeric($increment)) $increment = 0.01;
@@ -1171,7 +1171,7 @@ class ShopManager extends ShopLibrary
         };
         self::$objTemplate->setVariable(array(
             'SHOP_CURRENCY_NAME_MENUOPTIONS' => \Html::getOptions(
-                Currency::get_known_currencies_name_array()),
+                \Cx\Modules\Shop\Controller\CurrencyController::get_known_currencies_name_array()),
             'SHOP_CURRENCY_INCREMENT_JS_ARRAY' =>
                 'var currency_increment = {'.$str_js.'};',
         ));
