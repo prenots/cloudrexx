@@ -85,13 +85,11 @@ Cx\Modules\Shop\Model\Entity\Product:
         default: 1
     dateStart:
       type: datetime
-      options:
-        default: '0000-00-00 00:00:00'
+      nullable: true
       column: date_start
     dateEnd:
       type: datetime
-      options:
-        default: '0000-00-00 00:00:00'
+      nullable: true
       column: date_end
     manufacturerId:
       type: integer
