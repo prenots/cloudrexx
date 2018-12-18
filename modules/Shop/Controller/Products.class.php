@@ -263,11 +263,11 @@ class Products
                     '.($category_id ? '' : 'AND `category`.`active`=1' )/*only check if active when not in category view*/.'
                     AND (
                         `product`.`date_start` <= CURRENT_DATE()
-                     OR `product`.`date_start` = 0
+                     OR `product`.`date_start` IS NULL
                     )
                     AND (
                         `product`.`date_end` >= CURRENT_DATE()
-                     OR `product`.`date_end` = 0
+                     OR `product`.`date_end` IS NULL
                     )'
             ).
             // Limit Products visible to resellers or non-resellers
