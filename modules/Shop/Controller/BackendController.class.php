@@ -374,6 +374,36 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                 );
                 break;
+            case 'Cx\Modules\Shop\Model\Entity\Currency':
+                $options['functions']['sortBy'] = array(
+                    'field' => array('ord' => SORT_ASC)
+                );
+                $options['functions']['sorting'] = false;
+                $options['order']['overview'] = array(
+                    'id',
+                    'code',
+                    'symbol',
+                    'name',
+                    'rate',
+                    'increment',
+                    'default',
+                    'active'
+                );
+
+                $options['fields'] = array(
+                    'orders' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'ord' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'code' => array(
+                        'readonly' => 'readonly'
+                    ),
+                );
+                break;
         }
         return $options;
     }
