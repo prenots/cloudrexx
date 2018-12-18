@@ -76,8 +76,8 @@ ALTER TABLE contrexx_module_shop_orders
   CHANGE status status INT UNSIGNED DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_products
-  CHANGE date_start date_start DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
-  CHANGE date_end date_end DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL;
+  CHANGE date_start date_start DATETIME DEFAULT NULL,
+  CHANGE date_end date_end DATETIME DEFAULT NULL;
 
 ALTER TABLE contrexx_module_shop_pricelists CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL;
 

@@ -711,6 +711,7 @@ INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (119,'Country','c
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (120,'View','core');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (121,'Locale','core');
 INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (122, 'Widget','core_module');
+INSERT INTO `contrexx_component` (`id`, `name`, `type`) VALUES (123, 'Legacy','core_module');
 INSERT INTO `contrexx_content_node` (`id`, `parent_id`, `lft`, `rgt`, `lvl`) VALUES(1, NULL, 1, 56, 0);
 INSERT INTO `contrexx_content_node` (`id`, `parent_id`, `lft`, `rgt`, `lvl`) VALUES(2, 1, 2, 3, 1);
 INSERT INTO `contrexx_content_node` (`id`, `parent_id`, `lft`, `rgt`, `lvl`) VALUES(3, 1, 4, 17, 1);
@@ -3189,6 +3190,8 @@ INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES 
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (19,'list_downloads_current_lang','0');
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (20,'integrate_into_search_component','1');
 INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (21,'global_search_linking','detail');
+INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (22,'auto_file_naming','off');
+INSERT INTO `contrexx_module_downloads_settings` (`id`, `name`, `value`) VALUES (23,'pretty_regex_pattern','');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('emailText','[[ECARD_SENDER_NAME]] hat Ihnen eine E-Card geschickt.<br />\r\nSie können diese während den nächsten [[ECARD_VALID_DAYS]] Tagen unter [[ECARD_URL]] abrufen.');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('maxCharacters','100');
 INSERT INTO `contrexx_module_ecard_settings` (`setting_name`, `setting_value`) VALUES ('maxHeight','300');
@@ -4217,9 +4220,9 @@ INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `de
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (14,'external','paymill_iban','','https://www.paymill.com',1,'');
 INSERT INTO `contrexx_module_shop_payment_processors` (`id`, `type`, `name`, `description`, `company_url`, `status`, `picture`) VALUES (15,'external','payrexx','Payrexx is a payment gateway solution developed in Switzerland.','https://www.payrexx.com',1,'');
 INSERT INTO `contrexx_module_shop_pricelists` (`id`, `name`, `lang_id`, `border_on`, `header_on`, `header_left`, `header_right`, `footer_on`, `footer_left`, `footer_right`, `all_categories`) VALUES (1,'Beispiel Preisliste',1,1,1,'Beispiel Preisliste',NULL,1,'<--DATE-->','<--PAGENUMBER-->', 1);
-INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (12,'aHRjX29uZV94LmpwZw==?NTIw?Mjkx:?MA==?MA==:?MA==?MA==','delivery',549.90,0.00,50,0,500.00,1,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',3,0,10,0,'',0,0,0);
-INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (13,'Y2xvdWRyZXh4LnBuZw==?NDA5?NDgw:??:??','delivery',588.00,0.00,10000,0,0.00,0,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',1,0,10,0,'',0,0,0);
-INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (14,'bWl0Z2xpZWRzY2hhZnQuanBn?NTIy?NTM4:?MA==?MA==:?MA==?MA==','none',60.00,0.00,100000,0,0.00,0,1,1,1,'0000-00-00 00:00:00','0000-00-00 00:00:00',4,0,10,0,'',0,0,0);
+INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (12,'aHRjX29uZV94LmpwZw==?NTIw?Mjkx:?MA==?MA==:?MA==?MA==','delivery',549.90,0.00,50,0,500.00,1,1,1,1,null,null,3,0,10,0,'',0,0,0);
+INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (13,'Y2xvdWRyZXh4LnBuZw==?NDA5?NDgw:??:??','delivery',588.00,0.00,10000,0,0.00,0,1,1,1,null,null,1,0,10,0,'',0,0,0);
+INSERT INTO `contrexx_module_shop_products` (`id`, `picture`, `distribution`, `normalprice`, `resellerprice`, `stock`, `stock_visible`, `discountprice`, `discount_active`, `active`, `b2b`, `b2c`, `date_start`, `date_end`, `manufacturer_id`, `ord`, `vat_id`, `weight`, `flags`, `group_id`, `article_id`, `minimum_order_quantity`) VALUES (14,'bWl0Z2xpZWRzY2hhZnQuanBn?NTIy?NTM4:?MA==?MA==:?MA==?MA==','none',60.00,0.00,100000,0,0.00,0,1,1,1,null,null,4,0,10,0,'',0,0,0);
 INSERT INTO `contrexx_module_shop_rel_category_product` (`category_id`, `product_id`) VALUES (9,12);
 INSERT INTO `contrexx_module_shop_rel_category_product` (`category_id`, `product_id`) VALUES (10,13);
 INSERT INTO `contrexx_module_shop_rel_category_product` (`category_id`, `product_id`) VALUES (11,14);
@@ -4746,6 +4749,7 @@ INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variab
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (120,'View','Cloudrexx AG','TXT_CORE_VIEW_DESCRIPTION','n',1,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (121,'Locale','Cloudrexx AG','TXT_CORE_LOCALE_DESCRIPTION','n',1,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (122,'Widget','Cloudrexx AG','TXT_CORE_MODULES_WIDGET_DESCRIPTION','n',1,1,1,1,NULL);
+INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (123,'Legacy','Cloudrexx AG','TXT_CORE_MODULES_LEGACY_DESCRIPTION','n',1,1,1,1,NULL);
 INSERT INTO `contrexx_settings_image` (`id`, `name`, `value`) VALUES (1,'image_cut_width','500');
 INSERT INTO `contrexx_settings_image` (`id`, `name`, `value`) VALUES (2,'image_cut_height','500');
 INSERT INTO `contrexx_settings_image` (`id`, `name`, `value`) VALUES (3,'image_scale_width','800');
