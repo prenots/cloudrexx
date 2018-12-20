@@ -598,7 +598,7 @@ class Payment
             // LSV settings
             'SHOP_PAYMENT_LSV_STATUS' => (\Cx\Core\Setting\Controller\Setting::getValue('payment_lsv_active','Shop') ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_PAYMENT_DEFAULT_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
-            'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
+            'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyCodeById(
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
         ));
         return true;

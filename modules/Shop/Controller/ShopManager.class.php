@@ -1467,7 +1467,7 @@ if ($test === NULL) {
             // Order amount lower limit
             'SHOP_ORDERITEMS_AMOUNT_MIN' => Currency::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
-            'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
+            'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyCodeById(
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
             // New extended settings in V3.0.0
             'SHOP_SETTING_CART_USE_JS' =>

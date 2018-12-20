@@ -1730,7 +1730,7 @@ class Order
         $objTemplate->setGlobalVariable($_ARRAYLANG
           + array(
             'SHOP_CURRENCY' =>
-                Currency::getCurrencySymbolById($objOrder->currency_id())));
+                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencySymbolById($objOrder->currency_id())));
 //DBG::log("Order sum: ".Currency::formatPrice($objOrder->sum()));
         $objTemplate->setVariable(array(
             'SHOP_CUSTOMER_ID' => $customer_id,
