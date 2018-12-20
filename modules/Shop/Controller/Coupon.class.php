@@ -439,7 +439,7 @@ class Coupon
             if (!self::hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT')) {
                 \Message::information(sprintf(
                     $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT'],
-                    $objCoupon->minimum_amount, Currency::getActiveCurrencyCode()));
+                    $objCoupon->minimum_amount, \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()));
             }
             return null;
         }
@@ -678,9 +678,9 @@ class Coupon
 
         $query = "
             DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon`
-             WHERE `code`='".addslashes($code)."'".
-            (isset($customer_id)
-                 ? " AND customer_id=".intval($customer_id) : '');
+             WHERE `code`='".addslashes($code)."' AND customer_id".
+            (!empty($customer_id)
+                 ? " =".intval($customer_id) : ' IS NULL');
         if (!$objDatabase->Execute($query)) {
             return \Message::error(sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_DELETING_RELATIONS'],
@@ -688,9 +688,9 @@ class Coupon
         }
         $query = "
             DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`
-             WHERE `code`='".addslashes($code)."'".
-            (isset($customer_id)
-                 ? " AND customer_id=".intval($customer_id) : '');
+             WHERE `code`='".addslashes($code)."' AND customer_id".
+            (!empty($customer_id)
+                 ? " =".intval($customer_id) : ' IS NULL');
         if (!$objDatabase->Execute($query)) {
             return \Message::error(sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_DELETING'],
@@ -970,10 +970,10 @@ class Coupon
                  WHERE `code`=?
                    AND `customer_id`=?";
             if ($objDatabase->Execute($query, array(
-                $code, $payment_id, $minimum_amount,
+                $code, ($payment_id ? $payment_id : null), $minimum_amount,
                 $discount_rate, $discount_amount,
                 $start_time, $end_time, $uses, ($global ? 1 : 0),
-                $customer_id, $product_id,
+                ($customer_id ? $customer_id : null), ($product_id ? $product_id : null),
                 $code_prev, $customer_id_prev))) {
                 return \Message::ok(sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_UPDATED_SUCCESSFULLY'],
@@ -991,10 +991,10 @@ class Coupon
                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )";
             if ($objDatabase->Execute($query, array(
-                $code, $payment_id, $minimum_amount,
+                $code, ($payment_id ? $payment_id : null), $minimum_amount,
                 $discount_rate, $discount_amount,
                 $start_time, $end_time, $uses, ($global ? 1 : 0),
-                $customer_id, $product_id))) {
+                ($customer_id ? $customer_id : null), ($product_id ? $product_id : null)))) {
                 return \Message::ok(sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ADDED_SUCCESSFULLY'],
                     $code));
@@ -1040,7 +1040,7 @@ class Coupon
         $discount_rate = intval(
             empty($_POST['discount_rate'])
                 ? 0 : floatval($_POST['discount_rate']));
-        $discount_amount = Currency::formatPrice(
+        $discount_amount = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             empty($_POST['discount_amount'])
                 ? 0 : floatval($_POST['discount_amount']));
         if ($coupon_type == 'rate') {
@@ -1049,7 +1049,7 @@ class Coupon
         if ($coupon_type == 'amount') {
             $discount_rate = 0;
         }
-        $minimum_amount = Currency::formatPrice(
+        $minimum_amount = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             empty($_POST['minimum_amount'])
                 ? 0 : floatval($_POST['minimum_amount']));
         $uses = empty($_POST['unlimited'])
@@ -1084,11 +1084,11 @@ class Coupon
             'end_time' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_END_TIME'],
             'minimum_amount' => sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_FORMAT'],
-                Currency::getDefaultCurrencyCode()),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'discount_rate' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_RATE'],
             'discount_amount' => sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'],
-                Currency::getDefaultCurrencyCode()),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'uses' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_USES'],
             'global' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_SCOPE'],
             'customer_id' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CUSTOMER'],
@@ -1102,11 +1102,11 @@ class Coupon
             'TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_CURRENCY' =>
                 sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_FORMAT'],
-                    Currency::getDefaultCurrencyCode()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'TXT_SHOP_DISCOUNT_COUPON_AMOUNT_CURRENCY' =>
                 sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'],
-                    Currency::getDefaultCurrencyCode()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'TXT_SHOP_DISCOUNT_COUPON_ADD_OR_EDIT' =>
                 $_ARRAYLANG[$edit
                     ? 'TXT_SHOP_DISCOUNT_COUPON_EDIT'
@@ -1394,8 +1394,8 @@ class Coupon
         if (!$discount_amount) $discount_amount = $this->discount_amount;
         return sprintf(
             $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_STRING_FORMAT'],
-            Currency::formatPrice($discount_amount),
-            Currency::getActiveCurrencyCode());
+            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($discount_amount),
+            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
     }
 
 
@@ -1417,10 +1417,10 @@ class Coupon
     function getDiscountAmount($amount, $customer_id=NULL)
     {
         if ($this->discount_rate)
-            return Currency::formatPrice($amount * $this->discount_rate / 100);
+            return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount * $this->discount_rate / 100);
         $amount_available = max(0,
             $this->discount_amount - $this->getUsedAmount($customer_id));
-        return Currency::formatPrice(
+        return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             min($amount, $amount_available));
     }
 
@@ -1437,7 +1437,7 @@ class Coupon
 
         return sprintf(
             $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL_STRING_FORMAT'],
-            Currency::formatPrice($amount), Currency::getActiveCurrencyCode()
+            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount), \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
         );
     }
 
@@ -1472,8 +1472,9 @@ class Coupon
 
         $table_name = DBPREFIX.'module_shop_discount_coupon';
         $table_structure = array(
-            'code' => array('type' => 'varchar(20)', 'default' => '', 'primary' => true),
-            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'primary' => true),
+            'id' => array('type' => 'INT(10)', 'auto_increment' => true, 'primary' => true),
+            'code' => array('type' => 'varchar(20)', 'default' => '', 'unique' => true),
+            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'unique' => true),
             'payment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
             'product_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
             'start_time' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),

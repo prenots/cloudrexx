@@ -30,6 +30,18 @@
 * generated date Tue, 23 Jan 2007 14:44:20 +0100
 **/
 
+$_ARRAYLANG['borderOn'] = 'Rahmen';
+$_ARRAYLANG['headerOn'] = 'Kopfzeile anzeigen';
+$_ARRAYLANG['footerOn'] = 'Fusszeile anzeigen';
+$_ARRAYLANG['lang'] = 'Sprache';
+$_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
+$_ARRAYLANG['categories'] = ' ';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
+$_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'Alle Rubriken';
+
 $_ARRAYLANG['TXT_ORDERS'] = "Bestellungen";
 $_ARRAYLANG['TXT_STOCK'] = "Bestand";
 $_ARRAYLANG['TXT_ALL_PRODUCT_GROUPS'] = "Alle Produktegruppen";

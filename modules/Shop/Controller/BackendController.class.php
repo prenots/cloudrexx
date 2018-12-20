@@ -63,6 +63,28 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         \Cx\Core\ContentManager\Model\Entity\Page $page
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
+
+        $mappedEntities = array(
+            'pricelists' => 'pricelist',
+            'currency' => 'currency'
+        );
+
+        if (array_key_exists(strtolower($_GET['tpl']), $mappedEntities)) {
+            $_GET['act'] = $mappedEntities[strtolower($_GET['tpl'])];
+        }
+
+        switch(strtolower($_GET['act']))  {
+            case 'manufacturer':
+            case 'pricelist':
+            case 'currency':
+                $_GET['act'] = ucfirst($_GET['act']);
+                parent::getPage($page);
+                return;
+            default:
+                break;
+        }
+
+
         $this->cx->getTemplate()->addBlockfile(
             'CONTENT_OUTPUT',
             'content_master',
@@ -76,4 +98,345 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         $objShopManager->getPage();
     }
 
+    /**
+     * Returns a list of available commands (?act=XY)
+     * @return array List of acts
+     */
+    public function getCommands()
+    {
+        return array(
+            'orders',
+            'Category' => array(
+                'children' => array(
+                    'Pricelist'
+                ),
+            ),
+            'products',
+            'manufacturer',
+            'customers',
+            'statistics',
+            'import',
+            'settings'
+        );
+    }
+
+    /**
+     * Return true here if you want the first tab to be an entity view
+     * @return boolean True if overview should be shown, false otherwise
+     */
+    protected function showOverviewPage()
+    {
+        return false;
+    }
+
+    /**
+     * This function returns the ViewGeneration options for a given entityClass
+     *
+     * @access protected
+     * @global $_ARRAYLANG
+     * @param $entityClassName contains the FQCN from entity
+     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used
+     *                           for better partition
+     * @return array with options
+     */
+    protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
+    {
+        global $_ARRAYLANG;
+
+        $options = parent::getViewGeneratorOptions(
+            $entityClassName,
+            $dataSetIdentifier
+        );
+
+        switch ($entityClassName) {
+            case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
+                $options['order']['overview'] = array(
+                    'id',
+                    'name',
+                    'uri'
+                );
+                $options['order']['form'] = array(
+                    'name',
+                    'uri'
+                );
+
+                // Delete event
+                $options = $this->normalDelete(
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
+                    $options
+                );
+
+                $options['fields'] = array(
+                    'id' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'manufacturer-id',
+                            ),
+                        ),
+                    ),
+                    'name' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'manufacturer-name',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'uri' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'manufacturer-uri',
+                            ),
+                        ),
+                        'sorting' => false,
+                    ),
+                    'products' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\Category':
+                $options['order']['overview'] = array(
+                    'id',
+                    'active',
+                    'name'
+                );
+                $options['order']['form'] = array(
+                    'name',
+                    'parentCategory',
+                    'active',
+                    'picture',
+                    'shortDescription',
+                    'description'
+                );
+                $options['functions']['sortBy'] = array(
+                    'field' => array('ord' => SORT_ASC)
+                );
+                $options['functions']['sorting'] = false;
+
+                // Delete event
+                $options = $this->normalDelete(
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+                    $options
+                );
+
+                $options['fields'] = array(
+                    'id' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'category-id',
+                            ),
+                        ),
+                    ),
+                    'active' => array(
+                        'showOverview' => false,
+                        'sorting' => false,
+                    ),
+                    'name' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'category-name',
+                            ),
+                        ),
+                    ),
+                    'parentCategory' => array(
+                        'showOverview' => false,
+                    ),
+                    'parentId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'picture' => array(
+                        'showOverview' => false,
+                        'type' => 'image',
+                    ),
+                    'shortDescription' => array(
+                        'showOverview' => false,
+                    ),
+                    'description' => array(
+                        'showOverview' => false,
+                    ),
+                    'ord' => array(
+                        'showOverview' => false,
+                        'type' => 'hidden',
+                    ),
+                    'flags' => array(
+                        'showOverview' => false,
+                        'type' => 'hidden',
+                    ),
+                    'children' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'pricelists' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'products' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
+
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\Pricelist':
+
+                $options['order']['form'] = array(
+                    'name',
+                    'lang',
+                );
+
+                $options['fields'] = array(
+                    'id' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'pricelist-id',
+                            ),
+                        ),
+                    ),
+                    'name' => array(
+                        'table' => array(
+                            'attributes' => array(
+                                'class' => 'pricelist-name',
+                            ),
+                        ),
+                    ),
+                    'langId' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'borderOn' => array(
+                        'showOverview' => false
+                    ),
+                    'headerOn' => array(
+                        'showOverview' => false
+                    ),
+                    'headerLeft' => array(
+                        'showOverview' => false,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getLineField($fieldname, $fieldvalue, 'headerRight');
+                        }
+                    ),
+                    'headerRight' => array(
+                        'showOverview' => false,
+                        'type' => 'hidden'
+                    ),
+                    'footerOn' => array(
+                        'showOverview' => false
+                    ),
+                    'footerLeft' => array(
+                        'showOverview' => false,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                            global $_ARRAYLANG;
+                            $placeholders = array(
+                                '[DATE]' => $_ARRAYLANG[
+                                'TXT_DATE'
+                                ],
+                                '[PAGENUMBER]' =>$_ARRAYLANG[
+                                'TXT_PAGENUMBER'
+                                ]
+                            );
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
+                        }
+                    ),
+                    'footerRight' => array(
+                        'showOverview' => false,
+                        'type' => 'hidden'
+                    ),
+                    'allCategories' => array(
+                        'showOverview' => false,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getAllCategoriesCheckbox($fieldvalue);
+                        },
+                        'storecallback' => function(){
+                            return $this->cx->getRequest()->hasParam(
+                                'category-all',
+                                false
+                            );
+                        }
+                    ),
+                    'lang' => array(
+                        'showOverview' => false
+                    ),
+                    'categories' => array(
+                        'showOverview' => false,
+                        'mode' => 'associate',
+                        'formfield' => function() {
+                            return $this->getSystemComponentController()->getController(
+                                'Pricelist'
+                            )->getCategoryCheckboxesForPricelist();
+                        },
+                    ),
+                );
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\Currency':
+                $options['functions']['sortBy'] = array(
+                    'field' => array('ord' => SORT_ASC)
+                );
+                $options['functions']['sorting'] = false;
+                $options['order']['overview'] = array(
+                    'id',
+                    'code',
+                    'symbol',
+                    'name',
+                    'rate',
+                    'increment',
+                    'default',
+                    'active'
+                );
+
+                $options['fields'] = array(
+                    'orders' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'ord' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'code' => array(
+                        'readonly' => 'readonly'
+                    ),
+                );
+                break;
+        }
+        return $options;
+    }
+
+    protected function normalDelete($message, $options)
+    {
+        global $_ARRAYLANG;
+
+        $options['multiActions']['delete'] = array(
+            'title' => $_ARRAYLANG['TXT_DELETE'],
+            'jsEvent' => 'delete:shopDelete'
+        );
+
+        // Delete Event
+        $scope = 'shopDelete';
+        \ContrexxJavascript::getInstance()->setVariable(
+            'CSRF_PARAM',
+            \Cx\Core\Csrf\Controller\Csrf::code(),
+            $scope
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_CONFIRM_DELETE',
+            $message,
+            $scope
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_ACTION_IS_IRREVERSIBLE',
+            $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'],
+            $scope
+        );
+
+        return $options;
+    }
 }

@@ -283,7 +283,7 @@ class Payment
         $arrPaymentIds = ($countryId
             ? self::getCountriesRelatedPaymentIdArray(
                 $countryId,
-                Currency::getCurrencyArray())
+                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray())
             : array_keys(self::$arrPayments));
 
         if (empty($arrPaymentIds)) {
@@ -370,8 +370,7 @@ class Payment
         if (!$objDatabase->Execute("
             DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_payment
              WHERE id=?", $payment_id)) return false;
-        $objDatabase->Execute("OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_payment");
-        $objDatabase->Execute("OPTIMIZE TABLE ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment");
+
         return true;
     }
 
@@ -598,9 +597,9 @@ class Payment
                 \Cx\Core\Setting\Controller\Setting::getValue('paypal_default_currency','Shop')),
             // LSV settings
             'SHOP_PAYMENT_LSV_STATUS' => (\Cx\Core\Setting\Controller\Setting::getValue('payment_lsv_active','Shop') ? \Html::ATTRIBUTE_CHECKED : ''),
-            'SHOP_PAYMENT_DEFAULT_CURRENCY' => Currency::getDefaultCurrencySymbol(),
-            'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
-                Currency::getDefaultCurrencyId()),
+            'SHOP_PAYMENT_DEFAULT_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+            'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyCodeById(
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
         ));
         return true;
     }

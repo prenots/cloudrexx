@@ -52,7 +52,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function getControllerClasses()
     {
-        return array('Backend');
+        return array('Backend', 'Pdf', 'Pricelist');
     }
 
     /**
@@ -200,6 +200,84 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
+     * Returns a list of command mode commands provided by this component
+     *
+     * @return array List of command names
+     */
+    public function getCommandsForCommandMode()
+    {
+        return array(
+            'generatePdfPricelist' => new
+            \Cx\Core_Modules\Access\Model\Entity\Permission(
+                array('http', 'https'), // allowed protocols
+                array(
+                    'get',
+                    'post',
+                    'put',
+                    'delete',
+                    'trace',
+                    'options',
+                    'head',
+                ),   // allowed methods
+                false,  // requires login
+                array(),
+                array()
+            ),
+        );
+    }
+
+    /**
+     * Returns the description for a command provided by this component
+     *
+     * @param string  $command The name of the command to fetch the description from
+     * @param boolean $short   Wheter to return short or long description
+     *
+     * @return string Command description
+     */
+    public function getCommandDescription($command, $short = false)
+    {
+        switch ($command) {
+            case 'generatePdfPricelist':
+                if ($short) {
+                    return 'Generates Pdf for a pricelist';
+                }
+                return 'Generates Pdf for a pricelist with all related 
+                    categories and their products.';
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Execute one of the commands listed in getCommandsForCommandMode()
+     *
+     * @param string $command       Name of command to execute
+     * @param array  $arguments     List of arguments for the command
+     * @param array  $dataArguments (optional) List of data arguments for the command
+     *
+     * @see getCommandsForCommandMode()
+     */
+    public function executeCommand($command, $arguments, $dataArguments = array())
+    {
+        try {
+            switch ($command) {
+                case 'generatePdfPricelist':
+                    if (empty($arguments['id'])) {
+                        return;
+                    }
+                    $this->getController('Pdf')->generatePdfPricelist(
+                        intval($arguments['id']),1
+                    );
+                    break;
+            }
+        } catch (\Exception $e) {
+            http_response_code(400); // BAD REQUEST
+            echo 'Exception of type "' . get_class($e) . '" with message "' .
+                $e->getMessage() . '"';
+        }
+    }
+
+    /**
      * Register your event listeners here
      *
      * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
@@ -211,8 +289,22 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function registerEventListeners() {
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
+        $eventListenerTemp = new \Cx\Modules\Shop\Model\Event\RolloutTextSyncListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
+        $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
+        $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
+    }
+
+    /**
+     * Register your events here
+     *
+     * Do not do anything else here than list statements like
+     * $this->cx->getEvents()->addEvent($eventName);
+     */
+    public function registerEvents() {
+        $this->cx->getEvents()->addEvent('TmpShopText:Replace');
+        $this->cx->getEvents()->addEvent('TmpShopText:Delete');
     }
 
     public function preFinalize(\Cx\Core\Html\Sigma $template)

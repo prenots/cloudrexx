@@ -32,6 +32,19 @@
  * @package     cloudrexx
  * @subpackage  module_shop
  */
+
+$_ARRAYLANG['borderOn'] = 'Rahmen';
+$_ARRAYLANG['headerOn'] = 'Kopfzeile anzeigen';
+$_ARRAYLANG['footerOn'] = 'Fusszeile anzeigen';
+$_ARRAYLANG['lang'] = 'Язык';
+$_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
+$_ARRAYLANG['categories'] = ' ';
+$_ARRAYLANG['headerLeft'] = '';
+$_ARRAYLANG['footerLeft'] = '';
+$_ARRAYLANG['headerRight'] = '';
+$_ARRAYLANG['footerRight'] = '';
+$_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES'] = 'Alle Rubriken';
+
 $_ARRAYLANG['TXT_ORDERS'] = "Bestellungen";
 $_ARRAYLANG['TXT_STOCK'] = "Bestand";
 $_ARRAYLANG['TXT_ALL_PRODUCT_GROUPS'] = "Все группы продуктов";
