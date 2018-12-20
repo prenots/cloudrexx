@@ -2825,7 +2825,7 @@ if ($test === NULL) {
                     $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->status()],
                 'SHOP_ORDER_SUM' =>
                     \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().' '.
-                    Currency::getDefaultCurrencyPrice($order->sum()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->sum()),
             ));
             self::$objTemplate->parse('orderRow');
         }

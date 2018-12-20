@@ -482,7 +482,7 @@ if (!$limit) {
                 'SHOP_DATE' => date(ASCMS_DATE_FORMAT_DATETIME,
                     strtotime($objOrder->date_time())),
                 'SHOP_NAME' => $customer_name,
-                'SHOP_ORDER_SUM' => Currency::getDefaultCurrencyPrice(
+                'SHOP_ORDER_SUM' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice(
                     $objOrder->sum()),
                 'SHOP_ORDER_STATUS' => ($backend
                     ? self::getStatusMenu(
@@ -711,7 +711,7 @@ if (!$limit) {
                   + $objResult->fields['shopColumn2'];
                 $arrayResults[$key]['column4'] +=
                   + $objResult->fields['shopColumn2']
-                  * Currency::getDefaultCurrencyPrice($objResult->fields['sum']);
+                  * \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($objResult->fields['sum']);
                 $objResult->MoveNext();
             }
             if (is_array($arrayResults)) {
@@ -749,9 +749,9 @@ if (!$limit) {
                     );
                 }
                 $arrayResults[$key]['column3'] += $objResult->fields['shopColumn3'];
-                $arrayResults[$key]['column4'] += Currency::getDefaultCurrencyPrice($objResult->fields['sum']);
+                $arrayResults[$key]['column4'] += \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($objResult->fields['sum']);
                 $sumColumn3 += $objResult->fields['shopColumn3'];
-                $sumColumn4 += Currency::getDefaultCurrencyPrice($objResult->fields['sum']);
+                $sumColumn4 += \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($objResult->fields['sum']);
                 $objResult->MoveNext();
             }
         } else {
@@ -770,10 +770,10 @@ if (!$limit) {
                 $arrayResults[$key]['column1'] = $arrayMonths[intval($objResult->fields['month'])-1].' '.$objResult->fields['year'];
                 $arrayResults[$key]['column2'] = $arrayResults[$key]['column2'] + 1;
                 $arrayResults[$key]['column3'] = $arrayResults[$key]['column3'] + $objResult->fields['shopColumn3'];
-                $arrayResults[$key]['column4'] = $arrayResults[$key]['column4'] + Currency::getDefaultCurrencyPrice($objResult->fields['sum']);
+                $arrayResults[$key]['column4'] = $arrayResults[$key]['column4'] + \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($objResult->fields['sum']);
                 $sumColumn2 = $sumColumn2 + 1;
                 $sumColumn3 = $sumColumn3 + $objResult->fields['shopColumn3'];
-                $sumColumn4 = $sumColumn4 + Currency::getDefaultCurrencyPrice($objResult->fields['sum']);
+                $sumColumn4 = $sumColumn4 + \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($objResult->fields['sum']);
                 $objResult->MoveNext();
             }
             krsort($arrayResults, SORT_NUMERIC);
@@ -829,7 +829,7 @@ if (!$limit) {
         $arrShopMonthSum = array();
         $objResult = $objDatabase->Execute($query);
         while (!$objResult->EOF) {
-            $orderSum = Currency::getDefaultCurrencyPrice($objResult->fields['sum']);
+            $orderSum = \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($objResult->fields['sum']);
             if (!isset($arrShopMonthSum[$objResult->fields['year']][$objResult->fields['month']])) {
                 $arrShopMonthSum[$objResult->fields['year']][$objResult->fields['month']] = 0;
             }
