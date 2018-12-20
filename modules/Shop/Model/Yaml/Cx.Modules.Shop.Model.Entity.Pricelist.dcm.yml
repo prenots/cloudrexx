@@ -72,3 +72,4 @@ Cx\Modules\Shop\Model\Entity\Pricelist:
       joinColumn:
         name: lang_id
         referencedColumnName: id
+        nullable: false
