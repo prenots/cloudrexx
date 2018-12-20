@@ -17,7 +17,8 @@ WHERE table_name = 'contrexx_access_user_profile'
 GROUP BY COLUMN_NAME;
 
 ALTER TABLE contrexx_access_user_attribute CHANGE access_id access_id INT DEFAULT NULL, CHANGE read_access_id read_access_id INT DEFAULT NULL;
-UPDATE `contrexx_access_user_attribute` SET `access_id`= null,`read_access_id`= null WHERE `access_id` = 0 AND `read_access_id` = 0;
+UPDATE `contrexx_access_user_attribute` SET `access_id`= null WHERE `access_id` = 0;
+UPDATE `contrexx_access_user_attribute` SET `read_access_id`= null WHERE `read_access_id` = 0;
 
 INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (NULL, 'menu_option', NULL, 1, 'title-w');
 INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (NULL, 'menu_option', NULL, 1, 'title-m');
