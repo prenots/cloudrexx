@@ -30,13 +30,18 @@
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
  * @package     cloudrexx
- * @subpackage  coremodule_shop
+ * @subpackage  module_shop
  */
-
-
 namespace Cx\Modules\Shop\Controller;
 
-
+/**
+ * PricelistController to handle pricelists
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_shop
+ */
 class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
