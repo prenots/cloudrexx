@@ -283,7 +283,7 @@ class Payment
         $arrPaymentIds = ($countryId
             ? self::getCountriesRelatedPaymentIdArray(
                 $countryId,
-                Currency::getCurrencyArray())
+                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray())
             : array_keys(self::$arrPayments));
 
         if (empty($arrPaymentIds)) {
@@ -599,7 +599,7 @@ class Payment
             'SHOP_PAYMENT_LSV_STATUS' => (\Cx\Core\Setting\Controller\Setting::getValue('payment_lsv_active','Shop') ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_PAYMENT_DEFAULT_CURRENCY' => Currency::getDefaultCurrencySymbol(),
             'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
-                Currency::getDefaultCurrencyId()),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
         ));
         return true;
     }

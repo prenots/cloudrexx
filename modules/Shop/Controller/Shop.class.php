@@ -3126,7 +3126,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (   $cart_amount
             && empty($_SESSION['shop']['paymentId'])) {
             $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
-                $_SESSION['shop']['countryId'], Currency::getCurrencyArray());
+                $_SESSION['shop']['countryId'], \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray());
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
         if (empty($_SESSION['shop']['paymentId']))
@@ -3258,7 +3258,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (empty($_SESSION['shop']['paymentId'])) {
             // Use the first Payment ID
             $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
-                $_SESSION['shop']['countryId'], Currency::getCurrencyArray()
+                $_SESSION['shop']['countryId'], \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray()
             );
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }

@@ -90,61 +90,6 @@ class Currency
 
 
     /**
-     * Initialize currencies
-     *
-     * Sets up the Currency array, and picks the selected Currency from the
-     * 'currency' request parameter, if available.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @static
-     */
-    static function init($active_currency_id=0)
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $currencies = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->findBy(array(), array('ord' => 'ASC'));
-
-        foreach ($currencies as $currency) {
-            self::$arrCurrency[$currency->getId()] = array(
-                'id' => $currency->getId(),
-                'code' => $currency->getCode(),
-                'symbol' => $currency->getSymbol(),
-                'name' => $currency->getName(),
-                'rate' => $currency->getRate(),
-                'increment' => $currency->getIncrement(),
-                'ord' => $currency->getOrd(),
-                'active' => $currency->getActive(),
-                'default' => $currency->getDefault(),
-            );
-            if ($currency->getDefault())
-                self::$defaultCurrencyId = $currency->getId();
-        }
-
-        if (!isset($_SESSION['shop'])) {
-            $_SESSION['shop'] = array();
-        }
-        if (isset($_REQUEST['currency'])) {
-            $currency_id = intval($_REQUEST['currency']);
-            $_SESSION['shop']['currencyId'] =
-                (isset(self::$arrCurrency[$currency_id])
-                    ? $currency_id : self::$defaultCurrencyId
-                );
-        }
-        if (!empty($active_currency_id)) {
-            $_SESSION['shop']['currencyId'] =
-                (isset(self::$arrCurrency[$active_currency_id])
-                    ? $active_currency_id : self::$defaultCurrencyId
-                );
-        }
-        if (empty($_SESSION['shop']['currencyId'])) {
-            $_SESSION['shop']['currencyId'] = self::$defaultCurrencyId;
-        }
-        self::$activeCurrencyId = intval($_SESSION['shop']['currencyId']);
-        return true;
-    }
-
-
-    /**
      * Resets the $arrCurrency class array to null to enforce
      * reinitialisation
      *
@@ -153,33 +98,6 @@ class Currency
     static function reset()
     {
         self::$arrCurrency = null;
-    }
-
-    /**
-     * Returns the currency array
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  array   The currency array
-     */
-    static function getCurrencyArray()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency;
-    }
-
-
-    /**
-     * Returns the default currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  integer     The ID of the default currency
-     */
-    static function getDefaultCurrencyId()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$defaultCurrencyId;
     }
 
 

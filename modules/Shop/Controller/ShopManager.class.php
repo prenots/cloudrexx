@@ -1144,7 +1144,7 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
             'settings_block', 'module_shop_settings_currency.html');
         $i = 0;
-        foreach (Currency::getCurrencyArray() as $currency) {
+        foreach (\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray() as $currency) {
             self::$objTemplate->setVariable(array(
                 'SHOP_CURRENCY_STYLE' => 'row'.(++$i % 2 + 1),
                 'SHOP_CURRENCY_ID' => $currency['id'],
@@ -1468,7 +1468,7 @@ if ($test === NULL) {
             'SHOP_ORDERITEMS_AMOUNT_MIN' => Currency::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
             'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
-                Currency::getDefaultCurrencyId()),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
             // New extended settings in V3.0.0
             'SHOP_SETTING_CART_USE_JS' =>
                 \Html::getCheckbox('use_js_cart', 1, false,

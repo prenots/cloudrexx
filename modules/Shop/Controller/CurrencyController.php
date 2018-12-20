@@ -66,6 +66,32 @@ class CurrencyController
     }
 
     /**
+     * Returns the currency array
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @access  public
+     * @static
+     * @return  array   The currency array
+     */
+    static function getCurrencyArray()
+    {
+        if (!is_array(self::$arrCurrency)) self::init();
+        return self::$arrCurrency;
+    }
+
+    /**
+     * Returns the default currency ID
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @access  public
+     * @static
+     * @return  integer     The ID of the default currency
+     */
+    static function getDefaultCurrencyId()
+    {
+        if (!is_array(self::$arrCurrency)) self::init();
+        return self::$defaultCurrencyId;
+    }
+
+    /**
      * Returns the array of known currencies
      *
      * The array is of the form
