@@ -188,6 +188,16 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+     * Set id
+     *
+     * @param integer $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
      * Set isAdmin
      *
      * @param boolean $isAdmin
@@ -593,9 +603,11 @@ class User extends \Cx\Model\Base\EntityBase {
      * @param string $restoreKey
      * @return User
      */
-    public function setRestoreKey($restoreKey)
+    public function setRestoreKey($restoreKey = null)
     {
-        $this->restoreKey = $restoreKey;
+        $this->restoreKey = !empty($restoreKey)
+                            ? $restoreKey
+                            : md5($this->email . $this->regdate . time());
     }
 
     /**
@@ -711,5 +723,24 @@ class User extends \Cx\Model\Base\EntityBase {
     public function getUserAttributeValue()
     {
         return $this->userAttributeValue;
+    }
+
+    /**
+     * Check if the user is backend group
+     *
+     * @return boolean
+     */
+    public function isBackendGroupUser()
+    {
+        if (!$this->group) {
+            return false;
+        }
+
+        foreach ($this->group as $group) {
+            if ($group->getType() === 'backend') {
+                return true;
+            }
+        }
+        return false;
     }
 }
