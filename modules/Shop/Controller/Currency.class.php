@@ -113,27 +113,29 @@ class Currency
               FROM `".DBPREFIX."module_shop".MODULE_INDEX."_currencies` AS `currency`".
                    $arrSqlName['join']."
              ORDER BY `currency`.`id` ASC";
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $currencies = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->findBy(array(), array('ord' => 'ASC'));
-
-        foreach ($currencies as $currency) {
-            self::$arrCurrency[$currency->getId()] = array(
-                'id' => $currency->getId(),
-                'code' => $currency->getCode(),
-                'symbol' => $currency->getSymbol(),
-                'name' => $currency->getName(),
-                'rate' => $currency->getRate(),
-                'increment' => $currency->getIncrement(),
-                'ord' => $currency->getOrd(),
-                'active' => $currency->getActive(),
-                'default' => $currency->getDefault(),
+        $objResult = $objDatabase->Execute($query);
+        if (!$objResult) return self::errorHandler();
+        while (!$objResult->EOF) {
+            $id = $objResult->fields['id'];
+            $strName = $objResult->fields['name'];
+            if ($strName === null) {
+                $strName = \Text::getById($id, 'Shop', self::TEXT_NAME)->content();
+            }
+            self::$arrCurrency[$objResult->fields['id']] = array(
+                'id' => $objResult->fields['id'],
+                'code' => $objResult->fields['code'],
+                'symbol' => $objResult->fields['symbol'],
+                'name' => $strName,
+                'rate' => $objResult->fields['rate'],
+                'increment' => $objResult->fields['increment'],
+                'ord' => $objResult->fields['ord'],
+                'active' => $objResult->fields['active'],
+                'default' => $objResult->fields['default'],
             );
-            if ($currency->getDefault())
-                self::$defaultCurrencyId = $currency->getId();
+            if ($objResult->fields['default'])
+                self::$defaultCurrencyId = $objResult->fields['id'];
+            $objResult->MoveNext();
         }
-
         if (!isset($_SESSION['shop'])) {
             $_SESSION['shop'] = array();
         }
