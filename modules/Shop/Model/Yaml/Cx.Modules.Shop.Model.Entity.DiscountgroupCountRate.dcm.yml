@@ -32,3 +32,4 @@ Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate:
       joinColumn:
         name: group_id
         referencedColumnName: id
+        nullable: false

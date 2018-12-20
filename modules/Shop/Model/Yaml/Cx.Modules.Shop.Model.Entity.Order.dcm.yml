@@ -225,6 +225,7 @@ Cx\Modules\Shop\Model\Entity\Order:
       joinColumn:
         name: lang_id
         referencedColumnName: id
+        nullable: false
     currency:
       targetEntity: Cx\Modules\Shop\Model\Entity\Currency
       inversedBy: orders
@@ -245,8 +246,10 @@ Cx\Modules\Shop\Model\Entity\Order:
       joinColumn:
         name: payment_id
         referencedColumnName: id
+        nullable: false
     customer:
       targetEntity: Cx\Core\User\Model\Entity\User
       joinColumn:
         name: customer_id
         referencedColumnName: id
+        nullable: false
