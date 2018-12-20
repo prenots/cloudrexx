@@ -75,6 +75,7 @@ Cx\Modules\Shop\Model\Entity\Payment:
       joinColumn:
         name: processor_id
         referencedColumnName: id
+        nullable: false
   manyToMany:
     zones:
       targetEntity: Cx\Modules\Shop\Model\Entity\Zone
