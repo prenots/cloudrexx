@@ -42,7 +42,7 @@ namespace Cx\Modules\Shop\Controller;
  * @package     cloudrexx
  * @subpackage  module_shop
  */
-class CurrencyController
+class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
      * class suffixes for active/inactive currencies
