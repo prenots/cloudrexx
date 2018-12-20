@@ -934,11 +934,11 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
         global $_ARRAYLANG;
 
         if ($this->checkIntegrity()) {
-            if (preg_match('/^title_[0-9]+|title$/', $_GET['id']) && $this->storeCoreAttributeTitle() ||
+            if (preg_match('/^title_[0-9]+$/', $this->id) && $this->storeCoreAttributeTitle() ||
                 $this->isCoreAttribute($this->id) && $this->storeCoreAttribute() ||
                 $this->storeCustomAttribute()
             ) {
-                if (preg_match('/^title_[0-9]+|title$/', $_GET['id']) ||
+                if (preg_match('/^title_[0-9]+$/', $this->id) ||
                     ($this->isCoreAttribute($this->id) || $this->storeNames()) &&
                     $this->storeChildrenOrder() &&
                     $this->storeProtection($this->protected, $this->access_id, 'access_id', $this->access_group_ids) &&
