@@ -31,8 +31,8 @@
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
  * @author      Dario Graf <info@cloudrexx.com>
  * @package     cloudrexx
- * @subpackage  module_user
- * @version     5.0.0
+ * @subpackage  core_user
+ * @version     5.0.3
  */
 namespace Cx\Core\User\Model\Entity;
 
@@ -42,8 +42,8 @@ namespace Cx\Core\User\Model\Entity;
  * @copyright   CLOUDREXX CMS - Cloudrexx AG Thun
  * @author      Dario Graf <info@cloudrexx.com>
  * @package     cloudrexx
- * @subpackage  module_user
- * @version     5.0.0
+ * @subpackage  core_user
+ * @version     5.0.3
  */
 class UserAttributeName extends \Cx\Model\Base\EntityBase {
     /**
