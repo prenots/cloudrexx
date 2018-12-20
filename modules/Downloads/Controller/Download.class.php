@@ -307,7 +307,7 @@ class Download {
         $this->size = 0;
         $this->image = '';
         $this->owner_id = $objFWUser->objUser->login() ? $objFWUser->objUser->getId() : 0;
-        $this->access_id = null;
+        $this->access_id = 0;
         $this->protected = false;
         $this->license = '';
         $this->version = '';
@@ -710,7 +710,7 @@ class Download {
                 $this->size = isset($this->arrLoadedDownloads[$id]['size']) ? $this->arrLoadedDownloads[$id]['size'] : 0;
                 $this->image = isset($this->arrLoadedDownloads[$id]['image']) ? $this->arrLoadedDownloads[$id]['image'] : '';
                 $this->owner_id = isset($this->arrLoadedDownloads[$id]['owner_id']) ? $this->arrLoadedDownloads[$id]['owner_id'] : 0;
-                $this->access_id = isset($this->arrLoadedDownloads[$id]['access_id']) ? $this->arrLoadedDownloads[$id]['access_id'] : null;
+                $this->access_id = isset($this->arrLoadedDownloads[$id]['access_id']) ? $this->arrLoadedDownloads[$id]['access_id'] : 0;
                 $this->protected = (bool) $this->access_id;
                 $this->license = isset($this->arrLoadedDownloads[$id]['license']) ? $this->arrLoadedDownloads[$id]['license'] : '';
                 $this->version = isset($this->arrLoadedDownloads[$id]['version']) ? $this->arrLoadedDownloads[$id]['version'] : '';
@@ -1833,13 +1833,13 @@ class Download {
                 }
             } else {
                 // remove protection due that no new access-ID could have been created
-                $this->access_id = null;
+                $this->access_id = 0;
                 $status = false;
             }
         } elseif ($this->access_id) {
             // remove protection
             \Permission::removeAccess($this->access_id, 'dynamic');
-            $this->access_id = null;
+            $this->access_id = 0;
         }
 
         if (!$status) {

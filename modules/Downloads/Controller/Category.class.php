@@ -193,7 +193,7 @@ class Category
         $this->order = 0;
         $this->deletable_by_owner = 1;
         $this->modify_access_by_owner = 1;
-        $this->read_access_id = null;
+        $this->read_access_id = 0;
         $this->read_protected = false;
         $this->read_groups = null;
         $this->add_subcategories_access_id = 0;
@@ -588,7 +588,7 @@ class Category
                 $this->order = isset($this->arrLoadedCategories[$id]['order']) ? $this->arrLoadedCategories[$id]['order'] : 0;
                 $this->deletable_by_owner = isset($this->arrLoadedCategories[$id]['deletable_by_owner']) ? $this->arrLoadedCategories[$id]['deletable_by_owner'] : 1;
                 $this->modify_access_by_owner = isset($this->arrLoadedCategories[$id]['modify_access_by_owner']) ? $this->arrLoadedCategories[$id]['modify_access_by_owner'] : 1;
-                $this->read_access_id = isset($this->arrLoadedCategories[$id]['read_access_id']) ? $this->arrLoadedCategories[$id]['read_access_id'] : null;
+                $this->read_access_id = isset($this->arrLoadedCategories[$id]['read_access_id']) ? $this->arrLoadedCategories[$id]['read_access_id'] : 0;
                 $this->read_protected = (bool) $this->read_access_id;
                 $this->read_groups = null;
                 $this->add_subcategories_access_id = isset($this->arrLoadedCategories[$id]['add_subcategories_access_id']) ? $this->arrLoadedCategories[$id]['add_subcategories_access_id'] : 0;
