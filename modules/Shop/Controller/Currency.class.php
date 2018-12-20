@@ -66,49 +66,6 @@ class Currency
 
 
     /**
-     * Returns the formatted amount in a non-localized notation
-     *
-     * The optional $length is inserted into the sprintf()
-     * format string and determines the maximum length of the number.
-     * If present, the optional $padding character is inserted into the
-     * sprintf() format string.
-     * The optional $increment parameter overrides the increment value
-     * of the *active* Currency, which is used by default.
-     * The $increment value limits the number of digits printed after the
-     * decimal point.
-     * Currently, the number is formatted as a float, using no thousands,
-     * and '.' as decimal separator.
-     * @todo    Localize!  Create language and country dependant
-     *          settings in the database, and make this behave accordingly.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @static
-     * @param   double  $price      The amount
-     * @param   string  $length     The optional number length
-     * @param   string  $padding    The optional padding character
-     * @param   float   $increment  The optional increment
-     * @return  double            The formatted amount
-     */
-    static function formatPrice($price, $length='', $padding='', $increment=null)
-    {
-//\DBG::log("formatPrice($price, $length, $padding, $increment): Entered");
-        $decimals = 2;
-        if (empty ($increment)) {
-            if (!is_array(self::$arrCurrency)) self::init();
-            $increment =
-                self::$arrCurrency[self::$activeCurrencyId]['increment'];
-        }
-        $increment = floatval($increment);
-        if ($increment > 0) {
-            $decimals = max(0, -floor(log10($increment)));
-            $price = round($price/$increment)*$increment;
-        }
-        $price = sprintf('%'.$padding.$length.'.'.$decimals.'f', $price);
-//\DBG::log("formatPrice($price, $length, $padding, $increment): Decimals: $decimals");
-        return $price;
-    }
-
-
-    /**
      * Returns the amount in a non-localized notation in cents,
      * rounded to one cent.
      *

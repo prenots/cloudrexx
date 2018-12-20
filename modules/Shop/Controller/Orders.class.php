@@ -788,7 +788,7 @@ if (!$limit) {
                     'SHOP_COLUMN_2' => $entry['column2'],
                     'SHOP_COLUMN_3' => $entry['column3'],
                     'SHOP_COLUMN_4' =>
-                        Currency::formatPrice($entry['column4']).' '.
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($entry['column4']).' '.
                         \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
                 ));
                 $objTemplate->parse('statisticRow');
@@ -850,18 +850,18 @@ if (!$limit) {
         $objTemplate->setVariable(array(
             'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
             'SHOP_TOTAL_SUM' =>
-                Currency::formatPrice($totalOrderSum).' '.
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($totalOrderSum).' '.
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_MONTH' => $bestMonthDate,
             'SHOP_MONTH_SUM' =>
-                Currency::formatPrice($bestMonthSum).' '.
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($bestMonthSum).' '.
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_TOTAL_ORDERS' => $totalOrders,
             'SHOP_SOLD_ARTICLES' => $totalSoldProducts,
             'SHOP_SUM_COLUMN_2' => $sumColumn2,
             'SHOP_SUM_COLUMN_3' => $sumColumn3,
             'SHOP_SUM_COLUMN_4' =>
-                Currency::formatPrice($sumColumn4).' '.
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($sumColumn4).' '.
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
         ));
         return true;
@@ -1377,11 +1377,11 @@ if (!$limit) {
                         if ($option_price != 0) {
                             $str_options .=
                                 ' './/' ('.
-                                Currency::formatPrice($option_price).
+                                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($option_price).
                                 ' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
 //                                .')'
                                 ;
-                            $option['PRODUCT_OPTIONS_PRICE'] = Currency::formatPrice($option_price);
+                            $option['PRODUCT_OPTIONS_PRICE'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($option_price);
                             $option['PRODUCT_OPTIONS_CURRENCY'] = \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode();
                         }
                         $optionValues[] = $option;

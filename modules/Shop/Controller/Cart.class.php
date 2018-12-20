@@ -134,12 +134,12 @@ class Cart
 
         $arrCart = array(
             'items' => self::$products,
-            'total_price_cart' => Currency::formatPrice(
+            'total_price_cart' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   self::get_price()
                 + self::get_discount_amount()
                 + (Vat::isEnabled() && !Vat::isIncluded()
                     ? self::get_vat_amount() : 0)),
-            'total_price' => Currency::formatPrice(
+            'total_price' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   self::get_price()
                 + (Vat::isEnabled() && !Vat::isIncluded()
                     ? self::get_vat_amount() : 0)),
@@ -567,10 +567,10 @@ class Cart
                 'options_count' => count($product['options']),
                 'options_long' => $options_strings[0],
                 'options_cart' => $options_strings[1],
-                'price' => Currency::formatPrice($price),
-                'sale_price' => Currency::formatPrice($price),
+                'price' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($price),
+                'sale_price' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($price),
                 'quantity' => $quantity,
-                'itemprice' => Currency::formatPrice($itemprice),
+                'itemprice' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($itemprice),
                 'vat_rate' => $vat_rate,
                 'itemweight' => $itemweight, // in grams!
                 'weight' => $weight,
@@ -635,11 +635,11 @@ class Cart
             );
             if (Vat::isEnabled() && !Vat::isIncluded()) {
                 self::$products[$cart_id]['price'] += $vat_amount;
-                self::$products[$cart_id]['price'] = Currency::formatPrice(self::$products[$cart_id]['price']);
+                self::$products[$cart_id]['price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(self::$products[$cart_id]['price']);
             }
             $total_vat_amount += $vat_amount;
             self::$products[$cart_id]['vat_amount'] =
-                Currency::formatPrice($vat_amount);
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($vat_amount);
         }
 
         // Coupon case #2: Non-Product specific coupon
@@ -715,10 +715,10 @@ class Cart
 
         // order costs after discount subtraction (incl VAT) but without payment and shippment costs
         $_SESSION['shop']['cart']['total_price'] =
-            Currency::formatPrice($total_price);
+            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($total_price);
 
         $_SESSION['shop']['cart']['total_vat_amount'] =
-            Currency::formatPrice($total_vat_amount);
+            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($total_vat_amount);
         $_SESSION['shop']['cart']['total_items'] = $items;
         $_SESSION['shop']['cart']['total_weight'] = $total_weight; // In grams!
 
@@ -986,13 +986,13 @@ die("Cart::view(): ERROR: No template");
             'TXT_PRODUCT_ID' => $_ARRAYLANG['TXT_ID'],
             'SHOP_PRODUCT_TOTALITEM' => self::get_item_count(),
             // total costs of goods (before subtraction of discount)
-            'SHOP_PRODUCT_TOTAL_GOODS' => Currency::formatPrice(
+            'SHOP_PRODUCT_TOTAL_GOODS' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   self::get_price() + self::get_discount_amount()),
             // total costs of goods (after subtraction of discount)
-            'SHOP_PRODUCT_TOTALPRICE' => Currency::formatPrice(
+            'SHOP_PRODUCT_TOTALPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   self::get_price()),
             // Add the VAT in the intermediate sum, if active and excluded
-            'SHOP_PRODUCT_TOTALPRICE_PLUS_VAT' => Currency::formatPrice(
+            'SHOP_PRODUCT_TOTALPRICE_PLUS_VAT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   self::get_price()
                 + (Vat::isEnabled() && !Vat::isIncluded()
                     ? self::get_vat_amount() : 0)),
@@ -1019,7 +1019,7 @@ die("Cart::view(): ERROR: No template");
 //                    'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' => $coupon_string,
                     'SHOP_DISCOUNT_COUPON_TOTAL' =>
                         $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL'],
-                    'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' => Currency::formatPrice(
+                    'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         -$total_discount_amount),
                 ));
             }
@@ -1042,7 +1042,7 @@ die("Cart::view(): ERROR: No template");
             if (Vat::isIncluded()) {
                 $objTemplate->setVariable(array(
                     'SHOP_GRAND_TOTAL_EXCL_TAX' =>
-                        Currency::formatPrice(self::get_price() - self::get_vat_amount()).'&nbsp;'.
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(self::get_price() - self::get_vat_amount()).'&nbsp;'.
                         \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
 
@@ -1114,7 +1114,7 @@ die("Cart::view(): ERROR: No template");
                 'MESSAGE_TEXT',
                     sprintf(
                         $_ARRAYLANG['TXT_SHOP_ORDERITEMS_AMOUNT_MIN'],
-                        Currency::formatPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                             \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
                         \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol()));
         } elseif (
@@ -1125,7 +1125,7 @@ die("Cart::view(): ERROR: No template");
                 'MESSAGE_TEXT',
                     sprintf(
                         $_ARRAYLANG['TXT_SHOP_ORDERITEMS_AMOUNT_MAX'],
-                        Currency::formatPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                             \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop')),
                         \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol()));
         } else {

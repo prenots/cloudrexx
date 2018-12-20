@@ -1040,7 +1040,7 @@ class Coupon
         $discount_rate = intval(
             empty($_POST['discount_rate'])
                 ? 0 : floatval($_POST['discount_rate']));
-        $discount_amount = Currency::formatPrice(
+        $discount_amount = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             empty($_POST['discount_amount'])
                 ? 0 : floatval($_POST['discount_amount']));
         if ($coupon_type == 'rate') {
@@ -1049,7 +1049,7 @@ class Coupon
         if ($coupon_type == 'amount') {
             $discount_rate = 0;
         }
-        $minimum_amount = Currency::formatPrice(
+        $minimum_amount = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             empty($_POST['minimum_amount'])
                 ? 0 : floatval($_POST['minimum_amount']));
         $uses = empty($_POST['unlimited'])
@@ -1394,7 +1394,7 @@ class Coupon
         if (!$discount_amount) $discount_amount = $this->discount_amount;
         return sprintf(
             $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_STRING_FORMAT'],
-            Currency::formatPrice($discount_amount),
+            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($discount_amount),
             \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
     }
 
@@ -1417,10 +1417,10 @@ class Coupon
     function getDiscountAmount($amount, $customer_id=NULL)
     {
         if ($this->discount_rate)
-            return Currency::formatPrice($amount * $this->discount_rate / 100);
+            return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount * $this->discount_rate / 100);
         $amount_available = max(0,
             $this->discount_amount - $this->getUsedAmount($customer_id));
-        return Currency::formatPrice(
+        return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             min($amount, $amount_available));
     }
 
@@ -1437,7 +1437,7 @@ class Coupon
 
         return sprintf(
             $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL_STRING_FORMAT'],
-            Currency::formatPrice($amount), \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
+            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount), \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
         );
     }
 

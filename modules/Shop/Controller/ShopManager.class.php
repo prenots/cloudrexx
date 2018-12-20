@@ -1462,10 +1462,10 @@ if ($test === NULL) {
                 \Cx\Core\Setting\Controller\Setting::getValue('show_products_default','Shop')),
             'SHOP_PRODUCT_SORTING_MENUOPTIONS' => Products::getProductSortingMenuoptions(),
             // Order amount upper limit
-            'SHOP_ORDERITEMS_AMOUNT_MAX' => Currency::formatPrice(
+            'SHOP_ORDERITEMS_AMOUNT_MAX' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop')),
             // Order amount lower limit
-            'SHOP_ORDERITEMS_AMOUNT_MIN' => Currency::formatPrice(
+            'SHOP_ORDERITEMS_AMOUNT_MIN' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
             'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyCodeById(
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
@@ -2104,11 +2104,11 @@ if ($test === NULL) {
             'SHOP_CATEGORIES_ASSIGNED' => $arrAssignedCategories['assigned'],
             'SHOP_CATEGORIES_AVAILABLE' => $arrAssignedCategories['available'],
             'SHOP_CUSTOMER_PRICE' => contrexx_raw2xhtml(
-                Currency::formatPrice($objProduct->price())),
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price())),
             'SHOP_RESELLER_PRICE' => contrexx_raw2xhtml(
-                Currency::formatPrice($objProduct->resellerprice())),
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->resellerprice())),
             'SHOP_DISCOUNT' => contrexx_raw2xhtml(
-                Currency::formatPrice($objProduct->discountprice())),
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice())),
             'SHOP_SPECIAL_OFFER' => ($objProduct->discount_active() ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_VAT_MENUOPTIONS' => Vat::getMenuoptions(
                 $objProduct->vat_id(), true),
@@ -3196,9 +3196,9 @@ if ($test === NULL) {
                 'SHOP_PRODUCT_ID' => $objProduct->id(),
                 'SHOP_PRODUCT_CODE' => $objProduct->code(),
                 'SHOP_PRODUCT_NAME' => contrexx_raw2xhtml($objProduct->name()),
-                'SHOP_PRODUCT_PRICE1' => Currency::formatPrice($objProduct->price()),
-                'SHOP_PRODUCT_PRICE2' => Currency::formatPrice($objProduct->resellerprice()),
-                'SHOP_PRODUCT_DISCOUNT' => Currency::formatPrice($objProduct->discountprice()),
+                'SHOP_PRODUCT_PRICE1' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price()),
+                'SHOP_PRODUCT_PRICE2' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->resellerprice()),
+                'SHOP_PRODUCT_DISCOUNT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice()),
                 'SHOP_PRODUCT_SPECIAL_OFFER' => $discount_active,
                 'SHOP_SPECIAL_OFFER_VALUE_OLD' => $specialOfferValue,
                 'SHOP_PRODUCT_VAT_MENU' => Vat::getShortMenuString(

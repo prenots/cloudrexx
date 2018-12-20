@@ -913,14 +913,14 @@ die("Failed to update the Cart!");
             if (Vat::isIncluded()) {
                 // home country equals shop country; VAT is included already
                 if (Vat::is_home_country()) {
-                    $_SESSION['shop']['vat_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['vat_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         Cart::get_vat_amount() +
                         Vat::calculateOtherTax(
                               $_SESSION['shop']['payment_price']
                             + $_SESSION['shop']['shipment_price']
                         )
                     );
-                    $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                           Cart::get_price()
                         + $_SESSION['shop']['payment_price']
                         + $_SESSION['shop']['shipment_price']
@@ -930,7 +930,7 @@ die("Failed to update the Cart!");
                 } else {
                     // Foreign country; subtract VAT from grand total price.
                     $_SESSION['shop']['vat_price'] = Cart::get_vat_amount();
-                    $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                           Cart::get_price()
                         + $_SESSION['shop']['payment_price']
                         + $_SESSION['shop']['shipment_price']
@@ -948,13 +948,13 @@ die("Failed to update the Cart!");
                     // home country equals shop country; add VAT.
                     // the VAT on the products has already been calculated and set in the cart.
                     // now we add the default VAT to the shipping and payment cost.
-                    $_SESSION['shop']['vat_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['vat_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         Cart::get_vat_amount() +
                         Vat::calculateOtherTax(
                             $_SESSION['shop']['payment_price'] +
                             $_SESSION['shop']['shipment_price']
                         ));
-                    $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                           Cart::get_price()
                         + $_SESSION['shop']['payment_price']
                         + $_SESSION['shop']['shipment_price']
@@ -977,7 +977,7 @@ die("Failed to update the Cart!");
             $_SESSION['shop']['vat_price'] = '0.00';
             $_SESSION['shop']['vat_products_txt'] = '';
             $_SESSION['shop']['vat_grand_txt'] = '';
-            $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+            $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   Cart::get_price()
                 + $_SESSION['shop']['payment_price']
                 + $_SESSION['shop']['shipment_price']);
@@ -3466,7 +3466,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             unset($_SESSION['shop']['shipperId']);
         } else {
             self::$objTemplate->setVariable(array(
-                'SHOP_SHIPMENT_PRICE' => Currency::formatPrice(
+                'SHOP_SHIPMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['shipment_price']),
                 'SHOP_SHIPMENT_MENU' => self::_getShipperMenu(),
             ));
@@ -3532,7 +3532,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             || $_SESSION['shop']['vat_price']
         ) {
             self::$objTemplate->setVariable(array(
-                'SHOP_PAYMENT_PRICE' => Currency::formatPrice(
+                'SHOP_PAYMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['payment_price']),
                 'SHOP_PAYMENT_MENU' => self::get_payment_menu(),
             ));
@@ -3573,7 +3573,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                 'SHOP_DISCOUNT_COUPON_TOTAL' =>
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL'],
                 'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' =>
-                    Currency::formatPrice(-$total_discount_amount),
+                    \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(-$total_discount_amount),
             ));
         }
         // Show the Coupon code field only if there is at least one defined
@@ -3585,10 +3585,10 @@ die("Shop::processRedirect(): This method is obsolete!");
         self::$objTemplate->setVariable(array(
             'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTALITEM' => Cart::get_item_count(),
-            'SHOP_TOTALPRICE' => Currency::formatPrice(
+            'SHOP_TOTALPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   Cart::get_price()
                 + Cart::get_discount_amount()),
-            'SHOP_GRAND_TOTAL' => Currency::formatPrice(
+            'SHOP_GRAND_TOTAL' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   $_SESSION['shop']['grand_total_price']),
             'SHOP_CUSTOMERNOTE' => $_SESSION['shop']['note'],
             'SHOP_AGB' => $_SESSION['shop']['agb'],
@@ -3611,7 +3611,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             if (Vat::isIncluded()) {
                 self::$objTemplate->setVariable(array(
                     'SHOP_GRAND_TOTAL_EXCL_TAX' =>
-                        Currency::formatPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         $_SESSION['shop']['grand_total_price'] - $_SESSION['shop']['vat_price']
                     ),
                 ));
@@ -3734,10 +3734,10 @@ die("Shop::processRedirect(): This method is obsolete!");
                 'SHOP_PRODUCT_ID' => $arrProduct['id'],
                 'SHOP_PRODUCT_CUSTOM_ID' => $objProduct->code(),
                 'SHOP_PRODUCT_TITLE' => contrexx_raw2xhtml($objProduct->name()),
-                'SHOP_PRODUCT_PRICE' => Currency::formatPrice(
+                'SHOP_PRODUCT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $price*$arrProduct['quantity']),
                 'SHOP_PRODUCT_QUANTITY' => $arrProduct['quantity'],
-                'SHOP_PRODUCT_ITEMPRICE' => Currency::formatPrice($price),
+                'SHOP_PRODUCT_ITEMPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($price),
                 'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             ));
             if (   $attributes
@@ -3755,7 +3755,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                 self::$objTemplate->setVariable(array(
                     'SHOP_PRODUCT_TAX_RATE' => $vatPercent,
                     'SHOP_PRODUCT_TAX_AMOUNT' =>
-                        Currency::formatPrice($vatAmount).
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($vatAmount).
                         '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
@@ -3770,7 +3770,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL'],
                 // total discount amount
                 'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' =>
-                    Currency::formatPrice(-$total_discount_amount),
+                    \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(-$total_discount_amount),
                 'SHOP_DISCOUNT_COUPON_CODE' => $_SESSION['shop']['coupon_code'],
             ));
         }
@@ -3778,17 +3778,17 @@ die("Shop::processRedirect(): This method is obsolete!");
             'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTALITEM' => Cart::get_item_count(),
             // costs for payment handler (CC, invoice, etc.)
-            'SHOP_PAYMENT_PRICE' => Currency::formatPrice(
+            'SHOP_PAYMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 $_SESSION['shop']['payment_price']),
             // costs of all goods (before subtraction of discount) without payment and shippment costs
-            'SHOP_PRODUCT_TOTAL_GOODS' => Currency::formatPrice(
+            'SHOP_PRODUCT_TOTAL_GOODS' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   Cart::get_price() + Cart::get_discount_amount()),
             // order costs after discount subtraction (incl VAT) but without payment and shippment costs
-            'SHOP_TOTALPRICE' => Currency::formatPrice(Cart::get_price()),
+            'SHOP_TOTALPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(Cart::get_price()),
             'SHOP_PAYMENT' =>
                 Payment::getProperty($_SESSION['shop']['paymentId'], 'name'),
             // final order costs
-            'SHOP_GRAND_TOTAL' => Currency::formatPrice(
+            'SHOP_GRAND_TOTAL' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   $_SESSION['shop']['grand_total_price']),
             'SHOP_COMPANY' => stripslashes($_SESSION['shop']['company']),
 // Old
@@ -3829,7 +3829,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             self::$objTemplate->setVariable(array(
                 'TXT_TAX_RATE' => $_ARRAYLANG['TXT_SHOP_VAT_RATE'],
                 // total VAT on products (after subtraction of discount)
-                'SHOP_TAX_PRICE' => Currency::formatPrice(
+                'SHOP_TAX_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['vat_price']),
                 'SHOP_TAX_PRODUCTS_TXT' => $_SESSION['shop']['vat_products_txt'],
                 'SHOP_TAX_GRAND_TXT' => $_SESSION['shop']['vat_grand_txt'],
@@ -3844,7 +3844,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     // final order costs without VAT, but including
                     // payment and shipping costs
                     'SHOP_GRAND_TOTAL_EXCL_TAX' =>
-                        Currency::formatPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                             $_SESSION['shop']['grand_total_price']
                             - $_SESSION['shop']['vat_price']
                     ),
@@ -3913,7 +3913,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'payment'));
             }
             self::$objTemplate->setVariable(array(
-                'SHOP_SHIPMENT_PRICE' => Currency::formatPrice(
+                'SHOP_SHIPMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['shipment_price']),
                 'SHOP_SHIPMENT' =>
                     Shipment::getShipperName($_SESSION['shop']['shipperId']),

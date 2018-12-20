@@ -237,8 +237,8 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
                 'product_id' => self::decode($objProduct->id()),
                 'price' =>
                     ($objProduct->discount_active()
-                        ? "S " . Currency::formatPrice($objProduct->discountprice())
-                        : Currency::formatPrice($objProduct->price())) .
+                        ? "S " . \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice())
+                        : \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price())) .
                     ' ' . $currency_symbol,
             );
         }
