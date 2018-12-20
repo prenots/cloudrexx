@@ -73,10 +73,10 @@ class UserAttribute extends \Cx\Core\User\Model\Entity\UserAttribute implements 
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'id', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'type', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'mandatory', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'sortType', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'orderId', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'accessSpecial', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'parent', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'userAttributeName', 'userAttributeValue', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'children', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'accessId', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'userProfile', 'readAccessId', 'validators', 'virtual');
+            return array('__isInitialized__', 'id', 'type', 'mandatory', 'sortType', 'orderId', 'accessSpecial', 'accessId', 'readAccessId', 'parent', 'userAttributeName', 'userAttributeValue', 'children', 'isDefault', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'id', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'type', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'mandatory', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'sortType', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'orderId', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'accessSpecial', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'parent', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'userAttributeName', 'userAttributeValue', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'children', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'accessId', '' . "\0" . 'Cx\\Core\\User\\Model\\Entity\\UserAttribute' . "\0" . 'userProfile', 'readAccessId', 'validators', 'virtual');
+        return array('__isInitialized__', 'id', 'type', 'mandatory', 'sortType', 'orderId', 'accessSpecial', 'accessId', 'readAccessId', 'parent', 'userAttributeName', 'userAttributeValue', 'children', 'isDefault', 'validators', 'virtual');
     }
 
     /**
@@ -310,6 +310,72 @@ class UserAttribute extends \Cx\Core\User\Model\Entity\UserAttribute implements 
     /**
      * {@inheritDoc}
      */
+    public function setAccessId($accessId)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAccessId', array($accessId));
+
+        return parent::setAccessId($accessId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAccessId()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getAccessId', array());
+
+        return parent::getAccessId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setReadAccessId($readAccessId)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setReadAccessId', array($readAccessId));
+
+        return parent::setReadAccessId($readAccessId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getReadAccessId()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getReadAccessId', array());
+
+        return parent::getReadAccessId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setIsDefault($isDefault)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setIsDefault', array($isDefault));
+
+        return parent::setIsDefault($isDefault);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIsDefault()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getIsDefault', array());
+
+        return parent::getIsDefault();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function addParent(\Cx\Core\User\Model\Entity\UserAttribute $parent)
     {
 
@@ -409,7 +475,7 @@ class UserAttribute extends \Cx\Core\User\Model\Entity\UserAttribute implements 
     /**
      * {@inheritDoc}
      */
-    public function setChildren(\Cx\Core\User\Model\Entity\UserAttribute $children)
+    public function setChildren(\Cx\Core\User\Model\Entity\UserAttribute $children = NULL)
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setChildren', array($children));
@@ -426,72 +492,6 @@ class UserAttribute extends \Cx\Core\User\Model\Entity\UserAttribute implements 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getChildren', array());
 
         return parent::getChildren();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setAccessId(\Cx\Core_Modules\Access\Model\Entity\AccessId $accessId)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAccessId', array($accessId));
-
-        return parent::setAccessId($accessId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getAccessId()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getAccessId', array());
-
-        return parent::getAccessId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function addUserProfile(\Cx\Core\User\Model\Entity\UserProfile $userProfile)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addUserProfile', array($userProfile));
-
-        return parent::addUserProfile($userProfile);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getUserProfile()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUserProfile', array());
-
-        return parent::getUserProfile();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setReadAccessId(\Cx\Core_Modules\Access\Model\Entity\AccessId $readAccessId)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setReadAccessId', array($readAccessId));
-
-        return parent::setReadAccessId($readAccessId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getReadAccessId()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getReadAccessId', array());
-
-        return parent::getReadAccessId();
     }
 
     /**
