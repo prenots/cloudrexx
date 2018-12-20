@@ -325,7 +325,7 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
                 $order_id = $_SESSION['shop']['order_id'];
                 $account_email = \Cx\Core\Setting\Controller\Setting::getValue('paypal_account_email','Shop');
                 $item_name = $_ARRAYLANG['TXT_SHOP_PAYPAL_ITEM_NAME'];
-                $currency_code = Currency::getCodeById(
+                $currency_code = \Cx\Modules\Shop\Controller\CurrencyController::getCodeById(
                     $_SESSION['shop']['currencyId']);
                 $amount = $_SESSION['shop']['grand_total_price'];
                 $return = \PayPal::getForm($account_email, $order_id,
@@ -681,7 +681,7 @@ if (empty ($return)) {
                         $customer_email = $customer->email();
                     }
                 }
-                $currency_code = Currency::getCodeById($currency_id);
+                $currency_code = \Cx\Modules\Shop\Controller\CurrencyController::getCodeById($currency_id);
                 return \PayPal::ipnCheck($amount, $currency_code,
                     $order_id, $customer_email,
                     \Cx\Core\Setting\Controller\Setting::getValue('paypal_account_email','Shop'));

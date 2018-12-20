@@ -518,7 +518,7 @@ die("Failed to get Customer for ID $customer_id");
         // Currencies
         if (self::$show_currency_navbar
          && $objTpl->blockExists('shopCurrencies')) {
-            $curNavbar = Currency::getCurrencyNavbar();
+            $curNavbar = \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyNavbar();
             if (!empty($curNavbar)) {
                 $objTpl->setVariable('SHOP_CURRENCIES', $curNavbar);
             }

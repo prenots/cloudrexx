@@ -91,7 +91,7 @@ class PayrexxProcessor
         $gateway->setSuccessRedirectUrl($successPageUrl);
         $gateway->setFailedRedirectUrl($successPageUrl);
         $gateway->setAmount(intval(bcmul($_SESSION['shop']['grand_total_price'], 100, 0)));
-        $gateway->setCurrency(\Cx\Modules\Shop\Controller\Currency::getCodeById($order->currency_id()));
+        $gateway->setCurrency(\Cx\Modules\Shop\Controller\CurrencyController::getCodeById($order->currency_id()));
         $gateway->addField('email', $order->billing_email());
         $gateway->addField('company', $order->billing_company());
         $gateway->addField('forename', $order->billing_firstname());

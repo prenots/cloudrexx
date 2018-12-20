@@ -1269,7 +1269,7 @@ if (!$limit) {
                     strtotime($objOrder->modified_on())),
             'REMARKS' => $objOrder->note(),
             'ORDER_SUM' => sprintf('% 9.2f', $objOrder->sum()),
-            'CURRENCY' => Currency::getCodeById($objOrder->currency_id()),
+            'CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getCodeById($objOrder->currency_id()),
         );
         $arrSubstitution += $customer->getSubstitutionArray();
         if ($shipment_id) {
