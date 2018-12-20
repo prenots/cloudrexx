@@ -2814,7 +2814,7 @@ if ($test === NULL) {
                 \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop'));
         $i = 1;
         foreach ($orders as $order) {
-            Currency::init($order->currency_id());
+            \Cx\Modules\Shop\Controller\CurrencyController::init($order->currency_id());
             self::$objTemplate->setVariable(array(
                 'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
                 'SHOP_ORDER_ID' => $order->id(),

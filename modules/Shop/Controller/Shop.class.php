@@ -3598,7 +3598,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             self::$objTemplate->setVariable(array(
                 'SHOP_TAX_PRICE' =>
                     $_SESSION['shop']['vat_price'].
-                    '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyControllerCurrency::getActiveCurrencySymbol(),
+                    '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 'SHOP_TAX_PRODUCTS_TXT' => $_SESSION['shop']['vat_products_txt'],
                 'SHOP_TAX_GRAND_TXT' => $_SESSION['shop']['vat_grand_txt'],
                 'TXT_TAX_RATE' => $_ARRAYLANG['TXT_SHOP_VAT_RATE'],
