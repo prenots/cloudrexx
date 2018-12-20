@@ -12,6 +12,42 @@ namespace Cx\Modules\Shop\Controller;
 class CurrencyController
 {
     /**
+     * class suffixes for active/inactive currencies
+     */
+    const STYLE_NAME_INACTIVE = 'inactive';
+    const STYLE_NAME_ACTIVE   = 'active';
+
+    /**
+     * Array of available currencies (default null).
+     *
+     * Use {@link getCurrencyArray()} to access it from outside this class.
+     * @access  private
+     * @static
+     * @var     array
+     */
+    private static $arrCurrency = null;
+
+    /**
+     * Active currency object id (default null).
+     *
+     * Use {@link getActiveCurrencyId()} to access it from outside this class.
+     * @access  private
+     * @static
+     * @var     integer
+     */
+    private static $activeCurrencyId = false;
+
+    /**
+     * Default currency object id (defaults to null).
+     *
+     * Use {@link getDefaultCurrencyId()} to access it from outside this class.
+     * @access  private
+     * @static
+     * @var     integer
+     */
+    private static $defaultCurrencyId = false;
+
+    /**
      * Initialize currencies
      *
      * Sets up the Currency array, and picks the selected Currency from the
@@ -141,6 +177,22 @@ class CurrencyController
     {
         if (!is_array(self::$arrCurrency)) self::init($currency_id);
         self::$activeCurrencyId = $currency_id;
+    }
+
+    /**
+     * Returns the active currency symbol
+     *
+     * This is a custom Currency name that does not correspond to any
+     * ISO standard, like "sFr.", or "Euro".
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @access  public
+     * @static
+     * @return  string      The string representing the active currency
+     */
+    static function getActiveCurrencySymbol()
+    {
+        if (!is_array(self::$arrCurrency)) self::init();
+        return self::$arrCurrency[self::$activeCurrencyId]['symbol'];
     }
 
     /**

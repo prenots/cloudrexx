@@ -102,23 +102,6 @@ class Currency
 
 
     /**
-     * Returns the active currency symbol
-     *
-     * This is a custom Currency name that does not correspond to any
-     * ISO standard, like "sFr.", or "Euro".
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the active currency
-     */
-    static function getActiveCurrencySymbol()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$activeCurrencyId]['symbol'];
-    }
-
-
-    /**
      * Returns the active currency code
      *
      * This usually corresponds to the ISO 4217 code for the Currency,

@@ -83,7 +83,7 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->setGlobalVariable(
             $_ARRAYLANG
           + array(
-            'SHOP_CURRENCY' => Currency::getActiveCurrencySymbol(),
+            'SHOP_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'CSRF_PARAM' => \Cx\Core\Csrf\Controller\Csrf::param()
         ));
     }

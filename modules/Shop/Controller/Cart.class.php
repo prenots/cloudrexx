@@ -144,7 +144,7 @@ class Cart
                 + (Vat::isEnabled() && !Vat::isIncluded()
                     ? self::get_vat_amount() : 0)),
             'item_count' => $itemCount,
-            'unit' => Currency::getActiveCurrencySymbol()
+            'unit' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol()
         );
         $objJson = new \Services_JSON();
 //DBG::log("send_json(): Sending ".var_export($arrCart, true));
@@ -928,10 +928,10 @@ die("Cart::view(): ERROR: No template");
                     'SHOP_PRODUCT_TITLE' => str_replace('"', '&quot;', contrexx_raw2xhtml($arrProduct['title'])),
                     'SHOP_PRODUCT_PRICE' => $arrProduct['price'],  // items * qty
                     'SHOP_PRODUCT_SALE_PRICE' => $arrProduct['sale_price'],  // items * qty (without added VAT, if VAT is configured as excl)
-                    'SHOP_PRODUCT_PRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_PRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                     'SHOP_PRODUCT_QUANTITY' => $arrProduct['quantity'],
                     'SHOP_PRODUCT_ITEMPRICE' => $arrProduct['itemprice'],
-                    'SHOP_PRODUCT_ITEMPRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_ITEMPRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
 // TODO: Move this to (global) language variables
                     'SHOP_REMOVE_PRODUCT' => $_ARRAYLANG['TXT_SHOP_REMOVE_ITEM'],
                 ));
@@ -953,7 +953,7 @@ die("Cart::view(): ERROR: No template");
                             ? Vat::format($arrProduct['vat_rate']) : ''),
                         'SHOP_PRODUCT_TAX_AMOUNT' =>
                             $arrProduct['vat_amount'].'&nbsp;'.
-                            Currency::getActiveCurrencySymbol(),
+                            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                     ));
                 }
                 if (intval($arrProduct['minimum_order_quantity']) > 0) {
@@ -996,9 +996,9 @@ die("Cart::view(): ERROR: No template");
                   self::get_price()
                 + (Vat::isEnabled() && !Vat::isIncluded()
                     ? self::get_vat_amount() : 0)),
-            'SHOP_PRODUCT_TOTALPRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+            'SHOP_PRODUCT_TOTALPRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTAL_WEIGHT' => Weight::getWeightString(self::get_weight()),
-            'SHOP_PRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+            'SHOP_PRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
         ));
 
         // Show the Coupon code field only if there is at least one defined
@@ -1036,14 +1036,14 @@ die("Cart::view(): ERROR: No template");
                 // Add them to the template if desired!
                 'SHOP_TOTAL_TAX_AMOUNT' =>
                     self::get_vat_amount().
-                    '&nbsp;'.Currency::getActiveCurrencySymbol(),
+                    '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
 
             ));
             if (Vat::isIncluded()) {
                 $objTemplate->setVariable(array(
                     'SHOP_GRAND_TOTAL_EXCL_TAX' =>
                         Currency::formatPrice(self::get_price() - self::get_vat_amount()).'&nbsp;'.
-                        Currency::getActiveCurrencySymbol(),
+                        \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
 
                 if ($objTemplate->blockExists('shopVatIncl')) {
@@ -1116,7 +1116,7 @@ die("Cart::view(): ERROR: No template");
                         $_ARRAYLANG['TXT_SHOP_ORDERITEMS_AMOUNT_MIN'],
                         Currency::formatPrice(
                             \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
-                        Currency::getActiveCurrencySymbol()));
+                        \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol()));
         } elseif (
                \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop') > 0
             && \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop') < self::get_price()
@@ -1127,7 +1127,7 @@ die("Cart::view(): ERROR: No template");
                         $_ARRAYLANG['TXT_SHOP_ORDERITEMS_AMOUNT_MAX'],
                         Currency::formatPrice(
                             \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop')),
-                        Currency::getActiveCurrencySymbol()));
+                        \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol()));
         } else {
             $objTemplate->setVariable(
                 'TXT_NEXT', $_ARRAYLANG['TXT_NEXT']);

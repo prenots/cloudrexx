@@ -925,12 +925,12 @@ class Attributes
                     sprintf($_ARRAYLANG['TXT_SHOP_OPTION_LONG_FORMAT'],
                     $option_name, $option_price,
                     Currency::getActiveCurrencyCode(),
-                    Currency::getActiveCurrencySymbol());
+                    \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol());
                 $options_cart[] =
                     sprintf($_ARRAYLANG['TXT_SHOP_OPTION_CART_FORMAT'],
                     $option_name, $option_price,
                     Currency::getActiveCurrencyCode(),
-                    Currency::getActiveCurrencySymbol());
+                    \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol());
                 $options_price += $option_price;
 //DBG::log("Attributes::getAsStrings(): Price + $option_price = $options_price");
             }

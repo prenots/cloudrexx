@@ -275,7 +275,7 @@ class Shop extends ShopLibrary
         // Add more as desired.
         self::$objTemplate->setGlobalVariable(array(
             'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
-            'SHOP_CURRENCY_SYMBOL' => Currency::getActiveCurrencySymbol(),
+            'SHOP_CURRENCY_SYMBOL' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
         ));
         if (!isset($_GET['cmd'])) $_GET['cmd'] = '';
         if (!isset($_GET['act'])) $_GET['act'] = $_GET['cmd'];
@@ -804,7 +804,7 @@ die("Failed to get Customer for ID $customer_id");
             Cart::get_item_count().' '.
             $_ARRAYLANG['TXT_SHOPPING_CART_VALUE'].' '.
             Cart::get_price().' '.
-            Currency::getActiveCurrencySymbol();
+            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol();
         $cartInfo =
             '<a href="'.
             \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'cart').
@@ -1723,7 +1723,7 @@ die("Failed to update the Cart!");
             if ($price) {
                 self::$objTemplate->setGlobalVariable(array(
                     'SHOP_PRODUCT_PRICE' => $price,
-                    'SHOP_PRODUCT_PRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_PRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
             // Only show the discount price if it's actually in use,
@@ -1731,7 +1731,7 @@ die("Failed to update the Cart!");
             if ($discountPrice) {
                 self::$objTemplate->setGlobalVariable(array(
                     'SHOP_PRODUCT_DISCOUNTPRICE' => $discountPrice,
-                    'SHOP_PRODUCT_DISCOUNTPRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_DISCOUNTPRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                     'SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_1' => $_ARRAYLANG['TXT_SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_1'],
                     'SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_2' => $_ARRAYLANG['TXT_SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_2'],
                 ));
@@ -1757,7 +1757,7 @@ die("Failed to update the Cart!");
                             $objProduct->getDiscountedPrice()
                         ),
                     'SHOP_PRICE_TODAY_UNIT' =>
-                        Currency::getActiveCurrencySymbol(),
+                        \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
             if ($objProduct->stock_visible()) {
@@ -2129,7 +2129,7 @@ die("Failed to update the Cart!");
                             $pricePrefix = $arrOption['price'] > 0 ? '+' : '';
                             $option_price =
                                 '&nbsp;('.$pricePrefix.Currency::getCurrencyPrice($arrOption['price']).
-                                '&nbsp;'.Currency::getActiveCurrencySymbol().')';
+                                '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol().')';
                         }
                         // mark the option value as selected if it was before
                         // and this page was requested from the cart
@@ -3583,7 +3583,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             ));
         }
         self::$objTemplate->setVariable(array(
-            'SHOP_UNIT' => Currency::getActiveCurrencySymbol(),
+            'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTALITEM' => Cart::get_item_count(),
             'SHOP_TOTALPRICE' => Currency::formatPrice(
                   Cart::get_price()
@@ -3598,7 +3598,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             self::$objTemplate->setVariable(array(
                 'SHOP_TAX_PRICE' =>
                     $_SESSION['shop']['vat_price'].
-                    '&nbsp;'.Currency::getActiveCurrencySymbol(),
+                    '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyControllerCurrency::getActiveCurrencySymbol(),
                 'SHOP_TAX_PRODUCTS_TXT' => $_SESSION['shop']['vat_products_txt'],
                 'SHOP_TAX_GRAND_TXT' => $_SESSION['shop']['vat_grand_txt'],
                 'TXT_TAX_RATE' => $_ARRAYLANG['TXT_SHOP_VAT_RATE'],
@@ -3738,7 +3738,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     $price*$arrProduct['quantity']),
                 'SHOP_PRODUCT_QUANTITY' => $arrProduct['quantity'],
                 'SHOP_PRODUCT_ITEMPRICE' => Currency::formatPrice($price),
-                'SHOP_UNIT' => Currency::getActiveCurrencySymbol(),
+                'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             ));
             if (   $attributes
                 && self::$objTemplate->blockExists('attributes')) {
@@ -3756,7 +3756,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     'SHOP_PRODUCT_TAX_RATE' => $vatPercent,
                     'SHOP_PRODUCT_TAX_AMOUNT' =>
                         Currency::formatPrice($vatAmount).
-                        '&nbsp;'.Currency::getActiveCurrencySymbol(),
+                        '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
             self::$objTemplate->parse("shopCartRow");
@@ -3775,7 +3775,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             ));
         }
         self::$objTemplate->setVariable(array(
-            'SHOP_UNIT' => Currency::getActiveCurrencySymbol(),
+            'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTALITEM' => Cart::get_item_count(),
             // costs for payment handler (CC, invoice, etc.)
             'SHOP_PAYMENT_PRICE' => Currency::formatPrice(
@@ -4546,10 +4546,10 @@ die("Shop::processRedirect(): This method is obsolete!");
 //                'TXT_SHOP_CUSTOMER_DISCOUNT_AMOUNT' => $_ARRAYLANG['TXT_SHOP_CUSTOMER_DISCOUNT_AMOUNT'],
 //                'TXT_SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT' => $_ARRAYLANG['TXT_SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT'],
 //                'TXT_SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT' => $_ARRAYLANG['TXT_SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT'],
-                'SHOP_CUSTOMER_TOTAL_ORDER_AMOUNT' => number_format($totalOrderAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
-                'SHOP_CUSTOMER_DISCOUNT_AMOUNT' => number_format($discountAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
-                'SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT' => number_format($newTotalOrderAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
-                'SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT' => number_format($newDiscountAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_TOTAL_ORDER_AMOUNT' => number_format($totalOrderAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_DISCOUNT_AMOUNT' => number_format($discountAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT' => number_format($newTotalOrderAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT' => number_format($newDiscountAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             ));
         }
         return true;
@@ -4571,7 +4571,7 @@ die("Shop::processRedirect(): This method is obsolete!");
 // TODO: Should be set by the calling view, if any
             global $_ARRAYLANG;
             self::$objTemplate->setGlobalVariable($_ARRAYLANG + array(
-                'SHOP_CURRENCY_SYMBOL' => Currency::getActiveCurrencySymbol(),
+                'SHOP_CURRENCY_SYMBOL' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
             ));
             $arrShipment = Shipment::getShipmentConditions();
