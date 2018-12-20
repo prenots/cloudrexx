@@ -47,7 +47,7 @@ Cx\Modules\Shop\Model\Entity\Currency:
       options:
         unsigned: true
         default: '0'
-      columns:
+      column:
         `default`
     increment:
       type: decimal
