@@ -52,42 +52,6 @@ class Currency
      */
     const TEXT_NAME = 'currency_name';
 
-    /**
-     * class suffixes for active/inactive currencies
-     */
-    const STYLE_NAME_INACTIVE = 'inactive';
-    const STYLE_NAME_ACTIVE   = 'active';
-
-    /**
-     * Array of available currencies (default null).
-     *
-     * Use {@link getCurrencyArray()} to access it from outside this class.
-     * @access  private
-     * @static
-     * @var     array
-     */
-    private static $arrCurrency = null;
-
-    /**
-     * Active currency object id (default null).
-     *
-     * Use {@link getActiveCurrencyId()} to access it from outside this class.
-     * @access  private
-     * @static
-     * @var     integer
-     */
-    private static $activeCurrencyId = false;
-
-    /**
-     * Default currency object id (defaults to null).
-     *
-     * Use {@link getDefaultCurrencyId()} to access it from outside this class.
-     * @access  private
-     * @static
-     * @var     integer
-     */
-    private static $defaultCurrencyId = false;
-
 
     /**
      * Resets the $arrCurrency class array to null to enforce
@@ -98,23 +62,6 @@ class Currency
     static function reset()
     {
         self::$arrCurrency = null;
-    }
-
-
-    /**
-     * Returns the active currency code
-     *
-     * This usually corresponds to the ISO 4217 code for the Currency,
-     * like CHF, or USD.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the active currency code
-     */
-    static function getActiveCurrencyCode()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$activeCurrencyId]['code'];
     }
 
 

@@ -274,7 +274,7 @@ class Shop extends ShopLibrary
         // Global placeholders that are used on (almost) all pages.
         // Add more as desired.
         self::$objTemplate->setGlobalVariable(array(
-            'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
+            'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
             'SHOP_CURRENCY_SYMBOL' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
         ));
         if (!isset($_GET['cmd'])) $_GET['cmd'] = '';
@@ -1672,7 +1672,7 @@ die("Failed to update the Cart!");
                         ? $_ARRAYLANG['TXT_SHOP_PRODUCT_METER']
                         : $_ARRAYLANG['TXT_SHOP_PRODUCT_COUNT']
                     ),
-                'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
+                'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
             ));
             if ($objProduct->code()) {
                 self::$objTemplate->setVariable(
@@ -4572,7 +4572,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             global $_ARRAYLANG;
             self::$objTemplate->setGlobalVariable($_ARRAYLANG + array(
                 'SHOP_CURRENCY_SYMBOL' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
-                'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
+                'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
             ));
             $arrShipment = Shipment::getShipmentConditions();
             foreach ($arrShipment as $strShipperName => $arrContent) {

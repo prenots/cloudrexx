@@ -439,7 +439,7 @@ class Coupon
             if (!self::hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT')) {
                 \Message::information(sprintf(
                     $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT'],
-                    $objCoupon->minimum_amount, Currency::getActiveCurrencyCode()));
+                    $objCoupon->minimum_amount, \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()));
             }
             return null;
         }
@@ -1395,7 +1395,7 @@ class Coupon
         return sprintf(
             $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_STRING_FORMAT'],
             Currency::formatPrice($discount_amount),
-            Currency::getActiveCurrencyCode());
+            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
     }
 
 
@@ -1437,7 +1437,7 @@ class Coupon
 
         return sprintf(
             $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL_STRING_FORMAT'],
-            Currency::formatPrice($amount), Currency::getActiveCurrencyCode()
+            Currency::formatPrice($amount), \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
         );
     }
 

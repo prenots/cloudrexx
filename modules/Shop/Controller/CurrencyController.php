@@ -196,6 +196,22 @@ class CurrencyController
     }
 
     /**
+     * Returns the active currency code
+     *
+     * This usually corresponds to the ISO 4217 code for the Currency,
+     * like CHF, or USD.
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @access  public
+     * @static
+     * @return  string      The string representing the active currency code
+     */
+    static function getActiveCurrencyCode()
+    {
+        if (!is_array(self::$arrCurrency)) self::init();
+        return self::$arrCurrency[self::$activeCurrencyId]['code'];
+    }
+
+    /**
      * Returns the array of known currencies
      *
      * The array is of the form

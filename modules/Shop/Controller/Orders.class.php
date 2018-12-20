@@ -1378,11 +1378,11 @@ if (!$limit) {
                             $str_options .=
                                 ' './/' ('.
                                 Currency::formatPrice($option_price).
-                                ' '.Currency::getActiveCurrencyCode()
+                                ' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
 //                                .')'
                                 ;
                             $option['PRODUCT_OPTIONS_PRICE'] = Currency::formatPrice($option_price);
-                            $option['PRODUCT_OPTIONS_CURRENCY'] = Currency::getActiveCurrencyCode();
+                            $option['PRODUCT_OPTIONS_CURRENCY'] = \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode();
                         }
                         $optionValues[] = $option;
                     }
