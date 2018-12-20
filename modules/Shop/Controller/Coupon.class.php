@@ -1084,11 +1084,11 @@ class Coupon
             'end_time' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_END_TIME'],
             'minimum_amount' => sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_FORMAT'],
-                Currency::getDefaultCurrencyCode()),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'discount_rate' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_RATE'],
             'discount_amount' => sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'],
-                Currency::getDefaultCurrencyCode()),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'uses' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_USES'],
             'global' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_SCOPE'],
             'customer_id' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CUSTOMER'],
@@ -1102,11 +1102,11 @@ class Coupon
             'TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_CURRENCY' =>
                 sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_FORMAT'],
-                    Currency::getDefaultCurrencyCode()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'TXT_SHOP_DISCOUNT_COUPON_AMOUNT_CURRENCY' =>
                 sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'],
-                    Currency::getDefaultCurrencyCode()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
             'TXT_SHOP_DISCOUNT_COUPON_ADD_OR_EDIT' =>
                 $_ARRAYLANG[$edit
                     ? 'TXT_SHOP_DISCOUNT_COUPON_EDIT'

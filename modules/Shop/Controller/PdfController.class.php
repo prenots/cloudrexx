@@ -209,7 +209,7 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $objInit->backendLangId = $pricelist->getLangId();
         $_ARRAYLANG = $objInit->loadLanguageData('Shop');
-        \Cx\Modules\Shop\Controller\Currency::setActiveCurrencyId($currencyId, $pricelist->getLangId());
+        \Cx\Modules\Shop\Controller\CurrencyController::setActiveCurrencyId($currencyId, $pricelist->getLangId());
         $currency_symbol = Currency::getActiveCurrencySymbol();
         $category_ids = $repo->getCategoryIdsByPricelist($pricelist);
         if ($pricelist->getAllCategories()) $category_ids = array();

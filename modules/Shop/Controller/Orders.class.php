@@ -692,7 +692,7 @@ if (!$limit) {
             // Product statistc
             while (!$objResult->EOF) {
                 // set currency id
-                Currency::setActiveCurrencyId($objResult->fields['currency_id']);
+                \Cx\Modules\Shop\Controller\CurrencyController::setActiveCurrencyId($objResult->fields['currency_id']);
                 $key = $objResult->fields['id'];
                 if (!isset($arrayResults[$key])) {
                     $arrayResults[$key] = array(
@@ -725,7 +725,7 @@ if (!$limit) {
         } elseif ($selectedStat == 3) {
             // Customer statistic
             while (!$objResult->EOF) {
-                Currency::setActiveCurrencyId($objResult->fields['currency_id']);
+                \Cx\Modules\Shop\Controller\CurrencyController::setActiveCurrencyId($objResult->fields['currency_id']);
                 $key = $objResult->fields['id'];
                 if (!isset($arrayResults[$key])) {
                     $objUser = \FWUser::getFWUserObject()->objUser;

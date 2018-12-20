@@ -102,48 +102,6 @@ class Currency
 
 
     /**
-     * Returns the default currency code
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the default currency code
-     */
-    static function getDefaultCurrencyCode()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$defaultCurrencyId]['code'];
-    }
-
-
-    /**
-     * Returns the active currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  integer     The ID of the active currency
-     */
-    static function getActiveCurrencyId()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$activeCurrencyId;
-    }
-
-
-    /**
-     * Set the active currency ID
-     * @param   integer     $currency_id    The active Currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     */
-    static function setActiveCurrencyId($currency_id)
-    {
-        if (!is_array(self::$arrCurrency)) self::init($currency_id);
-        self::$activeCurrencyId = $currency_id;
-    }
-
-
-    /**
      * Returns the active currency symbol
      *
      * This is a custom Currency name that does not correspond to any
