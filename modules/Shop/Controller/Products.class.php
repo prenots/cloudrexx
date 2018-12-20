@@ -1087,12 +1087,12 @@ class Products
                     $strJsArrPrice .=
                         ($strJsArrPrice ? ',' : '').
                         // Count followed by price
-                        $count.','.Currency::getCurrencyPrice($discountPrice);
+                        $count.','.\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($discountPrice);
                 }
             }
             $strJsArrPrice .=
                 ($strJsArrPrice ? ',' : '').
-                '0,'.Currency::getCurrencyPrice($price);
+                '0,'.\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($price);
             $strJsArrProduct .=
                 'arrProducts['.$id.'] = {'.
                 'id:'.$id.','.

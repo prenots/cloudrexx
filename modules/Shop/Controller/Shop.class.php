@@ -1753,7 +1753,7 @@ die("Failed to update the Cart!");
                     'TXT_SHOP_PRICE_TODAY' =>
                         $_ARRAYLANG['TXT_SHOP_PRICE_TODAY'],
                     'SHOP_PRICE_TODAY' =>
-                        Currency::getCurrencyPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice(
                             $objProduct->getDiscountedPrice()
                         ),
                     'SHOP_PRICE_TODAY_UNIT' =>
@@ -2128,7 +2128,7 @@ die("Failed to update the Cart!");
                         if ($arrOption['price'] != 0) {
                             $pricePrefix = $arrOption['price'] > 0 ? '+' : '';
                             $option_price =
-                                '&nbsp;('.$pricePrefix.Currency::getCurrencyPrice($arrOption['price']).
+                                '&nbsp;('.$pricePrefix.\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($arrOption['price']).
                                 '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol().')';
                         }
                         // mark the option value as selected if it was before
@@ -2436,7 +2436,7 @@ die("Failed to update the Cart!");
         $shipmentPrice = Shipment::calculateShipmentPrice(
             $shipperId, $price, $weight
         );
-        return Currency::getCurrencyPrice($shipmentPrice);
+        return \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($shipmentPrice);
     }
 
 
@@ -2458,7 +2458,7 @@ die("Failed to update the Cart!");
            || $totalPrice < Payment::getProperty($payment_id, 'free_from')) {
             $paymentPrice = Payment::getProperty($payment_id, 'fee');
         }
-        return Currency::getCurrencyPrice($paymentPrice);
+        return \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($paymentPrice);
     }
 
 

@@ -238,6 +238,27 @@ class CurrencyController
     }
 
     /**
+     * Returns the amount converted from the default to the active currency
+     *
+     * Note that the amount is rounded to five cents before formatting.
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @access  public
+     * @static
+     * @param   double  $price  The amount in default currency
+     * @return  string          Formatted amount in the active currency
+     * @todo    In case that the {@link formatPrice()} function is localized,
+     *          the returned value *MUST NOT* be treated as a number anymore!
+     */
+    static function getCurrencyPrice($price)
+    {
+        if (!is_array(self::$arrCurrency)) self::init();
+        $rate = self::$arrCurrency[self::$activeCurrencyId]['rate'];
+        $increment = self::$arrCurrency[self::$activeCurrencyId]['increment'];
+        if ($increment <= 0) $increment = 0.01;
+        return self::formatPrice(round($price*$rate/$increment)*$increment);
+    }
+
+    /**
      * Returns the array of known currencies
      *
      * The array is of the form
