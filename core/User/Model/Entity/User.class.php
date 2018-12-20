@@ -32,7 +32,6 @@
  * @author      Dario Graf <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_user
- * @version     5.0.3
  */
 namespace Cx\Core\User\Model\Entity;
 
@@ -43,7 +42,6 @@ namespace Cx\Core\User\Model\Entity;
  * @author      Dario Graf <info@cloudrexx.com>
  * @package     cloudrexx
  * @subpackage  core_user
- * @version     5.0.3
  */
 class User extends \Cx\Model\Base\EntityBase {
     /**
@@ -587,6 +585,7 @@ class User extends \Cx\Model\Base\EntityBase {
     {
         return $this->profileAccess;
     }
+
 
     /**
      * Set restoreKey
