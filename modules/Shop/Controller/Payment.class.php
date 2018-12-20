@@ -597,7 +597,7 @@ class Payment
                 \Cx\Core\Setting\Controller\Setting::getValue('paypal_default_currency','Shop')),
             // LSV settings
             'SHOP_PAYMENT_LSV_STATUS' => (\Cx\Core\Setting\Controller\Setting::getValue('payment_lsv_active','Shop') ? \Html::ATTRIBUTE_CHECKED : ''),
-            'SHOP_PAYMENT_DEFAULT_CURRENCY' => Currency::getDefaultCurrencySymbol(),
+            'SHOP_PAYMENT_DEFAULT_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
                 \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
         ));

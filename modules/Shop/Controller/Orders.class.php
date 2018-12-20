@@ -400,7 +400,7 @@ class Orders
             'SHOP_ACTION_URI_SEARCH_ENCODED' => $uri_search,
             'SHOP_ACTION_URI_ENCODED' => $uri,
             'SHOP_ACTION_URI' => html_entity_decode($uri),
-            'SHOP_CURRENCY', Currency::getDefaultCurrencySymbol()
+            'SHOP_CURRENCY', \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol()
         ));
         $count = 0;
         $limit = \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop');
@@ -789,7 +789,7 @@ if (!$limit) {
                     'SHOP_COLUMN_3' => $entry['column3'],
                     'SHOP_COLUMN_4' =>
                         Currency::formatPrice($entry['column4']).' '.
-                        Currency::getDefaultCurrencySymbol(),
+                        \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
                 ));
                 $objTemplate->parse('statisticRow');
             }
@@ -851,18 +851,18 @@ if (!$limit) {
             'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
             'SHOP_TOTAL_SUM' =>
                 Currency::formatPrice($totalOrderSum).' '.
-                Currency::getDefaultCurrencySymbol(),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_MONTH' => $bestMonthDate,
             'SHOP_MONTH_SUM' =>
                 Currency::formatPrice($bestMonthSum).' '.
-                Currency::getDefaultCurrencySymbol(),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_TOTAL_ORDERS' => $totalOrders,
             'SHOP_SOLD_ARTICLES' => $totalSoldProducts,
             'SHOP_SUM_COLUMN_2' => $sumColumn2,
             'SHOP_SUM_COLUMN_3' => $sumColumn3,
             'SHOP_SUM_COLUMN_4' =>
                 Currency::formatPrice($sumColumn4).' '.
-                Currency::getDefaultCurrencySymbol(),
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
         ));
         return true;
     }

@@ -776,7 +776,7 @@ class Attributes
                 '<option value="'.$option_id.'"'.
                 ($selected_id == $option_id ? ' selected="selected"' : '').'>'.
                 $arrValue['value'].' ('.$arrValue['price'].' '.
-                Currency::getDefaultCurrencySymbol().')</option>'."\n";
+                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().')</option>'."\n";
         }
         $menu .=
             '</select><br /><a href="javascript:{}" '.

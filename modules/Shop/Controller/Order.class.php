@@ -1750,7 +1750,7 @@ class Order
                     ? \Html::ATTRIBUTE_CHECKED : '')
                 : ''),
             'SHOP_ORDER_SUM' => Currency::formatPrice($objOrder->sum()),
-            'SHOP_DEFAULT_CURRENCY' => Currency::getDefaultCurrencySymbol(),
+            'SHOP_DEFAULT_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_GENDER' => ($edit
                 ? Customer::getGenderMenu(
                     $objOrder->billing_gender(), 'billing_gender')

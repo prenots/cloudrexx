@@ -851,7 +851,7 @@ class ShopManager extends ShopLibrary
                     0, 0, 'updateOptionList(0)'),
             'SHOP_PRODUCT_ATTRIBUTE_JS_VARS' =>
                 Attributes::getAttributeJSVars(),
-            'SHOP_PRODUCT_ATTRIBUTE_CURRENCY' => Currency::getDefaultCurrencySymbol(),
+            'SHOP_PRODUCT_ATTRIBUTE_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
             'SHOP_PAGING' => \Paging::get($uri_param,
                 $_ARRAYLANG['TXT_PRODUCT_CHARACTERISTICS'], $count, $limit),
         ));
@@ -890,7 +890,7 @@ class ShopManager extends ShopLibrary
                     'SHOP_PRODUCTS_ATTRIBUTE_ID' => $attribute_id,
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_ID' => $option_id,
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_TEXT' => $arrOption['value'].
-                        ' ('.$arrOption['price'].' '.Currency::getDefaultCurrencySymbol().')',
+                        ' ('.$arrOption['price'].' '.\Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().')',
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_SELECTED' => ($valueSelected ? \Html::ATTRIBUTE_CHECKED : ''),
                 ));
                 self::$objTemplate->parse('optionList');
@@ -1187,7 +1187,7 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
             'settings_block', 'module_shop_settings_shipment.html');
         self::$objTemplate->setGlobalVariable(
-            'SHOP_CURRENCY', Currency::getDefaultCurrencySymbol()
+            'SHOP_CURRENCY', \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol()
         );
         $arrShipments = Shipment::getShipmentsArray();
         $i = 0;
@@ -2824,7 +2824,7 @@ if ($test === NULL) {
                 'SHOP_ORDER_STATUS' =>
                     $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->status()],
                 'SHOP_ORDER_SUM' =>
-                    Currency::getDefaultCurrencySymbol().' '.
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().' '.
                     Currency::getDefaultCurrencyPrice($order->sum()),
             ));
             self::$objTemplate->parse('orderRow');
