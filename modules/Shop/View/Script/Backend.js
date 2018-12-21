@@ -44,14 +44,18 @@ cx.bind("delete", function (deleteIds) {
 
 function toggle_header()
 {
-    var disp = (document.getElementsByName('headerOn')[0].checked ? "block" : "none");
-    document.getElementById('headerLeft').parentNode.parentElement.parentElement.style.display = disp;
+    if (document.getElementsByName('headerOn')[0]) {
+        var disp = (document.getElementsByName('headerOn')[0].checked ? "block" : "none");
+        document.getElementById('headerLeft').parentNode.parentElement.parentElement.style.display = disp;
+    }
 }
 
 function toggle_footer()
 {
-    var disp = (document.getElementsByName('footerOn')[0].checked ? "block" : "none");
-    document.getElementById('footerLeft').parentNode.parentElement.parentElement.style.display = disp;
+    if (document.getElementsByName('footerOn')[0]) {
+        var disp = (document.getElementsByName('footerOn')[0].checked ? "block" : "none");
+        document.getElementById('footerLeft').parentNode.parentElement.parentElement.style.display = disp;
+    }
 }
 
 function toggle_categories(status)
@@ -86,14 +90,14 @@ jQuery(document).ready(function($){
     toggle_footer();
     toggle_categories(true);
 
-
-    document.getElementById('headerRight').value = document.getElementById('form-0-headerRight').value;
-    document.getElementById('footerRight').value = document.getElementById('form-0-footerRight').value;
-
-    document.getElementById('headerRight').onchange = function () {
-        document.getElementById('form-0-headerRight').value = document.getElementById('headerRight').value
-    };
-    document.getElementById('footerRight').onchange = function () {
-        document.getElementById('form-0-footerRight').value = document.getElementById('footerRight').value
-    };
+    if (document.getElementById('headerRight') && document.getElementById('footerRight')) {
+        document.getElementById('headerRight').value = document.getElementById('form-0-headerRight').value;
+        document.getElementById('footerRight').value = document.getElementById('form-0-footerRight').value;
+        document.getElementById('headerRight').onchange = function () {
+            document.getElementById('form-0-headerRight').value = document.getElementById('headerRight').value
+        };
+        document.getElementById('footerRight').onchange = function () {
+            document.getElementById('form-0-footerRight').value = document.getElementById('footerRight').value
+        };
+    }
 });
