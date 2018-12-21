@@ -615,8 +615,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             return $this->generateOrderItemView();
                         },
                         'storecallback' => function($value, $entity) {
-                            $entityRepo = new \Cx\Modules\Shop\Model\Repository\OrderItemsRepository();
-                            $entityRepo->save($value, $entity);
+                            $this->cx->getDb()->getEntityManager()->getRepository(
+                                'Cx\Modules\Shop\Model\Entity\OrderItem'
+                            )->save($value, $entity);
                         },
                     ),
                     'relCustomerCoupons' => array(
