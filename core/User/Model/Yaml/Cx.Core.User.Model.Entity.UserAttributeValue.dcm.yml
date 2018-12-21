@@ -16,6 +16,8 @@ Cx\Core\User\Model\Entity\UserAttributeValue:
       type: integer
       column: user_id
       associationKey: true
+      options:
+        unsigned: true
     history:
       id: true
       type: integer
