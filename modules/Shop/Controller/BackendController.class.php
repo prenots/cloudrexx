@@ -650,7 +650,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'readonly' => true,
                         'type' => 'input',
                     ),
-                    'currencies' => array(
+                    'currency' => array(
                         'showOverview' => false,
                         'showDetail' => false,
                         'allowFiltering' => false,
@@ -1232,7 +1232,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return;
         }
 
-        $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItems';
+        $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItem';
         $tableConfig['criteria'] = array('orderId' => $this->orderId);
 
         $orderItems = $this->cx->getDb()->getEntityManager()->getRepository(
@@ -1243,7 +1243,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             '\Cx\Modules\Shop\Model\Entity\Order'
         )->findOneBy(array('id' => $this->orderId));
 
-        $currency = $order->getCurrencies()->getCode();
+        $currency = $order->getCurrency()->getCode();
 
         $tableConfig['header'] = array(
             'quantity' => array(
@@ -1392,7 +1392,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $validValues[0] = '-';
                 $products = $this->cx->getDb()->getEntityManager()
                     ->getRepository(
-                        '\Cx\Modules\Shop\Model\Entity\Products'
+                        '\Cx\Modules\Shop\Model\Entity\Product'
                     )->findAll();
 
                 foreach ($products as $product) {
@@ -1589,7 +1589,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         global $_ARRAYLANG;
 
         $shipper = new \Cx\Modules\Shop\Model\Entity\Shipper();
-        $products = new \Cx\Modules\Shop\Model\Entity\Products();
+        $products = new \Cx\Modules\Shop\Model\Entity\Product();
         $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
 
         $isReseller = $customer->isReseller();

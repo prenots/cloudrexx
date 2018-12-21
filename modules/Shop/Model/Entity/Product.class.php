@@ -1104,14 +1104,14 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
                     ($strJsArrPrice ? ',' : '')
                     // Count followed by price
                     .$count.','
-                    .\Cx\Modules\Shop\Model\Entity\Currencies::getCurrencyPrice(
+                    .\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice(
                         $discountPrice
                     );
             }
 
             $strJsArrPrice .=
                 ($strJsArrPrice ? ',' : '').
-                '0,'.\Cx\Modules\Shop\Model\Entity\Currencies::getCurrencyPrice($price);
+                '0,'.\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($price);
 
             $strJsArrProduct .=
                 '"'.$id.'": {'.

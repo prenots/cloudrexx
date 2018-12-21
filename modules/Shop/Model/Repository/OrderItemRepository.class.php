@@ -35,7 +35,7 @@ class OrderItemRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
 
-            $orderItem->setOrders($order);
+            $orderItem->setOrder($order);
 
             foreach ($settersAndIds['setters'] as $key => $setter) {
 
@@ -44,13 +44,13 @@ class OrderItemRepository extends \Doctrine\ORM\EntityRepository
                 // get product name and set product relation
                 if ($key == 'product_product_name') {
                     $product = $this->_em->getRepository(
-                        '\Cx\Modules\Shop\Model\Entity\Products'
+                        '\Cx\Modules\Shop\Model\Entity\Product'
                     )->findOneBy(
                         array(
                             'id' => $values['product_product_id-'. $orderItemId]
                         )
                     );
-                    $orderItem->setProducts($product);
+                    $orderItem->setProduct($product);
                     $value = $product->getName();
                 }
                 $orderItem->$setter($value);

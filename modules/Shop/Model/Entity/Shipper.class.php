@@ -298,10 +298,10 @@ class Shipper extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
                     \Cx\Modules\Shop\Controller\Weight::getWeightString(
                         $shipmentCost[$index]->getMaxWeight()
                     ).'","' .
-                    \Cx\Modules\Shop\Model\Entity\Currencies::getCurrencyPrice(
+                    \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice(
                         $shipmentCost[$index]->getFreeFrom()
                     ). '","' .
-                    \Cx\Modules\Shop\Model\Entity\Currencies::getCurrencyPrice(
+                    \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice(
                         $shipmentCost[$index]->getFee()
                     ) . '"]';
                 if (!empty($index)) {
