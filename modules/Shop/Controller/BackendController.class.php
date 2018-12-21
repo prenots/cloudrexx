@@ -1506,11 +1506,17 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 '-' . $couponRel->getAmount(),
                 'input'
             );
+            $discountCoupon = $this->cx->getDb()->getEntityManager()->getRepository(
+                '\Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+            )->findOneBy(
+                array(
+                    'code' => $couponRel->getCode(),
+                )
+            );
             $input->setAttributes(
                 array(
                     'id' => 'coupon-amount',
-                    'data-rate' => $couponRel->getDiscountCoupon()
-                        ->getDiscountRate(),
+                    'data-rate' => $discountCoupon->getDiscountRate(),
                     'readonly' => 'readonly'
                 )
             );
