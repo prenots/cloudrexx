@@ -16,17 +16,9 @@ FROM INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'contrexx_access_user_profile'
 GROUP BY COLUMN_NAME;
 
-<<<<<<< HEAD
-ALTER TABLE contrexx_access_user_attribute CHANGE access_id access_id INT DEFAULT NULL, CHANGE read_access_id read_access_id INT DEFAULT NULL;
-UPDATE `contrexx_access_user_attribute` SET `access_id`= null WHERE `access_id` = 0;
-UPDATE `contrexx_access_user_attribute` SET `read_access_id`= null WHERE `read_access_id` = 0;
-
-INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (NULL, 'menu_option', NULL, 1, 'title-w');
-INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (NULL, 'menu_option', NULL, 1, 'title-m');
-=======
 INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (0, 'menu_option', 0, 1, 'title-w');
 INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (0, 'menu_option', 0, 1, 'title-m');
->>>>>>> parent of 2e148e4b86... fix(user): set accessId and readAccessId to null (CLX-2253)
+
 UPDATE contrexx_access_user_attribute as userattr SET parent_id =  (SELECT ua.id FROM (SELECT * FROM contrexx_access_user_attribute)AS ua WHERE ua.tmp_name = 'title') WHERE userattr.tmp_name = 'title-w' OR userattr.tmp_name = 'title-m';
 UPDATE contrexx_access_user_attribute SET type = 'menu' WHERE tmp_name = 'title';
 
@@ -307,6 +299,17 @@ JOIN contrexx_access_user_attribute_value as value on value.user_id = user.id
 JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.attribute_id
 WHERE name.name = 'picture' AND lang_id = 0 AND value.user_id = users.id) AS 'picture'
 FROM contrexx_access_users AS users);
+
+/*Alter table access_users unsigned*/
+ALTER TABLE dev.contrexx_access_rel_user_group DROP FOREIGN KEY FK_401DFD43A76ED395;
+ALTER TABLE dev.contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
+
+ALTER TABLE contrexx_access_users CHANGE id id INT UNSIGNED AUTO_INCREMENT NOT NULL, CHANGE auth_token_timeout auth_token_timeout INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE regdate regdate INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE expiration expiration INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE validity validity INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE last_auth last_auth INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE last_activity last_activity INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE frontend_lang_id frontend_lang_id INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE backend_lang_id backend_lang_id INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE primary_group primary_group INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE restore_key_time restore_key_time INT UNSIGNED DEFAULT 0 NOT NULL;
+ALTER TABLE contrexx_access_rel_user_group CHANGE user_id user_id INT UNSIGNED NOT NULL;
+ALTER TABLE contrexx_access_user_attribute_value CHANGE user_id user_id INT UNSIGNED NOT NULL;
+
+ALTER TABLE contrexx_access_rel_user_group ADD CONSTRAINT FK_401DFD43A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
+ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id) ON DELETE RESTRICT;
 
 /*Add unique index to access_user_attribute_name*/
 ALTER TABLE contrexx_access_user_attribute_name DROP PRIMARY KEY;
