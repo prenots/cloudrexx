@@ -16,12 +16,17 @@ FROM INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'contrexx_access_user_profile'
 GROUP BY COLUMN_NAME;
 
+<<<<<<< HEAD
 ALTER TABLE contrexx_access_user_attribute CHANGE access_id access_id INT DEFAULT NULL, CHANGE read_access_id read_access_id INT DEFAULT NULL;
 UPDATE `contrexx_access_user_attribute` SET `access_id`= null WHERE `access_id` = 0;
 UPDATE `contrexx_access_user_attribute` SET `read_access_id`= null WHERE `read_access_id` = 0;
 
 INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (NULL, 'menu_option', NULL, 1, 'title-w');
 INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (NULL, 'menu_option', NULL, 1, 'title-m');
+=======
+INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (0, 'menu_option', 0, 1, 'title-w');
+INSERT INTO `contrexx_access_user_attribute`(`access_id`, `type`, `read_access_id`, `is_default`, `tmp_name`) VALUES (0, 'menu_option', 0, 1, 'title-m');
+>>>>>>> parent of 2e148e4b86... fix(user): set accessId and readAccessId to null (CLX-2253)
 UPDATE contrexx_access_user_attribute as userattr SET parent_id =  (SELECT ua.id FROM (SELECT * FROM contrexx_access_user_attribute)AS ua WHERE ua.tmp_name = 'title') WHERE userattr.tmp_name = 'title-w' OR userattr.tmp_name = 'title-m';
 UPDATE contrexx_access_user_attribute SET type = 'menu' WHERE tmp_name = 'title';
 
