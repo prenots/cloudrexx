@@ -43,7 +43,19 @@ namespace Cx\Core\User\Model\Entity;
  * @package     cloudrexx
  * @subpackage  core_user
  */
-class UserAttributeName extends \Cx\Model\Base\EntityBase {
+class UserAttributeName extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable{
+    /**
+     * @Gedmo\Locale
+     * Used locale to override Translation listener`s locale
+     * this is not a mapped field of entity metadata, just a simple property
+     */
+    protected $locale;
+
+    /**
+     * @var integer
+     */
+    protected $id;
+
     /**
      * @var integer
      */
@@ -75,6 +87,15 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     protected $userAttribute;
 
     /**
+     * Set translatable locale
+     * @param \Gedmo\Locale $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        $this->locale = $locale;
+    }
+
+    /**
      * Get id
      *
      * @return integer
@@ -88,7 +109,6 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
      * Set attributeId
      *
      * @param integer $attributeId
-     * @return UserAttributeName
      */
     public function setAttributeId($attributeId)
     {
@@ -98,7 +118,7 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     /**
      * Get attributeId
      *
-     * @return integer 
+     * @return integer
      */
     public function getAttributeId()
     {
@@ -119,7 +139,7 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     /**
      * Get langId
      *
-     * @return integer 
+     * @return integer
      */
     public function getLangId()
     {
@@ -140,7 +160,7 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -181,7 +201,7 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
     /**
      * Get userAttribute
      *
-     * @return \Cx\Core\User\Model\Entity\UserAttribute 
+     * @return \Cx\Core\User\Model\Entity\UserAttribute
      */
     public function getUserAttribute()
     {
