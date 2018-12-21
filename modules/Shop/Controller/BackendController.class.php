@@ -605,23 +605,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showOverview' => false,
                         'allowFiltering' => false,
                     ),
-                    'lsvs' => array(
-                        'showOverview' => false,
-                        'allowFiltering' => false,
-                        'formfield' => function (
-                            $fieldname, $fieldtype, $fieldlength, $fieldvalue,
-                            $fieldoptions
-                        ) {
-                            return $this->generateLsvs($fieldvalue);
-                        },
-                        'storecallback' => function($value, $entity) {
-                            $repo = $this->cx->getDb()->getEntityManager()
-                                ->getRepository(
-                                    '\Cx\Modules\Shop\Model\Entity\Lsv'
-                                );
-                            $repo->save($value, $entity->getId());
-                        }
-                    ),
                     'orderItems' => array(
                         'showOverview' => false,
                         'allowFiltering' => false,
@@ -687,6 +670,36 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         },
                     )
                 );
+                $order = new \Cx\Modules\Shop\Model\Entity\Order();
+                if (!empty($this->orderId)) {
+                    $order = $this->cx->getDb()->getEntityManager()->getRepository(
+                        '\Cx\Modules\Shop\Model\Entity\Order'
+                    )->findOneBy(array('id' => $this->orderId));
+                }
+                if (!empty($order) && count($order->getLsvs()) > 0) {
+                    $options['fields']['lsvs'] = array(
+                        'showOverview' => false,
+                        'allowFiltering' => false,
+                        'formfield' => function (
+                            $fieldname, $fieldtype, $fieldlength, $fieldvalue,
+                            $fieldoptions
+                        ) {
+                            return $this->generateLsvs($fieldvalue);
+                        },
+                        'storecallback' => function($value, $entity) {
+                            $repo = $this->cx->getDb()->getEntityManager()
+                                ->getRepository(
+                                    '\Cx\Modules\Shop\Model\Entity\Lsv'
+                                );
+                            $repo->save($value, $entity->getId());
+                        }
+                    );
+                } else {
+                    $options['fields']['lsvs'] = array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    );
+                }
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
                 $options['order']['overview'] = array(
