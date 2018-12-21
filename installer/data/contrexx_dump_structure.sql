@@ -17,7 +17,7 @@ CREATE TABLE `contrexx_access_id` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_rel_user_group` (
-  `user_id` int NOT NULL,
+  `user_id` int unsigned NOT NULL,
   `group_id` int NOT NULL,
   PRIMARY KEY (`user_id`,`group_id`),
   INDEX `contrexx_access_rel_user_group_user_id_ibfk` (`user_id`),
@@ -56,7 +56,7 @@ CREATE TABLE `contrexx_access_user_attribute_name` (
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_attribute_value` (
   `attribute_id` int NOT NULL,
-  `user_id` int NOT NULL,
+  `user_id` int unsigned NOT NULL,
   `history_id` int NOT NULL DEFAULT '0',
   `value` text NOT NULL,
   PRIMARY KEY (`attribute_id`, `user_id`, `history_id`),
@@ -96,28 +96,28 @@ CREATE TABLE `contrexx_access_user_validity` (
   PRIMARY KEY (`validity`)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_users` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `is_admin` tinyint(1) NOT NULL DEFAULT '0',
   `username` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `auth_token` varchar(32) NOT NULL,
-  `auth_token_timeout` int NOT NULL DEFAULT '0',
-  `regdate` int NOT NULL DEFAULT '0',
-  `expiration` int NOT NULL DEFAULT '0',
-  `validity` int NOT NULL DEFAULT '0',
-  `last_auth` int NOT NULL DEFAULT '0',
+  `auth_token_timeout` int unsigned NOT NULL DEFAULT '0',
+  `regdate` int unsigned NOT NULL DEFAULT '0',
+  `expiration` int unsigned NOT NULL DEFAULT '0',
+  `validity` int unsigned NOT NULL DEFAULT '0',
+  `last_auth` int unsigned NOT NULL DEFAULT '0',
   `last_auth_status` smallint NOT NULL DEFAULT '1',
-  `last_activity` int NOT NULL DEFAULT '0',
+  `last_activity` int unsigned NOT NULL DEFAULT '0',
   `email` varchar(255) DEFAULT NULL,
   `email_access` enum('everyone','members_only','nobody') NOT NULL DEFAULT 'nobody',
-  `frontend_lang_id` int NOT NULL DEFAULT '0',
-  `backend_lang_id` int NOT NULL DEFAULT '0',
+  `frontend_lang_id` int unsigned NOT NULL DEFAULT '0',
+  `backend_lang_id` int unsigned NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `verified` tinyint(1) NOT NULL DEFAULT '1',
-  `primary_group` int NOT NULL DEFAULT '0',
+  `primary_group` int unsigned NOT NULL DEFAULT '0',
   `profile_access` enum('everyone','members_only','nobody') NOT NULL DEFAULT 'members_only',
   `restore_key` varchar(32) NOT NULL DEFAULT '',
-  `restore_key_time` int NOT NULL DEFAULT '0',
+  `restore_key_time` int unsigned NOT NULL DEFAULT '0',
   `u2u_active` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `username` (`username`)
