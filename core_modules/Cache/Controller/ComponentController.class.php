@@ -477,11 +477,8 @@ Cache clear all';
                         if (!extension_loaded('memcached')) {
                             dl('memcached');
                         }
-                        $droppedKeys = $this->cache->clearMemcached();
-                        echo $droppedKeys . ' keys dropped from Memcached' . "\n";
-                        return;
                     }
-                    $this->cache->_deleteAllFiles($options);
+                    $this->cache->forceClearCache($options);
                     break;
                 }
                 $this->cache->_deleteAllFiles();

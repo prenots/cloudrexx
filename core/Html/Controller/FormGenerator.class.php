@@ -345,15 +345,14 @@ class FormGenerator {
                     if ($mode == 'associate') {
                         // get all currently assigned entities
                         $values = array();
-                        if ($entityId != 0) {
-                            // if we edit the main form, we also want to show the existing associated values we already have
-                            $assocMapping = $localMetaData->getAssociationMapping($name);
-                            $data = $this->getForeignEntitySelectOptionData($assocMapping, $associatedClass, $entityId, $options, true);
-                            $values = $data['all'];
-                        }
+                        // if we edit the main form, we also want to show the existing associated values we already have
+                        $assocMapping = $localMetaData->getAssociationMapping($name);
+                        $data = $this->getForeignEntitySelectOptionData($assocMapping, $associatedClass, $entityId, $options, true);
+                        $values = $data['all'];
                         if (!count($values)) {
                             $values = array('');
                         }
+                        $_ARRAYLANG += \Env::get('init')->getComponentSpecificLanguageData('Html', false);
                         // get all assigned entities (by ajax?)
                         // add chosen
                         $select = new \Cx\Core\Html\Model\Entity\DataElement(
@@ -369,6 +368,7 @@ class FormGenerator {
                             }
                         }
                         $select->addClass('chzn');
+                        $select->setAttribute('data-placeholder', $_ARRAYLANG['TXT_CORE_HTML_PLEASE_CHOOSE']);
                         $select->setAttribute('multiple');
                         if (isset($options['attributes'])) {
                             $select->setAttributes($options['attributes']);
@@ -392,6 +392,9 @@ class FormGenerator {
                         if (!isset($_SESSION['vgOptions'])) {
                             $_SESSION['vgOptions'] = array();
                         }
+                        // This is extremely slow as it stores the complete
+                        // view-generator configuration to session. This should
+                        // be added as a reference
                         $_SESSION['vgOptions'][$this->entityClass] = $this->componentOptions;
                         if ($entityId != 0) {
                             // if we edit the main form, we also want to show the existing associated values we already have
@@ -857,9 +860,11 @@ CODE;
         $localEntityMetadata = $em->getClassMetadata($this->entityClass);
         $localEntityRepo = $em->getRepository($this->entityClass);
         $foreignEntityRepo = $em->getRepository($assocMapping['targetEntity']);
-        $localEntity = $localEntityRepo->find($entityId);
-        if (!$localEntity) {
-            throw new \Exception('Entity not found');
+        if ($entityId != 0) {
+            $localEntity = $localEntityRepo->find($entityId);
+            if (!$localEntity) {
+                throw new \Exception('Entity not found');
+            }
         }
 
         $methodBaseName = \Doctrine\Common\Inflector\Inflector::classify(
@@ -877,8 +882,10 @@ CODE;
         foreach ($allForeignEntities as $foreignEntity) {
             $data['all'][implode('/', static::getEntityIndexData($foreignEntity))] = (string) $foreignEntity;
         }
-        foreach ($localEntity->$foreignEntityGetter() as $foreignEntity) {
-            $data['selected'][implode('/', static::getEntityIndexData($foreignEntity))] = (string) $foreignEntity;
+        if ($entityId != 0) {
+            foreach ($localEntity->$foreignEntityGetter() as $foreignEntity) {
+                $data['selected'][implode('/', static::getEntityIndexData($foreignEntity))] = (string) $foreignEntity;
+            }
         }
         return $data;
     }
@@ -966,7 +973,6 @@ CODE;
             $displayValue = (string) $foreignEntity;
 
             $foreignEntityMetadata = \Env::get('em')->getClassMetadata(get_class($foreignEntity));
-            $foreignEntityIdentifierField = $foreignEntityMetadata->getSingleIdentifierFieldName();
             $entityValueSerialized = 'vg_increment_number=' . $this->formId;
             $fieldsToParse = $foreignEntityMetadata->fieldNames;
             foreach ($fieldsToParse as $dbColName=>$fieldName) {
@@ -993,6 +999,7 @@ CODE;
                     continue;
                 }
 
+                // get the second foreign entity (A->B->C)
                 $foreignForeignEntity = $foreignEntityMetadata->getFieldValue(
                     $foreignEntity,
                     $foreignAssocMapping['fieldName']
@@ -1000,15 +1007,21 @@ CODE;
                 if (!$foreignForeignEntity) {
                     continue;
                 }
-                $methodBaseName = \Doctrine\Common\Inflector\Inflector::classify(
-                    $foreignEntityIdentifierField
-                );
-                $foreignEntityIdentifierGetter = 'get' . $methodBaseName;
-                // N:N relations don't have a getter with that name
-                if (!method_exists($foreignForeignEntity, $foreignEntityIdentifierGetter)) {
-                    continue;
+
+                // add C's relation to B to the data
+                $joinColumns = $foreignAssocMapping['targetToSourceKeyColumns'];
+                // C.$targetColumn = B.$sourceColumn
+                foreach ($joinColumns as $targetColumn=>$sourceColumn) {
+                    $methodBaseName = \Doctrine\Common\Inflector\Inflector::classify(
+                        $targetColumn
+                    );
+                    $foreignEntityIdentifierGetter = 'get' . $methodBaseName;
+                    // N:N relations don't have a getter with that name
+                    if (!method_exists($foreignForeignEntity, $foreignEntityIdentifierGetter)) {
+                        continue;
+                    }
+                    $entityValueSerialized .= '&' . $foreignAssocMapping['fieldName'] . '=' . $foreignForeignEntity->$foreignEntityIdentifierGetter();
                 }
-                $entityValueSerialized .= '&' . $foreignAssocMapping['fieldName'] . '=' . $foreignForeignEntity->$foreignEntityIdentifierGetter();
             }
 
             $sorroundingDiv = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
