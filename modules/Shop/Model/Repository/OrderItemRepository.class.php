@@ -10,12 +10,6 @@ namespace Cx\Modules\Shop\Model\Repository;
  */
 class OrderItemRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function __construct()
-    {
-        $this->_entityName = '\Cx\Modules\Shop\Model\Entity\OrderItems';
-        $this->_em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-    }
-
     public function save($values, $order)
     {
         $settersAndIds = $this->getSettersAndIds($values);
