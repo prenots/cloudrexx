@@ -59,11 +59,6 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase implements \Gedmo\Tran
     /**
      * @var integer
      */
-    protected $id;
-
-    /**
-     * @var integer
-     */
     protected $attributeId = 0;
 
     /**
