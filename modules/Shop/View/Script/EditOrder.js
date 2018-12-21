@@ -1,4 +1,4 @@
-var scope = 'order';
+var scopeOrder = 'order';
 document.addEventListener('DOMContentLoaded', function () {
     for (var i = 0; i < getArrProduct().length; ++i) {
         calcPrice(getArrProduct()[i]['id']);
@@ -20,9 +20,9 @@ units = new Array('g', 'kg', 't', '');
 // factors -- match units above, defaults to gram
 facts = new Array(1, 1000, 1000000, 1);
 
-vat_included = cx.variables.get('VAT_INCLUDED', scope);
+vat_included = cx.variables.get('VAT_INCLUDED', scopeOrder);
 
-arrProducts = JSON.parse(cx.variables.get('PRODUCT_LIST', scope));
+arrProducts = JSON.parse(cx.variables.get('PRODUCT_LIST', scopeOrder));
 
 // get an array of all product IDs from the order
 // index => array ('id' => order_item_id, 'value' => product_id)
@@ -64,7 +64,7 @@ function changeProduct(orderItemId, newProductId)
         for (i = 0; i < arrProductId.length; ++i) {
             if (newProductId == arrProductId[i]['value']
                 && orderItemId != arrProductId[i]['id']) {
-                alert(cx.variables.get('TXT_PRODUCT_ALREADY_PRESENT',scope));
+                alert(cx.variables.get('TXT_PRODUCT_ALREADY_PRESENT',scopeOrder));
                 document.getElementById("product_product_name-"+orderItemId).selectedIndex =
                     document.getElementById("product_product_id-"+orderItemId).value;
                 return;
@@ -202,7 +202,7 @@ function updateShipment()
     // get the total weight
     var weight = getWeightGrams(document.getElementById("total-weight").value);
     // check shipments available by this shipper
-    var shipments = JSON.parse(cx.variables.get('SHIPPER_INFORMATION', scope))[sid]; //
+    var shipments = JSON.parse(cx.variables.get('SHIPPER_INFORMATION', scopeOrder))[sid]; //
     // find the best match for the current order weight and shipment cost.
     // arbitrary upper limit - we *SHOULD* be able to find one that's lower!
     // we'll just try to find the cheapest way to handle the delivery.
@@ -214,13 +214,14 @@ function updateShipment()
     var found = -1;
     // try all the available shipments;
     // (see Shipment.class.php::getJSArrays())
-
+console.log(shipments);
     for (var i = 0; i < shipments.length; ++i) {
         var price_free = shipments[i][2];
         var max_weight = getWeightGrams(shipments[i][1]);
         // get the shipment conditions that are closest to our order:
         // we have to make sure the maximum weight is big enough for the order,
         // or that it's unspecified (don't care)
+        console.log(max_weight);
         if ((max_weight > 0 && weight <= max_weight ) || max_weight == 0) {
             // if price_free is set, the order amount has to be higher than that
             // in order to get the shipping for free.
@@ -248,7 +249,7 @@ function updateShipment()
         document.getElementsByName("shipmentAmount")[0].value =
             Number(lowest_cost).toFixed(2);
     } else {
-        alert(cx.variables.get('TXT_WARNING_SHIPPER_WEIGHT',scope));
+        alert(cx.variables.get('TXT_WARNING_SHIPPER_WEIGHT',scopeOrder));
     }
 }
 
