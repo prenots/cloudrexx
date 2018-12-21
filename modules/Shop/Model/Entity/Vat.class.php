@@ -45,7 +45,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Vat extends \Cx\Model\Base\EntityBase {
+class Vat extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -183,6 +187,18 @@ class Vat extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
+    }
+
+    /**
      * Get id
      *
      * @return integer 
@@ -233,23 +249,23 @@ class Vat extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add products
+     * Add product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products[] = $products;
+        $this->products[] = $product;
     }
 
     /**
-     * Remove products
+     * Remove product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products->removeElement($products);
+        $this->products->removeElement($product);
     }
 
     /**

@@ -45,7 +45,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class CustomerGroup extends \Cx\Model\Base\EntityBase {
+class CustomerGroup extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -70,6 +74,21 @@ class CustomerGroup extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
+    }
+
+    /**
+>>>>>>> CLX-2421-migrate-core-text-attributes
      * Get id
      *
      * @return integer 
@@ -100,23 +119,23 @@ class CustomerGroup extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add relDiscountGroups
+     * Add relDiscountGroup
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
+     * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup
      */
-    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function addRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
-        $this->relDiscountGroups[] = $relDiscountGroups;
+        $this->relDiscountGroups[] = $relDiscountGroup;
     }
 
     /**
-     * Remove relDiscountGroups
+     * Remove relDiscountGroup
      *
      * @param \Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups
      */
-    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroups)
+    public function removeRelDiscountGroup(\Cx\Modules\Shop\Model\Entity\RelDiscountGroup $relDiscountGroup)
     {
-        $this->relDiscountGroups->removeElement($relDiscountGroups);
+        $this->relDiscountGroups->removeElement($relDiscountGroup);
     }
 
     /**

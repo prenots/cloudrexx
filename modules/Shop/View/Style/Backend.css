@@ -66,3 +66,25 @@
     padding-left: 0 !important;
     background: #fff;
 }
+
+td.manufacturer-id {
+    width: 3%;
+}
+td.manufacturer-name {
+    width: 20%;
+}
+td.manufacturer-uri {
+    width: 75%;
+}
+
+td.category-id {
+    width: 2%;
+}
+td.category-name {
+    width: 88%;
+}
+
+label.category {
+    display: block;
+}
+>>>>>>> CLX-2489-migrate-currency-view

@@ -63,9 +63,9 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
     protected $ord;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Products
+     * @var \Cx\Modules\Shop\Model\Entity\Product
      */
-    protected $products;
+    protected $product;
 
     /**
      * @var \Cx\Modules\Shop\Model\Entity\Option
@@ -134,23 +134,23 @@ class RelProductAttribute extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set products
+     * Set product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = null)
+    public function setProduct(\Cx\Modules\Shop\Model\Entity\Product $product = null)
     {
-        $this->products = $products;
+        $this->product = $product;
     }
 
     /**
-     * Get products
+     * Get product
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Products 
+     * @return \Cx\Modules\Shop\Model\Entity\Product
      */
-    public function getProducts()
+    public function getProduct()
     {
-        return $this->products;
+        return $this->product;
     }
 
     /**

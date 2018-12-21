@@ -47,7 +47,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Shipper extends \Cx\Model\Base\EntityBase {
+class Shipper extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -79,9 +83,9 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     protected $shipmentCosts;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var \Cx\Modules\Shop\Model\Entity\Zones
      */
-    protected $zones;
+    protected $zone;
 
     /**
      * Constructor
@@ -91,6 +95,18 @@ class Shipper extends \Cx\Model\Base\EntityBase {
         $this->orders = new \Doctrine\Common\Collections\ArrayCollection();
         $this->shipmentCosts = new \Doctrine\Common\Collections\ArrayCollection();
         $this->zones = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -164,23 +180,23 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add orders
+     * Add order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function addOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders[] = $orders;
+        $this->orders[] = $order;
     }
 
     /**
-     * Remove orders
+     * Remove order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Orders $order
      */
-    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders->removeElement($orders);
+        $this->orders->removeElement($order);
     }
 
     /**
@@ -194,23 +210,23 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add shipmentCosts
+     * Add shipmentCost
      *
-     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts
+     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost
      */
-    public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
+    public function addShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost)
     {
-        $this->shipmentCosts[] = $shipmentCosts;
+        $this->shipmentCosts[] = $shipmentCost;
     }
 
     /**
-     * Remove shipmentCosts
+     * Remove shipmentCost
      *
-     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts
+     * @param \Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost
      */
-    public function removeShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCosts)
+    public function removeShipmentCost(\Cx\Modules\Shop\Model\Entity\ShipmentCost $shipmentCost)
     {
-        $this->shipmentCosts->removeElement($shipmentCosts);
+        $this->shipmentCosts->removeElement($shipmentCost);
     }
 
     /**
@@ -224,33 +240,23 @@ class Shipper extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add zones
+     * Set zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
+     * @param \Cx\Modules\Shop\Model\Entity\Zone $zone
      */
-    public function addZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
+    public function setZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
-        $this->zones[] = $zones;
+        $this->zone = $zone;
     }
 
     /**
-     * Remove zones
+     * Get zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
+     * @return \Cx\Modules\Shop\Model\Entity\Zones
      */
-    public function removeZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
+    public function getZone()
     {
-        $this->zones->removeElement($zones);
-    }
-
-    /**
-     * Get zones
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getZones()
-    {
-        return $this->zones;
+        return $this->zone;
     }
 
     /**

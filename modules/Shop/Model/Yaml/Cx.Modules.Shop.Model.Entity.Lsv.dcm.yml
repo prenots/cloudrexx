@@ -16,8 +16,8 @@ Cx\Modules\Shop\Model\Entity\Lsv:
     blz:
       type: text
   manyToOne:
-    orders:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Orders
+    order:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Order
       inversedBy: lsvs
       joinColumn:
         name: order_id

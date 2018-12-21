@@ -46,7 +46,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Option extends \Cx\Model\Base\EntityBase {
+class Option extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -83,6 +87,18 @@ class Option extends \Cx\Model\Base\EntityBase {
     public function __construct()
     {
         $this->relProductAttributes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -156,23 +172,23 @@ class Option extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add relProductAttributes
+     * Add relProductAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute
      */
-    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function addRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
-        $this->relProductAttributes[] = $relProductAttributes;
+        $this->relProductAttributes[] = $relProductAttribute;
     }
 
     /**
-     * Remove relProductAttributes
+     * Remove relProductAttribute
      *
-     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes
+     * @param \Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute
      */
-    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttributes)
+    public function removeRelProductAttribute(\Cx\Modules\Shop\Model\Entity\RelProductAttribute $relProductAttribute)
     {
-        $this->relProductAttributes->removeElement($relProductAttributes);
+        $this->relProductAttributes->removeElement($relProductAttribute);
     }
 
     /**

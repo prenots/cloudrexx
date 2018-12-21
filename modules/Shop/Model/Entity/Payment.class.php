@@ -47,7 +47,12 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Payment extends \Cx\Model\Base\EntityBase {
+class Payment extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
+
     /**
      * @var integer
      */
@@ -96,7 +101,7 @@ class Payment extends \Cx\Model\Base\EntityBase {
     /**
      * @var \Cx\Modules\Shop\Model\Entity\PaymentProcessors
      */
-    protected $paymentProcessors;
+    protected $paymentProcessor;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -111,6 +116,18 @@ class Payment extends \Cx\Model\Base\EntityBase {
         $this->discountCoupons = new \Doctrine\Common\Collections\ArrayCollection();
         $this->orders = new \Doctrine\Common\Collections\ArrayCollection();
         $this->zones = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -246,23 +263,23 @@ class Payment extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add discountCoupons
+     * Add discountCoupon
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon
      */
-    public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
+    public function addDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
     {
-        $this->discountCoupons[] = $discountCoupons;
+        $this->discountCoupons[] = $discountCoupon;
     }
 
     /**
-     * Remove discountCoupons
+     * Remove discountCoupon
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon
      */
-    public function removeDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupons)
+    public function removeDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
     {
-        $this->discountCoupons->removeElement($discountCoupons);
+        $this->discountCoupons->removeElement($discountCoupon);
     }
 
     /**
@@ -276,23 +293,23 @@ class Payment extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add orders
+     * Add order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Orders $order
      */
-    public function addOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function addOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders[] = $orders;
+        $this->orders[] = $order;
     }
 
     /**
-     * Remove orders
+     * Remove order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Orders $orders)
+    public function removeOrder(\Cx\Modules\Shop\Model\Entity\Order $order)
     {
-        $this->orders->removeElement($orders);
+        $this->orders->removeElement($order);
     }
 
     /**
@@ -306,43 +323,43 @@ class Payment extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set paymentProcessors
+     * Set paymentProcessor
      *
-     * @param \Cx\Modules\Shop\Model\Entity\PaymentProcessors $paymentProcessors
+     * @param \Cx\Modules\Shop\Model\Entity\PaymentProcessor $paymentProcessor
      */
-    public function setPaymentProcessors(\Cx\Modules\Shop\Model\Entity\PaymentProcessors $paymentProcessors = null)
+    public function setPaymentProcessor(\Cx\Modules\Shop\Model\Entity\PaymentProcessor $paymentProcessor = null)
     {
-        $this->paymentProcessors = $paymentProcessors;
+        $this->paymentProcessor = $paymentProcessor;
     }
 
     /**
-     * Get paymentProcessors
+     * Get paymentProcessor
      *
-     * @return \Cx\Modules\Shop\Model\Entity\PaymentProcessors 
+     * @return \Cx\Modules\Shop\Model\Entity\PaymentProcessor
      */
-    public function getPaymentProcessors()
+    public function getPaymentProcessor()
     {
-        return $this->paymentProcessors;
+        return $this->paymentProcessor;
     }
 
     /**
-     * Add zones
+     * Add zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
+     * @param \Cx\Modules\Shop\Model\Entity\Zone $zone
      */
-    public function addZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
+    public function addZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
-        $this->zones[] = $zones;
+        $this->zones[] = $zone;
     }
 
     /**
-     * Remove zones
+     * Remove zone
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Zones $zones
+     * @param \Cx\Modules\Shop\Model\Entity\Zone $zone
      */
-    public function removeZone(\Cx\Modules\Shop\Model\Entity\Zones $zones)
+    public function removeZone(\Cx\Modules\Shop\Model\Entity\Zone $zone)
     {
-        $this->zones->removeElement($zones);
+        $this->zones->removeElement($zone);
     }
 
     /**

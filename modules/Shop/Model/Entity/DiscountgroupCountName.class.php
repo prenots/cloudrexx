@@ -46,7 +46,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
+class DiscountgroupCountName extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -83,6 +87,18 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
     public function __construct()
     {
         $this->discountgroupCountRates = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -156,23 +172,23 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add discountgroupCountRates
+     * Add discountgroupCountRate
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate
      */
-    public function addDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates)
+    public function addDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate)
     {
-        $this->discountgroupCountRates[] = $discountgroupCountRates;
+        $this->discountgroupCountRates[] = $discountgroupCountRate;
     }
 
     /**
-     * Remove discountgroupCountRates
+     * Remove discountgroupCountRate
      *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates
+     * @param \Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate
      */
-    public function removeDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRates)
+    public function removeDiscountgroupCountRate(\Cx\Modules\Shop\Model\Entity\DiscountgroupCountRate $discountgroupCountRate)
     {
-        $this->discountgroupCountRates->removeElement($discountgroupCountRates);
+        $this->discountgroupCountRates->removeElement($discountgroupCountRate);
     }
 
     /**
@@ -186,23 +202,23 @@ class DiscountgroupCountName extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Add products
+     * Add product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Products $product
      */
-    public function addProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function addProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products[] = $products;
+        $this->products[] = $product;
     }
 
     /**
-     * Remove products
+     * Remove product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Products $products)
+    public function removeProduct(\Cx\Modules\Shop\Model\Entity\Product $product)
     {
-        $this->products->removeElement($products);
+        $this->products->removeElement($product);
     }
 
     /**

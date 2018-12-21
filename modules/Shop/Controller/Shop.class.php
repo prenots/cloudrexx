@@ -274,8 +274,8 @@ class Shop extends ShopLibrary
         // Global placeholders that are used on (almost) all pages.
         // Add more as desired.
         self::$objTemplate->setGlobalVariable(array(
-            'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
-            'SHOP_CURRENCY_SYMBOL' => Currency::getActiveCurrencySymbol(),
+            'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
+            'SHOP_CURRENCY_SYMBOL' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
         ));
         if (!isset($_GET['cmd'])) $_GET['cmd'] = '';
         if (!isset($_GET['act'])) $_GET['act'] = $_GET['cmd'];
@@ -375,10 +375,6 @@ die("Failed to get Customer for ID $customer_id");
                     ),
                 ));
                 die("Done!");
-
-            case 'pricelist':
-                self::send_pricelist();
-                break;
             case 'terms':
                 // Static content only (fttb)
                 break;
@@ -522,7 +518,7 @@ die("Failed to get Customer for ID $customer_id");
         // Currencies
         if (self::$show_currency_navbar
          && $objTpl->blockExists('shopCurrencies')) {
-            $curNavbar = Currency::getCurrencyNavbar();
+            $curNavbar = \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyNavbar();
             if (!empty($curNavbar)) {
                 $objTpl->setVariable('SHOP_CURRENCIES', $curNavbar);
             }
@@ -808,7 +804,7 @@ die("Failed to get Customer for ID $customer_id");
             Cart::get_item_count().' '.
             $_ARRAYLANG['TXT_SHOPPING_CART_VALUE'].' '.
             Cart::get_price().' '.
-            Currency::getActiveCurrencySymbol();
+            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol();
         $cartInfo =
             '<a href="'.
             \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'cart').
@@ -917,14 +913,14 @@ die("Failed to update the Cart!");
             if (Vat::isIncluded()) {
                 // home country equals shop country; VAT is included already
                 if (Vat::is_home_country()) {
-                    $_SESSION['shop']['vat_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['vat_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         Cart::get_vat_amount() +
                         Vat::calculateOtherTax(
                               $_SESSION['shop']['payment_price']
                             + $_SESSION['shop']['shipment_price']
                         )
                     );
-                    $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                           Cart::get_price()
                         + $_SESSION['shop']['payment_price']
                         + $_SESSION['shop']['shipment_price']
@@ -934,7 +930,7 @@ die("Failed to update the Cart!");
                 } else {
                     // Foreign country; subtract VAT from grand total price.
                     $_SESSION['shop']['vat_price'] = Cart::get_vat_amount();
-                    $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                           Cart::get_price()
                         + $_SESSION['shop']['payment_price']
                         + $_SESSION['shop']['shipment_price']
@@ -952,13 +948,13 @@ die("Failed to update the Cart!");
                     // home country equals shop country; add VAT.
                     // the VAT on the products has already been calculated and set in the cart.
                     // now we add the default VAT to the shipping and payment cost.
-                    $_SESSION['shop']['vat_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['vat_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         Cart::get_vat_amount() +
                         Vat::calculateOtherTax(
                             $_SESSION['shop']['payment_price'] +
                             $_SESSION['shop']['shipment_price']
                         ));
-                    $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+                    $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                           Cart::get_price()
                         + $_SESSION['shop']['payment_price']
                         + $_SESSION['shop']['shipment_price']
@@ -981,7 +977,7 @@ die("Failed to update the Cart!");
             $_SESSION['shop']['vat_price'] = '0.00';
             $_SESSION['shop']['vat_products_txt'] = '';
             $_SESSION['shop']['vat_grand_txt'] = '';
-            $_SESSION['shop']['grand_total_price'] = Currency::formatPrice(
+            $_SESSION['shop']['grand_total_price'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   Cart::get_price()
                 + $_SESSION['shop']['payment_price']
                 + $_SESSION['shop']['shipment_price']);
@@ -1243,6 +1239,12 @@ die("Failed to update the Cart!");
                 $category_id = null;
             }
         }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $manufacturer = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Manufacturer'
+        );
+
         $shopMenu =
             '<form method="post" action="'.
             \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', '').'">'.
@@ -1252,7 +1254,7 @@ die("Failed to update the Cart!");
             '<select name="catId" style="width:150px;">'.
             '<option value="0">'.$_ARRAYLANG['TXT_ALL_PRODUCT_GROUPS'].
             '</option>'.ShopCategories::getMenuoptions($category_id).
-            '</select>&nbsp;'.Manufacturer::getMenu(
+            '</select>&nbsp;'.$manufacturer->getMenu(
                 'manufacturerId', $manufacturer_id, true).
             '<input type="submit" name="bsubmit" value="'.$_ARRAYLANG['TXT_SEARCH'].
             '" style="width:66px;" />'.
@@ -1266,7 +1268,7 @@ die("Failed to update the Cart!");
             'SHOP_CATEGORIES_MENUOPTIONS' =>
                 ShopCategories::getMenuoptions($category_id, true, 0, true),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
-                Manufacturer::getMenuoptions($manufacturer_id, true),
+                $manufacturer->getMenuoptions($manufacturer_id, true),
         ));
         // Only show the cart info when the JS cart is not active!
         global $_CONFIGURATION;
@@ -1670,7 +1672,7 @@ die("Failed to update the Cart!");
                         ? $_ARRAYLANG['TXT_SHOP_PRODUCT_METER']
                         : $_ARRAYLANG['TXT_SHOP_PRODUCT_COUNT']
                     ),
-                'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
+                'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
             ));
             if ($objProduct->code()) {
                 self::$objTemplate->setVariable(
@@ -1681,9 +1683,9 @@ die("Failed to update the Cart!");
             $manufacturer_id = $objProduct->manufacturer_id();
             if ($manufacturer_id) {
                 $manufacturer_name =
-                    Manufacturer::getNameById($manufacturer_id, FRONTEND_LANG_ID);
+                    $manufacturer->getNameById($manufacturer_id, FRONTEND_LANG_ID);
                 $manufacturer_url =
-                    Manufacturer::getUrlById($manufacturer_id, FRONTEND_LANG_ID);
+                    $manufacturer->getUrlById($manufacturer_id, FRONTEND_LANG_ID);
             }
             if (!empty($manufacturer_url) || !empty($manufacturer_name)) {
                 if (empty($manufacturer_name)) {
@@ -1721,7 +1723,7 @@ die("Failed to update the Cart!");
             if ($price) {
                 self::$objTemplate->setGlobalVariable(array(
                     'SHOP_PRODUCT_PRICE' => $price,
-                    'SHOP_PRODUCT_PRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_PRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
             // Only show the discount price if it's actually in use,
@@ -1729,7 +1731,7 @@ die("Failed to update the Cart!");
             if ($discountPrice) {
                 self::$objTemplate->setGlobalVariable(array(
                     'SHOP_PRODUCT_DISCOUNTPRICE' => $discountPrice,
-                    'SHOP_PRODUCT_DISCOUNTPRICE_UNIT' => Currency::getActiveCurrencySymbol(),
+                    'SHOP_PRODUCT_DISCOUNTPRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                     'SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_1' => $_ARRAYLANG['TXT_SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_1'],
                     'SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_2' => $_ARRAYLANG['TXT_SHOP_PRODUCT_DISCOUNTPRICE_TEXTBLOCK_2'],
                 ));
@@ -1751,11 +1753,11 @@ die("Failed to update the Cart!");
                     'TXT_SHOP_PRICE_TODAY' =>
                         $_ARRAYLANG['TXT_SHOP_PRICE_TODAY'],
                     'SHOP_PRICE_TODAY' =>
-                        Currency::getCurrencyPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice(
                             $objProduct->getDiscountedPrice()
                         ),
                     'SHOP_PRICE_TODAY_UNIT' =>
-                        Currency::getActiveCurrencySymbol(),
+                        \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
             if ($objProduct->stock_visible()) {
@@ -2126,8 +2128,8 @@ die("Failed to update the Cart!");
                         if ($arrOption['price'] != 0) {
                             $pricePrefix = $arrOption['price'] > 0 ? '+' : '';
                             $option_price =
-                                '&nbsp;('.$pricePrefix.Currency::getCurrencyPrice($arrOption['price']).
-                                '&nbsp;'.Currency::getActiveCurrencySymbol().')';
+                                '&nbsp;('.$pricePrefix.\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($arrOption['price']).
+                                '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol().')';
                         }
                         // mark the option value as selected if it was before
                         // and this page was requested from the cart
@@ -2434,7 +2436,7 @@ die("Failed to update the Cart!");
         $shipmentPrice = Shipment::calculateShipmentPrice(
             $shipperId, $price, $weight
         );
-        return Currency::getCurrencyPrice($shipmentPrice);
+        return \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($shipmentPrice);
     }
 
 
@@ -2456,7 +2458,7 @@ die("Failed to update the Cart!");
            || $totalPrice < Payment::getProperty($payment_id, 'free_from')) {
             $paymentPrice = Payment::getProperty($payment_id, 'fee');
         }
-        return Currency::getCurrencyPrice($paymentPrice);
+        return \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($paymentPrice);
     }
 
 
@@ -3124,7 +3126,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (   $cart_amount
             && empty($_SESSION['shop']['paymentId'])) {
             $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
-                $_SESSION['shop']['countryId'], Currency::getCurrencyArray());
+                $_SESSION['shop']['countryId'], \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray());
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
         if (empty($_SESSION['shop']['paymentId']))
@@ -3256,7 +3258,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (empty($_SESSION['shop']['paymentId'])) {
             // Use the first Payment ID
             $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
-                $_SESSION['shop']['countryId'], Currency::getCurrencyArray()
+                $_SESSION['shop']['countryId'], \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray()
             );
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
@@ -3464,7 +3466,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             unset($_SESSION['shop']['shipperId']);
         } else {
             self::$objTemplate->setVariable(array(
-                'SHOP_SHIPMENT_PRICE' => Currency::formatPrice(
+                'SHOP_SHIPMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['shipment_price']),
                 'SHOP_SHIPMENT_MENU' => self::_getShipperMenu(),
             ));
@@ -3530,7 +3532,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             || $_SESSION['shop']['vat_price']
         ) {
             self::$objTemplate->setVariable(array(
-                'SHOP_PAYMENT_PRICE' => Currency::formatPrice(
+                'SHOP_PAYMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['payment_price']),
                 'SHOP_PAYMENT_MENU' => self::get_payment_menu(),
             ));
@@ -3571,7 +3573,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                 'SHOP_DISCOUNT_COUPON_TOTAL' =>
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL'],
                 'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' =>
-                    Currency::formatPrice(-$total_discount_amount),
+                    \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(-$total_discount_amount),
             ));
         }
         // Show the Coupon code field only if there is at least one defined
@@ -3581,12 +3583,12 @@ die("Shop::processRedirect(): This method is obsolete!");
             ));
         }
         self::$objTemplate->setVariable(array(
-            'SHOP_UNIT' => Currency::getActiveCurrencySymbol(),
+            'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTALITEM' => Cart::get_item_count(),
-            'SHOP_TOTALPRICE' => Currency::formatPrice(
+            'SHOP_TOTALPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   Cart::get_price()
                 + Cart::get_discount_amount()),
-            'SHOP_GRAND_TOTAL' => Currency::formatPrice(
+            'SHOP_GRAND_TOTAL' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   $_SESSION['shop']['grand_total_price']),
             'SHOP_CUSTOMERNOTE' => $_SESSION['shop']['note'],
             'SHOP_AGB' => $_SESSION['shop']['agb'],
@@ -3596,7 +3598,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             self::$objTemplate->setVariable(array(
                 'SHOP_TAX_PRICE' =>
                     $_SESSION['shop']['vat_price'].
-                    '&nbsp;'.Currency::getActiveCurrencySymbol(),
+                    '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 'SHOP_TAX_PRODUCTS_TXT' => $_SESSION['shop']['vat_products_txt'],
                 'SHOP_TAX_GRAND_TXT' => $_SESSION['shop']['vat_grand_txt'],
                 'TXT_TAX_RATE' => $_ARRAYLANG['TXT_SHOP_VAT_RATE'],
@@ -3609,7 +3611,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             if (Vat::isIncluded()) {
                 self::$objTemplate->setVariable(array(
                     'SHOP_GRAND_TOTAL_EXCL_TAX' =>
-                        Currency::formatPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                         $_SESSION['shop']['grand_total_price'] - $_SESSION['shop']['vat_price']
                     ),
                 ));
@@ -3732,11 +3734,11 @@ die("Shop::processRedirect(): This method is obsolete!");
                 'SHOP_PRODUCT_ID' => $arrProduct['id'],
                 'SHOP_PRODUCT_CUSTOM_ID' => $objProduct->code(),
                 'SHOP_PRODUCT_TITLE' => contrexx_raw2xhtml($objProduct->name()),
-                'SHOP_PRODUCT_PRICE' => Currency::formatPrice(
+                'SHOP_PRODUCT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $price*$arrProduct['quantity']),
                 'SHOP_PRODUCT_QUANTITY' => $arrProduct['quantity'],
-                'SHOP_PRODUCT_ITEMPRICE' => Currency::formatPrice($price),
-                'SHOP_UNIT' => Currency::getActiveCurrencySymbol(),
+                'SHOP_PRODUCT_ITEMPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($price),
+                'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             ));
             if (   $attributes
                 && self::$objTemplate->blockExists('attributes')) {
@@ -3753,8 +3755,8 @@ die("Shop::processRedirect(): This method is obsolete!");
                 self::$objTemplate->setVariable(array(
                     'SHOP_PRODUCT_TAX_RATE' => $vatPercent,
                     'SHOP_PRODUCT_TAX_AMOUNT' =>
-                        Currency::formatPrice($vatAmount).
-                        '&nbsp;'.Currency::getActiveCurrencySymbol(),
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($vatAmount).
+                        '&nbsp;'.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
                 ));
             }
             self::$objTemplate->parse("shopCartRow");
@@ -3768,25 +3770,25 @@ die("Shop::processRedirect(): This method is obsolete!");
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL'],
                 // total discount amount
                 'SHOP_DISCOUNT_COUPON_TOTAL_AMOUNT' =>
-                    Currency::formatPrice(-$total_discount_amount),
+                    \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(-$total_discount_amount),
                 'SHOP_DISCOUNT_COUPON_CODE' => $_SESSION['shop']['coupon_code'],
             ));
         }
         self::$objTemplate->setVariable(array(
-            'SHOP_UNIT' => Currency::getActiveCurrencySymbol(),
+            'SHOP_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             'SHOP_TOTALITEM' => Cart::get_item_count(),
             // costs for payment handler (CC, invoice, etc.)
-            'SHOP_PAYMENT_PRICE' => Currency::formatPrice(
+            'SHOP_PAYMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 $_SESSION['shop']['payment_price']),
             // costs of all goods (before subtraction of discount) without payment and shippment costs
-            'SHOP_PRODUCT_TOTAL_GOODS' => Currency::formatPrice(
+            'SHOP_PRODUCT_TOTAL_GOODS' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   Cart::get_price() + Cart::get_discount_amount()),
             // order costs after discount subtraction (incl VAT) but without payment and shippment costs
-            'SHOP_TOTALPRICE' => Currency::formatPrice(Cart::get_price()),
+            'SHOP_TOTALPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(Cart::get_price()),
             'SHOP_PAYMENT' =>
                 Payment::getProperty($_SESSION['shop']['paymentId'], 'name'),
             // final order costs
-            'SHOP_GRAND_TOTAL' => Currency::formatPrice(
+            'SHOP_GRAND_TOTAL' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   $_SESSION['shop']['grand_total_price']),
             'SHOP_COMPANY' => stripslashes($_SESSION['shop']['company']),
 // Old
@@ -3827,7 +3829,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             self::$objTemplate->setVariable(array(
                 'TXT_TAX_RATE' => $_ARRAYLANG['TXT_SHOP_VAT_RATE'],
                 // total VAT on products (after subtraction of discount)
-                'SHOP_TAX_PRICE' => Currency::formatPrice(
+                'SHOP_TAX_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['vat_price']),
                 'SHOP_TAX_PRODUCTS_TXT' => $_SESSION['shop']['vat_products_txt'],
                 'SHOP_TAX_GRAND_TXT' => $_SESSION['shop']['vat_grand_txt'],
@@ -3842,7 +3844,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     // final order costs without VAT, but including
                     // payment and shipping costs
                     'SHOP_GRAND_TOTAL_EXCL_TAX' =>
-                        Currency::formatPrice(
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                             $_SESSION['shop']['grand_total_price']
                             - $_SESSION['shop']['vat_price']
                     ),
@@ -3911,7 +3913,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                     \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'payment'));
             }
             self::$objTemplate->setVariable(array(
-                'SHOP_SHIPMENT_PRICE' => Currency::formatPrice(
+                'SHOP_SHIPMENT_PRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     $_SESSION['shop']['shipment_price']),
                 'SHOP_SHIPMENT' =>
                     Shipment::getShipperName($_SESSION['shop']['shipperId']),
@@ -4544,10 +4546,10 @@ die("Shop::processRedirect(): This method is obsolete!");
 //                'TXT_SHOP_CUSTOMER_DISCOUNT_AMOUNT' => $_ARRAYLANG['TXT_SHOP_CUSTOMER_DISCOUNT_AMOUNT'],
 //                'TXT_SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT' => $_ARRAYLANG['TXT_SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT'],
 //                'TXT_SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT' => $_ARRAYLANG['TXT_SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT'],
-                'SHOP_CUSTOMER_TOTAL_ORDER_AMOUNT' => number_format($totalOrderAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
-                'SHOP_CUSTOMER_DISCOUNT_AMOUNT' => number_format($discountAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
-                'SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT' => number_format($newTotalOrderAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
-                'SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT' => number_format($newDiscountAmount, 2, '.', '').' '.Currency::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_TOTAL_ORDER_AMOUNT' => number_format($totalOrderAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_DISCOUNT_AMOUNT' => number_format($discountAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_NEW_TOTAL_ORDER_AMOUNT' => number_format($newTotalOrderAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CUSTOMER_NEW_DISCOUNT_AMOUNT' => number_format($newDiscountAmount, 2, '.', '').' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
             ));
         }
         return true;
@@ -4569,8 +4571,8 @@ die("Shop::processRedirect(): This method is obsolete!");
 // TODO: Should be set by the calling view, if any
             global $_ARRAYLANG;
             self::$objTemplate->setGlobalVariable($_ARRAYLANG + array(
-                'SHOP_CURRENCY_SYMBOL' => Currency::getActiveCurrencySymbol(),
-                'SHOP_CURRENCY_CODE' => Currency::getActiveCurrencyCode(),
+                'SHOP_CURRENCY_SYMBOL' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+                'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
             ));
             $arrShipment = Shipment::getShipmentConditions();
             foreach ($arrShipment as $strShipperName => $arrContent) {
@@ -4813,36 +4815,6 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (!$objResult || $objResult->EOF) return false;
         return $objResult->fields['payment_id'];
     }
-
-
-    /**
-     * Creates and sends a Pricelist as a PDF document
-     *
-     * Does not return on success, just sends the list and dies happily instead.
-     * Note that the $lang_id is ignored if it's defined for the Pricelist.
-     * @param   integer   $lang_id      The optional language ID
-     * @return  boolean                 False on failure
-     */
-    static function send_pricelist($lang_id=null)
-    {
-        global $_ARRAYLANG;
-
-        if (!$lang_id) $lang_id = FRONTEND_LANG_ID;
-        $list_id = (isset($_GET['list_id'])
-            ? intval($_GET['list_id']) : null);
-        if (!$list_id) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_MISSING_LIST_ID']);
-        }
-        // Optional
-        $currency_id = (isset($_GET['currency_id'])
-            ? intval($_GET['currency_id']) : null);
-        $objList = new PriceList($list_id, $currency_id, $lang_id);
-        if (!$objList->send_as_pdf()) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_SENDING']);
-        }
-        exit();
-    }
-
 
     static function customer()
     {

@@ -49,6 +49,10 @@ namespace Cx\Modules\Shop\Model\Entity;
  */
 class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     /**
+     * @var integer
+     */
+    protected $id;
+    /**
      * @var string
      */
     protected $code;
@@ -109,9 +113,9 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     protected $payment;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Products
+     * @var \Cx\Modules\Shop\Model\Entity\Product
      */
-    protected $products;
+    protected $product;
 
     /**
      * @var \Cx\Core\User\Model\Entity\User
@@ -119,9 +123,24 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     protected $customer;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * Set id
+     *
+     * @param integer $id
      */
-    protected $relCustomerCoupons;
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set code
@@ -364,23 +383,23 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set products
+     * Set product
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Products $products
+     * @param \Cx\Modules\Shop\Model\Entity\Product $product
      */
-    public function setProducts(\Cx\Modules\Shop\Model\Entity\Products $products = null)
+    public function setProduct(\Cx\Modules\Shop\Model\Entity\Product $product = null)
     {
-        $this->products = $products;
+        $this->product = $product;
     }
 
     /**
-     * Get products
+     * Get product
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Products 
+     * @return \Cx\Modules\Shop\Model\Entity\Product
      */
-    public function getProducts()
+    public function getProduct()
     {
-        return $this->products;
+        return $this->product;
     }
 
     /**
@@ -401,36 +420,6 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     public function getCustomer()
     {
         return $this->customer;
-    }
-
-    /**
-     * Add relCustomerCoupon
-     *
-     * @param \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon
-     */
-    public function addRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon)
-    {
-        $this->relCustomerCoupon[] = $relCustomerCoupon;
-    }
-
-    /**
-     * Remove relCustomerCoupon
-     *
-     * @param \Cx\Modules\Shop\Model\Entity\OrderAttributes $orderAttributes
-     */
-    public function removeRelCustomerCoupon(\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon $relCustomerCoupon)
-    {
-        $this->relCustomerCoupon->removeElement($relCustomerCoupon);
-    }
-
-    /**
-     * Get relCustomerCoupon
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getRelCustomerCoupon()
-    {
-        return $this->relCustomerCoupon;
     }
 
 }

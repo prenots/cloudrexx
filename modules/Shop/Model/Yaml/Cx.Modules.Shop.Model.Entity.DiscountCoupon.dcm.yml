@@ -7,13 +7,20 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       columns: [ product_id ]
     fk_module_shop_discount_coupon_module_shop_payment1_idx:
       columns: [ payment_id ]
+  uniqueConstraints:
+    fk_module_shop_discount_coupon_unique_idx:
+      columns: code, customer_id
   id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
     code:
       type: string
       length: 20
       options:
         default: ''
-  fields:
     customerId:
       type: integer
       nullable: true
@@ -82,8 +89,8 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       joinColumn:
         name: payment_id
         referencedColumnName: id
-    products:
-      targetEntity: Cx\Modules\Shop\Model\Entity\Products
+    product:
+      targetEntity: Cx\Modules\Shop\Model\Entity\Product
       inversedBy: discountCoupons
       joinColumn:
         name: product_id
@@ -93,10 +100,3 @@ Cx\Modules\Shop\Model\Entity\DiscountCoupon:
       joinColumn:
         name: customer_id
         referencedColumnName: id
-  oneToMany:
-    relCustomerCoupons:
-      targetEntity: Cx\Modules\Shop\Model\Entity\RelCustomerCoupon
-      mappedBy: relCustomerCoupons
-      joinColumn:
-        name: code
-        referencedColumnName: code

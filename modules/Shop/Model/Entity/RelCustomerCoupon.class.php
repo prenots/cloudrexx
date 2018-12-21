@@ -71,19 +71,14 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
     protected $amount;
 
     /**
-     * @var \Cx\Modules\Shop\Model\Entity\Orders
+     * @var \Cx\Modules\Shop\Model\Entity\Order
      */
-    protected $orders;
+    protected $order;
 
     /**
      * @var \Cx\Core\User\Model\Entity\User
      */
     protected $customer;
-
-    /**
-     * @var \Cx\Modules\Shop\Model\Entity\DiscountCoupon
-     */
-    protected $discountCoupon;
 
     /**
      * Set code
@@ -186,23 +181,23 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set orders
+     * Set order
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Orders $orders
+     * @param \Cx\Modules\Shop\Model\Entity\Order $order
      */
-    public function setOrders(\Cx\Modules\Shop\Model\Entity\Orders $orders = null)
+    public function setOrder(\Cx\Modules\Shop\Model\Entity\Order $order = null)
     {
-        $this->orders = $orders;
+        $this->order = $order;
     }
 
     /**
-     * Get orders
+     * Get order
      *
-     * @return \Cx\Modules\Shop\Model\Entity\Orders 
+     * @return \Cx\Modules\Shop\Model\Entity\Order
      */
-    public function getOrders()
+    public function getOrder()
     {
-        return $this->orders;
+        return $this->order;
     }
 
     /**
@@ -225,23 +220,4 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
         return $this->customer;
     }
 
-    /**
-     * Set discountCoupon
-     *
-     * @param \Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon
-     */
-    public function setDiscountCoupon(\Cx\Modules\Shop\Model\Entity\DiscountCoupon $discountCoupon)
-    {
-        $this->discountCoupon = $discountCoupon;
-    }
-
-    /**
-     * Get discountCoupon
-     *
-     * @return \Cx\Modules\Shop\Model\Entity\DiscountCoupon
-     */
-    public function getDiscountCoupon()
-    {
-        return $this->discountCoupon;
-    }
 }

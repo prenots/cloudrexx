@@ -56,7 +56,11 @@ namespace Cx\Modules\Shop\Model\Entity;
  * @subpackage  module_shop
  * @version     5.0.0
  */
-class Attribute extends \Cx\Model\Base\EntityBase {
+class Attribute extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
+    /**
+     * @var string
+     */
+    protected $locale;
     /**
      * @var integer
      */
@@ -83,6 +87,18 @@ class Attribute extends \Cx\Model\Base\EntityBase {
     public function __construct()
     {
         $this->options = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set translatable locale
+     *
+     * @param $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        if (!is_string($locale) || !strlen($locale)) {
+            $this->locale = $locale;
+        }
     }
 
     /**
@@ -138,21 +154,21 @@ class Attribute extends \Cx\Model\Base\EntityBase {
     /**
      * Add options
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Option $options
+     * @param \Cx\Modules\Shop\Model\Entity\Option $option
      */
-    public function addOption(\Cx\Modules\Shop\Model\Entity\Option $options)
+    public function addOption(\Cx\Modules\Shop\Model\Entity\Option $option)
     {
-        $this->options[] = $options;
+        $this->options[] = $option;
     }
 
     /**
      * Remove options
      *
-     * @param \Cx\Modules\Shop\Model\Entity\Option $options
+     * @param \Cx\Modules\Shop\Model\Entity\Option $option
      */
-    public function removeOption(\Cx\Modules\Shop\Model\Entity\Option $options)
+    public function removeOption(\Cx\Modules\Shop\Model\Entity\Option $option)
     {
-        $this->options->removeElement($options);
+        $this->options->removeElement($option);
     }
 
     /**
