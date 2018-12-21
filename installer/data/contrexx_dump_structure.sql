@@ -37,14 +37,12 @@ CREATE TABLE `contrexx_access_user_attribute` (
   `sort_type` enum('asc','desc','custom') NOT NULL DEFAULT 'asc',
   `order_id` int NOT NULL DEFAULT '0',
   `access_special` enum('','menu_select_higher','menu_select_lower') NOT NULL DEFAULT '',
-  `access_id` int DEFAULT NULL,
-  `read_access_id` int DEFAULT NULL,
+  `access_id` int NOT NULL,
+  `read_access_id` int NOT NULL,
   `is_default` tinyint(1) DEFAULT '0' NOT NULL,
   `tmp_name` varchar(255),
   PRIMARY KEY (`id`),
-  INDEX `contrexx_access_user_attribute_parent_id_ibfk` (`parent_id`),
-  INDEX IDX_D97727BE4FEA67CF (access_id),
-  INDEX IDX_D97727BE7B600C1B (read_access_id)
+  INDEX `contrexx_access_user_attribute_parent_id_ibfk` (`parent_id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_access_user_attribute_name` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -3834,8 +3832,6 @@ ALTER TABLE contrexx_core_module_sync_change_host ADD CONSTRAINT FK_92C38FE01FB8
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_locale` FOREIGN KEY (`language`) REFERENCES `contrexx_core_locale_locale` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_theme` FOREIGN KEY (`theme`) REFERENCES `contrexx_skins` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_locale_backend ADD CONSTRAINT FK_B8F1327C4FC20EF FOREIGN KEY (iso_1) REFERENCES contrexx_core_locale_language (iso_1) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE contrexx_access_user_attribute ADD CONSTRAINT FK_D97727BE4FEA67CF FOREIGN KEY (access_id) REFERENCES contrexx_access_id (id);
-ALTER TABLE contrexx_access_user_attribute ADD CONSTRAINT FK_D97727BE7B600C1B FOREIGN KEY (read_access_id) REFERENCES contrexx_access_id (id);
 CREATE VIEW `contrexx_access_user_title` AS
   SELECT `order` AS id, name as title, 0 as order_id
   FROM `contrexx_access_user_attribute_name` AS `name`
