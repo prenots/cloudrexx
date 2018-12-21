@@ -515,7 +515,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             $field->setAttributes($fieldoptions['attributes']);
                             return $field;
                         },
-                        'storecallback' => function($value, $entity) {
+                        'storecallback' => function($value) {
                             $date = new \DateTime('now');
                             return $date->format('Y-m-d H:i:s');
                         }
@@ -528,7 +528,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                             'class' => 'readonly',
                             'readonly' => 'readonly',
                         ),
-                        'storecallback' => function($value, $entity) {
+                        'storecallback' => function($value) {
                             return $objFWUser = \FWUser::getFWUserObject()->objUser->getEmail();
                         }
                     ),
