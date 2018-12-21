@@ -622,7 +622,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     ),
                     'relCustomerCoupons' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'showDetail' => true,
+                        'mode' => 'associate',
+                        'type' => 'hidden',
                         'allowFiltering' => false,
                     ),
                     'lang' => array(
