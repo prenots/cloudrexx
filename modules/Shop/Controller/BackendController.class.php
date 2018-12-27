@@ -64,27 +64,150 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
 
-        switch(lcfirst($_GET['act']))  {
-            case 'manufacturer':
-                $_GET['act'] = ucfirst($_GET['act']);
-                parent::getPage($page);
+        $splitAct = explode('/', $_GET['act']);
+        $act = $splitAct[0];
+        $tpl = $splitAct[1];
+
+        switch($act)  {
+            case 'Order':
+            case 'editorder':
+            case 'orderdetails':
+            case 'delorder':
+            case 'orders':
+            case 'Category':
+            case 'categories':
+            case 'category_edit':
+            case 'Product':
+            case 'products':
+            case 'activate_products':
+            case 'deactivate_products':
+            case 'delProduct':
+            case 'deleteProduct':
+            case 'Customer':
+            case 'delcustomer':
+            case 'customer_activate':
+            case 'customer_deactivate':
+            case 'customers':
+            case 'customerdetails':
+            case 'neweditcustomer':
+            case 'Statistic':
+            case 'statistics':
+            case 'Import':
+            case 'import':
+            case 'Setting':
+            case 'settings':
+            case 'Currency':
+            case 'Vat':
+            case 'Payment':
+            case 'Shipper':
+            case 'Relcountry':
+            case 'Zone':
+            case 'Mail':
+            case 'DiscountCoupon':
+            case 'mailtemplate_overview':
+            case 'mailtemplate_edit':
+                $mappedNavItems = array(
+                    'Order' => 'orders',
+                    'Category' => 'categories',
+                    'Pricelist' => 'pricelists',
+                    'Product' => 'products',
+                    'Manage' => 'manage',
+                    'Attribute' => 'attributes',
+                    'DiscountgroupCountName' => 'discounts',
+                    'ArticleGroup' => 'groups',
+                    'Customer' => 'customers',
+                    'CustomerGroup' => 'groups',
+                    'RelDiscountGroup' => 'discounts',
+                    'Statistic' => 'statistics',
+                    'Import' => 'import',
+                    'Setting' => 'settings',
+                    'Vat' => 'vat',
+                    'Currency' => 'currency',
+                    'Payment' => 'payment',
+                    'Shipper' => 'shipment',
+                    'RelCountry' => 'countries',
+                    'Zone' => 'zones',
+                    'Mail' => 'mail',
+                    'DiscountCoupon' => 'coupon',
+                );
+                $mappedCmdItems = array(
+                    'editorder' => 'Order',
+                    'orderdetails' => 'Order',
+                    'delorder' => 'Order',
+                    'orders' => 'Order',
+                    'categories' => 'Category',
+                    'category_edit' => 'Category',
+                    'products' => 'Product',
+                    'activate_products' => 'Product',
+                    'deactivate_products' => 'Product',
+                    'delProduct' => 'Product',
+                    'deleteProduct' => 'Product',
+                    'manage' => 'Manage',
+                    'groups' => 'ArticleGroup',
+                    'discounts' => 'DiscountgroupCountName',
+                    'delcustomer' => 'Customer',
+                    'customer_activate' => 'Customer',
+                    'customer_deactivate' => 'Customer',
+                    'customers' => 'Customer',
+                    'customerdetails' => 'Customer',
+                    'neweditcustomer' => 'Customer',
+                    'statistics' => 'Statistic',
+                    'import' => 'Import',
+                    'settings' => 'Setting',
+                    'mailtemplate_overview' => 'Mail',
+                );
+
+                // Set act and tpl for cmd to build the navigation with the
+                // BackendController method
+                $cmdAct = !empty($act) ? $act : $_GET['act'];
+                $cmdTpl = !empty($tpl) ? $tpl : $_GET['tpl'];
+
+                if (!empty($mappedCmdItems[$cmdTpl])) {
+                    $cmdTpl = $mappedCmdItems[$cmdTpl];
+                }
+                if (!empty($mappedCmdItems[$cmdAct])) {
+                    $cmdAct = $mappedCmdItems[$cmdAct];
+                }
+                // Special case, because mailtemplate_edit ist defined in the
+                // $_GET['act'] var and not as $_GET['tpl']
+                if ($act === 'mailtemplate_edit') {
+                    $cmdAct = 'Setting';
+                    $cmdTpl = 'Mail';
+                }
+                $cmd[0] = $cmdAct;
+                $cmd[1] = $cmdTpl;
+
+                if (!empty($mappedNavItems[$tpl])) {
+                    $_REQUEST['tpl'] = $mappedNavItems[$tpl];
+                    $_GET['tpl'] = $mappedNavItems[$tpl];
+                }
+                if (!empty($mappedNavItems[$act])) {
+                    $_GET['act'] = $mappedNavItems[$act];
+                }
+
+                $this->cx->getTemplate()->addBlockfile(
+                    'CONTENT_OUTPUT',
+                    'content_master',
+                    'LegacyContentMaster.html'
+                );
+                $objTemplate = $this->cx->getTemplate();
+
+                \Permission::checkAccess($intAccessIdOffset+13, 'static');
+                $subMenuTitle = $_CORELANG['TXT_SHOP_ADMINISTRATION'];
+                $objShopManager = new ShopManager();
+                // Load Javascript File to move the HTML elements to the correct
+                // positions. Because the placeholder CONTENT_NAVIGATION is no
+                // longer in the same position in the ViewGenerator.
+                \JS::registerJS('modules/Shop/View/Script/Fix.js');
+                $navigation = $this->parseNavigation($cmd);
+                $objShopManager->getPage($navigation->get());
                 return;
-            default:
-                break;
+        }
+        if ($tpl) {
+            $_GET['act'] = $tpl;
         }
 
-
-        $this->cx->getTemplate()->addBlockfile(
-            'CONTENT_OUTPUT',
-            'content_master',
-            'LegacyContentMaster.html'
-        );
-        $objTemplate = $this->cx->getTemplate();
-
-        \Permission::checkAccess($intAccessIdOffset+13, 'static');
-        $subMenuTitle = $_CORELANG['TXT_SHOP_ADMINISTRATION'];
-        $objShopManager = new ShopManager();
-        $objShopManager->getPage();
+        parent::getPage($page);
     }
 
     /**
@@ -94,14 +217,43 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function getCommands()
     {
         return array(
-            'orders',
-            'category',
-            'products',
-            'manufacturer',
-            'customers',
-            'statistics',
-            'import',
-            'settings'
+            'Order',
+            'Category' => array(
+                'children' => array(
+                    'Pricelist'
+                ),
+            ),
+            'Product' => array(
+                'children' => array(
+                    'Manage',
+                    'Attribute',
+                    'DiscountgroupCountName',
+                    'ArticleGroup'
+                )
+            ),
+            'Manufacturer' => array(
+                'translatable' => true
+            ),
+            'Customer' => array(
+                'children' => array(
+                    'RelDiscountGroup',
+                    'CustomerGroup'
+                )
+            ),
+            'Statistic',
+            'Import',
+            'Setting' => array(
+                'children' => array(
+                    'Vat',
+                    'Currency',
+                    'Payment',
+                    'Shipper',
+                    'RelCountry',
+                    'Zone',
+                    'Mail',
+                    'DiscountCoupon'
+                ),
+            ),
         );
     }
 
@@ -127,7 +279,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
     {
         global $_ARRAYLANG;
-
         $options = parent::getViewGeneratorOptions(
             $entityClassName,
             $dataSetIdentifier
@@ -135,50 +286,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         switch ($entityClassName) {
             case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
-                $options['order']['overview'] = array(
-                    'id',
-                    'name',
-                    'uri'
-                );
-                $options['order']['form'] = array(
-                    'name',
-                    'uri'
-                );
-
-                // Delete event
+                $options = $this->getSystemComponentController()->getController(
+                    'Manufacturer'
+                )->getViewGeneratorOptions($options);
                 $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
                     $options
-                );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-id',
-                            ),
-                        ),
-                    ),
-                    'name' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-name',
-                            ),
-                        ),
-                        'sorting' => false,
-                    ),
-                    'uri' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-uri',
-                            ),
-                        ),
-                        'sorting' => false,
-                    ),
-                    'products' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
                 );
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Category':
@@ -263,7 +376,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showDetail' => false,
                     ),
                 );
-
                 break;
         }
         return $options;

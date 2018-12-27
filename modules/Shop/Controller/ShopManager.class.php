@@ -193,8 +193,10 @@ class ShopManager extends ShopLibrary
 
     /**
      * Set up the shop admin page
+     *
+     * @param \Cx\Core\Html\Sigma $navigation
      */
-    function getPage()
+    function getPage($navigation)
     {
         global $objTemplate, $_ARRAYLANG;
 
@@ -277,7 +279,8 @@ class ShopManager extends ShopLibrary
             'ADMIN_CONTENT' => self::$objTemplate->get(),
         ));
         $this->act = (isset ($_REQUEST['act']) ? $_REQUEST['act'] : '');
-        $this->setNavigation();
+
+        $objTemplate->setVariable('CONTENT_NAVIGATION', $navigation);
     }
 
     /**
@@ -2090,11 +2093,6 @@ if ($test === NULL) {
         $websiteImagesShopPath    = $cx->getWebsiteImagesShopPath() . '/';
         $websiteImagesShopWebPath = $cx->getWebsiteImagesShopWebPath() . '/';
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $manufacturer = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Manufacturer'
-        );
-
         self::$objTemplate->setVariable(array(
             'SHOP_PRODUCT_ID' => (isset($_REQUEST['new']) ? 0 : $objProduct->id()),
             'SHOP_PRODUCT_CODE' => contrexx_raw2xhtml($objProduct->code()),
@@ -2132,7 +2130,7 @@ if ($test === NULL) {
             'SHOP_STOCK_VISIBILITY' => ($objProduct->stock_visible()
                 ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
-                $manufacturer->getMenuoptions($objProduct->manufacturer_id()),
+                \Cx\Modules\Shop\Controller\ManufacturerController::getMenuoptions($objProduct->manufacturer_id()),
             'SHOP_PICTURE1_IMG_SRC' =>
                 (   !empty($arrImages[1]['img'])
                  && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[1]['img']))
