@@ -271,7 +271,7 @@ class Shipment
 //DBG::deactivate(DBG_ADODB);
         $arrShipperId = array();
         while ($objResult && !$objResult->EOF) {
-            $shipper = $objResult->fields['shipper_id'];
+            $shipper = $objResult->fields['id'];
             if (isset(self::$arrShippers[$shipper])) {
                 $arrShipperId[] = $shipper;
 //DBG::log("Shipment::getCountriesRelatedShippingIdArray($countryId): Shipper ID $shipper OK");
