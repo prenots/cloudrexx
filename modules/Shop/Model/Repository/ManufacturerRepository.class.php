@@ -159,40 +159,6 @@ class ManufacturerRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * Returns the name of the Manufacturer with the given ID
-     * @static
-     * @param   integer $id             The Manufacturer ID
-     * @return  string                  The Manufacturer name on success,
-     *                                  or the empty string on failure
-     * @global  ADONewConnection
-     * @todo    Move this to the Manufacturer class!
-     */
-    public function getNameById($id)
-    {
-        if (is_null($this->arrManufacturer)) $this->init();
-        if (isset($this->arrManufacturer[$id]))
-            return $this->arrManufacturer[$id]['name'];
-        return '';
-    }
-
-    /**
-     * Returns the URL of the Manufacturers for the given ID
-     * @static
-     * @param   integer $id             The Manufacturer ID
-     * @return  string                  The Manufacturer URL on success,
-     *                                  or the empty string on failure
-     * @global  ADONewConnection
-     * @todo    Move this to the Manufacturer class!
-     */
-    public function getUrlById($id)
-    {
-        if (is_null($this->arrManufacturer)) $this->init();
-        if (isset($this->arrManufacturer[$id]))
-            return $this->arrManufacturer[$id]['url'];
-        return '';
-    }
-
-    /**
      * Handles database errors
      *
      * Also migrates the old Manufacturers to the new structure
