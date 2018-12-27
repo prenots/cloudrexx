@@ -193,8 +193,10 @@ class ShopManager extends ShopLibrary
 
     /**
      * Set up the shop admin page
+     *
+     * @param \Cx\Core\Html\Sigma $navigation
      */
-    function getPage()
+    function getPage($navigation)
     {
         global $objTemplate, $_ARRAYLANG;
 
@@ -277,7 +279,8 @@ class ShopManager extends ShopLibrary
             'ADMIN_CONTENT' => self::$objTemplate->get(),
         ));
         $this->act = (isset ($_REQUEST['act']) ? $_REQUEST['act'] : '');
-        $this->setNavigation();
+
+        $objTemplate->setVariable('CONTENT_NAVIGATION', $navigation);
     }
 
     /**
