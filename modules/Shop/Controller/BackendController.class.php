@@ -278,8 +278,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      */
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
     {
-        global $_ARRAYLANG;
-
         $options = parent::getViewGeneratorOptions(
             $entityClassName,
             $dataSetIdentifier
@@ -287,69 +285,10 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         switch ($entityClassName) {
             case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
-                $options['order']['overview'] = array(
-                    'id',
-                    'name',
-                    'uri'
-                );
-                $options['order']['form'] = array(
-                    'name',
-                    'uri'
-                );
-
-                $options['multiActions']['delete'] = array(
-                    'title' => $_ARRAYLANG['TXT_DELETE'],
-                    'jsEvent' => 'delete:manufacturer'
-                );
-
-                // Delete Event
-                $scope = 'order';
-                \ContrexxJavascript::getInstance()->setVariable(
-                    'CSRF_PARAM',
-                    \Cx\Core\Csrf\Controller\Csrf::code(),
-                    $scope
-                );
-                \ContrexxJavascript::getInstance()->setVariable(
-                    'TXT_CONFIRM_DELETE_MANUFACTURER',
-                    $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
-                    $scope
-                );
-                \ContrexxJavascript::getInstance()->setVariable(
-                    'TXT_ACTION_IS_IRREVERSIBLE',
-                    $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'],
-                    $scope
-                );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-id',
-                            ),
-                        ),
-                    ),
-                    'name' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-name',
-                            ),
-                        ),
-                        'sorting' => false,
-                    ),
-                    'uri' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-uri',
-                            ),
-                        ),
-                        'sorting' => false,
-                    ),
-                    'products' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                );
-
+                $options = $this->getSystemComponentController()->getController(
+                    'Manufacturer'
+                )->getViewGeneratorOptions($options);
+                break;
         }
         return $options;
     }
