@@ -88,6 +88,11 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getViewGeneratorOptions($options)
     {
+        $defaultEntity = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->findOneBy(
+            array('default' => 1)
+        );
         $options['functions']['sortBy'] = array(
             'field' => array('ord' => SORT_ASC)
         );
@@ -106,6 +111,13 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         $options['fields'] = array(
+            'id' => array(
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'id'
+                    ),
+                )
+            ),
             'orders' => array(
                 'showOverview' => false,
                 'showDetail' => false,
@@ -128,6 +140,23 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'default' => array(
                 'editable' => true,
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'default'
+                    ),
+                    'parse' => function ($value, $rowData) use ($defaultEntity) {
+                        $radioButton = new \Cx\Core\Html\Model\Entity\DataElement(
+                            'default-' . $rowData['id'], 0, 'input'
+                        );
+                        $radioButton->setAttribute('type', 'radio');
+                        $radioButton->setAttribute('onchange', 'updateDefault(this)');
+                        if (!empty($defaultEntity) && $rowData['id'] == $defaultEntity->getId()) {
+                            $radioButton->setAttribute('checked', 'checked');
+                            $radioButton->setAttribute('value', '1');
+                        }
+                        return $radioButton;
+                    },
+                ),
             ),
         );
         return $options;
