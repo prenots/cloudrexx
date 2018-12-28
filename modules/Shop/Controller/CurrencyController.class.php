@@ -126,6 +126,25 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
             ),
+            'code' => array(
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
+                    $scope = 'currency';
+                    \ContrexxJavascript::getInstance()->setVariable(
+                        'CURRENCY_INCREMENT',
+                        $this->get_known_currencies_increment_array(),
+                        $scope
+                    );
+                    $select = new \Cx\Core\Html\Model\Entity\DataElement(
+                        $fieldname, '', 'select',
+                        null, $this->get_known_currencies_name_array()
+                    );
+                    $select->setAttribute(
+                        'onchange',
+                        'updateCurrencyCode(this)'
+                    );
+                    return $select;
+                },
+            ),
             'symbol' => array(
                 'editable' => true,
             ),
@@ -157,7 +176,7 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                             'default-' . $rowData['id'], $rowData['id'], 'input'
                         );
                         $radioButton->setAttribute('type', 'radio');
-                        $radioButton->setAttribute('onchange', 'updateDefault(this)');
+                        $radioButton->setAttribute('onchange', 'updateDefault(this); updateExchangeRates(this)');
                         if (!empty($defaultEntity) && $rowData['id'] == $defaultEntity->getId()) {
                             $radioButton->setAttribute('checked', 'checked');
                         }
@@ -733,7 +752,7 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
      * @param   string  $format     The optional sprintf() format
      * @return  array               The currency name array
      */
-    static function get_known_currencies_name_array($format=null)
+    protected function get_known_currencies_name_array($format=null)
     {
         if (empty($format)) $format = '%2$s (%1$s)';
         $arrName = array();
@@ -749,7 +768,7 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
      * by ISO 4217 code
      * @return  array               The currency increment array
      */
-    static function get_known_currencies_increment_array()
+    protected function get_known_currencies_increment_array()
     {
         $arrIncrement = array();
         foreach (self::known_currencies() as $currency) {

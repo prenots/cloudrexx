@@ -75,6 +75,21 @@ function updateDefault(defaultEntity) {
     });
 }
 
+function updateCurrencyCode(selectElement)
+{
+    var currency_increment = cx.variables.get('CURRENCY_INCREMENT', 'currency');
+    console.log(selectElement.options[selectElement.selectedIndex].text);
+    var code = selectElement.value;
+    var name = selectElement.options[selectElement.selectedIndex].text;
+    // By default, the name is followed by the code in parentheses
+    name = name.replace(/\s*\([A-Z]+\)$/, "");
+    var increment = currency_increment[code];
+    console.log("code "+code+", name: "+name+", increment: "+increment);
+    document.getElementsByName("symbol")[0].value = code;
+    document.getElementsByName("name")[0].value = name;
+    document.getElementsByName("increment")[0].value = increment;
+}
+
 function updateExchangeRates(selectedElement)
 {
     // The Currency ID
