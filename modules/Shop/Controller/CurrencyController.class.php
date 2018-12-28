@@ -134,6 +134,11 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'rate' => array(
                 'editable' => true,
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'rate'
+                    ),
+                ),
             ),
             'increment' => array(
                 'editable' => true,
