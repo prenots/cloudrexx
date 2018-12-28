@@ -71,9 +71,6 @@ function updateDefault(defaultEntity) {
         var entity = cx.jQuery(el);
         if (parseInt(cx.jQuery(defaultEntity).closest('tr').find('.id').text()) != parseInt(entity.find('.id').text())) {
             entity.find('.default input').removeProp('checked');
-            entity.find('.default input').val(0);
-        } else {
-            entity.find('.default input').val(1);
         }
     });
 }

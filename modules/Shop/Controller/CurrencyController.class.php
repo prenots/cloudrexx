@@ -139,6 +139,9 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                 'editable' => true,
             ),
             'default' => array(
+                'storecallback' => function($value) {
+                    return !empty($value);
+                },
                 'editable' => true,
                 'table' => array(
                     'attributes' => array(
@@ -146,13 +149,12 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                     ),
                     'parse' => function ($value, $rowData) use ($defaultEntity) {
                         $radioButton = new \Cx\Core\Html\Model\Entity\DataElement(
-                            'default-' . $rowData['id'], 0, 'input'
+                            'default-' . $rowData['id'], $rowData['id'], 'input'
                         );
                         $radioButton->setAttribute('type', 'radio');
                         $radioButton->setAttribute('onchange', 'updateDefault(this)');
                         if (!empty($defaultEntity) && $rowData['id'] == $defaultEntity->getId()) {
                             $radioButton->setAttribute('checked', 'checked');
-                            $radioButton->setAttribute('value', '1');
                         }
                         return $radioButton;
                     },
