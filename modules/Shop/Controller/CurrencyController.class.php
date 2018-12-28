@@ -81,6 +81,45 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     private static $defaultCurrencyId = false;
 
     /**
+     * Get ViewGenerator options for Manufacturer entity
+     *
+     * @param $options array predefined ViewGenerator options
+     * @return array includes ViewGenerator options for Manufacturer entity
+     */
+    public function getViewGeneratorOptions($options)
+    {
+        $options['functions']['sortBy'] = array(
+            'field' => array('ord' => SORT_ASC)
+        );
+        $options['functions']['sorting'] = false;
+        $options['order']['overview'] = array(
+            'id',
+            'code',
+            'symbol',
+            'name',
+            'rate',
+            'increment',
+            'default',
+            'active'
+        );
+
+        $options['fields'] = array(
+            'orders' => array(
+                'showOverview' => false,
+                'showDetail' => false,
+            ),
+            'ord' => array(
+                'showOverview' => false,
+                'showDetail' => false,
+            ),
+            'code' => array(
+                'readonly' => 'readonly'
+            ),
+        );
+        return $options;
+    }
+
+    /**
      * Initialize currencies
      *
      * Sets up the Currency array, and picks the selected Currency from the

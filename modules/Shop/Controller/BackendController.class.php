@@ -96,7 +96,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'import':
             case 'Setting':
             case 'settings':
-            case 'Currency':
             case 'Vat':
             case 'Payment':
             case 'Shipper':
@@ -121,7 +120,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Import' => 'import',
                     'Setting' => 'settings',
                     'Vat' => 'vat',
-                    'Currency' => 'currency',
                     'Payment' => 'payment',
                     'Shipper' => 'shipment',
                     'RelCountry' => 'countries',
@@ -315,34 +313,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 )->getViewGeneratorOptions($options);
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Currency':
-                $options['functions']['sortBy'] = array(
-                    'field' => array('ord' => SORT_ASC)
-                );
-                $options['functions']['sorting'] = false;
-                $options['order']['overview'] = array(
-                    'id',
-                    'code',
-                    'symbol',
-                    'name',
-                    'rate',
-                    'increment',
-                    'default',
-                    'active'
-                );
-
-                $options['fields'] = array(
-                    'orders' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'ord' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'code' => array(
-                        'readonly' => 'readonly'
-                    ),
-                );
+                $options = $this->getSystemComponentController()->getController(
+                    'Currency'
+                )->getViewGeneratorOptions($options);
                 break;
         }
         return $options;
