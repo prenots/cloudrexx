@@ -109,7 +109,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $mappedNavItems = array(
                     'Order' => 'orders',
                     'Category' => 'categories',
-                    'Pricelist' => 'pricelists',
                     'Product' => 'products',
                     'Manage' => 'manage',
                     'Attribute' => 'attributes',
@@ -177,9 +176,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $cmd[0] = $cmdAct;
                 $cmd[1] = $cmdTpl;
 
-                if (!empty($mappedNavItems[$tpl])) {
-                    $_REQUEST['tpl'] = $mappedNavItems[$tpl];
-                    $_GET['tpl'] = $mappedNavItems[$tpl];
+                if (!empty($this->getCommands()[$act])
+                    && in_array($tpl, $this->getCommands()[$act]['children'])
+                ) {
+                    if (!empty($mappedNavItems[$tpl])) {
+                        $_REQUEST['tpl'] = $mappedNavItems[$tpl];
+                        $_GET['tpl'] = $mappedNavItems[$tpl];
+                    } else {
+                        break;
+                    }
                 }
                 if (!empty($mappedNavItems[$act])) {
                     $_GET['act'] = $mappedNavItems[$act];

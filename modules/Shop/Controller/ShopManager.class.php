@@ -1550,12 +1550,6 @@ if ($test === NULL) {
     {
         global $_ARRAYLANG;
 
-        if (   isset ($_REQUEST['tpl'])) {
-            if (   $_REQUEST['tpl'] == 'pricelists'
-                || $_REQUEST['tpl'] == 'pricelist_edit') {
-                return self::view_pricelists();
-            }
-        }
         $this->delete_categories();
         $this->store_category();
         $this->update_categories();
