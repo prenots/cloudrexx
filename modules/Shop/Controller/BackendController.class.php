@@ -295,86 +295,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Category':
-                $options['order']['overview'] = array(
-                    'id',
-                    'active',
-                    'name'
-                );
-                $options['order']['form'] = array(
-                    'name',
-                    'parentCategory',
-                    'active',
-                    'picture',
-                    'shortDescription',
-                    'description'
-                );
-                $options['functions']['sortBy'] = array(
-                    'field' => array('ord' => SORT_ASC)
-                );
-                $options['functions']['sorting'] = false;
-
+                $options = $this->getSystemComponentController()->getController(
+                    'Category'
+                )->getViewGeneratorOptions($options);
                 // Delete event
                 $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
                     $options
-                );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'category-id',
-                            ),
-                        ),
-                    ),
-                    'active' => array(
-                        'showOverview' => false,
-                        'sorting' => false,
-                    ),
-                    'name' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'category-name',
-                            ),
-                        ),
-                    ),
-                    'parentCategory' => array(
-                        'showOverview' => false,
-                    ),
-                    'parentId' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'picture' => array(
-                        'showOverview' => false,
-                        'type' => 'image',
-                    ),
-                    'shortDescription' => array(
-                        'showOverview' => false,
-                    ),
-                    'description' => array(
-                        'showOverview' => false,
-                    ),
-                    'ord' => array(
-                        'showOverview' => false,
-                        'type' => 'hidden',
-                    ),
-                    'flags' => array(
-                        'showOverview' => false,
-                        'type' => 'hidden',
-                    ),
-                    'children' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'pricelists' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'products' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
                 );
                 break;
         }
