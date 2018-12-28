@@ -92,6 +92,8 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
             'field' => array('ord' => SORT_ASC)
         );
         $options['functions']['sorting'] = false;
+        $options['functions']['edit'] = false;
+        $options['functions']['editable'] = true;
         $options['order']['overview'] = array(
             'id',
             'code',
@@ -112,8 +114,20 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
             ),
-            'code' => array(
-                'readonly' => 'readonly'
+            'symbol' => array(
+                'editable' => true,
+            ),
+            'name' => array(
+                'editable' => true,
+            ),
+            'rate' => array(
+                'editable' => true,
+            ),
+            'increment' => array(
+                'editable' => true,
+            ),
+            'default' => array(
+                'editable' => true,
             ),
         );
         return $options;
