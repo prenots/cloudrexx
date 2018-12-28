@@ -266,7 +266,7 @@ class Products
                      OR `product`.`date_start` IS NULL
                     )
                     AND (
-                        `product`.`date_end` >= CURRENT_DATE()
+                        `product`.`date_end` >= CURRENT_DATE() 
                      OR `product`.`date_end` IS NULL
                     )'
             ).
@@ -357,7 +357,7 @@ class Products
             // (Pricelists use comma separated values, for example)
             if ($category_id) {
                 $queryCategories = '`category_product`.`category_id` IN ('
-                    .implode(',',$category_id).')';
+                    .(is_array($category_id) ? implode(',',$category_id) : $category_id).')';
                 $queryWhere .= ' AND ('.$queryCategories.')';
             }
             // Limit Products by search pattern, if any
