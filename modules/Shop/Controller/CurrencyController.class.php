@@ -265,19 +265,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Returns the active currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  integer     The ID of the active currency
-     */
-    static function getActiveCurrencyId()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$activeCurrencyId;
-    }
-
-    /**
      * Set the active currency ID
      * @param   integer     $currency_id    The active Currency ID
      * @author  Reto Kohli <reto.kohli@comvation.com>
@@ -320,19 +307,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     {
         if (!is_array(self::$arrCurrency)) self::init();
         return self::$arrCurrency[self::$activeCurrencyId]['code'];
-    }
-
-    /**
-     * Returns the currency code for the given ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the active currency code
-     */
-    static function getCurrencyCodeById($currency_id)
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[$currency_id]['code'];
     }
 
     /**
