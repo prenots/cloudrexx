@@ -69,44 +69,153 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     ) {
         global $_CORELANG, $subMenuTitle, $intAccessIdOffset, $objTemplate;
 
-        $mappedEntities = array(
-            'pricelists' => 'pricelist',
-            'currency' => 'currency'
-        );
+        $splitAct = explode('/', $_GET['act']);
+        $act = $splitAct[0];
+        $tpl = $splitAct[1];
 
-        if (array_key_exists(strtolower($_GET['tpl']), $mappedEntities)) {
-            $_GET['act'] = $mappedEntities[strtolower($_GET['tpl'])];
-        }
-
-        switch(strtolower($_GET['act']))  {
+        switch($act)  {
+            case 'Order':
+            case 'editorder':
+            case 'orderdetails':
+            case 'delorder':
+            case 'orders':
+            case 'Category':
+            case 'categories':
+            case 'category_edit':
+            case 'Product':
             case 'products':
+            case 'activate_products':
+            case 'deactivate_products':
+            case 'delProduct':
+            case 'deleteProduct':
+            case 'Customer':
+            case 'delcustomer':
+            case 'customer_activate':
+            case 'customer_deactivate':
             case 'customers':
+            case 'customerdetails':
+            case 'neweditcustomer':
+            case 'Statistic':
             case 'statistics':
+            case 'Import':
             case 'import':
+            case 'Setting':
             case 'settings':
-                break;
-            case 'manufacturer':
-            case 'pricelist':
-            case 'currency':
-            case 'order':
-            default:
-                $_GET['act'] = ucfirst($_GET['act']);
-                parent::getPage($page);
+            case 'Vat':
+            case 'Payment':
+            case 'Shipper':
+            case 'Relcountry':
+            case 'Zone':
+            case 'Mail':
+            case 'DiscountCoupon':
+            case 'mailtemplate_overview':
+            case 'mailtemplate_edit':
+                $mappedNavItems = array(
+                    'Order' => 'orders',
+                    'Category' => 'categories',
+                    'Product' => 'products',
+                    'Manage' => 'manage',
+                    'Attribute' => 'attributes',
+                    'DiscountgroupCountName' => 'discounts',
+                    'ArticleGroup' => 'groups',
+                    'Customer' => 'customers',
+                    'CustomerGroup' => 'groups',
+                    'RelDiscountGroup' => 'discounts',
+                    'Statistic' => 'statistics',
+                    'Import' => 'import',
+                    'Setting' => 'settings',
+                    'Vat' => 'vat',
+                    'Payment' => 'payment',
+                    'Shipper' => 'shipment',
+                    'RelCountry' => 'countries',
+                    'Zone' => 'zones',
+                    'Mail' => 'mail',
+                    'DiscountCoupon' => 'coupon',
+                );
+                $mappedCmdItems = array(
+                    'editorder' => 'Order',
+                    'orderdetails' => 'Order',
+                    'delorder' => 'Order',
+                    'orders' => 'Order',
+                    'categories' => 'Category',
+                    'category_edit' => 'Category',
+                    'products' => 'Product',
+                    'activate_products' => 'Product',
+                    'deactivate_products' => 'Product',
+                    'delProduct' => 'Product',
+                    'deleteProduct' => 'Product',
+                    'manage' => 'Manage',
+                    'groups' => 'ArticleGroup',
+                    'discounts' => 'DiscountgroupCountName',
+                    'delcustomer' => 'Customer',
+                    'customer_activate' => 'Customer',
+                    'customer_deactivate' => 'Customer',
+                    'customers' => 'Customer',
+                    'customerdetails' => 'Customer',
+                    'neweditcustomer' => 'Customer',
+                    'statistics' => 'Statistic',
+                    'import' => 'Import',
+                    'settings' => 'Setting',
+                    'mailtemplate_overview' => 'Mail',
+                );
+
+                // Set act and tpl for cmd to build the navigation with the
+                // BackendController method
+                $cmdAct = !empty($act) ? $act : $_GET['act'];
+                $cmdTpl = !empty($tpl) ? $tpl : $_GET['tpl'];
+
+                if (!empty($mappedCmdItems[$cmdTpl])) {
+                    $cmdTpl = $mappedCmdItems[$cmdTpl];
+                }
+                if (!empty($mappedCmdItems[$cmdAct])) {
+                    $cmdAct = $mappedCmdItems[$cmdAct];
+                }
+                // Special case, because mailtemplate_edit ist defined in the
+                // $_GET['act'] var and not as $_GET['tpl']
+                if ($act === 'mailtemplate_edit') {
+                    $cmdAct = 'Setting';
+                    $cmdTpl = 'Mail';
+                }
+                $cmd[0] = $cmdAct;
+                $cmd[1] = $cmdTpl;
+
+                if (!empty($this->getCommands()[$act])
+                    && in_array($tpl, $this->getCommands()[$act]['children'])
+                ) {
+                    if (!empty($mappedNavItems[$tpl])) {
+                        $_REQUEST['tpl'] = $mappedNavItems[$tpl];
+                        $_GET['tpl'] = $mappedNavItems[$tpl];
+                    } else {
+                        break;
+                    }
+                }
+                if (!empty($mappedNavItems[$act])) {
+                    $_GET['act'] = $mappedNavItems[$act];
+                }
+
+                $this->cx->getTemplate()->addBlockfile(
+                    'CONTENT_OUTPUT',
+                    'content_master',
+                    'LegacyContentMaster.html'
+                );
+                $objTemplate = $this->cx->getTemplate();
+
+                \Permission::checkAccess($intAccessIdOffset+13, 'static');
+                $subMenuTitle = $_CORELANG['TXT_SHOP_ADMINISTRATION'];
+                $objShopManager = new ShopManager();
+                // Load Javascript File to move the HTML elements to the correct
+                // positions. Because the placeholder CONTENT_NAVIGATION is no
+                // longer in the same position in the ViewGenerator.
+                \JS::registerJS('modules/Shop/View/Script/Fix.js');
+                $navigation = $this->parseNavigation($cmd);
+                $objShopManager->getPage($navigation->get());
                 return;
         }
+        if ($tpl) {
+            $_GET['act'] = $tpl;
+        }
 
-
-        $this->cx->getTemplate()->addBlockfile(
-            'CONTENT_OUTPUT',
-            'content_master',
-            'LegacyContentMaster.html'
-        );
-        $objTemplate = $this->cx->getTemplate();
-
-        \Permission::checkAccess($intAccessIdOffset+13, 'static');
-        $subMenuTitle = $_CORELANG['TXT_SHOP_ADMINISTRATION'];
-        $objShopManager = new ShopManager();
-        $objShopManager->getPage();
+        parent::getPage($page);
     }
 
     /**
@@ -122,12 +231,37 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Pricelist'
                 ),
             ),
-            'products',
-            'manufacturer',
-            'customers',
-            'statistics',
-            'import',
-            'settings'
+            'Product' => array(
+                'children' => array(
+                    'Manage',
+                    'Attribute',
+                    'DiscountgroupCountName',
+                    'ArticleGroup'
+                )
+            ),
+            'Manufacturer' => array(
+                'translatable' => true
+            ),
+            'Customer' => array(
+                'children' => array(
+                    'RelDiscountGroup',
+                    'CustomerGroup'
+                )
+            ),
+            'Statistic',
+            'Import',
+            'Setting' => array(
+                'children' => array(
+                    'Vat',
+                    'Currency',
+                    'Payment',
+                    'Shipper',
+                    'RelCountry',
+                    'Zone',
+                    'Mail',
+                    'DiscountCoupon'
+                ),
+            ),
         );
     }
 
@@ -705,261 +839,33 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 }
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
-                $options['order']['overview'] = array(
-                    'id',
-                    'name',
-                    'uri'
-                );
-                $options['order']['form'] = array(
-                    'name',
-                    'uri'
-                );
-
-                // Delete event
+                $options = $this->getSystemComponentController()->getController(
+                    'Manufacturer'
+                )->getViewGeneratorOptions($options);
                 $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
                     $options
                 );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-id',
-                            ),
-                        ),
-                    ),
-                    'name' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-name',
-                            ),
-                        ),
-                        'sorting' => false,
-                    ),
-                    'uri' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'manufacturer-uri',
-                            ),
-                        ),
-                        'sorting' => false,
-                    ),
-                    'products' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                );
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Category':
-                $options['order']['overview'] = array(
-                    'id',
-                    'active',
-                    'name'
-                );
-                $options['order']['form'] = array(
-                    'name',
-                    'parentCategory',
-                    'active',
-                    'picture',
-                    'shortDescription',
-                    'description'
-                );
-                $options['functions']['sortBy'] = array(
-                    'field' => array('ord' => SORT_ASC)
-                );
-                $options['functions']['sorting'] = false;
-
+                $options = $this->getSystemComponentController()->getController(
+                    'Category'
+                )->getViewGeneratorOptions($options);
                 // Delete event
                 $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
                     $options
                 );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'category-id',
-                            ),
-                        ),
-                    ),
-                    'active' => array(
-                        'showOverview' => false,
-                        'sorting' => false,
-                    ),
-                    'name' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'category-name',
-                            ),
-                        ),
-                    ),
-                    'parentCategory' => array(
-                        'showOverview' => false,
-                    ),
-                    'parentId' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'picture' => array(
-                        'showOverview' => false,
-                        'type' => 'image',
-                    ),
-                    'shortDescription' => array(
-                        'showOverview' => false,
-                    ),
-                    'description' => array(
-                        'showOverview' => false,
-                    ),
-                    'ord' => array(
-                        'showOverview' => false,
-                        'type' => 'hidden',
-                    ),
-                    'flags' => array(
-                        'showOverview' => false,
-                        'type' => 'hidden',
-                    ),
-                    'children' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'pricelists' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'products' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                );
-
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Pricelist':
-
-                $options['order']['form'] = array(
-                    'name',
-                    'lang',
-                );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'pricelist-id',
-                            ),
-                        ),
-                    ),
-                    'name' => array(
-                        'table' => array(
-                            'attributes' => array(
-                                'class' => 'pricelist-name',
-                            ),
-                        ),
-                    ),
-                    'langId' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'borderOn' => array(
-                        'showOverview' => false
-                    ),
-                    'headerOn' => array(
-                        'showOverview' => false
-                    ),
-                    'headerLeft' => array(
-                        'showOverview' => false,
-                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                            return $this->getSystemComponentController()->getController(
-                                'Pricelist'
-                            )->getLineField($fieldname, $fieldvalue, 'headerRight');
-                        }
-                    ),
-                    'headerRight' => array(
-                        'showOverview' => false,
-                        'type' => 'hidden'
-                    ),
-                    'footerOn' => array(
-                        'showOverview' => false
-                    ),
-                    'footerLeft' => array(
-                        'showOverview' => false,
-                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                            global $_ARRAYLANG;
-                            $placeholders = array(
-                                '[DATE]' => $_ARRAYLANG[
-                                'TXT_DATE'
-                                ],
-                                '[PAGENUMBER]' =>$_ARRAYLANG[
-                                'TXT_PAGENUMBER'
-                                ]
-                            );
-                            return $this->getSystemComponentController()->getController(
-                                'Pricelist'
-                            )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
-                        }
-                    ),
-                    'footerRight' => array(
-                        'showOverview' => false,
-                        'type' => 'hidden'
-                    ),
-                    'allCategories' => array(
-                        'showOverview' => false,
-                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
-                            return $this->getSystemComponentController()->getController(
-                                'Pricelist'
-                            )->getAllCategoriesCheckbox($fieldvalue);
-                        },
-                        'storecallback' => function(){
-                            return $this->cx->getRequest()->hasParam(
-                                'category-all',
-                                false
-                            );
-                        }
-                    ),
-                    'lang' => array(
-                        'showOverview' => false
-                    ),
-                    'categories' => array(
-                        'showOverview' => false,
-                        'mode' => 'associate',
-                        'formfield' => function() {
-                            return $this->getSystemComponentController()->getController(
-                                'Pricelist'
-                            )->getCategoryCheckboxesForPricelist();
-                        },
-                    ),
-                );
+                $options = $this->getSystemComponentController()->getController(
+                    'Pricelist'
+                )->getViewGeneratorOptions($options);
                 break;
             case 'Cx\Modules\Shop\Model\Entity\Currency':
-                $options['functions']['sortBy'] = array(
-                    'field' => array('ord' => SORT_ASC)
-                );
-                $options['functions']['sorting'] = false;
-                $options['order']['overview'] = array(
-                    'id',
-                    'code',
-                    'symbol',
-                    'name',
-                    'rate',
-                    'increment',
-                    'default',
-                    'active'
-                );
-
-                $options['fields'] = array(
-                    'orders' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'ord' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                    'code' => array(
-                        'readonly' => 'readonly'
-                    ),
-                );
+                $options = $this->getSystemComponentController()->getController(
+                    'Currency'
+                )->getViewGeneratorOptions($options);
                 break;
         }
         return $options;

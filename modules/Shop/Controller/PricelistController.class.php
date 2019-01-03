@@ -45,6 +45,111 @@ namespace Cx\Modules\Shop\Controller;
 class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
+     * Get ViewGenerator options for entity
+     *
+     * @param $options array predefined ViewGenerator options
+     * @return array includes ViewGenerator options for entity
+     */
+    public function getViewGeneratorOptions($options)
+    {
+        $options['order']['form'] = array(
+            'name',
+            'lang',
+        );
+
+        $options['fields'] = array(
+            'id' => array(
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'pricelist-id',
+                    ),
+                ),
+            ),
+            'name' => array(
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'pricelist-name',
+                    ),
+                ),
+            ),
+            'langId' => array(
+                'showOverview' => false,
+                'showDetail' => false,
+            ),
+            'borderOn' => array(
+                'showOverview' => false
+            ),
+            'headerOn' => array(
+                'showOverview' => false
+            ),
+            'headerLeft' => array(
+                'showOverview' => false,
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    return $this->getSystemComponentController()->getController(
+                        'Pricelist'
+                    )->getLineField($fieldname, $fieldvalue, 'headerRight');
+                }
+            ),
+            'headerRight' => array(
+                'showOverview' => false,
+                'type' => 'hidden'
+            ),
+            'footerOn' => array(
+                'showOverview' => false
+            ),
+            'footerLeft' => array(
+                'showOverview' => false,
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    global $_ARRAYLANG;
+                    $placeholders = array(
+                        '[DATE]' => $_ARRAYLANG[
+                        'TXT_DATE'
+                        ],
+                        '[PAGENUMBER]' =>$_ARRAYLANG[
+                        'TXT_PAGENUMBER'
+                        ]
+                    );
+                    return $this->getSystemComponentController()->getController(
+                        'Pricelist'
+                    )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
+                }
+            ),
+            'footerRight' => array(
+                'showOverview' => false,
+                'type' => 'hidden'
+            ),
+            'allCategories' => array(
+                'showOverview' => false,
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
+                    return $this->getSystemComponentController()->getController(
+                        'Pricelist'
+                    )->getAllCategoriesCheckbox($fieldvalue);
+                },
+                'storecallback' => function(){
+                    return $this->cx->getRequest()->hasParam(
+                        'category-all',
+                        false
+                    );
+                }
+            ),
+            'lang' => array(
+                'showOverview' => false
+            ),
+            'categories' => array(
+                'showOverview' => false,
+                'mode' => 'associate',
+                'formfield' => function() {
+                    return $this->getSystemComponentController()->getController(
+                        'Pricelist'
+                    )->getCategoryCheckboxesForPricelist();
+                },
+            ),
+        );
+
+        return $options;
+    }
+
+    /**
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      * @throws \Doctrine\ORM\ORMException
      */

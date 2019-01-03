@@ -52,7 +52,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function getControllerClasses()
     {
-        return array('Backend', 'Pdf', 'Pricelist');
+        return array(
+            'Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist',
+            'Currency'
+        );
     }
 
     /**
@@ -307,6 +310,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         );
         $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
         $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
+
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::prePersist,
+            'Cx\\Modules\\Shop\\Model\\Entity\\Currency',
+            new \Cx\Modules\Shop\Model\Event\CurrencyEventListener($this->cx)
+        );
     }
 
     /**

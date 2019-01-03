@@ -193,8 +193,10 @@ class ShopManager extends ShopLibrary
 
     /**
      * Set up the shop admin page
+     *
+     * @param \Cx\Core\Html\Sigma $navigation
      */
-    function getPage()
+    function getPage($navigation)
     {
         global $objTemplate, $_ARRAYLANG;
 
@@ -277,7 +279,8 @@ class ShopManager extends ShopLibrary
             'ADMIN_CONTENT' => self::$objTemplate->get(),
         ));
         $this->act = (isset ($_REQUEST['act']) ? $_REQUEST['act'] : '');
-        $this->setNavigation();
+
+        $objTemplate->setVariable('CONTENT_NAVIGATION', $navigation);
     }
 
     /**
@@ -1103,9 +1106,6 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->loadTemplateFile('module_shop_settings.html');
         if (empty($_GET['tpl'])) $_GET['tpl'] = '';
         switch ($_GET['tpl']) {
-            case 'currency':
-                self::view_settings_currency();
-                break;
             case 'payment':
                 Payment::view_settings(self::$objTemplate);
                 break;
@@ -1134,49 +1134,6 @@ class ShopManager extends ShopLibrary
                 break;
         }
     }
-
-
-    /**
-     * The currency settings view
-     */
-    static function view_settings_currency()
-    {
-        self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
-            'settings_block', 'module_shop_settings_currency.html');
-        $i = 0;
-        foreach (\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray() as $currency) {
-            self::$objTemplate->setVariable(array(
-                'SHOP_CURRENCY_STYLE' => 'row'.(++$i % 2 + 1),
-                'SHOP_CURRENCY_ID' => $currency['id'],
-                'SHOP_CURRENCY_CODE' => $currency['code'],
-                'SHOP_CURRENCY_SYMBOL' => $currency['symbol'],
-                'SHOP_CURRENCY_NAME' => $currency['name'],
-                'SHOP_CURRENCY_RATE' => $currency['rate'],
-                'SHOP_CURRENCY_INCREMENT' => $currency['increment'],
-                'SHOP_CURRENCY_ACTIVE' => ($currency['active']
-                    ? \Html::ATTRIBUTE_CHECKED : ''),
-                'SHOP_CURRENCY_STANDARD' => ($currency['default']
-                    ? \Html::ATTRIBUTE_CHECKED : ''),
-            ));
-            self::$objTemplate->parse('shopCurrency');
-        }
-        $str_js = '';
-        foreach (\Cx\Modules\Shop\Controller\CurrencyController::get_known_currencies_increment_array()
-                as $code => $increment) {
-            // This seems like a sensible default for the few unknown ones
-            if (!is_numeric($increment)) $increment = 0.01;
-            $str_js .=
-                ($str_js ? ',' : '').
-                '"'.$code.'":"'.$increment.'"';
-        };
-        self::$objTemplate->setVariable(array(
-            'SHOP_CURRENCY_NAME_MENUOPTIONS' => \Html::getOptions(
-                \Cx\Modules\Shop\Controller\CurrencyController::get_known_currencies_name_array()),
-            'SHOP_CURRENCY_INCREMENT_JS_ARRAY' =>
-                'var currency_increment = {'.$str_js.'};',
-        ));
-    }
-
 
     /**
      * The shipment settings view
@@ -1547,12 +1504,6 @@ if ($test === NULL) {
     {
         global $_ARRAYLANG;
 
-        if (   isset ($_REQUEST['tpl'])) {
-            if (   $_REQUEST['tpl'] == 'pricelists'
-                || $_REQUEST['tpl'] == 'pricelist_edit') {
-                return self::view_pricelists();
-            }
-        }
         $this->delete_categories();
         $this->store_category();
         $this->update_categories();
@@ -2090,11 +2041,6 @@ if ($test === NULL) {
         $websiteImagesShopPath    = $cx->getWebsiteImagesShopPath() . '/';
         $websiteImagesShopWebPath = $cx->getWebsiteImagesShopWebPath() . '/';
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $manufacturer = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Manufacturer'
-        );
-
         self::$objTemplate->setVariable(array(
             'SHOP_PRODUCT_ID' => (isset($_REQUEST['new']) ? 0 : $objProduct->id()),
             'SHOP_PRODUCT_CODE' => contrexx_raw2xhtml($objProduct->code()),
@@ -2132,7 +2078,7 @@ if ($test === NULL) {
             'SHOP_STOCK_VISIBILITY' => ($objProduct->stock_visible()
                 ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
-                $manufacturer->getMenuoptions($objProduct->manufacturer_id()),
+                \Cx\Modules\Shop\Controller\ManufacturerController::getMenuoptions($objProduct->manufacturer_id()),
             'SHOP_PICTURE1_IMG_SRC' =>
                 (   !empty($arrImages[1]['img'])
                  && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[1]['img']))
