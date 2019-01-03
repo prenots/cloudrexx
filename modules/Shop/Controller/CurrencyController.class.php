@@ -81,10 +81,10 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     private static $defaultCurrencyId = false;
 
     /**
-     * Get ViewGenerator options for Manufacturer entity
+     * Get ViewGenerator options for Currency entity
      *
      * @param $options array predefined ViewGenerator options
-     * @return array includes ViewGenerator options for Manufacturer entity
+     * @return array includes ViewGenerator options for Currency entity
      */
     public function getViewGeneratorOptions($options)
     {
@@ -101,6 +101,15 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
         $options['functions']['editable'] = true;
         $options['order']['overview'] = array(
             'id',
+            'code',
+            'symbol',
+            'name',
+            'rate',
+            'increment',
+            'default',
+            'active'
+        );
+        $options['order']['form'] = array(
             'code',
             'symbol',
             'name',
@@ -256,58 +265,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Returns the default currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  integer     The ID of the default currency
-     */
-    static function getDefaultCurrencyId()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$defaultCurrencyId;
-    }
-
-    /**
-     * Returns the default currency symbol
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the default currency
-     */
-    static function getDefaultCurrencySymbol()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$defaultCurrencyId]['symbol'];
-    }
-
-    /**
-     * Returns the default currency code
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the default currency code
-     */
-    static function getDefaultCurrencyCode()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$defaultCurrencyId]['code'];
-    }
-
-    /**
-     * Returns the active currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  integer     The ID of the active currency
-     */
-    static function getActiveCurrencyId()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$activeCurrencyId;
-    }
-
-    /**
      * Set the active currency ID
      * @param   integer     $currency_id    The active Currency ID
      * @author  Reto Kohli <reto.kohli@comvation.com>
@@ -350,32 +307,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     {
         if (!is_array(self::$arrCurrency)) self::init();
         return self::$arrCurrency[self::$activeCurrencyId]['code'];
-    }
-
-    /**
-     * Returns the currency symbol for the given ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the active currency
-     */
-    static function getCurrencySymbolById($currency_id)
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[$currency_id]['symbol'];
-    }
-
-    /**
-     * Returns the currency code for the given ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the active currency code
-     */
-    static function getCurrencyCodeById($currency_id)
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[$currency_id]['code'];
     }
 
     /**
@@ -517,26 +448,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                 '</a>';
         }
         return $strCurNavbar;
-    }
-
-    /**
-     * Return the currency code for the ID given
-     *
-     * Mind that some methods rely on the return value being NULL for
-     * unknown Currencies, see {@see PaymentProcessing::checkIn()}.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @static
-     * @param   integer   $currencyId   The currency ID
-     * @return  mixed                   The currency code on success,
-     *                                  NULL otherwise
-     * @global  ADONewConnection
-     */
-    static function getCodeById($currencyId)
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        if (isset(self::$arrCurrency[$currencyId]['code']))
-            return self::$arrCurrency[$currencyId]['code'];
-        return NULL;
     }
 
     /**

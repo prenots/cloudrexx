@@ -1685,6 +1685,13 @@ class Order
 //DBG::log("Orders::view_list(): loaded Template: ".$objTemplate->get());
         }
         $objOrder = Order::getById($order_id);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $currency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->find($objOrder->currency_id());
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
         if (!$objOrder) {
 //DBG::log("Shop::shopShowOrderdetails(): Failed to find Order ID $order_id");
             return \Message::error(sprintf(
@@ -1729,8 +1736,7 @@ class Order
             \Cx\Core\Setting\Controller\Setting::getValue('country_id','Shop') == $objOrder->country_id());
         $objTemplate->setGlobalVariable($_ARRAYLANG
           + array(
-            'SHOP_CURRENCY' =>
-                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencySymbolById($objOrder->currency_id())));
+            'SHOP_CURRENCY' => $currency->getSymbol()));
 //DBG::log("Order sum: ".Currency::formatPrice($objOrder->sum()));
         $objTemplate->setVariable(array(
             'SHOP_CUSTOMER_ID' => $customer_id,
@@ -1750,7 +1756,7 @@ class Order
                     ? \Html::ATTRIBUTE_CHECKED : '')
                 : ''),
             'SHOP_ORDER_SUM' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objOrder->sum()),
-            'SHOP_DEFAULT_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+            'SHOP_DEFAULT_CURRENCY' => $defaultCurrency->getSymbol(),
             'SHOP_GENDER' => ($edit
                 ? Customer::getGenderMenu(
                     $objOrder->billing_gender(), 'billing_gender')

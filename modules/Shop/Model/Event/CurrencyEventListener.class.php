@@ -45,27 +45,50 @@ namespace Cx\Modules\Shop\Model\Event;
 class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 {
     /**
+     * Overwrite this method to ensure that only one currency entity is the
+     * default entity if the new entity is created.
+     *
      * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
-     * @throws \Doctrine\ORM\ORMException
+     *
+     * @throws \Doctrine\Orm\OptimisticLockException
      */
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
         if (!empty($eventArgs->getEntity()->getDefault())) {
-            $this->setDefaultEntity($eventArgs->getEntity()->getId(), $eventArgs->getEntityManager());
+            $this->setDefaultEntity(
+                $eventArgs->getEntity()->getId(),
+                $eventArgs->getEntityManager()
+            );
         }
     }
 
     /**
+     * Overwrite this method to ensure that only one currency entity is the
+     * default entity if the entity is updated.
+     *
      * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
-     * @throws \Doctrine\ORM\ORMException
+     *
+     * @throws \Doctrine\Orm\OptimisticLockException
      */
     public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
         if (!empty($eventArgs->getEntity()->getDefault())) {
-            $this->setDefaultEntity($eventArgs->getEntity()->getId(), $eventArgs->getEntityManager());
+            $this->setDefaultEntity(
+                $eventArgs->getEntity()->getId(),
+                $eventArgs->getEntityManager()
+            );
         }
     }
 
+    /**
+     * Set default attribute for all currency entities to false if the handed
+     * currency is the new default entity.
+     *
+     * @param $persistedEntityId int          id of persistent entity
+     * @param $em \Doctrine\ORM\EntityManager associated EntityManager
+     *
+     * @throws \Doctrine\Orm\OptimisticLockException
+     */
     protected function setDefaultEntity($persistedEntityId, $em)
     {
         $repo = $em->getRepository(

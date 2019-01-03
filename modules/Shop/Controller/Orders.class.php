@@ -392,6 +392,12 @@ class Orders
         }
 //DBG::log("Orders::view_list(): Order complete: $txt_order_complete");
 //DBG::log("Orders::view_list(): URI: $uri");
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         $objTemplate->setGlobalVariable(array(
             'SHOP_SEARCH_TERM' => (isset($filter['term'])
                 ? $filter['term'] : ''),
@@ -400,7 +406,7 @@ class Orders
             'SHOP_ACTION_URI_SEARCH_ENCODED' => $uri_search,
             'SHOP_ACTION_URI_ENCODED' => $uri,
             'SHOP_ACTION_URI' => html_entity_decode($uri),
-            'SHOP_CURRENCY', \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol()
+            'SHOP_CURRENCY', $defaultCurrency->getSymbol()
         ));
         $count = 0;
         $limit = \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop');
@@ -688,6 +694,11 @@ if (!$limit) {
         }
         $sumColumn3 = $sumColumn4 = 0;
         $sumColumn2 = '';
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
         if ($selectedStat == 2) {
             // Product statistc
             while (!$objResult->EOF) {
@@ -789,7 +800,7 @@ if (!$limit) {
                     'SHOP_COLUMN_3' => $entry['column3'],
                     'SHOP_COLUMN_4' =>
                         \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($entry['column4']).' '.
-                        \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+                        $defaultCurrency->getSymbol(),
                 ));
                 $objTemplate->parse('statisticRow');
             }
@@ -851,18 +862,18 @@ if (!$limit) {
             'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
             'SHOP_TOTAL_SUM' =>
                 \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($totalOrderSum).' '.
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+                $defaultCurrency->getSymbol(),
             'SHOP_MONTH' => $bestMonthDate,
             'SHOP_MONTH_SUM' =>
                 \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($bestMonthSum).' '.
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+                $defaultCurrency->getSymbol(),
             'SHOP_TOTAL_ORDERS' => $totalOrders,
             'SHOP_SOLD_ARTICLES' => $totalSoldProducts,
             'SHOP_SUM_COLUMN_2' => $sumColumn2,
             'SHOP_SUM_COLUMN_3' => $sumColumn3,
             'SHOP_SUM_COLUMN_4' =>
                 \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($sumColumn4).' '.
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+                $defaultCurrency->getSymbol(),
         ));
         return true;
     }
@@ -1241,6 +1252,11 @@ if (!$limit) {
             // Order not found
             return false;
         }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $currency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->find($objOrder->currency_id());
+
         $lang_id = $objOrder->lang_id();
         $status = $objOrder->status();
         $customer_id = $objOrder->customer_id();
@@ -1269,7 +1285,7 @@ if (!$limit) {
                     strtotime($objOrder->modified_on())),
             'REMARKS' => $objOrder->note(),
             'ORDER_SUM' => sprintf('% 9.2f', $objOrder->sum()),
-            'CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getCodeById($objOrder->currency_id()),
+            'CURRENCY' => $currency->getCode(),
         );
         $arrSubstitution += $customer->getSubstitutionArray();
         if ($shipment_id) {

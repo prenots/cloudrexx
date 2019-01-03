@@ -1016,6 +1016,11 @@ class Coupon
 
 //DBG::activate(DBG_ADODB|DBG_LOG_FIREPHP|DBG_PHP);
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         $result = true;
         if (isset($_GET['delete'])) {
             list($code, $customer_id) = explode('-', $_GET['delete']);
@@ -1084,11 +1089,11 @@ class Coupon
             'end_time' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_END_TIME'],
             'minimum_amount' => sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_FORMAT'],
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
+                $defaultCurrency->getCode()),
             'discount_rate' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_RATE'],
             'discount_amount' => sprintf(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'],
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
+                $defaultCurrency->getCode()),
             'uses' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_USES'],
             'global' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_SCOPE'],
             'customer_id' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CUSTOMER'],
@@ -1102,11 +1107,11 @@ class Coupon
             'TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_CURRENCY' =>
                 sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_MINIMUM_AMOUNT_FORMAT'],
-                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
+                    $defaultCurrency->getCode()),
             'TXT_SHOP_DISCOUNT_COUPON_AMOUNT_CURRENCY' =>
                 sprintf(
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_FORMAT'],
-                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyCode()),
+                    $defaultCurrency->getCode()),
             'TXT_SHOP_DISCOUNT_COUPON_ADD_OR_EDIT' =>
                 $_ARRAYLANG[$edit
                     ? 'TXT_SHOP_DISCOUNT_COUPON_EDIT'

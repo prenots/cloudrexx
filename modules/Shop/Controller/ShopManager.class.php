@@ -846,6 +846,11 @@ class ShopManager extends ShopLibrary
             ));
             self::$objTemplate->parseCurrentBlock();
         }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         // The same for a new Attribute
         $uri_param = '&cmd=Shop&act=products&tpl=attributes';
         self::$objTemplate->setVariable(array(
@@ -854,7 +859,7 @@ class ShopManager extends ShopLibrary
                     0, 0, 'updateOptionList(0)'),
             'SHOP_PRODUCT_ATTRIBUTE_JS_VARS' =>
                 Attributes::getAttributeJSVars(),
-            'SHOP_PRODUCT_ATTRIBUTE_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol(),
+            'SHOP_PRODUCT_ATTRIBUTE_CURRENCY' => $defaultCurrency->getSymbol(),
             'SHOP_PAGING' => \Paging::get($uri_param,
                 $_ARRAYLANG['TXT_PRODUCT_CHARACTERISTICS'], $count, $limit),
         ));
@@ -874,6 +879,12 @@ class ShopManager extends ShopLibrary
     {
         $i = 0;
         $count = 0;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         // If a Product is selected, check those Product Attribute values
         // associated with it
         $arrRelation = Attributes::getRelationArray($product_id);
@@ -893,7 +904,7 @@ class ShopManager extends ShopLibrary
                     'SHOP_PRODUCTS_ATTRIBUTE_ID' => $attribute_id,
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_ID' => $option_id,
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_TEXT' => $arrOption['value'].
-                        ' ('.$arrOption['price'].' '.\Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().')',
+                        ' ('.$arrOption['price'].' '.$defaultCurrency->getSymbol().')',
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_SELECTED' => ($valueSelected ? \Html::ATTRIBUTE_CHECKED : ''),
                 ));
                 self::$objTemplate->parse('optionList');
@@ -1140,11 +1151,16 @@ class ShopManager extends ShopLibrary
      */
     static function view_settings_shipment()
     {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         // start show shipment
         self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
             'settings_block', 'module_shop_settings_shipment.html');
         self::$objTemplate->setGlobalVariable(
-            'SHOP_CURRENCY', \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol()
+            'SHOP_CURRENCY', $defaultCurrency->getSymbol()
         );
         $arrShipments = Shipment::getShipmentsArray();
         $i = 0;
@@ -1398,6 +1414,11 @@ if ($test === NULL) {
     \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
 }
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         self::$objTemplate->setVariable(array(
             'SHOP_CONFIRMATION_EMAILS' => \Cx\Core\Setting\Controller\Setting::getValue('email_confirmation','Shop'),
             'SHOP_CONTACT_EMAIL' => \Cx\Core\Setting\Controller\Setting::getValue('email','Shop'),
@@ -1424,8 +1445,7 @@ if ($test === NULL) {
             // Order amount lower limit
             'SHOP_ORDERITEMS_AMOUNT_MIN' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
-            'SHOP_CURRENCY_CODE' => \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyCodeById(
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyId()),
+            'SHOP_CURRENCY_CODE' => $defaultCurrency->getCode(),
             // New extended settings in V3.0.0
             'SHOP_SETTING_CART_USE_JS' =>
                 \Html::getCheckbox('use_js_cart', 1, false,
@@ -2759,6 +2779,12 @@ if ($test === NULL) {
         $orders = Orders::getArray($count, NULL, array('customer_id' => $objCustomer->id()), \Paging::getPosition(),
                 \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop'));
         $i = 1;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         foreach ($orders as $order) {
             \Cx\Modules\Shop\Controller\CurrencyController::init($order->currency_id());
             self::$objTemplate->setVariable(array(
@@ -2770,7 +2796,7 @@ if ($test === NULL) {
                 'SHOP_ORDER_STATUS' =>
                     $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->status()],
                 'SHOP_ORDER_SUM' =>
-                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().' '.
+                    $defaultCurrency->getSymbol().' '.
                     \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->sum()),
             ));
             self::$objTemplate->parse('orderRow');

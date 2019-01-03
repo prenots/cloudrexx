@@ -87,4 +87,10 @@ td.category-name {
 label.category {
     display: block;
 }
->>>>>>> CLX-2489-migrate-currency-view
+
+.default {
+    padding-left: 30px !important;
+}
+table[data-entity='Currency'] td {
+    padding-left: 10px;
+}
