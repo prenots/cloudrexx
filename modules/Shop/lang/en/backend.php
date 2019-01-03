@@ -78,6 +78,9 @@ $_ARRAYLANG['increment'] = 'Rounding';
 $_ARRAYLANG['default'] = 'Default';
 
 $_ARRAYLANG['name'] = 'Name';
+$_ARRAYLANG['cumulative'] = 'Per product';
+$_ARRAYLANG['unit'] = 'Unit';
+$_ARRAYLANG['discountgroupCountRates'] = 'Minimum quantity';
 
 
 $_ARRAYLANG['SHOP_SHIPMENT_TOO_HEAVY'] = "The total weight of your order exceeds the available shipment conditions";
