@@ -226,6 +226,8 @@ CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id
 
 CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id);
 
+CREATE UNIQUE INDEX fk_module_shop_currency_unique_idx ON contrexx_module_shop_currencies (code);
+
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);

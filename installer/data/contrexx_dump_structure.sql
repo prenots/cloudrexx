@@ -3211,6 +3211,7 @@ CREATE TABLE `contrexx_module_shop_currencies` (
   `default` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `increment` decimal(6,5) unsigned NOT NULL DEFAULT '0.01000',
   `name` varchar(255) DEFAULT '' NOT NULL,
+  UNIQUE INDEX `fk_module_shop_currency_idx` (`code`),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_customer_group` (
