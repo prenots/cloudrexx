@@ -81,10 +81,10 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     private static $defaultCurrencyId = false;
 
     /**
-     * Get ViewGenerator options for Manufacturer entity
+     * Get ViewGenerator options for Currency entity
      *
      * @param $options array predefined ViewGenerator options
-     * @return array includes ViewGenerator options for Manufacturer entity
+     * @return array includes ViewGenerator options for Currency entity
      */
     public function getViewGeneratorOptions($options)
     {
