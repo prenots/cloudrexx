@@ -68,6 +68,24 @@ class DiscountgroupCountNameController extends \Cx\Core\Core\Model\Entity\Contro
                     'attributes' => array(
                         'class' => 'discountgroup-name'
                     ),
+                    'parse' => function ($value, $rowData, $vgId) {
+                        return $this->wrapLinkAroundElement(
+                            $value,
+                            $rowData,
+                            $vgId
+                        );
+                    }
+                ),
+            ),
+            'unit' => array(
+                'table' => array(
+                    'parse' => function ($value, $rowData, $vgId) {
+                        return $this->wrapLinkAroundElement(
+                            $value,
+                            $rowData,
+                            $vgId
+                        );
+                    }
                 ),
             ),
             'cumulative' => array(
@@ -84,5 +102,21 @@ class DiscountgroupCountNameController extends \Cx\Core\Core\Model\Entity\Contro
         );
 
         return $options;
+    }
+
+    protected function wrapLinkAroundElement($value, $rowData, $vgId)
+    {
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $data = new \Cx\Core\Html\Model\Entity\TextElement($value);
+
+        $editLink = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
+            $vgId, $rowData['id']
+        );
+        $link->addChild($data);
+        $link->setAttribute(
+            'href', $editLink
+        );
+
+        return $link;
     }
 }
