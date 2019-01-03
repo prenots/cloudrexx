@@ -361,29 +361,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
                 break;
             case 'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName':
-                $options['functions']['sorting'] = false;
-
-                $options['order']['overview'] = array(
-                    'name',
-                    'unit',
-                );
-
-                $options['fields'] = array(
-                    'id' => array(
-                        'showOverview' => false,
-                    ),
-                    'cumulative' => array(
-                        'showOverview' => false,
-                    ),
-                    'discountgroupCountRates' => array(
-                        'showOverview' => false,
-                        'mode' => 'associate',
-                    ),
-                    'products' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
-                    ),
-                );
+                $options = $this->getSystemComponentController()->getController(
+                    'DiscountgroupCountName'
+                )->getViewGeneratorOptions($options);
                 break;
         }
         return $options;
