@@ -112,7 +112,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Attribute' => 'attributes',
                     'DiscountgroupCountName' => 'discounts',
                     'Customer' => 'customers',
-                    'CustomerGroup' => 'groups',
                     'RelDiscountGroup' => 'discounts',
                     'Statistic' => 'statistics',
                     'Import' => 'import',
@@ -341,6 +340,23 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'showDetail' => false,
                     ),
                     'products' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\CustomerGroup':
+                $options['functions']['editable'] = true;
+                $options['functions']['edit'] = false;
+                $options['functions']['sorting'] = false;
+                $options['fields'] = array(
+                    'id' => array(
+                        'showOverview' => false,
+                    ),
+                    'name' => array(
+                        'editable' => true,
+                    ),
+                    'relDiscountGroups' => array(
                         'showOverview' => false,
                         'showDetail' => false,
                     ),
