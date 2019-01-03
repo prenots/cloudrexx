@@ -110,7 +110,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Product' => 'products',
                     'Manage' => 'manage',
                     'Attribute' => 'attributes',
-                    'DiscountgroupCountName' => 'discounts',
                     'Customer' => 'customers',
                     'RelDiscountGroup' => 'discounts',
                     'Statistic' => 'statistics',
@@ -133,7 +132,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'delProduct' => 'Product',
                     'deleteProduct' => 'Product',
                     'manage' => 'Manage',
-                    'discounts' => 'DiscountgroupCountName',
                     'delcustomer' => 'Customer',
                     'customer_activate' => 'Customer',
                     'customer_deactivate' => 'Customer',
@@ -357,6 +355,31 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                         'editable' => true,
                     ),
                     'relDiscountGroups' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName':
+                $options['functions']['sorting'] = false;
+
+                $options['order']['overview'] = array(
+                    'name',
+                    'unit',
+                );
+
+                $options['fields'] = array(
+                    'id' => array(
+                        'showOverview' => false,
+                    ),
+                    'cumulative' => array(
+                        'showOverview' => false,
+                    ),
+                    'discountgroupCountRates' => array(
+                        'showOverview' => false,
+                        'mode' => 'associate',
+                    ),
+                    'products' => array(
                         'showOverview' => false,
                         'showDetail' => false,
                     ),
