@@ -10,4 +10,12 @@ namespace Cx\Modules\Shop\Model\Repository;
  */
 class CurrencyRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getDefaultCurrency()
+    {
+        $defaultCurrency = $this->findOneBy(array('default' => true));
+        if (!$defaultCurrency) {
+            $defaultCurrency = new \Cx\Modules\Shop\Model\Entity\Currency();
+        }
+        return $defaultCurrency;
+    }
 }

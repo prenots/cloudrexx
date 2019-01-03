@@ -771,12 +771,17 @@ class Attributes
             'id="'.$name.'-'.$attribute_id.'" size="1"'.
             ($onchange ? ' onchange="'.$onchange.'"' : '').
             ($style ? ' style="'.$style.'"' : '').'>'."\n";
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
         foreach ($arrOptions as $option_id => $arrValue) {
             $menu .=
                 '<option value="'.$option_id.'"'.
                 ($selected_id == $option_id ? ' selected="selected"' : '').'>'.
                 $arrValue['value'].' ('.$arrValue['price'].' '.
-                \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencySymbol().')</option>'."\n";
+                $defaultCurrency->getSymbol().')</option>'."\n";
         }
         $menu .=
             '</select><br /><a href="javascript:{}" '.

@@ -265,45 +265,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Returns the default currency ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  integer     The ID of the default currency
-     */
-    static function getDefaultCurrencyId()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$defaultCurrencyId;
-    }
-
-    /**
-     * Returns the default currency symbol
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the default currency
-     */
-    static function getDefaultCurrencySymbol()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$defaultCurrencyId]['symbol'];
-    }
-
-    /**
-     * Returns the default currency code
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the default currency code
-     */
-    static function getDefaultCurrencyCode()
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[self::$defaultCurrencyId]['code'];
-    }
-
-    /**
      * Returns the active currency ID
      * @author  Reto Kohli <reto.kohli@comvation.com>
      * @access  public
