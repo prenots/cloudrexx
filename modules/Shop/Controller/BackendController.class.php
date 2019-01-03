@@ -111,7 +111,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Manage' => 'manage',
                     'Attribute' => 'attributes',
                     'DiscountgroupCountName' => 'discounts',
-                    'ArticleGroup' => 'groups',
                     'Customer' => 'customers',
                     'CustomerGroup' => 'groups',
                     'RelDiscountGroup' => 'discounts',
@@ -135,7 +134,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'delProduct' => 'Product',
                     'deleteProduct' => 'Product',
                     'manage' => 'Manage',
-                    'groups' => 'ArticleGroup',
                     'discounts' => 'DiscountgroupCountName',
                     'delcustomer' => 'Customer',
                     'customer_activate' => 'Customer',
@@ -227,7 +225,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Attribute',
                     'DiscountgroupCountName',
                     'ArticleGroup'
-                )
+                ),
             ),
             'Manufacturer' => array(
                 'translatable' => true
@@ -329,6 +327,24 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Currency'
                 )->getViewGeneratorOptions($options);
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\ArticleGroup':
+                $options['functions']['editable'] = true;
+                $options['functions']['edit'] = false;
+                $options['functions']['sorting'] = false;
+                $options['fields'] = array(
+                    'name' => array(
+                        'editable' => true,
+                    ),
+                    'relDiscountGroups' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                    'products' => array(
+                        'showOverview' => false,
+                        'showDetail' => false,
+                    ),
+                );
                 break;
         }
         return $options;
