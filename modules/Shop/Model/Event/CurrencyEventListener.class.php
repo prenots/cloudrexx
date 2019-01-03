@@ -55,7 +55,10 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
         if (!empty($eventArgs->getEntity()->getDefault())) {
-            $this->setDefaultEntity($eventArgs->getEntity()->getId(), $eventArgs->getEntityManager());
+            $this->setDefaultEntity(
+                $eventArgs->getEntity()->getId(),
+                $eventArgs->getEntityManager()
+            );
         }
     }
 
@@ -70,7 +73,10 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
     public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
         if (!empty($eventArgs->getEntity()->getDefault())) {
-            $this->setDefaultEntity($eventArgs->getEntity()->getId(), $eventArgs->getEntityManager());
+            $this->setDefaultEntity(
+                $eventArgs->getEntity()->getId(),
+                $eventArgs->getEntityManager()
+            );
         }
     }
 
