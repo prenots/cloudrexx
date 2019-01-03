@@ -48,9 +48,8 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
      * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
      * @throws \Doctrine\ORM\ORMException
      */
-    public function postPersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
+    public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
-        die();
         if (!empty($eventArgs->getEntity()->getDefault())) {
             $this->setDefaultEntity($eventArgs->getEntity()->getId(), $eventArgs->getEntityManager());
         }
@@ -60,9 +59,8 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
      * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
      * @throws \Doctrine\ORM\ORMException
      */
-    public function postUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
+    public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
-        die();
         if (!empty($eventArgs->getEntity()->getDefault())) {
             $this->setDefaultEntity($eventArgs->getEntity()->getId(), $eventArgs->getEntityManager());
         }
