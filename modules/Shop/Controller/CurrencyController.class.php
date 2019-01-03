@@ -144,6 +144,11 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
                     );
                     return $select;
                 },
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'code'
+                    )
+                )
             ),
             'symbol' => array(
                 'editable' => true,
