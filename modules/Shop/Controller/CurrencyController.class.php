@@ -109,6 +109,15 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
             'default',
             'active'
         );
+        $options['order']['form'] = array(
+            'code',
+            'symbol',
+            'name',
+            'rate',
+            'increment',
+            'default',
+            'active'
+        );
 
         $options['fields'] = array(
             'id' => array(
