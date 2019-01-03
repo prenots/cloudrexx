@@ -362,19 +362,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Returns the currency symbol for the given ID
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @access  public
-     * @static
-     * @return  string      The string representing the active currency
-     */
-    static function getCurrencySymbolById($currency_id)
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        return self::$arrCurrency[$currency_id]['symbol'];
-    }
-
-    /**
      * Returns the currency code for the given ID
      * @author  Reto Kohli <reto.kohli@comvation.com>
      * @access  public
