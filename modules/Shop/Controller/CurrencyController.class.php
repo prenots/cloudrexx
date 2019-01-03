@@ -529,26 +529,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Return the currency code for the ID given
-     *
-     * Mind that some methods rely on the return value being NULL for
-     * unknown Currencies, see {@see PaymentProcessing::checkIn()}.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @static
-     * @param   integer   $currencyId   The currency ID
-     * @return  mixed                   The currency code on success,
-     *                                  NULL otherwise
-     * @global  ADONewConnection
-     */
-    static function getCodeById($currencyId)
-    {
-        if (!is_array(self::$arrCurrency)) self::init();
-        if (isset(self::$arrCurrency[$currencyId]['code']))
-            return self::$arrCurrency[$currencyId]['code'];
-        return NULL;
-    }
-
-    /**
      * Returns the array of known currencies
      *
      * The array is of the form

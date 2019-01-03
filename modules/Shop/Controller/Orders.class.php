@@ -1241,6 +1241,11 @@ if (!$limit) {
             // Order not found
             return false;
         }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $currency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->find($objOrder->currency_id());
+
         $lang_id = $objOrder->lang_id();
         $status = $objOrder->status();
         $customer_id = $objOrder->customer_id();
@@ -1269,7 +1274,7 @@ if (!$limit) {
                     strtotime($objOrder->modified_on())),
             'REMARKS' => $objOrder->note(),
             'ORDER_SUM' => sprintf('% 9.2f', $objOrder->sum()),
-            'CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getCodeById($objOrder->currency_id()),
+            'CURRENCY' => $currency->getCode(),
         );
         $arrSubstitution += $customer->getSubstitutionArray();
         if ($shipment_id) {
