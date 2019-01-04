@@ -15,6 +15,17 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
 
+        // Until we know how to get the editId without the $_GET param
+        if ($this->cx->getRequest()->hasParam('editid')) {
+            $this->orderId = explode(
+                '}',
+                explode(
+                    ',',
+                    $this->cx->getRequest()->getParam('editid')
+                )[1]
+            )[0];
+        }
+
         $options['functions']['filtering'] = true;
         $options['functions']['searching'] = true;
         $options['functions']['show'] = true;
@@ -542,6 +553,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         } else {
             $options['fields']['lsvs'] = array(
                 'showOverview' => false,
+                'allowFiltering' => false,
                 'showDetail' => false,
             );
         }
