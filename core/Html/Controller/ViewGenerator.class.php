@@ -86,13 +86,9 @@ class ViewGenerator {
      *
      * @param mixed $object Array, instance of DataSet, instance of EntityBase, object
      * @param array $options component options
-     *
-     * @global array $_ARRAYLANG array containing the language variables
      * @throws ViewGeneratorException if there is any error in try catch statement
      */
     public function __construct($object, $options = array()) {
-        global $_ARRAYLANG;
-
         $this->cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $this->cx->getEvents()->triggerEvent(
             'Html.ViewGenerator:initialize',
@@ -143,15 +139,7 @@ class ViewGenerator {
                     $this->options['functions']['allowAdd'] != false
                 )
             ) {
-                $showSuccessMessage = $this->saveEntry($entityWithNS);
-                if ($showSuccessMessage) {
-                    \Message::add($_ARRAYLANG['TXT_CORE_RECORD_ADDED_SUCCESSFUL']);
-                }
-                $param = 'add';
-                $actionUrl = clone $this->cx->getRequest()->getUrl();
-                $actionUrl->setParam($param, null);
-                \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
-
+                $this->saveEntry($entityWithNS);
             }
 
             // execute edit if entry is a doctrine entity (or execute callback if specified in configuration)
@@ -168,14 +156,7 @@ class ViewGenerator {
                     )
                 )
             ) {
-                $showSuccessMessage = $this->saveEntry($entityWithNS);
-                if ($showSuccessMessage) {
-                    \Message::add($_ARRAYLANG['TXT_CORE_RECORD_UPDATED_SUCCESSFUL']);
-                }
-                $param = 'editid';
-                $actionUrl = clone $this->cx->getRequest()->getUrl();
-                $actionUrl->setParam($param, null);
-                \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
+                $this->saveEntry($entityWithNS);
             }
 
             // execute remove if entry is a doctrine entity (or execute callback if specified in configuration)
@@ -895,36 +876,8 @@ class ViewGenerator {
                 $renderObject->getDataType()
             );
             $renderObject = $this->listingController->getData();
-            if ($this->object instanceof \Cx\Core_Modules\Listing\Model\Entity\DataSet) {
-                $entityClassWithNS = $this->object->getDataType();
-            } else {
-                $entityClassWithNS = get_class($this->object);
-            }
-            if ($_POST['saveEntry']) {
-                foreach ($renderObject as $rowname => $rows) {
-                    foreach ($rows as $header => $data) {
-                        $attr[$header] = $_POST[$header . '-' . $rowname];
-                    }
-                    $entries[$rowname] = $attr;
-                }
-
-                $this->saveEntries($entityClassWithNS, $entries);
-            }
-            try {
-                $renderOptions = $this->getRenderOptions(
-                    $renderObject,
-                    $entityClassWithNS,
-                    $entityId
-                );
-            } catch (\Exception $e) {
-                return '';
-            }
-
-            $renderObject = $renderOptions['renderObject'];
-            $entityClassWithNS = $renderOptions['entityClassWithNS'];
-
             $this->options['functions']['vg_increment_number'] = $this->viewId;
-            $backendTable = new \BackendTable($renderObject, $this->options, $entityClassWithNS);
+            $backendTable = new \BackendTable($renderObject, $this->options);
             $template->setVariable(array(
                 'TABLE' => $backendTable,
                 'PAGING' => $this->listingController,
@@ -948,6 +901,7 @@ class ViewGenerator {
     protected function renderFormForEntry($entityId) {
         global $_CORELANG;
 
+        $renderArray=array('vg_increment_number' => $this->viewId);
         if (!isset($this->options['fields'])) {
             $this->options['fields'] = array();
         }
@@ -962,100 +916,20 @@ class ViewGenerator {
             $entityClassWithNS = get_class($this->object);
         }
         $actionUrl = clone \Env::get('cx')->getRequest()->getUrl();
-
-        try {
-            $renderOptions = $this->getRenderOptions(
-                null,
-                $entityClassWithNS,
-                $entityId,
-                $entityTitle,
-                $actionUrl
-            );
-        } catch (\Exception $e) {
-            return '';
-        }
-
-        $renderArray = $renderOptions['renderArray'];
-        $entityClassWithNS = $renderOptions['entityClassWithNS'];
-        $title = $renderOptions['title'];
-        $actionUrl = $renderOptions['actionUrl'];
-
-        //sets the order of the fields
-        if(!empty($this->options['order']['form'])) {
-            $sortedData = array();
-            foreach ($this->options['order']['form'] as $orderVal) {
-                if(array_key_exists($orderVal, $renderArray)){
-                    $sortedData[$orderVal] = $renderArray[$orderVal];
-                }
-            }
-            $renderArray = array_merge($sortedData,$renderArray);
-        }
-        $this->formGenerator = new FormGenerator($renderArray, $actionUrl, $entityClassWithNS, $title, $this->options, $entityId, $this->componentOptions);
-        // This should be moved to FormGenerator as soon as FormGenerator
-        // gets the real entity instead of $renderArray
-        $additionalContent = '';
-        if (isset($this->options['preRenderDetail'])) {
-            $preRender = $this->options['preRenderDetail'];
-            /* We use json to do preRender the detail. The 'else if' is for backwards compatibility so you can declare
-             * the function directly without using json. This is not recommended and not working over session */
-            if (
-                isset($preRender) &&
-                is_array($preRender) &&
-                isset($preRender['adapter']) &&
-                isset($preRender['method'])
-            ) {
-                $json = new \Cx\Core\Json\JsonData();
-                $jsonResult = $json->data(
-                    $preRender['adapter'],
-                    $preRender['method'],
-                    array(
-                        'viewGenerator' => $this,
-                        'formGenerator' => $this->formGenerator,
-                        'entityId'  => $entityId,
-                    )
-                );
-                if ($jsonResult['status'] == 'success') {
-                    $additionalContent .= $jsonResult["data"];
-                }
-            } else if (is_callable($preRender)) {
-                $additionalContent = $preRender($this, $this->formGenerator, $entityId);
-
-            }
-        }
-        return $this->formGenerator . $additionalContent;
-    }
-
-    /**
-     * Get updated renderObject, renderArray, entityClassWithNS, entityId and
-     * actionUrl.
-     *
-     * @param $renderObject
-     * @param string $entityClassWithNS
-     * @param int    $entityId
-     * @param string $entityTitle
-     * @param null   $actionUrl
-     * @return array
-     * @throws ViewGeneratorException
-     * @throws \Doctrine\ORM\Mapping\MappingException
-     */
-    protected function getRenderOptions($renderObject, $entityClassWithNS, $entityId, $entityTitle = '', $actionUrl = null) {
-        global $_CORELANG;
-
-        $renderArray=array('vg_increment_number' => $this->viewId);
         if ($entityClassWithNS != 'array') {
             try {
                 $entityObject = \Env::get('em')->getClassMetadata($entityClassWithNS);
             } catch (\Doctrine\Common\Persistence\Mapping\MappingException $e) {
-                return array();
+                return;
             }
             $primaryKeyNames = $entityObject->getIdentifierFieldNames(); // get the name of primary key in database table
             if ($entityId == 0 && !empty($this->options['functions']['add'])) { // load add entry form
                 $this->setProperCancelUrl('add');
-                if (!empty($actionUrl)) $actionUrl->setParam('add', 1);
+                $actionUrl->setParam('add', 1);
                 $title = sprintf($_CORELANG['TXT_CORE_ADD_ENTITY'], $entityTitle);
                 $entityColumnNames = $entityObject->getColumnNames(); // get all database field names
                 if (empty($entityColumnNames)) {
-                    return array();
+                    return false;
                 }
 
                 // instanciate a dummy entity of the model we are about
@@ -1162,15 +1036,51 @@ class ViewGenerator {
             $renderArray = $this->object->toArray();
             $entityClassWithNS = '';
             $title = $entityTitle;
-            $renderObject = null;
         }
-        return array(
-            'renderArray' => $renderArray,
-            'renderObject' => $renderObject,
-            'entityClassWithNS' => $entityClassWithNS,
-            'title' => $title,
-            'actionUrl' => $actionUrl
-        );
+
+        //sets the order of the fields
+        if(!empty($this->options['order']['form'])) {
+            $sortedData = array();
+            foreach ($this->options['order']['form'] as $orderVal) {
+                if(array_key_exists($orderVal, $renderArray)){
+                    $sortedData[$orderVal] = $renderArray[$orderVal];
+                }
+            }
+            $renderArray = array_merge($sortedData,$renderArray);
+        }
+        $this->formGenerator = new FormGenerator($renderArray, $actionUrl, $entityClassWithNS, $title, $this->options, $entityId, $this->componentOptions);
+        // This should be moved to FormGenerator as soon as FormGenerator
+        // gets the real entity instead of $renderArray
+        $additionalContent = '';
+        if (isset($this->options['preRenderDetail'])) {
+            $preRender = $this->options['preRenderDetail'];
+            /* We use json to do preRender the detail. The 'else if' is for backwards compatibility so you can declare
+             * the function directly without using json. This is not recommended and not working over session */
+            if (
+                isset($preRender) &&
+                is_array($preRender) &&
+                isset($preRender['adapter']) &&
+                isset($preRender['method'])
+            ) {
+                $json = new \Cx\Core\Json\JsonData();
+                $jsonResult = $json->data(
+                    $preRender['adapter'],
+                    $preRender['method'],
+                    array(
+                        'viewGenerator' => $this,
+                        'formGenerator' => $this->formGenerator,
+                        'entityId'  => $entityId,
+                    )
+                );
+                if ($jsonResult['status'] == 'success') {
+                    $additionalContent .= $jsonResult["data"];
+                }
+            } else if (is_callable($preRender)) {
+                $additionalContent = $preRender($this, $this->formGenerator, $entityId);
+
+            }
+        }
+        return $this->formGenerator . $additionalContent;
     }
 
     /**
@@ -1183,43 +1093,18 @@ class ViewGenerator {
     }
 
     /**
-     * @param string $entityWithNS class name with namespace
-     * @param array  $entities     array with all entities and their content
-     *
-     * @global array $_ARRAYLANG   array containing the language variables
-     */
-    protected function saveEntries($entityWithNS, $entities)
-    {
-        global $_ARRAYLANG;
-        foreach ($entities as $entityId=>$entityData) {
-            $showSuccessMessage = $this->saveEntry($entityWithNS, $entityId, $entityData);
-            if (!$showSuccessMessage) {
-                return;
-            }
-        }
-        \Message::add($_ARRAYLANG['TXT_CORE_RECORDS_UPDATED_SUCCESSFUL']);
-        $actionUrl = clone $this->cx->getRequest()->getUrl();
-        \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
-    }
-
-    /**
      * This function saves an entity to the database
      *
      * @param string $entityWithNS class name including namespace
-     * @oaram int    $entityId     id of entity
-     * @param array  $entityData   custom post data to save
      * @access protected
      * @global array $_ARRAYLANG array containing the language variables
-     * @return bool $showSuccessMessage if the save was successful
      */
-    protected function saveEntry($entityWithNS, $entityId, $entityData) {
+    protected function saveEntry($entityWithNS) {
         global $_ARRAYLANG;
 
         $em = $this->cx->getDb()->getEntityManager();
         // if entityId is a number the user edited an existing entry. If it is null we create a new one
-        if (empty($entityId)) {
-            $entityId = contrexx_input2raw($this->getEntryId());
-        }
+        $entityId = contrexx_input2raw($this->getEntryId());
         $this->renderFormForEntry($entityId);
 
         // if the form is not valid in any case, we stay in this view and do not save anything, because we can not be
@@ -1416,7 +1301,7 @@ class ViewGenerator {
 
         if ($entityId != 0) { // edit case
             // update the main entry in doctrine so we can store it over doctrine to database later
-            $this->savePropertiesToClass($entity, $entityClassMetadata, $entityData);
+            $this->savePropertiesToClass($entity, $entityClassMetadata);
             $param = 'editid';
             $successMessage = $_ARRAYLANG['TXT_CORE_RECORD_UPDATED_SUCCESSFUL'];
         } else {
@@ -1426,7 +1311,7 @@ class ViewGenerator {
                 $param = 'add';
             }
             // save main formular class data to its class over $_POST
-            $this->savePropertiesToClass($entity, $entityClassMetadata, $entityData);
+            $this->savePropertiesToClass($entity, $entityClassMetadata);
             $successMessage = $_ARRAYLANG['TXT_CORE_RECORD_ADDED_SUCCESSFUL'];
         }
 
@@ -1473,7 +1358,13 @@ class ViewGenerator {
             \DBG::msg('Unkown entity model '.get_class($entity).'! Trying to persist using entity manager...');
         }
 
-        return $showSuccessMessage;
+        if($showSuccessMessage) {
+            \Message::add($successMessage);
+        }
+        // get the proper action url and redirect the user
+        $actionUrl = clone $this->cx->getRequest()->getUrl();
+        $actionUrl->setParam($param, null);
+        \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
     }
 
     /**
