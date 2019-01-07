@@ -1313,9 +1313,13 @@ if (!$limit) {
             );
         }
         if ($payment_id) {
+            $payment = $cx->getDb()->getEntityManager()->getRepository(
+                '\Cx\Modules\Shop\Model\Entity\Payment'
+            )->find($payment_id);
+
             $arrSubstitution += array (
                 'PAYMENT' => array(0 => array(
-                    'PAYMENT_NAME' => sprintf('%-40s', Payment::getNameById($payment_id)),
+                    'PAYMENT_NAME' => sprintf('%-40s', $payment->getName()),
                     'PAYMENT_PRICE' => sprintf('% 9.2f', $objOrder->payment_amount()),
                 )),
             );

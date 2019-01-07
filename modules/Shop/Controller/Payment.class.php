@@ -282,23 +282,6 @@ class Payment
 
 
     /**
-     * Get the payment name for the ID given
-     * @static
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     * @param   integer   $paymentId      The payment ID
-     * @return  mixed                     The payment name on success,
-     *                                    false otherwise
-     * @since   1.2.1
-     */
-    static function getNameById($paymentId)
-    {
-        if (is_null(self::$arrPayments)) self::init();
-        return (isset (self::$arrPayments[$paymentId])
-            ? self::$arrPayments[$paymentId]['name'] : '');
-    }
-
-
-    /**
      * Returns the ID of the payment processor for the given payment ID
      * @static
      * @param   integer   $paymentId    The payment ID
