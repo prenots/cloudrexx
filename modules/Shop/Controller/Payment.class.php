@@ -65,39 +65,22 @@ class Payment
      */
     static function init()
     {
-        global $objDatabase;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $repo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Payment'
+        );
 
-        $arrSqlName = \Text::getSqlSnippets('`payment`.`id`', FRONTEND_LANG_ID,
-            'Shop', array('name' => self::TEXT_NAME));
-        $query = "
-            SELECT `payment`.`id`, `payment`.`processor_id`,
-                   `payment`.`fee`, `payment`.`free_from`,
-                   `payment`.`ord`, `payment`.`active`, ".
-            $arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_payment` AS `payment`".
-            $arrSqlName['join']."
-             ORDER BY id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) { return self::errorHandler(); }
-        self::$arrPayments = array();
-        if ($objResult->EOF) return true;
-        while ($objResult && !$objResult->EOF) {
-            $id = $objResult->fields['id'];
-            $strName = $objResult->fields['name'];
-            if ($strName === null) {
-                $objText = \Text::getById($id, 'Shop', self::TEXT_NAME);
-                if ($objText) $strName = $objText->content();
-            }
-            self::$arrPayments[$id] = array(
-                'id' => $id,
-                'processor_id' => $objResult->fields['processor_id'],
-                'name' => $strName,
-                'fee' => $objResult->fields['fee'],
-                'free_from' => $objResult->fields['free_from'],
-                'ord' => $objResult->fields['ord'],
-                'active' => $objResult->fields['active'],
+        $payments = $repo->findBy(array(), array('ord' => 'ASC'));
+        foreach ($payments as $payment) {
+            self::$arrPayments[$payment->getId()] = array(
+                'id' => $payment->getId(),
+                'processor_id' => $payment->getProcessorId(),
+                'name' => $payment->getName(),
+                'fee' => $payment->getFee(),
+                'free_from' => $payment->getFreeFrom(),
+                'ord' => $payment->getOrd(),
+                'active' => $payment->getActive(),
             );
-            $objResult->MoveNext();
         }
         return true;
     }
