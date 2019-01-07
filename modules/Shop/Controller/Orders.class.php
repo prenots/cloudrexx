@@ -439,8 +439,6 @@ if (!$limit) {
             'SHOP_HEADER_CUSTOMER_NAME' => $objSorting->getHeaderForField('customer_name'),
             'SHOP_HEADER_NOTES' => $_ARRAYLANG['TXT_SHOP_ORDER_NOTES'],
             'SHOP_HEADER_SUM' => $objSorting->getHeaderForField('sum'),
-            'SHOP_LISTLETTER_LINKS' => self::getListletterLinks(
-                (isset($filter['letter']) ? $filter['letter'] : NULL)),
         ));
         if (empty($arrOrders)) {
 //            $objTemplate->hideBlock('orderTable');
@@ -876,40 +874,6 @@ if (!$limit) {
                 $defaultCurrency->getSymbol(),
         ));
         return true;
-    }
-
-
-    /**
-     * Returns a string with HTML code for the starting letter links
-     * @param   integer     $selected   The optional preselected letter
-     * @return  string                  The links HTML code
-     */
-    static function getListletterLinks($selected=null)
-    {
-        global $_ARRAYLANG;
-//DBG::log("Orders::getListletterLinks($selected)");
-
-        $format = "[ <a href=\"javascript:sendForm('%1\$s')\" title=\"%2\$s\">%2\$s</a> ]\n";
-        $links = '';
-        $match = false;
-        for ($i = 65; $i < 91; ++$i) {
-            $letter = chr($i);
-            $link = sprintf($format, $letter, $letter);
-            if ($selected == $letter) {
-                $link = '<b>'.$link.'</b>';
-                $match = true;
-            }
-            $links .= $link;
-        }
-        $link = sprintf($format, '', $_ARRAYLANG['TXT_SHOP_ALL']);
-        if (!$match) {
-            $link = '<b>'.$link.'</b>';
-        }
-        $links .=
-            $link.
-            \Html::getHidden('listletter', '');
-        return $links;
-
     }
 
 
