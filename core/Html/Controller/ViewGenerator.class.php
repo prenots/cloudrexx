@@ -894,7 +894,8 @@ class ViewGenerator {
             } else {
                 $entityClassWithNS = get_class($this->object);
             }
-            if ($_POST['saveEntry']) {
+            if ($this->cx->getRequest()->hasParam('vg-'. $this->viewId . '-saveEntry', false)) {
+
                 foreach ($renderObject as $rowname => $rows) {
                     foreach ($rows as $header => $data) {
                         $attr[$header] = $_POST[$header . '-' . $rowname];
@@ -918,7 +919,7 @@ class ViewGenerator {
             $entityClassWithNS = $renderOptions['entityClassWithNS'];
 
             $this->options['functions']['vg_increment_number'] = $this->viewId;
-            $backendTable = new \BackendTable($renderObject, $this->options, $entityClassWithNS);
+            $backendTable = new \BackendTable($renderObject, $this->options, $entityClassWithNS, $this->viewId);
             $template->setVariable(array(
                 'TABLE' => $backendTable,
                 'PAGING' => $this->listingController,
@@ -1194,7 +1195,7 @@ class ViewGenerator {
             }
         }
         \Message::add($_ARRAYLANG['TXT_CORE_RECORDS_UPDATED_SUCCESSFUL']);
-        $actionUrl = clone $this->cx->getRequest()->getUrl();
+        $actionUrl = contrexx_raw2xhtml(clone $this->cx->getRequest()->getUrl());
         \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
     }
 
@@ -1208,7 +1209,7 @@ class ViewGenerator {
      * @global array $_ARRAYLANG array containing the language variables
      * @return bool $showSuccessMessage if the save was successful
      */
-    protected function saveEntry($entityWithNS, $entityId, $entityData) {
+    protected function saveEntry($entityWithNS, $entityId = 0, $entityData = array()) {
         global $_ARRAYLANG;
 
         $em = $this->cx->getDb()->getEntityManager();
