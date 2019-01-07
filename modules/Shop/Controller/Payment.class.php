@@ -322,43 +322,6 @@ class Payment
 
 
     /**
-     * Deletes the Payment method with the given ID
-     *
-     * Returns NULL if no valid Payment ID is given.
-     * Fails when trying to delete the only active Payment.  Add and activate
-     * a new one before trying to delete the other.
-     * @param   integer $payment_id     The Payment ID
-     * @return  boolean                 True on success, false on failure,
-     *                                  or null otherwise (NOOP)
-     * @global  ADOConnection   $objDatabase
-     */
-    static function delete($payment_id)
-    {
-        global $objDatabase, $_ARRAYLANG;
-
-        $payment_id = intval($payment_id);
-        if ($payment_id <= 0) return NULL;
-        if (is_null(self::$arrPayments)) self::init();
-        if (empty(self::$arrPayments[$payment_id])) return NULL;
-        $count_active_payments = 0;
-        foreach (self::$arrPayments as $arrPayment) {
-            if ($arrPayment['active']) ++$count_active_payments;
-        }
-        if ($count_active_payments < 2) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_PAYMENT_ERROR_CANNOT_DELETE_LAST_ACTIVE']);
-        }
-        if (!$objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment
-             WHERE payment_id=?", $payment_id)) return false;
-        if (!$objDatabase->Execute("
-            DELETE FROM ".DBPREFIX."module_shop".MODULE_INDEX."_payment
-             WHERE id=?", $payment_id)) return false;
-
-        return true;
-    }
-
-
-    /**
      * Clear the Payments stored in the class
      *
      * Call this after updating the database.  The Payments will be
