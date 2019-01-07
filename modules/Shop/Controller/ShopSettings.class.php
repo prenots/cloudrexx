@@ -254,18 +254,6 @@ class ShopSettings
             self::$changed = true;
             self::$success &= $result;
         }
-//DBG::log("after Payment::delete: ".self::$success.", changed: ".self::$changed);
-        $result = Payment::add();
-        if (isset($result)) {
-            self::$changed = true;
-            self::$success &= $result;
-        }
-//DBG::log("after Payment::add: ".self::$success.", changed: ".self::$changed);
-        $result = Payment::update();
-        if (isset($result)) {
-            self::$changed = true;
-            self::$success &= $result;
-        }
 //DBG::log("after Payment::update: ".self::$success.", changed: ".self::$changed);
         Payment::reset();
         if (empty ($_POST['bpayment'])) return;
