@@ -55,12 +55,6 @@ class BackendTable extends HTML_Table {
     protected $editable = false;
 
     /**
-     * @var int $viewId This ID is used as html id for the view so we can load
-     * more than one view
-     */
-    protected $viewId;
-
-    /**
      * Whether or not the table has a master table header.
      * A master table header is used as a title and is being
      * parsed as TH tags.
@@ -79,12 +73,11 @@ class BackendTable extends HTML_Table {
      * @param string $entityClass class name of entity
      * @throws \Doctrine\ORM\Mapping\MappingException
      */
-    public function __construct($attrs = array(), $options = array(), $entityClass = '', $viewId = 0) {
+    public function __construct($attrs = array(), $options = array(), $entityClass = '') {
         global $_ARRAYLANG;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
-        $this->viewId = $viewId;
         if (!empty($options['functions']['editable'])) {
             $this->editable = true;
         }
@@ -148,7 +141,7 @@ class BackendTable extends HTML_Table {
                         continue;
                     }
 
-                    if (isset($options['fields'][$header]['editable']) && $this->editable) {
+                    if (isset($options['fields'][$header]['editable'])) {
                         $data = $formGenerator->getDataElementWithoutType($header, $header .'-'. $rowname, 0, $data, $options, 0);
 
                         $encode = false;
@@ -744,9 +737,8 @@ class BackendTable extends HTML_Table {
         }
 
         if ($this->editable) {
-            $template->setVariable('HTML_FORM_ACTION', contrexx_raw2xhtml(clone \Env::get('cx')->getRequest()->getUrl()));
-            $template->setVariable('HTML_VG_ID', $this->viewId);
-            $template->setVariable('TXT_HTML_SAVE', $_ARRAYLANG['TXT_SAVE_CHANGES']);
+            $template->setVariable('FORM_ACTION', clone \Env::get('cx')->getRequest()->getUrl());
+            $template->setVariable('TXT_SAVE', $_ARRAYLANG['TXT_SAVE_CHANGES']);
 
             $template->touchBlock('form_open');
             $template->touchBlock('form_close');
