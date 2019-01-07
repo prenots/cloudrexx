@@ -263,7 +263,7 @@ class ShopManager extends ShopLibrary
                 break;
             case 'statistics':
                 self::$pageTitle = $_ARRAYLANG['TXT_STATISTIC'];
-                Orders::view_statistics(self::$objTemplate);
+                \Cx\Modules\Shop\Controller\OrderController::view_statistics(self::$objTemplate);
                 break;
             case 'import':
                 $this->_import();
