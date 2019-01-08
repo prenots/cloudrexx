@@ -266,15 +266,14 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      */
     static function getPaymentProcessorId($paymentId)
     {
-        global $objDatabase;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $payment = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Payment'
+        )->find($paymentId);
 
-        $query = "
-            SELECT `processor_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_payment`
-             WHERE `id`=$paymentId";
-        $objResult = $objDatabase->Execute($query);
-        if ($objResult && !$objResult->EOF)
-            return $objResult->fields['processor_id'];
+        if (!empty($payment)) {
+            return $payment->getPaymentProcessor()->getId();
+        }
         return false;
     }
 
