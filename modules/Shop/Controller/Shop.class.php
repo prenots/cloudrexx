@@ -3271,7 +3271,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             );
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
-        return Payment::getPaymentMenu(
+        return \Cx\Modules\Shop\Controller\PaymentController::getPaymentMenu(
             $_SESSION['shop']['paymentId'],
             "document.forms['shopForm'].submit()",
             $_SESSION['shop']['countryId']
@@ -3551,7 +3551,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             // TODO: Check if the first line is not already checked above
             if (    !(!Cart::needs_shipment() && Cart::get_price() <= 0)
                 &&  self::$objTemplate->blockExists('shop_payment_payment_methods')
-                &&  $paymentMethods = Payment::getPaymentMethods($_SESSION['shop']['countryId'])
+                &&  $paymentMethods = \Cx\Modules\Shop\Controller\PaymentController::getPaymentMethods($_SESSION['shop']['countryId'])
             ) {
                 foreach ($paymentMethods as $paymentId => $paymentName) {
                     self::$objTemplate->setVariable(array(

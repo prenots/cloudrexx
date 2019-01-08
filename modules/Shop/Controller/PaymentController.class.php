@@ -45,6 +45,14 @@ namespace Cx\Modules\Shop\Controller;
 class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
+     * Array of available payment service data
+     * @var     array
+     * @access  private
+     * @static
+     */
+    private static $arrPayments = null;
+
+    /**
      * Get ViewGenerator options for Payment entity
      *
      * @param $options array predefined ViewGenerator options
@@ -105,4 +113,104 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
 
         return $options;
     }
+
+    /**
+     * Set up the payment array
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @since   2.1.0
+     */
+    static function init()
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $repo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Payment'
+        );
+
+        $payments = $repo->findBy(array(), array('ord' => 'ASC'));
+        foreach ($payments as $payment) {
+            self::$arrPayments[$payment->getId()] = array(
+                'id' => $payment->getId(),
+                'processor_id' => $payment->getProcessorId(),
+                'name' => $payment->getName(),
+                'fee' => $payment->getFee(),
+                'free_from' => $payment->getFreeFrom(),
+                'ord' => $payment->getOrd(),
+                'active' => $payment->getActive(),
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Return HTML code for the payment dropdown menu
+     *
+     * See {@see getPaymentMenuoptions()} for details.
+     * @param   string  $selectedId     Optional preselected payment ID
+     * @param   string  $onchange       Optional onchange function
+     * @param   integer $countryId      Country ID
+     * @return  string                  HTML code for the dropdown menu
+     * @global  array   $_ARRAYLANG     Language array
+     */
+    static function getPaymentMenu($selectedId=0, $onchange='', $countryId=0)
+    {
+        return \Html::getSelectCustom('paymentId',
+            self::getPaymentMenuoptions($selectedId, $countryId),
+            FALSE, $onchange);
+    }
+
+    /**
+     * Return HTML code for the payment dropdown menu options
+     *
+     * If no valid payment is selected, an additional option representing
+     * "please choose" is prepended.
+     * @param   string  $selectedId     Optional preselected payment ID
+     * @param   integer $countryId      Country ID
+     * @return  string                  HTML code for the dropdown menu options
+     * @global  array   $_ARRAYLANG     Language array
+     */
+    static function getPaymentMenuoptions($selectedId=0, $countryId=0)
+    {
+        global $_ARRAYLANG;
+
+        $paymentMethods = self::getPaymentMethods($countryId);
+        if (empty($paymentMethods[$selectedId]) && count($paymentMethods) > 1) {
+            $paymentMethods[0] = $_ARRAYLANG['TXT_SHOP_PLEASE_SELECT'];
+        }
+        return \Html::getOptions($paymentMethods, $selectedId);
+    }
+
+    /**
+     * Get the payment methods based on the country id
+     *
+     * @param integer $countryId Country ID
+     *
+     * @return array array of payment methods
+     */
+    static function getPaymentMethods($countryId = 0)
+    {
+        if (is_null(self::$arrPayments)) {
+            self::init();
+        }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $repo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Payment'
+        );
+        // Get Payment IDs available in the selected country, if any, or all.
+        $arrPaymentIds = ($countryId
+            ? $repo->getCountriesRelatedPaymentIdArray(
+                $countryId,
+                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray())
+            : array_keys(self::$arrPayments));
+
+        if (empty($arrPaymentIds)) {
+            return array();
+        }
+
+        $paymentMethods = array();
+        foreach ($arrPaymentIds as $id) {
+            $paymentMethods[$id] = self::$arrPayments[$id]['name'];
+        }
+        return $paymentMethods;
+    }
+
 }
