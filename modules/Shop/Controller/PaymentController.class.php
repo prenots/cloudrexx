@@ -213,4 +213,87 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
         return $paymentMethods;
     }
 
+    /**
+     * Returns the array of available Payment names
+     *
+     * The array is indexed by the Payment IDs.
+     * @see     Payment::init()
+     * @return  array           The array of Payment names
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @since   3.0.0
+     */
+    static function getNameArray()
+    {
+        if (is_null(self::$arrPayments)) self::init();
+        $arrPaymentName = array();
+        foreach (self::$arrPayments as $payment_id => $arrPayment) {
+            $arrPaymentName[$payment_id] = $arrPayment['name'];
+        }
+        return $arrPaymentName;
+    }
+
+    /**
+     * Returns the array of available Payment service data
+     * @see     Payment::init()
+     * @return  array
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @since   2.1.0
+     */
+    static function getArray()
+    {
+        if (empty(self::$arrPayments)) self::init();
+        return self::$arrPayments;
+    }
+
+    /**
+     * Clear the Payments stored in the class
+     *
+     * Call this after updating the database.  The Payments will be
+     * reinitialized on demand.
+     */
+    static function reset()
+    {
+        self::$arrPayments = null;
+    }
+
+    /**
+     * Returns the ID of the payment processor for the given payment ID
+     * @static
+     * @param   integer   $paymentId    The payment ID
+     * @return  integer                 The payment processor ID on success,
+     *                                  false otherwise
+     * @global  ADONewConnection  $objDatabase    Database connection object
+     */
+    static function getPaymentProcessorId($paymentId)
+    {
+        global $objDatabase;
+
+        $query = "
+            SELECT `processor_id`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_payment`
+             WHERE `id`=$paymentId";
+        $objResult = $objDatabase->Execute($query);
+        if ($objResult && !$objResult->EOF)
+            return $objResult->fields['processor_id'];
+        return false;
+    }
+
+    /**
+     * Returns the named property for the given Payment service
+     * @param   integer   $payment_id       The Payment service ID
+     * @param   string    $property_name    The property name
+     * @return  string                      The property value
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @since   2.1.0
+     */
+    static function getProperty($payment_id, $property_name)
+    {
+        if (is_null(self::$arrPayments)) self::init();
+        return
+            (   isset(self::$arrPayments[$payment_id])
+            && isset(self::$arrPayments[$payment_id][$property_name])
+                ? self::$arrPayments[$payment_id][$property_name]
+                : false
+            );
+    }
 }

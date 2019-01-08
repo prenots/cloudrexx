@@ -45,137 +45,6 @@ namespace Cx\Modules\Shop\Controller;
 class Payment
 {
     /**
-     * Text keys
-     */
-    const TEXT_NAME = 'payment_name';
-
-    /**
-     * Array of available payment service data
-     * @var     array
-     * @access  private
-     * @static
-     */
-    private static $arrPayments = null;
-
-
-    /**
-     * Set up the payment array
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @since   2.1.0
-     */
-    static function init()
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $repo = $cx->getDb()->getEntityManager()->getRepository(
-            'Cx\Modules\Shop\Model\Entity\Payment'
-        );
-
-        $payments = $repo->findBy(array(), array('ord' => 'ASC'));
-        foreach ($payments as $payment) {
-            self::$arrPayments[$payment->getId()] = array(
-                'id' => $payment->getId(),
-                'processor_id' => $payment->getProcessorId(),
-                'name' => $payment->getName(),
-                'fee' => $payment->getFee(),
-                'free_from' => $payment->getFreeFrom(),
-                'ord' => $payment->getOrd(),
-                'active' => $payment->getActive(),
-            );
-        }
-        return true;
-    }
-
-
-    /**
-     * Returns the array of available Payment service data
-     * @see     Payment::init()
-     * @return  array
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @since   2.1.0
-     */
-    static function getArray()
-    {
-        if (empty(self::$arrPayments)) self::init();
-        return self::$arrPayments;
-    }
-
-
-    /**
-     * Returns the array of available Payment names
-     *
-     * The array is indexed by the Payment IDs.
-     * @see     Payment::init()
-     * @return  array           The array of Payment names
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @since   3.0.0
-     */
-    static function getNameArray()
-    {
-        if (is_null(self::$arrPayments)) self::init();
-        $arrPaymentName = array();
-        foreach (self::$arrPayments as $payment_id => $arrPayment) {
-            $arrPaymentName[$payment_id] = $arrPayment['name'];
-        }
-        return $arrPaymentName;
-    }
-
-
-    /**
-     * Returns the named property for the given Payment service
-     * @param   integer   $payment_id       The Payment service ID
-     * @param   string    $property_name    The property name
-     * @return  string                      The property value
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @since   2.1.0
-     */
-    static function getProperty($payment_id, $property_name)
-    {
-        if (is_null(self::$arrPayments)) self::init();
-        return
-            (   isset(self::$arrPayments[$payment_id])
-             && isset(self::$arrPayments[$payment_id][$property_name])
-              ? self::$arrPayments[$payment_id][$property_name]
-              : false
-            );
-    }
-
-
-    /**
-     * Returns the ID of the payment processor for the given payment ID
-     * @static
-     * @param   integer   $paymentId    The payment ID
-     * @return  integer                 The payment processor ID on success,
-     *                                  false otherwise
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     */
-    static function getPaymentProcessorId($paymentId)
-    {
-        global $objDatabase;
-
-        $query = "
-            SELECT `processor_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_payment`
-             WHERE `id`=$paymentId";
-        $objResult = $objDatabase->Execute($query);
-        if ($objResult && !$objResult->EOF)
-            return $objResult->fields['processor_id'];
-        return false;
-    }
-
-
-    /**
-     * Clear the Payments stored in the class
-     *
-     * Call this after updating the database.  The Payments will be
-     * reinitialized on demand.
-     */
-    static function reset()
-    {
-        self::$arrPayments = null;
-    }
-
-
-    /**
      * Sets up the Payment settings view
      * @param   \Cx\Core\Html\Sigma $objTemplate    The optional Template,
      *                                              by reference
@@ -192,7 +61,7 @@ class Payment
                 'settings_block', 'module_shop_settings_payment.html');
         }
         $i = 0;
-        foreach (Payment::getArray() as $payment_id => $arrPayment) {
+        foreach (\Cx\Modules\Shop\Controller\PaymentController::getArray() as $payment_id => $arrPayment) {
             $zone_id = Zones::getZoneIdByPaymentId($payment_id);
             $objTemplate->setVariable(array(
                 'SHOP_PAYMENT_STYLE' => 'row'.(++$i % 2 + 1),

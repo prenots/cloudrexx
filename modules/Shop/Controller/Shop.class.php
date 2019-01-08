@@ -2455,9 +2455,9 @@ die("Failed to update the Cart!");
     {
         $paymentPrice = 0;
         if (!$payment_id) return $paymentPrice;
-        if (  Payment::getProperty($payment_id, 'free_from') == 0
-           || $totalPrice < Payment::getProperty($payment_id, 'free_from')) {
-            $paymentPrice = Payment::getProperty($payment_id, 'fee');
+        if (  \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'free_from') == 0
+           || $totalPrice < \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'free_from')) {
+            $paymentPrice = \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'fee');
         }
         return \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($paymentPrice);
     }
@@ -3357,7 +3357,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         $processor_id = 0;
         $processor_name = '';
         if (!empty($_SESSION['shop']['paymentId']))
-            $processor_id = Payment::getPaymentProcessorId($_SESSION['shop']['paymentId']);
+            $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getPaymentProcessorId($_SESSION['shop']['paymentId']);
         if (!empty($processor_id))
             $processor_name = PaymentProcessing::getPaymentProcessorName($processor_id);
         return $processor_name;
@@ -3795,7 +3795,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             // order costs after discount subtraction (incl VAT) but without payment and shippment costs
             'SHOP_TOTALPRICE' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(Cart::get_price()),
             'SHOP_PAYMENT' =>
-                Payment::getProperty($_SESSION['shop']['paymentId'], 'name'),
+                \Cx\Modules\Shop\Controller\PaymentController::getProperty($_SESSION['shop']['paymentId'], 'name'),
             // final order costs
             'SHOP_GRAND_TOTAL' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                   $_SESSION['shop']['grand_total_price']),
@@ -4214,7 +4214,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         }
         \Message::restore();
 
-        $processor_id = Payment::getProperty($_SESSION['shop']['paymentId'], 'processor_id');
+        $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getProperty($_SESSION['shop']['paymentId'], 'processor_id');
         $processor_name = PaymentProcessing::getPaymentProcessorName($processor_id);
          // other payment methods
         PaymentProcessing::initProcessor($processor_id);

@@ -1079,7 +1079,7 @@ if (!$limit) {
         // Determine and verify the payment handler
         $payment_id = $objResult->fields['payment_id'];
 //if (!$payment_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Payment ID for Order ID $order_id");
-        $processor_id = Payment::getPaymentProcessorId($payment_id);
+        $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getPaymentProcessorId($payment_id);
 //if (!$processor_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor ID for Payment ID $payment_id");
         $processorName = PaymentProcessing::getPaymentProcessorName($processor_id);
 //if (!$processorName) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor Name for Processor ID $processor_id");

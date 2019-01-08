@@ -255,7 +255,7 @@ class ShopSettings
             self::$success &= $result;
         }
 //DBG::log("after Payment::update: ".self::$success.", changed: ".self::$changed);
-        Payment::reset();
+        \Cx\Modules\Shop\Controller\PaymentController::reset();
         if (empty ($_POST['bpayment'])) return;
 // NOTE: All the following could be handled by Payment::settings()
         \Cx\Core\Setting\Controller\Setting::set('payrexx_instance_name',

@@ -1151,7 +1151,7 @@ class Coupon
             $objSorting->getOrder());
         $arrProductName = Products::getNameArray(
             true, $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_PRODUCT_FORMAT']);
-        $arrPaymentName = Payment::getNameArray();
+        $arrPaymentName = \Cx\Modules\Shop\Controller\PaymentController::getNameArray();
         $i = 0;
         $row = 0;
         $objCouponEdit = new Coupon();

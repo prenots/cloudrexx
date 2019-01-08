@@ -1787,7 +1787,7 @@ class Order
                 ? \Cx\Core\Country\Controller\Country::getMenu('shipCountry', $objOrder->country_id())
                 : \Cx\Core\Country\Controller\Country::getNameById($objOrder->country_id())),
             'SHOP_SHIP_PHONE' => $objOrder->phone(),
-            'SHOP_PAYMENTTYPE' => Payment::getProperty($objOrder->payment_id(), 'name'),
+            'SHOP_PAYMENTTYPE' => \Cx\Modules\Shop\Controller\PaymentController::getProperty($objOrder->payment_id(), 'name'),
             'SHOP_CUSTOMER_NOTE' => $objOrder->note(),
             'SHOP_COMPANY_NOTE' => $objCustomer->companynote(),
             'SHOP_SHIPPING_TYPE' => ($objOrder->shipment_id()
@@ -1819,7 +1819,7 @@ class Order
             ));
         }
         $ppName = '';
-        $psp_id = Payment::getPaymentProcessorId($objOrder->payment_id());
+        $psp_id = \Cx\Modules\Shop\Controller\PaymentController::getPaymentProcessorId($objOrder->payment_id());
         if ($psp_id) {
             $ppName = PaymentProcessing::getPaymentProcessorName($psp_id);
         }
