@@ -204,7 +204,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
                 'table' => array (
                     'parse' => function ($value, $rowData) {
-                        return $this->getStatusMenu($value);
+                        return $this->getStatusMenu($value, '', $rowData['id']);
                     },
                     'attributes' => array(
                         'class' => 'order-status',
@@ -225,6 +225,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getStatusMenu(
                         '',
                         $elementName,
+                        0,
                         $formName
                     );
                 },
@@ -637,7 +638,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
      * @return \Cx\Core\Html\Model\Entity\DataElement
      * @throws \Doctrine\ORM\ORMException
      */
-    protected function getStatusMenu($value, $name = '', $formName = '')
+    protected function getStatusMenu($value, $name = '', $id = 0, $formName = '')
     {
         global $_ARRAYLANG;
 
@@ -654,21 +655,20 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $validValues = array_merge($validValues, $statusValues);
 
+        if (empty($name)) {
+            $name = 'status';
+        }
+
+        if (!empty($id)) {
+            $name = $name . '-' . $id;
+        }
         $statusField = new \Cx\Core\Html\Model\Entity\DataElement(
-            'status',
+            $name,
             $value,
             'select',
             null,
             $validValues
         );
-
-        if (!empty($name)) {
-            $statusField->setAttributes(
-                array(
-                    'name' => $name,
-                )
-            );
-        }
 
         if (!empty($formName)) {
             $statusField->setAttributes(
