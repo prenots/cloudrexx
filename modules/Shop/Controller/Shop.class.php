@@ -3126,7 +3126,11 @@ die("Shop::processRedirect(): This method is obsolete!");
         // Determine any valid value for it
         if (   $cart_amount
             && empty($_SESSION['shop']['paymentId'])) {
-            $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $paymentRepo = $cx->getDb()->getEntityManager()->getRepository(
+                'Cx\Modules\Shop\Model\Entity\Payment'
+            );
+            $arrPaymentId = $paymentRepo->getCountriesRelatedPaymentIdArray(
                 $_SESSION['shop']['countryId'], \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray());
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
@@ -3257,8 +3261,12 @@ die("Shop::processRedirect(): This method is obsolete!");
             $_SESSION['shop']['paymentId'] = intval($_POST['paymentId']);
         }
         if (empty($_SESSION['shop']['paymentId'])) {
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $paymentRepo = $cx->getDb()->getEntityManager()->getRepository(
+                'Cx\Modules\Shop\Model\Entity\Payment'
+            );
             // Use the first Payment ID
-            $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
+            $arrPaymentId = $paymentRepo->getCountriesRelatedPaymentIdArray(
                 $_SESSION['shop']['countryId'], \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray()
             );
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);

@@ -27,14 +27,14 @@ class PaymentRepository extends \Doctrine\ORM\EntityRepository
      * @param    array   $arrCurrencies     The currencies array, by reference
      * @return   array                      Array of Payment IDs
      */
-    static function getCountriesRelatedPaymentIdArray($countryId, $arrCurrencies)
+    public function getCountriesRelatedPaymentIdArray($countryId, $arrCurrencies)
     {
-        global $objDatabase;
-
-        if (is_null(self::$arrPayments)) self::init();
         if (isset($_SESSION['shop']['paymentId'])) {
             $payment_id = $_SESSION['shop']['paymentId'];
-            $processor_id = self::getPaymentProcessorId($payment_id);
+            if (!empty($payment_id)) {
+                $payment = $this->find($payment_id);
+                $processor_id = $payment->getPaymentProcessor()->getId();
+            }
             if ($processor_id == 2) {
                 foreach ($arrCurrencies as $index => $arrCurrency) {
                     if (!\PayPal::isAcceptedCurrencyCode($arrCurrency['code'])) {
@@ -43,39 +43,38 @@ class PaymentRepository extends \Doctrine\ORM\EntityRepository
                 }
             }
         }
-        $arrPaymentId = array();
-        $query = "
-            SELECT DISTINCT `payment`.`id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `country`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_zones` AS `zone`
-                ON `country`.`zone_id`=`zone`.`id`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_payment` AS `rel_payment`
-                ON `zone`.`id`=`rel_payment`.`zone_id`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_payment` AS `payment`
-                ON `payment`.`id`=`rel_payment`.`payment_id`
-             WHERE `country`.`country_id`=".intval($countryId)."
-               AND `payment`.`active`=1
-               AND `zone`.`active`=1";
-        $objResult = $objDatabase->Execute($query);
-        while ($objResult && !$objResult->EOF) {
-            if (   isset(self::$arrPayments[$objResult->fields['id']])
-                && (   self::$arrPayments[$objResult->fields['id']]['processor_id'] != 2
-                    || count($arrCurrencies))
-            ) {
-                $paymentId = $objResult->fields['id'];
-                // the processor with the id 3 is postfinance and 11 is postfinance mobile
-                // if it is one of them, it should only be able to order when it is Switzerland
-                if (
-                    in_array(self::$arrPayments[$paymentId]['processor_id'], array(3, 11)) &&
+        $payments = array();
+
+        $qb = $this->_em->createQueryBuilder();
+        $query = $qb->select('p.id', 'p.processorId')->from(
+            'Cx\Modules\Shop\Model\Entity\RelCountry', 'c'
+        )->join(
+            'c.zone', 'z', 'WITH',
+            $qb->expr()->eq('c.zoneId', 'z.id')
+        )->join(
+            'z.payments', 'p', 'WITH'
+        )->where($qb->expr()->eq('c.countryId', '?1'))
+         ->andWhere($qb->expr()->eq('p.active', '1'))
+         ->andWhere($qb->expr()->eq('z.active', '1'))
+         ->setParameter(1, intval($countryId))
+         ->getQuery();
+        $results = $query->getArrayResult();
+
+        foreach ($results as $result) {
+            if ($result['processorId'] != 2 || count($arrCurrencies)) {
+                $paymentId = $result['id'];
+
+                // the processor with the id 3 is postfinance and 11 is
+                // postfinance mobile if it is one of them, it should only be
+                // able to order when it is Switzerland
+                if (in_array($result['processorId'], array(3, 11)) &&
                     \Cx\Core\Country\Controller\Country::getAlpha2ById($countryId) != 'CH'
                 ) {
-                    $objResult->MoveNext();
                     continue;
                 }
-                $arrPaymentId[$paymentId] = $paymentId;
+                $payments[$paymentId] = $paymentId;
             }
-            $objResult->MoveNext();
         }
-        return $arrPaymentId;
+        return $payments;
     }
 }
