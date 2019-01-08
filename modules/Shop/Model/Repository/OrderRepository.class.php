@@ -121,4 +121,11 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
 
         $this->_em->flush();
     }
+
+    public function getFirstOrder()
+    {
+        $firstOrder = $this->findOneBy(array(), array('dateTime' => 'ASC'));
+
+        return $firstOrder;
+    }
 }

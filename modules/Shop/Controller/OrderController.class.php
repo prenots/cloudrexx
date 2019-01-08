@@ -1293,6 +1293,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     static function view_statistics(&$objTemplate=null)
     {
         global $_ARRAYLANG;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
         if (!$objTemplate || !$objTemplate->blockExists('no_order')) {
             $objTemplate = new \Cx\Core\Html\Sigma(
@@ -1301,13 +1302,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $objTemplate->setGlobalVariable($_ARRAYLANG);
         // Get the first order date; if its empty, no order has been placed yet
-        $time_first_order = Order::getFirstOrderTime();
-        if (!$time_first_order) {
+        $firstOrder = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        )->getFirstOrder();
+        if (empty($firstOrder)) {
             $objTemplate->touchBlock('no_order');
             return $objTemplate;
         }
-        $year_first_order = date('Y', $time_first_order);
-        $month_first_order = date('m', $time_first_order);
+        $year_first_order = $firstOrder->getDateTime()->format('Y');
+        $month_first_order = $firstOrder->getDateTime()->format('m');
         $start_month = $end_month = $start_year = $end_year = NULL;
         if (isset($_REQUEST['submitdate'])) {
             // A range is requested
@@ -1348,7 +1351,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         // so that Order date < $end_date!
         $end_date = date(ASCMS_DATE_FORMAT_INTERNATIONAL_DATETIME,
             mktime(0, 0, 0, $end_month+1, 1, $end_year));
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $qb = $cx->getDb()->getEntityManager()->createQueryBuilder();
 
         $selectedStat = (isset($_REQUEST['selectstats'])
