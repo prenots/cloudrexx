@@ -601,6 +601,150 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
+     * Check in the payment processor after the payment is complete.
+     * @return  mixed   For external payment methods:
+     *                  The integer order ID, if known, upon success
+     *                  For internal payment methods:
+     *                  Boolean true, in order to make these skip the order
+     *                  status update, as this has already been done.
+     *                  If the order ID is unknown or upon failure:
+     *                  Boolean false
+     */
+    static function checkIn()
+    {
+//DBG::log("PaymentProcessing::checkIn(): Entered");
+//DBG::log("POST: ".var_export($_POST, true));
+//DBG::log("GET: ".var_export($_GET, true));
+        $result = NULL;
+        if (isset($_GET['result'])) {
+            $result = abs(intval($_GET['result']));
+            if ($result == 0 || $result == 2) return false;
+        }
+        if (empty($_REQUEST['handler'])) return false;
+        switch ($_REQUEST['handler']) {
+            case 'paymill_cc':
+            case 'paymill_elv':
+            case 'paymill_iban':
+                $arrShopOrder = array(
+                    'order_id'  => $_SESSION['shop']['order_id'],
+                    'amount'    => intval(bcmul($_SESSION['shop']['grand_total_price'], 100, 0)),
+                    'currency'  => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
+                    'note'      => $_SESSION['shop']['note']
+                );
+                $response = \PaymillHandler::processRequest($_REQUEST['paymillToken'], $arrShopOrder);
+                \DBG::log(var_export($response, true));
+                if ($response['status'] === 'success') {
+                    return true;
+                } else {
+                    \DBG::log("PaymentProcessing::checkIn(): WARNING: paymill: Payment verification failed; errors: ".var_export($response, true));
+                    return false;
+                }
+
+            case 'saferpay':
+                $arrShopOrder = array(
+                    'ACCOUNTID' => \Cx\Core\Setting\Controller\Setting::getValue('saferpay_id','Shop'));
+                $id = \Saferpay::payConfirm();
+                if (\Cx\Core\Setting\Controller\Setting::getValue('saferpay_finalize_payment','Shop')) {
+                    $arrShopOrder['ID'] = $id;
+                    $id = \Saferpay::payComplete($arrShopOrder);
+                }
+//DBG::log("Transaction: ".var_export($transaction, true));
+                return (boolean)$id;
+            case 'paypal':
+                if (empty ($_POST['custom'])) {
+//DBG::log("PaymentProcessing::checkIn(): No custom parameter, returning NULL");
+                    return NULL;
+                }
+                $order_id = \PayPal::getOrderId();
+//                    if (!$order_id) {
+//                        $order_id = (isset($_SESSION['shop']['order_id'])
+//                            ? $_SESSION['shop']['order_id']
+//                            : (isset ($_SESSION['shop']['order_id_checkin'])
+//                                ? $_SESSION['shop']['order_id_checkin']
+//                                : NULL));
+//                    }
+                $order = Order::getById($order_id);
+                $amount = $currency_id = $customer_email = NULL;
+                if ($order) {
+                    $amount = $order->sum();
+                    $currency_id = $order->currency_id();
+                    $customer_id = $order->customer_id();
+                    $customer = Customer::getById($customer_id);
+                    if ($customer) {
+                        $customer_email = $customer->email();
+                    }
+                }
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $currency = $cx->getDb()->getEntityManager()->getRepository(
+                    '\Cx\Modules\Shop\Model\Entity\Currency'
+                )->find($currency_id);
+                $currency_code = $currency->getCode();
+                return \PayPal::ipnCheck($amount, $currency_code,
+                    $order_id, $customer_email,
+                    \Cx\Core\Setting\Controller\Setting::getValue('paypal_account_email','Shop'));
+            case 'yellowpay':
+                $passphrase = \Cx\Core\Setting\Controller\Setting::getValue('postfinance_hash_signature_out','Shop');
+                return \Yellowpay::checkIn($passphrase);
+//                    if (\Yellowpay::$arrError || \Yellowpay::$arrWarning) {
+//                        global $_ARRAYLANG;
+//                        echo('<font color="red"><b>'.
+//                        $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_YELLOWPAY'].
+//                        '</b><br />'.
+//                        'Errors:<br />'.
+//                        join('<br />', \Yellowpay::$arrError).
+//                        'Warnings:<br />'.
+//                        join('<br />', \Yellowpay::$arrWarning).
+//                        '</font>');
+//                    }
+            case 'payrexx':
+                return \PayrexxProcessor::checkIn();
+            // Added 20100222 -- Reto Kohli
+            case 'mobilesolutions':
+                // A return value of null means:  Do not change the order status
+                if (   empty($_POST['state'])
+//                    || (   $_POST['state'] == 'success'
+//                        && (   empty($_POST['mosoauth'])
+//                            || empty($_POST['postref'])))
+                ) return null;
+                $result = \PostfinanceMobile::validateSign();
+                if ($result) {
+//DBG::log("PaymentProcessing::checkIn(): mobilesolutions: Payment verification successful!");
+                } else {
+                    DBG::log("PaymentProcessing::checkIn(): WARNING: mobilesolutions: Payment verification failed; errors: ".var_export(\PostfinanceMobile::getErrors(), true));
+                }
+                return $result;
+            // Added 20081117 -- Reto Kohli
+            case 'datatrans':
+                return \Datatrans::validateReturn()
+                    && \Datatrans::getPaymentResult() == 1;
+
+            // For the remaining types, there's no need to check in, so we
+            // return true and jump over the validation of the order ID
+            // directly to success!
+            // Note: A backup of the order ID is kept in the session
+            // for payment methods that do not return it. This is used
+            // to cancel orders in all cases where false is returned.
+            case 'internal':
+            case 'internal_creditcard':
+            case 'internal_debit':
+            case 'internal_lsv':
+                return true;
+            // Dummy payment.
+            case 'dummy':
+                $result = '';
+                if (isset($_REQUEST['result']))
+                    $result = $_REQUEST['result'];
+                // Returns the order ID on success, false otherwise
+                return \Dummy::commit($result);
+            default:
+                break;
+        }
+        // Anything else is wrong.
+        return false;
+    }
+
+
+    /**
      * Returns the HTML code for the Yellowpay payment method.
      * @return  string  HTML code
      */

@@ -4317,7 +4317,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         // update_status() will choose the new value automatically.
         $newOrderStatus = Order::STATUS_PENDING;
 
-        $checkinresult = PaymentProcessing::checkIn();
+        $checkinresult = \Cx\Modules\Shop\Controller\PaymentProcessorController::checkIn();
 //\DBG::log("success(): CheckIn Result ".var_export($checkinresult, true));
 
         if ($checkinresult === false) {
