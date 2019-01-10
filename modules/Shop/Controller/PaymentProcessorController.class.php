@@ -654,4 +654,83 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
         }
         return $return;
     }
+
+    /**
+     * Returns the HTML code for the Saferpay payment form.
+     * @param   array   $arrCards     The optional accepted card types
+     * @return  string                The HTML code
+     * @static
+     */
+    static function _SaferpayProcessor()
+    {
+        global $_ARRAYLANG;
+
+        $arrShopOrder = array(
+            'AMOUNT'        => str_replace('.', '', $_SESSION['shop']['grand_total_price']),
+            'CURRENCY'      => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
+            'ORDERID'       => $_SESSION['shop']['order_id'],
+            'ACCOUNTID'     => \Cx\Core\Setting\Controller\Setting::getValue('saferpay_id','Shop'),
+            'SUCCESSLINK'   => \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                array('result' => 1, 'handler' => 'saferpay'))->toString(),
+            'FAILLINK'      => \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                array('result' => 0, 'handler' => 'saferpay'))->toString(),
+            'BACKLINK'      => \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                array('result' => 2, 'handler' => 'saferpay'))->toString(),
+            'DESCRIPTION'   => '"'.$_ARRAYLANG['TXT_ORDER_NR'].
+                ' '.$_SESSION['shop']['order_id'].'"',
+            'LANGID'        => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
+            'NOTIFYURL'     => \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                array('result' => '-1', 'handler' => 'saferpay'))->toString(),
+            'ALLOWCOLLECT'  => 'no',
+            'DELIVERY'      => 'no',
+        );
+        $payInitUrl = \Saferpay::payInit($arrShopOrder,
+            \Cx\Core\Setting\Controller\Setting::getValue('saferpay_use_test_account','Shop'));
+//DBG::log("PaymentProcessing::_SaferpayProcessor(): payInit URL: $payInitUrl");
+        // Fixed: Added check for empty return string,
+        // i.e. on connection problems
+        if (!$payInitUrl) {
+            return
+                "<font color='red'><b>".
+                $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_SAFERPAY'].
+                "<br />$payInitUrl</b></font>".
+                "<br />".\Saferpay::getErrors();
+        }
+        $return = "<script src='http://www.saferpay.com/OpenSaferpayScript.js'></script>\n";
+        switch (\Cx\Core\Setting\Controller\Setting::getValue('saferpay_window_option','Shop')) {
+            case 0: // iframe
+                return
+                    $return.
+                    $_ARRAYLANG['TXT_ORDER_PREPARED']."<br/><br/>\n".
+                    "<iframe src='$payInitUrl' width='580' height='400' scrolling='no' marginheight='0' marginwidth='0' frameborder='0' name='saferpay'></iframe>\n";
+            case 1: // popup
+                return
+                    $return.
+                    $_ARRAYLANG['TXT_ORDER_LINK_PREPARED']."<br/><br/>\n".
+                    "<script type='text/javascript'>
+                     function openSaferpay() {
+                       strUrl = '$payInitUrl';
+                       if (strUrl.indexOf(\"WINDOWMODE=Standalone\") == -1) {
+                         strUrl += \"&WINDOWMODE=Standalone\";
+                       }
+                       oWin = window.open(strUrl, 'SaferpayTerminal',
+                           'scrollbars=1,resizable=0,toolbar=0,location=0,directories=0,status=1,menubar=0,width=580,height=400'
+                       );
+                       if (oWin == null || typeof(oWin) == \"undefined\") {
+                         alert(\"The payment couldn't be initialized.  It seems like you are using a popup blocker!\");
+                       }
+                     }
+                     </script>\n".
+                    "<input type='button' name='order_now' value='".
+                    $_ARRAYLANG['TXT_ORDER_NOW'].
+                    "' onclick='openSaferpay()' />\n";
+            default: //case 2: // new window
+        }
+        return
+            $return.
+            $_ARRAYLANG['TXT_ORDER_LINK_PREPARED']."<br/><br/>\n".
+            "<form method='post' action='$payInitUrl'>\n<input type='submit' value='".
+            $_ARRAYLANG['TXT_ORDER_NOW'].
+            "' />\n</form>\n";
+    }
 }
