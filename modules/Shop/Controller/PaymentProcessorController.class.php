@@ -45,6 +45,14 @@ namespace Cx\Modules\Shop\Controller;
 class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
+     * Array of all available payment processors
+     * @access  private
+     * @static
+     * @var     array
+     */
+    private static $arrPaymentProcessor = false;
+
+    /**
      * Get ViewGenerator options for Payment entity
      *
      * @param $options array predefined ViewGenerator options
@@ -601,6 +609,41 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
+     * Initialize known payment service providers
+     */
+    static function init()
+    {
+        global $objDatabase;
+
+        $query = '
+            SELECT id, type, name, description,
+                   company_url, status, picture
+              FROM '.DBPREFIX.'module_shop_payment_processors
+          ORDER BY id';
+        $objResult = $objDatabase->Execute($query);
+        while (!$objResult->EOF) {
+            self::$arrPaymentProcessor[$objResult->fields['id']] = array(
+                'id' => $objResult->fields['id'],
+                'type' => $objResult->fields['type'],
+                'name' => $objResult->fields['name'],
+                'description' => $objResult->fields['description'],
+                'company_url' => $objResult->fields['company_url'],
+                'status' => $objResult->fields['status'],
+                'picture' => $objResult->fields['picture'],
+            );
+            $objResult->MoveNext();
+        }
+        // Verify version 3.0 complete data
+        // Fix version 3.0.4 data
+        if (   empty(self::$arrPaymentProcessor[11])
+            || empty(self::$arrPaymentProcessor[4]['name'])
+            || self::$arrPaymentProcessor[4]['name'] != 'internal') {
+            self::errorHandler();
+            self::init();
+        }
+    }
+
+    /**
      * Check in the payment processor after the payment is complete.
      * @return  mixed   For external payment methods:
      *                  The integer order ID, if known, upon success
@@ -1016,5 +1059,77 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
             '<input type="submit" name="go" value="'.
             $_ARRAYLANG['TXT_ORDER_NOW'].'" />'."\n".
             '</form>'."\n";
+    }
+
+    /**
+     * Handles all kinds of database errors
+     *
+     * Creates the processors' table, and creates default entries if necessary
+     * @return  boolean                         False. Always.
+     * @global  ADOConnection   $objDatabase
+     */
+    static function errorHandler()
+    {
+// PaymentProcessing
+        $table_name_old = DBPREFIX.'module_shop_processors';
+        $table_name_new = DBPREFIX.'module_shop_payment_processors';
+        if (\Cx\Lib\UpdateUtil::table_exist($table_name_old)) {
+            \Cx\Lib\UpdateUtil::table_rename($table_name_old, $table_name_new);
+        }
+        $table_structure = array(
+            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true),
+            'type' => array('type' => 'ENUM("internal", "external")', 'default' => 'internal'),
+            'name' => array('type' => 'VARCHAR(255)', 'default' => ''),
+            'description' => array('type' => 'TEXT', 'default' => ''),
+            'company_url' => array('type' => 'VARCHAR(255)', 'default' => ''),
+            'status' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => 1),
+            'picture' => array('type' => 'VARCHAR(255)', 'default' => ''),
+        );
+        \Cx\Lib\UpdateUtil::table($table_name_new, $table_structure);
+        $arrPsp = array(
+            array(1, 'external', 'saferpay',
+                'Saferpay is a comprehensive Internet payment platform, specially developed for commercial applications. It provides a guarantee of secure payment processes over the Internet for merchants as well as for cardholders. Merchants benefit from the easy integration of the payment method into their e-commerce platform, and from the modularity with which they can take account of current and future requirements. Cardholders benefit from the security of buying from any shop that uses Saferpay.',
+                'http://www.saferpay.com/', 1, 'logo_saferpay.gif'),
+            array(2, 'external', 'paypal',
+                'With more than 40 million member accounts in over 45 countries worldwide, PayPal is the world\'s largest online payment service. PayPal makes sending money as easy as sending email! Any PayPal member can instantly and securely send money to anyone in the U.S. with an email address. PayPal can also be used on a web-enabled cell phone. In the future, PayPal will be available to use on web-enabled pagers and other handheld devices.',
+                'http://www.paypal.com/', 1, 'logo_paypal.gif'),
+            array(3, 'external', 'yellowpay',
+                'PostFinance vereinfacht das Inkasso im Online-Shop.',
+                'http://www.postfinance.ch/', 1, 'logo_postfinance.gif'),
+            array(4, 'internal', 'internal',
+                'Internal no forms',
+                '', 1, ''),
+            array(9, 'internal', 'internal_lsv',
+                'LSV with internal form',
+                '', 1, ''),
+            array(10, 'external', 'datatrans',
+                'Die professionelle und komplette Payment-Lösung',
+                'http://datatrans.biz/', 1, 'logo_datatrans.gif'),
+            array(11, 'external', 'mobilesolutions',
+                'PostFinance Mobile',
+                'https://postfinance.mobilesolutions.ch/', 1, 'logo_postfinance_mobile.gif'),
+        );
+        $query_template = "
+            REPLACE INTO `$table_name_new` (
+                `id`, `type`, `name`,
+                `description`,
+                `company_url`, `status`, `picture`
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?
+            )";
+        foreach ($arrPsp as $psp) {
+            \Cx\Lib\UpdateUtil::sql($query_template, $psp);
+        }
+        if (\Cx\Lib\UpdateUtil::table_exist($table_name_old)) {
+            \Cx\Lib\UpdateUtil::drop_table($table_name_old);
+        }
+
+        // Drop obsolete PSPs -- see Payment::errorHandler()
+        \Cx\Lib\UpdateUtil::sql("
+            DELETE FROM `".DBPREFIX."module_shop_payment_processors`
+             WHERE `id` IN (5, 6, 7, 8)");
+
+        // Always
+        return false;
     }
 }
