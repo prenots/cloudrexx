@@ -550,50 +550,6 @@ DBG::log("PaymentProcessing::checkIn(): WARNING: mobilesolutions: Payment verifi
     }
 
 
-    static function getOrderId()
-    {
-        if (empty($_REQUEST['handler'])) {
-//DBG::log("PaymentProcessing::getOrderId(): No handler, fail");
-            return false;
-        }
-        switch ($_REQUEST['handler']) {
-            case 'saferpay':
-                return \Saferpay::getOrderId();
-            case 'paypal':
-                return \PayPal::getOrderId();
-            case 'yellowpay':
-                return \Yellowpay::getOrderId();
-            case 'payrexx':
-                return \PayrexxProcessor::getOrderId();
-            // Added 20100222 -- Reto Kohli
-            case 'mobilesolutions':
-//DBG::log("getOrderId(): mobilesolutions");
-                $order_id = \PostfinanceMobile::getOrderId();
-//DBG::log("getOrderId(): mobilesolutions, Order ID $order_id");
-                return $order_id;
-            // Added 20081117 -- Reto Kohli
-            case 'datatrans':
-                return \Datatrans::getOrderId();
-            // For the remaining types, there's no need to check in, so we
-            // return true and jump over the validation of the order ID
-            // directly to success!
-            // Note: A backup of the order ID is kept in the session
-            // for payment methods that do not return it. This is used
-            // to cancel orders in all cases where false is returned.
-            case 'Internal':
-            case 'Internal_CreditCard':
-            case 'Internal_Debit':
-            case 'Internal_LSV':
-            case 'dummy':
-                return (isset($_SESSION['shop']['order_id_checkin'])
-                    ? $_SESSION['shop']['order_id_checkin']
-                    : false);
-        }
-        // Anything else is wrong.
-        return false;
-    }
-
-
     static function getMenuoptions($selected_id=0)
     {
         global $_ARRAYLANG;

@@ -4308,7 +4308,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         // Use the Order ID stored in the session, if possible.
         // Otherwise, get it from the payment processor.
         $order_id = (empty($_SESSION['shop']['order_id_checkin'])
-            ? PaymentProcessing::getOrderId()
+            ? \Cx\Modules\Shop\Controller\PaymentProcessorController::getOrderId()
             : $_SESSION['shop']['order_id_checkin']);
 //\DBG::deactivate();
 //\DBG::activate(DBG_LOG_FILE);
