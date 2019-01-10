@@ -599,4 +599,59 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
             ),
         );
     }
+
+    /**
+     * Returns the HTML code for the Yellowpay payment method.
+     * @return  string  HTML code
+     */
+    static function _YellowpayProcessor()
+    {
+        global $_ARRAYLANG;
+
+        $arrShopOrder = array(
+// 20111227 - Note that all parameter names should now be uppercase only
+            'ORDERID'   => $_SESSION['shop']['order_id'],
+            'AMOUNT'    => intval(bcmul($_SESSION['shop']['grand_total_price'], 100, 0)),
+            'CURRENCY'  => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
+            'PARAMPLUS' => 'section=Shop'.MODULE_INDEX.'&cmd=success&handler=yellowpay',
+// Custom code for adding more Customer data to the form.
+// Enable as needed.
+            // COM          Order description
+            // CN           Customer name. Will be pre-initialized (but still editable) in the cardholder name field of the credit card details.
+//            'CN' => $_SESSION['shop']['firstname'].' '.$_SESSION['shop']['lastname'],
+            // EMAIL        Customer's e-mail address
+//            'EMAIL' => $_SESSION['shop']['email'],
+            // owneraddress Customer's street name and number
+//            'owneraddress' => $_SESSION['shop']['address'],
+            // ownerZIP     Customer's ZIP code
+//            'ownerZIP' => $_SESSION['shop']['zip'],
+            // ownertown    Customer's town/city name
+//            'ownertown' => $_SESSION['shop']['city'],
+            // ownercty     Customer's country
+//            'ownercty' => \Cx\Core\Country\Controller\Country::getNameById($_SESSION['shop']['countryId']),
+            // ownertelno   Customer's telephone number
+//            'ownertelno' => $_SESSION['shop']['phone'],
+        );
+
+        $landingPage = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findOneByModuleCmdLang('Shop'.MODULE_INDEX, 'success', FRONTEND_LANG_ID);
+
+        $return = \Yellowpay::getForm($arrShopOrder, $_ARRAYLANG['TXT_ORDER_NOW'], false, null, $landingPage);
+
+        if (_PAYMENT_DEBUG && \Yellowpay::$arrError) {
+            $strError =
+                '<font color="red"><b>'.
+                $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_YELLOWPAY'].
+                '<br /></b>';
+            if (_PAYMENT_DEBUG) {
+                $strError .= join('<br />', \Yellowpay::$arrError); //.'<br />';
+            }
+            return $strError.'</font>';
+        }
+        if (empty ($return)) {
+            foreach (\Yellowpay::$arrError as $error) {
+                \DBG::log("Yellowpay Error: $error");
+            }
+        }
+        return $return;
+    }
 }
