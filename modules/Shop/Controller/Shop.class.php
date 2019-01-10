@@ -4217,7 +4217,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getProperty($_SESSION['shop']['paymentId'], 'processor_id');
         $processor_name = PaymentProcessing::getPaymentProcessorName($processor_id);
          // other payment methods
-        PaymentProcessing::initProcessor($processor_id);
+        \Cx\Modules\Shop\Controller\PaymentProcessorController::initProcessor($processor_id);
 // TODO: These arguments are no longer valid.  Set them up later?
 //            Currency::getActiveCurrencyCode(),
 //            FWLanguage::getLanguageParameter(FRONTEND_LANG_ID, 'lang'));

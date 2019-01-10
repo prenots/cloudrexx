@@ -141,19 +141,6 @@ class PaymentProcessing
 
 
     /**
-     * Set the active processor ID
-     * @return  void
-     * @param   integer $processorId    The PSP ID to use
-     * @static
-     */
-    static function initProcessor($processorId)
-    {
-        if (!is_array(self::$arrPaymentProcessor)) self::init();
-        self::$processorId = $processorId;
-    }
-
-
-    /**
      * Returns an array with all the payment processor names indexed
      * by their ID.
      * @return  array             The payment processor name array

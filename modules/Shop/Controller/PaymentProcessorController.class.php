@@ -644,6 +644,18 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
+     * Set the active processor ID
+     * @return  void
+     * @param   integer $processorId    The PSP ID to use
+     * @static
+     */
+    static function initProcessor($processorId)
+    {
+        if (!is_array(self::$arrPaymentProcessor)) self::init();
+        self::$processorId = $processorId;
+    }
+
+    /**
      * Check in the payment processor after the payment is complete.
      * @return  mixed   For external payment methods:
      *                  The integer order ID, if known, upon success
