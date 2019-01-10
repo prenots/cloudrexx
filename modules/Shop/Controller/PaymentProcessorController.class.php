@@ -1062,6 +1062,54 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
+     * Returns HTML code for showing the logo associated with this
+     * payment processor, if any, or an empty string otherwise.
+     * @return  string      HTML code, or the empty string
+     * @static
+     */
+    static function _getPictureCode()
+    {
+        if (!is_array(self::$arrPaymentProcessor)) self::init();
+        $imageName = self::getPaymentProcessorPicture();
+        if (empty($imageName)) return '';
+        $imageName_lang = $imageName;
+        $match = array();
+        if (preg_match('/(\.\w+)$/', $imageName, $match))
+            $imageName_lang = preg_replace(
+                '/\.\w+$/', '_'.FRONTEND_LANG_ID.$match[1], $imageName);
+//DBG::log("PaymentProcessing::_getPictureCode(): Testing path ".ASCMS_DOCUMENT_ROOT.SHOP_PAYMENT_LOGO_PATH.$imageName_lang);
+        return
+            '<br /><br /><img src="'.
+            // Is there a language dependent version?
+            (file_exists(\Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModulePath() . '/Shop/View/Media/payments/' .$imageName_lang)
+                ? \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName_lang
+                : \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName) .
+            '" alt="" title="" /><br /><br />';
+    }
+
+    /**
+     * Returns the picture file name associated with a payment processor ID.
+     *
+     * If the optional argument is not set and greater than zero, the value
+     * processorId stored in this object is used.  If this is invalid as
+     * well, returns the empty string.
+     * @param   integer     $processorId    The payment processor ID
+     * @return  string                      The payment processors' picture
+     *                                      file name, or the empty string
+     *                                      on failure.
+     * @global  ADONewConnection
+     * @static
+     */
+    static function getPaymentProcessorPicture($processorId=0)
+    {
+        // Either the argument or the object may not be initialized
+        if (!$processorId) $processorId = self::$processorId;
+        if (!$processorId) return '';
+        if (empty(self::$arrPaymentProcessor)) self::init();
+        return self::$arrPaymentProcessor[$processorId]['picture'];
+    }
+
+    /**
      * Handles all kinds of database errors
      *
      * Creates the processors' table, and creates default entries if necessary
