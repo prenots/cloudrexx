@@ -781,4 +781,24 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
 
         return $return;
     }
+
+    /**
+     * Returns the HTML code for the Payrexx payment method.
+     * @return  string  HTML code
+     */
+    static function _PayrexxProcessor()
+    {
+        global $_ARRAYLANG, $_CONFIG;
+
+        $return = \PayrexxProcessor::getModalCode();
+        if (!$return) {
+            $strError =
+                '<font color="red"><b>'.
+                $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_PAYREXX'].
+                '<br /></b>';
+            $strError .= join('<br />', \PayrexxProcessor::$arrError); //.'<br />';
+            return $strError.'</font>';
+        }
+        return $return;
+    }
 }

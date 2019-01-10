@@ -299,7 +299,7 @@ class PaymentProcessing
                 $return = \Cx\Modules\Shop\Controller\PaymentProcessorController::_YellowpayProcessor();
                 break;
             case 'payrexx':
-                $return = self::_PayrexxProcessor();
+                $return = \Cx\Modules\Shop\Controller\PaymentProcessorController::_PayrexxProcessor();
                 break;
             // Added 20100222 -- Reto Kohli
             case 'mobilesolutions':
@@ -373,27 +373,6 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
               ? \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName_lang
               : \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName) .
             '" alt="" title="" /><br /><br />';
-    }
-
-
-    /**
-     * Returns the HTML code for the Payrexx payment method.
-     * @return  string  HTML code
-     */
-    static function _PayrexxProcessor()
-    {
-        global $_ARRAYLANG, $_CONFIG;
-
-        $return = \PayrexxProcessor::getModalCode();
-        if (!$return) {
-            $strError =
-                '<font color="red"><b>'.
-                $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_PAYREXX'].
-                '<br /></b>';
-            $strError .= join('<br />', \PayrexxProcessor::$arrError); //.'<br />';
-            return $strError.'</font>';
-        }
-        return $return;
     }
 
 
