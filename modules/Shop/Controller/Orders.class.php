@@ -1081,7 +1081,7 @@ if (!$limit) {
 //if (!$payment_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Payment ID for Order ID $order_id");
         $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getPaymentProcessorId($payment_id);
 //if (!$processor_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor ID for Payment ID $payment_id");
-        $processorName = PaymentProcessing::getPaymentProcessorName($processor_id);
+        $processorName = \Cx\Modules\Shop\Controller\PaymentProcessorController::getPaymentProcessorName($processor_id);
 //if (!$processorName) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor Name for Processor ID $processor_id");
         // The payment processor *MUST* match the handler returned.
         if (!preg_match("/^$handler/i", $processorName)) {
@@ -1104,7 +1104,7 @@ if (!$limit) {
             // If neither condition is met, the status is set to 'confirmed'.
             $newOrderStatus = Order::STATUS_CONFIRMED;
             $processorType =
-                PaymentProcessing::getCurrentPaymentProcessorType($processor_id);
+                \Cx\Modules\Shop\Controller\PaymentProcessorController::getCurrentPaymentProcessorType($processor_id);
             $shipmentId = $objResult->fields['shipment_id'];
             if ($processorType == 'external') {
                 // External payment types are considered instant.

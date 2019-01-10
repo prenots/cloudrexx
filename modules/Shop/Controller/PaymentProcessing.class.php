@@ -95,14 +95,6 @@ class PaymentProcessing
      */
     private static $arrPaymentProcessor = false;
 
-    /**
-     * The selected processor ID
-     * @access  private
-     * @static
-     * @var     integer
-     */
-    private static $processorId = false;
-
 
     /**
      * Initialize known payment service providers
@@ -163,52 +155,6 @@ class PaymentProcessing
 
 
     /**
-     * Returns the name associated with a payment processor ID.
-     *
-     * If the optional argument is not set and greater than zero, the value
-     * processorId stored in this object is used.  If this is invalid as
-     * well, returns the empty string.
-     * @param   integer     $processorId    The payment processor ID
-     * @return  string                      The payment processors' name,
-     *                                      or the empty string on failure.
-     * @global  ADONewConnection
-     * @static
-     */
-    static function getPaymentProcessorName($processorId=0)
-    {
-        // Either the argument or the class variable must be initialized
-        if (!$processorId) $processorId = self::$processorId;
-        if (!$processorId) return '';
-        if (empty(self::$arrPaymentProcessor)) self::init();
-        return self::$arrPaymentProcessor[$processorId]['name'];
-    }
-
-
-    /**
-     * Returns the processor type associated with a payment processor ID.
-     *
-     * If the optional argument is not set and greater than zero, the value
-     * processorId stored in this object is used.  If this is invalid as
-     * well, returns the empty string.
-     * Note: Currently supported types are 'internal' and 'external'.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @param   integer     $processorId    The payment processor ID
-     * @return  string                      The payment processor type,
-     *                                      or the empty string on failure.
-     * @global  ADONewConnection
-     * @static
-     */
-    static function getCurrentPaymentProcessorType($processorId=0)
-    {
-        // Either the argument or the object may not be initialized
-        if (!$processorId) $processorId = self::$processorId;
-        if (!$processorId) return '';
-        if (empty(self::$arrPaymentProcessor)) self::init();
-        return self::$arrPaymentProcessor[$processorId]['type'];
-    }
-
-
-    /**
      * Check out the payment processor associated with the payment processor
      * selected by {@link initProcessor()}.
      *
@@ -226,7 +172,7 @@ class PaymentProcessing
         if (!is_array(self::$arrPaymentProcessor)) self::init();
         $return = '';
         // @since 3.0.5: Names are now lowercase, i.e. "internal" instead of "Internal"
-        switch (self::getPaymentProcessorName()) {
+        switch (\Cx\Modules\Shop\Controller\PaymentProcessorController::getPaymentProcessorName()) {
             case 'internal':
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
@@ -301,7 +247,7 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
             case 'paymill_cc':
             case 'paymill_elv':
             case 'paymill_iban':
-                $return =  \Cx\Modules\Shop\Controller\PaymentProcessorController::_PaymillProcessor(self::getPaymentProcessorName());
+                $return =  \Cx\Modules\Shop\Controller\PaymentProcessorController::_PaymillProcessor(\Cx\Modules\Shop\Controller\PaymentProcessorController::getPaymentProcessorName());
                 break;
             case 'dummy':
                 $return = \Dummy::getForm();

@@ -1821,7 +1821,7 @@ class Order
         $ppName = '';
         $psp_id = \Cx\Modules\Shop\Controller\PaymentController::getPaymentProcessorId($objOrder->payment_id());
         if ($psp_id) {
-            $ppName = PaymentProcessing::getPaymentProcessorName($psp_id);
+            $ppName = \Cx\Modules\Shop\Controller\PaymentProcessorController::getPaymentProcessorName($psp_id);
         }
         $objTemplate->setVariable(array(
             'SHOP_SHIPPING_PRICE' => $objOrder->shipment_amount(),

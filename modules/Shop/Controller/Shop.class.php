@@ -3359,7 +3359,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (!empty($_SESSION['shop']['paymentId']))
             $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getPaymentProcessorId($_SESSION['shop']['paymentId']);
         if (!empty($processor_id))
-            $processor_name = PaymentProcessing::getPaymentProcessorName($processor_id);
+            $processor_name = \Cx\Modules\Shop\Controller\PaymentProcessorController::getPaymentProcessorName($processor_id);
         return $processor_name;
     }
 
@@ -4215,7 +4215,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         \Message::restore();
 
         $processor_id = \Cx\Modules\Shop\Controller\PaymentController::getProperty($_SESSION['shop']['paymentId'], 'processor_id');
-        $processor_name = PaymentProcessing::getPaymentProcessorName($processor_id);
+        $processor_name = \Cx\Modules\Shop\Controller\PaymentProcessorController::getPaymentProcessorName($processor_id);
          // other payment methods
         \Cx\Modules\Shop\Controller\PaymentProcessorController::initProcessor($processor_id);
 // TODO: These arguments are no longer valid.  Set them up later?
@@ -4251,7 +4251,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         }
 
         $_SESSION['shop']['order_id_checkin'] = $order_id;
-        $strProcessorType = PaymentProcessing::getCurrentPaymentProcessorType();
+        $strProcessorType = \Cx\Modules\Shop\Controller\PaymentProcessorController::getCurrentPaymentProcessorType();
 
         // Test whether the selected payment method can be
         // considered an instant or deferred one.

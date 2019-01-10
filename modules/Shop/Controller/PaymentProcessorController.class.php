@@ -53,6 +53,14 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
     private static $arrPaymentProcessor = false;
 
     /**
+     * The selected processor ID
+     * @access  private
+     * @static
+     * @var     integer
+     */
+    private static $processorId = false;
+
+    /**
      * Get ViewGenerator options for Payment entity
      *
      * @param $options array predefined ViewGenerator options
@@ -798,6 +806,49 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
         return false;
     }
 
+    /**
+     * Returns the name associated with a payment processor ID.
+     *
+     * If the optional argument is not set and greater than zero, the value
+     * processorId stored in this object is used.  If this is invalid as
+     * well, returns the empty string.
+     * @param   integer     $processorId    The payment processor ID
+     * @return  string                      The payment processors' name,
+     *                                      or the empty string on failure.
+     * @global  ADONewConnection
+     * @static
+     */
+    static function getPaymentProcessorName($processorId=0)
+    {
+        // Either the argument or the class variable must be initialized
+        if (!$processorId) $processorId = self::$processorId;
+        if (!$processorId) return '';
+        if (empty(self::$arrPaymentProcessor)) self::init();
+        return self::$arrPaymentProcessor[$processorId]['name'];
+    }
+
+    /**
+     * Returns the processor type associated with a payment processor ID.
+     *
+     * If the optional argument is not set and greater than zero, the value
+     * processorId stored in this object is used.  If this is invalid as
+     * well, returns the empty string.
+     * Note: Currently supported types are 'internal' and 'external'.
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     * @param   integer     $processorId    The payment processor ID
+     * @return  string                      The payment processor type,
+     *                                      or the empty string on failure.
+     * @global  ADONewConnection
+     * @static
+     */
+    static function getCurrentPaymentProcessorType($processorId=0)
+    {
+        // Either the argument or the object may not be initialized
+        if (!$processorId) $processorId = self::$processorId;
+        if (!$processorId) return '';
+        if (empty(self::$arrPaymentProcessor)) self::init();
+        return self::$arrPaymentProcessor[$processorId]['type'];
+    }
 
     /**
      * Returns the HTML code for the Yellowpay payment method.
