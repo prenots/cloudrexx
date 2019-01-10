@@ -232,6 +232,9 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
         if ($info['id']) {
             $input->setAttribute('id', $info['id']);
         }
+        if ($info['maxlength']) {
+            $input->setAttribute('maxlength', $info['maxlength']);
+        }
 
         if ($info['type'] == 'checkbox' || $info['type'] == 'radio') {
             $input->setAttribute('type', $info['type']);
@@ -269,6 +272,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '254'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_PAYPAL_DEFAULT_CURRENCY'],
@@ -296,6 +300,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                     'saferpay_id',
                     'Shop'
                 ),
+                'maxlength' => '60'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_USE_TEST_ACCOUNT'],
@@ -343,6 +348,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                     'postfinance_shop_id',
                     'Shop'
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_YELLOWPAY_HASH_SIGNATURE_IN'],
@@ -354,6 +360,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_YELLOWPAY_HASH_SIGNATURE_OUT'],
@@ -365,6 +372,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_AUTORIZATION'],
@@ -404,6 +412,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_POSTFINANCE_MOBILE_SIGN'],
@@ -415,6 +424,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_POSTFINANCE_MOBILE_IJUSTWANTTOTEST'],
@@ -442,6 +452,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                     'datatrans_merchant_id',
                     'Shop'
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_AUTHORIZATION'],
@@ -516,6 +527,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '254'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_PAYMILL_PUBLIC_KEY'],
@@ -527,6 +539,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '254'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_PAYMILL_LIVE_ACCOUNT'],
@@ -542,6 +555,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '254'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_PAYMILL_PUBLIC_KEY'],
@@ -553,6 +567,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                         'Shop'
                     )
                 ),
+                'maxlength' => '254'
             ),
         );
     }
@@ -570,6 +585,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                     'payrexx_instance_name',
                     'Shop'
                 ),
+                'maxlength' => '50'
             ),
             array(
                 'title' => $_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX_API_SECRET'],
@@ -579,6 +595,7 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
                     'payrexx_api_secret',
                     'Shop'
                 ),
+                'maxlength' => '50'
             ),
         );
     }
