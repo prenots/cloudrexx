@@ -319,7 +319,7 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
                 break;
             // Added 20081117 -- Reto Kohli
             case 'datatrans':
-                $return = self::getDatatransForm(\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
+                $return = \Cx\Modules\Shop\Controller\PaymentProcessorController::getDatatransForm(\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
                 break;
             case 'paypal':
                 $cx = \Cx\Core\Core\Controller\Cx::instanciate();
@@ -373,36 +373,6 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
               ? \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName_lang
               : \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName) .
             '" alt="" title="" /><br /><br />';
-    }
-
-
-    /**
-     * Returns the complete HTML code for the Datatrans payment form
-     *
-     * Includes form, input and submit button tags
-     * @return  string                        The HTML form code
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @version 0.9
-     * @since   2.1.0
-     */
-    static function getDatatransForm()
-    {
-        global $_ARRAYLANG;
-
-        \Datatrans::initialize(
-            \Cx\Core\Setting\Controller\Setting::getValue('datatrans_merchant_id','Shop'),
-            $_SESSION['shop']['order_id'],
-            $_SESSION['shop']['grand_total_price'],
-            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
-        );
-        return
-            $_ARRAYLANG['TXT_ORDER_LINK_PREPARED'].'<br/><br/>'."\n".
-            '<form name="datatrans" method="post" '.
-            'action="'.\Datatrans::getGatewayUri().'">'."\n".
-            \Datatrans::getHtml()."\n".
-            '<input type="submit" name="go" value="'.
-            $_ARRAYLANG['TXT_ORDER_NOW'].'" />'."\n".
-            '</form>'."\n";
     }
 
 
