@@ -337,7 +337,7 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
             case 'paymill_cc':
             case 'paymill_elv':
             case 'paymill_iban':
-                $return =  self::_PaymillProcessor(self::getPaymentProcessorName());
+                $return =  \Cx\Modules\Shop\Controller\PaymentProcessorController::_PaymillProcessor(self::getPaymentProcessorName());
                 break;
             case 'dummy':
                 $return = \Dummy::getForm();
@@ -373,55 +373,6 @@ foreach (\PostfinanceMobile::getErrors() as $error) {
               ? \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName_lang
               : \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/View/Media/payments/' . $imageName) .
             '" alt="" title="" /><br /><br />';
-    }
-
-
-    /**
-     * Returns the HTML code for the Paymill payment method.
-     *
-     * @return  string  HTML code
-     */
-    static function _PaymillProcessor($processMethod)
-    {
-        global $_ARRAYLANG;
-
-        $landingPage = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page')->findOneByModuleCmdLang('Shop'.MODULE_INDEX, 'success', FRONTEND_LANG_ID);
-
-        $arrShopOrder = array(
-            'order_id'  => $_SESSION['shop']['order_id'],
-            'amount'    => intval(bcmul($_SESSION['shop']['grand_total_price'], 100, 0)),
-            'currency'  => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode(),
-        );
-
-        switch ($processMethod) {
-            case 'paymill_cc':
-                $return = \PaymillCCHandler::getForm($arrShopOrder, $landingPage);
-                break;
-            case 'paymill_elv':
-                $return = \PaymillELVHandler::getForm($arrShopOrder, $landingPage);
-                break;
-            case 'paymill_iban':
-                $return = \PaymillIBANHandler::getForm($arrShopOrder, $landingPage);
-                break;
-        }
-
-        if (_PAYMENT_DEBUG && \PaymillHandler::$arrError) {
-            $strError =
-                '<font color="red"><b>'.
-                $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_YELLOWPAY'].
-                '<br /></b>';
-            if (_PAYMENT_DEBUG) {
-                $strError .= join('<br />', \PaymillHandler::$arrError); //.'<br />';
-            }
-            return $strError.'</font>';
-        }
-        if (empty ($return)) {
-            foreach (\PaymillHandler::$arrError as $error) {
-                \DBG::log("Paymill Error: $error");
-            }
-        }
-
-        return $return;
     }
 
 
