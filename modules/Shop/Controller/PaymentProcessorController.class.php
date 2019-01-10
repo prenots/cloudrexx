@@ -807,6 +807,110 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
+     * Check out the payment processor associated with the payment processor
+     * selected by {@link initProcessor()}.
+     *
+     * If the page is redirected, or has already been handled, returns the empty
+     * string.
+     * In the other cases, returns HTML code for the payment form and to insert
+     * a picture representing the payment method.
+     * @return  string      Empty string, or HTML code
+     * @static
+     */
+    static function checkOut()
+    {
+        global $_ARRAYLANG;
+
+        if (!is_array(self::$arrPaymentProcessor)) self::init();
+        $return = '';
+        // @since 3.0.5: Names are now lowercase, i.e. "internal" instead of "Internal"
+        switch (self::getPaymentProcessorName()) {
+            case 'internal':
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                        array('result' => 1, 'handler' => 'internal')
+                    )
+                );
+            case 'internal_lsv':
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                        array('result' => 1, 'handler' => 'internal')
+                    )
+                );
+            case 'internal_creditcard':
+                // Not implemented
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                        array('result' => 1, 'handler' => 'internal')
+                    )
+                );
+            case 'internal_debit':
+                // Not implemented
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd('Shop'.MODULE_INDEX, 'success', '',
+                        array('result' => 1, 'handler' => 'internal')
+                    )
+                );
+            case 'saferpay':
+            case 'saferpay_all_cards':
+            case 'saferpay_mastercard_multipay_car': // Obsolete
+            case 'saferpay_visa_multipay_car':  // Obsolete
+                $return = self::_SaferpayProcessor();
+                break;
+            case 'yellowpay': // was: 'PostFinance_DebitDirect'
+                $return = self::_YellowpayProcessor();
+                break;
+            case 'payrexx':
+                $return = self::_PayrexxProcessor();
+                break;
+            // Added 20100222 -- Reto Kohli
+            case 'mobilesolutions':
+                $return = \PostfinanceMobile::getForm(
+                    intval(bcmul($_SESSION['shop']['grand_total_price'], 100, 0)),
+                    $_SESSION['shop']['order_id']);
+                if ($return) {
+//DBG::log("Postfinance Mobile getForm() returned:");
+//DBG::log($return);
+                } else {
+                    \DBG::log("PaymentProcessing::checkOut(): ERROR: Postfinance Mobile getForm() failed");
+                    \DBG::log("Postfinance Mobile error messages:");
+                    foreach (\PostfinanceMobile::getErrors() as $error) {
+                        \DBG::log($error);
+                    }
+                }
+                break;
+            // Added 20081117 -- Reto Kohli
+            case 'datatrans':
+                $return = self::getDatatransForm(\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
+                break;
+            case 'paypal':
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $currency = $cx->getDb()->getEntityManager()->getRepository(
+                    '\Cx\Modules\Shop\Model\Entity\Currency'
+                )->find($_SESSION['shop']['currencyId']);
+                $order_id = $_SESSION['shop']['order_id'];
+                $account_email = \Cx\Core\Setting\Controller\Setting::getValue('paypal_account_email','Shop');
+                $item_name = $_ARRAYLANG['TXT_SHOP_PAYPAL_ITEM_NAME'];
+                $currency_code = $currency->getCode();
+                $amount = $_SESSION['shop']['grand_total_price'];
+                $return = \PayPal::getForm($account_email, $order_id,
+                    $currency_code, $amount, $item_name);
+                break;
+            case 'paymill_cc':
+            case 'paymill_elv':
+            case 'paymill_iban':
+                $return =  self::_PaymillProcessor(self::getPaymentProcessorName());
+                break;
+            case 'dummy':
+                $return = \Dummy::getForm();
+                break;
+        }
+        // shows the payment picture
+        $return .= self::_getPictureCode();
+        return $return;
+    }
+
+    /**
      * Returns the name associated with a payment processor ID.
      *
      * If the optional argument is not set and greater than zero, the value

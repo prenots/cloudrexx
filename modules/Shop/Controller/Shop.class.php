@@ -4280,7 +4280,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         // from this page in checkOut():
         // 'internal', 'internal_lsv'
         self::$objTemplate->setVariable(
-            'SHOP_PAYMENT_PROCESSING', PaymentProcessing::checkOut()
+            'SHOP_PAYMENT_PROCESSING', \Cx\Modules\Shop\Controller\PaymentProcessorController::checkOut()
         );
         // Clear the order ID.
         // The order may be resubmitted and the payment retried.
