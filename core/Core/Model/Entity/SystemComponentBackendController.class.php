@@ -206,12 +206,22 @@ class SystemComponentBackendController extends Controller {
                 $first = true;
                 foreach ($subNav as $subkey => $subValue) {
                     $subcommand = is_array($subValue) ? $subkey : $subValue;
-                    if (!$this->hasAccessToCommand(array($currentCommand, $subcommand))) {
+                    if (!$this->hasAccessToCommand(
+                        array($currentCommand, $subcommand)
+                    )) {
                         continue;
                     }
-                    $isActiveSubNav = (!isset($cmd[1]) && $first) || ((isset($cmd[1]) ? $cmd[1] : '') == $subcommand);
+                    $isActiveSubNav = (!isset($cmd[1]) && $first)
+                        || ((isset($cmd[1]) ? $cmd[1] : '') == $subcommand);
                     //parse the subnavigation
-                    $this->parseCurrentNavItem($navigation, 'subnav', $subcommand, $currentCommand, $isActiveSubNav, 1);
+                    $this->parseCurrentNavItem(
+                        $navigation,
+                        'subnav',
+                        $subcommand,
+                        $currentCommand,
+                        $isActiveSubNav,
+                        1
+                    );
                     $first = false;
                 }
             }
