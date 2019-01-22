@@ -223,6 +223,57 @@ class SystemComponentBackendController extends Controller {
                         1
                     );
                     $first = false;
+
+                    if (is_array($subcommand) && isset($subcommand['children'])) {
+                        $secondSubNav = array_merge(
+                            array(
+                                '' => array(
+                                'permission' => $this->defaultPermission
+                                )
+                            ), $subcommand['children']
+                        );
+                    } else {
+                        if (is_array($subcommand)) {
+                            if (array_key_exists('permission', $subcommand)) {
+                                unset($subcommand['permission']); // navigation might contain only the permission key, unset it
+                            }
+                            if (array_key_exists('translatable', $subcommand)) {
+                                unset($subcommand['translatable']); // navigation might contain only the translatable key, unset it
+                            }
+                        }
+                        $secondSubNav = is_array($subValue['children'])
+                            && !empty($subValue['children']) ? array_merge(
+                                array(''), $subValue['children']
+                            ) : array();
+                    }
+                    if ($cmd[1] == $subcommand && count($subNav)) {
+                        $subFirst = true;
+                        foreach ($secondSubNav as $secondSubKey => $secondSubValue) {
+                            $secondSubCommand = is_array($secondSubValue)
+                                ? $secondSubKey : $secondSubValue;
+                            if (!$this->hasAccessToCommand(
+                                array($subcommand, $secondSubCommand)
+                            )) {
+                                continue;
+                            }
+                            $isActiveSecondSubNav = (!isset($cmd[2])
+                                && $subFirst) || (
+                                    (isset($cmd[2]) ? $cmd[2] : '')
+                                    == $secondSubCommand
+                                );
+                            //parse the subnavigation
+                            $this->parseCurrentNavItem(
+                                $navigation,
+                                'subnav2',
+                                $secondSubCommand,
+                                $currentCommand,
+                                $isActiveSecondSubNav,
+                                1,
+                                $subcommand
+                            );
+                            $subFirst = false;
+                        }
+                    }
                 }
             }
         }
@@ -275,7 +326,7 @@ class SystemComponentBackendController extends Controller {
      * @param boolean             $isActiveNav
      * @param boolean             $isSubNav
      */
-    protected function parseCurrentNavItem(\Cx\Core\Html\Sigma $navigation, $blockName, $currentCmd, $mainCmd, $isActiveNav, $isSubNav) {
+    protected function parseCurrentNavItem(\Cx\Core\Html\Sigma $navigation, $blockName, $currentCmd, $mainCmd, $isActiveNav, $isSubNav, $subCommand= '') {
         global $_ARRAYLANG;
 
         if (empty($blockName)) {
@@ -287,6 +338,11 @@ class SystemComponentBackendController extends Controller {
         if (empty($isSubNav)) {
             $act = empty($currentCmd) ? '' : '&amp;act=' . $currentCmd;
             $txt = empty($currentCmd) ? 'DEFAULT' : $currentCmd;
+        } else if (!empty($isSubNav) && !empty($subCommand)) {
+            $act = '&amp;act=' . $mainCmd . '/' . $subCommand .'/'. $currentCmd;
+            $txt = (empty($mainCmd) ? 'DEFAULT' : $mainCmd) . '_';
+            $txt .= empty($subCommand) ? 'DEFAULT_' : strtoupper($subCommand) . '_';
+            $txt .= empty($currentCmd) ? 'DEFAULT' : strtoupper($currentCmd);
         } else {
             $act = '&amp;act=' . $mainCmd . '/' . $currentCmd;
             $txt = (empty($mainCmd) ? 'DEFAULT' : $mainCmd) . '_';
