@@ -2290,20 +2290,24 @@ CODE;
                 $this->fileSystem->getFullPath($file) . $file->getFullName(),
                 PATHINFO_EXTENSION
             );
-            $mode = 'html';
 
             switch($pathInfo) {
                 case 'html':
+                    $mode = 'template';
+                    break;
                 case 'css':
                     $mode = $pathInfo;
-                break;
+                    break;
                 case 'js':
                     $mode = 'javascript';
-                break;
+                    break;
                 case 'yml':
                 case 'yaml':
                     $mode = 'yaml';
-                break;
+                    break;
+                default :
+                    $mode = 'html';
+                    break;
             }
 
             $jsCode = <<<CODE
