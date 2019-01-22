@@ -263,7 +263,7 @@ class ShopManager extends ShopLibrary
                 break;
             case 'statistics':
                 self::$pageTitle = $_ARRAYLANG['TXT_STATISTIC'];
-                Orders::view_statistics(self::$objTemplate);
+                \Cx\Modules\Shop\Controller\OrderController::view_statistics(self::$objTemplate);
                 break;
             case 'import':
                 $this->_import();
@@ -2611,7 +2611,6 @@ if ($test === NULL) {
         self::$objTemplate->setVariable(array(
             'SHOP_CUSTOMER_PAGING' => $paging,
             'SHOP_CUSTOMER_TERM' => htmlentities($searchterm),
-            'SHOP_LISTLETTER_LINKS' => Orders::getListletterLinks($listletter),
             'SHOP_CUSTOMER_TYPE_MENUOPTIONS' =>
                 Customers::getTypeMenuoptions($customer_type, true),
             'SHOP_CUSTOMER_STATUS_MENUOPTIONS' =>
