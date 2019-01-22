@@ -13,6 +13,11 @@ cx.jQuery(document).ready(function() {
             cx.jQuery('#subnavbar_level1').addClass('no_margin');
         }
     }
+    if ((cx.jQuery('#subnavbar_level3').length > 0) && (cx.jQuery('#subnavbar_level3').is(':visible'))) {
+        if (cx.jQuery('#subnavbar_level3').prevAll('#okbox, .okbox, #warningbox, .warningbox, #alertbox, .alertbox').length == 0) {
+            cx.jQuery('#subnavbar_level2').addClass('no_margin');
+        }
+    }
 });
 // -->
 </script>
