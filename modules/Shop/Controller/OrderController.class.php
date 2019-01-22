@@ -15,6 +15,17 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
 
+        // Until we know how to get the editId without the $_GET param
+        if ($this->cx->getRequest()->hasParam('editid')) {
+            $this->orderId = explode(
+                '}',
+                explode(
+                    ',',
+                    $this->cx->getRequest()->getParam('editid')
+                )[1]
+            )[0];
+        }
+
         $options['functions']['filtering'] = true;
         $options['functions']['searching'] = true;
         $options['functions']['show'] = true;
@@ -193,7 +204,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
                 'table' => array (
                     'parse' => function ($value, $rowData) {
-                        return $this->getStatusMenu($value);
+                        return $this->getStatusMenu($value, '', $rowData['id']);
                     },
                     'attributes' => array(
                         'class' => 'order-status',
@@ -214,6 +225,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getStatusMenu(
                         '',
                         $elementName,
+                        0,
                         $formName
                     );
                 },
@@ -542,6 +554,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         } else {
             $options['fields']['lsvs'] = array(
                 'showOverview' => false,
+                'allowFiltering' => false,
                 'showDetail' => false,
             );
         }
@@ -625,7 +638,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
      * @return \Cx\Core\Html\Model\Entity\DataElement
      * @throws \Doctrine\ORM\ORMException
      */
-    protected function getStatusMenu($value, $name = '', $formName = '')
+    protected function getStatusMenu($value, $name = '', $id = 0, $formName = '')
     {
         global $_ARRAYLANG;
 
@@ -642,21 +655,20 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $validValues = array_merge($validValues, $statusValues);
 
+        if (empty($name)) {
+            $name = 'status';
+        }
+
+        if (!empty($id)) {
+            $name = $name . '-' . $id;
+        }
         $statusField = new \Cx\Core\Html\Model\Entity\DataElement(
-            'status',
+            $name,
             $value,
             'select',
             null,
             $validValues
         );
-
-        if (!empty($name)) {
-            $statusField->setAttributes(
-                array(
-                    'name' => $name,
-                )
-            );
-        }
 
         if (!empty($formName)) {
             $statusField->setAttributes(
@@ -1267,5 +1279,400 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $wrapper->addChild($tooltipTrigger);
         $wrapper->addChild($tooltipMessage);
         return $wrapper;
+    }
+
+    /**
+     * Sets up the Order statistics
+     * @param   \Cx\Core\Html\Sigma     $objTemplate  The optional Template,
+     *                                                by reference
+     * @global  ADONewConnection        $objDatabase
+     * @global  array                   $_ARRAYLANG
+     * @todo    Rewrite the statistics in a seperate class, extending Order
+     * @static
+     */
+    static function view_statistics(&$objTemplate=null)
+    {
+        global $_ARRAYLANG;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        if (!$objTemplate || !$objTemplate->blockExists('no_order')) {
+            $objTemplate = new \Cx\Core\Html\Sigma(
+                \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModulePath() . '/Shop/View/Template/Backend');
+            $objTemplate->loadTemplateFile('module_shop_statistic.html');
+        }
+        $objTemplate->setGlobalVariable($_ARRAYLANG);
+        // Get the first order date; if its empty, no order has been placed yet
+        $firstOrder = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        )->getFirstOrder();
+        if (empty($firstOrder)) {
+            $objTemplate->touchBlock('no_order');
+            return $objTemplate;
+        }
+        $year_first_order = $firstOrder->getDateTime()->format('Y');
+        $month_first_order = $firstOrder->getDateTime()->format('m');
+        $start_month = $end_month = $start_year = $end_year = NULL;
+        if (isset($_REQUEST['submitdate'])) {
+            // A range is requested
+            $start_month = intval($_REQUEST['startmonth']);
+            $end_month = intval($_REQUEST['stopmonth']);
+            $start_year = intval($_REQUEST['startyear']);
+            $end_year = intval($_REQUEST['stopyear']);
+        } else {
+            // Default range to one year, or back to the first order if less
+            $start_month = $month_first_order;
+            $end_month = Date('m');
+            $start_year = $end_year = Date('Y');
+            if ($year_first_order < $start_year) {
+                $start_year -= 1;
+                if (   $year_first_order < $start_year
+                    || $month_first_order < $start_month) {
+                    $start_month = $end_month;
+                }
+            }
+        }
+        $objTemplate->setVariable(array(
+            'SHOP_START_MONTH' =>
+                Shopmanager::getMonthDropdownMenu($start_month),
+            'SHOP_END_MONTH' =>
+                Shopmanager::getMonthDropdownMenu($end_month),
+            'SHOP_START_YEAR' =>
+                Shopmanager::getYearDropdownMenu(
+                    $start_year, $year_first_order),
+            'SHOP_END_YEAR' =>
+                Shopmanager::getYearDropdownMenu(
+                    $end_year, $year_first_order),
+        ));
+        $start_date = date(ASCMS_DATE_FORMAT_INTERNATIONAL_DATETIME,
+            mktime(0, 0, 0, $start_month, 1, $start_year));
+        // mktime() will fix the month from 13 to 01, see example 2
+        // on http://php.net/manual/de/function.mktime.php.
+        // Mind that this is exclusive and only used in the queries below
+        // so that Order date < $end_date!
+        $end_date = date(ASCMS_DATE_FORMAT_INTERNATIONAL_DATETIME,
+            mktime(0, 0, 0, $end_month+1, 1, $end_year));
+        $qb = $cx->getDb()->getEntityManager()->createQueryBuilder();
+
+        $selectedStat = (isset($_REQUEST['selectstats'])
+            ? intval($_REQUEST['selectstats']) : 0);
+        if ($selectedStat == 2) {
+            // Product statistic
+            $objTemplate->setVariable(array(
+                'TXT_COLUMN_1_DESC' => $_ARRAYLANG['TXT_PRODUCT_NAME'],
+                'TXT_COLUMN_2_DESC' => $_ARRAYLANG['TXT_COUNT_ARTICLES'],
+                'TXT_COLUMN_3_DESC' => $_ARRAYLANG['TXT_STOCK'],
+                'SHOP_ORDERS_SELECTED' => '',
+                'SHOP_ARTICLES_SELECTED' => \Html::ATTRIBUTE_SELECTED,
+                'SHOP_CUSTOMERS_SELECTED' => '',
+            ));
+             $query = $qb->select(
+                array(
+                    'A.productId AS id', 'A.quantity AS shopColumn2',
+                    'A.price AS total', 'B.stock AS shopColumn3', 'C.currencyId',
+                    'B.name AS title'
+                )
+            )->from('Cx\Modules\Shop\Model\Entity\OrderItem', 'A')
+            ->join(
+                'A.order', 'C', 'WITH',
+                $qb->expr()->eq('A.orderId', 'C.id')
+            )->join(
+                'A.product', 'B', 'WITH',
+                $qb->expr()->eq('A.productId', 'B.id')
+            )->where(
+                $qb->expr()->andX(
+                    'C.dateTime >= ?1',
+                    'C.dateTime < ?2',
+                    $qb->expr()->orX(
+                        $qb->expr()->eq('C.status', '?3'),
+                        $qb->expr()->eq('C.status', '?4')
+                    )
+                )
+            )->orderBy('shopColumn2', 'DESC')->setParameters(
+                 array(
+                     1 => $start_date,
+                     2 => $end_date,
+                     3 => Order::STATUS_CONFIRMED,
+                     4 => Order::STATUS_COMPLETED
+                 )
+            )->getQuery();
+        } elseif ($selectedStat == 3) {
+            // Customer statistic
+            $objTemplate->setVariable(array(
+                'TXT_COLUMN_1_DESC' => $_ARRAYLANG['TXT_NAME'],
+                'TXT_COLUMN_2_DESC' => $_ARRAYLANG['TXT_COMPANY'],
+                'TXT_COLUMN_3_DESC' => $_ARRAYLANG['TXT_COUNT_ARTICLES'],
+                'SHOP_ORDERS_SELECTED' => '',
+                'SHOP_ARTICLES_SELECTED' => '',
+                'SHOP_CUSTOMERS_SELECTED' => \Html::ATTRIBUTE_SELECTED,
+            ));
+            $query = $qb->select(
+                array(
+                    'A.sum AS total ', 'A.currencyId', 'SUM(B.quantity) AS shopColumn3', 'A.customerId'
+                )
+            )->from(
+                'Cx\Modules\Shop\Model\Entity\Order', 'A'
+            )->join(
+                'A.orderItems', 'B', 'WITH',
+                $qb->expr()->eq('A.id', 'B.orderId')
+            )->where(
+                $qb->expr()->andX(
+                    'A.dateTime >= ?1',
+                    'A.dateTime < ?2',
+                    $qb->expr()->orX(
+                        $qb->expr()->eq('A.status', '?3'),
+                        $qb->expr()->eq('A.status', '?4')
+                    )
+                )
+            )->groupBy('B.orderId')->orderBy('A.sum', 'DESC')
+             ->setParameters(
+                 array(
+                    1 => $start_date,
+                    2 => $end_date,
+                    3 => Order::STATUS_CONFIRMED,
+                    4 => Order::STATUS_COMPLETED
+                 )
+             )->getQuery();
+        } else {
+            // Order statistic (default); sales per month
+            $objTemplate->setVariable(array(
+                'TXT_COLUMN_1_DESC' => $_ARRAYLANG['TXT_DATE'],
+                'TXT_COLUMN_2_DESC' => $_ARRAYLANG['TXT_COUNT_ORDERS'],
+                'TXT_COLUMN_3_DESC' => $_ARRAYLANG['TXT_COUNT_ARTICLES'],
+                'SHOP_ORDERS_SELECTED' => \Html::ATTRIBUTE_SELECTED,
+                'SHOP_ARTICLES_SELECTED' => '',
+                'SHOP_CUSTOMERS_SELECTED' => '',
+            ));
+
+            $query = $qb->select(
+                array(
+                    'SUM(A.quantity) AS shopColumn3', 'COUNT(A.orderId) AS shopColumn2',
+                    'B.currencyId', 'B.sum AS total', 'B.dateTime'
+                )
+            )->from('Cx\Modules\Shop\Model\Entity\OrderItem', 'A')
+            ->join(
+                'A.order', 'B', 'WITH',
+                $qb->expr()->eq('A.orderId', 'B.id')
+            )->where(
+                $qb->expr()->andX(
+                    'B.dateTime >= ?1',
+                    'B.dateTime < ?2',
+                    $qb->expr()->orX(
+                        $qb->expr()->eq('B.status', '?3'),
+                        $qb->expr()->eq('B.status', '?4')
+                    )
+                )
+            )->groupBy('A.id')->orderBy('B.dateTime', 'DESC')
+            ->setParameters(
+                array(
+                    1 => $start_date,
+                    2 => $end_date,
+                    3 => Order::STATUS_CONFIRMED,
+                    4 => Order::STATUS_COMPLETED
+                )
+            )->getQuery();
+        }
+        $arrayResults = array();
+        $results = $query->getArrayResult();
+
+        $sumColumn3 = $sumColumn4 = 0;
+        $sumColumn2 = '';
+
+        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+        if ($selectedStat == 2) {
+            // Product statistc
+            foreach ($results as $result) {
+                // set currency id
+                \Cx\Modules\Shop\Controller\CurrencyController::setActiveCurrencyId($result['currencyId']);
+                $key = $result['id'];
+                if (!isset($arrayResults[$key])) {
+                    $arrayResults[$key] = array(
+                        'column1' =>
+                            '<a href="index.php?cmd=Shop'.MODULE_INDEX.
+                            '&amp;act=products&amp;tpl=manage&amp;id='.
+                            $result['id'].
+                            '" title="'.$result['title'].'">'.
+                            $result['title'].'</a>',
+                        'column2' => 0,
+                        'column3' => $result['shopColumn3'],
+                        'column4' => 0,
+                    );
+                }
+                $arrayResults[$key]['column2'] +=
+                    + $result['shopColumn2'];
+                $arrayResults[$key]['column4'] +=
+                    + $result['shopColumn2']
+                    * \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($result['total']);
+            }
+            if (is_array($arrayResults)) {
+                foreach ($arrayResults AS $entry) {
+                    $sumColumn2 = $sumColumn2 + $entry['column2'];
+                    $sumColumn3 = $sumColumn3 + $entry['column3'];
+                    $sumColumn4 = $sumColumn4 + $entry['column4'];
+                }
+                rsort($arrayResults);
+            }
+        } elseif ($selectedStat == 3) {
+            // Customer statistic
+            foreach ($results as $result) {
+                \Cx\Modules\Shop\Controller\CurrencyController::setActiveCurrencyId($result['currencyId']);
+                $key = $result['customerId'];
+                if (!isset($arrayResults[$key])) {
+                    $objUser = \FWUser::getFWUserObject()->objUser;
+                    $objUser = $objUser->getUser($key);
+                    $company = '';
+                    $name = $_ARRAYLANG['TXT_SHOP_CUSTOMER_NOT_FOUND'];
+                    if ($objUser) {
+                        $company = $objUser->getProfileAttribute('company');
+                        $name =
+                            $objUser->getProfileAttribute('firstname').' '.
+                            $objUser->getProfileAttribute('lastname');
+                    }
+                    $arrayResults[$key] = array(
+                        'column1' =>
+                            '<a href="index.php?cmd=Shop'.MODULE_INDEX.
+                            '&amp;act=customerdetails&amp;customer_id='.
+                            $result->fields['id'].'">'.$name.'</a>',
+                        'column2' => $company,
+                        'column3' => 0,
+                        'column4' => 0,
+                    );
+                }
+                $arrayResults[$key]['column3'] += $result['shopColumn3'];
+                $arrayResults[$key]['column4'] += \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($result['total']);
+                $sumColumn3 += $result['shopColumn3'];
+                $sumColumn4 += \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($result['total']);
+            }
+        } else {
+            // Order statistic (default)
+            $arrayMonths = explode(',', $_ARRAYLANG['TXT_MONTH_ARRAY']);
+            foreach ($results as $result) {
+                $key = $result['dateTime']->format('Y').'.'.$result['dateTime']->format('M');
+                if (!isset($arrayResults[$key])) {
+                    $arrayResults[$key] = array(
+                        'column1' => '',
+                        'column2' => 0,
+                        'column3' => 0,
+                        'column4' => 0,
+                    );
+                }
+                $arrayResults[$key]['column1'] = $arrayMonths[intval($result['dateTime']->format('m'))-1].' '.$result['dateTime']->format('Y');
+                $arrayResults[$key]['column2'] = $arrayResults[$key]['column2'] + 1;
+                $arrayResults[$key]['column3'] = $arrayResults[$key]['column3'] + $result['shopColumn3'];
+                $arrayResults[$key]['column4'] = $arrayResults[$key]['column4'] + \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($result['total']);
+                $sumColumn2 = $sumColumn2 + 1;
+                $sumColumn3 = $sumColumn3 + $result['shopColumn3'];
+                $sumColumn4 = $sumColumn4 + \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($result['total']);
+            }
+            krsort($arrayResults, SORT_NUMERIC);
+        }
+        $objTemplate->setCurrentBlock('statisticRow');
+        $i = 0;
+        if (is_array($arrayResults)) {
+            foreach ($arrayResults as $entry) {
+                $objTemplate->setVariable(array(
+                    'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
+                    'SHOP_COLUMN_1' => $entry['column1'],
+                    'SHOP_COLUMN_2' => $entry['column2'],
+                    'SHOP_COLUMN_3' => $entry['column3'],
+                    'SHOP_COLUMN_4' =>
+                        \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($entry['column4']).' '.
+                        $defaultCurrency->getSymbol(),
+                ));
+                $objTemplate->parse('statisticRow');
+            }
+        }
+        $qbCurrency = $cx->getDb()->getEntityManager()->createQueryBuilder();
+        $queryCurrency = $qbCurrency->select(
+            array(
+                'A.currencyId', 'A.sum', 'A.dateTime',
+            )
+        )->from(
+            'Cx\Modules\Shop\Model\Entity\Order', 'A'
+        )->where(
+            $qbCurrency->expr()->orX(
+                $qbCurrency->expr()->eq('A.status', '?1'),
+                $qbCurrency->expr()->eq('A.status', '?2')
+            )
+        )->orderBy('A.dateTime', 'DESC')->setParameters(
+            array(
+                1 => Order::STATUS_CONFIRMED,
+                2 => Order::STATUS_COMPLETED
+            )
+        )->getQuery();
+
+        $resultsCurrency = $queryCurrency->getArrayResult();
+
+        if (!$resultsCurrency) {
+            return Order::errorHandler();
+        }
+        $totalSoldProducts = 0;
+
+        $qbTotal = $cx->getDb()->getEntityManager()->createQueryBuilder();
+        $queryTotalProducts = $qbTotal->select(
+            'SUM(B.quantity) AS shopTotalSoldProducts'
+        )->from('Cx\Modules\Shop\Model\Entity\OrderItem', 'B')
+        ->join(
+            'B.order', 'A', 'WITH',
+            $qbTotal->expr()->eq('A.id', 'B.orderId')
+        )->where(
+                $qbTotal->expr()->orX(
+                $qbTotal->expr()->eq('A.status', '?1'),
+                $qbTotal->expr()->eq('A.status', '?2')
+            )
+        )->setParameters(
+            array(
+                1 => Order::STATUS_CONFIRMED,
+                2 => Order::STATUS_COMPLETED
+            )
+        )->getQuery();
+        $resultTotal = $queryTotalProducts->getSingleResult();
+
+        if ($resultTotal) {
+            $totalSoldProducts = $resultTotal['shopTotalSoldProducts'];
+        }
+        $totalOrderSum = 0;
+        $totalOrders = 0;
+        $bestMonthSum = 0;
+        $bestMonthDate = '';
+        $arrShopMonthSum = array();
+        foreach ($results as $result) {
+            $orderSum = \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($result['total']);
+            $date = new \DateTime($resultsCurrency['dateTime']);
+            if (!isset($arrShopMonthSum[$date->format('Y')][$date->format('m')])) {
+                $arrShopMonthSum[$date->format('Y')][$date->format('m')] = 0;
+            }
+            $arrShopMonthSum[$date->format('Y')][$date->format('m')] += $orderSum;
+            $totalOrderSum += $orderSum;
+            $totalOrders++;
+        }
+        $months = explode(',', $_ARRAYLANG['TXT_MONTH_ARRAY']);
+        foreach ($arrShopMonthSum as $year => $arrMonth) {
+            foreach ($arrMonth as $month => $sum) {
+                if ($bestMonthSum < $sum) {
+                    $bestMonthSum = $sum;
+                    $bestMonthDate = $months[$month-1].' '.$year;
+                }
+            }
+        }
+        $objTemplate->setVariable(array(
+            'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
+            'SHOP_TOTAL_SUM' =>
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($totalOrderSum).' '.
+                $defaultCurrency->getSymbol(),
+            'SHOP_MONTH' => $bestMonthDate,
+            'SHOP_MONTH_SUM' =>
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($bestMonthSum).' '.
+                $defaultCurrency->getSymbol(),
+            'SHOP_TOTAL_ORDERS' => $totalOrders,
+            'SHOP_SOLD_ARTICLES' => $totalSoldProducts,
+            'SHOP_SUM_COLUMN_2' => $sumColumn2,
+            'SHOP_SUM_COLUMN_3' => $sumColumn3,
+            'SHOP_SUM_COLUMN_4' =>
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($sumColumn4).' '.
+                $defaultCurrency->getSymbol(),
+        ));
+        return true;
     }
 }
