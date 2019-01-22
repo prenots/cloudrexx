@@ -949,8 +949,8 @@ class ViewGenerator {
                     $this->options[$field]['type'] = $fieldDefinition['type'];
 
                     // fetch default value of entity's field
-                    if ($entityObject->getFieldValue($object, $field) !== null) {
-                        $renderArray[$field] = $entityObject->getFieldValue($object, $field);
+                    if (isset($fieldDefinition['options']['default'])) {
+                        $renderArray[$field] = $fieldDefinition['options']['default'];
                         continue;
                     }
                     $renderArray[$field] = '';
