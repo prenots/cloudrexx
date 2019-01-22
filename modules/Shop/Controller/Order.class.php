@@ -1419,23 +1419,6 @@ class Order
 
 
     /**
-     * Returns the time() value representing the date and time of the first
-     * Order present in the database
-     *
-     * Returns null if there is no Order, or on error.
-     * @return  integer               The first Order time, or null
-     */
-    static function getFirstOrderTime()
-    {
-        $count = 0;
-        $arrOrder = Orders::getArray($count, 'date_time ASC', null, 0, 1);
-        if (empty($arrOrder)) return null;
-        $objOrder = current($arrOrder);
-        return strtotime($objOrder->date_time());
-    }
-
-
-    /**
      * Inserts a single item into the database
      *
      * Note that all parameters are mandatory.
