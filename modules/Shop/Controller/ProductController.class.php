@@ -198,6 +198,11 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $options;
     }
 
+    /**
+     * Return a div with an icon and tooltip for the flag attribute.
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
     protected function getFlagHeader()
     {
         global $_ARRAYLANG;
