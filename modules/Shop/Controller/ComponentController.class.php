@@ -55,7 +55,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array(
             'Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist',
             'Currency', 'Order', 'DiscountgroupCountName', 'Payment',
-            'PaymentProcessor'
+            'PaymentProcessor', 'Product'
         );
     }
 

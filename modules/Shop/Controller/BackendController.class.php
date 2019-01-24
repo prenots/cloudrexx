@@ -77,7 +77,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Category':
             case 'categories':
             case 'category_edit':
-            case 'Product':
             case 'products':
             case 'activate_products':
             case 'deactivate_products':
@@ -373,6 +372,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'PaymentProcessor'
                 )->getViewGeneratorOptions($options);
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\Product':
+                $options = $this->getSystemComponentController()->getController(
+                    'Product'
+                )->getViewGeneratorOptions($options);
+                $options = $this->normalDelete(
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+                    $options
+                );
                 break;
         }
         return $options;
