@@ -1191,22 +1191,6 @@ class Products
         return $arrName;
     }
 
-    /**
-     * Returns -1, 0, or 1 if the first Product title is smaller, equal to,
-     * or greater than the second, respectively
-     * @param   Product   $objProduct1    Product #1
-     * @param   Product   $objProduct2    Product #2
-     * @return  integer                   -1, 0, or 1
-     */
-    static function cmpTitle($objProduct1, $objProduct2)
-    {
-        return
-            ($objProduct1->getName() == $objProduct2->getName()
-              ? 0
-              : ($objProduct1->getName() < $objProduct2->getName()
-                  ? -1 :  1));
-    }
-
 
     /**
      * Returns -1, 0, or 1 if the first Product title is smaller, equal to,
