@@ -76,6 +76,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 
         $options['fields'] = array(
             'flags' => array(
+                'header' => $this->getFlagHeader(),
                 'editable' => true,
                 'type' => 'checkboxes',
                 'sorting' => false,
@@ -197,4 +198,32 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $options;
     }
 
+    protected function getFlagHeader()
+    {
+        global $_ARRAYLANG;
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $img = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+        $tooltipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $empty = new \Cx\Core\Html\Model\Entity\TextElement('');
+        $tooltipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $message = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_SHOP_SHOW_PRODUCT_ON_START_PAGE_TIP']
+        );
+
+        $img->setAttributes(
+            array(
+                'style' => 'display:block',
+                'src' => $this->cx->getCodeBaseCoreWebPath()
+                    . '/Core/View/Media/icons/home.gif'
+            )
+        );
+
+        $tooltipTrigger->addClass('tooltip-trigger icon-info');
+        $tooltipMessage->addClass('tooltip-message');
+        $tooltipTrigger->addChild($empty);
+        $tooltipMessage->addChild($message);
+        $wrapper->addChildren(array($img, $tooltipTrigger, $tooltipMessage));
+
+        return $wrapper;
+    }
 }
