@@ -508,29 +508,6 @@ class Products
 
 
     /**
-     * Delete Products bearing the given Product code from the database.
-     * @param   integer     $productCode        The Product code. This *MUST*
-     *                                          be non-empty!
-     * @param   boolean     $flagDeleteImages   If true, Product images are
-     *                                          deleted as well
-     * @return  boolean                         True on success, false otherwise
-     * @static
-     * @author      Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function deleteByCode($productCode, $flagDeleteImages)
-    {
-        if (empty($productCode)) return false;
-        $arrProduct = Products::getByCustomId($productCode);
-        if ($arrProduct === false) return false;
-        $result = true;
-        foreach ($arrProduct as $objProduct) {
-            if (!$objProduct->delete($flagDeleteImages)) $result = false;
-        }
-        return $result;
-    }
-
-
-    /**
      * Set the active status of all Products for the given IDs
      *
      * Depending on $active, activates (true) or deactivates (false) the
