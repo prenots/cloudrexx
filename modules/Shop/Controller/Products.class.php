@@ -636,39 +636,6 @@ class Products
 
 
     /**
-     * Returns an array of ShopCategory IDs containing Products with
-     * their flags containing the given string.
-     * @param   string  $strName    The name of the flag to match
-     * @return  mixed               The array of ShopCategory IDs on success,
-     *                              false otherwise.
-     * @static
-     * @author      Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getShopCategoryIdArrayByFlag($strName)
-    {
-        global $objDatabase;
-
-        $query = "
-            SELECT DISTINCT category_id
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
-             WHERE flags LIKE '%$strName%'
-          ORDER BY category_id ASC";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return false;
-        $arrShopCategoryId = array();
-        while (!$objResult->EOF) {
-            $arrCategoryId = preg_split('/\s*,\s*/',
-                $objResult->Fields['catid'], null, PREG_SPLIT_NO_EMPTY);
-            foreach ($arrCategoryId as $category_id) {
-                $arrShopCategoryId[$category_id] = null;
-            }
-            $objResult->MoveNext();
-        }
-        return array_flip($arrShopCategoryId);
-    }
-
-
-    /**
      * Create thumbnails and update the corresponding Product records
      *
      * Scans the Products with the given IDs.  If a non-empty picture string
