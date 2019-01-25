@@ -73,6 +73,35 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'distribution',
             'stock',
         );
+        $options['order']['form'] = array(
+            'id',
+            'name',
+            'categories',
+            'code',
+            'normalprice',
+            'resellerprice',
+            'discountprice',
+            'discountActive',
+            'articleGroup',
+            'discountgroupCountName',
+            'vat',
+            'distribution',
+            'short',
+            'long',
+            'keys',
+            'manufacturer',
+            'uri',
+            'stock',
+            'stockVisible',
+            'minimumOrderQuantity',
+            'relProductAttributes',
+            'picture',
+            'active',
+            'b2b',
+            'b2c',
+            'dateStart',
+            'dateEnd'
+        );
 
         $options['fields'] = array(
             'flags' => array(
@@ -117,6 +146,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'groupId' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'stockVisible' => array(
                 'showOverview' => false,
@@ -141,18 +171,22 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'manufacturerId' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'ord' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'vatId' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'weight' => array(
                 'showOverview' => false,
             ),
             'articleId' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'minimumOrderQuantity' => array(
                 'showOverview' => false,
@@ -170,12 +204,15 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'keys' => array(
                 'showOverview' => false,
+                'tooltip' => $_ARRAYLANG['TXT_SHOP_KEYWORDS_TOOLTIP'],
             ),
             'discountCoupons' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'orderItems' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'relProductAttributes' => array(
                 'showOverview' => false,
