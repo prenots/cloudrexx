@@ -1351,7 +1351,7 @@ die("Failed to update the Cart!");
         } elseif ($product_id) {
             $arrProduct = self::getValidProducts(array($product_id));
         } else {
-            $arrProduct = Products::getByShopParams(
+            $arrProduct = \Cx\Modules\Shop\Controller\ProductController::getByShopParams(
                 $count, \Paging::getPosition(),
                 $product_id, $category_id, $manufacturer_id, $term,
                 $flagSpecialoffer, $flagLastFive,

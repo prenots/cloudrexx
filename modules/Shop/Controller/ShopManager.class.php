@@ -1842,7 +1842,7 @@ if ($test === NULL) {
             }
             // Get Products in this category
             $count = 1e9;
-            $arrProducts = Products::getByShopParams($count, 0, null,
+            $arrProducts = \Cx\Modules\Shop\Controller\ProductController::getByShopParams($count, 0, null,
                 $category_id, null, null, false, false, '', null, true);
 //DBG::log("delete_categories($category_id): Products in $category_id: ".var_export($arrProducts, true));
             // Delete the products in the category
@@ -3097,7 +3097,7 @@ if ($test === NULL) {
             // have to set $count again because it will be set to 0 in Products::getByShopParams
             $count = $limit;
             // Mind that $count is handed over by reference.
-            $arrProducts = Products::getByShopParams(
+            $arrProducts = \Cx\Modules\Shop\Controller\ProductController::getByShopParams(
                 $count, \Paging::getPosition(),
                 0, $category_id, $manufacturer_id, $searchTerm,
                 $flagSpecialoffer, false, $objSorting->getOrder(),

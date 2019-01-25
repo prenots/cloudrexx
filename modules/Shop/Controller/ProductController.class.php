@@ -408,4 +408,111 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         }
         return \Html::getOptions($arrName, $selected);
     }
+
+    /**
+     * Returns an array of Products selected by parameters as available in
+     * the Shop.
+     *
+     * The $count parameter is set to the number of records found.
+     * After it returns, it contains the actual number of matching Products.
+     * @param   integer     $count          The desired number of Products,
+     *                                      by reference.  Set to the actual
+     *                                      total matching number.
+     * @param   integer     $offset         The Product offset
+     * @param   integer|array   $product_id     The optional Product ID,
+     *                                      or an array of such
+     * @param   integer     $category_id    The ShopCategory ID
+     * @param   integer     $manufacturer_id  The Manufacturer ID
+     * @param   string      $pattern        A search pattern
+     * @param   boolean     $flagSpecialoffer Limit results to special offers
+     *                                      if true.  Disabled if either
+     *                                      the Product ID, Category ID,
+     *                                      Manufacturer ID, or the search
+     *                                      pattern is non-empty.
+     * @param   boolean     $flagLastFive   Limit results to the last five
+     *                                      Products added to the Shop if true.
+     *                                      Note: You may specify an integer
+     *                                      count as well, this will set the
+     *                                      limit accordingly.
+     * @param   integer     $orderSetting   The sorting order setting, defaults
+     *                                      to the order field value ascending,
+     *                                      Product ID descending
+     * @param   boolean     $flagIsReseller The reseller status of the
+     *                                      current customer, ignored if
+     *                                      it's the empty string
+     * @param   boolean     $flagShowInactive   Include inactive Products
+     *                                      if true.  Backend use only!
+     * @return  array                       Array of Product objects,
+     *                                      or false if none were found
+     * @static
+     * @author      Reto Kohli <reto.kohli@comvation.com>
+     */
+    static function getByShopParams(
+        &$count, $offset=0,
+        $product_id=null, $category_id=null,
+        $manufacturer_id=null, $pattern=null,
+        $flagSpecialoffer=false, $flagLastFive=false,
+        $orderSetting='',
+        $flagIsReseller=null,
+        $flagShowInactive=false
+    ) {
+        global $objDatabase, $_CONFIG;
+
+//\DBG::activate(DBG_ADODB_ERROR|DBG_LOG_FIREPHP);
+
+        // Do not show any Products if no selection is made at all
+        if (   empty($product_id)
+            && empty($category_id)
+            && empty($manufacturer_id)
+            && empty($pattern)
+            && empty($flagSpecialoffer)
+            && empty($flagLastFive)
+            && empty($flagShowInactive) // Backend only!
+        ) {
+            $count = 0;
+            return array();
+        }
+// NOTE:
+// This was an optimization, but does not (yet) consider the other parameters.
+//        if ($product_id) {
+//            // Select single Product by ID
+//            $objProduct = Product::getById($product_id);
+//            // Inactive Products MUST NOT be shown in the frontend
+//            if (   $objProduct
+//                && ($flagShowInactive || $objProduct->active())) {
+//                $count = 1;
+//                return array($objProduct);
+//            }
+//            $count = 0;
+//            return false;
+//        }
+        list($querySelect, $queryCount, $queryTail, $queryOrder) =
+            self::getQueryParts(
+                $product_id, $category_id, $manufacturer_id, $pattern,
+                $flagSpecialoffer, $flagLastFive, $orderSetting,
+                $flagIsReseller, $flagShowInactive);
+        $limit = ($count > 0
+            ? $count
+            : (!empty($_CONFIG['corePagingLimit'])
+                ? $_CONFIG['corePagingLimit'] : 10));
+        $count = 0;
+//\DBG::activate(DBG_ADODB);
+        $objResult = $objDatabase->SelectLimit(
+            $querySelect.$queryTail.$queryOrder, $limit, $offset);
+        if (!$objResult) return Product::errorHandler();
+//\DBG::deactivate(DBG_ADODB);
+        $arrProduct = array();
+        while (!$objResult->EOF) {
+            $product_id = $objResult->fields['id'];
+            $objProduct = Product::getById($product_id);
+            if ($objProduct)
+                $arrProduct[$product_id] = $objProduct;
+            $objResult->MoveNext();
+        }
+        $objResult = $objDatabase->Execute($queryCount.$queryTail);
+        if (!$objResult) return false;
+        $count = $objResult->fields['numof_products'];
+//\DBG::log("Products::getByShopParams(): Set count to $count");
+        return $arrProduct;
+    }
 }

@@ -216,7 +216,7 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         $count = 1000; // Be sensible!
         // Pattern is "%" because all-empty parameters will result in an
         // empty array!
-        $arrProduct = Products::getByShopParams($count, 0, null,
+        $arrProduct = \Cx\Modules\Shop\Controller\ProductController::getByShopParams($count, 0, null,
             $category_ids, null, '%', null, null,
             '`category_product`.`category_id` ASC, `name` ASC', null, false,
             $pricelist->getLangId());
