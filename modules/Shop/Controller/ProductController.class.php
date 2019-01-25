@@ -55,9 +55,31 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         $options['functions']['copy'] = true;
-
         $options['functions']['sortBy'] = array(
             'field' => array('ord' => SORT_ASC)
+        );
+
+        $options['tabs']['product-option'] = array(
+            'header' => $_ARRAYLANG['TXT_PRODUCT_OPTIONS'],
+            'fields' => array(
+                'relProductAttributes'
+            )
+        );
+        $options['tabs']['product-picture'] = array(
+            'header' => $_ARRAYLANG['TXT_PRODUCT_IMAGE'],
+            'fields' => array(
+                'picture'
+            )
+        );
+        $options['tabs']['product-status'] = array(
+            'header' => $_ARRAYLANG['TXT_PRODUCT_STATUS'],
+            'fields' => array(
+                'active',
+                'b2b',
+                'b2c',
+                'dateStart',
+                'dateEnd'
+            )
         );
 
         $options['order']['overview'] = array(
