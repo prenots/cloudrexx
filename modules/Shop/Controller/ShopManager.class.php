@@ -1433,7 +1433,7 @@ if ($test === NULL) {
             // Enable weight setting
             'SHOP_WEIGHT_ENABLE_CHECKED' => (\Cx\Core\Setting\Controller\Setting::getValue('weight_enable','Shop')
                 ? \Html::ATTRIBUTE_CHECKED : ''),
-            'SHOP_SHOW_PRODUCTS_DEFAULT_OPTIONS' => Products::getDefaultViewMenuoptions(
+            'SHOP_SHOW_PRODUCTS_DEFAULT_OPTIONS' => \Cx\Modules\Shop\Controller\ProductController::getDefaultViewMenuoptions(
                 \Cx\Core\Setting\Controller\Setting::getValue('show_products_default','Shop')),
             'SHOP_PRODUCT_SORTING_MENUOPTIONS' => Products::getProductSortingMenuoptions(),
             // Order amount upper limit

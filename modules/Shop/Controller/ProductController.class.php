@@ -44,6 +44,12 @@ namespace Cx\Modules\Shop\Controller;
  */
 class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 {
+    const DEFAULT_VIEW_NONE = 0;
+    const DEFAULT_VIEW_MARKED = 1;
+    const DEFAULT_VIEW_DISCOUNTS = 2;
+    const DEFAULT_VIEW_LASTFIVE = 3;
+    const DEFAULT_VIEW_COUNT = 4;
+
     /**
      * Get ViewGenerator options for entity
      *
@@ -336,5 +342,30 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             );
         }
         return $arrPictures;
+    }
+
+    /**
+     * Returns HTML code for dropdown menu options to choose the default
+     * view on the Shop starting page.
+     *
+     * Possible choices are defined by global constants
+     * self::DEFAULT_VIEW_* and corresponding language variables.
+     * @static
+     * @param   integer   $selected     The optional preselected view index
+     * @return  string                  The HTML menu options
+     */
+    static function getDefaultViewMenuoptions($selected='')
+    {
+        global $_ARRAYLANG;
+
+        $strMenuoptions = '';
+        for ($i = 0; $i < self::DEFAULT_VIEW_COUNT; ++$i) {
+            $strMenuoptions .=
+                "<option value='$i'".
+                ($selected == $i ? ' selected="selected"' : '').'>'.
+                $_ARRAYLANG['TXT_SHOP_PRODUCT_DEFAULT_VIEW_'.$i].
+                "</option>\n";
+        }
+        return $strMenuoptions;
     }
 }

@@ -889,32 +889,6 @@ class Products
     }
 
 
-    /**
-     * Returns HTML code for dropdown menu options to choose the default
-     * view on the Shop starting page.
-     *
-     * Possible choices are defined by global constants
-     * self::DEFAULT_VIEW_* and corresponding language variables.
-     * @static
-     * @param   integer   $selected     The optional preselected view index
-     * @return  string                  The HTML menu options
-     */
-    static function getDefaultViewMenuoptions($selected='')
-    {
-        global $_ARRAYLANG;
-
-        $strMenuoptions = '';
-        for ($i = 0; $i < self::DEFAULT_VIEW_COUNT; ++$i) {
-            $strMenuoptions .=
-                "<option value='$i'".
-                ($selected == $i ? ' selected="selected"' : '').'>'.
-                $_ARRAYLANG['TXT_SHOP_PRODUCT_DEFAULT_VIEW_'.$i].
-                "</option>\n";
-        }
-        return $strMenuoptions;
-    }
-
-
     static function getJavascriptArray($groupCustomerId=0, $isReseller=false)
     {
         global $objDatabase;
