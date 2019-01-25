@@ -1842,7 +1842,7 @@ class Order
                     $objOrder->shipment_id(),
                     "calcPrice(0);"),
                 'SHOP_JS_ARR_SHIPMENT' => $strJsArrShipment,
-                'SHOP_PRODUCT_IDS_MENU_NEW' => Products::getMenuoptions(
+                'SHOP_PRODUCT_IDS_MENU_NEW' => \Cx\Modules\Shop\Controller\ProductController::getMenuoptions(
                     null, null,
                     $_ARRAYLANG['TXT_SHOP_PRODUCT_MENU_FORMAT']),
                 'SHOP_JS_ARR_PRODUCT' => Products::getJavascriptArray(
@@ -2066,7 +2066,7 @@ class Order
                     $objTemplate->touchBlock('order_item_product_options_tooltip');
                 }
                 $objTemplate->setVariable(
-                    'SHOP_PRODUCT_IDS_MENU', Products::getMenuoptions(
+                    'SHOP_PRODUCT_IDS_MENU', \Cx\Modules\Shop\Controller\ProductController::getMenuoptions(
                         $product_id, null,
 +                        $_ARRAYLANG['TXT_SHOP_PRODUCT_MENU_FORMAT'], false));
             }
