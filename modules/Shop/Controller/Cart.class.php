@@ -899,7 +899,7 @@ die("Cart::view(): ERROR: No template");
                 );
 
                 // product image
-                $arrProductImg = Products::get_image_array_from_base64($arrProduct['product_images']);
+                $arrProductImg = \Cx\Modules\Shop\Controller\ProductController::get_image_array_from_base64($arrProduct['product_images']);
                 $shopImagesWebPath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesWebPath() . '/Shop/';
                 $thumbnailPath = $shopImagesWebPath.ShopLibrary::noPictureName;
                 foreach($arrProductImg as $productImg) {

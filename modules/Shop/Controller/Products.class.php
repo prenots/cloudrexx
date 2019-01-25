@@ -890,54 +890,6 @@ class Products
 
 
     /**
-     * Returns an array of image names, widths and heights from
-     * the base64 encoded string taken from the database
-     *
-     * The array returned looks like
-     *  array(
-     *    1 => array(
-     *      'img' => <image1>,
-     *      'width' => <image1.width>,
-     *      'height' => <image1.height>
-     *    ),
-     *    2 => array( ... ), // The same as above, three times in total
-     *    3 => array( ... ),
-     * )
-     * @param   string  $base64Str  The base64 encoded image string
-     * @return  array               The decoded image array
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function get_image_array_from_base64($base64Str)
-    {
-        // Pre-init array to avoid "undefined index" notices
-        $arrPictures = array(
-            1 => array('img' => '', 'width' => 0, 'height' => 0),
-            2 => array('img' => '', 'width' => 0, 'height' => 0),
-            3 => array('img' => '', 'width' => 0, 'height' => 0)
-        );
-        if (strpos($base64Str, ':') === false)
-            // have to return an array with the desired number of elements
-            // and an empty file name in order to show the "dummy" picture(s)
-            return $arrPictures;
-        $i = 0;
-        foreach (explode(':', $base64Str) as $imageData) {
-            $shopImage = $shopImage_width = $shopImage_height = null;
-            list($shopImage, $shopImage_width, $shopImage_height) = explode('?', $imageData);
-            $shopImage        = base64_decode($shopImage);
-            $shopImage_width  = base64_decode($shopImage_width);
-            $shopImage_height = base64_decode($shopImage_height);
-            $arrPictures[++$i] = array(
-                'img' => $shopImage,
-                'width' => $shopImage_width,
-                'height' => $shopImage_height,
-            );
-        }
-        return $arrPictures;
-    }
-
-
-    /**
      * Returns HTML code for dropdown menu options to choose the default
      * view on the Shop starting page.
      *
