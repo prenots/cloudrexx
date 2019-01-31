@@ -1,3 +1,17 @@
+/*Change database type to InnoDB*/
+ALTER TABLE contrexx_access_users ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_attribute ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_attribute_name ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_attribute_value ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_groups ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_mail ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_network ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_validity ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_settings ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_rel_user_group ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_group_static_ids ENGINE = InnoDB;
+ALTER TABLE contrexx_access_user_group_dynamic_ids ENGINE = InnoDB;
+
 ALTER TABLE contrexx_access_user_attribute ADD is_default TINYINT(1) DEFAULT '0' NOT NULL;
 ALTER TABLE contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395;
 ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323B6E62EFA FOREIGN KEY (attribute_id) REFERENCES contrexx_access_user_attribute (id);
@@ -191,7 +205,9 @@ INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES
 
 INSERT INTO `contrexx_access_user_attribute_name`(`attribute_id`, `name`) VALUES((SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'picture'), 'picture');
 
-UPDATE `contrexx_access_user_attribute_value` SET `value` = (SELECT name.attribute_id FROM contrexx_access_user_attribute_name AS name JOIN contrexx_access_user_title AS title ON title.order_id = name.order) WHERE `value` = 1 AND `tmp_name` = 'title';
+UPDATE `contrexx_access_user_attribute_value` JOIN `contrexx_access_user_attribute_name` AS `attrName` ON `attrName`.`order` = `contrexx_access_user_attribute_value`.`value`
+SET `contrexx_access_user_attribute_value`.`value` = `attrName`.`attribute_id`
+WHERE `contrexx_access_user_attribute_value`.`tmp_name` = 'title';
 
 ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name, CHANGE attribute_id attribute_id INT NOT NULL;
 
@@ -307,6 +323,8 @@ ALTER TABLE dev.contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA32
 ALTER TABLE contrexx_access_users CHANGE id id INT UNSIGNED AUTO_INCREMENT NOT NULL, CHANGE auth_token_timeout auth_token_timeout INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE regdate regdate INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE expiration expiration INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE validity validity INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE last_auth last_auth INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE last_activity last_activity INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE frontend_lang_id frontend_lang_id INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE backend_lang_id backend_lang_id INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE primary_group primary_group INT UNSIGNED DEFAULT 0 NOT NULL, CHANGE restore_key_time restore_key_time INT UNSIGNED DEFAULT 0 NOT NULL;
 ALTER TABLE contrexx_access_rel_user_group CHANGE user_id user_id INT UNSIGNED NOT NULL;
 ALTER TABLE contrexx_access_user_attribute_value CHANGE user_id user_id INT UNSIGNED NOT NULL;
+
+DELETE g FROM contrexx_access_rel_user_group AS g LEFT JOIN contrexx_access_users AS u ON u.id = g.user_id WHERE u.id IS NULL;
 
 ALTER TABLE contrexx_access_rel_user_group ADD CONSTRAINT FK_401DFD43A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
 ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id) ON DELETE RESTRICT;
