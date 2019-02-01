@@ -55,6 +55,12 @@ class BackendTable extends HTML_Table {
     protected $editable = false;
 
     /**
+     * @var int $viewId This ID is used as html id for the view so we can load
+     * more than one view
+     */
+    protected $viewId;
+
+    /**
      * Whether or not the table has a master table header.
      * A master table header is used as a title and is being
      * parsed as TH tags.
@@ -73,10 +79,12 @@ class BackendTable extends HTML_Table {
      * @param string $entityClass class name of entity
      * @throws \Doctrine\ORM\Mapping\MappingException
      */
-    public function __construct($attrs = array(), $options = array(), $entityClass = '') {
+    public function __construct($attrs = array(), $options = array(), $entityClass = '', $viewId = 0) {
         global $_ARRAYLANG;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $this->viewId = $viewId;
 
         if (!empty($options['functions']['editable'])) {
             $this->editable = true;
@@ -93,28 +101,28 @@ class BackendTable extends HTML_Table {
             $first = true;
             $row = 1 + $this->hasMasterTableHeader;
             $sortBy     = (    isset($options['functions']['sortBy'])
-                            && is_array($options['functions']['sortBy'])
-                          )
-                          ? $options['functions']['sortBy']
-                          : array();
+                && is_array($options['functions']['sortBy'])
+            )
+                ? $options['functions']['sortBy']
+                : array();
             $sortingKey = !empty($sortBy) && isset($sortBy['sortingKey'])
-                          ? $sortBy['sortingKey']
-                          : '';
+                ? $sortBy['sortingKey']
+                : '';
             $sortField  = !empty($sortingKey) && isset($sortBy['field'])
-                          ? key($sortBy['field'])
-                          : '';
+                ? key($sortBy['field'])
+                : '';
             $component  = !empty($sortBy) && isset($sortBy['component'])
-                          ? $sortBy['component']
-                          : '';
+                ? $sortBy['component']
+                : '';
             $entity     = !empty($sortBy) && isset($sortBy['entity'])
-                          ? $sortBy['entity']
-                          : '';
+                ? $sortBy['entity']
+                : '';
             $sortOrder  = !empty($sortBy) && isset($sortBy['sortOrder'])
-                          ? $sortBy['sortOrder']
-                          : '';
+                ? $sortBy['sortOrder']
+                : '';
             $pagingPos  = !empty($sortBy) && isset($sortBy['pagingPosition'])
-                          ? $sortBy['pagingPosition']
-                          : '';
+                ? $sortBy['pagingPosition']
+                : '';
             $formGenerator = new \Cx\Core\Html\Controller\FormGenerator($attrs, '', $entityClass, '', $options, 0, null, true);
 
             foreach ($attrs as $rowname=>$rows) {
@@ -141,7 +149,7 @@ class BackendTable extends HTML_Table {
                         continue;
                     }
 
-                    if (isset($options['fields'][$header]['editable'])) {
+                    if (isset($options['fields'][$header]['editable']) && $this->editable) {
                         $data = $formGenerator->getDataElementWithoutType($header, $header .'-'. $rowname, 0, $data, $options, 0);
 
                         $encode = false;
@@ -533,7 +541,7 @@ class BackendTable extends HTML_Table {
                 $deleteUrl->setParam('vg_increment_number', $functions['vg_increment_number']);
                 $deleteUrl.='&csrf='.\Cx\Core\Csrf\Controller\Csrf::code();
                 $onclick ='if (confirm(\''.$_ARRAYLANG['TXT_CORE_RECORD_DELETE_CONFIRM'].'\'))'.
-                        'window.location.replace(\''.$deleteUrl.'\');';
+                    'window.location.replace(\''.$deleteUrl.'\');';
                 $_uri = 'javascript:void(0);';
                 $code .= '<a onclick="'.$onclick.'" href="'.$_uri.'" class="delete" title="'.$_ARRAYLANG['TXT_CORE_RECORD_DELETE_TITLE'].'"></a>';
             }
@@ -737,8 +745,9 @@ class BackendTable extends HTML_Table {
         }
 
         if ($this->editable) {
-            $template->setVariable('FORM_ACTION', clone \Env::get('cx')->getRequest()->getUrl());
-            $template->setVariable('TXT_SAVE', $_ARRAYLANG['TXT_SAVE_CHANGES']);
+            $template->setVariable('HTML_FORM_ACTION', contrexx_raw2xhtml(clone \Env::get('cx')->getRequest()->getUrl()));
+            $template->setVariable('HTML_VG_ID', $this->viewId);
+            $template->setVariable('TXT_HTML_SAVE', $_ARRAYLANG['TXT_SAVE_CHANGES']);
 
             $template->touchBlock('form_open');
             $template->touchBlock('form_close');
