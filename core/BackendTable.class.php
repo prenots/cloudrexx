@@ -50,6 +50,11 @@ class BackendTable extends HTML_Table {
     protected $templateFile = '';
 
     /**
+     * @var bool if table is editable
+     */
+    protected $editable = false;
+
+    /**
      * Whether or not the table has a master table header.
      * A master table header is used as a title and is being
      * parsed as TH tags.
@@ -61,10 +66,21 @@ class BackendTable extends HTML_Table {
      */
     protected $hasMasterTableHeader = false;
 
-    public function __construct($attrs = array(), $options = array()) {
+    /**
+     * BackendTable constructor.
+     * @param array $attrs        attributes of view generator
+     * @param array $options      options of view generator
+     * @param string $entityClass class name of entity
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     */
+    public function __construct($attrs = array(), $options = array(), $entityClass = '') {
         global $_ARRAYLANG;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        if (!empty($options['functions']['editable'])) {
+            $this->editable = true;
+        }
         $this->templateFile = empty($options['template']) || !file_exists($options['template'])
             ? $cx->getCodeBaseCorePath().'/Html/View/Template/Generic/Table.html'
             : $options['template'];
@@ -77,28 +93,30 @@ class BackendTable extends HTML_Table {
             $first = true;
             $row = 1 + $this->hasMasterTableHeader;
             $sortBy     = (    isset($options['functions']['sortBy'])
-                && is_array($options['functions']['sortBy'])
-            )
-                ? $options['functions']['sortBy']
-                : array();
+                            && is_array($options['functions']['sortBy'])
+                          )
+                          ? $options['functions']['sortBy']
+                          : array();
             $sortingKey = !empty($sortBy) && isset($sortBy['sortingKey'])
-                ? $sortBy['sortingKey']
-                : '';
+                          ? $sortBy['sortingKey']
+                          : '';
             $sortField  = !empty($sortingKey) && isset($sortBy['field'])
-                ? key($sortBy['field'])
-                : '';
+                          ? key($sortBy['field'])
+                          : '';
             $component  = !empty($sortBy) && isset($sortBy['component'])
-                ? $sortBy['component']
-                : '';
+                          ? $sortBy['component']
+                          : '';
             $entity     = !empty($sortBy) && isset($sortBy['entity'])
-                ? $sortBy['entity']
-                : '';
+                          ? $sortBy['entity']
+                          : '';
             $sortOrder  = !empty($sortBy) && isset($sortBy['sortOrder'])
-                ? $sortBy['sortOrder']
-                : '';
+                          ? $sortBy['sortOrder']
+                          : '';
             $pagingPos  = !empty($sortBy) && isset($sortBy['pagingPosition'])
-                ? $sortBy['pagingPosition']
-                : '';
+                          ? $sortBy['pagingPosition']
+                          : '';
+            $formGenerator = new \Cx\Core\Html\Controller\FormGenerator($attrs, '', $entityClass, '', $options, 0, null, true);
+
             foreach ($attrs as $rowname=>$rows) {
                 $col = 0;
                 $virtual = $rows['virtual'];
@@ -108,6 +126,7 @@ class BackendTable extends HTML_Table {
                     $col++;
                 }
                 foreach ($rows as $header=>$data) {
+
                     if (!empty($sortingKey) && $header === $sortingKey) {
                         //Add the additional attribute id, for getting the updated sort order after the row sorting
                         $this->updateRowAttributes($row, array('id' => 'sorting' . $entity . '_' . $data), true);
@@ -120,6 +139,12 @@ class BackendTable extends HTML_Table {
                         !$options['fields'][$header]['showOverview']
                     ) {
                         continue;
+                    }
+
+                    if (isset($options['fields'][$header]['editable'])) {
+                        $data = $formGenerator->getDataElementWithoutType($header, $header .'-'. $rowname, 0, $data, $options, 0);
+
+                        $encode = false;
                     }
 
                     if (!empty($sortField) && $header === $sortField) {
@@ -508,7 +533,7 @@ class BackendTable extends HTML_Table {
                 $deleteUrl->setParam('vg_increment_number', $functions['vg_increment_number']);
                 $deleteUrl.='&csrf='.\Cx\Core\Csrf\Controller\Csrf::code();
                 $onclick ='if (confirm(\''.$_ARRAYLANG['TXT_CORE_RECORD_DELETE_CONFIRM'].'\'))'.
-                    'window.location.replace(\''.$deleteUrl.'\');';
+                        'window.location.replace(\''.$deleteUrl.'\');';
                 $_uri = 'javascript:void(0);';
                 $code .= '<a onclick="'.$onclick.'" href="'.$_uri.'" class="delete" title="'.$_ARRAYLANG['TXT_CORE_RECORD_DELETE_TITLE'].'"></a>';
             }
@@ -603,10 +628,13 @@ class BackendTable extends HTML_Table {
      * Returns the table structure as HTML
      * Override in order to use Sigma for parsing
      * @access  public
+     * @global  array $_ARRAYLANG array containing the language variables
      * @return  string
      */
     function toHtml()
     {
+        global $_ARRAYLANG;
+
         $strHtml = '';
         $tabs = $this->_getTabs();
         $tab = $this->_getTab();
@@ -707,6 +735,15 @@ class BackendTable extends HTML_Table {
                 }
             }
         }
+
+        if ($this->editable) {
+            $template->setVariable('FORM_ACTION', clone \Env::get('cx')->getRequest()->getUrl());
+            $template->setVariable('TXT_SAVE', $_ARRAYLANG['TXT_SAVE_CHANGES']);
+
+            $template->touchBlock('form_open');
+            $template->touchBlock('form_close');
+        }
+
         return $template->get();
     }
 }
