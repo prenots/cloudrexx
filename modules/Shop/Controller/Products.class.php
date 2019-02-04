@@ -618,10 +618,8 @@ class Products
         $category_id = intval($category_id);
         $query = "
             SELECT `picture`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `p`
-              LEFT JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product` 
-              AS `cp` ON `cp`.`product_id` = `p`.`id`
-             WHERE FIND_IN_SET($category_id, `cp`.`category_id`)
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products`
+             WHERE FIND_IN_SET($category_id, `category_id`)
                AND `picture`!=''
              ORDER BY `ord` ASC";
         $objResult = $objDatabase->SelectLimit($query, 1);
@@ -651,10 +649,8 @@ class Products
         global $objDatabase;
 
         $query = "
-            SELECT DISTINCT `cp`.`category_id`
-              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products AS `p`
-              LEFT JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product` 
-              AS `cp` ON `cp`.`product_id` = `p`.`id`
+            SELECT DISTINCT category_id
+              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
              WHERE flags LIKE '%$strName%'
           ORDER BY category_id ASC";
         $objResult = $objDatabase->Execute($query);
