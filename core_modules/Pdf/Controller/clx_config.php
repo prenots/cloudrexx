@@ -15,12 +15,10 @@ function getCustomFonts($mPdf) {
         'BoldItalic' => 'BI'
     );
 
-    $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-    $dir = $cx->getWebsiteDocumentRootPath() . \Cx\Core\Core\Controller\Cx::FOLDER_NAME_MEDIA
-        . '/Pdf/ttfonts/';
-    if (!file_exists($dir)) {
-        return;
-    }
+    $dir = ltrim(
+        \Cx\Core\Core\Controller\Cx::FOLDER_NAME_MEDIA,
+        '/'
+    ) . '/Pdf/ttfonts/';
     $fileNames = array_diff(scandir($dir), array('..', '.'));
     $newFonts = array();
     foreach ($fileNames as $file) {

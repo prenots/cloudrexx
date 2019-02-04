@@ -155,8 +155,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         define(
             '_MPDF_TTFONTPATH',
-            $this->cx->getWebsiteDocumentRootPath() . \Cx\Core\Core\Controller\Cx::FOLDER_NAME_MEDIA
-                . '/Pdf/ttfonts/'
+            ltrim(
+                \Cx\Core\Core\Controller\Cx::FOLDER_NAME_MEDIA,
+                '/'
+            ) . '/Pdf/ttfonts/'
         );
         define(
             '_MPDF_SYSTEM_TTFONTS_CONFIG',
