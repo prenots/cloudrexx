@@ -96,6 +96,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'import':
             case 'Setting':
             case 'settings':
+            case 'Currency':
             case 'Vat':
             case 'Payment':
             case 'Shipper':
@@ -120,6 +121,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Import' => 'import',
                     'Setting' => 'settings',
                     'Vat' => 'vat',
+                    'Currency' => 'currency',
                     'Payment' => 'payment',
                     'Shipper' => 'shipment',
                     'RelCountry' => 'countries',
@@ -310,11 +312,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Cx\Modules\Shop\Model\Entity\Pricelist':
                 $options = $this->getSystemComponentController()->getController(
                     'Pricelist'
-                )->getViewGeneratorOptions($options);
-                break;
-            case 'Cx\Modules\Shop\Model\Entity\Currency':
-                $options = $this->getSystemComponentController()->getController(
-                    'Currency'
                 )->getViewGeneratorOptions($options);
                 break;
         }

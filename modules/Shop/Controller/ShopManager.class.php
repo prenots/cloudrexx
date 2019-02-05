@@ -83,7 +83,7 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->setGlobalVariable(
             $_ARRAYLANG
           + array(
-            'SHOP_CURRENCY' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
+            'SHOP_CURRENCY' => Currency::getActiveCurrencySymbol(),
             'CSRF_PARAM' => \Cx\Core\Csrf\Controller\Csrf::param()
         ));
     }
@@ -846,11 +846,6 @@ class ShopManager extends ShopLibrary
             ));
             self::$objTemplate->parseCurrentBlock();
         }
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->getDefaultCurrency();
-
         // The same for a new Attribute
         $uri_param = '&cmd=Shop&act=products&tpl=attributes';
         self::$objTemplate->setVariable(array(
@@ -859,7 +854,7 @@ class ShopManager extends ShopLibrary
                     0, 0, 'updateOptionList(0)'),
             'SHOP_PRODUCT_ATTRIBUTE_JS_VARS' =>
                 Attributes::getAttributeJSVars(),
-            'SHOP_PRODUCT_ATTRIBUTE_CURRENCY' => $defaultCurrency->getSymbol(),
+            'SHOP_PRODUCT_ATTRIBUTE_CURRENCY' => Currency::getDefaultCurrencySymbol(),
             'SHOP_PAGING' => \Paging::get($uri_param,
                 $_ARRAYLANG['TXT_PRODUCT_CHARACTERISTICS'], $count, $limit),
         ));
@@ -879,12 +874,6 @@ class ShopManager extends ShopLibrary
     {
         $i = 0;
         $count = 0;
-
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->getDefaultCurrency();
-
         // If a Product is selected, check those Product Attribute values
         // associated with it
         $arrRelation = Attributes::getRelationArray($product_id);
@@ -904,7 +893,7 @@ class ShopManager extends ShopLibrary
                     'SHOP_PRODUCTS_ATTRIBUTE_ID' => $attribute_id,
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_ID' => $option_id,
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_TEXT' => $arrOption['value'].
-                        ' ('.$arrOption['price'].' '.$defaultCurrency->getSymbol().')',
+                        ' ('.$arrOption['price'].' '.Currency::getDefaultCurrencySymbol().')',
                     'SHOP_PRODUCTS_ATTRIBUTE_VALUE_SELECTED' => ($valueSelected ? \Html::ATTRIBUTE_CHECKED : ''),
                 ));
                 self::$objTemplate->parse('optionList');
@@ -1117,6 +1106,9 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->loadTemplateFile('module_shop_settings.html');
         if (empty($_GET['tpl'])) $_GET['tpl'] = '';
         switch ($_GET['tpl']) {
+            case 'currency':
+                self::view_settings_currency();
+                break;
             case 'payment':
                 Payment::view_settings(self::$objTemplate);
                 break;
@@ -1146,21 +1138,59 @@ class ShopManager extends ShopLibrary
         }
     }
 
+
+    /**
+     * The currency settings view
+     */
+    static function view_settings_currency()
+    {
+        self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
+            'settings_block', 'module_shop_settings_currency.html');
+        $i = 0;
+        foreach (Currency::getCurrencyArray() as $currency) {
+            self::$objTemplate->setVariable(array(
+                'SHOP_CURRENCY_STYLE' => 'row'.(++$i % 2 + 1),
+                'SHOP_CURRENCY_ID' => $currency['id'],
+                'SHOP_CURRENCY_CODE' => $currency['code'],
+                'SHOP_CURRENCY_SYMBOL' => $currency['symbol'],
+                'SHOP_CURRENCY_NAME' => $currency['name'],
+                'SHOP_CURRENCY_RATE' => $currency['rate'],
+                'SHOP_CURRENCY_INCREMENT' => $currency['increment'],
+                'SHOP_CURRENCY_ACTIVE' => ($currency['active']
+                    ? \Html::ATTRIBUTE_CHECKED : ''),
+                'SHOP_CURRENCY_STANDARD' => ($currency['default']
+                    ? \Html::ATTRIBUTE_CHECKED : ''),
+            ));
+            self::$objTemplate->parse('shopCurrency');
+        }
+        $str_js = '';
+        foreach (Currency::get_known_currencies_increment_array()
+                as $code => $increment) {
+            // This seems like a sensible default for the few unknown ones
+            if (!is_numeric($increment)) $increment = 0.01;
+            $str_js .=
+                ($str_js ? ',' : '').
+                '"'.$code.'":"'.$increment.'"';
+        };
+        self::$objTemplate->setVariable(array(
+            'SHOP_CURRENCY_NAME_MENUOPTIONS' => \Html::getOptions(
+                Currency::get_known_currencies_name_array()),
+            'SHOP_CURRENCY_INCREMENT_JS_ARRAY' =>
+                'var currency_increment = {'.$str_js.'};',
+        ));
+    }
+
+
     /**
      * The shipment settings view
      */
     static function view_settings_shipment()
     {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->getDefaultCurrency();
-
         // start show shipment
         self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
             'settings_block', 'module_shop_settings_shipment.html');
         self::$objTemplate->setGlobalVariable(
-            'SHOP_CURRENCY', $defaultCurrency->getSymbol()
+            'SHOP_CURRENCY', Currency::getDefaultCurrencySymbol()
         );
         $arrShipments = Shipment::getShipmentsArray();
         $i = 0;
@@ -1414,11 +1444,6 @@ if ($test === NULL) {
     \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
 }
 
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->getDefaultCurrency();
-
         self::$objTemplate->setVariable(array(
             'SHOP_CONFIRMATION_EMAILS' => \Cx\Core\Setting\Controller\Setting::getValue('email_confirmation','Shop'),
             'SHOP_CONTACT_EMAIL' => \Cx\Core\Setting\Controller\Setting::getValue('email','Shop'),
@@ -1440,12 +1465,13 @@ if ($test === NULL) {
                 \Cx\Core\Setting\Controller\Setting::getValue('show_products_default','Shop')),
             'SHOP_PRODUCT_SORTING_MENUOPTIONS' => Products::getProductSortingMenuoptions(),
             // Order amount upper limit
-            'SHOP_ORDERITEMS_AMOUNT_MAX' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+            'SHOP_ORDERITEMS_AMOUNT_MAX' => Currency::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop')),
             // Order amount lower limit
-            'SHOP_ORDERITEMS_AMOUNT_MIN' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+            'SHOP_ORDERITEMS_AMOUNT_MIN' => Currency::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_min','Shop')),
-            'SHOP_CURRENCY_CODE' => $defaultCurrency->getCode(),
+            'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
+                Currency::getDefaultCurrencyId()),
             // New extended settings in V3.0.0
             'SHOP_SETTING_CART_USE_JS' =>
                 \Html::getCheckbox('use_js_cart', 1, false,
@@ -2070,11 +2096,11 @@ if ($test === NULL) {
             'SHOP_CATEGORIES_ASSIGNED' => $arrAssignedCategories['assigned'],
             'SHOP_CATEGORIES_AVAILABLE' => $arrAssignedCategories['available'],
             'SHOP_CUSTOMER_PRICE' => contrexx_raw2xhtml(
-                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price())),
+                Currency::formatPrice($objProduct->price())),
             'SHOP_RESELLER_PRICE' => contrexx_raw2xhtml(
-                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->resellerprice())),
+                Currency::formatPrice($objProduct->resellerprice())),
             'SHOP_DISCOUNT' => contrexx_raw2xhtml(
-                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice())),
+                Currency::formatPrice($objProduct->discountprice())),
             'SHOP_SPECIAL_OFFER' => ($objProduct->discount_active() ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_VAT_MENUOPTIONS' => Vat::getMenuoptions(
                 $objProduct->vat_id(), true),
@@ -2779,14 +2805,8 @@ if ($test === NULL) {
         $orders = Orders::getArray($count, NULL, array('customer_id' => $objCustomer->id()), \Paging::getPosition(),
                 \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop'));
         $i = 1;
-
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->getDefaultCurrency();
-
         foreach ($orders as $order) {
-            \Cx\Modules\Shop\Controller\CurrencyController::init($order->currency_id());
+            Currency::init($order->currency_id());
             self::$objTemplate->setVariable(array(
                 'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
                 'SHOP_ORDER_ID' => $order->id(),
@@ -2796,8 +2816,8 @@ if ($test === NULL) {
                 'SHOP_ORDER_STATUS' =>
                     $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->status()],
                 'SHOP_ORDER_SUM' =>
-                    $defaultCurrency->getSymbol().' '.
-                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->sum()),
+                    Currency::getDefaultCurrencySymbol().' '.
+                    Currency::getDefaultCurrencyPrice($order->sum()),
             ));
             self::$objTemplate->parse('orderRow');
         }
@@ -3168,9 +3188,9 @@ if ($test === NULL) {
                 'SHOP_PRODUCT_ID' => $objProduct->id(),
                 'SHOP_PRODUCT_CODE' => $objProduct->code(),
                 'SHOP_PRODUCT_NAME' => contrexx_raw2xhtml($objProduct->name()),
-                'SHOP_PRODUCT_PRICE1' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price()),
-                'SHOP_PRODUCT_PRICE2' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->resellerprice()),
-                'SHOP_PRODUCT_DISCOUNT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice()),
+                'SHOP_PRODUCT_PRICE1' => Currency::formatPrice($objProduct->price()),
+                'SHOP_PRODUCT_PRICE2' => Currency::formatPrice($objProduct->resellerprice()),
+                'SHOP_PRODUCT_DISCOUNT' => Currency::formatPrice($objProduct->discountprice()),
                 'SHOP_PRODUCT_SPECIAL_OFFER' => $discount_active,
                 'SHOP_SPECIAL_OFFER_VALUE_OLD' => $specialOfferValue,
                 'SHOP_PRODUCT_VAT_MENU' => Vat::getShortMenuString(

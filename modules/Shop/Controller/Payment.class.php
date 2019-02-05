@@ -283,7 +283,7 @@ class Payment
         $arrPaymentIds = ($countryId
             ? self::getCountriesRelatedPaymentIdArray(
                 $countryId,
-                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray())
+                Currency::getCurrencyArray())
             : array_keys(self::$arrPayments));
 
         if (empty($arrPaymentIds)) {
@@ -531,11 +531,6 @@ class Payment
                 PaymentProcessing::getMenuoptions(-1),
             'SHOP_ZONE_SELECTION_NEW' => Zones::getMenu(0, 'zone_id_new'),
         ));
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->getDefaultCurrency();
-
         // Payment Service Providers
         $objTemplate->setVariable(array(
             'SHOP_PAYMILL_STATUS' => \Cx\Core\Setting\Controller\Setting::getValue('paymill_active','Shop') ? \Html::ATTRIBUTE_CHECKED : '',
@@ -602,8 +597,9 @@ class Payment
                 \Cx\Core\Setting\Controller\Setting::getValue('paypal_default_currency','Shop')),
             // LSV settings
             'SHOP_PAYMENT_LSV_STATUS' => (\Cx\Core\Setting\Controller\Setting::getValue('payment_lsv_active','Shop') ? \Html::ATTRIBUTE_CHECKED : ''),
-            'SHOP_PAYMENT_DEFAULT_CURRENCY' => $defaultCurrency->getSymbol(),
-            'SHOP_CURRENCY_CODE' => $defaultCurrency->getCode(),
+            'SHOP_PAYMENT_DEFAULT_CURRENCY' => Currency::getDefaultCurrencySymbol(),
+            'SHOP_CURRENCY_CODE' => Currency::getCurrencyCodeById(
+                Currency::getDefaultCurrencyId()),
         ));
         return true;
     }

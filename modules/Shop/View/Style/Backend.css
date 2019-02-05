@@ -18,10 +18,3 @@ td.category-name {
 label.category {
     display: block;
 }
-
-.default {
-    padding-left: 30px !important;
-}
-table[data-entity='Currency'] td {
-    padding-left: 10px;
-}
