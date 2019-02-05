@@ -237,6 +237,17 @@ class BackendController extends
                         'showOverview' => false,
                         'showDetail' => false,
                     ),
+                    'toolbar' => array(
+                        'showOverview' => true,
+                        'allowFiltering' => false,
+                        'showDetail' => false,
+                        'custom' => true,
+                        'table' => array(
+                            'parse' => function ($value, $rowData) {
+                                return $this->getExportLink($value, $rowData);
+                            }
+                        ),
+                    ),
                     'user' => array(
                         'showOverview' => true,
                     ),
@@ -384,6 +395,83 @@ class BackendController extends
         $setEditUrl->addChild($username);
 
         return $setEditUrl;
+    }
+
+    /**
+     * Get the export link of users in a group
+     *
+     * @param $value   string fieldvalue
+     * @param $rowData array  all data
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement return generated div
+     *                                                with links
+     */
+    protected function getExportLink($value, $rowData)
+    {
+        global $_ARRAYLANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $groupId = $rowData['groupId'];
+
+        $em = $this->cx->getDb()->getEntityManager();
+        $languages = $em->getRepository(
+            'Cx\Core\Locale\Model\Entity\Locale'
+        )->findAll();
+
+        /*Add a seperator*/
+        $seperator = new \Cx\Core\Html\Model\Entity\TextElement(', ');
+
+        /*Add icon for csv export*/
+        $iconExport =  new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+        $iconPath = $this->cx->getCodeBaseCoreWebPath()
+            . '/Core/View/Media/icons/csv.gif';
+
+        $iconExport->setAttributes(
+            array(
+                'src' => $iconPath,
+                'title' => 'Export',
+                'alt' => 'Export',
+                'align' => 'absmiddle'
+            )
+        );
+
+        $wrapper->addChild($iconExport);
+
+        /*Add link to export all*/
+        $linkAll = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $csvLinkUrlAll = \Cx\Core\Routing\Url::fromApi('exportUser', array());
+        $csvLinkUrlAll->setParam('groupId', $groupId);
+        $textAll = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_CORE_USER_EXPORT_ALL']
+        );
+        $linkAll->addChild($textAll);
+
+        $linkAll->setAttribute('href', $csvLinkUrlAll);
+
+        $wrapper->addChild($linkAll);
+
+        /*Add link for every source language*/
+        foreach ($languages as $lang) {
+            $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+
+            $csvLinkUrl = \Cx\Core\Routing\Url::fromApi('exportUser', array());
+            $csvLinkUrl->setParam('groupId', $groupId);
+            $csvLinkUrl->setParam('langId', $lang->getId());
+
+            $textLang = new \Cx\Core\Html\Model\Entity\TextElement(
+
+                $lang->getShortForm()
+            );
+
+            $wrapper->addChild($seperator);
+
+            $link->addChild($textLang);
+
+            $link->setAttribute('href', $csvLinkUrl);
+
+            $wrapper->addChild($link);
+        }
+
+        return $wrapper;
     }
 }
 
