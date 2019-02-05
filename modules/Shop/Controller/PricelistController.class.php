@@ -85,9 +85,11 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             'headerLeft' => array(
                 'showOverview' => false,
                 'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getLineField($fieldname, $fieldvalue, 'headerRight');
+                    return $this->getLineField(
+                        $fieldname,
+                        $fieldvalue,
+                        'headerRight'
+                    );
                 }
             ),
             'headerRight' => array(
@@ -109,9 +111,12 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                         'TXT_PAGENUMBER'
                         ]
                     );
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
+                    return $this->getLineField(
+                        $fieldname,
+                        $fieldvalue,
+                        'footerRight',
+                        $placeholders
+                    );
                 }
             ),
             'footerRight' => array(
@@ -120,10 +125,8 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'allCategories' => array(
                 'showOverview' => false,
-                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getAllCategoriesCheckbox($fieldvalue);
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    return $this->getAllCategoriesCheckbox($fieldvalue);
                 },
                 'storecallback' => function(){
                     return $this->cx->getRequest()->hasParam(
@@ -139,9 +142,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'mode' => 'associate',
                 'formfield' => function() {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getCategoryCheckboxesForPricelist();
+                    return $this->getCategoryCheckboxesForPricelist();
                 },
             ),
         );
@@ -153,7 +154,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      * @throws \Doctrine\ORM\ORMException
      */
-    public function getCategoryCheckboxesForPricelist()
+    protected function getCategoryCheckboxesForPricelist()
     {
         // Until we know how to get the editId without the $_GET param
         if ($this->cx->getRequest()->hasParam('editid')) {
@@ -210,7 +211,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
-    public function getAllCategoriesCheckbox($isActive)
+    protected function getAllCategoriesCheckbox($isActive)
     {
         global $_ARRAYLANG;
 
@@ -245,7 +246,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
-    public function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
+    protected function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
     {
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $headerLeft = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
