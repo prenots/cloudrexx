@@ -60,6 +60,11 @@ class ComponentController
     protected $fileEvents = array('Remove', 'Add', 'Update');
 
     /**
+     * @var \Cx\Core\MediaSource\Model\Event\IndexerEventListener Event listener instance
+     */
+    protected $indexerEventListener;
+
+    /**
      * Register your events here
      *
      * Do not do anything else here than list statements like
@@ -89,12 +94,12 @@ class ComponentController
     public function registerEventListeners()
     {
         $eventHandlerInstance = $this->cx->getEvents();
-        $indexerEventListener = new \Cx\Core\MediaSource\Model\Event\IndexerEventListener($this->cx);
+        $this->indexerEventListener = new \Cx\Core\MediaSource\Model\Event\IndexerEventListener($this->cx);
 
         foreach ($this->fileEvents as $fileEvent) {
             $eventHandlerInstance->addEventListener(
                 'MediaSource.File:' . $fileEvent,
-                $indexerEventListener
+                $this->indexerEventListener
             );
         }
     }
@@ -103,6 +108,48 @@ class ComponentController
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
         return array();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCommandsForCommandMode() {
+        return array('Indexer');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCommandDescription($command, $short = false) {
+        $desc = 'Allows interaction with indexers';
+        if ($short) {
+            return $desc;
+        }
+        $desc .= '. Usage:
+./cx Indexer index <absoluteFileName>';
+        return $desc;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function executeCommand($command, $arguments, $dataArguments = array()) {
+        switch ($command) {
+            case 'Indexer':
+                switch (current($arguments)) {
+                    case 'index':
+                        if (!isset($arguments[1])) {
+                            echo 'No file path supplied' . PHP_EOL;
+                            die();
+                        }
+                        $this->indexerEventListener->index(array(
+                            'path' => $arguments[1],
+                            'oldPath' => '',
+                        ));
+                        break;
+                }
+                break;
+        }
     }
 
     /**

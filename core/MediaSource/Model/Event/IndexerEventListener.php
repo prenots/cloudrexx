@@ -94,9 +94,10 @@ class IndexerEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListe
      * to index the file
      * Todo: Use orgFile and oldPath as param when FileSystem work smart
      *
+     * @todo: Move this method so it can be called from ComponentController
      * @param $fileInfo array contains file information
      */
-    protected function index($fileInfo)
+    public function index($fileInfo)
     {
         // Can be deleted when orgFile and fullPath are params.
         $fullPath = $fileInfo['path'];
