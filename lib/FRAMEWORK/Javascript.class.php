@@ -318,6 +318,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
         'ace' => array(
             'jsfiles'  => array(
                 'lib/ace/ace.js',
+                'lib/ace/mode-html.js',
             ),
             'dependencies' => array('jquery'),
         ),
