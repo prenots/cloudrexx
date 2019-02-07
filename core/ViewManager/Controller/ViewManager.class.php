@@ -2306,7 +2306,7 @@ CODE;
                     $mode = 'yaml';
                     break;
                 default :
-                    $mode = 'html';
+                    $mode = 'text';
                     break;
             }
 
