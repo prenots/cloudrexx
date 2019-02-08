@@ -18,3 +18,12 @@ td.category-name {
 label.category {
     display: block;
 }
+span.child:before {
+    content: '|----';
+}
+span.child label.category {
+    display: inline-block;
+}
+#footerRight, #headerRight {
+    text-align: right;
+}

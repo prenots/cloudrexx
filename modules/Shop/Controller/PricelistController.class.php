@@ -157,6 +157,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
     protected function getCategoryCheckboxesForPricelist()
     {
         // Until we know how to get the editId without the $_GET param
+        $pricelistId = 0;
         if ($this->cx->getRequest()->hasParam('editid')) {
             $pricelistId = explode(
                 '}',
@@ -166,49 +167,71 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                 )[1]
             )[0];
         }
+
+        $categories = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Category'
+        )->findBy(array('active' => 1, 'parentId' => null));
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        foreach ($categories as $category) {
+            $wrapper->addChild(
+                $this->getCategoryCheckbox(
+                    $category, $pricelistId
+                )
+            );
+
+            foreach ($category->getChildren() as $child) {
+                $childWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                $childWrapper->addClass('child');
+
+                $childCheckbox = $this->getCategoryCheckbox(
+                    $child, $pricelistId
+                );
+
+                $childWrapper->addChild($childCheckbox);
+                $wrapper->addChild($childWrapper);
+            }
+        }
+        return $wrapper;
+    }
+
+    protected function getCategoryCheckbox($category, $pricelistId)
+    {
         $repo = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Pricelist'
         );
-        $categories = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Category'
-        )->findBy(array('active' => 1));
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $index = count($categories)-1;
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttributes(
+            array(
+                'class' => 'category',
+                'for' => 'category-'. $category->getId()
+            )
+        );
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $category->getName()
+        );
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            'categories[' . $category->getId() . ']',
+            $category->getId()
 
-        foreach ($categories as $category) {
-            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
-            $label->setAttributes(
-                array(
-                    'class' => 'category',
-                    'for' => 'category-'. $category->getId()
-                )
-            );
-            $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                $category->getName()
-            );
-            $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
-                'categories[' . $index-- . ']',
-                $category->getId()
+        );
 
-            );
+        $isActive = (boolean)$repo->getPricelistByCategoryAndId(
+            $category,
+            $pricelistId
+        );
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'category-' . $category->getId(),
+                empty($isActive) ? '' : 'checked' => 'checked'
+            )
+        );
 
-            $isActive = (boolean)$repo->getPricelistByCategoryAndId(
-                $category,
-                $pricelistId
-            );
-            $checkbox->setAttributes(
-                array(
-                    'type' => 'checkbox',
-                    'id' => 'category-' . $category->getId(),
-                    empty($isActive) ? '' : 'checked' => 'checked'
-                )
-            );
+        $label->addChild($checkbox);
+        $label->addChild($text);
 
-            $label->addChild($checkbox);
-            $label->addChild($text);
-            $wrapper->addChild($label);
-        }
-        return $wrapper;
+        return $label;
     }
 
     protected function getAllCategoriesCheckbox($isActive)
