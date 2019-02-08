@@ -65,11 +65,19 @@ class BackendController extends
                         'email',
                         'username',
                         'password',
-                        'frontendLangId',
                         'backendLangId',
+                        'frontendLangId',
                         'isAdmin',
+                        'emailAccess',
                         'profileAccess',
                     ),
+                );
+                $options['functions'] = array(
+                    'searching' => true,
+                    'filtering' => true,
+                    'edit' => true,
+                    'delete' => true,
+                    'add' => true,
                 );
                 $options['fields'] = array(
                     'active' => array(
@@ -108,7 +116,7 @@ class BackendController extends
                     ),
                     'authToken' => array(
                         'showOverview' => false,
-                        'showDetail' => true,
+                        'showDetail' => false,
                     ),
                     'authTokenTimeout' => array(
                         'showOverview' => false,
@@ -227,7 +235,14 @@ class BackendController extends
                         'type',
                         'user',
                         'homepage',
-                    ),
+                    )
+                );
+                $options['functions'] = array(
+                    'searching' => true,
+                    'filtering' => true,
+                    'add' => true,
+                    'edit' => true,
+                    'delete' => true,
                 );
                 $options['fields'] = array(
                     'isActive' => array(
