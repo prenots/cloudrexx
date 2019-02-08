@@ -271,7 +271,17 @@ class BackendController extends
                         'showOverview' => true,
                     ),
                     'groupName' => array(
+                        'table' => array(
+                            'parse' => function (
+                                $value, $rowData, $viewGeneratorId
+                            ) {
+                                return $this->addGroupEditUrl(
+                                    $value, $rowData, $viewGeneratorId
+                                );
+                            }
+                        ),
                         'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'groupDescription' => array(
                         'showOverview' => true,
@@ -480,6 +490,34 @@ class BackendController extends
         return $setEditUrl;
     }
 
+    /**
+     * Format the groupname in the overview list
+     *
+     * @param $value string        Fieldvalue
+     * @param $rowData array       Data of row
+     * @param $viewGeneratorId int Viewgenerator id
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function addGroupEditUrl($value, $rowData, $viewGeneratorId)
+    {
+        global $_ARRAYLANG;
+
+        $groupname = new \Cx\Core\Html\Model\Entity\TextElement($value);
+
+        $setEditUrl = new \Cx\Core\Html\Model\Entity\HtmlElement(
+            'a'
+        );
+
+        $entityId = $rowData['groupId'];
+
+        $editUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl($viewGeneratorId, $entityId);
+
+        $setEditUrl->setAttributes(array('href' => $editUrl, 'title' => $_ARRAYLANG['TXT_CORE_USER_EDIT_GROUP']));
+
+        $setEditUrl->addChild($groupname);
+
+        return $setEditUrl;
+    }
 
     /**
      * Add edit url
