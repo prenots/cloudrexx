@@ -188,7 +188,12 @@ class BackendController extends
                     ),
                     'primaryGroup' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'showDetail' => true,
+                        'mode' => 'associate',
+                        'formfield' =>
+                            function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
+                                return $this->primaryGroupDropdown($fieldname, $fieldvalue);
+                            },
                     ),
                     'profileAccess' => array(
                         'showOverview' => false,
@@ -583,6 +588,48 @@ class BackendController extends
 
         return $wrapper;
     }
+
+
+    /**
+     * Generate the primary group dropdown
+     *
+     * @param $fieldname string  Name of the field
+     * @param $fieldvalue string Value of the field
+     * @return \Cx\Core\Html\Model\Entity\DataElement|void
+     */
+    protected function primaryGroupDropdown($fieldname, $fieldvalue)
+    {
+        global $_ARRAYLANG;
+
+        $em = $this->cx->getDb()->getEntityManager();
+
+        $userId = intval($this->userId);
+
+        $user = $em->getRepository('Cx\Core\User\Model\Entity\User')->findOneBy(array('id' => $userId));
+
+        if (empty($user)) {
+            return;
+        }
+
+        $userGroups = $user->getGroup();
+
+        $validValues = array();
+
+        foreach ($userGroups as $group) {
+            $validValues[$group->getGroupId()] = $group->getGroupName();
+        }
+
+        $dropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            $fieldname,
+            $fieldvalue,
+            'select',
+            null,
+            $validValues
+        );
+
+        return $dropdown;
+    }
+
     /**
      * Generate the expiration dropdown
      *
