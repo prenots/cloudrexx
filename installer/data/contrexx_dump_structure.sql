@@ -273,7 +273,7 @@ CREATE TABLE `contrexx_core_mail_template` (
 CREATE TABLE `contrexx_core_data_source` (
   `id` int(11) AUTO_INCREMENT NOT NULL,
   `identifier` varchar(255) NOT NULL,
-  `options` longtext NOT NULL,
+  `options` longtext NOT NULL COMMENT '(DC2Type:array)',
   `type` varchar(50) NOT NULL,
   PRIMARY KEY(`id`),
   UNIQUE KEY `identifier` (`identifier`)
@@ -665,6 +665,7 @@ CREATE TABLE `contrexx_core_wysiwyg_template` (
   `imagePath` varchar(255) NOT NULL,
   `htmlContent` text,
   `active` tinyint(4) NOT NULL DEFAULT '1',
+  `order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_core_wysiwyg_toolbar` (
