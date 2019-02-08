@@ -16,10 +16,20 @@
  * can only be allowed by a separate contract
  **/
 
-
 namespace Cx\Core\User\Controller;
 
-use Cx\Core\Core\Controller\Cx;
+/**
+ * Specific BackendController for this Component.
+ *
+ * Use the examples here to easily customize the backend of your component.
+ * Delete this file if you don't need it. Remove any methods you don't need!
+ *
+ * @category  CloudrexxApp
+ * @package   User
+ * @author    Cloudrexx AG <dario.graf@comvation.com>
+ * @copyright Cloudrexx AG
+ * @link      https://www.cloudrexx.com
+ */
 
 class BackendController extends
     \Cx\Core\Core\Model\Entity\SystemComponentBackendController
@@ -478,6 +488,8 @@ class BackendController extends
     }
 
     /**
+     * Add edit url
+     *
      * @param $value
      * @param $rowData
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
