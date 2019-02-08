@@ -235,8 +235,6 @@ class JsonNode implements JsonAdapter {
 
             foreach ($moved_node->getPages() as $page) {
                 $page->setupPath($page->getLang());
-                $page->setSlug($page->getSlug());
-                $page->validate();
                 $this->em->persist($page);
             }
 

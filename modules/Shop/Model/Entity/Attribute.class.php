@@ -69,7 +69,7 @@ class Attribute extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable
     /**
      * @var boolean
      */
-    protected $type;
+    protected $type = true;
 
     /**
      * @var string

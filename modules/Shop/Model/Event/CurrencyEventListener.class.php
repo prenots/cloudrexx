@@ -51,9 +51,24 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
      * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
      *
      * @throws \Doctrine\Orm\OptimisticLockException
+     * @throws \Cx\Core\Error\Model\Entity\ShinyException
      */
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
+        global $_ARRAYLANG;
+
+        if ($this->checkIfCurrencyCodeExists(
+            $eventArgs->getEntity()->getCode(),
+            $eventArgs->getEntityManager()
+        )) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                sprintf(
+                    $_ARRAYLANG['TXT_SHOP_CURRENCY_EXISTS'],
+                    $eventArgs->getEntity()->getCode()
+                )
+            );
+        }
+
         if (!empty($eventArgs->getEntity()->getDefault())) {
             $this->setDefaultEntity(
                 $eventArgs->getEntity()->getId(),
@@ -72,12 +87,40 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
      */
     public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
+        global $_ARRAYLANG;
+
+        if ($this->checkIfCurrencyCodeExists(
+            $eventArgs->getEntity()->getCode(),
+            $eventArgs->getEntityManager()
+        )) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                sprintf(
+                    $_ARRAYLANG['TXT_SHOP_CURRENCY_EXISTS'],
+                    $eventArgs->getEntity()->getCode()
+                )
+            );
+        }
+
         if (!empty($eventArgs->getEntity()->getDefault())) {
             $this->setDefaultEntity(
                 $eventArgs->getEntity()->getId(),
                 $eventArgs->getEntityManager()
             );
         }
+    }
+
+    protected function checkIfCurrencyCodeExists($code, $em)
+    {
+        $repo = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Currency'
+        );
+        $existingEntity = $repo->findOneBy(array('code' => $code));
+
+        if (!empty($existingEntity)) {
+            return true;
+        }
+        return false;
+
     }
 
     /**

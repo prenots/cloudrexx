@@ -63,28 +63,6 @@ class DoctrineRepository extends DataSource {
     }
 
     /**
-     * Perform initializations
-     */
-    protected function init() {
-        if (!defined('FRONTEND_LANG_ID')) {
-            // make sure translatable is properly initialized
-            // maybe this should be part of Cx or in a postInit hook
-            $this->cx->getDb()->getTranslationListener()->setTranslatableLocale(
-                \FWLanguage::getLanguageCodeById(\FWLanguage::getDefaultLangId())
-            );
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIdentifierFieldNames() {
-        $em = $this->cx->getDb()->getEntityManager();
-        $metaData = $em->getClassMetadata($this->getIdentifier());
-        return $metaData->getIdentifierFieldNames();
-    }
-
-    /**
      * Gets one or more entries from this DataSource
      *
      * If an argument is not provided, no restriction is made for this argument.
@@ -110,7 +88,6 @@ class DoctrineRepository extends DataSource {
         $offset = 0,
         $fieldList = array()
     ) {
-        $this->init();
         $em = $this->cx->getDb()->getEntityManager();
 
         $criteria = array();
@@ -210,17 +187,10 @@ class DoctrineRepository extends DataSource {
                 $qb->setFirstResult($offset);
             }
         }
-        $result = $qb->getQuery()->getResult();
+        $result = $qb->getQuery()->getResult('IndexedArray');
 
         // $fieldList
-        $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet(
-            $result,
-            null,
-            array(
-                'recursiveParsing' => true,
-                'skipVirtual' => true,
-            )
-        );
+        $dataSet = new \Cx\Core_Modules\Listing\Model\Entity\DataSet($result);
         if (count($fieldList)) {
             $dataFlipped = $dataSet->flip()->toArray();
             foreach ($dataFlipped as $key=>$value) {
@@ -299,7 +269,6 @@ class DoctrineRepository extends DataSource {
      * @return string ID of the new entry
      */
     public function add($data) {
-        $this->init();
         $em = $this->cx->getDb()->getEntityManager();
         $entityClass = $this->getIdentifier();
         $entityClassMetadata = $em->getClassMetadata($entityClass);
@@ -333,7 +302,6 @@ class DoctrineRepository extends DataSource {
      * @throws \Exception If something did not go as planned
      */
     public function update($elementId, $data) {
-        $this->init();
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $this->getRepository();
 
@@ -355,7 +323,6 @@ class DoctrineRepository extends DataSource {
      * @throws \Exception If something did not go as planned
      */
     public function remove($elementId) {
-        $this->init();
         $em = $this->cx->getDb()->getEntityManager();
         $repo = $this->getRepository();
 
