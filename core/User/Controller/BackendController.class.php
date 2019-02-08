@@ -124,8 +124,12 @@ class BackendController extends
                         'showDetail' => false,
                     ),
                     'expiration' => array(
-                        'showOverview' => false,
-                        'showDetail' => false,
+                        'showOverview' => true,
+                        'showDetail' => true,
+                        'formfield' =>
+                            function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
+                                return $this->getExpirationDropdown($fieldname, $fieldvalue);
+                            },
                     ),
                     'validity' => array(
                         'showOverview' => false,
@@ -472,6 +476,33 @@ class BackendController extends
         }
 
         return $wrapper;
+    }
+    /**
+     * Generate the expiration dropdown
+     *
+     * @param $fieldname string  Name of the field
+     * @param $fieldvalue string Value of the field
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
+    protected function getExpirationDropdown($fieldname, $fieldvalue)
+    {
+        $validValues = array();
+
+        foreach (\FWUser::getUserValidities() as $validity) {
+            $strValidity = \FWUser::getValidityString($validity);
+
+            $validValues[$validity] = $strValidity;
+        }
+
+        $dropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            $fieldname,
+            $fieldvalue,
+            'select',
+            null,
+            $validValues
+        );
+
+        return $dropdown;
     }
 }
 
