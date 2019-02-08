@@ -303,6 +303,12 @@ class BackendController extends
                     ),
                     'homepage' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
+                        'tooltip' => 'test',
+                        'formfield' =>
+                            function (){
+                                return $this->setHomepage();
+                            }
                     ),
                     'toolbar' => array(
                         'showOverview' => false,
@@ -562,6 +568,44 @@ class BackendController extends
         return $setEditUrl;
     }
 
+    /**
+     * Set the Startpage of a user
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function setHomepage()
+    {
+        global $_ARRAYLANG;
+
+        $mediaBrowser = new \Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser();
+        $mediaBrowser->setCallback('SetUrl');
+
+        $buttonText = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['TXT_CORE_USER_BROWSE']);
+
+        $div = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $div->allowDirectClose(false);
+
+        $button = new \Cx\Core\Html\Model\Entity\HtmlElement('button');
+
+        $button->setAttributes(array(
+            'data-cx-mb',
+            'class' => 'mediabrowser-button button',
+            'type' => 'button',
+            'data-cx-mb-views' => 'sitestructure',
+            'id' => 'media-browser-button',
+            'data-cx-Mb-Cb-Js-Modalclosed' => 'SetUrl'
+        ));
+
+        $mediaBrowserScope = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $mediaBrowserScope->addClass('mediaBrowserScope');
+
+        $button->addChild($buttonText);
+
+        $div->addChildren(array($button, $mediaBrowserScope));
+
+        return $div;
+    }
 
     /**
      * Generate the group type menu
