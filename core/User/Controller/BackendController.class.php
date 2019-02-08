@@ -145,7 +145,8 @@ class BackendController extends
                     ),
                     'emailAccess' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'showDetail' => true,
+                        'type' => 'hidden',
                     ),
                     'frontendLangId' => array(
                         'showOverview' => false,
@@ -163,6 +164,10 @@ class BackendController extends
                     ),
                     'profileAccess' => array(
                         'showOverview' => false,
+                        'formfield' =>
+                            function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
+                                return $this->getProfileAccessDropdown($fieldname, $fieldvalue);
+                            },
                     ),
                     'restoreKey' => array(
                         'showOverview' => false,
@@ -503,6 +508,52 @@ class BackendController extends
         );
 
         return $dropdown;
+    }
+
+    /**
+     * Generate the profile access dropdown
+     *
+     * @param $fieldname string  Name of the field
+     * @param $fieldvalue string Value of the field
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function getProfileAccessDropdown($fieldname, $fieldvalue)
+    {
+        global $_CORELANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $validValuesEmail = array(
+            'everyone'=> $_CORELANG['TXT_ACCESS_EVERYONE_ALLOWED_SEEING_EMAIL'],
+            'members_only' => $_CORELANG['TXT_ACCESS_MEMBERS_ONLY_ALLOWED_SEEING_EMAIL'],
+            'nobody' => $_CORELANG['TXT_ACCESS_NOBODY_ALLOWED_SEEING_EMAIL']
+        );
+
+        $emailDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            'emailAccess',
+            $fieldvalue,
+            'select',
+            null,
+            $validValuesEmail
+        );
+
+        $validValuesProfile = array(
+            'everyone' => $_CORELANG['TXT_ACCESS_EVERYONE_ALLOWED_SEEING_PROFILE'],
+            'members_only' => $_CORELANG['TXT_ACCESS_MEMBERS_ONLY_ALLOWED_SEEING_PROFILE'],
+            'nobody' => $_CORELANG['TXT_ACCESS_NOBODY_ALLOWED_SEEING_PROFILE']
+        );
+
+        $profileDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            $fieldname,
+            $fieldvalue,
+            'select',
+            null,
+            $validValuesProfile
+        );
+
+        $wrapper->addChildren(array($emailDropdown, $profileDropdown));
+
+        return $wrapper;
     }
 }
 
