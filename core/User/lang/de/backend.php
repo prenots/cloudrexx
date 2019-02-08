@@ -55,6 +55,13 @@ $_ARRAYLANG['TXT_CORE_USER_SUCCESSFUL_CREATION'] = 'This is the Overview/Dashboa
 $_ARRAYLANG['TXT_CORE_USER_EXAMPLE_TEMPLATE'] = 'This is the default template for this component, located in View/Template/Backend/Default.html. In order to add entities, place your YAML files in Model/Yaml folder and execute ./workbench.bat db update. Then add a language file entry for your entity.';
 $_ARRAYLANG['TXT_CORE_USER_EDIT_TITLE'] = 'Benutzerkonto bearbeiten';
 $_ARRAYLANG['TXT_CORE_USER_EMAIL_TITLE'] = 'E-Mail versenden an';
+$_ARRAYLANG['TXT_CORE_USER_EDIT_GROUP'] = 'Gruppe bearbeiten';
+$_ARRAYLANG['TXT_CORE_USER_BROWSE'] = 'Durchsuchen';
+$_ARRAYLANG['TXT_CORE_USER_TYPE_FRONTEND'] = 'Website (frontend)';
+$_ARRAYLANG['TXT_CORE_USER_TYPE_BACKEND'] = 'Administrationskonsole (backend)';
+$_ARRAYLANG['TXT_CORE_USER_TYPE'] = 'Gruppentyp';
+$_ARRAYLANG['TXT_CORE_USER_EXPORT_ALL'] = 'Alle';
+
 $_ARRAYLANG['id'] = 'ID';
 $_ARRAYLANG['isAdmin'] = 'Administrator';
 $_ARRAYLANG['email'] = 'E-Mail';
@@ -62,8 +69,11 @@ $_ARRAYLANG['regdate'] = 'Registriert seit';
 $_ARRAYLANG['lastActivity'] = 'Letzte Aktivität';
 $_ARRAYLANG['lastAuth'] = 'Letzte Aktivität';
 $_ARRAYLANG['groupId'] = 'ID';
-$_ARRAYLANG['isActive'] = 'Status';
+$_ARRAYLANG['isActive'] = 'Aktiv';
 $_ARRAYLANG['groupName'] = 'Name';
 $_ARRAYLANG['groupDescription'] = 'Beschreibung';
 $_ARRAYLANG['type'] = 'Typ';
 $_ARRAYLANG['username'] = 'Benutzername';
+$_ARRAYLANG['user'] = 'Benutzer';
+$_ARRAYLANG['homepage'] = 'Startseite';
+
