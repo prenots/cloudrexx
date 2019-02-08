@@ -58,6 +58,8 @@ class BackendController extends
             $dataSetIdentifier
         );
 
+        $uId = $this->getUserId();
+
         switch ($entityClassName) {
             case 'Cx\Core\User\Model\Entity\User':
                 $options['order'] = array(
@@ -292,6 +294,15 @@ class BackendController extends
                     ),
                     'user' => array(
                         'showOverview' => true,
+                        'mode' => 'associate',
+                        'table' => array(
+                            'parse' => function ($rowData) use ($uId) {
+                                return $this->addGroupUserEditUrl(
+                                    $rowData, $uId
+                                );
+                            }
+                        ),
+                        'allowFiltering' => false,
                     ),
                 );
                 break;
@@ -367,6 +378,31 @@ class BackendController extends
     }
 
     /**
+     * Count users in groups
+     *
+     * @return mixed
+     */
+    protected function getUserId()
+    {
+        $em = $this->cx->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $query = $qb->select('g.groupId', 'count(u.id)')->from('Cx\Core\User\Model\Entity\Group', 'g')
+            ->leftJoin('g.user', 'u')
+            ->groupBy('g.groupId')
+            ->getQuery();
+        $result = $query->getResult();
+
+        $getGroupUser = array_reduce($result,
+            function($groups, $group){
+                $groups[$group['groupId']] = $group[1];
+                return $groups;
+            }
+        );
+
+        return $getGroupUser;
+    }
+
+    /**
      * Format the date for the overview list
      *
      * @param int $value date
@@ -435,6 +471,38 @@ class BackendController extends
         $setEditUrl->setAttributes(array('href' => $editUrl, 'title' => $_ARRAYLANG['TXT_CORE_USER_EDIT_TITLE']));
 
         $setEditUrl->addChild($username);
+
+        return $setEditUrl;
+    }
+
+
+    /**
+     * Add edit url
+     *
+     * @param $rowData array      Data of row
+     * @param $getGroupUser array Users per group
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function addGroupUserEditUrl($rowData, $getGroupUser)
+    {
+        global $_ARRAYLANG;
+
+        $userId = new \Cx\Core\Html\Model\Entity\TextElement($getGroupUser[$rowData['groupId']]);
+
+        $setEditUrl = new \Cx\Core\Html\Model\Entity\HtmlElement(
+            'a'
+        );
+
+        $editUrl = \Cx\Core\Routing\Url::fromMagic(
+            \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteBackendPath() .
+            '/' . $this->getName() . '/User'
+        );
+
+        $editUrl->setParam('search', $rowData['groupId']);
+
+        $setEditUrl->setAttributes(array('href' => $editUrl));
+
+        $setEditUrl->addChild($userId);
 
         return $setEditUrl;
     }
