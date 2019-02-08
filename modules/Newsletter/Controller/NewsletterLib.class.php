@@ -1343,19 +1343,10 @@ class NewsletterLib
             }
         }
         if (count($notSentTo)) {
-            if (isset(static::$strErrMessage)) {
-                static::$strErrMessage = ' ' . sprintf(
-                    $_ARRAYLANG['TXT_NEWSLETTER_CONSENT_SOME_NOT_SENT'],
-                    implode('<br />', $notSentTo)
-                );
-            } else {
-                // currently, front-end is not capable of showing an error
-                // message, therefore we simply log it:
-                \DBG::msg(
-                    'Consent mail could not be delivered to he following addresses:'
-                );
-                \DBG::dump($notSentTo);
-            }
+            static::$strErrMessage = ' ' . sprintf(
+                $_ARRAYLANG['TXT_NEWSLETTER_CONSENT_SOME_NOT_SENT'],
+                implode('<br />', $notSentTo)
+            );
         }
 
         return empty($notSentTo);

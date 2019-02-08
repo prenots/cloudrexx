@@ -33,8 +33,6 @@
  * @subpackage  module_shop
  */
 namespace Cx\Modules\Shop\Model\Event;
-use Cx\Core\Error\Model\Entity\ShinyException;
-use Doctrine\ORM\OptimisticLockException;
 
 /**
  * Event listener for all currency events

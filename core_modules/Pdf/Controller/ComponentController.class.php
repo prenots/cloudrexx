@@ -109,18 +109,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
 
         $tplContent = $pdfTemplates->getHtmlContent();
-
-        // parse blocks
-        $tplContent = preg_replace(
-            '/\[\[(BLOCK_[A-Z_0-9]+)\]\]/',
-            '{\1}',
-            $tplContent
-        );
-        \Cx\Modules\Block\Controller\Block::setBlocks($tplContent);
-        $tplContent = $this->getComponent('Cache')->internalEsiParsing(
-            $tplContent
-        );
-
         \Cx\Core\MailTemplate\Controller\MailTemplate::substitute(
             $tplContent,
             $substitution,
@@ -167,8 +155,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
         define(
             '_MPDF_TTFONTPATH',
-            $this->cx->getWebsiteDocumentRootPath() . \Cx\Core\Core\Controller\Cx::FOLDER_NAME_MEDIA
-                . '/Pdf/ttfonts/'
+            ltrim(
+                \Cx\Core\Core\Controller\Cx::FOLDER_NAME_MEDIA,
+                '/'
+            ) . '/Pdf/ttfonts/'
         );
         define(
             '_MPDF_SYSTEM_TTFONTS_CONFIG',

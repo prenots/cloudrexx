@@ -346,7 +346,7 @@ class EsiWidget extends Widget {
                         $esiVarValue = '$(HTTP_COOKIE{\'PHPSESSID\'})';
                         break;
                     case static::ESI_VAR_NAME_CURRENCY:
-                        $esiVarValue = \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol();
+                        $esiVarValue = \Cx\Modules\Shop\Controller\Currency::getActiveCurrencySymbol();
                         break;
                     case static::ESI_VAR_NAME_COUNTRY:
                         $esiVarValue = $this->getComponent(

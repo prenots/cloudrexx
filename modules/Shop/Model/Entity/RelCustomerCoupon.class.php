@@ -68,7 +68,7 @@ class RelCustomerCoupon extends \Cx\Model\Base\EntityBase {
     /**
      * @var string
      */
-    protected $amount;
+    protected $amount = '0.00';
 
     /**
      * @var \Cx\Modules\Shop\Model\Entity\Order

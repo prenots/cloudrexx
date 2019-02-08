@@ -55,10 +55,10 @@ class BackendTable extends HTML_Table {
     protected $editable = false;
 
     /**
-     * @var int $viewId This ID is used as html id for the view so we can load
-     * more than one view
+     * @var \Cx\Core\Html\Controller\ViewGenerator $viewGenerator instance of
+     * ViewGenerator so we can load more than one view
      */
-    protected $viewId;
+    protected $viewGenerator;
 
     /**
      * Whether or not the table has a master table header.
@@ -77,14 +77,15 @@ class BackendTable extends HTML_Table {
      * @param array $attrs        attributes of view generator
      * @param array $options      options of view generator
      * @param string $entityClass class name of entity
+     * @param \Cx\Core\Html\Controller\ViewGenerator $viewGenerator instance of ViewGenerator
      * @throws \Doctrine\ORM\Mapping\MappingException
      */
-    public function __construct($attrs = array(), $options = array(), $entityClass = '', $viewId = 0) {
+    public function __construct($attrs = array(), $options = array(), $entityClass = '', $viewGenerator = null) {
         global $_ARRAYLANG;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
-        $this->viewId = $viewId;
+        $this->viewGenerator = $viewGenerator;
 
         if (!empty($options['functions']['editable'])) {
             $this->editable = true;
@@ -101,29 +102,29 @@ class BackendTable extends HTML_Table {
             $first = true;
             $row = 1 + $this->hasMasterTableHeader;
             $sortBy     = (    isset($options['functions']['sortBy'])
-                && is_array($options['functions']['sortBy'])
-            )
-                ? $options['functions']['sortBy']
-                : array();
+                            && is_array($options['functions']['sortBy'])
+                          )
+                          ? $options['functions']['sortBy']
+                          : array();
             $sortingKey = !empty($sortBy) && isset($sortBy['sortingKey'])
-                ? $sortBy['sortingKey']
-                : '';
+                          ? $sortBy['sortingKey']
+                          : '';
             $sortField  = !empty($sortingKey) && isset($sortBy['field'])
-                ? key($sortBy['field'])
-                : '';
+                          ? key($sortBy['field'])
+                          : '';
             $component  = !empty($sortBy) && isset($sortBy['component'])
-                ? $sortBy['component']
-                : '';
+                          ? $sortBy['component']
+                          : '';
             $entity     = !empty($sortBy) && isset($sortBy['entity'])
-                ? $sortBy['entity']
-                : '';
+                          ? $sortBy['entity']
+                          : '';
             $sortOrder  = !empty($sortBy) && isset($sortBy['sortOrder'])
-                ? $sortBy['sortOrder']
-                : '';
+                          ? $sortBy['sortOrder']
+                          : '';
             $pagingPos  = !empty($sortBy) && isset($sortBy['pagingPosition'])
-                ? $sortBy['pagingPosition']
-                : '';
-            $formGenerator = new \Cx\Core\Html\Controller\FormGenerator($attrs, '', $entityClass, '', $options, 0, null, true);
+                          ? $sortBy['pagingPosition']
+                          : '';
+            $formGenerator = new \Cx\Core\Html\Controller\FormGenerator($attrs, '', $entityClass, '', $options, 0, null, $this->viewGenerator, true);
 
             foreach ($attrs as $rowname=>$rows) {
                 $col = 0;
@@ -199,6 +200,28 @@ class BackendTable extends HTML_Table {
                         } else {
                             $this->setCellContents(0, $col, $header, 'th', 0);
                         }
+                    }
+                    if (
+                        isset($options['fields']) &&
+                        isset($options['fields'][$origHeader]) &&
+                        isset($options['fields'][$origHeader]['valueCallback']) &&
+                        !empty($this->viewGenerator)
+                    ) {
+                        $valueCallback = $options['fields'][$origHeader]['valueCallback'];
+                        $vgId = null;
+                        if (
+                            isset($options['functions']) &&
+                            isset($options['functions']['vg_increment_number'])
+                        ) {
+                            $vgId = $options['functions']['vg_increment_number'];
+                        }
+                        $data = $this->viewGenerator->callValueCallback(
+                            $valueCallback,
+                            $data,
+                            $origHeader,
+                            $rows,
+                            $options['fields'][$origHeader]
+                        );
                     }
                     /* We use json to do parse the field function. The 'else if' is for backwards compatibility so you can declare
                     * the function directly without using json. This is not recommended and not working over session */
@@ -541,7 +564,7 @@ class BackendTable extends HTML_Table {
                 $deleteUrl->setParam('vg_increment_number', $functions['vg_increment_number']);
                 $deleteUrl.='&csrf='.\Cx\Core\Csrf\Controller\Csrf::code();
                 $onclick ='if (confirm(\''.$_ARRAYLANG['TXT_CORE_RECORD_DELETE_CONFIRM'].'\'))'.
-                    'window.location.replace(\''.$deleteUrl.'\');';
+                        'window.location.replace(\''.$deleteUrl.'\');';
                 $_uri = 'javascript:void(0);';
                 $code .= '<a onclick="'.$onclick.'" href="'.$_uri.'" class="delete" title="'.$_ARRAYLANG['TXT_CORE_RECORD_DELETE_TITLE'].'"></a>';
             }
@@ -744,9 +767,9 @@ class BackendTable extends HTML_Table {
             }
         }
 
-        if ($this->editable) {
+        if ($this->editable && $this->viewGenerator) {
             $template->setVariable('HTML_FORM_ACTION', contrexx_raw2xhtml(clone \Env::get('cx')->getRequest()->getUrl()));
-            $template->setVariable('HTML_VG_ID', $this->viewId);
+            $template->setVariable('HTML_VG_ID', $this->viewGenerator->getViewId());
             $template->setVariable('TXT_HTML_SAVE', $_ARRAYLANG['TXT_SAVE_CHANGES']);
 
             $template->touchBlock('form_open');

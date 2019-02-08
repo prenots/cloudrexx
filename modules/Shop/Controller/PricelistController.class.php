@@ -85,9 +85,11 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             'headerLeft' => array(
                 'showOverview' => false,
                 'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getLineField($fieldname, $fieldvalue, 'headerRight');
+                    return $this->getLineField(
+                        $fieldname,
+                        $fieldvalue,
+                        'headerRight'
+                    );
                 }
             ),
             'headerRight' => array(
@@ -109,9 +111,12 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                         'TXT_PAGENUMBER'
                         ]
                     );
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
+                    return $this->getLineField(
+                        $fieldname,
+                        $fieldvalue,
+                        'footerRight',
+                        $placeholders
+                    );
                 }
             ),
             'footerRight' => array(
@@ -120,10 +125,8 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'allCategories' => array(
                 'showOverview' => false,
-                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getAllCategoriesCheckbox($fieldvalue);
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    return $this->getAllCategoriesCheckbox($fieldvalue);
                 },
                 'storecallback' => function(){
                     return $this->cx->getRequest()->hasParam(
@@ -139,9 +142,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'mode' => 'associate',
                 'formfield' => function() {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getCategoryCheckboxesForPricelist();
+                    return $this->getCategoryCheckboxesForPricelist();
                 },
             ),
         );
@@ -153,9 +154,10 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      * @throws \Doctrine\ORM\ORMException
      */
-    public function getCategoryCheckboxesForPricelist()
+    protected function getCategoryCheckboxesForPricelist()
     {
         // Until we know how to get the editId without the $_GET param
+        $pricelistId = 0;
         if ($this->cx->getRequest()->hasParam('editid')) {
             $pricelistId = explode(
                 '}',
@@ -165,52 +167,74 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                 )[1]
             )[0];
         }
-        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Pricelist'
-        );
+
         $categories = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Category'
-        )->findBy(array('active' => 1));
+        )->findBy(array('active' => 1, 'parentId' => null));
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $index = count($categories)-1;
 
         foreach ($categories as $category) {
-            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
-            $label->setAttributes(
-                array(
-                    'class' => 'category',
-                    'for' => 'category-'. $category->getId()
-                )
-            );
-            $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                $category->getName()
-            );
-            $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
-                'categories[' . $index-- . ']',
-                $category->getId()
-
-            );
-
-            $isActive = (boolean)$repo->getPricelistByCategoryAndId(
-                $category,
-                $pricelistId
-            );
-            $checkbox->setAttributes(
-                array(
-                    'type' => 'checkbox',
-                    'id' => 'category-' . $category->getId(),
-                    empty($isActive) ? '' : 'checked' => 'checked'
+            $wrapper->addChild(
+                $this->getCategoryCheckbox(
+                    $category, $pricelistId
                 )
             );
 
-            $label->addChild($checkbox);
-            $label->addChild($text);
-            $wrapper->addChild($label);
+            foreach ($category->getChildren() as $child) {
+                $childWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                $childWrapper->addClass('child');
+
+                $childCheckbox = $this->getCategoryCheckbox(
+                    $child, $pricelistId
+                );
+
+                $childWrapper->addChild($childCheckbox);
+                $wrapper->addChild($childWrapper);
+            }
         }
         return $wrapper;
     }
 
-    public function getAllCategoriesCheckbox($isActive)
+    protected function getCategoryCheckbox($category, $pricelistId)
+    {
+        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Pricelist'
+        );
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttributes(
+            array(
+                'class' => 'category',
+                'for' => 'category-'. $category->getId()
+            )
+        );
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $category->getName()
+        );
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            'categories[' . $category->getId() . ']',
+            $category->getId()
+
+        );
+
+        $isActive = (boolean)$repo->getPricelistByCategoryAndId(
+            $category,
+            $pricelistId
+        );
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'category-' . $category->getId(),
+                empty($isActive) ? '' : 'checked' => 'checked'
+            )
+        );
+
+        $label->addChild($checkbox);
+        $label->addChild($text);
+
+        return $label;
+    }
+
+    protected function getAllCategoriesCheckbox($isActive)
     {
         global $_ARRAYLANG;
 
@@ -245,7 +269,7 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
-    public function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
+    protected function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
     {
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $headerLeft = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
