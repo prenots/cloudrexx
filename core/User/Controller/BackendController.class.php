@@ -150,9 +150,15 @@ class BackendController extends
                     ),
                     'frontendLangId' => array(
                         'showOverview' => false,
+                        'formfield' =>
+                            function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
+                                return $this->getLangDropdown($fieldname, $fieldvalue);
+                            },
                     ),
                     'backendLangId' => array(
                         'showOverview' => false,
+                        'showDetail' => true,
+                        'type' => 'hidden',
                     ),
                     'verified' => array(
                         'showOverview' => false,
@@ -552,6 +558,59 @@ class BackendController extends
         );
 
         $wrapper->addChildren(array($emailDropdown, $profileDropdown));
+
+        return $wrapper;
+    }
+
+    /**
+     * Generate the language dropdown
+     *
+     * @param $fieldname string  Name of the field
+     * @param $fieldvalue string Value of the field
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function getLangDropdown($fieldname, $fieldvalue)
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $frontendLang = array();
+
+        $arrLangs = \FWLanguage::getActiveFrontendLanguages();
+
+        $frontendLang[0] = 'Default';
+
+        foreach ($arrLangs as $lang){
+            $frontendLang[$lang['id']] = $lang['name'];
+        }
+
+        $frontendLangDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            $fieldname,
+            $fieldvalue,
+            'select',
+            null,
+            $frontendLang
+        );
+
+        /*generate backend languages dropdown*/
+        $backendLang = array();
+
+        $arrLangs = \FWLanguage::getActiveFrontendLanguages();
+
+        $backendLang[0] = 'Default';
+
+        foreach ($arrLangs as $lang){
+            $backendLang[$lang['id']] = $lang['name'];
+        }
+
+        $backendLangDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            'backendLangId',
+            $fieldvalue,
+            'select',
+            null,
+            $backendLang
+        );
+
+        $wrapper->addChildren(array($frontendLangDropdown, $backendLangDropdown));
 
         return $wrapper;
     }
