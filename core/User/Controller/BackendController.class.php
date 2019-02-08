@@ -288,6 +288,18 @@ class BackendController extends
                     ),
                     'type' => array(
                         'showOverview' => true,
+                        'type' => 'select',
+                        'validValues' => array(
+                            $_ARRAYLANG['TXT_CORE_USER_TYPE_FRONTEND'],
+                            $_ARRAYLANG['TXT_CORE_USER_TYPE_BACKEND']
+                        ),
+                        'filterOptionsField' => function (
+                            $parseObject, $fieldName, $elementName, $formName
+                        ) {
+                            return $this->getGroupTypeMenu(
+                                $elementName, $formName
+                            );
+                        },
                     ),
                     'homepage' => array(
                         'showOverview' => false,
@@ -548,6 +560,44 @@ class BackendController extends
         $setEditUrl->addChild($userId);
 
         return $setEditUrl;
+    }
+
+
+    /**
+     * Generate the group type menu
+     *
+     * @param $elementName string Name of the element
+     * @param $formName string    Name of the form
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
+    protected function getGroupTypeMenu($elementName, $formName)
+    {
+        global $_ARRAYLANG;
+
+        $validValues = array(
+            '' => $_ARRAYLANG['TXT_CORE_USER_TYPE'],
+            $_ARRAYLANG['TXT_LANGUAGE_FRONTEND'] =>
+                $_ARRAYLANG['TXT_CORE_USER_TYPE_FRONTEND'],
+            $_ARRAYLANG['TXT_LANGUAGE_BACKEND'] =>
+                $_ARRAYLANG['TXT_CORE_USER_TYPE_BACKEND'],
+        );
+        $searchField = new \Cx\Core\Html\Model\Entity\DataElement(
+            $elementName,
+            '',
+            'select',
+            null,
+            $validValues
+        );
+
+        $searchField->setAttributes(
+            array(
+                'form' => $formName,
+                'data-vg-attrgroup' => 'search',
+                'data-vg-field' => 'type',
+                'class' => 'vg-encode',
+            )
+        );
+        return $searchField;
     }
 
     /**
