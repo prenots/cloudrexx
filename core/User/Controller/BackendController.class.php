@@ -276,9 +276,11 @@ class BackendController extends
                 $options['fields'] = array(
                     'isActive' => array(
                         'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'groupId' => array(
                         'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'groupName' => array(
                         'table' => array(
@@ -295,6 +297,7 @@ class BackendController extends
                     ),
                     'groupDescription' => array(
                         'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'type' => array(
                         'showOverview' => true,
@@ -322,6 +325,7 @@ class BackendController extends
                     ),
                     'toolbar' => array(
                         'showOverview' => false,
+                        'allowFiltering' => false,
                         'showDetail' => false,
                     ),
                     'toolbar' => array(
