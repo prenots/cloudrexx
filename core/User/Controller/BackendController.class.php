@@ -41,6 +41,18 @@ class BackendController extends
         $entityClassName, $dataSetIdentifier = ''
     )
     {
+        global $_ARRAYLANG;
+
+        if ($this->cx->getRequest()->hasParam('editid')) {
+            $this->userId = explode(
+                '}',
+                explode(
+                    ',',
+                    $this->cx->getRequest()->getParam('editid')
+                )[1]
+            )[0];
+        }
+
         $options = parent::getViewGeneratorOptions(
             $entityClassName,
             $dataSetIdentifier
