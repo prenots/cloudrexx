@@ -85,22 +85,8 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
      *
      * @throws \Doctrine\Orm\OptimisticLockException
      */
-    public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
+    public function preUpdate(\Doctrine\ORM\Event\PreUpdateEventArgs $eventArgs)
     {
-        global $_ARRAYLANG;
-
-        if ($this->checkIfCurrencyCodeExists(
-            $eventArgs->getEntity()->getCode(),
-            $eventArgs->getEntityManager()
-        )) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                sprintf(
-                    $_ARRAYLANG['TXT_SHOP_CURRENCY_EXISTS'],
-                    $eventArgs->getEntity()->getCode()
-                )
-            );
-        }
-
         if (!empty($eventArgs->getEntity()->getDefault())) {
             $this->setDefaultEntity(
                 $eventArgs->getEntity()->getId(),
@@ -146,6 +132,6 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
             $entity->setDefault($default);
             $em->persist($entity);
         }
-        $em->flush();
     }
+
 }
