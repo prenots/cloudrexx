@@ -52,7 +52,10 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getViewGeneratorOptions($options)
     {
+        global $_ARRAYLANG;
+
         $options['order']['form'] = array(
+            'pdfLink',
             'name',
             'lang',
         );
@@ -145,6 +148,19 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getCategoryCheckboxesForPricelist();
                 },
             ),
+            'pdfLink' => array(
+                'custom' => true,
+                'header' => $_ARRAYLANG['TXT_PDF_LINK'],
+                'type' => 'div',
+                'valueCallback' => function($fieldvalue, $fieldname, $rowData) {
+                    return $this->getGeneratedPdfLink($rowData);
+                },
+                'table' => array(
+                    'parse' => function($value) {
+                        return $this->getLinkElement($value);
+                    }
+                )
+            )
         );
 
         return $options;
@@ -318,5 +334,38 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $wrapper->addChild($wrapperPlaceholders);
         return $wrapper;
+    }
+
+    protected function getGeneratedPdfLink($rowData)
+    {
+        $url = $this->cx->getRequest()->getUrl();
+        $protcol = $url->getProtocol();
+        $domain = $url->getDomain();
+        $pdfLinkUrl = \Cx\Core\Routing\Url::fromApi(
+            'generatePdfPricelist', array()
+        );
+
+        $locale = \FWLanguage::getLanguageCodeById($rowData['langId']);
+        $pdfLinkUrl->setParam('id', $rowData['id']);
+        $pdfLinkUrl->setParam('locale', $locale);
+
+        $link = $protcol . '://' . $domain . $pdfLinkUrl;
+
+        return $link;
+    }
+
+    protected function getLinkElement($value)
+    {
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $text = new \Cx\Core\Html\Model\Entity\TextElement($value);
+        $link->setAttributes(
+            array(
+                'href' => $value,
+                'target' => '_blank'
+            )
+        );
+        $link->addChild($text);
+
+        return $link;
     }
 }
