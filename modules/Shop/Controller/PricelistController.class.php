@@ -159,7 +159,10 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                     'parse' => function($value) {
                         return $this->getLinkElement($value);
                     }
-                )
+                ),
+                'formfield' => function($name, $type, $length, $value) {
+                    return $this->getLinkElement($value);
+                }
             )
         );
 
