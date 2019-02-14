@@ -52,6 +52,36 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getViewGeneratorOptions($options)
     {
+        $options['order']['overview'] = array(
+            'code',
+            'startTime',
+            'endTime',
+            'minimumAmount',
+            'discountRate',
+            'discountAmount',
+            'uses',
+            'global',
+            'customer',
+            'product',
+            'payment',
+            'link'
+        );
+
+        $options['order']['form'] = array(
+            'customer',
+            'code',
+            'startTime',
+            'endTime',
+            'minimumAmount',
+            'type',
+            'discountRate',
+            'discountAmount',
+            'uses',
+            'global',
+            'product',
+            'payment',
+        );
+
         return $options;
     }
 
