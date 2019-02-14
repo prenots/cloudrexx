@@ -52,6 +52,8 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getViewGeneratorOptions($options)
     {
+        global $_ARRAYLANG;
+
         $options['order']['overview'] = array(
             'code',
             'startTime',
@@ -82,6 +84,10 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
             'payment',
         );
 
+        $defaultCurrency = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        )->getDefaultCurrency();
+
         $options['fields'] = array(
             'id' => array(
                 'showOverview' => false,
@@ -98,8 +104,52 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
             ),
+            'code' => array(
+                'header' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE']
+            ),
+            'customer' => array(
+                'type' => 'hidden',
+            ),
+            'startTime' => array(
+                'type' => 'date',
+            ),
+            'payment' => array(
+            ),
+            'product' => array(
+            ),
+            'endTime' => array(
+                'type' => 'date',
+            ),
+            'minimumAmount' => array(
+                'attributes' => array(
+                    'style' => 'text-align: right'
+                ),
+                'header' => sprintf(
+                    $_ARRAYLANG['minimumAmount'],
+                    $defaultCurrency->getCode()
+                ),
+            ),
+            'discountRate' => array(
+                'attributes' => array(
+                    'style' => 'text-align: right'
+                ),
+            ),
+            'discountAmount' => array(
+                'attributes' => array(
+                    'style' => 'text-align: right;'
+                ),
+                'header' => sprintf(
+                    $_ARRAYLANG['discountAmount'],
+                    $defaultCurrency->getCode()
+                ),
+            ),
+            'uses' => array(
+            ),
+            'global' => array(
+            ),
             'type' => array(
                 'custom' => true,
+                'header' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_TYPE'],
                 'showOverview' => false,
             ),
             'link' => array(
