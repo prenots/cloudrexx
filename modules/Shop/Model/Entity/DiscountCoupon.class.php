@@ -485,4 +485,44 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
         return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             min($amount, $amount_available));
     }
+
+    /**
+     * Redeem the given coupon code
+     *
+     * Updates the database, if applicable.
+     * Mind that you *MUST* decide which amount (Order or Product) to provide:
+     *  - the Product amount if the Coupon has a non-empty Product ID, or
+     *  - the Order amount otherwise
+     * Provide a zero $uses count (but not null!) when you are storing the
+     * Order.  Omit it, or set it to 1 (one) when the Order is complete.
+     * The latter is usually the case on the success page, after the Customer
+     * has returned to the Shop after paying.
+     * Mind that the amount cannot be changed once the record has been
+     * created, so only the use count will ever be updated.
+     * $uses is never interpreted as anything other than 0 or 1!
+     * @param   integer   $order_id         The Order ID
+     * @param   integer   $customer_id      The Customer ID
+     * @param   double    $amount           The Order- or the Product amount
+     *                                      (if $this->product_id is non-empty)
+     * @param   integer   $uses             The redeem count.  Set to 0 (zero)
+     *                                      when storing the Order, omit or
+     *                                      set to 1 (one) when redeeming
+     *                                      Defaults to 1.
+     * @return  Coupon                      The Coupon on success,
+     *                                      false otherwise
+     */
+    function redeem($order_id, $customer_id, $amount, $uses=1)
+    {
+        // Applicable discount amount
+        $amount = $this->getDiscountAmountOrRate($amount);
+        $uses = intval((boolean)$uses);
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+
+        return $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        )->redeem($this->getCode(), $order_id, $customer_id, $amount, $uses);
+    }
+
 }

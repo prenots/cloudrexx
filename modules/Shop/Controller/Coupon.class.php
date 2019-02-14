@@ -54,58 +54,6 @@ namespace Cx\Modules\Shop\Controller;
  */
 class Coupon
 {
-
-    /**
-     * Redeem the given coupon code
-     *
-     * Updates the database, if applicable.
-     * Mind that you *MUST* decide which amount (Order or Product) to provide:
-     *  - the Product amount if the Coupon has a non-empty Product ID, or
-     *  - the Order amount otherwise
-     * Provide a zero $uses count (but not null!) when you are storing the
-     * Order.  Omit it, or set it to 1 (one) when the Order is complete.
-     * The latter is usually the case on the success page, after the Customer
-     * has returned to the Shop after paying.
-     * Mind that the amount cannot be changed once the record has been
-     * created, so only the use count will ever be updated.
-     * $uses is never interpreted as anything other than 0 or 1!
-     * @param   integer   $order_id         The Order ID
-     * @param   integer   $customer_id      The Customer ID
-     * @param   double    $amount           The Order- or the Product amount
-     *                                      (if $this->product_id is non-empty)
-     * @param   integer   $uses             The redeem count.  Set to 0 (zero)
-     *                                      when storing the Order, omit or
-     *                                      set to 1 (one) when redeeming
-     *                                      Defaults to 1.
-     * @return  Coupon                      The Coupon on success,
-     *                                      false otherwise
-     */
-    function redeem($order_id, $customer_id, $amount, $uses=1)
-    {
-        global $objDatabase;
-
-        // Applicable discount amount
-        $amount = $this->getDiscountAmountOrRate($amount);
-        $uses = intval((boolean)$uses);
-
-        //Todo Call Redeem in Repo
-        // Insert that use
-        $query = "
-            INSERT `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon` (
-              `code`, `customer_id`, `order_id`, `count`, `amount`
-            ) VALUES (
-              '".addslashes($this->code)."', ".intval($customer_id).",
-              ".intval($order_id).", $uses, $amount
-            )
-            ON DUPLICATE KEY UPDATE `count`=$uses";
-        if (!$objDatabase->Execute($query)) {
-//DBG::log("redeem($order_id, $customer_id, $amount, $uses): ERROR: Failed to add use $uses, amount $amount!");
-            return false;
-        }
-//DBG::log("redeem($order_id, $customer_id, $amount, $uses): Used $uses, amount $amount<br />");
-        return $this;
-    }
-
     /**
      * Tries to fix any database related problems
      * @return  boolean     false     Always!

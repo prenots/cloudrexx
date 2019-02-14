@@ -75,4 +75,58 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
         return 0;
     }
 
+    /**
+     * Redeem the given coupon code
+     *
+     * Updates the database, if applicable.
+     * Mind that you *MUST* decide which amount (Order or Product) to provide:
+     *  - the Product amount if the Coupon has a non-empty Product ID, or
+     *  - the Order amount otherwise
+     * Provide a zero $uses count (but not null!) when you are storing the
+     * Order.  Omit it, or set it to 1 (one) when the Order is complete.
+     * The latter is usually the case on the success page, after the Customer
+     * has returned to the Shop after paying.
+     * Mind that the amount cannot be changed once the record has been
+     * created, so only the use count will ever be updated.
+     * $uses is never interpreted as anything other than 0 or 1!
+     * @param   integer   $order_id         The Order ID
+     * @param   integer   $customer_id      The Customer ID
+     * @param   double    $amount           The Order- or the Product amount
+     *                                      (if $this->product_id is non-empty)
+     * @param   integer   $uses             The redeem count.  Set to 0 (zero)
+     *                                      when storing the Order, omit or
+     *                                      set to 1 (one) when redeeming
+     *                                      Defaults to 1.
+     * @return  Coupon                      The Coupon on success,
+     *                                      false otherwise
+     */
+    public function redeem($code, $order_id, $customer_id, $amount, $uses=1)
+    {
+        $customerCoupon = $this->findOneBy(
+            array(
+                'code' => $code,
+                'orderId' => $order_id,
+                'customerId' => $customer_id
+            )
+        );
+        if (!empty($customerCoupon)) {
+            $order = $this->_em->find('Cx\Modules\Shop\Model\Entity\Order', $order_id);
+            $customer = $this->_em->find('Cx\Core\User\Model\Entity\User', $customer_id);
+
+            $customerCoupon = \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon();
+            $customerCoupon->setCode($code);
+            $customerCoupon->setOrder($order);
+            $customerCoupon->setCustomer($customer);
+            $customerCoupon->setAmount($amount);
+            $customerCoupon->setUses($uses);
+        }
+
+        $customerCoupon->setUses($uses);
+        $this->_em->persist($customerCoupon);
+        $this->_em->flush();
+
+        return $customerCoupon;
+    }
+
+
 }
