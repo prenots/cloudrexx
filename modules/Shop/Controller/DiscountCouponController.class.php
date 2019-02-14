@@ -82,6 +82,32 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
             'payment',
         );
 
+        $options['fields'] = array(
+            'id' => array(
+                'showOverview' => false,
+            ),
+            'customerId' => array(
+                'showOverview' => false,
+                'showDetail' => false,
+            ),
+            'paymentId' => array(
+                'showOverview' => false,
+                'showDetail' => false,
+            ),
+            'productId' => array(
+                'showOverview' => false,
+                'showDetail' => false,
+            ),
+            'type' => array(
+                'custom' => true,
+                'showOverview' => false,
+            ),
+            'link' => array(
+                'custom' => true,
+                'showDetail' => false,
+            ),
+        );
+
         return $options;
     }
 
