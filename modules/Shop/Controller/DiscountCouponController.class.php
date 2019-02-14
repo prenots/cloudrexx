@@ -530,7 +530,7 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
 
         $uses = $coupon->getUsedCount();
         $max = $value;
-        if ($value < self::USES_UNLIMITED) {
+        if ($value > 1e9) {
             $max = $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_USES_UNLIMITED'];
         }
 
