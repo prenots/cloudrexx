@@ -44,6 +44,8 @@ namespace Cx\Modules\Shop\Controller;
  */
 class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
 {
+    const USES_UNLIMITED = 1e10;
+
     /**
      * Get ViewGenerator options for DiscountCoupon entity
      *
@@ -109,16 +111,63 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'customer' => array(
                 'type' => 'hidden',
+                'table' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_SHOP_CUSTOMER_ANY'];
+                        }
+                        $user = \FWUser::getFWUserObject()->objUser->getUser(
+                            $value->getId()
+                        );
+                        return $user->getUsername() . ' (' . $value . ')';
+                    }
+                ),
             ),
             'startTime' => array(
                 'type' => 'date',
+                'table' => array(
+                    'parse' => function($value) {
+                        if (empty($value)) {
+                            return '-';
+                        }
+                        return $value;
+                    }
+                ),
             ),
             'payment' => array(
+                'table' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_SHOP_PAYMENT_ANY'];
+                        }
+                        return $value  . ' (' . $value->getId() . ')';
+                    }
+                ),
             ),
             'product' => array(
+                'table' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_SHOP_PRODUCT_ANY'];
+                        }
+                        return $value . ' (' . $value->getId() . ')';
+                    }
+                ),
             ),
             'endTime' => array(
                 'type' => 'date',
+                'table' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_END_TIME_UNLIMITED'];
+                        }
+                        return $value;
+                    }
+                ),
             ),
             'minimumAmount' => array(
                 'attributes' => array(
@@ -128,10 +177,26 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                     $_ARRAYLANG['minimumAmount'],
                     $defaultCurrency->getCode()
                 ),
+                'table' => array(
+                    'parse' => function($value) {
+                        if ($value == '0.00') {
+                            return '-.--';
+                        }
+                        return $value;
+                    }
+                ),
             ),
             'discountRate' => array(
                 'attributes' => array(
                     'style' => 'text-align: right'
+                ),
+                'table' => array(
+                    'parse' => function($value) {
+                        if (empty($value)) {
+                            return '-';
+                        }
+                        return $value;
+                    }
                 ),
             ),
             'discountAmount' => array(
@@ -142,10 +207,32 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                     $_ARRAYLANG['discountAmount'],
                     $defaultCurrency->getCode()
                 ),
+                'table' => array(
+                    'parse' => function($value) {
+                        if ($value == '0.00') {
+                            return '-.--';
+                        }
+                        return $value;
+                    }
+                ),
             ),
             'uses' => array(
+                'table' => array(
+                    'parse' => function($value, $rowData) {
+                        return $this->getUseStatus($value, $rowData['id']);
+                    }
+                ),
             ),
             'global' => array(
+                'table' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_PER_CUSTOMER'];
+                        }
+                        return $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_GLOBALLY'];
+                    }
+                ),
             ),
             'type' => array(
                 'custom' => true,
@@ -155,10 +242,39 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
             'link' => array(
                 'custom' => true,
                 'showDetail' => false,
+                'table' => array(
+                    'parse' => function($value, $rowData) {
+                        return $this->getCouponLink($rowData);
+                    },
+                    'attributes' => array(
+                        'class' => 'shop-coupon-link',
+                    ),
+                ),
             ),
         );
 
         return $options;
+    }
+
+    protected function getUseStatus($value, $couponId)
+    {
+        global $_ARRAYLANG;
+
+        $coupon = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        )->find($couponId);
+
+        if (empty($coupon)) {
+            return '';
+        }
+
+        $uses = $coupon->getUsedCount();
+        $max = $value;
+        if ($value < self::USES_UNLIMITED) {
+            $max = $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_USES_UNLIMITED'];
+        }
+
+        return $uses .' / '. $max;
     }
 
 }
