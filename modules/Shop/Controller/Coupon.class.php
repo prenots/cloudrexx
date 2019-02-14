@@ -1294,34 +1294,6 @@ class Coupon
         return $result;
     }
 
-
-    /**
-     * Returns a textual representation for the discount provided by this
-     * Coupon
-     *
-     * Set the $discount_amount if it is different from the value returned
-     * by {@see discount_amount()}, i.e. when the total discount amount
-     * reaches the amount available for this Coupon
-     * @param   float   $discount_amount  The optional discount amount
-     * @return  string
-     */
-    function getString($discount_amount=0)
-    {
-        global $_ARRAYLANG;
-
-        if ($this->discount_rate) {
-            return sprintf(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_RATE_STRING_FORMAT'],
-                $this->discount_rate);
-        }
-        if (!$discount_amount) $discount_amount = $this->discount_amount;
-        return sprintf(
-            $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_STRING_FORMAT'],
-            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($discount_amount),
-            \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode());
-    }
-
-
     /**
      * Returns the discount amount resulting from applying this Coupon
      *
@@ -1345,23 +1317,6 @@ class Coupon
             $this->discount_amount - $this->getUsedAmount($customer_id));
         return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
             min($amount, $amount_available));
-    }
-
-
-    /**
-     * Returns a formatted string indicating the given amount as discounted
-     * due to the use of coupon codes
-     * @param   float   $amount     The amount
-     * @return  sting               The formatted string
-     */
-    static function getTotalAmountString($amount)
-    {
-        global $_ARRAYLANG;
-
-        return sprintf(
-            $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_AMOUNT_TOTAL_STRING_FORMAT'],
-            \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount), \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
-        );
     }
 
 
