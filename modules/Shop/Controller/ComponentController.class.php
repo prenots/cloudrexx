@@ -309,6 +309,18 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             'Cx\\Modules\\Shop\\Model\\Entity\\Currency',
             new \Cx\Modules\Shop\Model\Event\CurrencyEventListener($this->cx)
         );
+
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::prePersist,
+            'Cx\\Modules\\Shop\\Model\\Entity\\DiscountCoupon',
+            new \Cx\Modules\Shop\Model\Event\DiscountCouponEventListener($this->cx)
+        );
+
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::preUpdate,
+            'Cx\\Modules\\Shop\\Model\\Entity\\DiscountCoupon',
+            new \Cx\Modules\Shop\Model\Event\DiscountCouponEventListener($this->cx)
+        );
     }
 
     /**
