@@ -422,4 +422,33 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
         return $this->customer;
     }
 
+    /**
+     * Returns the count of the uses for the given code
+     *
+     * The optional $customer_id limits the result to the uses of that
+     * Customer.
+     * Returns 0 (zero) for codes not present in the relation (yet).
+     * @param   integer   $customer_id    The optional Customer ID
+     * @return  mixed                     The number of uses of the code
+     *                                    on success, false otherwise
+     */
+    public function getUsedCount($customerId = 0)
+    {
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $qb->select('sum(rcc.count)')
+            ->from('Cx\Modules\Shop\Model\Entity\RelCustomerCoupon', 'rcc')
+            ->where($qb->expr()->eq('rcc.code', '?1'))
+            ->setParameter(1, $this->code);
+        if (!empty($customerId)) {
+            $qb->andWhere($qb->expr()->eq('rcc.customerId', '?2'))
+                ->setParameter(2, $customerId);
+        }
+
+        if (!empty($qb->getQuery()->getResult()[1])) {
+            return $qb->getQuery()->getResult()[1];
+        }
+        return 0;
+    }
+
 }
