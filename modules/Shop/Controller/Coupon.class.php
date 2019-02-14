@@ -495,8 +495,10 @@ class Coupon
         global $objDatabase;
 
         // Applicable discount amount
-        $amount = $this->getDiscountAmount($amount);
+        $amount = $this->getDiscountAmountOrRate($amount);
         $uses = intval((boolean)$uses);
+
+        //Todo Call Redeem in Repo
         // Insert that use
         $query = "
             INSERT `".DBPREFIX."module_shop".MODULE_INDEX."_rel_customer_coupon` (
@@ -746,31 +748,6 @@ class Coupon
         return $objResult->fields['numof_records'];
     }
 
-
-    /**
-     * Returns the discount amount resulting from applying this Coupon
-     *
-     * This Coupon may contain either a discount rate or amount.
-     * The rate has precedence and is thus applied in case both are set
-     * (although this should never happen).
-     * If neither is greater than zero, returns 0 (zero).  This also should
-     * never happen.
-     * If the Coupon has an amount, the sum of all previous redemptions
-     * is subtracted first, and the remainder is returned.
-     * Note that the value returned is never greater than $amount.
-     * @param   float   $amount         The amount
-     * @param   integer $customer_id    The Customer ID
-     * @return  string                  The applicable discount amount
-     */
-    function getDiscountAmount($amount, $customer_id=NULL)
-    {
-        if ($this->discount_rate)
-            return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount * $this->discount_rate / 100);
-        $amount_available = max(0,
-            $this->discount_amount - $this->getUsedAmount($customer_id));
-        return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
-            min($amount, $amount_available));
-    }
 
     /**
      * Tries to fix any database related problems

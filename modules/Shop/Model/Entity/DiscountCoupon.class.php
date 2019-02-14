@@ -451,4 +451,28 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
         return 0;
     }
 
+    /**
+     * Returns the discount amount resulting from applying this Coupon
+     *
+     * This Coupon may contain either a discount rate or amount.
+     * The rate has precedence and is thus applied in case both are set
+     * (although this should never happen).
+     * If neither is greater than zero, returns 0 (zero).  This also should
+     * never happen.
+     * If the Coupon has an amount, the sum of all previous redemptions
+     * is subtracted first, and the remainder is returned.
+     * Note that the value returned is never greater than $amount.
+     * @param   float   $amount         The amount
+     * @param   integer $customer_id    The Customer ID
+     * @return  string                  The applicable discount amount
+     */
+    function getDiscountAmountOrRate($amount, $customer_id=NULL)
+    {
+        if ($this->getDiscountRate())
+            return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount * $this->getDiscountRate() / 100);
+        $amount_available = max(0,
+            $this->getDiscountAmount() - $this->getUsedAmount($customer_id));
+        return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+            min($amount, $amount_available));
+    }
 }

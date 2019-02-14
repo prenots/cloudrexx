@@ -602,7 +602,7 @@ class Cart
                     $product['id'], $payment_id);
                 if ($objCoupon) {
                     $hasCoupon = true;
-                    $discount_amount = $objCoupon->getDiscountAmount(
+                    $discount_amount = $objCoupon->getDiscountAmountOrRate(
                         $product['price'], $customer_id);
                     // In case the loaded coupon is a coupon of type value (of
                     // a certain amount) and if it has been used on a previous
@@ -670,7 +670,7 @@ class Cart
 
             if ($objCoupon) {
                 $hasCoupon = true;
-                $discount_amount = $objCoupon->getDiscountAmount(
+                $discount_amount = $objCoupon->getDiscountAmountOrRate(
                     $total_price, $customer_id);
                 $total_discount_amount = $discount_amount;
 

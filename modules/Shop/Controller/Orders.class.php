@@ -1513,7 +1513,7 @@ if (!$limit) {
                         $payment_id);
                     if ($objCoupon) {
                         $coupon_code = NULL;
-                        $coupon_amount = $objCoupon->getDiscountAmount(
+                        $coupon_amount = $objCoupon->getDiscountAmountOrRate(
                             $item_price, $customer_id);
                         if ($create_accounts) {
                             $objCoupon->redeem($order_id, $customer_id,
@@ -1535,7 +1535,7 @@ if (!$limit) {
             $objCoupon = Coupon::available($coupon_code,
                 $total_item_price, $customer_id, null, $payment_id);
             if ($objCoupon) {
-                $coupon_amount = $objCoupon->getDiscountAmount(
+                $coupon_amount = $objCoupon->getDiscountAmountOrRate(
                     $total_item_price, $customer_id);
                 if ($create_accounts) {
                     $objCoupon->redeem($order_id, $customer_id, $total_item_price);
