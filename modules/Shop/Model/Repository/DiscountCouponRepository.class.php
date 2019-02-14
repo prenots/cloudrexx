@@ -10,4 +10,22 @@ namespace Cx\Modules\Shop\Model\Repository;
  */
 class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Get DiscountCoupon by code and customer
+     *
+     * @param $code
+     * @param $customer
+     * @return \Cx\Modules\Shop\Model\Entity\DiscountCoupon
+     */
+    public function getCouponByCodeAndCustomer($code, $customer)
+    {
+        $coupon = $this->findOneBy(
+            array('code' => $code, 'customer' => $customer)
+        );
+
+        if (!empty($coupon)) {
+            return $coupon;
+        }
+        return new \Cx\Modules\Shop\Model\Entity\DiscountCoupon();
+    }
 }
