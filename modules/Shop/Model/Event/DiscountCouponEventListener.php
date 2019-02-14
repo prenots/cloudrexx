@@ -98,11 +98,14 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
             'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
         );
 
-        if (!empty(
-            $couponRepo->getCouponByCodeAndCustomer(
-                $coupon->getCode(), $coupon->getCustomer()
-            )->getId()
-        )) {
+        $couponWithCode = $couponRepo->getCouponByCodeAndCustomer(
+            $coupon->getCode(), $coupon->getCustomer()
+        );
+
+        if (
+            !empty($couponWithCode->getId()) &&
+            $coupon->getId() != $couponWithCode->getId()
+        ) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_CODE_EXISTS']
             );
@@ -118,19 +121,32 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
         // Validate rate and amount
         // These all default to zero if invalid
         $coupon->setDiscountRate(max(0, $coupon->getDiscountRate()));
+
         $coupon->setDiscountAmount(
             \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 max(0, $coupon->getDiscountAmount())
             )
         );
 
-        if (empty($coupon->getDiscountRate()) && empty($coupon->getDiscountAmount())) {
+        if (
+            empty($coupon->getDiscountRate()) &&
+            (
+                empty($coupon->getDiscountAmount()) ||
+                $coupon->getDiscountAmount() == '0.00'
+            )
+        ) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_MISSING_RATE_OR_AMOUNT']
             );
         }
 
-        if ($coupon->getDiscountRate() && $coupon->getDiscountAmount()) {
+        if (
+            $coupon->getDiscountRate() &&
+            (
+                $coupon->getDiscountAmount() &&
+                $coupon->getDiscountAmount() != '0.00'
+            )
+        ) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
                 $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_EITHER_RATE_OR_AMOUNT']
             );
