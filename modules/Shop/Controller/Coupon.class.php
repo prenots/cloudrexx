@@ -772,23 +772,6 @@ class Coupon
             min($amount, $amount_available));
     }
 
-
-    /**
-     * Returns a unique Coupon code with eight characters
-     * @return    string            The Coupon code
-     * @see       User::make_password()
-     */
-    static function getNewCode()
-    {
-        $code = null;
-        while (true) {
-            $code = \User::make_password(8, false);
-            if (!self::codeExists($code)) break;
-        }
-        return $code;
-    }
-
-
     /**
      * Tries to fix any database related problems
      * @return  boolean     false     Always!

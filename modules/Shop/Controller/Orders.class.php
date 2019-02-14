@@ -1489,7 +1489,7 @@ if (!$limit) {
                         if (empty($arrProduct['COUPON_DATA']))
                             $arrProduct['COUPON_DATA'] = array();
 //DBG::log("Orders::getSubstitutionArray(): Getting code");
-                        $code = Coupon::getNewCode();
+                        $code = \Cx\Modules\Shop\Controller\DiscountCouponController::getNewCode();
 
                         $newCoupon = new \Cx\Modules\Shop\Model\Entity\DiscountCoupon();
                         $newCoupon->setCode($code);

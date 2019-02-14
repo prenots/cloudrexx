@@ -398,7 +398,7 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         $scope = 'Shop';
         $cxJs->setVariable(
             'SHOP_GET_NEW_DISCOUNT_COUPON',
-            \Cx\Modules\Shop\Controller\Coupon::getNewCode(),
+            \Cx\Modules\Shop\Controller\DiscountCouponController::getNewCode(),
             $scope
         );
         $cxJs->setVariable(
@@ -582,4 +582,20 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
 
         return $wrapper;
     }
+
+    /**
+     * Returns a unique Coupon code with eight characters
+     * @return    string            The Coupon code
+     * @see       User::make_password()
+     */
+    static function getNewCode()
+    {
+        $code = null;
+        while (true) {
+            $code = \User::make_password(8, false);
+            if (!self::codeExists($code)) break;
+        }
+        return $code;
+    }
+
 }
