@@ -102,7 +102,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Relcountry':
             case 'Zone':
             case 'Mail':
-            case 'DiscountCoupon':
             case 'mailtemplate_overview':
             case 'mailtemplate_edit':
                 $mappedNavItems = array(
@@ -125,7 +124,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'RelCountry' => 'countries',
                     'Zone' => 'zones',
                     'Mail' => 'mail',
-                    'DiscountCoupon' => 'coupon',
                 );
                 $mappedCmdItems = array(
                     'editorder' => 'Order',
@@ -315,6 +313,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Cx\Modules\Shop\Model\Entity\Currency':
                 $options = $this->getSystemComponentController()->getController(
                     'Currency'
+                )->getViewGeneratorOptions($options);
+                break;
+            case 'Cx\Modules\Shop\Model\Entity\DiscountCoupon':
+                $options = $this->getSystemComponentController()->getController(
+                    'DiscountCoupon'
                 )->getViewGeneratorOptions($options);
                 break;
         }
