@@ -56,6 +56,11 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
 
+        $this->setJavaScriptVariables();
+        \JS::registerJS(
+            $this->cx->getModuleFolderName() . '/Shop/View/Script/DiscountCoupon.js'
+        );
+
         $options['order']['overview'] = array(
             'code',
             'startTime',
@@ -115,17 +120,21 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                     'parse' => function($value) {
                         global $_ARRAYLANG;
                         if (empty($value)) {
-                            return $_ARRAYLANG['TXT_SHOP_CUSTOMER_ANY'];
+                            return $_ARRAYLANG['TXT_SHOP_PRODUCT_ANY'];
                         }
-                        $user = \FWUser::getFWUserObject()->objUser->getUser(
-                            $value->getId()
-                        );
+                        $user = \FWUser::getFWUserObject()->objUser->getUser($value->getId());
                         return $user->getUsername() . ' (' . $value . ')';
                     }
                 ),
             ),
             'startTime' => array(
                 'type' => 'date',
+                'valueCallback' => function($fieldvalue) {
+                    if (!empty($fieldvalue)) {
+                        $fieldvalue = date(ASCMS_DATE_FORMAT_DATE, $fieldvalue);
+                    }
+                    return $fieldvalue;
+                },
                 'table' => array(
                     'parse' => function($value) {
                         if (empty($value)) {
@@ -134,6 +143,9 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                         return $value;
                     }
                 ),
+                'storecallback' => function($value) {
+                    return strtotime($value);
+                },
             ),
             'payment' => array(
                 'table' => array(
@@ -145,6 +157,13 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                         return $value  . ' (' . $value->getId() . ')';
                     }
                 ),
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    return $this->getDropdownWithOtherDefault(
+                        $fieldname,
+                        $fieldvalue,
+                        'Payment'
+                    );
+                }
             ),
             'product' => array(
                 'table' => array(
@@ -156,6 +175,13 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                         return $value . ' (' . $value->getId() . ')';
                     }
                 ),
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    return $this->getDropdownWithOtherDefault(
+                        $fieldname,
+                        $fieldvalue,
+                        'Product'
+                    );
+                }
             ),
             'endTime' => array(
                 'type' => 'date',
@@ -168,6 +194,24 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                         return $value;
                     }
                 ),
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    global $_ARRAYLANG;
+                    return $this->addUnlimitedCheckbox(
+                        $fieldname,
+                        $fieldtype,
+                        $fieldvalue,
+                        $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_END_TIME_UNLIMITED']
+                    );
+                },
+                'valueCallback' => function($fieldvalue) {
+                    if (!empty($fieldvalue)) {
+                        $fieldvalue = date(ASCMS_DATE_FORMAT_DATE, $fieldvalue);
+                    }
+                    return $fieldvalue;
+                },
+                'storecallback' => function($value) {
+                    return strtotime($value);
+                },
             ),
             'minimumAmount' => array(
                 'attributes' => array(
@@ -190,6 +234,16 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                 'attributes' => array(
                     'style' => 'text-align: right'
                 ),
+                'storecallback' => function($value) {
+                    if (
+                        $this->cx->getRequest()->hasParam('coupon_type', false) &&
+                        $this->cx->getRequest()->getParam('coupon_type', false) !=
+                        'discountRate'
+                    ) {
+                        return '';
+                    }
+                    return $value;
+                },
                 'table' => array(
                     'parse' => function($value) {
                         if (empty($value)) {
@@ -207,6 +261,16 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                     $_ARRAYLANG['discountAmount'],
                     $defaultCurrency->getCode()
                 ),
+                'storecallback' => function($value) {
+                    if (
+                        $this->cx->getRequest()->hasParam('coupon_type', false) &&
+                        $this->cx->getRequest()->getParam('coupon_type', false) !=
+                        'discountAmount'
+                    ) {
+                        return '';
+                    }
+                    return $value;
+                },
                 'table' => array(
                     'parse' => function($value) {
                         if ($value == '0.00') {
@@ -215,8 +279,30 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                         return $value;
                     }
                 ),
+                'tooltip' => '<strong>' .
+                    $_ARRAYLANG['TXT_SHOP_DISCOUNTS_SALE_NOTE_TITLE'] .
+                    '</strong><br/>' . $_ARRAYLANG['TXT_SHOP_DISCOUNTS_SALE_NOTE_TEXT'] .
+                    '<br/><br/><strong>' .
+                    $_ARRAYLANG['TXT_SHOP_DISCOUNTS_MULTIPLE_VAT_NOTE_TITLE'] .
+                    '</strong> <br/>' .
+                    $_ARRAYLANG['TXT_SHOP_DISCOUNTS_MULTIPLE_VAT_NOTE_TEXT']
             ),
             'uses' => array(
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    global $_ARRAYLANG;
+                    return $this->addUnlimitedCheckbox(
+                        $fieldname,
+                        $fieldtype,
+                        $fieldvalue,
+                        $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_USES_UNLIMITED']
+                    );
+                },
+                'storecallback' => function($value) {
+                    if (empty($value)) {
+                        return self::USES_UNLIMITED;
+                    }
+                    return $value;
+                },
                 'table' => array(
                     'parse' => function($value, $rowData) {
                         return $this->getUseStatus($value, $rowData['id']);
@@ -224,6 +310,12 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                 ),
             ),
             'global' => array(
+                'formfield' => function($name, $type, $length, $value) {
+                    return $this->getGlobalAndUserCheckboxes($name, $value);
+                },
+                'storecallback' => function($value) {
+                    return $value == 'couponGlobal';
+                },
                 'table' => array(
                     'parse' => function($value) {
                         global $_ARRAYLANG;
@@ -238,6 +330,19 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
                 'custom' => true,
                 'header' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_TYPE'],
                 'showOverview' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    $types = array(
+                        'discountRate' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_TYPE_RATE'],
+                        'discountAmount' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_TYPE_AMOUNT']
+                    );
+                    $default = !empty($rowData['discountAmount']) ? 'discountAmount' : 'discountRate';
+                    return $this->getCustomRadioButtons(
+                        'coupon_type',
+                        $types,
+                        $default
+                    );
+                }
             ),
             'link' => array(
                 'custom' => true,
@@ -254,6 +359,161 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         return $options;
+    }
+
+    protected function getCustomRadioButtons($name, $options, $default)
+    {
+        $div = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        foreach ($options as $option=>$text) {
+            $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $input = new \Cx\Core\Html\Model\Entity\DataElement($name, $option);
+            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+            $labelText = new \Cx\Core\Html\Model\Entity\TextElement($text);
+            $input->setAttributes(
+                array(
+                    'type' => 'radio',
+                    'id' => $option,
+                )
+            );
+            $label->setAttribute('for', $option);
+
+            if ($option == $default) {
+                $input->setAttribute('checked', true);
+            }
+
+            $label->addChild($labelText);
+            $wrapper->addChild($input);
+            $wrapper->addChild($label);
+            $div->addChild($wrapper);
+        }
+
+        return $div;
+    }
+
+    protected function setJavaScriptVariables()
+    {
+        global $_ARRAYLANG;
+
+        $cxJs = \ContrexxJavascript::getInstance();
+        $scope = 'Shop';
+        $cxJs->setVariable(
+            'SHOP_GET_NEW_DISCOUNT_COUPON',
+            \Cx\Modules\Shop\Controller\Coupon::getNewCode(),
+            $scope
+        );
+        $cxJs->setVariable(
+            'TXT_SHOP_GENERATE_NEW_CODE',
+            $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE_NEW'],
+            $scope
+        );
+    }
+
+    protected function addUnlimitedCheckbox($name, $type, $value, $labelText)
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $input = new \Cx\Core\Html\Model\Entity\DataElement($name);
+        $input->setAttribute('type', 'text');
+
+        if ($type == 'date') {
+            $input->addClass('datepicker');
+            $isChecked = !empty($value);
+        } else {
+            $isChecked = $value > self::USES_UNLIMITED;
+        }
+
+        $text = new \Cx\Core\Html\Model\Entity\TextElement($labelText);
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttribute('for', $name . '-unlimited');
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement($name . '-unlimited');
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => $name . '-unlimited',
+                'checked' => $isChecked,
+            )
+        );
+        $checkbox->addClass('shop-unlimited');
+
+        $label->addChild($text);
+        $wrapper->addChildren(array($input, $checkbox, $label));
+
+        return $wrapper;
+    }
+
+    protected function getGlobalAndUserCheckboxes($name, $value)
+    {
+        global $_ARRAYLANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $types = array(
+            'couponGlobal' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_GLOBALLY'],
+            'couponCustomer' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_PER_CUSTOMER']
+        );
+
+        $default = $value || $value === '' ? 'couponGlobal' : 'couponCustomer';
+
+        $checkboxes = $this->getCustomRadioButtons(
+            $name,
+            $types,
+            $default
+        );
+
+        $wrapper->addChild($checkboxes);
+
+        \FWUser::getUserLiveSearch(
+            array(
+                'minLength' => 3,
+                'canCancel' => true,
+                'canClear' => true
+            )
+        );
+
+        $couponId = 0;
+        // Until we know how to get the editId without the $_GET param
+        if ($this->cx->getRequest()->hasParam('editid')) {
+            $couponId = explode(
+                '}',
+                explode(
+                    ',',
+                    $this->cx->getRequest()->getParam('editid')
+                )[1]
+            )[0];
+        }
+
+        $customerId = 0;
+        $customerName = '';
+
+        $coupon = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        )->find($couponId);
+
+        if (!empty($coupon) && !empty($coupon->getCustomer())) {
+            $customer = $coupon->getCustomer();
+            $customerId = $customer->getId();
+            $customerName = $customer->getUsername();
+        }
+
+        $customerWidget = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $customerId = new \Cx\Core\Html\Model\Entity\DataElement('customer', $customerId);
+        $customerName = new \Cx\Core\Html\Model\Entity\DataElement('customer_name', $customerName);
+
+        $widgetDisplay = $value || $value === '' ? 'none' : 'block';
+        $customerWidget->setAttributes(
+            array(
+                'style' => 'display:' . $widgetDisplay,
+                'id' => 'user-live-search'
+            )
+        );
+        $customerId->setAttribute('id', 'customer');
+        $customerId->addClass('live-search-user-id');
+        $customerName->setAttribute('id', 'customer_name');
+        $customerName->addClass('live-search-user-name');
+
+        $customerWidget->addChildren(array($customerId, $customerName));
+        $wrapper->addChild($customerWidget);
+
+        return $wrapper;
     }
 
     protected function getUseStatus($value, $couponId)
@@ -277,4 +537,49 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $uses .' / '. $max;
     }
 
+    protected function getDropdownWithOtherDefault($name, $value, $entityName)
+    {
+        global $_ARRAYLANG;
+
+        $entities = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\\Modules\\Shop\\Model\\Entity\\' . $entityName
+        )->findAll();
+
+        $validValues = array($_ARRAYLANG['TXT_SHOP_PAYMENT_ANY']);
+        foreach ($entities as $entity) {
+            $validValues[$entity->getId()] = $entity;
+        }
+
+        $dropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            $name,
+            $value->getId(),
+            'select',
+            null,
+            $validValues
+        );
+
+        return $dropdown;
+    }
+
+    protected function getCouponLink($rowData)
+    {
+        $url = \Cx\Core\Routing\Url::fromModuleAndCmd('Shop');
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $icon = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $input = new \Cx\Core\Html\Model\Entity\DataElement(
+            'coupon-url-link',
+            $url->toString() . '?coupon_code=' . $rowData['code']
+        );
+
+        $wrapper->addClass('coupon-url');
+        $icon->addClass('coupon-url-icon icon_url');
+        $input->addClass('coupon-url-link');
+        $icon->allowDirectClose(true);
+        $icon->addChild(new \Cx\Core\Html\Model\Entity\TextElement(''));
+
+        $wrapper->addChildren(array($icon, $input));
+
+        return $wrapper;
+    }
 }
