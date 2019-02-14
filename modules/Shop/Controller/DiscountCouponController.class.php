@@ -590,10 +590,14 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
      */
     static function getNewCode()
     {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        );
         $code = null;
         while (true) {
             $code = \User::make_password(8, false);
-            if (!self::codeExists($code)) break;
+            if (!empty($couponRepo->findOneBy(array('code' => $code)))) break;
         }
         return $code;
     }
