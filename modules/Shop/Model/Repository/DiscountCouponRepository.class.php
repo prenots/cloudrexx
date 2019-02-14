@@ -152,4 +152,25 @@ class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
         self::$hasMessage[$type] = true;
         return $hasMessage;
     }
+
+    /**
+     * Returns the number of Coupons defined
+     *
+     * @todo    If the $active parameter value is set, limit the number to
+     * Coupons of the given status (not implemented yet)
+     * @return  integer               The number of Coupons
+     */
+    public function count_available()//$active=true)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('count(*)')
+            ->from($this->_entityName);
+
+        if (!empty($qb->getQuery()->getResult()[1])) {
+            // The Coupon has been used for so much already
+            return $qb->getQuery()->getResult()[1];
+        }
+        return 0;
+    }
+
 }

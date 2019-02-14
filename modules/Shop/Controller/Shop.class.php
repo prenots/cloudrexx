@@ -3577,8 +3577,12 @@ die("Shop::processRedirect(): This method is obsolete!");
                     \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(-$total_discount_amount),
             ));
         }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        );
         // Show the Coupon code field only if there is at least one defined
-        if (Coupon::count_available()) {
+        if ($couponRepo->count_available()) {
             self::$objTemplate->setVariable(array(
                 'SHOP_DISCOUNT_COUPON_CODE' => $_SESSION['shop']['coupon_code'],
             ));

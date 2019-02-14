@@ -1005,8 +1005,13 @@ die("Cart::view(): ERROR: No template");
             'SHOP_PRICE_UNIT' => \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencySymbol(),
         ));
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        );
+
         // Show the Coupon code field only if there is at least one defined
-        if (Coupon::count_available()) {
+        if ($couponRepo->count_available()) {
 //DBG::log("Coupons available");
             $objTemplate->setVariable(array(
                 'SHOP_DISCOUNT_COUPON_CODE' =>

@@ -107,27 +107,6 @@ class Coupon
     }
 
     /**
-     * Returns the number of Coupons defined
-     *
-     * @todo    If the $active parameter value is set, limit the number to
-     * Coupons of the given status (not implemented yet)
-     * @return  integer               The number of Coupons
-     */
-    static function count_available()//$active=true)
-    {
-        global $objDatabase;
-
-        $query = "
-            SELECT COUNT(*) AS `numof_records`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_discount_coupon`";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return self::errorHandler();
-        if ($objResult->EOF) return 0;
-        return $objResult->fields['numof_records'];
-    }
-
-
-    /**
      * Tries to fix any database related problems
      * @return  boolean     false     Always!
      * @throws  Cx\Lib\Update_DatabaseException
