@@ -1330,9 +1330,10 @@ if (!$limit) {
         // in this method, but only if $create_accounts is true.
         $coupon_code = NULL;
         $coupon_amount = 0;
-        $objCoupon = $cx->getDb()->getEntityManager()->getRepository(
+        $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
             'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
-        )->find($order_id);
+        );
+        $objCoupon = $couponRepo->find($order_id);
 
         if ($objCoupon) {
             $coupon_code = $objCoupon->getCode();
@@ -1508,7 +1509,7 @@ if (!$limit) {
                 }
                 // Redeem the *product* Coupon, if possible for the Product
                 if ($coupon_code) {
-                    $objCoupon = Coupon::available($coupon_code,
+                    $objCoupon = $couponRepo->available($coupon_code,
                         $item_price*$quantity, $customer_id, $product_id,
                         $payment_id);
                     if ($objCoupon) {
@@ -1532,7 +1533,7 @@ if (!$limit) {
         $arrSubstitution['ORDER_ITEM_COUNT'] = sprintf('% 4u', $orderItemCount);
         // Redeem the *global* Coupon, if possible for the Order
         if ($coupon_code) {
-            $objCoupon = Coupon::available($coupon_code,
+            $objCoupon = $couponRepo->available($coupon_code,
                 $total_item_price, $customer_id, null, $payment_id);
             if ($objCoupon) {
                 $coupon_amount = $objCoupon->getDiscountAmountOrRate(
@@ -1545,7 +1546,7 @@ if (!$limit) {
         \Message::restore();
         // Fill in the Coupon block with proper discount and amount
         if ($objCoupon) {
-            $coupon_code = $objCoupon->code();
+            $coupon_code = $objCoupon->getCode();
 //\DBG::log("Orders::getSubstitutionArray(): Coupon $coupon_code, amount $coupon_amount");
         }
         if ($coupon_amount) {

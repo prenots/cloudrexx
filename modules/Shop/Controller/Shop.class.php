@@ -4136,6 +4136,10 @@ die("Shop::processRedirect(): This method is obsolete!");
 //\DBG::log("Cart::update(): Coupon Code: $coupon_code");
         $items_total = 0;
 
+        $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        );
+
         // Suppress Coupon messages (see Coupon::available())
         \Message::save();
         foreach (Cart::get_products_array() as $arrProduct) {
@@ -4178,7 +4182,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             // Store the Product Coupon, if applicable.
             // Note that it is not redeemed yet (uses=0)!
             if ($coupon_code) {
-                $objCoupon = Coupon::available($coupon_code, $item_total,
+                $objCoupon = $couponRepo->available($coupon_code, $item_total,
                     self::$objCustomer->id(), $product_id, $payment_id);
                 if ($objCoupon) {
 //\DBG::log("Shop::process(): Got Coupon for Product ID $product_id: ".var_export($objCoupon, true));
@@ -4195,7 +4199,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         // Note that it is not redeemed yet (uses=0)!
 //\DBG::log("Shop::process(): Looking for global Coupon $coupon_code");
         if ($coupon_code) {
-            $objCoupon = Coupon::available($coupon_code, $items_total,
+            $objCoupon = $couponRepo->available($coupon_code, $items_total,
                 self::$objCustomer->id(), null, $payment_id);
             if ($objCoupon) {
 //\DBG::log("Shop::process(): Got global Coupon: ".var_export($objCoupon, true));

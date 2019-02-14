@@ -590,6 +590,10 @@ class Cart
         $objCoupon = null;
         $hasCoupon = false;
         $discount_amount = 0;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        );
         foreach (self::$products as $cart_id => &$product) {
             $discount_amount = 0;
             $product['discount_amount'] = 0;
@@ -597,7 +601,7 @@ class Cart
             // Coupon case #1: Product specific coupon
             // Coupon:  Either the payment ID or the code are needed
             if ($payment_id || $coupon_code) {
-                $objCoupon = Coupon::available(
+                $objCoupon = $couponRepo->available(
                     $coupon_code, $total_price, $customer_id,
                     $product['id'], $payment_id);
                 if ($objCoupon) {
@@ -609,15 +613,15 @@ class Cart
                     // product, then we have to check if the discount (to be
                     // applied on the current product) will exceed the total
                     // coupon value
-                    if (   $objCoupon->discount_amount() > 0
+                    if (   $objCoupon->getDiscountAmount() > 0
                         && ($total_discount_amount + $discount_amount)
-                            > $objCoupon->discount_amount()) {
+                            > $objCoupon->getDiscountAmount()) {
                         // Already applied discounts plus the discount of this
                         // product exceed the coupons total value. Therefore
                         // we must subtract the applied discounts from the
                         // coupon to get the remaining discount amount.
                         $discount_amount =
-                            $objCoupon->discount_amount()
+                            $objCoupon->getDiscountAmount()
                           - $total_discount_amount;
                     }
                     $total_discount_amount += $discount_amount;
@@ -649,7 +653,7 @@ class Cart
 
             // supply $total_price (without VAT) to Coupon::available()
             // for checking if minimum order amount has reached
-            $objCoupon = Coupon::available(
+            $objCoupon = $couponRepo->available(
                 $coupon_code, $total_price, $customer_id, 0, $payment_id);
 
             // verify that coupon is valid with VAT
@@ -660,7 +664,7 @@ class Cart
                 // TODO: extend the Shop system to support different VAT
                 //       rates on coupons
                 if (Vat::isEnabled() &&
-                    $objCoupon->discount_amount() > 0 &&
+                    $objCoupon->getDiscountAmount() > 0 &&
                     count($usedVatRates) > 1
                 ) {
                     $objCoupon = null;
@@ -677,20 +681,20 @@ class Cart
                 // in case VAT is being used, we have to subtract the VAT of
                 // the discount from the total VAT amount of the products
                 if (Vat::isEnabled()) {
-                    if ($objCoupon->discount_amount() > 0) {
+                    if ($objCoupon->getDiscountAmount() > 0) {
                         $vatRate = current($usedVatRates);
                         // in case coupon is a discount of value, then we
                         // have to subtract the VAT amount of that value
                         if (Vat::isIncluded()) {
-                            $total_vat_amount -= $objCoupon->discount_amount() / (1 + $vatRate / 100) * $vatRate / 100;
+                            $total_vat_amount -= $objCoupon->getDiscountAmount() / (1 + $vatRate / 100) * $vatRate / 100;
                         } else {
-                            $total_vat_amount -= $objCoupon->discount_amount() * $vatRate / 100;
+                            $total_vat_amount -= $objCoupon->getDiscountAmount() * $vatRate / 100;
                         }
                     } else {
                         // in case coupon is a discount in percent, then we
                         // have to subtract the same percentage from the total
                         // VAT amount
-                        $total_vat_amount -= $total_vat_amount * $objCoupon->discount_rate() / 100;
+                        $total_vat_amount -= $total_vat_amount * $objCoupon->getDiscountRate() / 100;
                     }
                 }
             }
