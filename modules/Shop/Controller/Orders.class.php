@@ -1490,9 +1490,17 @@ if (!$limit) {
                             $arrProduct['COUPON_DATA'] = array();
 //DBG::log("Orders::getSubstitutionArray(): Getting code");
                         $code = Coupon::getNewCode();
-//DBG::log("Orders::getSubstitutionArray(): Got code: $code, calling Coupon::addCode($code, 0, 0, 0, $item_price)");
-                        Coupon::storeCode(
-                            $code, 0, 0, 0, $item_price, 0, 0, 1e10, true);
+
+                        $newCoupon = new \Cx\Modules\Shop\Model\Entity\DiscountCoupon();
+                        $newCoupon->setCode($code);
+                        $newCoupon->setDiscountAmount($item_price);
+                        $newCoupon->setGlobal(true);
+                        $newCoupon->setUses(1e10);
+
+                        $em = $cx->getDb()->getEntityManager();
+                        $em->persist($newCoupon);
+                        $em->flush();
+
                         $arrProduct['COUPON_DATA'][] = array(
                             'COUPON_CODE' => $code
                         );
