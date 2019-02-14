@@ -1879,12 +1879,16 @@ class Order
         //}
 // Parse Coupon if applicable to this product
         // Coupon
-        $objCoupon = Coupon::getByOrderId($order_id);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $objCoupon = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        )->find($order_id);
         if ($objCoupon) {
-            $discount = $objCoupon->discount_amount() != 0 ? $objCoupon->discount_amount() : $total_net_price/100*$objCoupon->discount_rate();
+            $discount = $objCoupon->getDiscountAmount() != 0 ? $objCoupon->getDiscountAmount() : $total_net_price/100*$objCoupon->getDiscountRate();
             $objTemplate->setVariable(array(
                 'SHOP_COUPON_NAME' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'],
-                'SHOP_COUPON_CODE' => $objCoupon->code(),
+                'SHOP_COUPON_CODE' => $objCoupon->getCode(),
                 'SHOP_COUPON_AMOUNT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                     -$discount),
             ));

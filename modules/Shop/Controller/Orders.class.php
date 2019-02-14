@@ -1330,9 +1330,12 @@ if (!$limit) {
         // in this method, but only if $create_accounts is true.
         $coupon_code = NULL;
         $coupon_amount = 0;
-        $objCoupon = Coupon::getByOrderId($order_id);
+        $objCoupon = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+        )->find($order_id);
+
         if ($objCoupon) {
-            $coupon_code = $objCoupon->code();
+            $coupon_code = $objCoupon->getCode();
         }
         $orderItemCount = 0;
         $total_item_price = 0;
