@@ -10,4 +10,69 @@ namespace Cx\Modules\Shop\Model\Repository;
  */
 class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Returns the count of the uses for the given code
+     *
+     * The optional $customer_id limits the result to the uses of that
+     * Customer.
+     * Returns 0 (zero) for codes not present in the relation (yet).
+     * @param   string    $code           code of coupon
+     * @param   integer   $customer_id    The optional Customer ID
+     * @return  mixed                     The number of uses of the code
+     *                                    on success, false otherwise
+     */
+    public function getUsedCount($code, $customerId = 0)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('sum(rcc.count)')
+            ->from($this->_entityName, 'rcc')
+            ->where($qb->expr()->eq('rcc.code', '?1'))
+            ->setParameter(1, $code);
+        if (!empty($customerId)) {
+            $qb->andWhere($qb->expr()->eq('rcc.customerId', '?2'))
+                ->setParameter(2, $customerId);
+        }
+
+        if (!empty($qb->getQuery()->getResult()[1])) {
+            return $qb->getQuery()->getResult()[1];
+        }
+        return 0;
+    }
+
+
+    /**
+     * Returns the discount amount used with this Coupon
+     *
+     * The optional $customer_id and $order_id limit the result to the uses
+     * of that Customer and Order.
+     * Returns 0 (zero) for Coupons that have not been used with the given
+     * parameters, and thus are not present in the relation.
+     * @param   integer   $customer_id    The optional Customer ID
+     * @param   integer   $order_id       The optional Order ID
+     * @return  mixed                     The amount used with this Coupon
+     *                                    on success, false otherwise
+     */
+    public function getUsedAmount($code, $customer_id=NULL, $order_id=NULL)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('sum(rcc.amount)')
+            ->from($this->_entityName, 'rcc')
+            ->where($qb->expr()->eq('rcc.code', '?1'))
+            ->setParameter(1, $code);
+        if (!empty($customer_id)) {
+            $qb->andWhere($qb->expr()->eq('rcc.customerId', '?2'))
+                ->setParameter(2, $customer_id);
+        }
+        if (!empty($order_id)) {
+            $qb->andWhere($qb->expr()->eq('rcc.orderId', '?3'))
+                ->setParameter(3, $order_id);
+        }
+
+        if (!empty($qb->getQuery()->getResult()[1])) {
+            // The Coupon has been used for so much already
+            return $qb->getQuery()->getResult()[1];
+        }
+        return 0;
+    }
+
 }

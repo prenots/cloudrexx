@@ -423,32 +423,42 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Returns the count of the uses for the given code
+     * Returns the count of the uses for this coupon
      *
      * The optional $customer_id limits the result to the uses of that
      * Customer.
      * Returns 0 (zero) for codes not present in the relation (yet).
-     * @param   integer   $customer_id    The optional Customer ID
      * @return  mixed                     The number of uses of the code
      *                                    on success, false otherwise
      */
     public function getUsedCount($customerId = 0)
     {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-        $qb = $em->createQueryBuilder();
-        $qb->select('sum(rcc.count)')
-            ->from('Cx\Modules\Shop\Model\Entity\RelCustomerCoupon', 'rcc')
-            ->where($qb->expr()->eq('rcc.code', '?1'))
-            ->setParameter(1, $this->code);
-        if (!empty($customerId)) {
-            $qb->andWhere($qb->expr()->eq('rcc.customerId', '?2'))
-                ->setParameter(2, $customerId);
-        }
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        return $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
+        )->getUsedCount($this->code, $customerId);
+    }
 
-        if (!empty($qb->getQuery()->getResult()[1])) {
-            return $qb->getQuery()->getResult()[1];
-        }
-        return 0;
+    /**
+     * Returns the discount amount used with this Coupon
+     *
+     * The optional $customer_id and $order_id limit the result to the uses
+     * of that Customer and Order.
+     * Returns 0 (zero) for Coupons that have not been used with the given
+     * parameters, and thus are not present in the relation.
+     * @param   integer   $customer_id    The optional Customer ID
+     * @param   integer   $order_id       The optional Order ID
+     * @return  mixed                     The amount used with this Coupon
+     *                                    on success, false otherwise
+     */
+    public function getUsedAmount($customer_id = null, $order_id = null)
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        return $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
+        )->getUsedAmount($this->code, $customer_id, $order_id);
     }
 
     /**
