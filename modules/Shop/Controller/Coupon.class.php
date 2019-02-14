@@ -54,25 +54,6 @@ namespace Cx\Modules\Shop\Controller;
  */
 class Coupon
 {
-    /**
-     * This ensures that only one error message per type is shown
-     * @var array
-     */
-    protected static $hasMessage = array();
-
-
-    /**
-     * This ensures that for every message type, only the first one is shown
-     * @todo Move this behavior to Message class
-     * @param string $type Type name
-     * @return boolean Whether we already had such a message or not
-     */
-    protected static function hasMessage($type) {
-        $hasMessage = (isset(self::$hasMessage[$type]) && self::$hasMessage[$type]);
-        self::$hasMessage[$type] = true;
-        return $hasMessage;
-    }
-
 
     /**
      * Redeem the given coupon code
