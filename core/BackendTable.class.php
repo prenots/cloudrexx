@@ -319,7 +319,13 @@ class BackendTable extends HTML_Table {
             // adjust colspan of master-table-header-row
             $this->altRowAttributes(1 + $this->hasMasterTableHeader, array('class' => 'row1'), array('class' => 'row2'), true);
             if ($this->hasMasterTableHeader) {
-                $this->setCellAttributes(0, 0, array('colspan' => $col + is_array($options['functions'])));
+                for ($i = 1; $i < $col; $i++) {
+                    $this->setHeaderContents(0, $i, '');
+                }
+                // prepare overall functions code
+                $overallFunctionsCode = $this->getOverallFunctionsCode($options['functions'], $attrs);
+                $this->setHeaderContents(0, $i, $overallFunctionsCode);
+                $this->updateCellAttributes(0, $col, array('style' => 'text-align:right;'));
                 $this->updateRowAttributes(1, array('class' => 'row3'), true);
             }
             // add multi-actions
@@ -503,8 +509,15 @@ class BackendTable extends HTML_Table {
 
         $baseUrl = $functions['baseUrl'];
         $code = '<span class="functions">';
-        $editUrl = clone $baseUrl;
+        $editUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
+            $functions['vg_increment_number'],
+            $rowname,
+            clone $baseUrl
+        );
         $params = $editUrl->getParamArray();
+        if (isset($functions['sortBy']) && isset($functions['sortBy']['field'])) {
+            $editUrl->setParam($functions['sortBy']['field'] . 'Pos', null);
+        }
         $editId = '';
         if (!empty($params['editid'])) {
             $editId = $params['editid'] . ',';
@@ -538,7 +551,7 @@ class BackendTable extends HTML_Table {
 
         if(!$virtual){
             if (isset($functions['copy']) && $functions['copy']) {
-                $actionUrl = clone \Cx\Core\Core\Controller\Cx::instanciate()->getRequest()->getUrl();
+                $actionUrl = clone $editUrl;
                 $actionUrl->setParam('copy', $editId);
                 //remove the parameter 'vg_increment_number' from actionUrl
                 //if the baseUrl contains the parameter 'vg_increment_number'
@@ -550,7 +563,6 @@ class BackendTable extends HTML_Table {
 
             }
             if (isset($functions['edit']) && $functions['edit']) {
-                $editUrl->setParam('editid', $editId);
                 //remove the parameter 'vg_increment_number' from editUrl
                 //if the baseUrl contains the parameter 'vg_increment_number'
                 if (isset($params['vg_increment_number'])) {
@@ -570,6 +582,49 @@ class BackendTable extends HTML_Table {
             }
         }
         return $code . '</span>';
+    }
+
+    /**
+     * Returns HTML code for functions regarding all entries
+     * @param array $functions Function config
+     * @param Object $renderObject Currently rendered object
+     * @return string HTML
+     */
+    protected function getOverallFunctionsCode($functions, $renderObject) {
+        if (
+            isset($functions['export']) &&
+            is_array($functions['export']) &&
+            $renderObject instanceof \Cx\Core_Modules\Listing\Model\Entity\DataSet
+        ) {
+            $_ARRAYLANG = \Env::get('init')->getComponentSpecificLanguageData(
+                'Html',
+                false
+            );
+            $adapter = 'Html';
+            $method = 'export';
+            if (
+                isset($functions['export']['jsonadapter']) &&
+                isset($functions['export']['jsonadapter']['adapter']) &&
+                isset($functions['export']['jsonadapter']['method'])
+            ) {
+                $adapter = $functions['export']['jsonadapter']['adapter'];
+                $method = $functions['export']['jsonadapter']['method'];
+            }
+            $exportFunc = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+            $exportIcon = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+            $exportIcon->setAttribute('src', '/core/Html/View/Media/export.png');
+            $exportIcon->setAttribute('style', 'filter: invert(100%);');
+            $exportFunc->addChild($exportIcon);
+            $exportFunc->setAttributes(array(
+                'data-adapter' => $adapter,
+                'data-method' => $method,
+                'data-object' => $renderObject->getDataType(),
+                'title' => $_ARRAYLANG['TXT_CORE_HTML_EXPORT'],
+            ));
+            $exportFunc->addClass('vg-export');
+            return (string) $exportFunc;
+        }
+        return '';
     }
 
     /**
