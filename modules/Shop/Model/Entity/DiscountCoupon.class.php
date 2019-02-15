@@ -511,7 +511,7 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * @return  Coupon                      The Coupon on success,
      *                                      false otherwise
      */
-    function redeem($order_id, $customer_id, $amount, $uses=1)
+    public function redeem($order_id, $customer_id, $amount, $uses=1)
     {
         // Applicable discount amount
         $amount = $this->getDiscountAmountOrRate($amount);

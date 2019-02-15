@@ -109,19 +109,20 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
                 'customerId' => $customer_id
             )
         );
-        if (!empty($customerCoupon)) {
+        if (empty($customerCoupon)) {
             $order = $this->_em->find('Cx\Modules\Shop\Model\Entity\Order', $order_id);
             $customer = $this->_em->find('Cx\Core\User\Model\Entity\User', $customer_id);
 
-            $customerCoupon = \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon();
+            $customerCoupon = new \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon();
             $customerCoupon->setCode($code);
             $customerCoupon->setOrder($order);
+            $customerCoupon->setOrderId($order_id);
             $customerCoupon->setCustomer($customer);
+            $customerCoupon->setCustomerId($customer_id);
             $customerCoupon->setAmount($amount);
-            $customerCoupon->setUses($uses);
         }
 
-        $customerCoupon->setUses($uses);
+        $customerCoupon->setCount($uses);
         $this->_em->persist($customerCoupon);
         $this->_em->flush();
 

@@ -165,9 +165,9 @@ class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->_em->createQueryBuilder();
         $qb->select('count(dc)')->from($this->_entityName, 'dc');
 
-        if (!empty($qb->getQuery()->getResult()[1])) {
+        if (!empty($qb->getQuery()->getResult()[0][1])) {
             // The Coupon has been used for so much already
-            return $qb->getQuery()->getResult()[1];
+            return $qb->getQuery()->getResult()[0][1];
         }
         return 0;
     }
