@@ -324,6 +324,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $options;
     }
 
+    /**
+     * Set JavaScript variables for multi action delete.
+     *
+     * @param $message string message to display before delete
+     * @param $options array  ViewGenerator options
+     * @return array updated array with ViewGenerator options
+     */
     protected function normalDelete($message, $options)
     {
         global $_ARRAYLANG;
