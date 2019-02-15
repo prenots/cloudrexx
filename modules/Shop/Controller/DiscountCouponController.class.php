@@ -597,7 +597,8 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         $code = null;
         while (true) {
             $code = \User::make_password(8, false);
-            if (!empty($couponRepo->findOneBy(array('code' => $code)))) break;
+            $coupon = $couponRepo->findOneBy(array('code' => $code));
+            if (empty($coupon)) break;
         }
         return $code;
     }
