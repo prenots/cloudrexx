@@ -280,6 +280,7 @@ class FormGenerator {
      */
     public function getDataElement($name, $title, $type, $length, $value, &$options, $entityId) {
         global $_ARRAYLANG, $_CORELANG;
+
         if (isset($options['valueCallback'])) {
             $rowData = is_array($this->entity) ? $this->entity : array();
 
