@@ -86,7 +86,6 @@ class BackendTable extends HTML_Table {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
 
         $this->viewGenerator = $viewGenerator;
-
         if (!empty($options['functions']['editable'])) {
             $this->editable = true;
         }
