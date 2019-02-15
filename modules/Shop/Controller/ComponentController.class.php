@@ -290,7 +290,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * list statements like
      * $this->cx->getEvents()->addEventListener($eventName, $listener);
      */
-    public function registerEventListeners() {
+    public function registerEventListeners()
+    {
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
         $eventListenerTemp = new \Cx\Modules\Shop\Model\Event\RolloutTextSyncListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
@@ -298,29 +299,29 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
         $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
 
-        $this->cx->getEvents()->addModelListener(
-            \Doctrine\ORM\Events::prePersist,
-            'Cx\\Modules\\Shop\\Model\\Entity\\Currency',
-            new \Cx\Modules\Shop\Model\Event\CurrencyEventListener($this->cx)
+        $modelEvents = array(
+            \Doctrine\ORM\Events::prePersist => array(
+                'Currency',
+                'DiscountCoupon'
+            ),
+            \Doctrine\ORM\Events::preUpdate => array(
+                'Currency',
+                'DiscountCoupon'
+            ),
         );
 
-        $this->cx->getEvents()->addModelListener(
-            \Doctrine\ORM\Events::preUpdate,
-            'Cx\\Modules\\Shop\\Model\\Entity\\Currency',
-            new \Cx\Modules\Shop\Model\Event\CurrencyEventListener($this->cx)
-        );
+        foreach ($modelEvents as $eventName => $entities) {
+            foreach ($entities as $entity) {
+                $modelEventListener = '\\Cx\\Modules\\Shop\\Model\\Event\\' .
+                    $entity . 'EventListener';
 
-        $this->cx->getEvents()->addModelListener(
-            \Doctrine\ORM\Events::prePersist,
-            'Cx\\Modules\\Shop\\Model\\Entity\\DiscountCoupon',
-            new \Cx\Modules\Shop\Model\Event\DiscountCouponEventListener($this->cx)
-        );
-
-        $this->cx->getEvents()->addModelListener(
-            \Doctrine\ORM\Events::preUpdate,
-            'Cx\\Modules\\Shop\\Model\\Entity\\DiscountCoupon',
-            new \Cx\Modules\Shop\Model\Event\DiscountCouponEventListener($this->cx)
-        );
+                $this->cx->getEvents()->addModelListener(
+                    $eventName,
+                    'Cx\\Modules\\Shop\\Model\\Entity\\' . $entity,
+                    new $modelEventListener($this->cx)
+                );
+            }
+        }
     }
 
     /**
@@ -329,7 +330,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * Do not do anything else here than list statements like
      * $this->cx->getEvents()->addEvent($eventName);
      */
-    public function registerEvents() {
+    public function registerEvents()
+    {
         $this->cx->getEvents()->addEvent('TmpShopText:Replace');
         $this->cx->getEvents()->addEvent('TmpShopText:Delete');
     }
