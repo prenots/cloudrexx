@@ -521,7 +521,7 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
         $em = $cx->getDb()->getEntityManager();
 
         return $em->getRepository(
-            'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
+            'Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
         )->redeem($this->getCode(), $order_id, $customer_id, $amount, $uses);
     }
 
