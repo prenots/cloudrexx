@@ -771,3 +771,4 @@ $_ARRAYLANG['global'] = 'Gültigkeit';
 $_ARRAYLANG['product'] = 'Product';
 $_ARRAYLANG['payment'] = 'Bezahlung';
 $_ARRAYLANG['link'] = 'Link';
+$_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
