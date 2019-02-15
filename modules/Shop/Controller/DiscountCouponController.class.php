@@ -50,6 +50,7 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
      * Get ViewGenerator options for DiscountCoupon entity
      *
      * @param $options array predefined ViewGenerator options
+     * @throws \Doctrine\ORM\ORMException
      * @return array includes ViewGenerator options for Manufacturer entity
      */
     public function getViewGeneratorOptions($options)
@@ -361,6 +362,14 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $options;
     }
 
+    /**
+     * Return a div with radio buttons.
+     *
+     * @param $name    string field name
+     * @param $options array  contains content for radio buttons
+     * @param $default string define which button is selected
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
     protected function getCustomRadioButtons($name, $options, $default)
     {
         $div = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
@@ -390,6 +399,9 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $div;
     }
 
+    /**
+     * Sets all variables used in the JavaScript code.
+     */
     protected function setJavaScriptVariables()
     {
         global $_ARRAYLANG;
@@ -408,6 +420,15 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         );
     }
 
+    /**
+     * Append a checkbox to the normal input field.
+     *
+     * @param $name      string name of the input field
+     * @param $type      string type of the input field
+     * @param $value     string value of the input field
+     * @param $labelText string label which the checkbox should have
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
     protected function addUnlimitedCheckbox($name, $type, $value, $labelText)
     {
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
@@ -440,6 +461,15 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
+    /**
+     * Get the detail elements for the global field. Contains a checkbox to
+     * select global or customer and a customer live search.
+     *
+     * @param $name  string name of the input field
+     * @param $value string value of the input field
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     * @throws \Exception
+     */
     protected function getGlobalAndUserCheckboxes($name, $value)
     {
         global $_ARRAYLANG;
@@ -516,6 +546,13 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
+    /**
+     * Get ratio of used and max uses of a coupon.
+     *
+     * @param $value    string uses of this coupon
+     * @param $couponId int    id of coupon
+     * @return string
+     */
     protected function getUseStatus($value, $couponId)
     {
         global $_ARRAYLANG;
@@ -537,6 +574,15 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $uses .' / '. $max;
     }
 
+    /**
+     * Set $_ARRAYLANG['TXT_SHOP_PAYMENT_ANY'] as first element of a
+     * dropdown.
+     *
+     * @param $name       string name of dropdown
+     * @param $value      string selected dropdown option
+     * @param $entityName string name of selected entity
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
     protected function getDropdownWithOtherDefault($name, $value, $entityName)
     {
         global $_ARRAYLANG;
@@ -561,6 +607,13 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
         return $dropdown;
     }
 
+    /**
+     * Return an element to display the coupon link.
+     *
+     * @param $rowData array contain data of entity
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     * @throws \Cx\Core\Routing\UrlException
+     */
     protected function getCouponLink($rowData)
     {
         $url = \Cx\Core\Routing\Url::fromModuleAndCmd('Shop');
