@@ -137,6 +137,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'modifiedOn',
                 'modifiedBy',
                 'lang',
+                'titleAddress',
                 'billingCompany',
                 'billingGender',
                 'billingLastname',
@@ -158,13 +159,16 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'country',
                 'phone',
                 'shipper',
+                'titlePaymentInfos',
                 'payment',
                 'lsvs',
+                'titleBill',
                 'orderItems',
                 'vatAmount',
                 'shipmentAmount',
                 'paymentAmount',
                 'sum',
+                'titleNote',
                 'note'
             )
         );
@@ -565,7 +569,50 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 ) {
                     return $this->getCustomerGroupMenu($elementName, $formName);
                 },
-            )
+            ),
+            'titleAddress' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array(
+                            $_ARRAYLANG['TXT_BILLING_ADDRESS'],
+                            $_ARRAYLANG['TXT_SHIPPING_ADDRESS']
+                        )
+                    );
+                }
+            ),
+            'titlePaymentInfos' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array($_ARRAYLANG['TXT_PAYMENT_INFORMATIONS'])
+                    );
+                }
+            ),
+            'titleBill' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array($_ARRAYLANG['TXT_BILL'])
+                    );
+                }
+            ),
+            'titleNote' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array($_ARRAYLANG['TXT_CUSTOMER_REMARKS'])
+                    );
+                }
+            ),
         );
         $order = new \Cx\Modules\Shop\Model\Entity\Order();
         if (!empty($this->orderId)) {
@@ -1714,5 +1761,21 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 $defaultCurrency->getSymbol(),
         ));
         return true;
+    }
+
+    protected function getTitleRow($titles)
+    {
+        $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
+        $tr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+
+        foreach ($titles as $title) {
+            $th = new \Cx\Core\Html\Model\Entity\HtmlElement('th');
+            $title = new \Cx\Core\Html\Model\Entity\TextElement($title);
+            $th->addChild($title);
+            $tr->addChild($th);
+        }
+        $table->addChild($tr);
+        $table->addClass('adminlist title-table');
+        return $table;
     }
 }
