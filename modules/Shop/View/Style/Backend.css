@@ -35,7 +35,7 @@
 
 .custom-input {
     float: right;
-    margin-right: 125px;
+    margin-right: 57px;
     font-weight: bold;
 }
 .custom-input input {
@@ -101,4 +101,36 @@ span.child label.category {
 }
 #footerRight, #headerRight {
     text-align: right;
+}
+.title-table {
+    margin-left: -201px;
+    width: calc(100% + 205px);
+    margin-bottom: -3px;
+    margin-top: 10px;
+}
+label[for="form-0-titleAddress"],
+label[for="form-0-titlePaymentInfos"],
+label[for="form-0-titleBill"],
+label[for="form-0-titleNote"],
+label[for="form-0-orderItems"],
+label[for="form-0-vatAmount"],
+label[for="form-0-shipmentAmount"],
+label[for="form-0-paymentAmount"],
+label[for="form-0-sum"] {
+    display:none;
+}
+
+#form-0-orderItems {
+    margin-left: -200px;
+    width: calc(100% + 200px);
+    border-collapse: collapse;
+    margin-bottom: -4px;
+}
+
+#form-0-orderItems td {
+    padding: 3px;
+}
+
+#form-0-orderItems tr {
+    border-bottom: #e5e5e5 1px solid;
 }
