@@ -118,9 +118,18 @@ CREATE TABLE `contrexx_access_users` (
   `restore_key` varchar(32) NOT NULL DEFAULT '',
   `restore_key_time` int NOT NULL DEFAULT '0',
   `u2u_active` enum('0','1') NOT NULL DEFAULT '1',
+  `2fa_active` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `username` (`username`)
 ) ENGINE=InnoDB ;
+CREATE TABLE `contrexx_core_user_twofactor_authentication` (
+  `id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `name` VARCHAR(45) DEFAULT NULL,
+  `data` LONGTEXT NOT NULL COMMENT '(DC2Type:array)',
+  INDEX IDX_AB3BBFB3A76ED395 (`user_id`),
+  PRIMARY KEY(`id`)
+) ENGINE = InnoDB;
 CREATE TABLE `contrexx_backend_areas` (
   `area_id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `parent_area_id` int(6) unsigned NOT NULL DEFAULT '0',
@@ -3832,6 +3841,7 @@ ALTER TABLE contrexx_core_module_sync_change_host ADD CONSTRAINT FK_92C38FE01FB8
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_locale` FOREIGN KEY (`language`) REFERENCES `contrexx_core_locale_locale` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_view_frontend ADD CONSTRAINT `contrexx_core_view_frontend_ibfk_theme` FOREIGN KEY (`theme`) REFERENCES `contrexx_skins` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE contrexx_core_locale_backend ADD CONSTRAINT FK_B8F1327C4FC20EF FOREIGN KEY (iso_1) REFERENCES contrexx_core_locale_language (iso_1) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `contrexx_core_user_twofactor_authentication` ADD CONSTRAINT FK_AB3BBFB3A76ED395 FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`);
 CREATE VIEW `contrexx_access_user_title` AS SELECT `order` AS id, name as title, 0 as order_id
 FROM `contrexx_access_user_attribute_name` AS `name`
 WHERE `name`.`order` > 0;
