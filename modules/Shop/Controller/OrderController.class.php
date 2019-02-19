@@ -573,6 +573,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'titleAddress' => array(
                 'custom' => true,
                 'showOverview' => false,
+                'allowFiltering' => false,
                 'formfield' => function() {
                     global $_ARRAYLANG;
                     return $this->getTitleRow(
@@ -586,6 +587,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'titlePaymentInfos' => array(
                 'custom' => true,
                 'showOverview' => false,
+                'allowFiltering' => false,
                 'formfield' => function() {
                     global $_ARRAYLANG;
                     return $this->getTitleRow(
@@ -596,6 +598,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'titleBill' => array(
                 'custom' => true,
                 'showOverview' => false,
+                'allowFiltering' => false,
                 'formfield' => function() {
                     global $_ARRAYLANG;
                     return $this->getTitleRow(
@@ -606,6 +609,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'titleNote' => array(
                 'custom' => true,
                 'showOverview' => false,
+                'allowFiltering' => false,
                 'formfield' => function() {
                     global $_ARRAYLANG;
                     return $this->getTitleRow(
