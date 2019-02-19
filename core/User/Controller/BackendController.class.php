@@ -245,6 +245,14 @@ class BackendController extends
                         'showOverview' => false,
                         'showDetail' => false,
                     ),
+                    'twoFaActive' => array(
+                        'showOverview' => true,
+                        'showDetail' => true,
+                    ),
+                    'authentications' => array(
+                        'showOverview' => false,
+                        'showDetail' => true,
+                    )
                 );
                 break;
             case 'Cx\Core\User\Model\Entity\Group':
