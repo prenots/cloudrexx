@@ -126,6 +126,12 @@ Cx\Core\User\Model\Entity\User:
       column: u2u_active
       options:
         default: "1"
+    twoFaActive:
+      type: boolean
+      nullable: true
+      column: 2fa_active
+      options:
+        default: false
   indexes:
     username:
       columns: [username]
@@ -146,4 +152,7 @@ Cx\Core\User\Model\Entity\User:
   oneToMany:
     userAttributeValue:
       targetEntity: Cx\Core\User\Model\Entity\UserAttributeValue
+      mappedBy: user
+    authentications:
+      targetEntity: Cx\Core\User\Model\Entity\TwofactorAuthentication
       mappedBy: user

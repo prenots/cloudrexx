@@ -162,6 +162,11 @@ class User extends \Cx\Model\Base\EntityBase {
     protected $u2uActive = '1';
 
     /**
+     * @var boolean
+     */
+    protected $twoFaActive = false;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $group;
@@ -170,6 +175,11 @@ class User extends \Cx\Model\Base\EntityBase {
      * @var \Cx\Core\User\Model\Entity\UserAttributeValue
      */
     protected $userAttributeValue;
+
+    /**
+     * @var \Cx\Core\User\Model\Entity\TwofactorAuthentication
+     */
+    protected $authentications;
 
     /**
      * Constructor
@@ -652,6 +662,26 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
+     * Set faActive
+     *
+     * @param boolean $twoFaActive
+     */
+    public function setTwoFaActive($twoFaActive)
+    {
+        $this->twoFaActive = $twoFaActive;
+    }
+
+    /**
+     * Get 2faActive
+     *
+     * @return boolean
+     */
+    public function getTwoFaActive()
+    {
+        return $this->twoFaActive;
+    }
+
+    /**
      * Add group
      *
      * @param \Cx\Core\User\Model\Entity\Group $group
@@ -712,5 +742,35 @@ class User extends \Cx\Model\Base\EntityBase {
     public function getUserAttributeValue()
     {
         return $this->userAttributeValue;
+    }
+
+    /**
+     * Add child
+     *
+     * @param \Cx\Core\User\Model\Entity\TwofactorAuthentication $child
+     */
+    public function addAuthentications(\Cx\Core\User\Model\Entity\TwofactorAuthentication $authentications)
+    {
+        $this->children[] = $authentications;
+    }
+
+    /**
+     * Remove child
+     *
+     * @param \Cx\Core\User\Model\Entity\TwofactorAuthentication $child
+     */
+    public function removeAuthentications(\Cx\Core\User\Model\Entity\TwofactorAuthentication $authentications)
+    {
+        $this->children->removeElement($authentications);
+    }
+
+    /**
+     * Get children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAuthentications()
+    {
+        return $this->authentications;
     }
 }

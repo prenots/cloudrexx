@@ -1,0 +1,24 @@
+Cx\Core\User\Model\Entity\TwofactorAuthentication:
+  type: entity
+  table: core_user_twofactor_authentication
+  repositoryClass: Cx\Core\User\Model\Repository\TwofactorAuthenticationRepository
+  id:
+    id:
+      type: integer
+  fields:
+    userId:
+      type: integer
+      column: user_id
+    name:
+      type: string
+      length: 45
+      nullable: true
+    data:
+      type: array
+  manyToOne:
+      user:
+        targetEntity: Cx\Core\User\Model\Entity\User
+        inversedBy: authentications
+        joinColumns:
+          user_id:
+            referencedColumnName: id
