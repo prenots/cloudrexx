@@ -165,6 +165,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'titleBill',
                 'orderItems',
                 'vatAmount',
+                'emptyField',
                 'shipmentAmount',
                 'paymentAmount',
                 'sum',
@@ -384,7 +385,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     'attributes' => array(
                         'class' => 'order-note',
                     ),
-                )
+                ),
+                'formfield' => function($name, $type, $length, $value) {
+                    return $this->getDivWrapper($value);
+                }
             ),
             'modifiedOn' => array(
                 'showOverview' => false,
@@ -616,6 +620,13 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         array($_ARRAYLANG['TXT_CUSTOMER_REMARKS'])
                     );
                 }
+            ),
+            'emptyField' => array(
+                'custom' => true,
+                'formfield' => function() {
+                    return $this->getDivWrapper('');
+                },
+                'showOverview' => false,
             ),
         );
         $order = new \Cx\Modules\Shop\Model\Entity\Order();
@@ -1780,5 +1791,13 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $table->addChild($tr);
         $table->addClass('adminlist title-table');
         return $table;
+    }
+
+    protected function getDivWrapper($value)
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $value = new \Cx\Core\Html\Model\Entity\TextElement($value);
+        $wrapper->addChild($value);
+        return $wrapper;
     }
 }
