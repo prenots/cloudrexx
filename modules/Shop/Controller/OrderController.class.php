@@ -684,7 +684,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     protected function getCustomerGroupMenu($elementName, $formName)
     {
         global $_ARRAYLANG;
-
+        \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
         $resellerGroup = \Cx\Core\Setting\Controller\Setting::getValue(
             'usergroup_id_reseller',
             'Shop'
@@ -695,11 +695,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'Shop'
         );
 
-        //ToDo: use $resserGroup and $customerGroup for array keys
         $validValues = array(
             '' => $_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'],
-            6 => $_ARRAYLANG['TXT_CUSTOMER'],
-            7 => $_ARRAYLANG['TXT_RESELLER'],
+            $resellerGroup => $_ARRAYLANG['TXT_CUSTOMER'],
+            $customerGroup => $_ARRAYLANG['TXT_RESELLER'],
         );
         $searchField = new \Cx\Core\Html\Model\Entity\DataElement(
             $elementName,
