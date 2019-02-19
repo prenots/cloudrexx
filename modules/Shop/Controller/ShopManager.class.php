@@ -228,19 +228,6 @@ class ShopManager extends ShopLibrary
                 $this->delete_product();
                 $this->view_products();
                 break;
-            case 'orders':
-                $this->view_order_overview();
-                break;
-            case 'orderdetails':
-                $this->view_order_details();
-                break;
-            case 'editorder':
-                $this->view_order_details(true);
-                break;
-            case 'delorder':
-                // Redirects back to Order overview
-                $this->delete_order();
-                break;
             case 'delcustomer':
                 $this->delete_customer();
                 $this->view_customers();
@@ -267,9 +254,6 @@ class ShopManager extends ShopLibrary
                 break;
             case 'import':
                 $this->_import();
-                break;
-            default:
-                $this->view_order_overview();
                 break;
         }
         \Message::show();
@@ -2399,60 +2383,6 @@ if ($test === NULL) {
         // Never reached
         return true;
     }
-
-
-    /**
-     * Show the stored orders
-     * @access  public
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     * @global  array   $_ARRAYLANG
-     * @global  array   $_CONFIG
-     * @author  Reto Kohli <reto.kohli@comvation.com> (parts)
-     */
-    function view_order_overview()
-    {
-        global $_ARRAYLANG;
-
-        self::$pageTitle = $_ARRAYLANG['TXT_ORDERS'];
-        // A return value of null means that nothing had to be done
-        Orders::updateStatusFromGet();
-        self::$objTemplate = null;
-        return Orders::view_list(self::$objTemplate);
-    }
-
-
-    /**
-     * OBSOLETE -- Moved to Order class
-     * Set up details of the selected order
-     * @access  public
-     * @param   boolean           $edit           Edit if true, view otherwise
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     * @global  array             $_ARRAYLANG     Language array
-     * @author  Reto Kohli <reto.kohli@comvation.com> (parts)
-     */
-    function view_order_details($edit=false)
-    {
-        global $_ARRAYLANG;
-
-        // Storing can only fail if an order is posted.
-        // If there is nothing to do, it will return null.
-        $result = Order::storeFromPost();
-        if ($result === false) {
-            // Edit again after failing to store
-            $edit = true;
-        } elseif ($result === true) {
-            $edit = false;
-        }
-        if ($edit) {
-            self::$pageTitle = $_ARRAYLANG['TXT_EDIT_ORDER'];
-            self::$objTemplate->loadTemplateFile('module_shop_order_edit.html');
-        } else {
-            self::$pageTitle = $_ARRAYLANG['TXT_ORDER_DETAILS'];
-            self::$objTemplate->loadTemplateFile('module_shop_order_details.html');
-        }
-        return Order::view_detail(self::$objTemplate, $edit);
-    }
-
 
     /**
      * Delete one or more Orders
