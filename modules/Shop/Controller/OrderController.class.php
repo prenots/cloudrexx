@@ -854,10 +854,12 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'input'
         );
         $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
+        $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $spanWrapper->addChild($addition);
 
         $wrapper->addChild($title);
         $wrapper->addChild($input);
-        $wrapper->addChild($addition);
+        $wrapper->addChild($spanWrapper);
 
         return $wrapper;
     }
@@ -1088,7 +1090,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 $addition = new \Cx\Core\Html\Model\Entity\TextElement(
                     $header['addition']
                 );
-                $td->addChild($addition);
+                $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                $spanWrapper->addChild($addition);
+                $td->addChild($spanWrapper);
             }
             $tableBody->addChild($tr);
         }
@@ -1169,7 +1173,11 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $addition = new \Cx\Core\Html\Model\Entity\TextElement(
                 $header['addition']
             );
-            $td->addChild($addition);
+            $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement(
+                'span'
+            );
+            $spanWrapper->addChild($addition);
+            $td->addChild($spanWrapper);
         }
 
         $tableBody->addChild($trEmpty);
@@ -1231,7 +1239,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $weightTitle = new \Cx\Core\Html\Model\Entity\TextElement(
             $_ARRAYLANG['TXT_TOTAL_WEIGHT']
         );
-        $tdWeightTitle->setAttribute('style', 'text-align: right;');
+        $tdWeightTitle->addClass('shop-order-info');
         $tdWeightTitle->addChild($weightTitle);
 
         $tdWeightInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
@@ -1259,7 +1267,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $netpriceTitle = new \Cx\Core\Html\Model\Entity\TextElement(
             $_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE']
         );
-        $tdNetpriceTitle->setAttribute('style', 'text-align: right;');
+        $tdNetpriceTitle->addClass('shop-order-info');
         $tdNetpriceTitle->addChild($netpriceTitle);
 
         $tdNetpriceInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
@@ -1279,7 +1287,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $additionChf = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
 
         $tdNetpriceInput->addChild($netpriceInput);
-        $tdNetpriceInput->addChild($additionChf);
+        $tdNetpriceInput->addChild($spanWrapper);
 
         $trCustom->addChild($tdNetpriceTitle);
         $trCustom->addChild($tdNetpriceInput);

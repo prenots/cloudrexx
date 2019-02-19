@@ -41,6 +41,9 @@
 .custom-input input {
     margin-left: 4px;
 }
+.custom-input span {
+    font-weight: normal;
+}
 
 .tooltip-wrapper {
     padding: 6px 32px;
@@ -135,4 +138,9 @@ label[for='form-0-emptyField'] {
 
 #form-0-orderItems tr {
     border-bottom: #e5e5e5 1px solid;
+}
+
+.shop-order-info {
+    text-align: right;
+    font-weight: bold;
 }
