@@ -128,4 +128,124 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
 
         return $firstOrder;
     }
+
+    /**
+     * Updates the status of the Order with the given ID
+     *
+     * If the order exists and has the pending status (status == 0),
+     * it is updated according to the payment and distribution type.
+     * Note that status other than pending are never changed!
+     * If the optional argument $newOrderStatus is set and not pending,
+     * the order status is set to that value instead.
+     * Returns the new Order status on success.
+     * If either the order ID is invalid, or if the update fails, returns
+     * the Order status "pending" (zero).
+     * @access  private
+     * @static
+     * @param   integer $order_id    The ID of the current order
+     * @param   integer $newOrderStatus The optional new order status.
+     * @param   string  $handler    The Payment type name in use
+     * @return  integer             The new order status (may be zero)
+     *                              if the order status can be changed
+     *                              accordingly, zero otherwise
+     */
+    public function update_status($order_id, $newOrderStatus=0, $handler=NULL)
+    {
+        global $_ARRAYLANG;
+
+        if (is_null($handler) && isset($_REQUEST['handler'])) {
+            $handler = contrexx_input2raw($_REQUEST['handler']);
+        }
+        $order_id = intval($order_id);
+        if ($order_id == 0) {
+            return self::STATUS_CANCELLED;
+        }
+
+        $order = $this->findOneBy(array('id' => $order_id));
+        if (empty($order)) {
+            return self::STATUS_CANCELLED;
+        }
+        $status = $order->getStatus();
+        // Never change a non-pending status!
+        // Whether a payment was successful or not, the status must be
+        // left alone.
+        if ($status != self::STATUS_PENDING) {
+            // The status of the order is not pending.
+            // This may be due to a wrong order ID, a page reload,
+            // or a PayPal IPN that has been received already.
+            // No order status is changed automatically in these cases!
+            // Leave it as it is.
+            return $status;
+        }
+        // Determine and verify the payment handler
+        $payment_id = $order->getPaymentId();
+//if (!$payment_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Payment ID for Order ID $order_id");
+        $processor_id = \Cx\Modules\Shop\Controller\Payment::getPaymentProcessorId($payment_id);
+//if (!$processor_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor ID for Payment ID $payment_id");
+        $processorName = \Cx\Modules\Shop\Controller\PaymentProcessing::getPaymentProcessorName($processor_id);
+//if (!$processorName) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor Name for Processor ID $processor_id");
+        // The payment processor *MUST* match the handler returned.
+        if (!preg_match("/^$handler/i", $processorName)) {
+//DBG::log("update_status($order_id, $newOrderStatus): Mismatching Handlers: Order $processorName, Request ".$_GET['handler']);
+            return self::STATUS_CANCELLED;
+        }
+        // Only if the optional new order status argument is zero,
+        // determine the new status automatically.
+        if ($newOrderStatus == self::STATUS_PENDING) {
+            // The new order status is determined by two properties:
+            // - The method of payment (instant/deferred), and
+            // - The method of delivery (if any).
+            // If the payment takes place instantly (currently, all
+            // external payments processors are considered to do so),
+            // and there is no delivery needed (because it's all
+            // downloads), the order status is switched to 'completed'
+            // right away.
+            // If only one of these conditions is met, the status is set to
+            // 'paid', or 'delivered' respectively.
+            // If neither condition is met, the status is set to 'confirmed'.
+            $newOrderStatus = self::STATUS_CONFIRMED;
+            $processorType =
+                \Cx\Modules\Shop\Controller\PaymentProcessing::getCurrentPaymentProcessorType($processor_id);
+            $shipmentId = $order->getShipmentId();
+            if ($processorType == 'external') {
+                // External payment types are considered instant.
+                // See $_SESSION['shop']['isInstantPayment'].
+                if ($shipmentId == 0) {
+                    // instant, download -> completed
+                    $newOrderStatus = self::STATUS_COMPLETED;
+                } else {
+                    // There is a shipper, so this order will bedelivered.
+                    // See $_SESSION['shop']['isDelivery'].
+                    // instant, delivery -> paid
+                    $newOrderStatus = self::STATUS_PAID;
+                }
+            } else {
+                // Internal payment types are considered deferred.
+                if ($shipmentId == 0) {
+                    // deferred, download -> shipped
+                    $newOrderStatus = self::STATUS_SHIPPED;
+                }
+                //else { deferred, delivery -> confirmed }
+            }
+        }
+        $order->setStatus($newOrderStatus);
+        $this->_em->persist($order);
+        $this->_em->flush();
+
+        if (   $newOrderStatus == self::STATUS_CONFIRMED
+            || $newOrderStatus == self::STATUS_PAID
+            || $newOrderStatus == self::STATUS_SHIPPED
+            || $newOrderStatus == self::STATUS_COMPLETED) {
+            if (!\Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail($order_id)) {
+                // Note that this message is only shown when the page is
+                // displayed, which may be on another request!
+                \Message::error($_ARRAYLANG['TXT_SHOP_UNABLE_TO_SEND_EMAIL']);
+            }
+        }
+        // The shopping cart *MUST* be flushed right after this method
+        // returns a true value (greater than zero).
+        // If the new order status is zero however, the cart may
+        // be left alone and the payment process can be tried again.
+        return $newOrderStatus;
+    }
 }

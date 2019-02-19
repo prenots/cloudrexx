@@ -4342,8 +4342,12 @@ die("Shop::processRedirect(): This method is obsolete!");
             // The respective order state, if available, is updated.
             // The only exception is when $checkinresult is null.
             if (isset($checkinresult)) {
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $orderRepo = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity\Order'
+                );
                 $newOrderStatus =
-                    Orders::update_status($order_id, $newOrderStatus);
+                    $orderRepo->update_status($order_id, $newOrderStatus);
 //\DBG::log("success(): Updated Order Status to $newOrderStatus (Order ID $order_id)");
             } else {
                 // The old status is the new status
