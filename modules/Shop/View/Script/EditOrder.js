@@ -305,6 +305,7 @@ function calcPrice(orderItemId)
         totalSum += totalVat;
     }
     // add shipping and payment cost
+    totalSum = Number(totalSum);
     totalSum +=
         Number(document.getElementsByName("shipmentAmount")[0].value)
         + Number(document.getElementsByName("paymentAmount")[0].value);
