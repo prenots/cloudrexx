@@ -19,6 +19,11 @@ ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323B6E62
 ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395A76ED395A76ED395A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
 CREATE INDEX IDX_B0DEA323B6E62EFA ON contrexx_access_user_attribute_value (attribute_id);
 
+/*Create table for 2fa*/
+CREATE TABLE `contrexx_core_user_twofactor_authentication` (`id` INT NOT NULL, `user_id` INT NOT NULL, `name` VARCHAR(45) DEFAULT NULL, `data` LONGTEXT NOT NULL COMMENT '(DC2Type:array)', INDEX IDX_AB3BBFB3A76ED395 (`user_id`), PRIMARY KEY(`id`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+ALTER TABLE `contrexx_core_user_twofactor_authentication` ADD CONSTRAINT FK_AB3BBFB3A76ED395 FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`);
+ALTER TABLE `contrexx_access_users` ADD `2fa_active` TINYINT(1) DEFAULT '0';
+
 /*Migrate core attribute to user attribute*/
 INSERT INTO `contrexx_access_user_attribute`(`mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default`) SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, '1' FROM `contrexx_access_user_core_attribute`;
 /*Migrate user profile to user attribute*/
