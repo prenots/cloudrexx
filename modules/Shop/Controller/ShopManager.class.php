@@ -2384,45 +2384,6 @@ if ($test === NULL) {
         return true;
     }
 
-    /**
-     * Delete one or more Orders
-     *
-     * If the $order_id parameter value is empty, checks $_GET['order_id']
-     * and $_POST['selectedOrderId'] in this order for Order IDs.
-     * Backend use only.  Redirects to the Order overview
-     * @version 3.0.0
-     * @param   integer     $order_id   The optional Order ID to be deleted
-     * @return  void
-     */
-    function delete_order($order_id=null)
-    {
-        global $_ARRAYLANG;
-
-        $arrOrderId = array();
-
-        // prepare the array $arrOrderId with the ids of the orders to delete
-        if (empty($order_id)) {
-            if (!empty($_GET['order_id'])) {
-                array_push($arrOrderId, $_GET['order_id']);
-            } elseif (!empty($_POST['selectedOrderId'])) {
-                $arrOrderId = $_POST['selectedOrderId'];
-            }
-        } else {
-            array_push($arrOrderId, $order_id);
-        }
-        if (empty($arrOrderId)) return null;
-        $stockUpdate = !empty($_GET['stock_update']);
-        $result = true;
-        foreach ($arrOrderId as $oId) {
-            $result &= Order::deleteById($oId, $stockUpdate);
-        }
-        if ($result) {
-            \Message::ok($_ARRAYLANG['TXT_ORDER_DELETED']);
-        }
-// TODO: Add error message
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop&act=orders');
-    }
-
 
     /**
      * Show Customers
