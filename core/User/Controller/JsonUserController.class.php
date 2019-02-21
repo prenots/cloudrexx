@@ -43,7 +43,7 @@ class JsonUserController extends \Cx\Core\Core\Model\Entity\Controller implement
      * @return array List of method names
      */
     public function getAccessableMethods() {
-        return array('verifyCode');
+        return array('verifyCode', 'deleteLink');
     }
 
     /**
@@ -106,6 +106,60 @@ class JsonUserController extends \Cx\Core\Core\Model\Entity\Controller implement
 
             return array('content' => $errorMessage->render());
         }
+
+        $successMessage->addChild($successText);
+
+        return array('content' => $successMessage->render());
+    }
+
+    /**
+     * @param $arguments
+     */
+    public function deleteLink($arguments)
+    {
+        global $_ARRAYLANG, $objInit;
+
+        //get the language interface text
+        $langData   = $objInit->getComponentSpecificLanguageData(
+            'User',
+            false
+        );
+        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
+        $userId = contrexx_input2raw($arguments['get']['user']);
+
+        $errorMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $errorMessage->setAttribute('id', 'user-response-error');
+        $errorText = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['TXT_CORE_TWOFACTOR_DELETE_ERROR']);
+        $successMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $successMessage->setAttribute('id', 'user-response-success');
+        $successText = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['TXT_CORE_TWOFACTOR_DELETE_SUCCESS']);
+
+        if (empty($userId)) {
+            $errorMessage->addChild($errorText);
+
+            return array('content' => $errorMessage->render());
+        }
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        $userRepo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\User'
+        );
+
+        $user = $userRepo->findOneBy(array('id' => $userId));
+
+        $repo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
+        );
+
+        $twoFactorEntry = $repo->findOneBy(array('user' => $user));
+
+        $user->setTwoFaActive(0);
+
+        $em->remove($twoFactorEntry, $user);
+        $em->flush();
+
 
         $successMessage->addChild($successText);
 

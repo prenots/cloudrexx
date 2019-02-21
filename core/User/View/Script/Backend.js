@@ -30,11 +30,18 @@ jQuery(document).ready(function(){
         cx.jQuery( '#user-btn-verify-code' ).click(function() {
             event.preventDefault();
             var value = cx.jQuery( '#user-input-code' ).val();
-            var secret = cx.jQuery( '#user-secret-wrapper' ).text();
+            var secret = cx.jQuery( '#user-secret-wrapper' ).val();
             verifyCode(value, secret);
         });
     }
 
+    if ( cx.jQuery( '#user-btn-delete-link' ).length ) {
+        cx.jQuery( '#user-btn-delete-link' ).click(function() {
+            event.preventDefault();
+            var value = cx.jQuery( '#user-btn-delete-link' ).attr( 'data' );
+            deleteLink(value);
+        });
+    }
 });
 
 /**
@@ -45,15 +52,13 @@ function validate2faActiveRadio() {
     var authenticationsDiv = cx.jQuery( '#form-0-authentications' ).closest( '.group' );
 
     if ( cx.jQuery( twoFaRadioTrue ).is( ':checked' ) ) {
+        cx.jQuery( '#user-btn-verify-code' ).attr('class', 'showSettings');
         cx.jQuery( authenticationsDiv ).show();
     }else {
         cx.jQuery( authenticationsDiv ).hide();
     }
 }
 
-/**
- * 
- */
 function verifyCode(value, secret) {
     cx.ajax(
         'JsonUser',
@@ -69,3 +74,19 @@ function verifyCode(value, secret) {
         }
     );
 }
+
+function deleteLink(value) {
+    cx.ajax(
+        'JsonUser',
+        'deleteLink',
+        {
+            data: {
+                user: value,
+            },
+            success: function(json) {
+                cx.jQuery('#user-response-wrapper-delete').html(json['data']['content']);
+            }
+        }
+    );
+}
+
