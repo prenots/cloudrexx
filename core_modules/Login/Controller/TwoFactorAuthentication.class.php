@@ -120,11 +120,23 @@ class TwoFactorAuthentication
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
+        $userRepo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\User'
+        );
+
+        $isActive = $userRepo->findOneBy(array('id' => $userId))->getTwoFaActive();
+
+        if ($isActive == false) {
+            return false;
+        }
+
+        $objUser = $userRepo->findOneBy(array('id' => $userId));
+
         $repo = $em->getRepository(
             '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
         );
 
-        $secret = $repo->findOneBy(array('userId' => $userId))->getData();
+        $secret = $repo->findOneBy(array('user' => $objUser))->getData();
 
         return $secret;
     }
