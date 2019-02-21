@@ -56,3 +56,6 @@ $_ARRAYLANG['TXT_LOGIN_PASSWORD_CHANGED_SUCCESSFULLY'] = "Ihr Passwort wurde erf
 $_ARRAYLANG['TXT_LOGIN_LOGIN'] = "Anmelden";
 $_ARRAYLANG['TXT_LOGIN_GO_TO_BACKEND'] = "Weiter zur Administrationsoberfläche";
 $_ARRAYLANG['TXT_FRONTEND_LINK'] = '« Zurück zur Webseite';
+$_ARRAYLANG['TXT_LOGIN_ENTER_SECURITY_CODE'] = 'Geben Sie bitte den Bestätigungscode ein.';
+$_ARRAYLANG['TXT_LOGIN_TWO_FACTOR'] = '2FA Login';
+$_ARRAYLANG['TXT_LOGIN_TWO_FACTOR_BUTTON'] = 'Bestätigen';

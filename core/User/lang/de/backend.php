@@ -81,4 +81,8 @@ $_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE'] = 'Bitte bestätigen Sie den generierten 
 $_ARRAYLANG['TXT_CORE_TWOFACTOR_CONFIRM'] = 'Bestätigen';
 $_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE_ERROR'] = 'Ungültig';
 $_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE_SUCCESS'] = 'Code gültig';
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_RESET'] = 'Verknüpfung löschen';
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_DELETE_ERROR'] = 'Die Verknüpfung konnte nicht gelöscht werden';
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_DELETE_SUCCESS'] = 'Gelöscht';
+
 
