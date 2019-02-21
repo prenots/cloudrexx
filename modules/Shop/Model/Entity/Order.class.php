@@ -51,6 +51,13 @@ class Order extends \Cx\Model\Base\EntityBase {
     const USERNAME_PREFIX = 'shop_customer';
 
     /**
+     * Folder name for (image) file uploads in the Shop
+     *
+     * Note that this is prepended with the document root when necessary.
+     */
+    const UPLOAD_FOLDER = 'media/Shop/upload/';
+
+    /**
      * @var integer
      */
     protected $id;
@@ -1184,5 +1191,131 @@ class Order extends \Cx\Model\Base\EntityBase {
     public function getCustomer()
     {
         return $this->customer;
+    }
+
+    /**
+     * Returns an array of items contained in this Order
+     * @global  ADONewConnection    $objDatabase
+     * @global  array               $_ARRAYLANG
+     * @return  array                               The items array on success,
+     *                                              false otherwise
+     * @todo    Let items be handled by their own class
+     */
+    function getItems($withHtmlNotation = true)
+    {
+        global $objDatabase, $_ARRAYLANG;
+
+        $query = "
+            SELECT `id`, `product_id`, `product_name`,
+                   `price`, `quantity`, `vat_rate`, `weight`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_items`
+             WHERE `order_id`=?";
+        $objResult = $objDatabase->Execute($query, array($this->getId()));
+        if (!$objResult) {
+            return self::errorHandler();
+        }
+        $arrProductOptions = $this->getOptionArray($withHtmlNotation);
+        $items = array();
+        while (!$objResult->EOF) {
+            $item_id = $objResult->fields['id'];
+            $product_id = $objResult->fields['product_id'];
+            $name = $objResult->fields['product_name'];
+            $price = $objResult->fields['price'];
+            $quantity = $objResult->fields['quantity'];
+            $vat_rate = $objResult->fields['vat_rate'];
+            // Get missing product details
+            $objProduct = \Cx\Modules\Shop\Controller\Product::getById($product_id);
+            if (!$objProduct) {
+                \Message::warning(sprintf(
+                    $_ARRAYLANG['TXT_SHOP_PRODUCT_NOT_FOUND'], $product_id));
+                $objProduct = new Product('', 0, $name, '', $price,
+                    0, 0, 0, $product_id);
+            }
+            $code = $objProduct->code();
+            $distribution = $objProduct->distribution();
+            $vat_id = $objProduct->vat_id();
+            $weight = '0';
+            if ($distribution != 'download') {
+                $weight = $objResult->fields['weight'];
+            }
+            $item = array(
+                'product_id' => $product_id,
+                'quantity' => $quantity,
+                'name' => $name,
+                'price' => $price,
+                'item_id' => $item_id,
+                'code' => $code,
+                'vat_id' => $vat_id,
+                'vat_rate' => $vat_rate,
+                'weight' => $weight,
+                'attributes' => array(),
+            );
+            if (isset($arrProductOptions[$item_id])) {
+                $item['attributes'] = $arrProductOptions[$item_id];
+            }
+            $items[] = $item;
+            $objResult->MoveNext();
+        }
+        return $items;
+    }
+
+
+    /**
+     * Returns an array of Attributes and chosen options for this Order
+     *
+     * Options for uploads are linked to their respective files
+     * The array looks like this:
+     *  array(
+     *    item ID => array(
+     *      "Attribute name" => array(
+     *        Attribute ID => array
+     *          'name' => "option name",
+     *          'price' => "price",
+     *         ),
+     *       [... more ...]
+     *      ),
+     *    ),
+     *    [... more ...]
+     *  )
+     * Note that the array may be empty.
+     * @return  array           The Attribute/option array on success,
+     *                          null otherwise
+     */
+    function getOptionArray($withHtmlNotation = true)
+    {
+        global $objDatabase;
+
+        $query = "
+            SELECT `attribute`.`id`, `attribute`.`item_id`, `attribute`.`attribute_name`,
+                   `attribute`.`option_name`, `attribute`.`price`
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_order_attributes` AS `attribute`
+              JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_order_items` AS `item`
+                ON `attribute`.`item_id`=`item`.`id`
+             WHERE `item`.`order_id`=".$this->getId()."
+             ORDER BY `attribute`.`attribute_name` ASC, `attribute`.`option_name` ASC";
+        $objResult = $objDatabase->Execute($query);
+        $arrProductOptions = array();
+        while (!$objResult->EOF) {
+            $option_full = $objResult->fields['option_name'];
+            $option = \Cx\Modules\Shop\Controller\ShopLibrary::stripUniqidFromFilename($option_full);
+            $path = Order::UPLOAD_FOLDER.$option_full;
+            // Link option names to uploaded files
+            if (   $option != $option_full
+                && \File::exists($path)) {
+                if ($withHtmlNotation) {
+                    $option =
+                        '<a href="'.$path.'" target="uploadFile">'.$option.'</a>';
+                }
+            }
+            $id = $objResult->fields['id'];
+            $price = $objResult->fields['price'];
+            $arrProductOptions[$objResult->fields['item_id']]
+            [$objResult->fields['attribute_name']][$id] = array(
+                'name' => $option,
+                'price' => $price,
+            );
+            $objResult->MoveNext();
+        }
+        return $arrProductOptions;
     }
 }
