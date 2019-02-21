@@ -250,6 +250,10 @@ class BackendController extends
                         'showDetail' => true,
                     ),
                     'authentications' => array(
+                        'formfield' =>
+                            function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
+                                return $this->getTwoFactorSettings($fieldname, $fieldtype, $fieldlength, $fieldvalue);
+                            },
                         'showOverview' => false,
                         'showDetail' => true,
                     )
@@ -912,6 +916,72 @@ class BackendController extends
 
         return $wrapper;
     }
+
+    /**
+     * Show generated qr code and load corresponding layout for 2fa
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement Return correct html
+     *                                                structure for 2fa settings
+     */
+    protected function getTwoFactorSettings()
+    {
+        global $_ARRAYLANG;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $image = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+        $inputWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $textWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE']
+        );
+        $textWrapper->addChild($text);
+
+        $input = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+        $button = new \Cx\Core\Html\Model\Entity\HtmlElement('button');
+        $buttonText = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_CORE_TWOFACTOR_CONFIRM']
+        );
+
+        /*Instanciate new TwoFactorAuthentication*/
+        $tfa = new \Cx\Core_Modules\Login\Controller\TwoFactorAuthentication();
+
+        /*Create new secret*/
+        $secret = $tfa->createSecret();
+        $wrapperSecret = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $textSecret = new \Cx\Core\Html\Model\Entity\TextElement($secret);
+
+        $wrapperSecret->setAttribute('id', 'user-secret-wrapper');
+        $wrapperSecret->addChild($textSecret);
+
+        $label = 'My connection';
+
+        /*Get qr code image as data uri to display the qr code correctly*/
+        $qrCode = $tfa->getQRCodeImageAsDataUri($label);
+        $image->setAttributes(array('src' => $qrCode));
+
+        $button->setAttribute('id', 'user-btn-verify-code');
+        $button->addChild($buttonText);
+
+        $responseWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $responseWrapper->setAttribute('id', 'user-response-wrapper');
+        $input->setAttribute('id', 'user-input-code');
+        $inputWrapper->addChildren(
+            array(
+                $input,
+                $responseWrapper
+            )
+        );
+
+        $wrapper->addChildren(
+            array(
+                $image,
+                $wrapperSecret,
+                $textWrapper,
+                $inputWrapper,
+                $button
+            )
+        );
+
+        return $wrapper;
+    }
 }
-
-
