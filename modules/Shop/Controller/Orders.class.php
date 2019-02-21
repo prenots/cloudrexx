@@ -282,56 +282,6 @@ class Orders
         return true;
     }
 
-
-    /**
-     * Returns a dropdown menu string with all available order status.
-     *
-     * If $flagFilter is true, an additional null element is added.
-     * This is intended to indicate an empty filter value only,
-     * not as an Order status to be applied!
-     * @param   string  $selected       Optional selected status
-     * @param   boolean $flagFilter     Add null elememt if true
-     * @param   string  $menuName       Optional menu name
-     * @param   string  $onchange       Optional onchange callback function
-     * @return  string  $menu           The dropdown menu string
-     * @global  array
-     */
-    static function getStatusMenu(
-        $selected='', $flagFilter=false, $order_id=null, $onchange=''
-    ) {
-        return ($order_id
-            ? \Html::getSelect(
-                'order_status['.$order_id.']', self::getStatusArray($flagFilter),
-                $selected, 'order_status-'.$order_id, $onchange)
-            : \Html::getSelect(
-                'order_status', self::getStatusArray($flagFilter),
-                $selected, 'order_status', $onchange));
-    }
-
-
-    /**
-     * Returns the array of Order status strings, indexed by the status values
-     *
-     * Adds a "Status" null element with empty string value index
-     * if the $flagFilter parameter is true.
-     * @param   boolean     $flagFilter     If true, the null element is added
-     * @return  string                      The status array
-     */
-    static function getStatusArray($flagFilter=false)
-    {
-        global $_ARRAYLANG;
-
-        $arrStatus = ($flagFilter
-            ? array('' => $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_PLEASE_CHOOSE'])
-            : array());
-        for ($i = Order::STATUS_PENDING; $i < Order::STATUS_MAX; ++$i) {
-            $arrStatus[$i] =
-                $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$i];
-        }
-        return $arrStatus;
-    }
-
-
     /**
      * Returns an array with all placeholders and their values to be
      * replaced in any shop mailtemplate for the given order ID.
