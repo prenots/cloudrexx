@@ -214,27 +214,4 @@ class Orders
         // Return the array of IDs
         return $arrId;
     }
-
-    /**
-     * Deletes all Orders with the given Customer ID
-     * @param   integer   $customer_id    The Customer ID
-     * @return  boolean                   True on success, false otherwise
-     */
-    static function deleteByCustomerId($customer_id)
-    {
-        global $_ARRAYLANG;
-
-        $count = 0;
-        $arrOrderId = Orders::getIdArray(
-            $count, null, array('customer_id' => $customer_id));
-        if ($arrOrderId === false) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_ERROR_CUSTOMER_QUERYING_ORDERS']);
-        }
-        foreach ($arrOrderId as $order_id) {
-            if (!Order::deleteById($order_id)) {
-                return \Message::error($_ARRAYLANG['TXT_SHOP_ERROR_CUSTOMER_DELETING_ORDERS']);
-            }
-        }
-        return true;
-    }
 }

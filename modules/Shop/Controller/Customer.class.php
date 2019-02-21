@@ -404,11 +404,18 @@ class Customer extends \User
      */
     function delete($deleteOwnAccount=false)
     {
-        global $_ARRAYLANG;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em =  $cx->getDb()->getEntityManager();
+        $orderRepo = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
 
-        if (!Orders::deleteByCustomerId($this->id)) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_ERROR_CUSTOMER_DELETING_ORDERS']);
+        $orders = $orderRepo->findBy(array('customerId', $this->id));
+        foreach ($orders as $order) {
+            $em->remove($order);
         }
+        $em->flush();
+
         return parent::delete($deleteOwnAccount);
     }
 
