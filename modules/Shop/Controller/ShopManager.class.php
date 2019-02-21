@@ -3372,8 +3372,12 @@ if ($test === NULL) {
      */
     static function sendProcessedMail($order_id)
     {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $orderRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
         $arrSubstitution =
-              Orders::getSubstitutionArray($order_id)
+              $orderRepo->getSubstitutionArray($order_id)
             + self::getSubstitutionArray();
         $lang_id = $arrSubstitution['LANG_ID'];
         // Select template for: "Your order has been processed"

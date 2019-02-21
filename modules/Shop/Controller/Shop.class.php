@@ -333,11 +333,15 @@ class Shop extends ShopLibrary
                 // Test with
                 // http://localhost/contrexx_300/de/index.php?section=Shop&act=testMail&key=&order_id=5
 //MailTemplate::errorHandler();die();
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $orderRepo = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity\Order'
+                );
                 $order_id = (!empty($_GET['order_id']) ? $_GET['order_id'] : 10);
                 $key = (!empty($_GET['key']) ? $_GET['key'] : 'order_confirmation');
-                $arrSubstitution = Orders::getSubstitutionArray($order_id);
+                $arrSubstitution = $orderRepo->getSubstitutionArray($order_id);
                 $customer_id = $arrSubstitution['CUSTOMER_ID'];
-                $objCustomer = Customer::getById($customer_id);
+                $objCustomer = \Cx\Modules\Shop\Controller\Customer::getById($customer_id);
                 if (!$objCustomer) {
 die("Failed to get Customer for ID $customer_id");
                     return false;
