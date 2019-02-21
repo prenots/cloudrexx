@@ -278,7 +278,7 @@ class OrderItem extends \Cx\Model\Base\EntityBase {
      */
     public function removeOrderAttribute(\Cx\Modules\Shop\Model\Entity\OrderAttribute $orderAttribute)
     {
-        $this->orderAttributes->removeElement($orderAttributes);
+        $this->orderAttributes->removeElement($orderAttribute);
     }
 
     /**
