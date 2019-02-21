@@ -49,50 +49,6 @@ class Orders
     const usernamePrefix = 'shop_customer';
 
     /**
-     * Returns an array of Orders for the given parameters
-     *
-     * See {@see getIdArray()} and {@see getById()} for details.
-     * @param   integer   $count      The actual number of Orders returned,
-     *                                by reference
-     * @param   string    $order      The optional sorting order, SQL syntax
-     * @param   array     $filter     The optional array of filter values
-     * @param   integer   $offset     The zero based offset for the list
-     *                                of Orders returned.
-     *                                Defaults to 0 (zero)
-     * @param   integer   $limit      The maximum number of Orders to be
-     *                                returned.
-     *                                Defaults to -1 (no limit)
-     * @return  array                 The array of Order objects on success,
-     *                                false otherwise
-     */
-    static function getArray(
-        &$count, $order=null, $filter=null, $offset=0, $limit=-1
-    ) {
-//DBG::log("Orders::getArray(count $count, order $order, filter ".var_export($filter, true).", offset $offset, limit $limit): Entered");
-
-        $arrId = self::getIdArray($count, $order, $filter, $offset, $limit);
-//DBG::log("Orders::getArray(): Got IDs: ".var_export($arrId, true));
-        $arrOrders = array();
-        if (empty ($arrId)) return $arrOrders;
-
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $repo = $cx->getDb()->getEntityManager()->getRepository(
-            'Cx\Modules\Shop\Model\Entity\Order'
-        );
-        foreach ($arrId as $id) {
-            $objOrder = $repo->find($id);
-            if (!$objOrder) {
-                --$count;
-                continue;
-            }
-//DBG::log("Orders::getArray(): Got Order: ".var_export($objOrder, true));
-            $arrOrders[$id] = $objOrder;
-        }
-        return $arrOrders;
-    }
-
-
-    /**
      * Returns an array of Order IDs for the given parameters
      *
      * The $filter array may include zero or more of the following field

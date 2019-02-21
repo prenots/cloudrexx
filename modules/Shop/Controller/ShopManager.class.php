@@ -2705,14 +2705,25 @@ if ($test === NULL) {
         ));
 // TODO: TEST
         $count = NULL;
-        $orders = Orders::getArray($count, NULL, array('customer_id' => $objCustomer->id()), \Paging::getPosition(),
-                \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop'));
-        $i = 1;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $orderRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
         $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Currency'
         )->getDefaultCurrency();
+
+        $orders = $orderRepo->findBy(
+            array('customerId' => $objCustomer->id()),
+            null,
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'numof_orders_per_page_backend','Shop'
+            ),
+            \Paging::getPosition()
+        );
+
+        $i = 1;
 
         foreach ($orders as $order) {
             \Cx\Modules\Shop\Controller\CurrencyController::init($order->getCurrencyId());
