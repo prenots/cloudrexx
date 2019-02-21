@@ -25,6 +25,16 @@ jQuery(document).ready(function(){
             validate2faActiveRadio();
         });
     }
+
+    if ( cx.jQuery( '#user-btn-verify-code' ).length ) {
+        cx.jQuery( '#user-btn-verify-code' ).click(function() {
+            event.preventDefault();
+            var value = cx.jQuery( '#user-input-code' ).val();
+            var secret = cx.jQuery( '#user-secret-wrapper' ).text();
+            verifyCode(value, secret);
+        });
+    }
+
 });
 
 /**
@@ -39,4 +49,23 @@ function validate2faActiveRadio() {
     }else {
         cx.jQuery( authenticationsDiv ).hide();
     }
+}
+
+/**
+ * 
+ */
+function verifyCode(value, secret) {
+    cx.ajax(
+        'JsonUser',
+        'verifyCode',
+        {
+            data: {
+                code: value,
+                secret: secret
+            },
+            success: function(json) {
+                cx.jQuery('#user-response-wrapper').html(json['data']['content']);
+            }
+        }
+    );
 }

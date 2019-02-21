@@ -77,3 +77,8 @@ $_ARRAYLANG['username'] = 'Benutzername';
 $_ARRAYLANG['user'] = 'Benutzer';
 $_ARRAYLANG['homepage'] = 'Startseite';
 
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE'] = 'Bitte bestätigen Sie den generierten Sicherheitscode: ';
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_CONFIRM'] = 'Bestätigen';
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE_ERROR'] = 'Ungültig';
+$_ARRAYLANG['TXT_CORE_TWOFACTOR_CODE_SUCCESS'] = 'Code gültig';
+

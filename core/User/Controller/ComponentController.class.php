@@ -56,7 +56,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     {
         // Return an empty array here to let the component handler know that there
         // does not exist a backend, nor a frontend controller of this component.
-        return array('Frontend', 'Backend', 'Export');
+        return array('Frontend', 'Backend', 'Export', 'JsonUser');
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllersAccessableByJson() {
+        return array(
+            'JsonUserController',
+        );
     }
 
     /**
