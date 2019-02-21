@@ -2715,18 +2715,18 @@ if ($test === NULL) {
         )->getDefaultCurrency();
 
         foreach ($orders as $order) {
-            \Cx\Modules\Shop\Controller\CurrencyController::init($order->currency_id());
+            \Cx\Modules\Shop\Controller\CurrencyController::init($order->getCurrencyId());
             self::$objTemplate->setVariable(array(
                 'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
-                'SHOP_ORDER_ID' => $order->id(),
+                'SHOP_ORDER_ID' => $order->getId(),
                 'SHOP_ORDER_ID_CUSTOM' => ShopLibrary::getCustomOrderId(
-                    $order->id(), $order->date_time()),
-                'SHOP_ORDER_DATE' => $order->date_time(),
+                    $order->getId(), $order->getDateTime()),
+                'SHOP_ORDER_DATE' => $order->getDateTime(),
                 'SHOP_ORDER_STATUS' =>
-                    $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->status()],
+                    $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->getStatus()],
                 'SHOP_ORDER_SUM' =>
                     $defaultCurrency->getSymbol().' '.
-                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->sum()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->getSum()),
             ));
             self::$objTemplate->parse('orderRow');
         }

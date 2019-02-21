@@ -74,8 +74,13 @@ class Orders
 //DBG::log("Orders::getArray(): Got IDs: ".var_export($arrId, true));
         $arrOrders = array();
         if (empty ($arrId)) return $arrOrders;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $repo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
         foreach ($arrId as $id) {
-            $objOrder = Order::getById($id);
+            $objOrder = $repo->find($id);
             if (!$objOrder) {
                 --$count;
                 continue;
