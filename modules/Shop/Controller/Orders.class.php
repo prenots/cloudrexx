@@ -348,13 +348,16 @@ class Orders
         // in this method, but only if $create_accounts is true.
         $coupon_code = NULL;
         $coupon_amount = 0;
+        $customerCouponRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
+        );
         $couponRepo = $cx->getDb()->getEntityManager()->getRepository(
             'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
         );
-        $objCoupon = $couponRepo->find($order_id);
+        $objCustomerCoupon = $customerCouponRepo->findOneBy(array('orderId' => $order_id));
 
-        if ($objCoupon) {
-            $coupon_code = $objCoupon->getCode();
+        if ($objCustomerCoupon) {
+            $coupon_code = $objCustomerCoupon->getCode();
         }
         $orderItemCount = 0;
         $total_item_price = 0;
