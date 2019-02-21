@@ -1041,7 +1041,7 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
 
     public function __toString()
     {
-        return $this->name;
+        return $this->getName();
     }
 
     public function getJsArray($groupCustomerId = 0, $isReseller = false)
