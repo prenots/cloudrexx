@@ -70,6 +70,8 @@ class BackendController extends
 
         $uId = $this->getUserId();
 
+        $userId =$this->getUser();
+
         switch ($entityClassName) {
             case 'Cx\Core\User\Model\Entity\User':
                 $options['order'] = array(
@@ -251,9 +253,12 @@ class BackendController extends
                     ),
                     'authentications' => array(
                         'formfield' =>
-                            function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
-                                return $this->getTwoFactorSettings($fieldname, $fieldtype, $fieldlength, $fieldvalue);
+                            function () use ($userId){
+                                return $this->getTwoFactorSettings($userId);
                             },
+                        'storecallback' => function ($value) {
+                            $this->storeTwoFactorSettings($value);
+                        },
                         'showOverview' => false,
                         'showDetail' => true,
                     )
@@ -459,6 +464,18 @@ class BackendController extends
         );
 
         return $getGroupUser;
+    }
+
+    /**
+     * Count users in groups
+     *
+     * @return mixed
+     */
+    protected function getUser()
+    {
+        $id = $_GET['editid'];
+
+        return $id;
     }
 
     /**
@@ -923,9 +940,36 @@ class BackendController extends
      * @return \Cx\Core\Html\Model\Entity\HtmlElement Return correct html
      *                                                structure for 2fa settings
      */
-    protected function getTwoFactorSettings()
+    protected function getTwoFactorSettings($userId)
     {
         global $_ARRAYLANG;
+
+        $userSecret = '';
+
+        /*Instanciate new TwoFactorAuthentication*/
+        $tfa = new \Cx\Core_Modules\Login\Controller\TwoFactorAuthentication();
+
+        $user = $userId[3];
+
+        if ($user !== null) {
+            $userSecret = $tfa->getSecretByUser($user);
+        }
+
+        /*Get Secret*/
+        if (!empty($userSecret) && !false) {
+            $wrapperReset = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $buttonReset = new \Cx\Core\Html\Model\Entity\HtmlElement('button');
+            $buttonReset->setAttributes(array('id' => 'user-btn-delete-link', 'data' => $user));
+            $buttonResetText = new \Cx\Core\Html\Model\Entity\TextElement(
+                $_ARRAYLANG['TXT_CORE_TWOFACTOR_RESET']
+            );
+            $responseWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $responseWrapper->setAttribute('id', 'user-response-wrapper-delete');
+            $buttonReset->addChild($buttonResetText);
+            $wrapperReset->addChildren(array($buttonReset, $responseWrapper));
+
+            return $wrapperReset;
+        }
 
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $image = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
@@ -942,18 +986,14 @@ class BackendController extends
             $_ARRAYLANG['TXT_CORE_TWOFACTOR_CONFIRM']
         );
 
-        /*Instanciate new TwoFactorAuthentication*/
-        $tfa = new \Cx\Core_Modules\Login\Controller\TwoFactorAuthentication();
-
         /*Create new secret*/
         $secret = $tfa->createSecret();
-        $wrapperSecret = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $textSecret = new \Cx\Core\Html\Model\Entity\TextElement($secret);
+        $wrapperSecret = new \Cx\Core\Html\Model\Entity\HtmlElement('input');
+        $wrapperSecret->setAttributes(array('value' => $secret, 'name' => 'secret'));
 
         $wrapperSecret->setAttribute('id', 'user-secret-wrapper');
-        $wrapperSecret->addChild($textSecret);
 
-        $label = 'My connection';
+        $label = 'My CLX connection';
 
         /*Get qr code image as data uri to display the qr code correctly*/
         $qrCode = $tfa->getQRCodeImageAsDataUri($label);
@@ -964,7 +1004,7 @@ class BackendController extends
 
         $responseWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $responseWrapper->setAttribute('id', 'user-response-wrapper');
-        $input->setAttribute('id', 'user-input-code');
+        $input->setAttributes(array('id' => 'user-input-code', 'name' => 'code'));
         $inputWrapper->addChildren(
             array(
                 $input,
@@ -983,5 +1023,34 @@ class BackendController extends
         );
 
         return $wrapper;
+    }
+
+    /**
+     * @param $value
+     */
+    protected function storeTwoFactorSettings($value)
+    {
+        $email = $value['email'];
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        $repo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\User'
+        );
+
+        $user = $repo->findOneBy(array('email' => $email));
+
+        $secret = $_POST['secret'];
+
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        $tfa = new \Cx\Core\User\Model\Entity\TwoFactorAuthentication();
+
+        $tfa->setUser($user);
+        $tfa->setName($email);
+        $tfa->setData($secret);
+
+        $em->persist($tfa);
+        $em->flush();
     }
 }
