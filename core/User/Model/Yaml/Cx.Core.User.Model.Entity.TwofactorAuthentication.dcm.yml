@@ -5,10 +5,9 @@ Cx\Core\User\Model\Entity\TwofactorAuthentication:
   id:
     id:
       type: integer
+      generator:
+        strategy: AUTO
   fields:
-    userId:
-      type: integer
-      column: user_id
     name:
       type: string
       length: 45
