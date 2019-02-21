@@ -265,24 +265,27 @@ class Orders
             'http://'.$_SERVER['SERVER_NAME'].
             "/index.php?section=download\r\n";
 */
-        $objOrder = Order::getById($order_id);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objOrder = $cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Order'
+        )->find($order_id);
+       // var_dump($order);
+       /// $objOrder = Order::getById($order_id);var_dump($objOrder);
         if (!$objOrder) {
             // Order not found
             return false;
         }
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $currency = $cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        )->find($objOrder->currency_id());
 
-        $lang_id = $objOrder->lang_id();
-        $status = $objOrder->status();
-        $customer_id = $objOrder->customer_id();
+        $currency = $objOrder->getCurrency();
+
+        $lang_id = $objOrder->getLangId();
+        $status = $objOrder->getStatus();
+        $customer_id = $objOrder->getCustomerId();
         $customer = Customer::getById($customer_id);
-        $payment_id = $objOrder->payment_id();
-        $shipment_id = $objOrder->shipment_id();
+        $payment_id = $objOrder->getPaymentId();
+        $shipment_id = $objOrder->getShipmentId();
         $arrSubstitution = array (
-            'CUSTOMER_COUNTRY_ID' => $objOrder->billing_country_id(),
+            'CUSTOMER_COUNTRY_ID' => $objOrder->getBillingCountryId(),
             'LANG_ID' => $lang_id,
             'NOW' => date(ASCMS_DATE_FORMAT_DATETIME),
             'TODAY' => date(ASCMS_DATE_FORMAT_DATE),
@@ -292,17 +295,17 @@ class Orders
 // TODO: Use proper localized date formats
             'ORDER_DATE' =>
                 date(ASCMS_DATE_FORMAT_DATE,
-                    strtotime($objOrder->date_time())),
+                    strtotime($objOrder->getDateTime()->format('d.m.y'))),
             'ORDER_TIME' =>
                 date(ASCMS_DATE_FORMAT_TIME,
-                    strtotime($objOrder->date_time())),
+                    strtotime($objOrder->getDateTime()->format('d.m.y'))),
             'ORDER_STATUS_ID' => $status,
             'ORDER_STATUS' => $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$status],
             'MODIFIED' =>
                 date(ASCMS_DATE_FORMAT_DATETIME,
-                    strtotime($objOrder->modified_on())),
-            'REMARKS' => $objOrder->note(),
-            'ORDER_SUM' => sprintf('% 9.2f', $objOrder->sum()),
+                    strtotime($objOrder->getModifiedOn())),
+            'REMARKS' => $objOrder->getNote(),
+            'ORDER_SUM' => sprintf('% 9.2f', $objOrder->getSum()),
             'CURRENCY' => $currency->getCode(),
         );
         $arrSubstitution += $customer->getSubstitutionArray();
@@ -310,23 +313,23 @@ class Orders
             $arrSubstitution += array (
                 'SHIPMENT' => array(0 => array(
                     'SHIPMENT_NAME' => sprintf('%-40s', Shipment::getShipperName($shipment_id)),
-                    'SHIPMENT_PRICE' => sprintf('% 9.2f', $objOrder->shipment_amount()),
+                    'SHIPMENT_PRICE' => sprintf('% 9.2f', $objOrder->getShipmentAmount()),
                 )),
 // Unused
 //                'SHIPMENT_ID' => $objOrder->shipment_id(),
                 'SHIPPING_ADDRESS' => array(0 => array(
-                    'SHIPPING_COMPANY' => $objOrder->company(),
+                    'SHIPPING_COMPANY' => $objOrder->getCompany(),
                     'SHIPPING_TITLE' =>
-                        $_ARRAYLANG['TXT_SHOP_'.strtoupper($objOrder->gender())],
-                    'SHIPPING_FIRSTNAME' => $objOrder->firstname(),
-                    'SHIPPING_LASTNAME' => $objOrder->lastname(),
-                    'SHIPPING_ADDRESS' => $objOrder->address(),
-                    'SHIPPING_ZIP' => $objOrder->zip(),
-                    'SHIPPING_CITY' => $objOrder->city(),
-                    'SHIPPING_COUNTRY_ID' => $objOrder->country_id(),
+                        $_ARRAYLANG['TXT_SHOP_'.strtoupper($objOrder->getGender())],
+                    'SHIPPING_FIRSTNAME' => $objOrder->getFirstname(),
+                    'SHIPPING_LASTNAME' => $objOrder->getLastname(),
+                    'SHIPPING_ADDRESS' => $objOrder->getAddress(),
+                    'SHIPPING_ZIP' => $objOrder->getZip(),
+                    'SHIPPING_CITY' => $objOrder->getCity(),
+                    'SHIPPING_COUNTRY_ID' => $objOrder->getCountryId(),
                     'SHIPPING_COUNTRY' => \Cx\Core\Country\Controller\Country::getNameById(
-                        $objOrder->country_id()),
-                    'SHIPPING_PHONE' => $objOrder->phone(),
+                        $objOrder->getCountryId()),
+                    'SHIPPING_PHONE' => $objOrder->getPhone(),
                 )),
             );
         }
@@ -334,11 +337,11 @@ class Orders
             $arrSubstitution += array (
                 'PAYMENT' => array(0 => array(
                     'PAYMENT_NAME' => sprintf('%-40s', Payment::getNameById($payment_id)),
-                    'PAYMENT_PRICE' => sprintf('% 9.2f', $objOrder->payment_amount()),
+                    'PAYMENT_PRICE' => sprintf('% 9.2f', $objOrder->getPaymentAmount()),
                 )),
             );
         }
-        $arrItems = $objOrder->getItems(false);
+        $arrItems = $objOrder->getItems();
         if (!$arrItems) {
             \Message::warning($_ARRAYLANG['TXT_SHOP_ORDER_WARNING_NO_ITEM']);
         }
@@ -576,9 +579,8 @@ class Orders
                 'DISCOUNT_COUPON_CODE' => sprintf('%-40s', $coupon_code),
                 'DISCOUNT_COUPON_AMOUNT' => sprintf('% 9.2f', -$coupon_amount),
             );
-        } else {
-//\DBG::log("Orders::getSubstitutionArray(): No Coupon for Order ID $order_id");
         }
+
         if (Vat::isEnabled()) {
 //DBG::log("Orders::getSubstitutionArray(): VAT amount: ".$objOrder->vat_amount());
             $arrSubstitution['VAT'] = array(0 => array(
@@ -587,7 +589,7 @@ class Orders
                         ? $_ARRAYLANG['TXT_SHOP_VAT_PREFIX_INCL']
                         : $_ARRAYLANG['TXT_SHOP_VAT_PREFIX_EXCL']
                     )),
-                'VAT_PRICE' => $objOrder->vat_amount(),
+                'VAT_PRICE' => $objOrder->getVatAmount(),
             ));
         }
         return $arrSubstitution;
