@@ -91,10 +91,10 @@ class JsonUserController extends \Cx\Core\Core\Model\Entity\Controller implement
         $code = contrexx_input2raw($arguments['get']['code']);
         $secret = contrexx_input2raw($arguments['get']['secret']);
 
-        if (empty($code) && empty($secret)) {
+        if (empty($code) || empty($secret)) {
             $errorMessage->addChild($errorText);
 
-            return array('content' => $errorMessage->render());
+            return array('content' => $errorMessage->render(), 'status' => 'error');
         }
 
         $tfa = new \Cx\Core_Modules\Login\Controller\TwoFactorAuthentication();
@@ -104,12 +104,12 @@ class JsonUserController extends \Cx\Core\Core\Model\Entity\Controller implement
         if (!$result) {
             $errorMessage->addChild($errorText);
 
-            return array('content' => $errorMessage->render());
+            return array('content' => $errorMessage->render(), 'status' => 'error');
         }
 
         $successMessage->addChild($successText);
 
-        return array('content' => $successMessage->render());
+        return array('content' => $successMessage->render(), 'status' => 'success');
     }
 
     /**
