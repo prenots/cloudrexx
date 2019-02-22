@@ -80,6 +80,10 @@ class LoginManager {
                 $this->getCaptcha();
                 break;
             default:
+                if (isset($_SESSION['twoFaActive'])) {
+                    $this->showTwoFactorLogin();
+                    break;
+                }
                 $this->showLogin();
                 break;
         }
@@ -294,4 +298,31 @@ class LoginManager {
         }
     }
 
+    /**
+     * Show login mask for 2fa login
+     */
+    private function showTwoFactorLogin()
+    {
+        global $_ARRAYLANG;
+
+        $this->objTemplate->addBlockfile('CONTENT_FILE', 'CONTENT_BLOCK', '/core_modules/Login/View/Template/Backend/twofactor_login.html');
+
+        $frontendLink = ASCMS_INSTANCE_OFFSET;
+        if (empty($frontendLink)) {
+            $frontendLink = '/';
+        }
+
+        $this->objTemplate->setVariable(array(
+            'TITLE'                         => $_ARRAYLANG['TXT_LOGIN_TWO_FACTOR'],
+            'TXT_LOGIN_TWO_FACTOR_BUTTON'   => $_ARRAYLANG['TXT_LOGIN_TWO_FACTOR_BUTTON'],
+            'TXT_FRONTEND_LINK'             => $_ARRAYLANG['TXT_FRONTEND_LINK'],
+            'TXT_LOGIN_ENTER_A_LOGIN'       => $_ARRAYLANG['TXT_LOGIN_ENTER_A_LOGIN'],
+            'TXT_LOGIN_ENTER_SECURITY_CODE' => $_ARRAYLANG['TXT_LOGIN_ENTER_SECURITY_CODE'],
+            'TXT_LOGIN_USERNAME'            => $_ARRAYLANG['TXT_LOGIN_USERNAME'],
+            'TXT_LOGIN_SECURITY_CODE'       => $_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'],
+            'REDIRECT_URL'                  => !empty($_POST['redirect']) ? $_POST['redirect'] : ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH.substr(getenv('REQUEST_URI'), strlen(\Env::get('cx')->getWebsiteBackendPath())),
+            'FRONTEND_LINK'                 => $frontendLink,
+            'JAVASCRIPT'                    => \JS::getCode(),
+        ));
+    }
 }

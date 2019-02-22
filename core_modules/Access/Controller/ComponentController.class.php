@@ -166,7 +166,7 @@ Drops all no-longer required profile images';
                     && (   (!empty($_POST['USERNAME']) && !empty($_POST['PASSWORD']))
                         || (!empty($_GET['auth-token']) && !empty($_GET['user-id'])))
                     && (!isset($_GET['cmd']) || $_GET['cmd'] !== 'Login')
-                    && (!isset($_GET['act']) || $_GET['act'] !== 'resetpw')
+                    && (!isset($_GET['act']) || $_GET['act'] !== 'resetpw') || isset($_SESSION['twoFaActive'])
                 ) {
                     //not logged in already - do captcha and password checks
                     if ($objFWUser->checkAuth()) {

@@ -121,8 +121,8 @@ class FWUser extends User_Setting
         $authToken = !empty($_GET['auth-token']) ? contrexx_input2raw($_GET['auth-token']) : null;
         $userId = !empty($_GET['user-id']) ? contrexx_input2raw($_GET['user-id']) : null;
 
-        if (   (!isset($username)  || !isset($password))
-            && (!isset($authToken) || !isset($userId))
+        if (   ((!isset($username)  || !isset($password))
+                && (!isset($authToken) || !isset($userId))) && !isset($_SESSION['twoFaActive'])
         ) {
             return false;
         }
@@ -137,13 +137,58 @@ class FWUser extends User_Setting
         if (   (  isset($username) && isset($password)
                && $this->objUser->auth($username, $password, $this->isBackendMode(), \Cx\Core_Modules\Captcha\Controller\Captcha::getInstance()->check()))
             || (   isset($authToken) && isset($userId)
-                && $this->objUser->authByToken($userId, $authToken, $this->isBackendMode()))
+                && $this->objUser->authByToken($userId, $authToken, $this->isBackendMode())) || isset($_SESSION['twoFaActive'])
         ) {
             if ($this->isBackendMode()) {
                 $this->log();
             }
-            $this->loginUser($this->objUser);
-            return true;
+
+            $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+            $userRepo = $em->getRepository(
+                '\Cx\Core\User\Model\Entity\User'
+            );
+
+            $uI = $this->objUser->getId();
+
+            /*Store userId in session to provide user for 2fa login*/
+            if (empty($this->objUser->getId())) {
+                $uI = $_SESSION['twoFaActive'];
+            }
+            $user = $userRepo->findOneBy(array('id' => $uI));
+
+            $twoFaActive = $user->getTwoFaActive();
+
+            /*If the user has no 2fa login the user*/
+            if (!$twoFaActive) {
+                $this->loginUser($this->objUser);
+                return true;
+            }
+
+            /*This is used to check if the entered code for 2fa is correct*/
+            if (!empty($_POST['CODE'])) {
+                $code = contrexx_input2raw($_POST['CODE']);
+                $tfa = new \Cx\Core_Modules\Login\Controller\TwoFactorAuthentication();
+
+                $tfaRepo = $em->getRepository(
+                    '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
+                );
+                /*Get correct user to verify the 2fa code*/
+                $secret = $tfaRepo->findOneBy(array('user' => $user))->getData();
+
+                /*Verify the 2fa code and login the user*/
+                $result = $tfa->verifyCode($secret, $code);
+                if ($result == true) {
+                    $loginUser = $this->objUser->getUser($id = $uI);
+                    $this->loginUser($loginUser);
+                    unset($_SESSION['twoFaActive']);
+                    return true;
+                }
+            }
+            /*Store userId to session for 2fa login*/
+            if (!isset($_SESSION['twoFaActive'])) {
+                $id = $this->objUser->getId();
+                $_SESSION['twoFaActive'] = $id;
+            }
         }
 
         $_SESSION['auth']['loginLastAuthFailed'] = 1;
@@ -1035,5 +1080,4 @@ class FWUser extends User_Setting
 
         \JS::activate('user-live-search');
     }
-
 }
