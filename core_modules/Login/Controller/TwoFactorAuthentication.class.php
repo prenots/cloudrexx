@@ -132,11 +132,11 @@ class TwoFactorAuthentication
 
         $objUser = $userRepo->findOneBy(array('id' => $userId));
 
-        $repo = $em->getRepository(
+        $tfaRepo = $em->getRepository(
             '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
         );
 
-        $secret = $repo->findOneBy(array('user' => $objUser))->getData();
+        $secret = $tfaRepo->findOneBy(array('user' => $objUser))->getData();
 
         return $secret;
     }
