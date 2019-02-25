@@ -360,7 +360,7 @@ class ListingController {
                     ) {
                         continue;
                     }
-                    $qb->andWhere($qb->expr()->eq('x.' . $field, '?' . $i));
+                    $qb->andWhere($qb->expr()->like('x.' . $field, '?' . $i));
                     $qb->setParameter($i, $crit);
                     $i++;
                 }
