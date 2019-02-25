@@ -953,11 +953,11 @@ class ViewGenerator {
                 $this->options['functions']['alphabetical']
             );
             $searchCheckboxes = array();
-                foreach ($this->options['fields'] as $key=>$field) {
-                    if(is_null($field['searchCheckbox'])) {
-                        continue;
-                    }
-                    $searchCheckboxes[$key] = $field['searchCheckbox'];
+            foreach ($this->options['fields'] as $key=>$field) {
+                if(is_null($field['searchCheckbox'])) {
+                    continue;
+                }
+                $searchCheckboxes[$key] = $field['searchCheckbox'];
             }
             if ($searching) {
                 // If filter is used for extended search,
