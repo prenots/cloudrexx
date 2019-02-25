@@ -3357,7 +3357,7 @@ EOF;
         }
 
         foreach ($teaserNames as $teaserName) {
-            $placeholders[] = 'TEASERS_' . $teaserName;
+            $placeholders[] = 'TEASERS_' . strtoupper($teaserName);
         }
 
         return $placeholders;
