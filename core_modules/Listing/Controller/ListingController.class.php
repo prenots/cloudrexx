@@ -396,6 +396,7 @@ class ListingController {
             $qb->setFirstResult($this->offset ? $this->offset : null);
             $qb->setMaxResults($this->count ? $this->count : null);
             $entities = $qb->getQuery()->getResult();
+
             $metaData = $em->getClassMetaData($this->entityClass);
             $qb->select(
                 'count(x.' . reset($metaData->getIdentifierFieldNames()) . ')'

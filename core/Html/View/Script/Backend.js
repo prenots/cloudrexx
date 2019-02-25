@@ -12,8 +12,8 @@ cx.ready(function() {
         sortable = {
             ajaxCall : function(opt) {
                 var data = 'sortOrder=' + opt.sortOrder + '&curPosition=' + opt.curIndex
-                    + '&prePosition=' + opt.preIndex + '&sortField=' + opt.sortField
-                    + '&pagingPosition=' + opt.position,
+                            + '&prePosition=' + opt.preIndex + '&sortField=' + opt.sortField
+                            + '&pagingPosition=' + opt.position,
                     recordCount = 0;
                 if (opt.component && opt.entity) {
                     data += '&component=' + opt.component + '&entity=' + opt.entity;
@@ -75,8 +75,8 @@ cx.ready(function() {
                 //we need to update all the entries.
                 if (options.repeat) {
                     var pagingCnt = isDescOrder
-                        ? (recordCnt - options.position) + 1
-                        : options.position;
+                                    ? (recordCnt - options.position) + 1
+                                    : options.position;
                     obj.each(function() {
                         isDescOrder ? pagingCnt-- : pagingCnt++;
                         jQuery(this).text(pagingCnt);
@@ -413,24 +413,24 @@ function createAjaxRequest(entityClass, mappedBy, className, sessionKey, existin
     cx.ajax(
         'Html',
         'getViewOverJson',
-        {
-            data: {
-                entityClass: entityClass,
-                mappedBy:    mappedBy,
-                sessionKey:  sessionKey
-            },
-            success: function(data) {
-                openDialogForAssociation(
-                    data.data,
-                    className,
-                    existingData,
-                    currentElement
-                );
-                jQuery('.datepicker').datepicker({
-                    dateFormat: 'dd.mm.yy'
-                });
-            }
-        });
+    {
+        data: {
+            entityClass: entityClass,
+            mappedBy:    mappedBy,
+            sessionKey:  sessionKey
+        },
+        success: function(data) {
+            openDialogForAssociation(
+                data.data,
+                className,
+                existingData,
+                currentElement
+            );
+            jQuery('.datepicker').datepicker({
+                dateFormat: 'dd.mm.yy'
+            });
+        }
+    });
 }
 
 // Search and filter functionalities
