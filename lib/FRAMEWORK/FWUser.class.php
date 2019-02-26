@@ -143,6 +143,13 @@ class FWUser extends User_Setting
                 $this->log();
             }
 
+            // load core language data in case it has not yet been loaded
+            if (!is_array($_CORELANG) || !count($_CORELANG)) {
+                $objInit = \Env::get('init');
+                $objInit->_initBackendLanguage();
+                $_CORELANG = $objInit->loadLanguageData('core');
+            }
+
             $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
             $userRepo = $em->getRepository(
                 '\Cx\Core\User\Model\Entity\User'
@@ -182,12 +189,18 @@ class FWUser extends User_Setting
                     $this->loginUser($loginUser);
                     unset($_SESSION['twoFaActive']);
                     return true;
+                } else {
+                    $_SESSION['showTwoFaLogin'] = true;
+                    $this->arrStatusMsg['error'][] = $_CORELANG['TXT_TWO_FACTOR_ERROR'];
                 }
             }
             /*Store userId to session for 2fa login*/
             if (!isset($_SESSION['twoFaActive'])) {
                 $id = $this->objUser->getId();
                 $_SESSION['twoFaActive'] = $id;
+                $_SESSION['showTwoFaLogin'] = $id;
+            } else {
+                return false;
             }
         }
 
@@ -201,10 +214,12 @@ class FWUser extends User_Setting
             $_CORELANG = $objInit->loadLanguageData('core');
         }
 
-        $this->arrStatusMsg['error'][] = $_CORELANG['TXT_PASSWORD_OR_USERNAME_IS_INCORRECT'];
-        $session->cmsSessionUserUpdate();
-        $session->cmsSessionStatusUpdate($this->isBackendMode() ? 'backend' : 'frontend');
-        return false;
+        if (!isset($_SESSION['showTwoFaLogin'])) {
+            $this->arrStatusMsg['error'][] = $_CORELANG['TXT_PASSWORD_OR_USERNAME_IS_INCORRECT'];
+            $session->cmsSessionUserUpdate();
+            $session->cmsSessionStatusUpdate($this->isBackendMode() ? 'backend' : 'frontend');
+            return false;
+        }
     }
 
     /**
