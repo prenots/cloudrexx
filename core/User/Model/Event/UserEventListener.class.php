@@ -63,7 +63,19 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 
         $email = $user->getEmail();
 
+        /*Check if the user doesn't have a 2fa link*/
         if ($active == "0") {
+            $repo = $em->getRepository(
+                '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
+            );
+            $twoFactorEntry = $repo->findOneBy(array('user' => $user));
+
+            if (!empty($twoFactorEntry)) {
+                $user->setTwoFaActive(0);
+                $em->remove($twoFactorEntry, $user);
+                $em->flush();
+            }
+
             return true;
         }
 
