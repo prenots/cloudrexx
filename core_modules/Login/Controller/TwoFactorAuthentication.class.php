@@ -109,35 +109,4 @@ class TwoFactorAuthentication
 
         return $this->tfa->getQRCodeImageAsDataUri($label, $this->secret, $this->size);
     }
-
-    /**
-     * Get stored secret of user
-     *
-     * @param $userId
-     * @return mixed
-     */
-    public function getSecretByUser($userId)
-    {
-        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
-
-        $userRepo = $em->getRepository(
-            '\Cx\Core\User\Model\Entity\User'
-        );
-
-        $isActive = $userRepo->findOneBy(array('id' => $userId))->getTwoFaActive();
-
-        if ($isActive == false) {
-            return false;
-        }
-
-        $objUser = $userRepo->findOneBy(array('id' => $userId));
-
-        $tfaRepo = $em->getRepository(
-            '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
-        );
-
-        $secret = $tfaRepo->findOneBy(array('user' => $objUser))->getData();
-
-        return $secret;
-    }
 }

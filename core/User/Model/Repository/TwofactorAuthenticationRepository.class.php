@@ -10,4 +10,35 @@ namespace Cx\Core\User\Model\Repository;
  */
 class TwofactorAuthenticationRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Get stored secret of user
+     *
+     * @param $userId int The ID of the editing user
+     * @return mixed      The stored secret in the database or false if no
+     *                    secret is stored
+     */
+    public function getSecretByUser($userId)
+    {
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
+
+        $userRepo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\User'
+        );
+
+        $isActive = $userRepo->findOneBy(array('id' => $userId))->getTwoFaActive();
+
+        if ($isActive == false) {
+            return false;
+        }
+
+        $objUser = $userRepo->findOneBy(array('id' => $userId));
+
+        $tfaRepo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
+        );
+
+        $secret = $tfaRepo->findOneBy(array('user' => $objUser))->getData();
+
+        return $secret;
+    }
 }
