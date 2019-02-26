@@ -1471,3 +1471,5 @@ $_ARRAYLANG['TXT_CORE_ACTIVE'] = "Aktiv";
 $_ARRAYLANG['TXT_CORE_INACTIVE'] = 'Inaktiv';
 $_ARRAYLANG['TXT_CORE_SCHEDULED_ACTIVE'] = 'Zeitgesteuerte Veröffentlichung aktiv';
 $_ARRAYLANG['TXT_CORE_SCHEDULED_INACTIVE'] = 'Deaktiviert aufgrund der zeitgesteuerten Veröffentlichung';
+
+$_ARRAYLANG['TXT_TWO_FACTOR_ERROR'] = 'Sicherheitscode invalid. Bitte erneut eingeben.';

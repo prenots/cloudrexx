@@ -329,3 +329,5 @@ $_ARRAYLANG['TXT_BROWSE'] = 'Durchsuchen';
 
 $_ARRAYLANG['TXT_CORE_SIGN_UP'] = "Haben Sie noch kein Konto? Jetzt registrieren";
 $_ARRAYLANG['TXT_READ_MORE'] = "Weiterlesen";
+
+$_ARRAYLANG['TXT_TWO_FACTOR_ERROR'] = 'Sicherheitscode invalid. Bitte erneut eingeben.';
