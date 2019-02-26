@@ -4085,6 +4085,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         $currencyRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Currency');
         $paymentRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Payment');
         $productRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Product');
+        $shipperRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Shipper');
         $localeRepo = $em->getRepository('Cx\Core\Locale\Model\Entity\Locale');
 
         $shipper_id = (empty($_SESSION['shop']['shipperId'])
@@ -4125,7 +4126,10 @@ die("Shop::processRedirect(): This method is obsolete!");
         $objOrder->setPhone($_SESSION['shop']['phone2']);
         $objOrder->setVatAmount($_SESSION['shop']['vat_price']);
         $objOrder->setShipmentAmount($_SESSION['shop']['shipment_price']);
-        $objOrder->setShipmentId($shipper_id);
+        if (!empty($shipper_id)) {
+            $objOrder->setShipmentId($shipper_id);
+            $objOrder->setShipper($shipperRepo->find($shipper_id));
+        }
         $objOrder->setPaymentId($payment_id);
         $objOrder->setPayment($paymentRepo->find($payment_id));
         $objOrder->setPaymentAmount($_SESSION['shop']['payment_price']);
