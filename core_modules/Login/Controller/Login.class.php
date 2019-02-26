@@ -423,7 +423,6 @@ class Login
             'TXT_LOGIN_USERNAME'            => $_ARRAYLANG['TXT_LOGIN_USERNAME'],
             'TXT_LOGIN_SECURITY_CODE'       => $_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'],
             'FRONTEND_LINK'                 => $frontendLink,
-            'JAVASCRIPT'                    => \JS::getCode(),
         ));
 
         $this->_objTpl->parse('two_factor_mask');
