@@ -303,7 +303,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         );
 
         $entityClass = 'Cx\\Modules\\' . $this->getName()
-            . '\\Model\\Entity\\Orders';
+            . '\\Model\\Entity\\Order';
         $this->cx->getEvents()->addModelListener(
             \Doctrine\ORM\Events::preRemove,
             $entityClass,
@@ -321,6 +321,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'Currency',
                 'DiscountCoupon'
             ),
+            \Doctrine\ORM\Events::postUpdate => array(
+                'Order'
+            )
         );
 
         foreach ($modelEvents as $eventName => $entities) {

@@ -39,4 +39,13 @@ class OrderEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListene
         $url->removeAllParams();
         \Cx\Core\Csrf\Controller\Csrf::redirect($url->__toString());
     }
+
+    public function postUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $args)
+    {
+        if ($this->cx->getRequest()->hasParam('sendMail', false)) {
+            \Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail(
+                $args->getEntity()->getId()
+            );
+        }
+    }
 }
