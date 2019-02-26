@@ -8,12 +8,14 @@
                 form_submitted = false;
                 function ValidateForm(form)
                 {
-                    if (form.USERNAME.value == '') {
-                        if (form.USERNAME.focus)
-                            form.USERNAME.focus();
-                        document.getElementById('no_code').style.display = 'block';
-                        document.getElementById('code').className = 'error';
-                        form_submitted = false;
+                    if (form.code.value == '') {
+                        if (form.code.focus)
+                            form.code.focus();
+                        if (!document.getElementById('status')) {
+                            document.getElementById('no_code').style.display = 'block';
+                            document.getElementById('code').className = 'error';
+                            form_submitted = false;
+                        }
                     } else {
                         document.getElementById('no_code').style.display = 'none';
                         document.getElementById('code').className = '';
@@ -26,6 +28,9 @@
                 }
                 /* ]]> */
             </script>
+            <!-- BEGIN two_fa_error -->
+            <div class="error" id="status">{TXT_TWO_FACTOR_ERROR}</div>
+            <!-- END two_fa_error -->
             <div>
                 <div class="error" id="no_code" style="display: none;">{TXT_LOGIN_ENTER_SECURITY_CODE}</div>
                 <label for="code">{TXT_LOGIN_SECURITY_CODE}</label>
