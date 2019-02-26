@@ -71,9 +71,15 @@ class UserTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
+        $userRepo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\User'
+        );
+
+        $user = $userRepo->findOneBy(array('id' => $this::EXISTING_USER_ID));
+
         $twoFactorAuth = new \Cx\Core\User\Model\Entity\TwoFactorAuthentication();
 
-        $twoFactorAuth->setUserId($this::EXISTING_USER_ID);
+        $twoFactorAuth->setUser($user);
         $twoFactorAuth->setName($this::EXISTING_USER_EMAIL);
         $twoFactorAuth->setData($this::EXISTING_SECRET);
 
@@ -84,7 +90,7 @@ class UserTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
             '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
         );
 
-        $result = $repo->findOneBy(array('userId' => $this::EXISTING_USER_ID));
+        $result = $repo->findOneBy(array('user' => $user));
 
         $this->assertNotNull($result);
     }
@@ -98,16 +104,24 @@ class UserTest extends \Cx\Core\Test\Model\Entity\DoctrineTestCase
     {
         $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
 
+        $userRepo = $em->getRepository(
+            '\Cx\Core\User\Model\Entity\User'
+        );
+
+        $user = $userRepo->findOneBy(array('id' => $this::EXISTING_USER_ID));
+
         $repo = $em->getRepository(
             '\Cx\Core\User\Model\Entity\TwoFactorAuthentication'
         );
 
-        $twoFactorEntry = $repo->findOneBy(array('userId' => $this::EXISTING_USER_ID));
+        $twoFactorEntry = $repo->findOneBy(array('user' => $user));
 
-        $em->remove($twoFactorEntry);
+        $user->setTwoFaActive(0);
+
+        $em->remove($twoFactorEntry, $user);
         $em->flush();
 
-        $result = $repo->findOneBy(array('userId' => $this::EXISTING_USER_ID));
+        $result = $repo->findOneBy(array('user' => $user));
 
         $this->assertNull($result);
     }
