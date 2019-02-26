@@ -699,7 +699,7 @@ class Customer extends \User
 //DBG::log("Customer::errorHandler(): Adding settings");
         ShopSettings::errorHandler();
 //        \Cx\Core\Country\Controller\Country::errorHandler(); // Called by Order::errorHandler();
-        Order::errorHandler();
+        \Cx\Modules\Shop\Controller\OrderController::errorHandler();
         Discount::errorHandler();
 
         \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
