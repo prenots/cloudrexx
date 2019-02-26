@@ -312,6 +312,13 @@ class LoginManager {
             $frontendLink = '/';
         }
 
+        if (!empty(\FWUser::getFWUserObject()->getErrorMsg())) {
+            $this->objTemplate->setVariable('TXT_TWO_FACTOR_ERROR', \FWUser::getFWUserObject()->getErrorMsg());
+            $this->objTemplate->parse('two_fa_error');
+        } else {
+            $this->objTemplate->hideBlock('two_fa_error');
+        }
+
         $this->objTemplate->setVariable(array(
             'TITLE'                         => $_ARRAYLANG['TXT_LOGIN_TWO_FACTOR'],
             'TXT_LOGIN_TWO_FACTOR_BUTTON'   => $_ARRAYLANG['TXT_LOGIN_TWO_FACTOR_BUTTON'],
