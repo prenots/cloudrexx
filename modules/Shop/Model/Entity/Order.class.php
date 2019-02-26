@@ -1318,4 +1318,67 @@ class Order extends \Cx\Model\Base\EntityBase {
         }
         return $arrProductOptions;
     }
+
+
+    /**
+     * Inserts a single item into the database
+     *
+     * Note that all parameters are mandatory.
+     * All of $order_id, $product_id, and $quantity must be greater than zero.
+     * The $weight must not be negative.
+     * If there are no options, set $arrOptions to the empty array.
+     * Sets an error Message in case there is anything wrong.
+     * @global  ADONewConnection    $objDatabase
+     * @global  array   $_ARRAYLANG
+     * @param   integer $order_id       The Order ID
+     * @param   integer $product_id     The Product ID
+     * @param   string  $name           The item name
+     * @param   float   $price          The item price (one unit)
+     * @param   integer $quantity       The quantity (in units)
+     * @param   float   $vat_rate       The applicable VAT rate
+     * @param   integer $weight         The item weight (in grams, one unit)
+     * @param   array   $arrOptions     The array of selected options
+     * @return  boolean                 True on success, false otherwise
+     * @static
+     */
+    public function insertItem($product, $name, $price, $quantity,
+                               $vat_rate, $weight, $arrOptions
+    ) {
+        global $_ARRAYLANG;
+
+        $product_id = intval($product->getId());
+        if ($product_id <= 0) {
+            return \Message::error($_ARRAYLANG['TXT_SHOP_ORDER_ITEM_ERROR_INVALID_PRODUCT_ID']);
+        }
+        $quantity = intval($quantity);
+        if ($quantity <= 0) {
+            return \Message::error($_ARRAYLANG['TXT_SHOP_ORDER_ITEM_ERROR_INVALID_QUANTITY']);
+        }
+        $weight = intval($weight);
+        if ($weight < 0) {
+            return \Message::error($_ARRAYLANG['TXT_SHOP_ORDER_ITEM_ERROR_INVALID_WEIGHT']);
+        }
+
+        $orderItem = new \Cx\Modules\Shop\Model\Entity\OrderItem();
+        $orderItem->setOrderId($this->getId());
+        $orderItem->setOrder($this);
+        $orderItem->setProduct($product);
+        $orderItem->setProductId($product->getId());
+        $orderItem->setPrice($price);
+        $orderItem->setProductName($name);
+        $orderItem->setQuantity($quantity);
+        $orderItem->setWeight($weight);
+        $orderItem->setVatRate($vat_rate);
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $em->persist($orderItem);
+
+        foreach ($arrOptions as $attribute_id => $arrOptionIds) {
+            $orderItem->insertAttribute($attribute_id, $arrOptionIds);
+        }
+        $em->persist($orderItem);
+        $this->addOrderItem($orderItem);
+    }
+
 }
