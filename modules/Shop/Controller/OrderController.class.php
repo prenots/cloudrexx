@@ -820,16 +820,24 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'input'
         );
 
-        $wrapperEmail->setAttribute('id', 'sendMailDiv');
+        $wrapperEmail->setAttributes(
+            array(
+                'id' => 'sendMailDiv',
+                'style' => 'display: inline',
+            )
+        );
         $labelEmail->setAttribute('for', 'sendMail');
         $inputEmail->setAttributes(
             array(
                 'type' => 'checkbox',
                 'id' => 'sendMail',
                 'onclick' => 'swapSendToStatus();',
-                'checked' => 'checked'
             )
         );
+
+        if ($fieldvalue != \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED) {
+            $wrapperEmail->setAttribute('style', 'display:none');
+        }
 
         $labelEmail->addChild($textEmail);
         $wrapperEmail->addChild($inputEmail);
