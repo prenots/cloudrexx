@@ -34,3 +34,8 @@
  */
 
 $_ARRAYLANG['TXT_DIR_F_LINK'] = "Link";
+
+$_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'] = "Sicherheitscode";
+$_ARRAYLANG['TXT_LOGIN_ENTER_SECURITY_CODE'] = 'Geben Sie bitte den Bestätigungscode ein.';
+$_ARRAYLANG['TXT_LOGIN_TWO_FACTOR'] = '2FA Login';
+$_ARRAYLANG['TXT_LOGIN_TWO_FACTOR_BUTTON'] = 'Bestätigen';
