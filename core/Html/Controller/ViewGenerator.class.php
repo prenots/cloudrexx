@@ -348,6 +348,38 @@ class ViewGenerator {
         } else {
             $lcOptions['searchFields'] = array();
         }
+        if ($lcOptions['searching']) {
+            $searchCheckboxes = array();
+            $em = $this->cx->getDb()->getEntityManager();
+            $metaData = $em->getClassMetadata($entityClass);
+            if ($this->cx->getRequest()->hasParam('checkbox')) {
+                $checkedFields = explode(
+                    '},',
+                    $this->cx->getRequest()->getParam('checkbox')
+                );
+                foreach ($checkedFields as $fieldInfo) {
+                    $fieldInfo = explode(
+                        '}',
+                        explode(
+                            ',',
+                            $fieldInfo
+                        )[1]
+                    )[0];
+                    $field = explode('=', $fieldInfo)[0];
+                    $value = explode('=', $fieldInfo)[1];
+
+                    if (!in_array($field, $metaData->getFieldNames())) {
+                        continue;
+                    }
+                    if (isset($this->options['fields'][$field]['searchCheckbox'])) {
+                        $searchCheckboxes[$field] = $value;
+                    }
+                }
+            }
+
+        } else {
+            $lcOptions['searchCheckboxes'] = array();
+        }
         if (!isset($lcOptions['filterFields'])) {
             $lcOptions['filterFields'] = false;
         }
@@ -385,6 +417,7 @@ class ViewGenerator {
             $renderObject,
             $searchCriteria,
             contrexx_input2raw($this->getVgParam($_GET['term'])),
+            $searchCheckboxes,
             $lcOptions
         );
     }
@@ -925,6 +958,13 @@ class ViewGenerator {
                 isset($this->options['functions']['alphabetical']) &&
                 $this->options['functions']['alphabetical']
             );
+            $searchCheckboxes = array();
+            foreach ($this->options['fields'] as $key=>$field) {
+                if(is_null($field['searchCheckbox'])) {
+                    continue;
+                }
+                $searchCheckboxes[$key] = $field['searchCheckbox'];
+            }
             if ($searching) {
                 // If filter is used for extended search,
                 // hide filter and add a toggle link
@@ -1095,6 +1135,41 @@ class ViewGenerator {
                     $template->parse('letter');
                 }
             }
+            if ($searchCheckboxes) {
+                foreach($searchCheckboxes as $key=>$value)  {
+                    $checkboxName = 'vg-'. $this->viewId .'-checkbox-field-'
+                        . $key;
+                    $checkboxWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+                    $checkboxLabel = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+                    $labelText = new \Cx\Core\Html\Model\Entity\TextElement($_ARRAYLANG['SEARCH_' . strtoupper($key)]);
+                    $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+                        $checkboxName,
+                        $value,
+                        'input'
+                    );
+                    $checkbox->setAttributes(
+                        array(
+                            'id' => $checkboxName,
+                            'type' => 'checkbox',
+                            'form' => 'vg-'. $this->viewId .'-searchForm',
+                            'class' => 'vg-encode search-checkboxes',
+                            'data-vg-attrgroup' => 'checkbox',
+                            'data-vg-field' => $key,
+                        )
+                    );
+                    $checkboxLabel->setAttribute('for', $checkboxName);
+                    $checkboxWrapper->setClass('search-checkbox');
+
+                    $checkboxLabel->addChild($labelText);
+                    $checkboxWrapper->addChild($checkboxLabel);
+                    $checkboxWrapper->addChild($checkbox);
+
+                    //set option
+                    $template->setVariable('FIELD_SEARCH_CHECKBOX', $checkboxWrapper);
+                    $template->parse('search-checkbox');
+                }
+            }
+
             if (!count($renderObject) || !count(current($renderObject))) {
                 // make this configurable
                 $template->touchBlock('no-entries');

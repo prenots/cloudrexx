@@ -250,3 +250,11 @@ table.adminlist .vg-function-status.active {
 table.adminlist .vg-function-status.loading {
     background-image: url(/core/Html/View/Media/Load.gif);
 }
+.search-checkbox {
+    display: inline-block;
+    width: auto;
+    padding: 5px;
+}
+.search-checkbox input {
+    vertical-align: middle;
+}

@@ -455,10 +455,13 @@ cx.ready(function() {
         uri = uri.replace(/%2F/g, "/");
         return uri;
     }
-    
+
+    var checked = new Array();
+
     // If any of the dropdowns change or search button is pressed:
     // manually generate url and document.location it
     var getSubmitHandler = function(ev) {
+        ev.preventDefault();
         var formId = jQuery(this).attr("form");
         var elements = cx.jQuery("[form=" + formId + "]").filter("select,input,textarea").not("[type=button]").not("[type=submit]");
         var vgId = jQuery("#" + formId).data("vg-id");
@@ -466,6 +469,11 @@ cx.ready(function() {
         var attrGroups = {}
         elements.each(function(index, el) {
             el = cx.jQuery(el);
+            var name = el.attr('name');
+            var parts = JavaSplit(name, "-", 5);
+            if (el.is('.search-checkboxes') && !checked[parts[4]]) {
+                return;
+            }
             var regex = new RegExp("([?&])" + el.attr("name") + "[^&]+");
             var replacement = "";
             if (el.val().length) {
@@ -519,11 +527,20 @@ cx.ready(function() {
             });
         }
         document.location = url;
-        ev.preventDefault();
     };
     cx.jQuery("select.vg-searchSubmit").change(getSubmitHandler);
     cx.jQuery(".vg-searchSubmit").filter("a,input").click(getSubmitHandler);
-    
+    cx.jQuery('.search-checkboxes').filter('input').click(function() {
+        var name = cx.jQuery(this).attr('name');
+        var parts = JavaSplit(name, "-", 5);
+        if (checked[parts[4]]) {
+            checked[parts[4]] = false;
+        } else {
+            checked[parts[4]] = true;
+        }
+    });
+    cx.jQuery('.search-checkboxes').filter('input').click(getSubmitHandler);
+
     (function() {
         var url = cx.tools.decodeURI(document.location.href);
         var parts = JavaSplit(url, "?", 2);
@@ -541,7 +558,7 @@ cx.ready(function() {
             if (attribute[0] == "csrf") {
                 return;
             }
-            if (attribute[0] == "search" || attribute[0] == "term") {
+            if (attribute[0] == 'search' || attribute[0] == 'term' || attribute[0] == 'checkbox') {
                 var conditions = attribute[1].substr(1, attribute[1].length - 1).split("},{");
                 cx.jQuery.each(conditions, function(index, condition) {
                     condition = "{" + condition + "}";
@@ -551,8 +568,19 @@ cx.ready(function() {
                     }
                     var formId = "vg-" + matches[1] + "-searchForm";
                     var formElement;
-                    if (matches[2]) {
+                    if (attribute[0] == 'search') {
                         formElement = cx.jQuery("[form=" + formId + "][data-vg-field=" + matches[2] + "]");
+                        var checkBoxElement = cx.jQuery('#vg-'+ matches[1] +'-checkbox-field-' + matches[2]);
+                        if(checkBoxElement && checkBoxElement.val() == matches[3]) {
+                            checkBoxElement.prop('checked', true);
+                            checkBoxElement.attr('form', 'vg-0-searchForm');
+                            checked[matches[2]] = true;
+                        }
+                    } else if (attribute[0] == 'checkbox') {
+                        formElement = cx.jQuery('#vg-' + matches[1] +'-checkbox-field-' + matches[2]);
+                        formElement.prop('checked', true);
+                        formElement.attr('form', 'vg-0-searchForm');
+                        checked[matches[2]] = true;
                     } else {
                         formElement = cx.jQuery("[form=" + formId + "][name=" + attribute[0] + "]");
                     }
