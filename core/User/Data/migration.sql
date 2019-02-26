@@ -20,7 +20,7 @@ ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED
 CREATE INDEX IDX_B0DEA323B6E62EFA ON contrexx_access_user_attribute_value (attribute_id);
 
 /*Create table for 2fa*/
-CREATE TABLE `contrexx_core_user_twofactor_authentication` (`id` INT NOT NULL, `user_id` INT NOT NULL, `name` VARCHAR(45) DEFAULT NULL, `data` LONGTEXT NOT NULL COMMENT '(DC2Type:array)', INDEX IDX_AB3BBFB3A76ED395 (`user_id`), PRIMARY KEY(`id`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+CREATE TABLE `contrexx_core_user_twofactor_authentication` (`id` INT NOT NULL AUTO_INCREMENT, `user_id` INT NOT NULL, `name` VARCHAR(45) DEFAULT NULL, `data` LONGTEXT NOT NULL COMMENT '(DC2Type:array)', INDEX IDX_AB3BBFB3A76ED395 (`user_id`), PRIMARY KEY(`id`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 ALTER TABLE `contrexx_core_user_twofactor_authentication` ADD CONSTRAINT FK_AB3BBFB3A76ED395 FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`);
 ALTER TABLE `contrexx_access_users` ADD `2fa_active` TINYINT(1) DEFAULT '0';
 

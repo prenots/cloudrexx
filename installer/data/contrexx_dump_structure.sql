@@ -123,7 +123,7 @@ CREATE TABLE `contrexx_access_users` (
   KEY `username` (`username`)
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_core_user_twofactor_authentication` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `name` VARCHAR(45) DEFAULT NULL,
   `data` LONGTEXT NOT NULL COMMENT '(DC2Type:array)',
