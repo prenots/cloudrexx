@@ -281,7 +281,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $dataSetIdentifier
         );
 
-        switch ($dataSetIdentifier) {
+        switch ($entityClassName) {
             case 'Cx\Modules\Shop\Model\Entity\Order':
                 $options = $this->getSystemComponentController()->getController(
                     'Order'
@@ -292,6 +292,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Manufacturer'
                 )->getViewGeneratorOptions($options);
+                if ($dataSetIdentifier != $entityClassName) {
+                    break;
+                }
                 $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_SHOP_CONFIRM_DELETE_MANUFACTURER'],
                     $options
@@ -301,6 +304,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Category'
                 )->getViewGeneratorOptions($options);
+                if ($dataSetIdentifier != $entityClassName) {
+                    break;
+                }
                 // Delete event
                 $options = $this->normalDelete(
                     $_ARRAYLANG['TXT_CONFIRM_DELETE_SHOP_CATEGORIES'],
