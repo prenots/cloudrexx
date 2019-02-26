@@ -101,6 +101,11 @@ class Login
             break;
 
         default:
+            if (isset($_SESSION['showTwoFaLogin'])) {
+                unset($_SESSION['showTwoFaLogin']);
+                return $this->showTwoFactorLogin();
+                break;
+            }
             return $this->_login();
             break;
         }
@@ -266,6 +271,8 @@ class Login
 
         $objFWUser = \FWUser::getFWUserObject();
 
+        $this->_objTpl->hideBlock('two_factor_login');
+
         if (isset($_REQUEST['redirect'])) {
             $redirect = contrexx_strip_tags($_REQUEST['redirect']);
         } elseif (isset($_SESSION['redirect'])) {
@@ -295,6 +302,7 @@ class Login
                 $_GET['relogin'] = 'true';
             }
         }
+
         if ((!isset($_GET['relogin']) || $_GET['relogin'] != 'true') && $objFWUser->objUser->login() || $objFWUser->checkAuth()) {
             $groupRedirect = ($objGroup = $objFWUser->objGroup->getGroup($objFWUser->objUser->getPrimaryGroupId())) && $objGroup->getHomepage() ? preg_replace('/\\[\\[([A-Z0-9_-]+)\\]\\]/', '{\\1}', $objGroup->getHomepage()) : CONTREXX_SCRIPT_PATH;
             \LinkGenerator::parseTemplate($groupRedirect);
@@ -379,6 +387,46 @@ class Login
             return null;
         }
 
+        return $this->_objTpl->get();
+    }
+
+    /**
+     * This function provides the 2fa login mask for the frontend login
+     *
+     * @return string \Cx\Core\Html\Sigma
+     */
+    private function showTwoFactorLogin()
+    {
+        global $_ARRAYLANG;
+
+        $this->_objTpl->touchBlock('two_factor_mask');
+        $this->_objTpl->hideBlock('default_login');
+
+        $frontendLink = ASCMS_INSTANCE_OFFSET;
+        if (empty($frontendLink)) {
+            $frontendLink = '/';
+        }
+
+        if (!empty(\FWUser::getFWUserObject()->getErrorMsg())) {
+            $this->_objTpl->setVariable('TXT_TWO_FACTOR_ERROR', \FWUser::getFWUserObject()->getErrorMsg());
+            $this->_objTpl->parse('two_fa_error');
+        } else {
+            $this->_objTpl->hideBlock('two_fa_error');
+        }
+
+        $this->_objTpl->setVariable(array(
+            'TXT_TITLE_TWO_FACTOR'          => $_ARRAYLANG['TXT_LOGIN_TWO_FACTOR'],
+            'TXT_LOGIN_TWO_FACTOR_BUTTON'   => $_ARRAYLANG['TXT_LOGIN_TWO_FACTOR_BUTTON'],
+            'TXT_FRONTEND_LINK'             => $_ARRAYLANG['TXT_FRONTEND_LINK'],
+            'TXT_LOGIN_ENTER_A_LOGIN'       => $_ARRAYLANG['TXT_LOGIN_ENTER_A_LOGIN'],
+            'TXT_LOGIN_ENTER_SECURITY_CODE' => $_ARRAYLANG['TXT_LOGIN_ENTER_SECURITY_CODE'],
+            'TXT_LOGIN_USERNAME'            => $_ARRAYLANG['TXT_LOGIN_USERNAME'],
+            'TXT_LOGIN_SECURITY_CODE'       => $_ARRAYLANG['TXT_LOGIN_SECURITY_CODE'],
+            'FRONTEND_LINK'                 => $frontendLink,
+            'JAVASCRIPT'                    => \JS::getCode(),
+        ));
+
+        $this->_objTpl->parse('two_factor_mask');
         return $this->_objTpl->get();
     }
 }
