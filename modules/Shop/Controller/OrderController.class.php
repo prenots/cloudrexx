@@ -71,9 +71,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $options['functions']['show'] = true;
         $options['functions']['editable'] = true;
         $options['functions']['paging'] = true;
-        //$options['functions']['add'] = false;
+        $options['functions']['add'] = false;
         $options['functions']['onclick']['delete'] = 'deleteOrder';
         $options['functions']['order']['id'] = SORT_DESC;
+        $options['functions']['alphabetical'] = 'customer';
         $options['functions']['searchCallback'] = function(
             $qb,
             $field,
@@ -630,6 +631,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'emptyField' => array(
                 'custom' => true,
+                'allowFiltering' => false,
                 'formfield' => function() {
                     return $this->getDivWrapper('');
                 },

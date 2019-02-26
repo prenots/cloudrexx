@@ -29,6 +29,16 @@
     float: left;
 }
 
+#vg-0-alphabeticalSearch {
+    float: left;
+    clear: both;
+}
+
+.vg-noresult {
+    clear: both;
+    padding: 20px 5px 0;
+}
+
 #content > table.adminlist tr:nth-child(n+1) td:nth-child(1) {
     width: 20px;
 }
