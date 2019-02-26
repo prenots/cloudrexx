@@ -4329,24 +4329,24 @@ die("Shop::processRedirect(): This method is obsolete!");
 //\DBG::log("success(): Restored Order ID ".var_export($order_id, true));
         // Default new order status: As long as it's pending (0, zero),
         // update_status() will choose the new value automatically.
-        $newOrderStatus = Order::STATUS_PENDING;
+        $newOrderStatus = \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PENDING;
 
         $checkinresult = PaymentProcessing::checkIn();
 //\DBG::log("success(): CheckIn Result ".var_export($checkinresult, true));
 
         if ($checkinresult === false) {
             // Failed payment.  Cancel the order.
-            $newOrderStatus = Order::STATUS_CANCELLED;
+            $newOrderStatus = \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CANCELLED;
 //\DBG::log("success(): Order ID is *false*, new Status $newOrderStatus");
         } elseif ($checkinresult === true) {
             // True is returned for successful payments.
             // Update the status in any case.
-            $newOrderStatus = Order::STATUS_PENDING;
+            $newOrderStatus = \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PENDING;
 //\DBG::log("success(): Order ID is *true*, new Status $newOrderStatus");
         } elseif ($checkinresult === null) {
             // checkIn() returns null if no change to the order status
             // is necessary or appropriate
-            $newOrderStatus = Order::STATUS_PENDING;
+            $newOrderStatus = \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PENDING;
 //\DBG::log("success(): Order ID is *null* (new Status $newOrderStatus)");
         }
         // Verify the Order ID with the session, if available
@@ -4356,7 +4356,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             // possibly faked one from the request!
 //\DBG::log("success(): Order ID $order_id is not ".$_SESSION['shop']['order_id_checkin'].", new Status $newOrderStatus");
             $order_id = $_SESSION['shop']['order_id_checkin'];
-            $newOrderStatus = Order::STATUS_CANCELLED;
+            $newOrderStatus = \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CANCELLED;
             $checkinresult = false;
         }
 //\DBG::log("success(): Verification complete, Order ID ".var_export($order_id, true).", Status: $newOrderStatus");
@@ -4376,16 +4376,16 @@ die("Shop::processRedirect(): This method is obsolete!");
                 $newOrderStatus = self::getOrderStatus($order_id);
             }
             switch ($newOrderStatus) {
-                case Order::STATUS_CONFIRMED:
-                case Order::STATUS_PAID:
-                case Order::STATUS_SHIPPED:
-                case Order::STATUS_COMPLETED:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PAID:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_SHIPPED:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED:
                     \Message::ok($_ARRAYLANG['TXT_ORDER_PROCESSED']);
                     // Custom.
                     // Enable if Discount class is customized and in use.
                     //self::showCustomerDiscount(Cart::get_price());
                     break;
-                case Order::STATUS_PENDING:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PENDING:
                     // Pending orders must be stated as such.
                     // Certain payment methods (like PayPal with IPN) might
                     // be confirmed a little later and must cause the
@@ -4394,8 +4394,8 @@ die("Shop::processRedirect(): This method is obsolete!");
                         $_ARRAYLANG['TXT_SHOP_ORDER_PENDING'].'<br /><br />'.
                         $_ARRAYLANG['TXT_SHOP_ORDER_WILL_BE_CONFIRMED']);
                     break;
-                case Order::STATUS_DELETED:
-                case Order::STATUS_CANCELLED:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_DELETED:
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CANCELLED:
                     \Message::error(
                         $_ARRAYLANG['TXT_SHOP_PAYMENT_FAILED'].'<br /><br />'.
                         $_ARRAYLANG['TXT_SHOP_ORDER_CANCELLED']);
@@ -4736,7 +4736,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (
             \Cx\Lib\FileSystem\FileSystem::exists(
                 $cx->getWebsiteDocumentRootPath() . '/' .
-                Order::UPLOAD_FOLDER . urldecode($fileName)
+                \Cx\Modules\Shop\Model\Entity\Order::UPLOAD_FOLDER . urldecode($fileName)
             )
         ) {
             return urldecode($fileName);
@@ -4758,7 +4758,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         }
 
         $newFileName = $filename.'['.uniqid().']'.$fileext;
-        $newFilePath = Order::UPLOAD_FOLDER.$newFileName;
+        $newFilePath = \Cx\Modules\Shop\Model\Entity\Order::UPLOAD_FOLDER.$newFileName;
         //Move the uploaded file to the path specified in the variable $newFilePath
         try {
             $objFile = new \Cx\Lib\FileSystem\File($tmpFile);

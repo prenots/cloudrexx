@@ -1500,8 +1500,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                  array(
                      1 => $start_date,
                      2 => $end_date,
-                     3 => Order::STATUS_CONFIRMED,
-                     4 => Order::STATUS_COMPLETED
+                     3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                     4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
                  )
             )->getQuery();
         } elseif ($selectedStat == 3) {
@@ -1537,8 +1537,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                  array(
                     1 => $start_date,
                     2 => $end_date,
-                    3 => Order::STATUS_CONFIRMED,
-                    4 => Order::STATUS_COMPLETED
+                    3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                    4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
                  )
              )->getQuery();
         } else {
@@ -1575,8 +1575,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 array(
                     1 => $start_date,
                     2 => $end_date,
-                    3 => Order::STATUS_CONFIRMED,
-                    4 => Order::STATUS_COMPLETED
+                    3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                    4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
                 )
             )->getQuery();
         }
@@ -1706,8 +1706,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             )
         )->orderBy('A.dateTime', 'DESC')->setParameters(
             array(
-                1 => Order::STATUS_CONFIRMED,
-                2 => Order::STATUS_COMPLETED
+                1 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                2 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
             )
         )->getQuery();
 
@@ -1732,8 +1732,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             )
         )->setParameters(
             array(
-                1 => Order::STATUS_CONFIRMED,
-                2 => Order::STATUS_COMPLETED
+                1 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                2 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
             )
         )->getQuery();
         $resultTotal = $queryTotalProducts->getSingleResult();
