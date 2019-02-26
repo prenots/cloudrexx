@@ -64,6 +64,10 @@
     width: 38%;
 }
 
+.pending {
+    background: #ffe7e7 !important;
+}
+
 .readonly {
     border: none !important;
     padding-left: 0 !important;

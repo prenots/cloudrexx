@@ -76,6 +76,9 @@ function toggle_categories(status)
 }
 
 jQuery(document).ready(function($){
+    // Add class to all orders with pending status
+    cx.jQuery('.order-status select option:selected[value="0"]').closest('tr').addClass('pending');
+
     $('.category').change(function(){
         var check = true;
         $('.category').each(function(){

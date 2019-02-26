@@ -121,6 +121,13 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $scope
         );
 
+
+        \ContrexxJavascript::getInstance()->setVariable(
+            'SHOP_ORDER_PENDENT_KEY',
+            \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PENDING,
+            $scope
+        );
+
         $options['order'] = array(
             'overview' => array(
                 'id',
