@@ -54,7 +54,11 @@ function validate2faActiveRadio() {
     if ( cx.jQuery( twoFaRadioTrue ).is( ':checked' ) ) {
         cx.jQuery( '#user-btn-verify-code' ).attr('class', 'showSettings');
         cx.jQuery( authenticationsDiv ).show();
+        if ( cx.jQuery( '#user-btn-delete-link' ).length ) {
+            cx.jQuery( '#user-wrapper-settings' ).hide();
+        }
     }else {
+        cx.jQuery('#user-input-code').removeClass('error');
         cx.jQuery( authenticationsDiv ).hide();
     }
 }
@@ -70,6 +74,12 @@ function verifyCode(value, secret) {
             },
             success: function(json) {
                 cx.jQuery('#user-response-wrapper').html(json['data']['content']);
+                console.log(json['data']['status']);
+                if ( json['data']['status'] == 'success') {
+                    cx.jQuery('#user-input-code').removeClass('error');
+                } else {
+                    cx.jQuery('#user-input-code').addClass('error');
+                }
             }
         }
     );
@@ -85,6 +95,8 @@ function deleteLink(value) {
             },
             success: function(json) {
                 cx.jQuery('#user-response-wrapper-delete').html(json['data']['content']);
+                cx.jQuery( '#user-wrapper-reset' ).remove();
+                cx.jQuery( '#user-wrapper-settings' ).show();
             }
         }
     );
