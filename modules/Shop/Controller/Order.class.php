@@ -885,31 +885,6 @@ class Order
     }
 
     /**
-     * Returns the most recently used language ID found in the order table
-     * for the given Customer ID
-     *
-     * Note that this method must be used for migrating old Shop Customers ONLY.
-     * It returns null if no order is found, or on error.
-     * @param   integer   $customer_id      The Customer ID
-     * @return  integer                     The language ID on success,
-     *                                      null otherwise
-     */
-    static function getLanguageIdByCustomerId($customer_id)
-    {
-        global $objDatabase;
-
-        $query = "
-            SELECT `lang_id`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_orders`
-             WHERE `customer_id`=$customer_id
-             ORDER BY `id` DESC";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult || $objResult->EOF) return null;
-        return $objResult->fields['lang_id'];
-    }
-
-
-    /**
      * Handles database errors
      *
      * Also migrates the old database structure to the new one

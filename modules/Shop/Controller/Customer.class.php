@@ -883,7 +883,14 @@ class Customer extends \User
                 $objCustomer = self::getById($objUser->getId());
             }
             if (!$objCustomer) {
-                $lang_id = Order::getLanguageIdByCustomerId($old_customer_id);
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $order = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity'
+                )->findOneBy(
+                    array('customerId' => $old_customer_id),
+                    array('id' => 'DESC')
+                );
+                $lang_id = $order->getLangId();
                 if (!$lang_id) $lang_id = $default_lang_id;
                 $objCustomer = new Customer();
                 if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
