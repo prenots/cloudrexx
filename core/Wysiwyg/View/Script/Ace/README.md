@@ -6,5 +6,5 @@ This folder contains non-minified version of template-mode and template-worker f
 
 ## How to generate a Minify file ##
 * To generate a minify file, we have to use a non-minified files from /Ace/src.
-* [Minify file](https://javascript-minifier.com/) or
-* [Editor](We can use our IDE to minify a file, if the editor has 'Minify JS' option)
+* [To minify js file](https://javascript-minifier.com/) or
+* Editor(We can use our IDE to minify a file, if the editor has 'Minify JS' option)
