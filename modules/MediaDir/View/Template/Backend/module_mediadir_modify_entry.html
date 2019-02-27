@@ -10,8 +10,8 @@ function getMediaBrowser(e) { // e => jQuery element
                 var path = data.data[0].datainfo.filepath;
                 mediaBrowseInputBox.val(path);
                 mediaBrowseInputBox.trigger('keyup');
-                if (isImageField && $J('#'+ inputId +'_preview')) {
-                    changeImagePreview($J('#'+ inputId +'_preview'), path);
+                if (isImageField && $J('#' + inputId + '_preview')) {
+                    changeImagePreview($J('#' + inputId + '_preview'), path);
                 }
             } else if (data.type === 'page') {
                 var node = data.data[0].node;
