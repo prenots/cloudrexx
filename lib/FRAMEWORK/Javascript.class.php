@@ -240,7 +240,7 @@ cx.jQuery(document).ready(function(){
             ),
         ),
         'jquery-nstslider' => array(
-            'jsfiles'       => array(
+            'jsfiles' => array(
                 'lib/javascript/jquery/plugins/nstSlider/jquery.nstSlider.min.js',
             ),
             'cssfiles' => array(
@@ -966,10 +966,10 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
             }
             if (   !file_exists(\Env::get('ClassLoader')->getFilePath(($codeBasePath.'/').$fileName))
                 && !file_exists(\Env::get('ClassLoader')->getFilePath(($websitePath.'/').$fileName))
-        ) {
+            ) {
                 self::$error .= "The file ".$fileName." doesn't exist\n";
-            return false;
-        }
+                return false;
+            }
         }
 
         // add original file name with query string to custom javascripts array
@@ -977,7 +977,7 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
             return true;
         }
 
-            self::$customCSS[] = $file;
+        self::$customCSS[] = $file;
         return true;
     }
 
@@ -1276,10 +1276,10 @@ JSCODE;
             $path = '';
 
             if (!preg_match('#^https?://#', $file)) {
-            $path = self::$offset;
-            if ($_CONFIG['useCustomizings'] == 'on' && file_exists(ASCMS_CUSTOMIZING_PATH.'/'.$file)) {
-                $path .= preg_replace('#'.\Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseDocumentRootPath().'/#', '', ASCMS_CUSTOMIZING_PATH) . '/';
-            }
+                $path = self::$offset;
+                if ($_CONFIG['useCustomizings'] == 'on' && file_exists(ASCMS_CUSTOMIZING_PATH.'/'.$file)) {
+                    $path .= preg_replace('#'.\Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseDocumentRootPath().'/#', '', ASCMS_CUSTOMIZING_PATH) . '/';
+                }
             }
 
             $path .= $file;
