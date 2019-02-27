@@ -462,7 +462,11 @@ class InitCMS
         if ($theme && $theme->isComponent()) {
             foreach ($theme->getDependencies() as $libraryName => $libraryVersions) {
                 $minVersion = $libraryVersions[0];
-                \JS::activateByVersion($libraryName, $minVersion);
+                $libraryReference = '';
+                \JS::activateByVersion($libraryName, $minVersion, null, array(), $libraryReference);
+                \ContrexxJavascript::getInstance()->setVariable(
+                    $libraryName, $libraryReference, 'View'
+                );
             }
         }
 
