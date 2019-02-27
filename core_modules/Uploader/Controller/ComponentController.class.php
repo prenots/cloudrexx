@@ -95,8 +95,30 @@ class ComponentController extends SystemComponentController
             'chunk_size', min(floor((\FWSystem::getMaxUploadFileSize()-1000000)/1000000), 20) .'mb', 'uploader'
         );
 
-        \JS::activate('mediabrowser');
-        \JS::registerJS('core_modules/Uploader/View/Script/Uploader.js');
+        // register javscript library dependencies
+        \JS::registerJsLibrary(
+            'uploader',
+            array(
+                'jsfiles' => array(
+                    $this->getDirectory(true, true) . '/View/Script/Uploader.js',
+                ),
+                // TODO: Move CSS of Uploader into separate files.
+                // Load CSS of MediaBrowser as the CSS for the Uploader
+                // is stored in the CSS files of MediaBrowser
+                'cssfiles' => array(
+                    $this->getComponent('MediaBrowser')->getDirectory(true, true) . '/View/Style/MediaBrowser.css?v=3',
+                    $this->getComponent('MediaBrowser')->getDirectory(true, true) . '/View/Style/Frontend.css?v=3',
+                ),
+                'dependencies' => array(
+                    'jquery' => '^([^1]\..*|1\.[^0-8]*\..*)$',
+                    'cx',
+                    'upload-toolset',
+                ),
+            )
+        );
+
+        // load javascript
+        \JS::activate('uploader');
     }
 
 }

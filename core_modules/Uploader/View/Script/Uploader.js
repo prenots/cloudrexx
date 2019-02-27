@@ -390,4 +390,4 @@
     });
 
 
-}(cx.libs.jquery['mediabrowser']);
+}(cx.libs.jquery['uploader']);
