@@ -88,7 +88,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
                      * Protocol field exists only in the info tab.
                      */
                     if (target[0] == 'info') {
-                        dialogDefinition.dialog.setValueOf('info','protocol', '');
+                        dialogDefinition.dialog.setValueOf('info', 'protocol', '');
                     }
                 };
                 browseButton.hidden = false;
