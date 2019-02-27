@@ -2310,11 +2310,18 @@ CODE;
                     break;
             }
 
+            $wysiwyg           = $this->cx->getComponent('Wysiwyg');
+            $templateModuleUrl = $wysiwyg->getDirectory(true, true) . '/View/Script/Ace/';
+            $templateModeUrl   = $templateModuleUrl . 'mode-template.js';
+            $templateWorkerUrl = $templateModuleUrl . 'worker-template.js';
+
             $jsCode = <<<CODE
-var editor;                        
-\$J(function(){         
+var editor;
+\$J(function(){
 if (\$J("#editor").length) {
     editor = ace.edit("editor");
+    ace.config.setModuleUrl("ace/mode/template", "$templateModeUrl");
+    ace.config.setModuleUrl("ace/mode/template_worker", "$templateWorkerUrl");
     editor.getSession().setMode("ace/mode/$mode");
     editor.setShowPrintMargin(false);
     editor.commands.addCommand({
