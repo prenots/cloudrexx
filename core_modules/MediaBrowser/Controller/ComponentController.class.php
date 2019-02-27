@@ -62,6 +62,12 @@ class ComponentController extends
     protected $mediaBrowserInstances = array();
 
     /**
+     * List of additional JavaScript files, that will be loaded before the
+     * the main MediaBrowser.js.
+     */
+    protected $customJsFiles = array();
+
+    /**
      * {@inheritdoc }
      */
     public function getControllerClasses() {
@@ -188,7 +194,67 @@ class ComponentController extends
         \ContrexxJavascript::getInstance()->setVariable(
             'language', \FWLanguage::getLanguageCodeById(\FWLanguage::getDefaultLangId()), 'mediabrowser'
         );
-        \JS::activate('mediabrowser');
+
+        // Base libraries
+        $baseJsFiles = array(
+            // Define the module
+            $this->getDirectory(true, true) . '/View/Script/module.js',
+            // Dependencies must be loaded first
+            $this->getDirectory(true, true) . '/View/Script/service/dataTabs.js',
+        );
+
+        // Enable extensions after the dataTabs service, where they plug into
+        $this->cx->getEvents()->triggerEvent(
+            'MediaBrowser.Plugin:initialize'
+        );
+
+        // Register dependencies
+        \JS::registerJsLibrary(
+            'mediabrowser',
+            array(
+                'jsfiles' => array_merge($baseJsFiles, $this->customJsFiles),
+                'dependencies' => array(
+                    'jquery' => '^([^1]\..*|1\.[^0-8]*\..*)$',
+                    'cx',
+                    'upload-toolset',
+                ),
+                // TODO: this is a workaround to fix the issue that the jQuery libraries that
+                //       are being loaded after the mediabrowser do still work.
+                //       The proper solution would be to refactor the \JS class, so that
+                //       it does load all libraries that depend on cx.jquery right after
+                //       contrexxJs.js has been loaded
+                'specialcode' => 'jQuery.noConflict(true);',
+            )
+        );
+
+        // Register the dependant main part after extensions have been connected
+        \JS::registerJsLibrary(
+            'mediabrowser-load',
+            array(
+                'jsfiles' => array(
+                    $this->getDirectory(true, true) . '/View/Script/MediaBrowser.js?v=4',
+                ),
+                'cssfiles' => array(
+                    $this->getDirectory(true, true) . '/View/Style/MediaBrowser.css?v=3',
+                    $this->getDirectory(true, true) . '/View/Style/Frontend.css?v=3',
+                ),
+                'dependencies' => array(
+                    'mediabrowser',
+                ),
+            )
+        );
+
+        // Finally, load all mediabrowser related ressources
+        \JS::activate('mediabrowser-load');
     }
 
+    /**
+     * Register custom JavaScript file to be loaded before the main
+     * MediaBrowser.js
+     *
+     * @param   string  $file   Relative path to a JavaScript file
+     */
+    public function registerCustomJs($file) {
+        $this->customJsFiles[] = $file;
+    }
 }

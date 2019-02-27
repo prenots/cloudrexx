@@ -533,26 +533,6 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
                 'angular-ui-bootstrap',
             ),
         ),
-        'mediabrowser' => array(
-            'jsfiles' => array(
-                'core_modules/MediaBrowser/View/Script/MediaBrowser.js?v=4',
-            ),
-            'cssfiles' => array(
-                'core_modules/MediaBrowser/View/Style/MediaBrowser.css?v=3',
-                'core_modules/MediaBrowser/View/Style/Frontend.css?v=3'
-            ),
-            'dependencies' => array(
-                'jquery' => '^([^1]\..*|1\.[^0-8]*\..*)$',
-                'cx',
-                'upload-toolset',
-            ),
-            // TODO: this is a workaround to fix the issue that the jQuery libraries that
-            //       are being loaded after the mediabrowser do still work.
-            //       The proper solution would be to refactor this class (JS), so that
-            //       it does load all libraries that depend on cx.jquery right after
-            //       contrexxJs.js has been loaded
-            'specialcode' => 'jQuery.noConflict(true);'
-        ),
         'intro.js' => array(
             'jsfiles' => array(
                 'lib/javascript/intro/intro.min.js',
