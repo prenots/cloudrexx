@@ -3,7 +3,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
     var dialogDefinition = event.data.definition;
     var tabCount = dialogDefinition.contents.length;
     for (var i = 0; i < tabCount; i++) {
-        if(dialogDefinition.contents[i] == undefined){
+        if (dialogDefinition.contents[i] == undefined) {
             continue;
         }
         var browseButton = dialogDefinition.contents[i].get('browse');
@@ -71,14 +71,14 @@ CKEDITOR.on('dialogDefinition', function (event) {
             /**
              * Handling node links.
              */
-            else if (browseButton.filebrowser.target == 'Link:txtUrl' || browseButton.filebrowser.target == 'info:url'){
+            else if (browseButton.filebrowser.target == 'Link:txtUrl' || browseButton.filebrowser.target == 'info:url') {
                 var target = browseButton.filebrowser.target.split(':');
                 var sitestructureCallback = function (callback) {
                     var link;
                     if (callback.type == 'close') {
                         return;
                     }
-                    if (callback.data[0].node){
+                    if (callback.data[0].node) {
                         link = callback.data[0].node;
                     } else {
                         link = callback.data[0].datainfo.filepath;
@@ -87,7 +87,7 @@ CKEDITOR.on('dialogDefinition', function (event) {
                     /**
                      * Protocol field exists only in the info tab.
                      */
-                    if (target[0] == 'info'){
+                    if (target[0] == 'info') {
                         dialogDefinition.dialog.setValueOf('info','protocol', '');
                     }
                 };
