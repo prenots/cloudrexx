@@ -759,9 +759,13 @@ Caution: JS/ALL files are missing. Also, this should probably be loaded through 
      *                 Specified as 'x.z.y'. Also accepts PCRE wildchars.
      * @param  string  $dependencyOf is the optional name of the library
      *                 that triggered the loaded of the specific library version.
+     * @param  array   Options to be passed to JS::activate() method
+     * @param  string  Will be set as reference to the specified version of the
+     *                 loaded library in case a specific version was loaded
+     *                 through $version.
      * @return bool     TRUE if specific version of the library has been loaded. FALSE on failure
      */
-    public static function activateByVersion($name, $version, $dependencyOf = null, $options = array()) {
+    public static function activateByVersion($name, $version, $dependencyOf = null, $options = array(), &$customAvailableLibrary = '') {
         // abort in case the library is unknown
         if (!isset(self::$available[$name])) {
             return false;
