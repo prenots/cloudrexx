@@ -38,13 +38,10 @@
 
 namespace Cx\Core_Modules\MediaBrowser\Controller;
 
-use Cx\Core\ContentManager\Model\Entity\Page;
 use Cx\Core\Core\Model\Entity\SystemComponentController;
 use Cx\Core\Html\Sigma;
-use Cx\Core\MediaSource\Model\Entity\ThumbnailGenerator;
 use Cx\Core_Modules\MediaBrowser\Model\Event\MediaBrowserEventListener;
 use Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser;
-use Cx\Lib\FileSystem\FileSystemException;
 
 /**
  * Class ComponentController
@@ -98,6 +95,18 @@ class ComponentController extends
         return array(
             'JsonMediaBrowser',
         );
+    }
+
+    /**
+     * Register your events here
+     *
+     * Do not do anything else here than list statements like
+     * $this->cx->getEvents()->addEvent($eventName);
+     */
+    public function registerEvents()
+    {
+        $eventHandlerInstance = $this->cx->getEvents();
+        $eventHandlerInstance->addEvent('MediaBrowser.Plugin:initialize');
     }
 
     /**
@@ -156,8 +165,7 @@ class ComponentController extends
             $thumbnailsTemplate->setVariable(
                 array(
                     'THUMBNAIL_NAME' => sprintf(
-                        $_ARRAYLANG[
-                        'TXT_FILEBROWSER_THUMBNAIL_' . strtoupper(
+                        $_ARRAYLANG['TXT_FILEBROWSER_THUMBNAIL_' . strtoupper(
                             $thumbnail['name']
                         ) . '_SIZE'], $thumbnail['size']
                     ),
@@ -167,25 +175,20 @@ class ComponentController extends
             );
             $thumbnailsTemplate->parse('thumbnails');
         }
-
         \ContrexxJavascript::getInstance()->setVariable(
             'thumbnails_template', $thumbnailsTemplate->get(),
             'mediabrowser'
         );
-
         \ContrexxJavascript::getInstance()->setVariable(
             'chunk_size', min(floor((\FWSystem::getMaxUploadFileSize()-1000000)/1000000), 20).'mb', 'mediabrowser'
         );
         \ContrexxJavascript::getInstance()->setVariable(
             'languages', \FWLanguage::getActiveFrontendLanguages(), 'mediabrowser'
         );
-
         \ContrexxJavascript::getInstance()->setVariable(
             'language', \FWLanguage::getLanguageCodeById(\FWLanguage::getDefaultLangId()), 'mediabrowser'
         );
-
         \JS::activate('mediabrowser');
     }
-
 
 }
