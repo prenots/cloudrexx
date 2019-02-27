@@ -460,12 +460,9 @@ class InitCMS
         $this->pageThemeId = $this->currentThemesId;
         $themesPath = $theme->getFoldername();
         if ($theme && $theme->isComponent()) {
-            $libraries = JS::getConfigurableLibraries();
             foreach ($theme->getDependencies() as $libraryName => $libraryVersions) {
-                if (!isset($libraries[$libraryName])) continue;
-                $version = $libraryVersions[0];
-                $libraryData = isset($libraries[$libraryName]['versions'][$version]) ? $libraries[$libraryName]['versions'][$version] : array();
-                \JS::activateByVersion($libraryName, $version);
+                $minVersion = $libraryVersions[0];
+                \JS::activateByVersion($libraryName, $minVersion);
             }
         }
 
