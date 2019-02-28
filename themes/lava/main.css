@@ -314,19 +314,6 @@ body .navbar-inverse .btn-navbar {
     height: 650px;
     max-width: 100%;
 }
-.one {
-    background: url(images/header1.jpg) no-repeat center center;
-    background-size: cover;
-}
-.ie7 .one, .ie7 .two, .ie7 .three, .ie8 .one, .ie8 .two, .ie8 .three{background-size: 100%;}
-.two {
-    background: url(images/header2.jpg) no-repeat center center;
-    background-size: cover;
-}
-.three {
-    background: url(images/header3.jpg) no-repeat center center;
-    background-size: cover;
-}
 .container .carousel-caption {
     background-color: transparent;
     position: static;
