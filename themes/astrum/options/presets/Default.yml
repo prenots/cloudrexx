@@ -1,13 +1,5 @@
 options:
   -
-    name: main_title
-    specific:
-      textvalue: 'Template Editor Main Title'
-  -
-    name: subtitle
-    specific:
-      textvalue: 'Template Editor Sub Title'
-  -
     name: main_color
     specific:
       color: '#ffffff'

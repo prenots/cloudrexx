@@ -83,10 +83,6 @@
         #client-logo ul li{
       width: 175px !important;
     }
-    #slide1 .slide_text{left: 44% !important;}
-    #slide1 .slide_text h2{font-size: 40px !important;}
-    #slide1 .slide_text h3{font-size: 24px !important;}
-    #slide1 .slide_text p{font-size: 14px !important;}
         #main-nav{
           display: none;
   }
@@ -149,10 +145,6 @@
        #client-logo ul li{
       width: 191px !important;
     }
-    #slide1 .slide_text{left: 30% !important;}
-    #slide1 .slide_text h2, #slide2 .slide_text h2{font-size: 32px !important;}
-    #slide1 .slide_text h3, #slide2 .slide_text h3{font-size: 20px !important;}
-    #slide1 .slide_text p, #slide2 .slide_text p{font-size: 13px !important;}
     .contact textarea{width: 100% !important;}
                 #livecam .livecamSearch input {margin-bottom: 15px;}
     }
@@ -327,7 +319,6 @@
     .slide_text h2{font-size: 32px !important;}
     .slide_text h3{font-size: 20px !important;}
     .slide_text p{font-size: 13px !important;}
-    #slide2 .slide_text{top: 0 !important;}
     #search{
       position: absolute !important;
       float: none !important;
