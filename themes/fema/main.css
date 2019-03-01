@@ -328,19 +328,6 @@ body .navbar .nav > li > a:hover, #navigation li.level-1.active > a.active {
     height: 800px;
     max-width: 100%;
 }
-.one {
-    background: url(images/header1.jpg) no-repeat center center;
-    background-size: cover;
-}
-.ie7 .one, .ie7 .two, .ie7 .three, .ie8 .one, .ie8 .two, .ie8 .three{background-size: 100%;}
-.two {
-    background: url(images/header2.jpg) no-repeat center center;
-    background-size: cover;
-}
-.three {
-    background: url(images/header3.jpg) no-repeat center center;
-    background-size: cover;
-}
 .carousel-caption {
     background-color: transparent;
     position: static;
