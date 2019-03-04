@@ -1,13 +1,5 @@
 options:
   -
-    name: main_title
-    specific:
-      textvalue: 'Template Editor Test'
-  -
-    name: subtitle
-    specific:
-      textvalue: 'Testing the templateditor sfdsfs'
-  -
     name: secondary_color
     specific:
       color: '#666666'
