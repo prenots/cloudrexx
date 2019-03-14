@@ -178,7 +178,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         return array(
             'label'       => $languageData['TXT_CORE_CONFIG_DNSHOSTNAMELOOKUP'],
-            'section_url' => \Cx\Core\Routing\Url::fromBackend('Config')
+            'section_url' => \Cx\Core\Routing\Url::fromBackend(
+                'Config',
+                '',
+                0,
+                array('active_tab' => 6)
+            )
         );
     }
 }
