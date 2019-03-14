@@ -367,61 +367,96 @@ class Stats extends StatsLibrary
             $this->_objTpl->touchBlock('stats_clients_colour_nodata');
         }
 
-        // set hostnames statistics
-        if (count($this->arrHostnames)>0) {
-            $rowClass = 0;
+        // Get hostname config info from Net component
+        $netController = $this->cx->getComponent('Net');
+        $hostNameConfigInfo = $netController->getHostnameLookupConfigInfo();
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $link->setAttribute('href', $hostNameConfigInfo['section_url']);
+        $link->addChild(
+            new \Cx\Core\Html\Model\Entity\TextElement($hostNameConfigInfo['label'])
+        );
+        $hostNameConfigInfoText = sprintf(
+            $_ARRAYLANG['TXT_STATS_HOSTNAME_LOOKUP_CONFIG_INFO'],
+            $link
+        );
 
-            foreach ($this->arrHostnames as $hostname => $count) {
-                if (!strlen($hostname)) {
-                    $hostname = $_ARRAYLANG['TXT_UNKNOWN'];
+        // set hostnames statistics
+        if ($netController->doHostnameLookup()) {
+            if (count($this->arrHostnames) > 0) {
+                $rowClass = 0;
+
+                foreach ($this->arrHostnames as $hostname => $count) {
+                    if (!strlen($hostname)) {
+                        $hostname = $_ARRAYLANG['TXT_UNKNOWN'];
+                    }
+
+                    $this->_objTpl->setVariable(array(
+                        'STATS_CLIENTS_HOSTNAME_ROW_CLASS'    => $rowClass % 2 == 0 ? "row2" : "row1",
+                        'STATS_CLIENTS_HOSTNAME'            => htmlentities($hostname, ENT_QUOTES, CONTREXX_CHARSET),
+                        'STATS_CLIENTS_HOSTNAME_COUNT'        => $this->_makePercentBar(200,10,100/$this->hostnamesSum*$count,100,1,htmlentities($hostname, ENT_QUOTES, CONTREXX_CHARSET)).' '.round(100/$this->hostnamesSum*$count,2).'% ('.$count.')'
+                    ));
+                    $this->_objTpl->parse('stats_clients_hostnames_list');
+                    $rowClass++;
                 }
 
-                $this->_objTpl->setVariable(array(
-                    'STATS_CLIENTS_HOSTNAME_ROW_CLASS'    => $rowClass % 2 == 0 ? "row2" : "row1",
-                    'STATS_CLIENTS_HOSTNAME'            => htmlentities($hostname, ENT_QUOTES, CONTREXX_CHARSET),
-                    'STATS_CLIENTS_HOSTNAME_COUNT'        => $this->_makePercentBar(200,10,100/$this->hostnamesSum*$count,100,1,htmlentities($hostname, ENT_QUOTES, CONTREXX_CHARSET)).' '.round(100/$this->hostnamesSum*$count,2).'% ('.$count.')'
-                ));
-                $this->_objTpl->parse('stats_clients_hostnames_list');
-                $rowClass++;
+                $this->_objTpl->hideBlock('stats_clients_hostnames_nodata');
+            } else {
+                $this->_objTpl->hideBlock('stats_clients_hostnames');
+                $this->_objTpl->touchBlock('stats_clients_hostnames_nodata');
             }
-
-            $this->_objTpl->hideBlock('stats_clients_hostnames_nodata');
+            $this->_objTpl->hideBlock('stats_clients_hostnames_dns_lookup_config_info');
         } else {
+            $this->_objTpl->setVariable(
+                'STATS_CLIENTS_HOSTNAME_DNS_LOOKUP_CONFIG_INFO',
+                $hostNameConfigInfoText
+            );
             $this->_objTpl->hideBlock('stats_clients_hostnames');
-            $this->_objTpl->touchBlock('stats_clients_hostnames_nodata');
+            $this->_objTpl->hideBlock('stats_clients_hostnames_nodata');
+            $this->_objTpl->touchBlock('stats_clients_hostnames_dns_lookup_config_info');
         }
 
         // set countries of origin statistics
-        if (count($this->arrCountries)>0) {
-            $rowClass = 0;
+        if ($netController->doHostnameLookup()) {
+            if (count($this->arrCountries) > 0) {
+                $rowClass = 0;
 
-            // get country names from xml file
-            $xmlCountryFilePath  = $this->cx->getClassLoader()->getFilePath($this->cx->getCoreModuleFolderName() . '/Stats/Data/countries.xml');
-            $xml_parser = xml_parser_create();
-            xml_set_object($xml_parser,$this);
-            xml_set_element_handler($xml_parser,"_xmlCountryStartTag","_xmlCountryEndTag");
-            xml_parse($xml_parser,file_get_contents($xmlCountryFilePath));
+                // get country names from xml file
+                $xmlCountryFilePath  = $this->cx->getClassLoader()->getFilePath($this->cx->getCoreModuleFolderName() . '/Stats/Data/countries.xml');
+                $xml_parser = xml_parser_create();
+                xml_set_object($xml_parser,$this);
+                xml_set_element_handler($xml_parser,"_xmlCountryStartTag","_xmlCountryEndTag");
+                xml_parse($xml_parser,file_get_contents($xmlCountryFilePath));
 
-            foreach ($this->arrCountries as $countryCode => $count) {
-                $country = isset($this->arrCountryNames[$countryCode]) ? $this->arrCountryNames[$countryCode] : strtoupper($countryCode);
-                if (file_exists($this->cx->getCodeBaseCoreModulePath() . '/Stats/View/Media/Flags/'.$countryCode.'.gif')) {
-                    $flag = $countryCode;
-                } else {
-                    $flag = 'other';
+                foreach ($this->arrCountries as $countryCode => $count) {
+                    $country = isset($this->arrCountryNames[$countryCode]) ? $this->arrCountryNames[$countryCode] : strtoupper($countryCode);
+                    if (file_exists($this->cx->getCodeBaseCoreModulePath() . '/Stats/View/Media/Flags/'.$countryCode.'.gif')) {
+                        $flag = $countryCode;
+                    } else {
+                        $flag = 'other';
+                    }
+                    $this->_objTpl->setVariable(array(
+                        'STATS_CLIENTS_COUNTRY_ROW_CLASS'    => $rowClass % 2 == 0 ? "row2" : "row1",
+                        'STATS_CLIENTS_COUNTRY'                => '<img src="'.$this->cx->getCodeBaseCoreModuleWebPath().'/Stats/View/Media/Flags/'.$flag.'.gif" style="width:18px;height:12px;" alt="'.$country.'" />&nbsp;'.$country,
+                        'STATS_CLIENTS_COUNTRY_COUNT'        => $this->_makePercentBar(200,10,100/$this->countriesSum*$count,100,1,$country).' '.round(100/$this->countriesSum*$count,2).'% ('.$count.')'
+                    ));
+                    $this->_objTpl->parse('stats_clients_countries_list');
+                    $rowClass++;
                 }
-                $this->_objTpl->setVariable(array(
-                    'STATS_CLIENTS_COUNTRY_ROW_CLASS'    => $rowClass % 2 == 0 ? "row2" : "row1",
-                    'STATS_CLIENTS_COUNTRY'                => '<img src="'.$this->cx->getCodeBaseCoreModuleWebPath().'/Stats/View/Media/Flags/'.$flag.'.gif" style="width:18px;height:12px;" alt="'.$country.'" />&nbsp;'.$country,
-                    'STATS_CLIENTS_COUNTRY_COUNT'        => $this->_makePercentBar(200,10,100/$this->countriesSum*$count,100,1,$country).' '.round(100/$this->countriesSum*$count,2).'% ('.$count.')'
-                ));
-                $this->_objTpl->parse('stats_clients_countries_list');
-                $rowClass++;
-            }
 
-            $this->_objTpl->hideBlock('stats_clients_countries_nodata');
+                $this->_objTpl->hideBlock('stats_clients_countries_nodata');
+            } else {
+                $this->_objTpl->hideBlock('stats_clients_countries');
+                $this->_objTpl->touchBlock('stats_clients_countries_nodata');
+            }
+            $this->_objTpl->hideBlock('stats_clients_countries_dns_lookup_config_info');
         } else {
+            $this->_objTpl->setVariable(
+                'STATS_CLIENTS_COUNTRIES_DNS_LOOKUP_CONFIG_INFO',
+                $hostNameConfigInfoText
+            );
             $this->_objTpl->hideBlock('stats_clients_countries');
-            $this->_objTpl->touchBlock('stats_clients_countries_nodata');
+            $this->_objTpl->hideBlock('stats_clients_countries_nodata');
+            $this->_objTpl->touchBlock('stats_clients_countries_dns_lookup_config_info');
         }
 
         $this->_objTpl->parse('stats_clients');
