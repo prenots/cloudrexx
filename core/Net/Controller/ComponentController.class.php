@@ -138,19 +138,47 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * Get Host by IP address
      *
      * @param string $ip IP address
-     *
      * @return string
      */
     public function getHostByAddr($ip)
+    {
+        if (!$this->doHostnameLookup()) {
+            return $ip;
+        }
+
+        return gethostbyaddr($ip);
+    }
+
+    /**
+     * Get the config option 'dnsHostnameLookup' status
+     *
+     * @return boolean True if dns hostname is on, otherwise false
+     */
+    public function doHostnameLookup()
     {
         $dnsHostnameLookup = \Cx\Core\Setting\Controller\Setting::getValue(
             'dnsHostnameLookup',
             'Config'
         );
-        if ($dnsHostnameLookup != 'on') {
-            return $ip;
-        }
 
-        return gethostbyaddr($ip);
+        return $dnsHostnameLookup == 'on';
+    }
+
+    /**
+     * Get the hostname lookup configuration info
+     *
+     * @return array Array of dns hostname configuration info
+     */
+    public function getHostnameLookupConfigInfo()
+    {
+        $languageData = \Env::get('init')->getComponentSpecificLanguageData(
+            'Config',
+            false
+        );
+
+        return array(
+            'label'       => $languageData['TXT_CORE_CONFIG_DNSHOSTNAMELOOKUP'],
+            'section_url' => \Cx\Core\Routing\Url::fromBackend('Config')
+        );
     }
 }
