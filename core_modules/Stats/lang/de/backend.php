@@ -170,3 +170,4 @@ $_ARRAYLANG['TXT_PAGING_LIMIT_VISITOR_DETAILS'] = "Anzeigelimit für Besucherdet
 $_ARRAYLANG['TXT_IMAGE_EDIT_SHOW'] = "Anzeigen";
 $_ARRAYLANG['TXT_STATS_COUNT_VISIOTR_NUMBER'] = "Nummer des aktuellen Besuchers berechnen. Diese Option muss aktiviert sein, falls Sie den Platzhalter [[VISITOR_NUMBER]] im Frontend verwenden wollen.";
 $_ARRAYLANG['TXT_STATS_BDSG'] = 'Bitte beachten Sie, dass mit der Aktivierung dieser Option u.U. personenbezogene Daten erfasst werden, was in den meisten Ländern ohne ausdrückliche Einwilligung der betroffenen Person rechtlich untersagt ist.';
+$_ARRAYLANG['TXT_STATS_HOSTNAME_LOOKUP_CONFIG_INFO'] = 'Die Erfassung von statistischen Daten ist aktuell deaktiviert. Zur Erfassung von statistischen Daten, muss die Option %s aktiviert werden.';
