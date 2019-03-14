@@ -319,6 +319,13 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
         if ($objUser->getId()) {
             $params['userId'] = $objUser->getId();
         }
+
+        // fix birthday (convert timestamp into date format)
+        if (!empty($params['multisite_user_profile_attribute']['birthday'][0])) {
+            $birthday = date(ASCMS_DATE_FORMAT_DATE, $params['multisite_user_profile_attribute']['birthday'][0]);
+            $params['multisite_user_profile_attribute']['birthday'][0] = $birthday;
+        }
+
         return $params;
     }
     
