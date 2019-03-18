@@ -326,6 +326,10 @@ class User extends User_Profile
      */
     public $error_msg = array();
 
+    protected $tblAttr = 'tblA';
+    protected $tblAttrVal = 'tblP';
+    protected $tblAttrName = 'tblN';
+
 
     /**
      * TRUE if user is authenticated
@@ -1270,6 +1274,10 @@ class User extends User_Profile
     ) {
         global $objDatabase;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+
+        $em = $cx->getDb()->getEntityManager();
+
         if ($this->isLoggedIn()) {
             $arrDebugBackTrace =  debug_backtrace();
             die("User->loadUsers(): Illegal method call in {$arrDebugBackTrace[0]['file']} on line {$arrDebugBackTrace[0]['line']}!");
@@ -1328,7 +1336,6 @@ class User extends User_Profile
                     $arrSelectCustomExpressions[] = $attribute;
                 }
             }
-
             if (!in_array('id', $arrSelectMetaExpressions)) {
                 $arrSelectMetaExpressions[] = 'id';
             }
@@ -1336,6 +1343,75 @@ class User extends User_Profile
             $arrSelectMetaExpressions = array_keys($this->arrAttributes);
             $arrSelectCoreExpressions = $this->objAttribute->getCoreAttributeIds();
             $arrSelectCustomExpressions = array();
+        }
+
+        /*Build doctrine query*/
+        $qb = $em->createQueryBuilder();
+
+        $fields = $em->getClassMetadata('\Cx\Core\User\Model\Entity\User');
+
+        $arrExpressions = array();
+
+        /*Get fieldnames for associated columnnames*/
+        foreach($arrSelectMetaExpressions as $item) {
+            $arrExpressions[] = $fields->getFieldName($item);
+        }
+
+        $tblA = $this->tblAttr;
+        $tblAv = $this->tblAttrVal;
+        $tblAn = $this->tblAttrName;
+
+        $qb->select('tblU.'.implode(', tblU.', $arrExpressions).', '.$tblAv.'.value')
+            ->from('\Cx\Core\User\Model\Entity\User', 'tblU');
+
+        /*Load core attributes*/
+        if (count($arrSelectCoreExpressions) || $arrQuery['tables']['core']) {
+            $counter = 0;
+            foreach ($arrSelectCoreExpressions as $item) {
+                $counter++;
+                $qb->innerJoin('\Cx\Core\User\Model\Entity\UserAttribute', $tblA, 'WITH', $tblA.'.id = '.$tblA.'.id')
+                    ->innerJoin('\Cx\Core\User\Model\Entity\UserAttributeValue', $tblAv, 'WITH', $tblAv.'.userId = tblU.id AND '. $tblAv .'.attributeId = '.$tblA.'.id')
+                    ->innerJoin('\Cx\Core\User\Model\Entity\UserAttributeName', $tblAn, 'WITH', $tblAn.'.name = ?'.$counter.' AND '.$tblAv.'.attributeId = '.$tblAn.'.attributeId')
+                    ->setParameter($counter, $item);
+                $tblA = $this->tblAttr . $counter;
+                $tblAv = $this->tblAttrVal . $counter;
+                $tblAn = $this->tblAttrName . $counter;
+            }
+        }
+
+        if ($arrQuery['tables']['custom']) {
+            $qb->innerJoin('\Cx\Core\User\Model\Entity\UserAttributeValue', 'tblA', 'WITH', 'tblA.user_id = tblU.id');
+        }
+
+        foreach ($arrSelectCoreExpressions as $expr){
+            $qb->select('tblU.'.implode(', tblU.', $arrExpressions).', tblP.value')->from('\Cx\Core\User\Model\Entity\User', 'tblU');
+        }
+
+        if ($arrQuery['tables']['group']) {
+            if (isset($filter['group_id']) && $filter['group_id'] == 'groupless') {
+                $qb->leftJoin(DBPREFIX.'access_rel_user_group', 'tblG', 'WITH', 'tblG.user_id = tblU.id');
+            } else {
+                $qb->innerJoin(DBPREFIX.'access_rel_user_group', 'tblG', 'WITH', 'tblG.user_id = tblU.id');
+            }
+        }
+        if ($arrQuery['tables']['group'] && !FWUser::getFWUserObject()->isBackendMode()) {
+            $qb->innerJoin(DBPREFIX.'access_user_groups', 'tblGF', 'WITH', 'tblGF.group_id = tblG.group_id');
+        }
+        if (count($arrQuery['joins'])) {
+            ' '.implode(' ',$arrQuery['joins']);
+        }
+        if (count($arrQuery['conditions'])) {
+            $qb->where(str_replace('`', '' , implode(') AND (', $arrQuery['conditions'])));
+        }
+        if ($arrQuery['group_tables']) {
+            $qb->groupBy('tblU.id');
+        }
+        if (count($arrQuery['sort'])) {
+            foreach($arrQuery['sort'] as $item) {
+                $field = str_replace('`', '' , explode(' ', $item)[0]);
+                $order = explode(' ', $item)[1];
+                $qb->addOrderBy($field, $order);
+            }
         }
 
         $query = 'SELECT tblU.`'.implode('`, tblU.`', $arrSelectMetaExpressions).'`'
@@ -1355,6 +1431,7 @@ class User extends User_Profile
             .(count($arrQuery['conditions']) ? ' WHERE ('.implode(') AND (', $arrQuery['conditions']).')' : '')
             .($arrQuery['group_tables'] ? ' GROUP BY tblU.`id`' : '')
             .(count($arrQuery['sort']) ? ' ORDER BY '.implode(', ', $arrQuery['sort']) : '');
+
         $objUser = false;
         if (empty($limit)) {
             $objUser = $objDatabase->Execute($query);
