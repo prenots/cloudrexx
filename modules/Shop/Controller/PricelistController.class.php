@@ -52,7 +52,10 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getViewGeneratorOptions($options)
     {
+        global $_ARRAYLANG;
+
         $options['order']['form'] = array(
+            'pdfLink',
             'name',
             'lang',
         );
@@ -85,9 +88,11 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             'headerLeft' => array(
                 'showOverview' => false,
                 'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getLineField($fieldname, $fieldvalue, 'headerRight');
+                    return $this->getLineField(
+                        $fieldname,
+                        $fieldvalue,
+                        'headerRight'
+                    );
                 }
             ),
             'headerRight' => array(
@@ -109,9 +114,12 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                         'TXT_PAGENUMBER'
                         ]
                     );
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getLineField($fieldname, $fieldvalue, 'footerRight',$placeholders);
+                    return $this->getLineField(
+                        $fieldname,
+                        $fieldvalue,
+                        'footerRight',
+                        $placeholders
+                    );
                 }
             ),
             'footerRight' => array(
@@ -120,10 +128,8 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'allCategories' => array(
                 'showOverview' => false,
-                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getAllCategoriesCheckbox($fieldvalue);
+                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
+                    return $this->getAllCategoriesCheckbox($fieldvalue);
                 },
                 'storecallback' => function(){
                     return $this->cx->getRequest()->hasParam(
@@ -139,23 +145,40 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'mode' => 'associate',
                 'formfield' => function() {
-                    return $this->getSystemComponentController()->getController(
-                        'Pricelist'
-                    )->getCategoryCheckboxesForPricelist();
+                    return $this->getCategoryCheckboxesForPricelist();
                 },
             ),
+            'pdfLink' => array(
+                'custom' => true,
+                'header' => $_ARRAYLANG['TXT_PDF_LINK'],
+                'type' => 'div',
+                'valueCallback' => function($fieldvalue, $fieldname, $rowData) {
+                    return $this->getGeneratedPdfLink($rowData);
+                },
+                'table' => array(
+                    'parse' => function($value) {
+                        return $this->getLinkElement($value);
+                    }
+                ),
+                'formfield' => function($name, $type, $length, $value) {
+                    return $this->getLinkElement($value);
+                }
+            )
         );
 
         return $options;
     }
 
     /**
+     * Return foreach category a checkbox.
+     *
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
-     * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      */
-    public function getCategoryCheckboxesForPricelist()
+    protected function getCategoryCheckboxesForPricelist()
     {
         // Until we know how to get the editId without the $_GET param
+        $pricelistId = 0;
         if ($this->cx->getRequest()->hasParam('editid')) {
             $pricelistId = explode(
                 '}',
@@ -165,52 +188,88 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
                 )[1]
             )[0];
         }
-        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Pricelist'
-        );
+
         $categories = $this->cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Category'
-        )->findBy(array('active' => 1));
+        )->findBy(array('active' => 1, 'parentId' => null));
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $index = count($categories)-1;
 
         foreach ($categories as $category) {
-            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
-            $label->setAttributes(
-                array(
-                    'class' => 'category',
-                    'for' => 'category-'. $category->getId()
-                )
-            );
-            $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                $category->getName()
-            );
-            $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
-                'categories[' . $index-- . ']',
-                $category->getId()
-
-            );
-
-            $isActive = (boolean)$repo->getPricelistByCategoryAndId(
-                $category,
-                $pricelistId
-            );
-            $checkbox->setAttributes(
-                array(
-                    'type' => 'checkbox',
-                    'id' => 'category-' . $category->getId(),
-                    empty($isActive) ? '' : 'checked' => 'checked'
+            $wrapper->addChild(
+                $this->getCategoryCheckbox(
+                    $category, $pricelistId
                 )
             );
 
-            $label->addChild($checkbox);
-            $label->addChild($text);
-            $wrapper->addChild($label);
+            foreach ($category->getChildren() as $child) {
+                $childWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                $childWrapper->addClass('child');
+
+                $childCheckbox = $this->getCategoryCheckbox(
+                    $child, $pricelistId
+                );
+
+                $childWrapper->addChild($childCheckbox);
+                $wrapper->addChild($childWrapper);
+            }
         }
         return $wrapper;
     }
 
-    public function getAllCategoriesCheckbox($isActive)
+    /**
+     * Return a checkbox for given category.
+     *
+     * @param $category   \Cx\Modules\Shop\Model\Entity\Category given category
+     * @param $pricelistId int                                   id of pricelist
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     * @throws \Doctrine\ORM\ORMException
+     */
+    protected function getCategoryCheckbox($category, $pricelistId)
+    {
+        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Pricelist'
+        );
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttributes(
+            array(
+                'class' => 'category',
+                'for' => 'category-'. $category->getId()
+            )
+        );
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $category->getName()
+        );
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            'categories[' . $category->getId() . ']',
+            $category->getId()
+
+        );
+
+        $isActive = (boolean)$repo->getPricelistByCategoryAndId(
+            $category,
+            $pricelistId
+        );
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'category-' . $category->getId(),
+                empty($isActive) ? '' : 'checked' => 'checked'
+            )
+        );
+
+        $label->addChild($checkbox);
+        $label->addChild($text);
+
+        return $label;
+    }
+
+    /**
+     * Return checkbox to select all categories.
+     *
+     * @param $isActive bool if checkbox is checked
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function getAllCategoriesCheckbox($isActive)
     {
         global $_ARRAYLANG;
 
@@ -245,7 +304,16 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
-    public function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
+    /**
+     * Get two input fields in one row.
+     *
+     * @param $nameLeft           string name of left element
+     * @param $valueLeft          string value of left element
+     * @param $nameRight          string name of right elemement
+     * @param array $placeholders array available placeholders in pdf generation
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
     {
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $headerLeft = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
@@ -294,5 +362,50 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $wrapper->addChild($wrapperPlaceholders);
         return $wrapper;
+    }
+
+    /**
+     * Get link to generate pdf pricelist.
+     *
+     * @param $rowData array contain data of entity
+     * @return string
+     */
+    protected function getGeneratedPdfLink($rowData)
+    {
+        $url = $this->cx->getRequest()->getUrl();
+        $protcol = $url->getProtocol();
+        $domain = $url->getDomain();
+        $pdfLinkUrl = \Cx\Core\Routing\Url::fromApi(
+            'generatePdfPricelist', array()
+        );
+
+        $locale = \FWLanguage::getLanguageCodeById($rowData['langId']);
+        $pdfLinkUrl->setParam('id', $rowData['id']);
+        $pdfLinkUrl->setParam('locale', $locale);
+
+        $link = $protcol . '://' . $domain . $pdfLinkUrl;
+
+        return $link;
+    }
+
+    /**
+     * Get link element to generate pdf pricelist.
+     *
+     * @param $value string link to pdf generation
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    protected function getLinkElement($value)
+    {
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $text = new \Cx\Core\Html\Model\Entity\TextElement($value);
+        $link->setAttributes(
+            array(
+                'href' => $value,
+                'target' => '_blank'
+            )
+        );
+        $link->addChild($text);
+
+        return $link;
     }
 }

@@ -1,16 +1,56 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: sam
- * Date: 03.01.19
- * Time: 12:59
+ * Cloudrexx
+ *
+ * @link      http://www.cloudrexx.com
+ * @copyright Cloudrexx AG 2007-2018
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Cloudrexx" is a registered trademark of Cloudrexx AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
  */
 
+/**
+ * OrderController to handle orders
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_shop
+ */
 namespace Cx\Modules\Shop\Controller;
 
-
+/**
+ * OrderController to handle orders
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_shop
+ */
 class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 {
+    /**
+     * Get ViewGenerator options for Manufacturer entity
+     *
+     * @param $options array predefined ViewGenerator options
+     * @throws \Exception
+     * @return array includes ViewGenerator options for Manufacturer entity
+     */
     public function getViewGeneratorOptions($options)
     {
         global $_ARRAYLANG;
@@ -31,9 +71,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $options['functions']['show'] = true;
         $options['functions']['editable'] = true;
         $options['functions']['paging'] = true;
-        //$options['functions']['add'] = false;
+        $options['functions']['add'] = false;
         $options['functions']['onclick']['delete'] = 'deleteOrder';
         $options['functions']['order']['id'] = SORT_DESC;
+        $options['functions']['alphabetical'] = 'customer';
         $options['functions']['searchCallback'] = function(
             $qb,
             $field,
@@ -81,6 +122,13 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $scope
         );
 
+
+        \ContrexxJavascript::getInstance()->setVariable(
+            'SHOP_ORDER_PENDENT_KEY',
+            \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_PENDING,
+            $scope
+        );
+
         $options['order'] = array(
             'overview' => array(
                 'id',
@@ -97,6 +145,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'modifiedOn',
                 'modifiedBy',
                 'lang',
+                'titleAddress',
                 'billingCompany',
                 'billingGender',
                 'billingLastname',
@@ -118,13 +167,17 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'country',
                 'phone',
                 'shipper',
+                'titlePaymentInfos',
                 'payment',
                 'lsvs',
+                'titleBill',
                 'orderItems',
                 'vatAmount',
+                'emptyField',
                 'shipmentAmount',
                 'paymentAmount',
                 'sum',
+                'titleNote',
                 'note'
             )
         );
@@ -340,7 +393,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     'attributes' => array(
                         'class' => 'order-note',
                     ),
-                )
+                ),
+                'formfield' => function($name, $type, $length, $value) {
+                    return $this->getDivWrapper($value);
+                }
             ),
             'modifiedOn' => array(
                 'showOverview' => false,
@@ -525,7 +581,62 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 ) {
                     return $this->getCustomerGroupMenu($elementName, $formName);
                 },
-            )
+            ),
+            'titleAddress' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'allowFiltering' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array(
+                            $_ARRAYLANG['TXT_BILLING_ADDRESS'],
+                            $_ARRAYLANG['TXT_SHIPPING_ADDRESS']
+                        )
+                    );
+                }
+            ),
+            'titlePaymentInfos' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'allowFiltering' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array($_ARRAYLANG['TXT_PAYMENT_INFORMATIONS'])
+                    );
+                }
+            ),
+            'titleBill' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'allowFiltering' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array($_ARRAYLANG['TXT_BILL'])
+                    );
+                }
+            ),
+            'titleNote' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'allowFiltering' => false,
+                'formfield' => function() {
+                    global $_ARRAYLANG;
+                    return $this->getTitleRow(
+                        array($_ARRAYLANG['TXT_CUSTOMER_REMARKS'])
+                    );
+                }
+            ),
+            'emptyField' => array(
+                'custom' => true,
+                'allowFiltering' => false,
+                'formfield' => function() {
+                    return $this->getDivWrapper('');
+                },
+                'showOverview' => false,
+            ),
         );
         $order = new \Cx\Modules\Shop\Model\Entity\Order();
         if (!empty($this->orderId)) {
@@ -593,7 +704,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     protected function getCustomerGroupMenu($elementName, $formName)
     {
         global $_ARRAYLANG;
-
+        \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
         $resellerGroup = \Cx\Core\Setting\Controller\Setting::getValue(
             'usergroup_id_reseller',
             'Shop'
@@ -604,11 +715,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'Shop'
         );
 
-        //ToDo: use $resserGroup and $customerGroup for array keys
         $validValues = array(
             '' => $_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'],
-            6 => $_ARRAYLANG['TXT_CUSTOMER'],
-            7 => $_ARRAYLANG['TXT_RESELLER'],
+            $resellerGroup => $_ARRAYLANG['TXT_CUSTOMER'],
+            $customerGroup => $_ARRAYLANG['TXT_RESELLER'],
         );
         $searchField = new \Cx\Core\Html\Model\Entity\DataElement(
             $elementName,
@@ -710,16 +820,24 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'input'
         );
 
-        $wrapperEmail->setAttribute('id', 'sendMailDiv');
+        $wrapperEmail->setAttributes(
+            array(
+                'id' => 'sendMailDiv',
+                'style' => 'display: inline',
+            )
+        );
         $labelEmail->setAttribute('for', 'sendMail');
         $inputEmail->setAttributes(
             array(
                 'type' => 'checkbox',
                 'id' => 'sendMail',
                 'onclick' => 'swapSendToStatus();',
-                'checked' => 'checked'
             )
         );
+
+        if ($fieldvalue != \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED) {
+            $wrapperEmail->setAttribute('style', 'display:none');
+        }
 
         $labelEmail->addChild($textEmail);
         $wrapperEmail->addChild($inputEmail);
@@ -753,10 +871,12 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'input'
         );
         $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
+        $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $spanWrapper->addChild($addition);
 
         $wrapper->addChild($title);
         $wrapper->addChild($input);
-        $wrapper->addChild($addition);
+        $wrapper->addChild($spanWrapper);
 
         return $wrapper;
     }
@@ -987,7 +1107,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 $addition = new \Cx\Core\Html\Model\Entity\TextElement(
                     $header['addition']
                 );
-                $td->addChild($addition);
+                $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                $spanWrapper->addChild($addition);
+                $td->addChild($spanWrapper);
             }
             $tableBody->addChild($tr);
         }
@@ -1068,7 +1190,11 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $addition = new \Cx\Core\Html\Model\Entity\TextElement(
                 $header['addition']
             );
-            $td->addChild($addition);
+            $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement(
+                'span'
+            );
+            $spanWrapper->addChild($addition);
+            $td->addChild($spanWrapper);
         }
 
         $tableBody->addChild($trEmpty);
@@ -1130,7 +1256,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $weightTitle = new \Cx\Core\Html\Model\Entity\TextElement(
             $_ARRAYLANG['TXT_TOTAL_WEIGHT']
         );
-        $tdWeightTitle->setAttribute('style', 'text-align: right;');
+        $tdWeightTitle->addClass('shop-order-info');
         $tdWeightTitle->addChild($weightTitle);
 
         $tdWeightInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
@@ -1158,7 +1284,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $netpriceTitle = new \Cx\Core\Html\Model\Entity\TextElement(
             $_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE']
         );
-        $tdNetpriceTitle->setAttribute('style', 'text-align: right;');
+        $tdNetpriceTitle->addClass('shop-order-info');
         $tdNetpriceTitle->addChild($netpriceTitle);
 
         $tdNetpriceInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
@@ -1178,7 +1304,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $additionChf = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
 
         $tdNetpriceInput->addChild($netpriceInput);
-        $tdNetpriceInput->addChild($additionChf);
+        $tdNetpriceInput->addChild($spanWrapper);
 
         $trCustom->addChild($tdNetpriceTitle);
         $trCustom->addChild($tdNetpriceInput);
@@ -1391,8 +1517,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                  array(
                      1 => $start_date,
                      2 => $end_date,
-                     3 => Order::STATUS_CONFIRMED,
-                     4 => Order::STATUS_COMPLETED
+                     3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                     4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
                  )
             )->getQuery();
         } elseif ($selectedStat == 3) {
@@ -1428,8 +1554,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                  array(
                     1 => $start_date,
                     2 => $end_date,
-                    3 => Order::STATUS_CONFIRMED,
-                    4 => Order::STATUS_COMPLETED
+                    3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                    4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
                  )
              )->getQuery();
         } else {
@@ -1466,8 +1592,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 array(
                     1 => $start_date,
                     2 => $end_date,
-                    3 => Order::STATUS_CONFIRMED,
-                    4 => Order::STATUS_COMPLETED
+                    3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                    4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
                 )
             )->getQuery();
         }
@@ -1597,15 +1723,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             )
         )->orderBy('A.dateTime', 'DESC')->setParameters(
             array(
-                1 => Order::STATUS_CONFIRMED,
-                2 => Order::STATUS_COMPLETED
+                1 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                2 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
             )
         )->getQuery();
 
         $resultsCurrency = $queryCurrency->getArrayResult();
 
-        if (!$resultsCurrency) {
-            return Order::errorHandler();
+        if (empty($resultsCurrency)) {
+            return false;
         }
         $totalSoldProducts = 0;
 
@@ -1623,8 +1749,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             )
         )->setParameters(
             array(
-                1 => Order::STATUS_CONFIRMED,
-                2 => Order::STATUS_COMPLETED
+                1 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                2 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
             )
         )->getQuery();
         $resultTotal = $queryTotalProducts->getSingleResult();
@@ -1674,5 +1800,231 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 $defaultCurrency->getSymbol(),
         ));
         return true;
+    }
+
+    protected function getTitleRow($titles)
+    {
+        $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
+        $tr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
+
+        foreach ($titles as $title) {
+            $th = new \Cx\Core\Html\Model\Entity\HtmlElement('th');
+            $title = new \Cx\Core\Html\Model\Entity\TextElement($title);
+            $th->addChild($title);
+            $tr->addChild($th);
+        }
+        $table->addChild($tr);
+        $table->addClass('adminlist title-table');
+        return $table;
+    }
+
+    protected function getDivWrapper($value)
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $value = new \Cx\Core\Html\Model\Entity\TextElement($value);
+        $wrapper->addChild($value);
+        return $wrapper;
+    }
+
+    /**
+     * Handles database errors
+     *
+     * Also migrates the old database structure to the new one
+     * @return  boolean             False.  Always.
+     */
+    static function errorHandler()
+    {
+// Order
+        ShopSettings::errorHandler();
+        \Cx\Core\Country\Controller\Country::errorHandler();
+
+        $table_name = DBPREFIX.'module_shop_order_items';
+        $table_structure = array(
+            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'order_items_id'),
+            'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'orderid'),
+            'product_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'productid'),
+            'product_name' => array('type' => 'VARCHAR(255)', 'default' => ''),
+            'price' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00'),
+            'quantity' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
+            'vat_rate' => array('type' => 'DECIMAL(5,2)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'vat_percent'),
+            'weight' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
+        );
+        $table_index = array(
+            'order' => array('fields' => array('order_id')));
+        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
+
+        $table_name = DBPREFIX.'module_shop_order_attributes';
+        if (!\Cx\Lib\UpdateUtil::table_exist($table_name)) {
+            $table_name_old = DBPREFIX.'module_shop_order_items_attributes';
+            $table_structure = array(
+                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'orders_items_attributes_id'),
+                'item_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'order_items_id'),
+                'attribute_name' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'product_option_name'),
+                'option_name' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'product_option_value'),
+                'price' => array('type' => 'DECIMAL(9,2)', 'unsigned' => false, 'default' => '0.00', 'renamefrom' => 'product_option_values_price'),
+            );
+            $table_index = array(
+                'item_id' => array('fields' => array('item_id')));
+            \Cx\Lib\UpdateUtil::table($table_name_old, $table_structure, $table_index);
+            \Cx\Lib\UpdateUtil::table_rename($table_name_old, $table_name);
+        }
+
+        // LSV
+        $table_name = DBPREFIX.'module_shop_lsv';
+        $table_structure = array(
+            'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'primary' => true, 'renamefrom' => 'id'),
+            'holder' => array('type' => 'tinytext', 'default' => ''),
+            'bank' => array('type' => 'tinytext', 'default' => ''),
+            'blz' => array('type' => 'tinytext', 'default' => ''),
+        );
+        $table_index = array();
+        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
+
+        $table_name = DBPREFIX.'module_shop_orders';
+        $table_structure = array(
+            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'orderid'),
+            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'customerid'),
+            'currency_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'selected_currency_id'),
+            'shipment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'shipping_id'),
+            'payment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
+            'lang_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'customer_lang'),
+            'status' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'order_status'),
+            'sum' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_order_sum'),
+            'vat_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'tax_price'),
+            'shipment_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_ship_price'),
+            'payment_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_payment_price'),
+// 20111017 Added billing address
+            'billing_gender' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
+            'billing_company' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null),
+            'billing_firstname' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null),
+            'billing_lastname' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null),
+            'billing_address' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null),
+            'billing_city' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
+            'billing_zip' => array('type' => 'VARCHAR(10)', 'notnull' => false, 'default' => null),
+            'billing_country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
+            'billing_phone' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null),
+            'billing_fax' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null),
+            'billing_email' => array('type' => 'VARCHAR(255)', 'notnull' => false, 'default' => null),
+            'gender' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_prefix'),
+            'company' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_company'),
+            'firstname' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_firstname'),
+            'lastname' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_lastname'),
+            'address' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_address'),
+            'city' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_city'),
+            'zip' => array('type' => 'VARCHAR(10)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_zip'),
+            'country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_country_id'),
+            'phone' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_phone'),
+            'ip' => array('type' => 'VARCHAR(50)', 'default' => '', 'renamefrom' => 'customer_ip'),
+            'note' => array('type' => 'TEXT', 'default' => '', 'renamefrom' => 'customer_note'),
+            'date_time' => array('type' => 'TIMESTAMP', 'default' => '0000-00-00 00:00:00', 'renamefrom' => 'order_date'),
+            'modified_on' => array('type' => 'TIMESTAMP', 'default' => null, 'notnull' => false, 'renamefrom' => 'last_modified'),
+            'modified_by' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
+        );
+        $table_index = array(
+            'status' => array('fields' => array('status')));
+        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
+
+// TODO: TEST
+// Migrate present Customer addresses to the new billing address fields.
+// Note that this method is also called in Customer::errorHandler() *before*
+// any Customer is modified.  Thus, we can safely depend on the old
+// Customer table in one way -- if it doesn't exist, all Orders and Customers
+// have been successfully migrated already.
+        $table_name_customer = DBPREFIX."module_shop_customers";
+        if (\Cx\Lib\UpdateUtil::table_exist($table_name_customer)) {
+// On the other hand, there may have been an error somewhere in between
+// altering the Orders table and moving Customers to the Users table.
+// So, to be on the safe side, we will only update Orders where the billing
+// address fields are all NULL, as is the case just after the alteration
+// of the Orders table above.
+// Also note that any inconsistencies involving missing Customer records will
+// be left over as-is and may later be handled in the backend.
+            $objResult = \Cx\Lib\UpdateUtil::sql("
+                SELECT DISTINCT `customer_id`,
+                       `customer`.`prefix`,
+                       `customer`.`firstname`, `customer`.`lastname`,
+                       `customer`.`company`, `customer`.`address`,
+                       `customer`.`city`, `customer`.`zip`,
+                       `customer`.`country_id`,
+                       `customer`.`phone`, `customer`.`fax`,
+                       `customer`.`email`
+                  FROM `$table_name`
+                  JOIN `$table_name_customer` AS `customer`
+                    ON `customerid`=`customer_id`
+                 WHERE `billing_gender` IS NULL
+                   AND `billing_company` IS NULL
+                   AND `billing_firstname` IS NULL
+                   AND `billing_lastname` IS NULL
+                   AND `billing_address` IS NULL
+                   AND `billing_city` IS NULL
+                   AND `billing_zip` IS NULL
+                   AND `billing_country_id` IS NULL
+                   AND `billing_phone` IS NULL
+                   AND `billing_fax` IS NULL
+                   AND `billing_email` IS NULL");
+            while ($objResult && !$objResult->EOF) {
+                $customer_id = $objResult->fields['customer_id'];
+                $gender = 'gender_unknown';
+                if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
+                    $objResult->fields['prefix'])) {
+                    $gender = 'gender_female';
+                } elseif (preg_match('/^(?:herr|mon|signore|mister|mr)/i',
+                    $objResult->fields['prefix'])) {
+                    $gender = 'gender_male';
+                }
+                \Cx\Lib\UpdateUtil::sql("
+                    UPDATE `$table_name`
+                       SET `billing_gender`='".addslashes($gender)."',
+                           `billing_company`='".addslashes($objResult->fields['company'])."',
+                           `billing_firstname`='".addslashes($objResult->fields['firstname'])."',
+                           `billing_lastname`='".addslashes($objResult->fields['lastname'])."',
+                           `billing_address`='".addslashes($objResult->fields['address'])."',
+                           `billing_city`='".addslashes($objResult->fields['city'])."',
+                           `billing_zip`='".addslashes($objResult->fields['zip'])."',
+                           `billing_country_id`=".intval($objResult->fields['country_id']).",
+                           `billing_phone`='".addslashes($objResult->fields['phone'])."',
+                           `billing_fax`='".addslashes($objResult->fields['fax'])."',
+                           `billing_email`='".addslashes($objResult->fields['email'])."'
+                     WHERE `customer_id`=$customer_id
+                       AND `billing_gender` IS NULL
+                       AND `billing_company` IS NULL
+                       AND `billing_firstname` IS NULL
+                       AND `billing_lastname` IS NULL
+                       AND `billing_address` IS NULL
+                       AND `billing_city` IS NULL
+                       AND `billing_zip` IS NULL
+                       AND `billing_country_id` IS NULL
+                       AND `billing_phone` IS NULL
+                       AND `billing_fax` IS NULL
+                       AND `billing_email` IS NULL");
+                $objResult->MoveNext();
+            }
+        }
+
+        // Finally, update the migrated Order records with the proper gender
+        // strings as used in the User class hierarchy as well
+        $objResult = \Cx\Lib\UpdateUtil::sql("
+            SELECT `id`, `gender`
+              FROM `$table_name`
+             WHERE `gender` NOT IN
+                   ('gender_male', 'gender_female', 'gender_undefined')");
+        while ($objResult && !$objResult->EOF) {
+            $gender = 'gender_unknown';
+            if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
+                $objResult->fields['gender'])) {
+                $gender = 'gender_female';
+            } elseif (preg_match('/^(?:herr|mon|signore|mister|mr)/i',
+                $objResult->fields['gender'])) {
+                $gender = 'gender_male';
+            }
+            \Cx\Lib\UpdateUtil::sql("
+                UPDATE `$table_name`
+                   SET `gender`='".addslashes($gender)."'
+                 WHERE `id`=".$objResult->fields['id']);
+            $objResult->MoveNext();
+        }
+
+        // Always
+        return false;
     }
 }

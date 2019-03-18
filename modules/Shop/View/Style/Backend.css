@@ -29,13 +29,30 @@
     float: left;
 }
 
+#vg-0-alphabeticalSearch {
+    float: left;
+    clear: both;
+}
+
+.vg-noresult {
+    clear: both;
+    padding: 20px 5px 0;
+}
+
+#content > table.adminlist tr:nth-child(n+1) td:nth-child(1) {
+    width: 20px;
+}
+
 .custom-input {
     float: right;
-    margin-right: 125px;
+    margin-right: 57px;
     font-weight: bold;
 }
 .custom-input input {
     margin-left: 4px;
+}
+.custom-input span {
+    font-weight: normal;
 }
 
 .tooltip-wrapper {
@@ -55,6 +72,10 @@
 }
 .order-customer {
     width: 38%;
+}
+
+.pending {
+    background: #ffe7e7 !important;
 }
 
 .readonly {
@@ -83,12 +104,70 @@ td.category-name {
 label.category {
     display: block;
 }
-
+span.child:before {
+    content: '|----';
+}
 .default {
     padding-left: 30px !important;
-}
+ }
 table[data-entity='Currency'] td {
     padding-left: 10px;
+}
+
+span.child label.category {
+    display: inline-block;
+}
+#footerRight, #headerRight {
+    text-align: right;
+}
+.title-table {
+    margin-left: -201px;
+    width: calc(100% + 205px);
+    margin-bottom: -3px;
+    margin-top: 10px;
+}
+label[for='form-0-titleAddress'],
+label[for='form-0-titlePaymentInfos'],
+label[for='form-0-titleBill'],
+label[for='form-0-titleNote'],
+label[for='form-0-orderItems'],
+label[for='form-0-vatAmount'],
+label[for='form-0-shipmentAmount'],
+label[for='form-0-paymentAmount'],
+label[for='form-0-sum'],
+label[for='form-0-note'],
+label[for='form-0-emptyField'] {
+    display:none;
+}
+#form-0-orderItems {
+    margin-left: -200px;
+    width: calc(100% + 200px);
+    border-collapse: collapse;
+    margin-bottom: -4px;
+}
+
+#form-0-orderItems td {
+    padding: 3px;
+}
+
+#form-0-orderItems tr {
+    border-bottom: #e5e5e5 1px solid;
+}
+
+.shop-order-info {
+    text-align: right;
+    font-weight: bold;
+}
+div#form-0-type div {
+    display: inline;
+}
+.shop-coupon-link {
+    width: 10%;
+}
+.coupon-url-link {
+    display: none;
+    max-width: 80%;
+    margin-left: 5px;
 }
 
 table.adminlist td.discountgroup-name {

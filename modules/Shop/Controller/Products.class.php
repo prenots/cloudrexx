@@ -487,8 +487,10 @@ class Products
         $category_id = intval($category_id);
         $query = "
             SELECT `picture`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products`
-             WHERE FIND_IN_SET($category_id, `category_id`)
+              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_products` AS `p`
+              LEFT JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_category_product` 
+              AS `cp` ON `cp`.`product_id` = `p`.`id`
+             WHERE FIND_IN_SET($category_id, `cp`.`category_id`)
                AND `picture`!=''
              ORDER BY `ord` ASC";
         $objResult = $objDatabase->SelectLimit($query, 1);
@@ -501,6 +503,39 @@ class Products
         }
         // No picture found here
         return '';
+    }
+
+
+    /**
+     * Returns an array of ShopCategory IDs containing Products with
+     * their flags containing the given string.
+     * @param   string  $strName    The name of the flag to match
+     * @return  mixed               The array of ShopCategory IDs on success,
+     *                              false otherwise.
+     * @static
+     * @author      Reto Kohli <reto.kohli@comvation.com>
+     */
+    static function getShopCategoryIdArrayByFlag($strName)
+    {
+        global $objDatabase;
+
+        $query = "
+            SELECT DISTINCT category_id
+              FROM ".DBPREFIX."module_shop".MODULE_INDEX."_products
+             WHERE flags LIKE '%$strName%'
+          ORDER BY category_id ASC";
+        $objResult = $objDatabase->Execute($query);
+        if (!$objResult) return false;
+        $arrShopCategoryId = array();
+        while (!$objResult->EOF) {
+            $arrCategoryId = preg_split('/\s*,\s*/',
+                $objResult->Fields['catid'], null, PREG_SPLIT_NO_EMPTY);
+            foreach ($arrCategoryId as $category_id) {
+                $arrShopCategoryId[$category_id] = null;
+            }
+            $objResult->MoveNext();
+        }
+        return array_flip($arrShopCategoryId);
     }
 
 

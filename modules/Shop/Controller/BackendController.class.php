@@ -100,7 +100,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Relcountry':
             case 'Zone':
             case 'Mail':
-            case 'DiscountCoupon':
             case 'mailtemplate_overview':
             case 'mailtemplate_edit':
                 $mappedNavItems = array(
@@ -118,7 +117,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'RelCountry' => 'countries',
                     'Zone' => 'zones',
                     'Mail' => 'mail',
-                    'DiscountCoupon' => 'coupon',
                 );
                 $mappedCmdItems = array(
                     'categories' => 'Category',
@@ -287,8 +285,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Manufacturer'
                 )->getViewGeneratorOptions($options);
+                if ($dataSetIdentifier != $entityClassName) {
+                    break;
+                }
                 $options = $this->normalDelete(
-                    $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
+                    $_ARRAYLANG['TXT_SHOP_CONFIRM_DELETE_MANUFACTURER'],
                     $options
                 );
                 break;
@@ -296,9 +297,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Category'
                 )->getViewGeneratorOptions($options);
+                if ($dataSetIdentifier != $entityClassName) {
+                    break;
+                }
                 // Delete event
                 $options = $this->normalDelete(
-                    $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_SHOP_CATEGORIES'],
                     $options
                 );
                 break;
@@ -371,10 +375,22 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     $options
                 );
                 break;
+            case 'Cx\Modules\Shop\Model\Entity\DiscountCoupon':
+                $options = $this->getSystemComponentController()->getController(
+                    'DiscountCoupon'
+                )->getViewGeneratorOptions($options);
+                break;
         }
         return $options;
     }
 
+    /**
+     * Set JavaScript variables for multi action delete.
+     *
+     * @param $message string message to display before delete
+     * @param $options array  ViewGenerator options
+     * @return array updated array with ViewGenerator options
+     */
     protected function normalDelete($message, $options)
     {
         global $_ARRAYLANG;

@@ -32,11 +32,20 @@ class OrderEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListene
         $em = $cx->getDb()->getEntityManager();
 
         $em->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Orders'
+            '\Cx\Modules\Shop\Model\Entity\Order'
         )->deleteById($entityId, $updateStock);
 
         $url = \Cx\Core\Routing\Url::fromRequest();
         $url->removeAllParams();
         \Cx\Core\Csrf\Controller\Csrf::redirect($url->__toString());
+    }
+
+    public function postUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $args)
+    {
+        if ($this->cx->getRequest()->hasParam('sendMail', false)) {
+            \Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail(
+                $args->getEntity()->getId()
+            );
+        }
     }
 }
