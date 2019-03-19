@@ -1,0 +1,110 @@
+@startuml
+hide empty description
+[*] --> Pendent : Bezahlung nicht beendet, unterbrochen oder fehlgeschlagen
+
+Pendent --> Annuliert : Kunde will annulieren
+Pendent --> Bestätigt : Kunde hat Zahlung versprochen
+Pendent --> Bezahlt : Zahlung wurde getätigt
+Pendent --> Abgeschlossen : Zahlung und Vertrieb wurden getätigt
+Pendent --> Gelöscht : Gelöscht durch Verkäufer
+
+note left of Pendent
+    Unsinnige Folgestati: 
+    - Versandt: Ohne vorherige Bestätigung
+end note
+@enduml
+
+@startuml
+hide empty description
+[*] --> Bestätigt : Bezahlung vorerst beendet, Vertrieb ausstehend
+
+Bestätigt --> Annuliert : Kunde will annulieren
+Bestätigt --> Bezahlt : Zahlungseingang
+Bestätigt --> Versandt : Noch kein Zahlungseingang aber Vertrieb beendet
+Bestätigt --> Abgeschlossen : Zahlung und Vertrieb wurden getätigt
+Bestätigt --> Gelöscht : Gelöscht durch Verkäufer
+
+note left of Bestätigt
+    Unsinnige Folgestati: 
+    - Pendent
+end note
+@enduml
+
+@startuml
+hide empty description
+[*] --> Bezahlt : Bezahlung beendet, Vertrieb ausstehend
+
+Bezahlt --> Annuliert : Kunde will annulieren, Geld zurückerstattet
+Bezahlt --> Abgeschlossen : Zahlung und Vertrieb wurden getätigt
+Bezahlt --> Gelöscht : Gelöscht durch Verkäufer
+
+note left of Bezahlt
+    Unsinnige Folgestati: 
+    - Pendent
+    - Bestätigt: "Bezahlt" impliziert "Bestätigt"
+    - Versandt: Zahlung bereits eingetroffen -> "Abgeschlossen"
+end note
+@enduml
+
+@startuml
+hide empty description
+[*] --> Versandt : Vertrieb beendet, Bezahlung ausstehend
+
+Versandt --> Abgeschlossen : Zahlung und Vertrieb wurden getätigt
+Versandt --> Gelöscht : Gelöscht durch Verkäufer
+
+note left of Versandt
+    Unsinnige Folgestati: 
+    - Pendent
+    - Bestätigt: "Versandt" impliziert "Bestätigt"
+    - Annuliert: Ware bereits versandt
+    - Bezahlt: Ware bereits versandt -> "Abgeschlossen"
+end note
+@enduml
+
+@startuml
+hide empty description
+
+Pendent --> Gelöscht
+Bestätigt --> Gelöscht
+Annuliert --> Gelöscht
+Abgeschlossen --> Gelöscht
+Bezahlt --> Gelöscht
+Versandt --> Gelöscht
+
+note left of Gelöscht
+    Unsinnige Folgestati: 
+    - Pendent
+end note
+@enduml
+
+@startuml
+hide empty description
+[*] --> Annuliert : Abbruch beim Zahlungsanbieter
+
+Annuliert --> Abgeschlossen : Zahlung und Vertrieb wurden getätigt
+Annuliert --> Bestätigt : Kunde hat Zahlung versprochen
+Annuliert --> Bezahlt : Kunde hat auf anderem Weg bezahlt
+Annuliert --> Versandt : Kunde hat auf anderem Web bezahlt, Ware versandt
+Annuliert --> Gelöscht : Gelöscht durch Verkäufer
+
+note left of Annuliert
+    Unsinnige Folgestati: 
+    - Pendent: Neuer Versuch = neue Bestellung
+end note
+@enduml
+
+@startuml
+hide empty description
+[*] --> Abgeschlossen : Zahlung und Vertrieb abgeschlossen
+
+note left of Abgeschlossen
+    Unsinnige Folgestati:
+    - Pendent
+    - Bestätigt
+    - Gelöscht
+    - Annuliert
+    - Bezahlt
+    - Versandt
+end note
+@enduml
