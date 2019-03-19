@@ -1537,13 +1537,15 @@ die("MailTemplate::init(): Empty section!");
 
         if (empty($email)) return;
 
+        $template = static::get($section, $key);
+
         $sent = self::send(array(
             'section' => $section,
             'key' => $key,
             'to' => $email,
-            'from' => '',
-            'cc' => '',
-            'bcc' => '',
+            'from' => $template['from'],
+            'cc' => $template['cc'],
+            'bcc' => $template['bcc'],
             'do_not_strip_empty_placeholders' => true, ));
         if ($sent) {
             \Message::ok(sprintf(
