@@ -70,7 +70,6 @@ $_ARRAYLANG['headerOn'] = 'Header linie';
 $_ARRAYLANG['footerOn'] = 'Footer linie';
 $_ARRAYLANG['lang'] = 'Sprog';
 $_ARRAYLANG['allCategories'] = 'Enthaltene Rubriken';
-$_ARRAYLANG['categories'] = ' ';
 $_ARRAYLANG['headerLeft'] = '';
 $_ARRAYLANG['footerLeft'] = '';
 $_ARRAYLANG['headerRight'] = '';
@@ -1035,3 +1034,6 @@ $_ARRAYLANG['b2c'] = 'B2C';
 $_ARRAYLANG['dateStart'] = 'Startdato';
 $_ARRAYLANG['dateEnd'] = 'Ophørsdato';
 $_ARRAYLANG['userGroups'] = 'Benutzergruppen';
+
+$_ARRAYLANG['empty'] = ' ';
+$_ARRAYLANG['categories'] = 'Kategori';
