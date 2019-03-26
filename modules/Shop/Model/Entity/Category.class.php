@@ -418,4 +418,14 @@ class Category extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
         return $this->parentCategory;
     }
 
+    /**
+     * Get Name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getName();
+    }
+
 }
