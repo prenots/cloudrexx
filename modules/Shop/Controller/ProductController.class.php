@@ -190,6 +190,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'categories' => array(
                 'showOverview' => false,
+                'mode' => 'associate',
             ),
             'dateStart' => array(
                 'showOverview' => false,
@@ -244,19 +245,22 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'relProductAttributes' => array(
                 'showOverview' => false,
-                'mode' => 'associate'
+                'mode' => 'associate',
             ),
             'manufacturer' => array(
                 'showOverview' => false,
             ),
             'discountgroupCountName' => array(
                 'showOverview' => false,
+                'mode' => 'associate',
             ),
             'articleGroup' => array(
                 'showOverview' => false,
+                'mode' => 'associate',
             ),
             'userGroups' => array(
                 'showOverview' => false,
+                'mode' => 'associate',
             ),
         );
 
