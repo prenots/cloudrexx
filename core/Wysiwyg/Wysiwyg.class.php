@@ -60,7 +60,7 @@ class WysiwygException extends \Exception {}
  * @subpackage  core_wysiwyg
  */
 
-class Wysiwyg extends \Cx\Model\Base\EntityBase
+class Wysiwyg extends \Cx\Core\Html\Model\Entity\HtmlElement
 {
     /**
      * options for the different types of wysiwyg editors
@@ -400,5 +400,15 @@ class Wysiwyg extends \Cx\Model\Base\EntityBase
     public function getRemovePlugins()
     {
         return $this->removePlugins;
+    }
+
+    /**
+     * Get the html source code for the wysiwyg editor
+     *
+     * @return string
+     */
+    public function render()
+    {
+        return $this->getSourceCode();
     }
 }
