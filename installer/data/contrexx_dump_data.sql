@@ -4515,7 +4515,7 @@ INSERT INTO `contrexx_module_shop_zones` (`id`, `active`) VALUES (3,1);
 INSERT INTO `contrexx_translations` (`id`, `locale`, `object_class`, `field`, `foreign_key`, `content`) VALUES
 (1, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Attribute', 'name', '1', 'Zusatzleistungen'),
 (2, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Currency', 'name', '1', 'Schweizer Franken'),
-(3, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\ArticleGroup', 'article', '1', 'Telefone'),
+(3, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\ArticleGroup', 'name', '1', 'Telefone'),
 (4, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\CustomerGroup', 'customer', '1', 'Neukunden'),
 (5, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\DiscountgroupCountName', 'name', '1', 'Mengenrabatt'),
 (6, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\DiscountgroupCountName', 'unit', '1', 'Stück'),
