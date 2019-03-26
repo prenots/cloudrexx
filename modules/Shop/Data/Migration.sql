@@ -288,7 +288,7 @@ SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
       WHEN `t`.`key` LIKE '%_name' THEN 'name'
       WHEN `t`.`key` LIKE '%_short_description' THEN 'short_description'
     	WHEN `t`.`key` LIKE '%_description' THEN 'description'
-    	WHEN `t`.`key` LIKE '%_article' THEN 'article'
+    	WHEN `t`.`key` LIKE '%_article' THEN 'name'
     	WHEN `t`.`key` LIKE '%_customer' THEN 'customer'
     	WHEN `t`.`key` LIKE '%_unit' THEN 'unit'
     	WHEN `t`.`key` LIKE '%_uri' THEN 'uri'
