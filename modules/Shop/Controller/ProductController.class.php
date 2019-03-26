@@ -61,6 +61,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         $options['functions']['copy'] = true;
+        $options['functions']['searching'] = true;
+        $options['functions']['filtering'] = true;
         $options['functions']['sortBy'] = array(
             'field' => array('ord' => SORT_ASC)
         );
@@ -132,61 +134,80 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         $options['fields'] = array(
+            'id' => array(
+                'allowFiltering' => false,
+            ),
             'flags' => array(
                 'header' => $this->getFlagHeader(),
                 'editable' => true,
                 'type' => 'checkboxes',
                 'sorting' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'name' => array(
                 'header' => $_ARRAYLANG['TXT_PRODUCT_NAME'],
+                'allowFiltering' => false,
             ),
             'discountActive' => array(
                 'editable' => true,
+                'allowFiltering' => false,
             ),
             'discountprice' => array(
                 'editable' => true,
                 'sorting' => false,
+                'allowFiltering' => false,
             ),
             'normalprice' => array(
                 'editable' => true,
+                'allowFiltering' => false,
             ),
             'resellerprice' => array(
                 'editable' => true,
+                'allowFiltering' => false,
             ),
             'vat' => array(
                 'editable' => true,
                 'sorting' => false,
+                'allowFiltering' => false,
             ),
             'stock' => array(
                 'editable' => true,
+                'allowFiltering' => false,
             ),
             'distribution' => array(
+                'allowFiltering' => false,
             ),
             'code' => array(
                 'editable' => true,
                 'header' => $_ARRAYLANG['TXT_SHOP_PRODUCT_CODE'],
+                'allowFiltering' => false,
             ),
             'picture' => array(
                 'showOverview' => false,
-                'type' => 'image'
+                'type' => 'image',
+                'allowFiltering' => false,
             ),
             'groupId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'stockVisible' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'active' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'b2b' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'b2c' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'categories' => array(
                 'showOverview' => false,
@@ -194,73 +215,92 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'dateStart' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'dateEnd' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'manufacturerId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'ord' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'vatId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'weight' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'articleId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'minimumOrderQuantity' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'uri' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'short' => array(
                 'showOverview' => false,
-                'type' => 'sourcecode'
+                'type' => 'sourcecode',
+                'allowFiltering' => false,
             ),
             'long' => array(
                 'showOverview' => false,
-                'type' => 'sourcecode'
+                'type' => 'sourcecode',
+                'allowFiltering' => false,
             ),
             'keys' => array(
                 'showOverview' => false,
                 'tooltip' => $_ARRAYLANG['TXT_SHOP_KEYWORDS_TOOLTIP'],
+                'allowFiltering' => false,
             ),
             'discountCoupons' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'orderItems' => array(
                 'showOverview' => false,
                 'showDetail' => false,
+                'allowFiltering' => false,
             ),
             'relProductAttributes' => array(
                 'showOverview' => false,
                 'mode' => 'associate',
+                'allowFiltering' => false,
             ),
             'manufacturer' => array(
                 'showOverview' => false,
+                'allowFiltering' => false,
             ),
             'discountgroupCountName' => array(
                 'showOverview' => false,
                 'mode' => 'associate',
+                'allowFiltering' => false,
             ),
             'articleGroup' => array(
                 'showOverview' => false,
                 'mode' => 'associate',
+                'allowFiltering' => false,
             ),
             'userGroups' => array(
                 'showOverview' => false,
                 'mode' => 'associate',
+                'allowFiltering' => false,
             ),
         );
 
