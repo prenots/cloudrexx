@@ -936,6 +936,26 @@ class FormGenerator {
 
                 return $div;
                 break;
+            case 'wysiwyg':
+                $mode = 'small';
+                if (isset($options['mode'])) {
+                    if (in_array($options['mode'], array(
+                        'small',
+                        'full',
+                        'bbcode'
+                    ))) {
+                        $mode = $options['mode'];
+                    }
+                }
+
+                $wysiwyg = new \Cx\Core\Wysiwyg\Wysiwyg(
+                    $title,
+                    $value,
+                    $mode
+                );
+
+                return $wysiwyg;
+
             case 'sourcecode':
                 //set mode
                 $mode = 'html';
