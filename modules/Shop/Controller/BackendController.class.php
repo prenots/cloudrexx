@@ -366,6 +366,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 );
                 break;
             case 'Cx\Modules\Shop\Model\Entity\DiscountCoupon':
+                if ($entityClassName == $dataSetIdentifier) {
+                    \JS::registerJS(
+                        $this->cx->getModuleFolderName()
+                        . '/Shop/View/Script/DiscountCoupon.js'
+                    );
+                }
                 $options = $this->getSystemComponentController()->getController(
                     'DiscountCoupon'
                 )->getViewGeneratorOptions($options);
