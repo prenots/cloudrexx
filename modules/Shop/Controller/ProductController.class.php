@@ -153,23 +153,42 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'name' => array(
                 'header' => $_ARRAYLANG['TXT_PRODUCT_NAME'],
                 'allowFiltering' => false,
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'product-name',
+                    ),
+                ),
             ),
             'discountActive' => array(
                 'editable' => true,
                 'allowFiltering' => false,
+                'table' => array(
+                    'attributes' => array(
+                        'class' => 'small'
+                    ),
+                ),
             ),
             'discountprice' => array(
                 'editable' => true,
                 'sorting' => false,
                 'allowFiltering' => false,
+                'attributes' => array(
+                    'class' => 'small',
+                ),
             ),
             'normalprice' => array(
                 'editable' => true,
                 'allowFiltering' => false,
+                'attributes' => array(
+                    'class' => 'small',
+                ),
             ),
             'resellerprice' => array(
                 'editable' => true,
                 'allowFiltering' => false,
+                'attributes' => array(
+                    'class' => 'small',
+                ),
             ),
             'vat' => array(
                 'editable' => true,
@@ -179,14 +198,32 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'stock' => array(
                 'editable' => true,
                 'allowFiltering' => false,
+                'attributes' => array(
+                    'class' => 'small',
+                ),
             ),
             'distribution' => array(
+                'type' => 'select',
+                'valueCallback' => function($val) {
+                    global $_ARRAYLANG;
+                    return $_ARRAYLANG[$val];
+                },
+                'validValues' => implode(
+                    ',',
+                    \Cx\Modules\Shop\Controller\Distribution::getArrDistributionTypes()
+                ),
+                'storecallback' => function() {
+
+                },
                 'allowFiltering' => false,
             ),
             'code' => array(
                 'editable' => true,
                 'header' => $_ARRAYLANG['TXT_SHOP_PRODUCT_CODE'],
                 'allowFiltering' => false,
+                'attributes' => array(
+                    'size' => '10'
+                ),
             ),
             'picture' => array(
                 'showOverview' => false,

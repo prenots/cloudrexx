@@ -202,3 +202,15 @@ table.adminlist td.discountgroup-name {
 .payment-processor-name {
     width: 25%;
 }
+
+.small {
+    width: 70px;
+}
+
+td.small {
+    width: 1%;
+}
+
+.product-name {
+    width: 42%;
+}
