@@ -145,10 +145,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'flags' => array(
                 'header' => $this->getFlagHeader(),
                 'editable' => true,
-                'type' => 'checkboxes',
                 'sorting' => false,
-                'showDetail' => false,
                 'allowFiltering' => false,
+                'type' => 'checkboxes',
+                'validValues' => '__SHOWONSTARTPAGE__',
             ),
             'name' => array(
                 'header' => $_ARRAYLANG['TXT_PRODUCT_NAME'],
@@ -297,12 +297,12 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'short' => array(
                 'showOverview' => false,
-                'type' => 'sourcecode',
+                'type' => 'wysiwyg',
                 'allowFiltering' => false,
             ),
             'long' => array(
                 'showOverview' => false,
-                'type' => 'sourcecode',
+                'type' => 'wysiwyg',
                 'allowFiltering' => false,
             ),
             'keys' => array(
