@@ -61,10 +61,14 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         $options['functions']['copy'] = true;
+        $options['functions']['editable'] = true;
         $options['functions']['searching'] = true;
         $options['functions']['filtering'] = true;
         $options['functions']['sortBy'] = array(
             'field' => array('ord' => SORT_ASC)
+        );
+        $options['functions']['status'] = array(
+            'field' => 'discountActive'
         );
 
         $options['tabs']['product-option'] = array(
@@ -92,6 +96,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 
         $options['order']['overview'] = array(
             'id',
+            'discountActive',
             'flags',
             'name',
             'code',
