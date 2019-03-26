@@ -1590,8 +1590,8 @@ if ($test === NULL) {
         // mediabrowser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -1988,8 +1988,8 @@ if ($test === NULL) {
         // media browser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -2502,6 +2502,7 @@ if ($test === NULL) {
         self::$objTemplate->setVariable(array(
             'SHOP_CUSTOMER_PAGING' => $paging,
             'SHOP_CUSTOMER_TERM' => htmlentities($searchterm),
+            'SHOP_LISTLETTER_LINKS' => Orders::getListletterLinks($listletter),
             'SHOP_CUSTOMER_TYPE_MENUOPTIONS' =>
                 Customers::getTypeMenuoptions($customer_type, true),
             'SHOP_CUSTOMER_STATUS_MENUOPTIONS' =>
@@ -3335,7 +3336,7 @@ if ($test === NULL) {
             'Cx\Modules\Shop\Model\Entity\Order'
         );
         $arrSubstitution =
-              $orderRepo->getSubstitutionArray($order_id)
+              $orderRepo->getSubstitutionArray($order_id, false, false)
             + self::getSubstitutionArray();
         $lang_id = $arrSubstitution['LANG_ID'];
         // Select template for: "Your order has been processed"
