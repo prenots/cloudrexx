@@ -77,11 +77,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Category':
             case 'categories':
             case 'category_edit':
-            case 'products':
-            case 'activate_products':
-            case 'deactivate_products':
-            case 'delProduct':
-            case 'deleteProduct':
             case 'Customer':
             case 'delcustomer':
             case 'customer_activate':
@@ -104,7 +99,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'mailtemplate_edit':
                 $mappedNavItems = array(
                     'Category' => 'categories',
-                    'Product' => 'products',
                     'Manage' => 'manage',
                     'Attribute' => 'attributes',
                     'Customer' => 'customers',
@@ -121,11 +115,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $mappedCmdItems = array(
                     'categories' => 'Category',
                     'category_edit' => 'Category',
-                    'products' => 'Product',
-                    'activate_products' => 'Product',
-                    'deactivate_products' => 'Product',
-                    'delProduct' => 'Product',
-                    'deleteProduct' => 'Product',
                     'manage' => 'Manage',
                     'delcustomer' => 'Customer',
                     'customer_activate' => 'Customer',
