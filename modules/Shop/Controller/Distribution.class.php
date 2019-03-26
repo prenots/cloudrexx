@@ -64,6 +64,11 @@ class Distribution
         self::TYPE_COUPON,
     );
 
+    static function getArrDistributionTypes()
+    {
+        return self::$arrDistributionTypes;
+    }
+
     /**
      * The default distribution type
      *
