@@ -109,7 +109,7 @@ span.child:before {
 }
 .default {
     padding-left: 30px !important;
- }
+}
 table[data-entity='Currency'] td {
     padding-left: 10px;
 }
@@ -201,6 +201,30 @@ table.adminlist td.discountgroup-name {
 }
 .payment-processor-name {
     width: 25%;
+}
+
+form.cx-ui > fieldset .group > label[for='form-0-stockVisible'] ~ .controls {
+    padding: 10px 0;
+}
+
+form.cx-ui > fieldset .group > label[for='form-0-short'],
+form.cx-ui > fieldset .group > label[for='form-0-long'] {
+    float: none;
+}
+
+form.cx-ui > fieldset .group > label[for='form-0-short'] ~ .controls,
+form.cx-ui > fieldset .group > label[for='form-0-long'] ~ .controls {
+    display: block;
+    margin: 7px;
+}
+
+#form-0-keys {
+    width: 300px;
+    height: 80px;
+}
+
+#form-0-flags label {
+    display: none;
 }
 
 .small {
