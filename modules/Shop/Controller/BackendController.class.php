@@ -207,6 +207,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'DiscountgroupCountName',
                     'ArticleGroup'
                 ),
+                'translatable' => true,
             ),
             'Manufacturer' => array(
                 'translatable' => true
