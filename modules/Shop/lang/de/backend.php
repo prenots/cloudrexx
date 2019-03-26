@@ -1193,14 +1193,10 @@ $_ARRAYLANG['product'] = 'Produkt';
 $_ARRAYLANG['payment'] = 'Bezahlung';
 $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
-
-$_ARRAYLANG['normalprice'] = 'Preis Endkunde';
-$_ARRAYLANG['resellerprice'] = 'Preis für Reseller';
 $_ARRAYLANG['discountprice'] = 'Sonderangebot';
 $_ARRAYLANG['discountActive'] = 'Aktiv';
 $_ARRAYLANG['articleGroup'] = 'Produktegruppe';
 $_ARRAYLANG['discountgroupCountName'] = 'Mengenrabattgruppe';
-$_ARRAYLANG['vat'] = 'Mehrwertsteuer Satz';
 $_ARRAYLANG['distribution'] = 'Produkttyp';
 $_ARRAYLANG['short'] = 'Kurzbeschreibung';
 $_ARRAYLANG['long'] = 'Beschreibung';
@@ -1216,6 +1212,10 @@ $_ARRAYLANG['b2c'] = 'B2C';
 $_ARRAYLANG['dateStart'] = 'Startdatum';
 $_ARRAYLANG['dateEnd'] = 'Enddatum';
 $_ARRAYLANG['userGroups'] = 'Benutzergruppen';
-
-$_ARRAYLANG['empty'] = ' ';
 $_ARRAYLANG['categories'] = 'Rubrik';
+$_ARRAYLANG['normalprice-detail'] = 'Preis Endkunde';
+$_ARRAYLANG['resellerprice-detail'] = 'Preis für Reseller';
+$_ARRAYLANG['vat-detail'] = 'Mehrwertsteuer Satz';
+$_ARRAYLANG['normalprice'] = 'Endkunde';
+$_ARRAYLANG['resellerprice'] = 'Reseller';
+$_ARRAYLANG['vat'] = 'MwSt';

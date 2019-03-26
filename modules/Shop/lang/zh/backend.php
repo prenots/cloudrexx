@@ -781,7 +781,6 @@ $_ARRAYLANG['product'] = 'Product';
 $_ARRAYLANG['payment'] = 'Bezahlung';
 $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
-
 $_ARRAYLANG['normalprice'] = 'Retail Price';
 $_ARRAYLANG['resellerprice'] = 'Reseller Price';
 $_ARRAYLANG['discountprice'] = 'Sonderangebot';
@@ -804,6 +803,10 @@ $_ARRAYLANG['b2c'] = 'B2C';
 $_ARRAYLANG['dateStart'] = 'Start date';
 $_ARRAYLANG['dateEnd'] = 'End date';
 $_ARRAYLANG['userGroups'] = 'Benutzergruppen';
-
-$_ARRAYLANG['empty'] = ' ';
 $_ARRAYLANG['categories'] = 'Category';
+$_ARRAYLANG['normalprice-detail'] = 'Retail Price';
+$_ARRAYLANG['resellerprice-detail'] = 'Reseller Price';
+$_ARRAYLANG['vat-detail'] = 'TAX';
+$_ARRAYLANG['normalprice'] = 'Retail';
+$_ARRAYLANG['resellerprice'] = 'Reseller';
+$_ARRAYLANG['vat'] = 'TAX';

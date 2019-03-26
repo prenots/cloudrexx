@@ -177,6 +177,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 ),
             ),
             'normalprice' => array(
+                'formtext' => $_ARRAYLANG['normalprice-detail'],
                 'editable' => true,
                 'allowFiltering' => false,
                 'attributes' => array(
@@ -184,6 +185,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 ),
             ),
             'resellerprice' => array(
+                'formtext' => $_ARRAYLANG['resellerprice-detail'],
                 'editable' => true,
                 'allowFiltering' => false,
                 'attributes' => array(
@@ -191,6 +193,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 ),
             ),
             'vat' => array(
+                'formtext' => $_ARRAYLANG['vat-detail'],
                 'editable' => true,
                 'sorting' => false,
                 'allowFiltering' => false,
