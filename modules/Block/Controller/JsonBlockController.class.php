@@ -169,9 +169,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
                 'countries' => $countries
             );
         }
-        if (!defined('FRONTEND_LANG_ID')) {
-            define('FRONTEND_LANG_ID', 1);
-        }
         $arrCountries = \Cx\Core\Country\Controller\Country::searchByName($term,null,false);
         foreach ($arrCountries as $country) {
             $countries[] = array(
@@ -195,9 +192,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
 
         if (!\FWUser::getFWUserObject()->objUser->login() || $objInit->mode != 'backend') {
             throw new \Exception($_CORELANG['TXT_ACCESS_DENIED_DESCRIPTION']);
-        }
-        if (!defined('FRONTEND_LANG_ID')) {
-            define('FRONTEND_LANG_ID', 1);
         }
 
         $blockLib = new \Cx\Modules\Block\Controller\BlockLibrary();
@@ -247,12 +241,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         // get id and langugage id
         $id = intval($params['get']['block']);
         $lang = \FWLanguage::getLanguageIdByCode($params['get']['lang']);
-        if (!defined('FRONTEND_LANG_ID')) {
-            if (!$lang) {
-                $lang = 1;
-            }
-            define('FRONTEND_LANG_ID', $lang);
-        }
         if (!$lang) {
             $lang = FRONTEND_LANG_ID;
         }
@@ -267,6 +255,12 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         $locale = $localeRepo->findOneBy(array('id' => $lang));
 
         $relLangContentRepo = $em->getRepository('Cx\Modules\Block\Model\Entity\RelLangContent');
+        // add:
+        /*
+             $now = time();
+              AND (b.`start` <= " . $now . " OR b.`start` = 0)
+              AND (b.`end` >= " . $now . " OR b.`end` = 0)
+        */
         $relLangContent = $relLangContentRepo->findOneBy(array(
             'block' => $block,
             'locale' => $locale,
@@ -332,12 +326,6 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         // get language and block id
         $id = intval($params['get']['block']);
         $lang = \FWLanguage::getLanguageIdByCode($params['get']['lang']);
-        if (!defined('FRONTEND_LANG_ID')) {
-            if (!$lang) {
-                $lang = 1;
-            }
-            define('FRONTEND_LANG_ID', $lang);
-        }
         if (!$lang) {
             $lang = FRONTEND_LANG_ID;
         }

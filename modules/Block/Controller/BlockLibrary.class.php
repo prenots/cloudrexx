@@ -650,11 +650,11 @@ class BlockLibrary
         $qb = $em->createQueryBuilder();
         $orX = $qb->expr()->orX();
         $qb2 = $em->createQueryBuilder();
-        $blocks = $qb->select('b.id')
+        $allBlocks = $qb->select('b')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->from('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc')
             ->where('b = :block')
-            ->andWhere(
+            /*->andWhere(
                 $orX->addMultiple(array(
                     'b.showInDirect = 0',
                     $qb2->select('count(rp)')
@@ -667,7 +667,7 @@ class BlockLibrary
                         ->getQuery()
                         ->getSingleResult()[1] . ' > 0'
                 ))
-            )
+            )*/
             ->andWhere('rlc.block = b')
             ->andWhere('(rlc.locale = :locale AND rlc.active = 1)')
             ->andWhere('(b.start <= :now OR b.start = 0)')
@@ -680,6 +680,24 @@ class BlockLibrary
             ))
             ->getQuery()
             ->getResult();
+
+        // filter blocks by assigned content page
+        $blocks = array();
+        foreach ($allBlocks as $block) {
+            if ($block->getShowInDirect()) {
+                foreach ($block->getRelPages() as $relPage) {
+                    if ($relPage->getPlaceholder() != 'direct') {
+                        continue;
+                    }
+                    if ($relPage->getPage()->getId() == $page->getId()) {
+                        $blocks[] = array('id' => $block->getId());
+                        continue;
+                    }
+                }
+                continue;
+            }
+            $blocks[] = array('id' => $block->getId());
+        }
 
         $this->replaceBlocks(
             $this->blockNamePrefix . $block->getId(),
@@ -711,24 +729,23 @@ class BlockLibrary
         $qb = $em->createQueryBuilder();
         $orX = $qb->expr()->orX();
         $qb2 = $em->createQueryBuilder();
-        $blocks = $qb->select('b.id')
+        $allBlocks = $qb->select('b')
             ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
             ->innerJoin('\Cx\Modules\Block\Model\Entity\RelLangContent', 'rlc', 'WITH', 'rlc.block = b')
             ->where('b.category = :category')
-            ->andWhere(
+            /*->andWhere(
                 $orX->addMultiple(array(
                     'b.showInCategory = 0',
                     $qb2->select('count(rp)')
-                        ->from('\Cx\Modules\Block\Model\Entity\Block', 'b')
                         ->from('\Cx\Modules\Block\Model\Entity\RelPage', 'rp')
-                        ->where('rp.page = :page')
-                        ->andWhere('rp.block = b')
+                        ->where('rp.block = b')
+                        ->andWhere('rp.page = :page')
                         ->andWhere('rp.placeholder = \'category\'')
                         ->setParameter('page', $page)
-                        ->getQuery()
+                        ->getDQL()
                         ->getSingleResult()[1] . ' > 0'
                 ))
-            )
+            )*/
             ->andWhere('b.active = 1')
             ->andWhere('(b.start <= :now OR b.start = 0)')
             ->andWhere('(b.end >= :now OR b.end = 0)')
@@ -741,6 +758,24 @@ class BlockLibrary
             ))
             ->getQuery()
             ->getResult();
+
+        // filter blocks by assigned content page
+        $blocks = array();
+        foreach ($allBlocks as $block) {
+            if ($block->getShowInCategory()) {
+                foreach ($block->getRelPages() as $relPage) {
+                    if ($relPage->getPlaceholder() != 'category') {
+                        continue;
+                    }
+                    if ($relPage->getPage()->getId() == $page->getId()) {
+                        $blocks[] = array('id' => $block->getId());
+                        continue;
+                    }
+                }
+                continue;
+            }
+            $blocks[] = array('id' => $block->getId());
+        }
 
         $this->replaceBlocks(
             $this->blockNamePrefix . 'CAT_' . $category->getId(),
@@ -1255,5 +1290,34 @@ class BlockLibrary
         }
 
         return $this->_categories;
+    }
+
+    /**
+     * Replace the block placeholders by their associated content
+     * within a supplied string
+     *
+     * @todo    Remove once the content panes have been mirated to widgets
+     * @param   string  &$content    The content to replace all block placeholders by their content in
+     */
+    static function replacePlaceholdersInContent(&$content) {
+        // functionality is only available in frontend -> abort if we're not in frontend mode
+        if (\Cx\Core\Core\Controller\Cx::instanciate()->getMode() != \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
+            return;
+        }
+
+        // only proceed if the block system is active
+        $config = \Env::get('config');
+        if (!$config['blockStatus']) {
+            return;
+        }
+
+        // the block assignements are based on content pages, therefore it's
+        // necessarily that a content page has been requested and loaded to proceed
+        if (!\Cx\Core\Core\Controller\Cx::instanciate()->getPage()) {
+            return;
+        }
+
+        // finally, replace the placeholders by their associated blocks
+        \Cx\Modules\Block\Controller\Block::setBlocks($content, \Cx\Core\Core\Controller\Cx::instanciate()->getPage());
     }
 }
