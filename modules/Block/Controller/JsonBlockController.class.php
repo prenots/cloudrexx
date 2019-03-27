@@ -224,8 +224,14 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
      */
     public function getBlockContent($params)
     {
+        // whether or not widgets within the block
+        // shall get parsed
+        // this is used by the FrontendEditing
         $parsing = true;
-        if ($params['get']['parsing'] == 'false') {
+        if (
+            isset($params['get']['parsing']) &&
+            $params['get']['parsing'] == 'false'
+        ) {
             $parsing = false;
         }
 
@@ -233,11 +239,7 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         if (
             empty($params['get']) ||
             empty($params['get']['block']) ||
-            empty($params['get']['lang']) ||
-            (
-                empty($params['get']['page']) &&
-                $parsing
-            )
+            empty($params['get']['lang'])
         ) {
             throw new NotEnoughArgumentsException('not enough arguments');
         }
@@ -289,11 +291,18 @@ class JsonBlockController extends \Cx\Core\Core\Model\Entity\Controller implemen
         );
         $content = $template->get();
 
-        if ($parsing) {
+        // abort for returning raw data
+        if (!$parsing) {
+            return $content;
+        }
+
+        $page = null;
+        if (isset($params['get']['page'])) {
             $pageRepo = $em->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
             $page = $pageRepo->find($params['get']['page']);
-            \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
         }
+
+        \Cx\Modules\Block\Controller\Block::setBlocks($content, $page);
 
         \LinkGenerator::parseTemplate($content);
         $ls = new \LinkSanitizer(

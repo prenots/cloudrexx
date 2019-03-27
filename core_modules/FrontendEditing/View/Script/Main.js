@@ -219,7 +219,7 @@ cx.fe.contentEditor.initBlockCkEditors = function() {
             cx.fe.publishedBlocks["fe_block_" + blockId] = {};
             cx.fe.publishedBlocks["fe_block_" + blockId].contentHtml = cx.jQuery(this).html();
 
-            var url = cx.variables.get("basePath", "contrexx") + "cadmin/index.php?cmd=JsonData&object=Block&act=getBlockContent&block=" + blockId + "&lang=" + Cookies.get("langId");
+            var url = cx.variables.get("basePath", "contrexx") + "cadmin/index.php?cmd=JsonData&object=Block&act=getBlockContent&block=" + blockId + "&lang=" + Cookies.get("langId") + "&parsing=false";
             cx.jQuery.ajax({
                 url: url,
                 complete: function(response) {
