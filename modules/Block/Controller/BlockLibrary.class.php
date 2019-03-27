@@ -923,7 +923,7 @@ class BlockLibrary
      * Replaces a placeholder with block content
      * @param string $placeholderName Name of placeholder to replace
      * @param array $blocks Fetched blocks from database
-     * @param object $page
+     * @param object $page Current page, NULL if no page available
      * @param string $code (by reference) Code to replace placeholder in
      * @param string $separator (optional) Separator used to separate the blocks
      * @param boolean $randomize (optional) Wheter to randomize the blocks or not, default false
@@ -942,6 +942,11 @@ class BlockLibrary
             $blockIds[] = $block['id'];
         }
 
+        $pageId = 0;
+        if ($page) {
+            $pageId = $page->getId();
+        }
+
         // parse
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $em = $cx->getDb()->getEntityManager();
@@ -957,7 +962,7 @@ class BlockLibrary
                     array(
                         'block' => $blockId,
                         'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        'page' => $page->getId(),
+                        'page' => $pageId,
                     )
                 );
             }
@@ -978,7 +983,7 @@ class BlockLibrary
                     array(
                         'block' => $blockId,
                         'lang' => \FWLanguage::getLanguageCodeById(FRONTEND_LANG_ID),
-                        'page' => $page->getId(),
+                        'page' => $pageId,
                     )
                 );
                 $frontendEditingComponent->prepareBlock(

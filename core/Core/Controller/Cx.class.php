@@ -1538,6 +1538,9 @@ namespace Cx\Core\Core\Controller {
                         unset($params['__cap']);
                     }
                     $params = contrexx_input2raw($params);
+                    if (!isset($params['lang']) && isset($params['locale'])) {
+                        $params['lang'] = $params['locale'];
+                    }
                     if (isset($params['lang'])) {
                         $langId = \FWLanguage::getLanguageIdByCode($params['lang']);
                         if ($langId) {
@@ -1754,7 +1757,7 @@ namespace Cx\Core\Core\Controller {
                 }
 
             } else {
-                global $cmd, $act, $isRegularPageRequest, $plainCmd;
+                global $cmd, $act, $plainCmd;
 
                 // resolve pretty url's
                 $path = preg_replace('#^' . $this->getWebsiteOffsetPath() . '(' . $this->getBackendFolderName() . ')?/#', '', $_GET['__cap']);
@@ -1783,9 +1786,6 @@ namespace Cx\Core\Core\Controller {
                     $act = isset($_REQUEST['act']) ? $_REQUEST['act'] : '';
                     $plainCmd = $cmd;
                 }
-
-                // If standalone is set, then we will not have to initialize/load any content page related stuff
-                $isRegularPageRequest = !isset($_REQUEST['standalone']) || $_REQUEST['standalone'] == 'false';
             }
         }
 

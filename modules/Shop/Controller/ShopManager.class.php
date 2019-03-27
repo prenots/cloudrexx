@@ -1752,8 +1752,8 @@ if ($test === NULL) {
         // mediabrowser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -2150,8 +2150,8 @@ if ($test === NULL) {
         // media browser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -3690,7 +3690,7 @@ if ($test === NULL) {
     static function sendProcessedMail($order_id)
     {
         $arrSubstitution =
-              Orders::getSubstitutionArray($order_id)
+              Orders::getSubstitutionArray($order_id, false, false)
             + self::getSubstitutionArray();
         $lang_id = $arrSubstitution['LANG_ID'];
         // Select template for: "Your order has been processed"
