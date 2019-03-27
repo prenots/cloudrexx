@@ -205,7 +205,7 @@ class AccessLib
         \JS::activate('jqueryui');
         \JS::registerCode('
             cx.ready(function() {
-                cx.jQuery(".access_date").datepicker({dateFormat: "dd.mm.yy"});
+                cx.libs.jquery[\'jqueryui\'](".access_date").datepicker({dateFormat: "dd.mm.yy"});
 
                 nonAutofillPasswordEvent = function(el) {
                     if (el.setAttribute == undefined) {
@@ -217,12 +217,12 @@ class AccessLib
                         el.setAttribute("type", "password");
                     }
                 };
-                cx.jQuery("body").delegate(
+                cx.libs.jquery[\'jqueryui\']("body").delegate(
                     ".access-pw-noauto",
                     "keyup",
                     nonAutofillPasswordEvent
                 );
-                cx.jQuery("body").delegate(
+                cx.libs.jquery[\'jqueryui\']("body").delegate(
                     ".access-pw-noauto",
                     "paste drop",
                     function() {
