@@ -260,7 +260,9 @@ cx.jQuery(document).ready(function(){
                 'jquery-ui.css' => 'lib/javascript/jquery/ui/css/jquery-ui.css',
             ),
             'dependencies'  => array(
-                'cx', // depends on jquery
+                'jquery' => '^(1\.[5-8]\..*|1\.4\.[^0-3])$', // jquery needs to be version 1.4.4 or higher
+                'jquery-tools',
+                'cx',
             ),
         ),
         //stuff to beautify forms.
