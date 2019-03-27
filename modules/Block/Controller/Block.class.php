@@ -53,7 +53,7 @@ namespace Cx\Modules\Block\Controller;
  */
 class Block extends \Cx\Modules\Block\Controller\BlockLibrary
 {
-    public static function setBlocks(&$content, $page)
+    public static function setBlocks(&$content, $page = null)
     {
         $config = \Env::get('config');
 
