@@ -73,10 +73,10 @@ class Block extends \Cx\Modules\Block\Model\Entity\Block implements \Doctrine\OR
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'start', 'end', 'name', 'random', 'random2', 'random3', 'random4', 'showInCategory', 'showInGlobal', 'showInDirect', 'active', 'order', 'wysiwygEditor', 'relLangContents', 'relPages', 'targetingOptions', 'category', 'validators', 'virtual');
+            return array('__isInitialized__', 'id', 'start', 'end', 'name', 'random', 'random2', 'random3', 'random4', 'showInCategory', 'showInGlobal', 'showInDirect', 'active', 'order', 'wysiwygEditor', 'relLangContents', 'relPages', 'targetingOptions', 'category', 'versionTargetingOption', 'versionRelLangContent', 'versionRelPageGlobal', 'versionRelPageCategory', 'versionRelPageDirect', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'id', 'start', 'end', 'name', 'random', 'random2', 'random3', 'random4', 'showInCategory', 'showInGlobal', 'showInDirect', 'active', 'order', 'wysiwygEditor', 'relLangContents', 'relPages', 'targetingOptions', 'category', 'validators', 'virtual');
+        return array('__isInitialized__', 'id', 'start', 'end', 'name', 'random', 'random2', 'random3', 'random4', 'showInCategory', 'showInGlobal', 'showInDirect', 'active', 'order', 'wysiwygEditor', 'relLangContents', 'relPages', 'targetingOptions', 'category', 'versionTargetingOption', 'versionRelLangContent', 'versionRelPageGlobal', 'versionRelPageCategory', 'versionRelPageDirect', 'validators', 'virtual');
     }
 
     /**
@@ -613,6 +613,127 @@ class Block extends \Cx\Modules\Block\Model\Entity\Block implements \Doctrine\OR
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCategory', array());
 
         return parent::getCategory();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setVersionTargetingOption($versionTargetingOption)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setVersionTargetingOption', array($versionTargetingOption));
+
+        return parent::setVersionTargetingOption($versionTargetingOption);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersionTargetingOption()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getVersionTargetingOption', array());
+
+        return parent::getVersionTargetingOption();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setVersionRelLangContent($versionRelLangContent)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setVersionRelLangContent', array($versionRelLangContent));
+
+        return parent::setVersionRelLangContent($versionRelLangContent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersionRelLangContent()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getVersionRelLangContent', array());
+
+        return parent::getVersionRelLangContent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setVersionRelPageGlobal($versionRelPageGlobal)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setVersionRelPageGlobal', array($versionRelPageGlobal));
+
+        return parent::setVersionRelPageGlobal($versionRelPageGlobal);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersionRelPageGlobal()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getVersionRelPageGlobal', array());
+
+        return parent::getVersionRelPageGlobal();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setVersionRelPageCategory($versionRelPageCategory)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setVersionRelPageCategory', array($versionRelPageCategory));
+
+        return parent::setVersionRelPageCategory($versionRelPageCategory);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersionRelPageCategory()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getVersionRelPageCategory', array());
+
+        return parent::getVersionRelPageCategory();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setVersionRelPageDirect($versionRelPageDirect)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setVersionRelPageDirect', array($versionRelPageDirect));
+
+        return parent::setVersionRelPageDirect($versionRelPageDirect);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersionRelPageDirect()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getVersionRelPageDirect', array());
+
+        return parent::getVersionRelPageDirect();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getContent($localeId)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getContent', array($localeId));
+
+        return parent::getContent($localeId);
     }
 
     /**
