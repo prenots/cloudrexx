@@ -1014,7 +1014,7 @@ var _active_tab = '.
 
     /**
      * Returns HTML code for an image element that links to
-     * the filebrowser for choosing an image file on the server
+     * the mediabrowser for choosing an image file on the server
      *
      * If the optional $imagetype_key is missing (defaults to false),
      * no image type can be selected.  If it's a string, the type of the
@@ -1040,8 +1040,10 @@ var _active_tab = '.
     ) {
         global $_CORELANG;
 
-        JS::registerCode(self::getJavascript_Image(Image::PATH_NO_IMAGE));
-        if (empty($objImage)) $objImage = new Image(0);
+        if (empty($objImage)) {
+            $objImage = new Image(0);
+        }
+
         $type_element = '';
 //            '<input type="hidden" id="'.$id.'_type" name="'.$id.'_type"'.
 //            ' value="'.$imagetype_key.'" />'."\n";
@@ -1052,53 +1054,75 @@ var _active_tab = '.
             $type_element = self::getSelect($id.'_type', $arrImagetypeName);
         }
 */
-        return
-            $type_element.
-            '<img id="'.$id.'_img" src="'.
-            // This needs to be absolute, as it is used in both
-            // frontend and backend.
-            contrexx_raw2encodedUrl(ASCMS_PATH_OFFSET.'/'.$objImage->getPath()).'"'.
-            ' style="width:'.$objImage->getWidth().
-            'px; height:'.$objImage->getHeight().'px;"'.
-            ' title="'.$_CORELANG['TXT_CORE_HTML_IMAGE_PREVIEW'].'"'.
-            ' alt="'.$_CORELANG['TXT_CORE_HTML_IMAGE_PREVIEW'].'" />'."\n".
-            self::getHidden(
-                $id.'_type',
-                ($imagetype_key !== false
-                  ? $imagetype_key : $objImage->getImagetypeKey()),
-                '' // Force id attribute like name!
-            ).
-            ($objImage->getPath()
-              ? self::getClearImageCode($id).
+        // Get hidden fields
+        $hiddenFields = self::getHidden(
+            $id . '_type',
+            ($imagetype_key !== false? $imagetype_key : $objImage->getImagetypeKey()),
+            ''
+        );
+        if ($objImage->getPath()) {
+            $hiddenFields .=
+                self::getClearImageCode($id) .
                 self::getHidden(
-                    $id.'_id', $objImage->getId(),
-                    '' // Force id attribute like name!
-                ).
+                    $id . '_id',
+                    $objImage->getId(),
+                    ''
+                ) .
                 self::getHidden(
-                    $id.'_ord', $objImage->getOrd(),
-                    '' // Force id attribute like name!
-                )
-              : '').
-            self::getHidden(
-                // No path offset.  That will be stripped anyway before storing.
-                $id.'_src', $objImage->getPath(),
-                '' // Force id attribute like name!
-            ).
-            // The following two are addressed by the javascript code.
-            // Leave them alone if you don't use them!
-            self::getHidden($id.'_width', '', '').
-            self::getHidden($id.'_height', '', '').
-            '<a href="javascript:void(0);" title="'.
-            $_CORELANG['TXT_CORE_HTML_CHOOSE_IMAGE'].'"'.
-            ' tabindex="'.++self::$index_tab.'"'.
-            ' onclick="openBrowser(\'index.php?cmd=FileBrowser&amp;standalone=true'.
-            ($type ? '&amp;type='.$type : '').
-            ($path ? '&amp;path='.$path : '').
-            '\',\''.$id.'\','.
-            '\'width=800,height=640,resizable=yes,status=no,scrollbars=yes\');">'.
-            $_CORELANG['TXT_CORE_HTML_CHOOSE_IMAGE']."</a>\n";
-    }
+                    $id . '_ord',
+                    $objImage->getOrd(),
+                    ''
+                );
+        }
 
+        $hiddenFields .= self::getHidden($id . '_src', $objImage->getPath(), '');
+        $hiddenFields .= self::getHidden($id . '_width', '', '');
+        $hiddenFields .= self::getHidden($id . '_height', '', '');
+
+        // Set image tag
+        $imgTag = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+        $imgTag->setAttributes(array(
+            'id'     => $id . '_img',
+            'src'    =>
+                contrexx_raw2encodedUrl(\Env::get('cx')->getCodeBaseOffsetPath() . '/' . $objImage->getPath()),
+            'style'  => 'width:' . $objImage->getWidth() . 'px;height:' . $objImage->getHeight() . 'px;',
+            'title'  => $_CORELANG['TXT_CORE_HTML_IMAGE_PREVIEW'],
+            'alt'    => $_CORELANG['TXT_CORE_HTML_IMAGE_PREVIEW']
+        ));
+
+        // Set a tag
+        $aTag = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $aTag->setAttributes(array(
+            'id'       => $id . '_btn',
+            'href'     => "javascript:void(0);",
+            'title'    => $_CORELANG['TXT_CORE_HTML_CHOOSE_IMAGE'],
+            'tabindex' => ++self::$index_tab
+        ));
+        $aTag->addChild(
+            new \Cx\Core\Html\Model\Entity\TextElement($_CORELANG['TXT_CORE_HTML_CHOOSE_IMAGE'])
+        );
+
+        // Set MediaBrowser options and callback function
+        $mediaBrowser = new \Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowser(
+            \Env::get('cx')->getComponent('Mediabrowser')->getSystemComponentController()
+        );
+        $options = array(
+            'type'  => 'button',
+            'views' => 'filebrowser',
+            'id'    => $id,
+            'style' => 'display: none;',
+        );
+        $mediaBrowser->setOptions($options);
+        $mediaBrowser->setCallback($id . 'CallBack');
+
+        return
+            $type_element .
+            $imgTag .
+            $hiddenFields .
+            $aTag .
+            $mediaBrowser->getXHtml() .
+            self::getMediaBrowserJs($id);
+    }
 
     /**
      * Returns HTML code for an image element with form
@@ -2870,5 +2894,48 @@ function cloneElement(id)
                 ' . $languageLabel . '
             </a>
         </div>';
+    }
+
+    /**
+     * Get media browser js code
+     *
+     * @param string $selector JS selector
+     * @return string Javascript code
+     */
+    public static function getMediaBrowserJs($selector)
+    {
+        $script  = <<<JSCODE
+<script type="text/javascript">
+cx.jQuery(document).ready(function(){
+    if (cx.jQuery('#{$selector}_clear')) {
+        cx.jQuery('#{$selector}_clear').removeAttr('onclick');
+    }
+
+    cx.jQuery('#{$selector}_btn').click(function(){
+        cx.jQuery(this).next('#{$selector}').trigger('click');
+    });
+
+    cx.jQuery('#{$selector}_clear').click(function(){
+        if (!confirm("Wollen Sie dieses Bild wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.")) {
+            return
+        };
+        cx.jQuery('#{$selector}_src').val('');
+        cx.jQuery('#{$selector}_img').attr('src', '/core/Core/View/Media/icons/images.gif');
+    });
+});
+function {$selector}CallBack(data)
+{
+    if (data.type !== 'file' || (typeof data.data[0] === 'undefined')) {
+        return;
+    }
+
+    var url = data.data[0].datainfo.filepath;
+    cx.jQuery('#{$selector}_src').val(url);
+    cx.jQuery('#{$selector}_img').attr('src', url);
+}
+</script>
+JSCODE;
+
+        return $script;
     }
 }
