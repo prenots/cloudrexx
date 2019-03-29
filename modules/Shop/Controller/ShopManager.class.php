@@ -2502,7 +2502,6 @@ if ($test === NULL) {
         self::$objTemplate->setVariable(array(
             'SHOP_CUSTOMER_PAGING' => $paging,
             'SHOP_CUSTOMER_TERM' => htmlentities($searchterm),
-            'SHOP_LISTLETTER_LINKS' => Orders::getListletterLinks($listletter),
             'SHOP_CUSTOMER_TYPE_MENUOPTIONS' =>
                 Customers::getTypeMenuoptions($customer_type, true),
             'SHOP_CUSTOMER_STATUS_MENUOPTIONS' =>
@@ -2952,13 +2951,6 @@ if ($test === NULL) {
 
         if (isset($_POST['bsubmit'])) {
             $this->update_products();
-        }
-        if (isset($_POST['multi_action'])) {
-            if ($_POST['multi_action'] == 'activate') {
-                Products::set_active($_POST['selectedProductId'], true);
-            } elseif ($_POST['multi_action'] == 'deactivate') {
-                Products::set_active($_POST['selectedProductId'], false);
-            }
         }
         self::$objTemplate->addBlockfile(
             'SHOP_PRODUCTS_FILE', 'shop_products_block',
