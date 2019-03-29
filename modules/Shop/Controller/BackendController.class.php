@@ -360,10 +360,9 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Product'
                 )->getViewGeneratorOptions($options);
-                $options = $this->normalDelete(
-                    $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
-                    $options
-                );
+                if ($dataSetIdentifier == $entityClassName) {
+                    $options = $this->setMultiActionsForProduct($options);
+                }
                 break;
             case 'Cx\Modules\Shop\Model\Entity\DiscountCoupon':
                 if ($entityClassName == $dataSetIdentifier) {
@@ -412,6 +411,28 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             'TXT_ACTION_IS_IRREVERSIBLE',
             $_ARRAYLANG['TXT_ACTION_IS_IRREVERSIBLE'],
             $scope
+        );
+
+        return $options;
+    }
+
+    protected function setMultiActionsForProduct($options)
+    {
+        global $_ARRAYLANG;
+
+        $options = $this->normalDelete(
+            $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+            $options
+        );
+
+        $options['multiActions']['activate'] = array(
+            'title' => $_ARRAYLANG['TXT_SHOP_ACTIVATE'],
+            'jsEvent' => 'activate:shopActivate'
+        );
+
+        $options['multiActions']['deactivate'] = array(
+            'title' => $_ARRAYLANG['TXT_SHOP_DEACTIVATE'],
+            'jsEvent' => 'deactivate:shopDeactivate'
         );
 
         return $options;

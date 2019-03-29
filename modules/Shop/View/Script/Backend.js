@@ -41,6 +41,55 @@ cx.bind("delete", function (deleteIds) {
     }
 }, 'shopDelete');
 
+cx.bind('activate', function (entityIds) {
+    updateShopStatus(entityIds, 1);
+}, 'shopActivate');
+
+cx.bind('deactivate', function (entityIds) {
+    updateShopStatus(entityIds, 0);
+}, 'shopDeactivate');
+
+function updateShopStatus(entityIds, newStatus) {
+    for (let i = 0; i < entityIds.length; i++) {
+        const statusElement = cx.jQuery('.vg-function-status[data-entity-id="' + entityIds[i] + '"]');
+        if (statusElement.attr('data-status-value') == newStatus) {
+            continue;
+        }
+        cx.ajax(
+            'Html',
+            'updateStatus',
+            {
+                type: 'POST',
+                data: {
+                    'entityId': entityIds[i],
+                    'newStatus': newStatus,
+                    'statusField': 'discountActive',
+                    'component': 'Shop',
+                    'entity': 'Product',
+                },
+                showMessage: true,
+                beforeSend: function() {
+                    cx.jQuery(statusElement).addClass('loading');
+                },
+                success: function(json) {
+                    if (newStatus) {
+                        cx.jQuery(statusElement).addClass('active');
+                    } else {
+                        cx.jQuery(statusElement).removeClass('active');
+                    }
+                },
+                preError: function(xhr, status, error) {
+                    cx.tools.StatusMessage.showMessage(error);
+                    cx.jQuery(this).data('status-value', (cx.jQuery(this).hasClass('active') ? 0 : 1));
+                },
+                complete: function() {
+                    cx.jQuery(statusElement).removeClass('loading');
+                }
+            },
+            cx.variables.get('frontendLocale', 'contrexx')
+        );
+    }
+}
 
 function toggle_header()
 {
