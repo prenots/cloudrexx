@@ -576,7 +576,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 //            return false;
 //        }
         list($querySelect, $queryCount, $queryTail, $queryOrder) =
-            self::getQueryParts(
+            \Cx\Modules\Shop\Controller\Products::getQueryParts(
                 $product_id, $category_id, $manufacturer_id, $pattern,
                 $flagSpecialoffer, $flagLastFive, $orderSetting,
                 $flagIsReseller, $flagShowInactive);
