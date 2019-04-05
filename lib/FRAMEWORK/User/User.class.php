@@ -1646,6 +1646,98 @@ class User extends User_Profile
         return $qb;
     }
 
+    /**
+     * Get array with needed expressions, parameters and the associated counter
+     *
+     * @param \Doctrine\MongoDB\Query\Builder $qb
+     * @param string                          $key
+     * @param int                             $value
+     * @param array                           $params
+     * @param int                             $counter
+     * @param array                           $attrNames
+     * @param array                           $arrExpr
+     * @param string                          $parentName
+     * @return array
+     */
+    protected function getExpression($qb, $key, $value, $params, $counter, $attrNames, $arrExpr = array(), $parentName = '')
+    {
+        $conditions = array(
+            'AND',
+            'OR',
+        );
+
+        $fieldName = 'value';
+        if (!in_array($key, $attrNames) && !empty($parentName)) {
+            $fieldName = $parentName;
+        } else if (!in_array($key, $attrNames)) {
+            $fieldName = $key;
+        }
+
+        if (in_array($key, $conditions)) {
+            foreach ($value as $andCondition) {
+                foreach ($andCondition as $andKey=>$andValue) {
+                    $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr);
+                }
+                $params = $expr['params'];
+                $counter = $expr['counter'];
+
+                if ($key == 'AND') {
+                    $arrExpr = $qb->expr()->andX($expr['expr']);
+                } else {
+                    $arrExpr = $qb->expr()->orX($expr['expr']);
+                }
+
+            }
+        } else if (is_array($value)) {
+            foreach ($value as $andKey=>$andValue) {
+                $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, $fieldName);
+            }
+            $params = $expr['params'];
+            $counter = $expr['counter'];
+
+            if (count($expr['expr']) > 1) {
+                $arrExpr[] = $qb->expr()->andX($expr['expr']);
+            } else {
+                $arrExpr[] = $expr['expr'][0];
+            }
+        } else if ($key == 'LIKE' || strpos($value, '%')) {
+            $arrExpr[] = $qb->expr()->like($fieldName, '?' . $counter);
+            $params[$counter] = $value;
+            $counter++;
+        } else if ($key == '>') {
+            $arrExpr[] = $qb->expr()->gt($fieldName, '?' . $counter);
+            $params[$counter] = $value;
+            $counter++;
+        } else if ($key == '<'){
+            $arrExpr[] = $qb->expr()->lt($fieldName, '?' . $counter);
+            $params[$counter] = $value;
+            $counter++;
+        } else if ($key == '!='){
+            $arrExpr[] = $qb->expr()->neq($fieldName, '?' . $counter);
+            $params[$counter] = $value;
+            $counter++;
+        } else {
+            $arrExpr[] = $qb->expr()->eq($fieldName, '?' . $counter);
+            $params[$counter] = $value;
+            $counter++;
+        }
+
+        if (in_array($key, $attrNames)) {
+            $arrExpr = array( $qb->expr()->andX(
+                $arrExpr[0],
+                $qb->expr()->eq('attributeId', '?' . $counter)
+            ));
+            $params[$counter] = array_search($key, $attrNames);
+            $counter++;
+        }
+
+        return array(
+            'expr' => $arrExpr,
+            'params' => $params,
+            'counter' => $counter
+        );
+    }
+
 
     public function __clone()
     {
