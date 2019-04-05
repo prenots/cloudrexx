@@ -1610,6 +1610,42 @@ class User extends User_Profile
         return false;
     }
 
+    /**
+     * Get the query builder by filter conditions
+     *
+     * @param array                            $conditions
+     * @param \Doctrine\MongoDB\Query\Builder  $qb
+     * @param array                            $userNames
+     * @return \Doctrine\MongoDB\Query\Builder
+     */
+    protected function getAttrConditions($conditions, $qb, $userNames)
+    {
+        $params = array();
+        $counter = 1;
+        $expr = array();
+
+        $attrNames = $this->getAttrNames($conditions, $userNames);
+
+        foreach ($conditions as $key=>$condition) {
+            $result = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
+            $params[] = $qb->setParameters($result['params']);
+            $expr = $result['expr'];
+            $counter = $result['counter'];
+        }
+
+        if (count($expr) > 1) {
+            foreach($expr as $ex) {
+                $qb->andWhere($ex);
+            }
+        } else {
+            $qb->where($expr[0]);
+        }
+
+        $qb->setParameters($params);
+
+        return $qb;
+    }
+
 
     public function __clone()
     {
