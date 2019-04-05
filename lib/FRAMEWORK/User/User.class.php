@@ -1486,73 +1486,84 @@ class User extends User_Profile
             $arrSelectCustomExpressions = array();
         }
 
-        /*Build doctrine query*/
-        $qb = $em->createQueryBuilder();
+        $repo = $em->getRepository('\Cx\Core\User\Model\Entity\User');
+        $attrNameRepo = $em->getRepository('\Cx\Core\User\Model\Entity\UserAttributeName');
 
         $fields = $em->getClassMetadata('\Cx\Core\User\Model\Entity\User');
 
         $arrExpressions = array();
-
-        /*Get fieldnames for associated columnnames*/
         foreach($arrSelectMetaExpressions as $item) {
-            $arrExpressions[] = $fields->getFieldName($item);
+            $arrExpressions[$item] = $fields->getFieldName($item);
         }
 
-        $tblA = $this->tblAttr;
-        $tblAv = $this->tblAttrVal;
-        $tblAn = $this->tblAttrName;
+        // Rewrite set filter
+        $userId = 0;
+        $userAttrConditions = array();
+        $userNames = $attrNameRepo->findBy(array(), null, null, null);
 
-        $qb->select('tblU.'.implode(', tblU.', $arrExpressions).', '.$tblAv.'.value')
+        $names = array();
+        foreach ($userNames as $attrName) {
+            $names[$attrName->getAttributeId()] = $attrName->getName();
+        }
+
+        $qb = $em->createQueryBuilder();
+        $qb->select('tblU')
             ->from('\Cx\Core\User\Model\Entity\User', 'tblU');
+        if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
+            $qb = $this->getAttrConditions($filter, $qb, $names);
+        } else if (!empty($filter)) {
+            $userId = intval($filter);
+        }
 
-        /*Load core attributes*/
-        if (count($arrSelectCoreExpressions) || $arrQuery['tables']['core']) {
-            $counter = 0;
-            foreach ($arrSelectCoreExpressions as $item) {
-                $counter++;
-                $qb->innerJoin('\Cx\Core\User\Model\Entity\UserAttribute', $tblA, 'WITH', $tblA.'.id = '.$tblA.'.id')
-                    ->innerJoin('\Cx\Core\User\Model\Entity\UserAttributeValue', $tblAv, 'WITH', $tblAv.'.userId = tblU.id AND '. $tblAv .'.attributeId = '.$tblA.'.id')
-                    ->innerJoin('\Cx\Core\User\Model\Entity\UserAttributeName', $tblAn, 'WITH', $tblAn.'.name = ?'.$counter.' AND '.$tblAv.'.attributeId = '.$tblAn.'.attributeId')
-                    ->setParameter($counter, $item);
-                $tblA = $this->tblAttr . $counter;
-                $tblAv = $this->tblAttrVal . $counter;
-                $tblAn = $this->tblAttrName . $counter;
+        $sortBy = array();
+        foreach ($arrSort as $sort=>$order) {
+            $key = $arrExpressions[$sort];
+            $sortBy[$key] = ucwords($order);
+        }
+        $crit = array();
+        if (!empty($userId)) {
+            $crit = array('id' => $userId);
+        }
+        $users = $repo->findBy($crit, $sortBy, $limit, $offset);
+
+        foreach ($users as $user) {
+            foreach ($user->getUserAttributeValue() as $attr) {
+                $name = $attrNameRepo->findOneBy(
+                    array(
+                    'attributeId' => $attr->getAttributeId()
+                    )
+                )->getName();
+                if (count($arrSelectCoreExpressions) && in_array($name, $arrSelectCoreExpressions)) {
+                    $this->arrCachedUsers[$user->getId()]['profile'][$name][0] = $this->arrLoadedUsers[$user->getId()]['profile'][$name][0] = $attr->getValue();
+                } else {
+                    $this->arrCachedUsers[$user->getId()]['profile'][$attr->getAttributeId()][$attr->getHistory()] =
+                    $this->arrLoadedUsers[$user->getId()]['profile'][$attr->getAttributeId()][$attr->getHistory()] =
+                        $attr->getValue();
+
+                    $historyAttributeId = $attr->getUserAttribute()->getHistoryAttributeId();
+                    if ($attr->getHistory() &&
+                        (!empty($historyAttributeId) &&
+                            (
+                                !isset($this->arrAttributeHistories[$user->getId()][$historyAttributeId]) ||
+                                !in_array($attr->getHistory(), $this->arrAttributeHistories[$user->getId()][$historyAttributeId])
+                            )
+                        )
+                    ) {
+                        $this->arrAttributeHistories[$user->getId()][$historyAttributeId][] = $attr->getHistory();
+                        $this->arrUpdatedAttributeHistories[$user->getId()][$historyAttributeId][] = $attr->getHistory();
+                    }
+                }
             }
-        }
 
-        if ($arrQuery['tables']['custom']) {
-            $qb->innerJoin('\Cx\Core\User\Model\Entity\UserAttributeValue', 'tblA', 'WITH', 'tblA.user_id = tblU.id');
-        }
-
-        foreach ($arrSelectCoreExpressions as $expr){
-            $qb->select('tblU.'.implode(', tblU.', $arrExpressions).', tblP.value')->from('\Cx\Core\User\Model\Entity\User', 'tblU');
-        }
-
-        if ($arrQuery['tables']['group']) {
-            if (isset($filter['group_id']) && $filter['group_id'] == 'groupless') {
-                $qb->leftJoin(DBPREFIX.'access_rel_user_group', 'tblG', 'WITH', 'tblG.user_id = tblU.id');
-            } else {
-                $qb->innerJoin(DBPREFIX.'access_rel_user_group', 'tblG', 'WITH', 'tblG.user_id = tblU.id');
+            foreach ($arrSelectMetaExpressions as $expr) {
+                $getter = 'get'. ucfirst($arrExpressions[$expr]);
+                $value = $user->$getter();
+                $this->arrCachedUsers[$user->getId()][$expr] = $this->arrLoadedUsers[$user->getId()][$expr] = $value;
             }
-        }
-        if ($arrQuery['tables']['group'] && !FWUser::getFWUserObject()->isBackendMode()) {
-            $qb->innerJoin(DBPREFIX.'access_user_groups', 'tblGF', 'WITH', 'tblGF.group_id = tblG.group_id');
-        }
-        if (count($arrQuery['joins'])) {
-            ' '.implode(' ',$arrQuery['joins']);
-        }
-        if (count($arrQuery['conditions'])) {
-            $qb->where(str_replace('`', '' , implode(') AND (', $arrQuery['conditions'])));
-        }
-        if ($arrQuery['group_tables']) {
-            $qb->groupBy('tblU.id');
-        }
-        if (count($arrQuery['sort'])) {
-            foreach($arrQuery['sort'] as $item) {
-                $field = str_replace('`', '' , explode(' ', $item)[0]);
-                $order = explode(' ', $item)[1];
-                $qb->addOrderBy($field, $order);
-            }
+
+            $this->arrCachedUsers[$user->getId()]['networks'] =
+            $this->arrLoadedUsers[$user->getId()]['networks'] =
+                new \Cx\Lib\User\User_Networks($user->getId());
         }
 
         $query = 'SELECT tblU.`'.implode('`, tblU.`', $arrSelectMetaExpressions).'`'
