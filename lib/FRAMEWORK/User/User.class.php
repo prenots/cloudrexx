@@ -1738,6 +1738,28 @@ class User extends User_Profile
         );
     }
 
+    /**
+     * Get attribute names
+     *
+     * @param array $filters
+     * @param array $userNames
+     *
+     * @return array
+     */
+    protected function getAttrNames($filters, $userNames)
+    {
+        $attrNames = array();
+
+        foreach($filters as $key=>$value) {
+            if (in_array($key, $userNames)) {
+                $attrNames[array_search($key, $userNames)] = $key;
+            } else if (is_array($value)) {
+                $attrNames = $this->getAttrNames($value, $userNames);
+            }
+        }
+
+        return $attrNames;
+    }
 
     public function __clone()
     {
