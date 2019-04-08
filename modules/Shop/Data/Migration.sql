@@ -92,7 +92,6 @@ ALTER TABLE contrexx_module_shop_rel_payment
 
 ALTER TABLE contrexx_module_shop_shipper ADD zone_id INT UNSIGNED DEFAULT NULL;
 
-
 /** Drop Primary Keys **/
 ALTER TABLE contrexx_module_shop_discount_coupon DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
@@ -297,6 +296,11 @@ SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
   LEFT JOIN `contrexx_core_locale_locale` AS `l` ON `t`.`lang_id` = `l`.`id`
 	WHERE `section` LIKE 'Shop' AND `key` NOT LIKE '%core_mail_template%%';
 
+/** Move zone ids to shipper table */
+UPDATE contrexx_module_shop_shipper AS s
+	JOIN contrexx_module_shop_rel_shipper AS rs ON rs.shipper_id = s.id
+    SET s.zone_id = rs.zone_id;
+
 ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
 ALTER TABLE contrexx_module_shop_pricelists DROP categories;
-
+DROP TABLE contrexx_module_shop_rel_shipper;
