@@ -1604,6 +1604,14 @@ class User extends User_Profile
             $fieldName = $key;
         }
 
+        $simpleExprs = array(
+            'LIKE' => 'like',
+            '>' => 'gt',
+            '<' => 'lt',
+            '!=' => 'neq',
+            '=' => 'eq',
+        );
+
         if (in_array($key, $conditions)) {
             foreach ($value as $andCondition) {
                 foreach ($andCondition as $andKey=>$andValue) {
@@ -1629,24 +1637,17 @@ class User extends User_Profile
             } else {
                 $arrExpr[] = $expr['expr'][0];
             }
-        } else if ($key == 'LIKE' || strpos($value, '%')) {
-            $arrExpr[] = $qb->expr()->like($fieldName, '?' . $counter);
-            $qb->setParameter($counter, $value);
-            $counter++;
-        } else if ($key == '>') {
-            $arrExpr[] = $qb->expr()->gt($fieldName, '?' . $counter);
-            $qb->setParameter($counter, $value);
-            $counter++;
-        } else if ($key == '<'){
-            $arrExpr[] = $qb->expr()->lt($fieldName, '?' . $counter);
-            $qb->setParameter($counter, $value);
-            $counter++;
-        } else if ($key == '!='){
-            $arrExpr[] = $qb->expr()->neq($fieldName, '?' . $counter);
-            $qb->setParameter($counter, $value);
-            $counter++;
         } else {
-            $arrExpr[] = $qb->expr()->eq($fieldName, '?' . $counter);
+            $exprMethod = 'eq';
+            if (isset($simpleExprs[$key])) {
+                $exprMethod = $simpleExprs[$key];
+            } else if (strpos($value, '%')) {
+                $exprMethod = 'like';
+            }
+            $arrExpr[] = $qb->expr()->$exprMethod(
+                'tblU.' . $fieldName,
+                '?' . $counter
+            );
             $qb->setParameter($counter, $value);
             $counter++;
         }
