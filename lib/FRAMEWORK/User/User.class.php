@@ -1572,7 +1572,6 @@ class User extends User_Profile
         foreach ($conditions as $key=>$condition) {
             $result = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
             $expr = $result['expr'];
-            $counter = $result['counter'];
         }
 
         if (count($expr) > 1) {
@@ -1599,7 +1598,7 @@ class User extends User_Profile
      * @param string                          $parentName
      * @return array
      */
-    protected function getExpression($qb, $key, $value, &$params, $counter, $attrNames, $arrExpr = array(), $parentName = '')
+    protected function getExpression($qb, $key, $value, &$params, &$counter, $attrNames, $arrExpr = array(), $parentName = '')
     {
         $conditions = array(
             'AND',
