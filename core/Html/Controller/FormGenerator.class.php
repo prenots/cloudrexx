@@ -957,13 +957,19 @@ class FormGenerator {
                     }
                 }
 
+                $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
                 $wysiwyg = new \Cx\Core\Wysiwyg\Wysiwyg(
                     $title,
                     $value,
                     $mode
                 );
+                $wrapper->addChild($wysiwyg);
 
-                return $wysiwyg;
+                if (isset($options['attributes'])) {
+                    $wrapper->setAttributes($options['attributes']);
+                }
+
+                return $wrapper;
 
             case 'sourcecode':
                 //set mode
