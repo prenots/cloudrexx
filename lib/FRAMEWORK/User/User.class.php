@@ -1428,17 +1428,6 @@ class User extends User_Profile
         $arrSelectCoreExpressions = array();
         $arrSelectCustomExpressions = null;
         $this->filtered_search_count = 0;
-        $sqlCondition = array();
-
-        // set filter
-        if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
-            $sqlCondition = $this->getFilteredUserIdList($filter, $search);
-        } elseif (!empty($filter)) {
-            $sqlCondition['tables'] = array('core');
-            $sqlCondition['conditions'] = array('tblU.`id` = '.intval($filter));
-            $sqlCondition['group_tables'] = false;
-            $limit = 1;
-        }
 
         // set sort order
         if (isset($filter['group_id']) && $filter['group_id'] == 'groupless') {
@@ -1454,16 +1443,6 @@ class User extends User_Profile
             if ($cx->getLicense()->isInLegalComponents('Crm')) {
                 $crmUser = true;
             }
-        }
-        try {
-            if (!($arrQuery = $this->setSortedUserIdList($arrSort, $sqlCondition, $limit, $offset, $groupless, $crmUser))) {
-                $this->clean();
-                return false;
-            }
-        } catch (\Throwable $e) {
-            // catch invalid $filter or $search definitions
-            $this->clean();
-            return false;
         }
 
         // set field list
@@ -1565,49 +1544,8 @@ class User extends User_Profile
             $this->arrLoadedUsers[$user->getId()]['networks'] =
                 new \Cx\Lib\User\User_Networks($user->getId());
         }
-
-        $query = 'SELECT tblU.`'.implode('`, tblU.`', $arrSelectMetaExpressions).'`'
-            .(count($arrSelectCoreExpressions) ? ', tblP.`'.implode('`, tblP.`', $arrSelectCoreExpressions).'`' : '')
-            .'FROM `'.DBPREFIX.'access_users` AS tblU'
-            .(count($arrSelectCoreExpressions) || $arrQuery['tables']['core'] ? ' INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id` = tblU.`id`' : '')
-            .($arrQuery['tables']['custom'] ? ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id` = tblU.`id`' : '')
-            .($arrQuery['tables']['group']
-                ? (isset($filter['group_id']) && $filter['group_id'] == 'groupless'
-                    ? ' LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id` = tblU.`id`'
-                    : ' INNER JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id` = tblU.`id`')
-                : ''
-            )
-            .($arrQuery['tables']['group'] && !FWUser::getFWUserObject()->isBackendMode() ? ' INNER JOIN `'.DBPREFIX.'access_user_groups` AS tblGF ON tblGF.`group_id` = tblG.`group_id`' : '')
-            .(count($arrQuery['joins']) ? ' '.implode(' ',$arrQuery['joins']) : '')
-// TODO: some conditions are not well enclosed, so there might be a more proper solution than adding more brackes at this point
-            .(count($arrQuery['conditions']) ? ' WHERE ('.implode(') AND (', $arrQuery['conditions']).')' : '')
-            .($arrQuery['group_tables'] ? ' GROUP BY tblU.`id`' : '')
-            .(count($arrQuery['sort']) ? ' ORDER BY '.implode(', ', $arrQuery['sort']) : '');
-
-        $objUser = false;
-        if (empty($limit)) {
-            $objUser = $objDatabase->Execute($query);
-        } else {
-            $objUser = $objDatabase->SelectLimit($query, $limit, $offset);
-        };
-        if ($objUser !== false && $objUser->RecordCount() > 0) {
-            while (!$objUser->EOF) {
-                foreach ($objUser->fields as $attributeId => $value) {
-                    if ($this->objAttribute->isCoreAttribute($attributeId)) {
-                        $this->arrCachedUsers[$objUser->fields['id']]['profile'][$attributeId][0] = $this->arrLoadedUsers[$objUser->fields['id']]['profile'][$attributeId][0] = $value;
-                    } else {
-                        $this->arrCachedUsers[$objUser->fields['id']][$attributeId] = $this->arrLoadedUsers[$objUser->fields['id']][$attributeId] = $value;
-                    }
-                }
-                $this->arrCachedUsers[$objUser->fields['id']]['networks'] = $this->arrLoadedUsers[$objUser->fields['id']]['networks'] = new \Cx\Lib\User\User_Networks($objUser->fields['id']);
-                $objUser->MoveNext();
-            }
-            isset($arrSelectCustomExpressions) ? $this->loadCustomAttributeProfileData($arrSelectCustomExpressions) : false;
-            $this->first();
-            return true;
-        }
-        $this->clean();
-        return false;
+        $this->first();
+        return true;
     }
 
     /**
