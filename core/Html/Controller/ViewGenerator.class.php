@@ -353,21 +353,11 @@ class ViewGenerator {
             $em = $this->cx->getDb()->getEntityManager();
             $metaData = $em->getClassMetadata($entityClass);
             if ($this->cx->getRequest()->hasParam('checkbox')) {
-                $checkedFields = explode(
-                    '},',
+                $checkedFields = $this->getVgParam(
                     $this->cx->getRequest()->getParam('checkbox')
                 );
-                foreach ($checkedFields as $fieldInfo) {
-                    $fieldInfo = explode(
-                        '}',
-                        explode(
-                            ',',
-                            $fieldInfo
-                        )[1]
-                    )[0];
-                    $field = explode('=', $fieldInfo)[0];
-                    $value = explode('=', $fieldInfo)[1];
 
+                foreach ($checkedFields as $field=>$value) {
                     if (!in_array($field, $metaData->getFieldNames())) {
                         continue;
                     }
