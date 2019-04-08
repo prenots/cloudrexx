@@ -1556,10 +1556,9 @@ class User extends User_Profile
     /**
      * Get the query builder by filter conditions
      *
-     * @param array                            $conditions
-     * @param \Doctrine\MongoDB\Query\Builder  $qb
-     * @param array                            $userNames
-     * @return \Doctrine\MongoDB\Query\Builder
+     * @param array                       $conditions
+     * @param \Doctrine\ORM\QueryBuilder  $qb
+     * @param array                       $userNames
      */
     protected function getAttrConditions($conditions, $qb, $userNames)
     {
@@ -1581,7 +1580,7 @@ class User extends User_Profile
     /**
      * Get array with needed expressions, parameters and the associated counter
      *
-     * @param \Doctrine\MongoDB\Query\Builder $qb
+     * @param \Doctrine\ORM\QueryBuilder      $qb
      * @param string                          $key
      * @param int                             $value
      * @param array                           $params
@@ -1589,7 +1588,7 @@ class User extends User_Profile
      * @param array                           $attrNames
      * @param array                           $arrExpr
      * @param string                          $parentName
-     * @return array
+     * @return array List of Doctrine expressions
      */
     protected function getExpression($qb, $key, $value, &$params, &$counter, $attrNames, $arrExpr = array(), $parentName = '')
     {
