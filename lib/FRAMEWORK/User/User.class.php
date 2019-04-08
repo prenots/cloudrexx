@@ -1514,7 +1514,7 @@ class User extends User_Profile
             foreach ($user->getUserAttributeValue() as $attr) {
                 $name = $attrNameRepo->findOneBy(
                     array(
-                    'attributeId' => $attr->getAttributeId()
+                        'attributeId' => $attr->getAttributeId()
                     )
                 )->getName();
                 if (count($arrSelectCoreExpressions) && in_array($name, $arrSelectCoreExpressions)) {
