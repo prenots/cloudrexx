@@ -1570,8 +1570,7 @@ class User extends User_Profile
         $attrNames = $this->getAttrNames($conditions, $userNames);
 
         foreach ($conditions as $key=>$condition) {
-            $result = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
-            $expr = $result['expr'];
+            $expr = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
         }
 
         if (count($expr) > 1) {
@@ -1668,11 +1667,7 @@ class User extends User_Profile
             $counter++;
         }
 
-        return array(
-            'expr' => $arrExpr,
-            'params' => $params,
-            'counter' => $counter
-        );
+        return $arrExpr;
     }
 
     /**
