@@ -1576,8 +1576,6 @@ class User extends User_Profile
         foreach($expr as $ex) {
             $qb->andWhere($ex);
         }
-
-        return $qb;
     }
 
     /**
