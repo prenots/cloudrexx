@@ -564,4 +564,138 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 //\DBG::log("Products::getByShopParams(): Set count to $count");
         return $arrProduct;
     }
+
+
+    /**
+     * Create thumbnails and update the corresponding Product records
+     *
+     * Scans the Products with the given IDs.  If a non-empty picture string
+     * with a reasonable extension is encountered, determines whether
+     * the corresponding thumbnail is available and up to date or not.
+     * If not, tries to load the file and to create a thumbnail.
+     * If it succeeds, it also updates the picture field with the base64
+     * encoded entry containing the image width and height.
+     * Note that only single file names are supported!
+     * Also note that this method returns a string with information about
+     * problems that were encountered.
+     * It skips records which contain no or invalid image
+     * names, thumbnails that cannot be created, and records which refuse
+     * to be updated!
+     * The reasoning behind this is that this method is currently only called
+     * from within some {@link _import()} methods.  The focus lies on importing
+     * Products; whether or not thumbnails can be created is secondary, as the
+     * process can be repeated if there is a problem.
+     * @param   integer     $arrId      The array of Product IDs
+     * @return  boolean                 True on success, false on any error
+     * @global  ADONewConnection  $objDatabase    Database connection object
+     * @global  array
+     * @static
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     */
+    static function makeThumbnailsById($arrId)
+    {
+        global $_ARRAYLANG;
+
+        if (!is_array($arrId)) return false;
+        $error = false;
+        $objImageManager = new \ImageManager();
+        foreach ($arrId as $product_id) {
+            if ($product_id <= 0) {
+                \Message::error(sprintf($_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'], $product_id));
+                $error = true;
+                continue;
+            }
+            $objProduct = Product::getById($product_id);
+            if (!$objProduct) {
+                \Message::error(sprintf($_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'], $product_id));
+                $error = true;
+                continue;
+            }
+            $imageName = $objProduct->pictures();
+            $imagePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopPath() . '/' . $imageName;
+            // only try to create thumbs from entries that contain a
+            // plain text file name (i.e. from an import)
+            if (   $imageName == ''
+                || !preg_match('/\.(?:jpg|jpeg|gif|png)$/i', $imageName)) {
+                \Message::error(sprintf(
+                    $_ARRAYLANG['TXT_SHOP_UNSUPPORTED_IMAGE_FORMAT'],
+                    $product_id, $imageName
+                ));
+                $error = true;
+                continue;
+            }
+            // if the picture is missing, skip it.
+            if (!file_exists($imagePath)) {
+                \Message::error(sprintf(
+                    $_ARRAYLANG['TXT_SHOP_MISSING_PRODUCT_IMAGE'],
+                    $product_id, $imageName));
+                $error = true;
+                continue;
+            }
+            $thumbResult = true;
+            $width  = 0;
+            $height = 0;
+            // If the thumbnail exists and is newer than the picture,
+            // don't create it again.
+            $thumb_name = \ImageManager::getThumbnailFilename($imagePath);
+            if (   file_exists($thumb_name)
+                && filemtime($thumb_name) > filemtime($imagePath)) {
+                //$this->addMessage("Hinweis: Thumbnail fuer Produkt ID '$product_id' existiert bereits");
+                // Need the original size to update the record, though
+                list($width, $height) =
+                    $objImageManager->_getImageSize($imagePath);
+            } else {
+                // Create thumbnail, get the original size.
+                // Deleting the old thumb beforehand is integrated into
+                // _createThumbWhq().
+                $thumbResult = $objImageManager->_createThumbWhq(
+                    \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopPath() . '/',
+                    \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopWebPath() . '/',
+                    $imageName,
+                    \Cx\Core\Setting\Controller\Setting::getValue('thumbnail_max_width','Shop'),
+                    \Cx\Core\Setting\Controller\Setting::getValue('thumbnail_max_height','Shop'),
+                    \Cx\Core\Setting\Controller\Setting::getValue('thumbnail_quality','Shop')
+                );
+                $width  = $objImageManager->orgImageWidth;
+                $height = $objImageManager->orgImageHeight;
+            }
+            // The database needs to be updated, however, as all Products
+            // have been imported.
+            if ($thumbResult) {
+                $shopPicture =
+                    base64_encode($imageName).
+                    '?'.base64_encode($width).
+                    '?'.base64_encode($height).
+                    ':??:??';
+                $objProduct->pictures($shopPicture);
+                $objProduct->store();
+            } else {
+                \Message::error(sprintf(
+                    $_ARRAYLANG['TXT_SHOP_ERROR_CREATING_PRODUCT_THUMBNAIL'],
+                    $product_id, $imageName));
+                $error = true;
+            }
+        }
+        return $error;
+    }
+
+    /**
+     * Returns the HTML dropdown menu options for the product sorting
+     * order menu
+     * @return    string            The HTML code string
+     * @author    Reto Kohli <reto.kohli@comvation.com>
+     * @static
+     */
+    static function getProductSortingMenuoptions()
+    {
+        global $_ARRAYLANG;
+
+        $arrAvailableOrder = array(
+            1 => $_ARRAYLANG['TXT_SHOP_PRODUCT_SORTING_INDIVIDUAL'],
+            2 => $_ARRAYLANG['TXT_SHOP_PRODUCT_SORTING_ALPHABETIC'],
+            3 => $_ARRAYLANG['TXT_SHOP_PRODUCT_SORTING_PRODUCTCODE'],
+        );
+        return \Html::getOptions($arrAvailableOrder,
+            \Cx\Core\Setting\Controller\Setting::getValue('product_sorting','Shop'));
+    }
 }

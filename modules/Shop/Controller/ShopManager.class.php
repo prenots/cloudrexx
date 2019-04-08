@@ -458,7 +458,7 @@ class ShopManager extends ShopLibrary
                 }
             }
             // Fix picture field and create thumbnails
-            Products::makeThumbnailsById($arrId);
+            \Cx\Modules\Shop\Controller\ProductController::makeThumbnailsById($arrId);
             if ($importedLines) {
                 \Message::ok($_ARRAYLANG['TXT_SHOP_IMPORT_SUCCESSFULLY_IMPORTED_PRODUCTS'].
                     ': '.$importedLines);
@@ -1419,7 +1419,7 @@ if ($test === NULL) {
                 ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_SHOW_PRODUCTS_DEFAULT_OPTIONS' => \Cx\Modules\Shop\Controller\ProductController::getDefaultViewMenuoptions(
                 \Cx\Core\Setting\Controller\Setting::getValue('show_products_default','Shop')),
-            'SHOP_PRODUCT_SORTING_MENUOPTIONS' => Products::getProductSortingMenuoptions(),
+            'SHOP_PRODUCT_SORTING_MENUOPTIONS' => \Cx\Modules\Shop\Controller\ProductController::getProductSortingMenuoptions(),
             // Order amount upper limit
             'SHOP_ORDERITEMS_AMOUNT_MAX' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
                 \Cx\Core\Setting\Controller\Setting::getValue('orderitems_amount_max','Shop')),
