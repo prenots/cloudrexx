@@ -937,6 +937,15 @@ class FormGenerator {
                 return $div;
                 break;
             case 'wysiwyg':
+                if (isset($options['readonly']) && $options['readonly']) {
+                    return new \Cx\Core\Html\Model\Entity\TextElement(
+                        sprintf(
+                            $_ARRAYLANG['TXT_CORE_HTML_READONLY_NOT_SUPPORTED_YET'],
+                            $name
+                        )
+                    );
+                }
+
                 $mode = 'small';
                 if (isset($options['mode'])) {
                     if (in_array($options['mode'], array(
