@@ -1571,7 +1571,6 @@ class User extends User_Profile
 
         foreach ($conditions as $key=>$condition) {
             $result = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
-            $params[] = $qb->setParameters($result['params']);
             $expr = $result['expr'];
             $counter = $result['counter'];
         }
@@ -1583,8 +1582,6 @@ class User extends User_Profile
         } else {
             $qb->where($expr[0]);
         }
-
-        $qb->setParameters($params);
 
         return $qb;
     }
@@ -1602,7 +1599,7 @@ class User extends User_Profile
      * @param string                          $parentName
      * @return array
      */
-    protected function getExpression($qb, $key, $value, $params, $counter, $attrNames, $arrExpr = array(), $parentName = '')
+    protected function getExpression($qb, $key, $value, &$params, $counter, $attrNames, $arrExpr = array(), $parentName = '')
     {
         $conditions = array(
             'AND',
@@ -1621,7 +1618,6 @@ class User extends User_Profile
                 foreach ($andCondition as $andKey=>$andValue) {
                     $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr);
                 }
-                $params = $expr['params'];
                 $counter = $expr['counter'];
 
                 if ($key == 'AND') {
@@ -1635,7 +1631,6 @@ class User extends User_Profile
             foreach ($value as $andKey=>$andValue) {
                 $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, $fieldName);
             }
-            $params = $expr['params'];
             $counter = $expr['counter'];
 
             if (count($expr['expr']) > 1) {
@@ -1645,23 +1640,23 @@ class User extends User_Profile
             }
         } else if ($key == 'LIKE' || strpos($value, '%')) {
             $arrExpr[] = $qb->expr()->like($fieldName, '?' . $counter);
-            $params[$counter] = $value;
+            $qb->setParameter($counter, $value);
             $counter++;
         } else if ($key == '>') {
             $arrExpr[] = $qb->expr()->gt($fieldName, '?' . $counter);
-            $params[$counter] = $value;
+            $qb->setParameter($counter, $value);
             $counter++;
         } else if ($key == '<'){
             $arrExpr[] = $qb->expr()->lt($fieldName, '?' . $counter);
-            $params[$counter] = $value;
+            $qb->setParameter($counter, $value);
             $counter++;
         } else if ($key == '!='){
             $arrExpr[] = $qb->expr()->neq($fieldName, '?' . $counter);
-            $params[$counter] = $value;
+            $qb->setParameter($counter, $value);
             $counter++;
         } else {
             $arrExpr[] = $qb->expr()->eq($fieldName, '?' . $counter);
-            $params[$counter] = $value;
+            $qb->setParameter($counter, $value);
             $counter++;
         }
 
