@@ -1010,6 +1010,7 @@ $_ARRAYLANG['TXT_ACCESS_USER_ACCOUNTS_ACTIVATED'] = "Benutzerkonten aktiviert";
 $_ARRAYLANG['TXT_ACCESS_USER_ACCOUNTS_DEACTIVATED'] = "Benutzerkonten aktiviert";
 $_ARRAYLANG['TXT_CORE_HTML_FORM_VALIDATION_ERROR'] = 'Die Validierung mindestens eines Feldes ist fehlgeschlagen!';
 $_ARRAYLANG['TXT_CORE_HTML_READONLY_NOT_SUPPORTED_YET'] = 'Die Feld-Option "readonly" wird zur Zeit nicht für das Feld "%s" unterstützt';
+$_ARRAYLANG['TXT_CORE_HTML_READONLY_VIEW_NOT_SUPPORTED_YET'] = 'Zur Zeit wird der Typ "%s" des Feldes "%s" in der Leseansicht nicht unterstützt';
 
 // core Image/Imagetype
 $_ARRAYLANG['TXT_CORE_CLEAR_IMAGE'] = "Bild entfernen";

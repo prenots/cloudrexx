@@ -1025,6 +1025,7 @@ $_ARRAYLANG['TXT_CORE_HTML_TOGGLE_OPEN'] = "öffnen";
 $_ARRAYLANG['TXT_CORE_HTML_VIEW'] = "Details";
 $_ARRAYLANG['TXT_CORE_HTML_FORM_VALIDATION_ERROR'] = 'Validation of at least one field failed!';
 $_ARRAYLANG['TXT_CORE_HTML_READONLY_NOT_SUPPORTED_YET'] = 'The field option "readonly" is currently not supported for the field "%s".';
+$_ARRAYLANG['TXT_CORE_HTML_READONLY_VIEW_NOT_SUPPORTED_YET'] = 'Currently the type "%s" of the field "%s" is not supported in the read view.';
 $_ARRAYLANG['TXT_CORE_IMAGETYPES_EDIT'] = "Bildtypen";
 $_ARRAYLANG['TXT_CORE_IMAGETYPE_ACTION_IS_IRREVERSIBLE'] = "Diese Aktion kann nicht rückgängig gemacht werden!";
 $_ARRAYLANG['TXT_CORE_IMAGETYPE_CONFIRM_DELETE_IMAGETYPE'] = "Wollen Sie diesen Bildtyp wirklich löschen?";
