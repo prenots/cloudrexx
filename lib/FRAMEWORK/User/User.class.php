@@ -1563,7 +1563,7 @@ class User extends User_Profile
     protected function getAttrConditions($conditions, $qb, $userNames)
     {
         $params = array();
-        $counter = 1;
+        $counter = 0;
         $expr = array();
 
         $attrNames = $this->getAttrNames($conditions, $userNames);
