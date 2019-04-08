@@ -1573,12 +1573,8 @@ class User extends User_Profile
             $expr = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
         }
 
-        if (count($expr) > 1) {
-            foreach($expr as $ex) {
-                $qb->andWhere($ex);
-            }
-        } else {
-            $qb->where($expr[0]);
+        foreach($expr as $ex) {
+            $qb->andWhere($ex);
         }
 
         return $qb;
