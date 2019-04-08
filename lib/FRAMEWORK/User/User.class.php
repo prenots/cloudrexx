@@ -1503,7 +1503,12 @@ class User extends User_Profile
         if (!empty($userId)) {
             $crit = array('id' => $userId);
         }
-        $users = $repo->findBy($crit, $sortBy, $limit, $offset);
+        $qb->setMaxResults($limit);
+        $qb->setFirstResult($offset);
+
+        $users = $qb->getQuery()->getResult();
+        // TODO: This is wrong:
+        $this->filtered_search_count = count($users);
 
         foreach ($users as $user) {
             foreach ($user->getUserAttributeValue() as $attr) {
