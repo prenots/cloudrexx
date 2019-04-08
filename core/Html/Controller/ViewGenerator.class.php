@@ -950,7 +950,7 @@ class ViewGenerator {
             );
             $searchCheckboxes = array();
             foreach ($this->options['fields'] as $key=>$field) {
-                if(is_null($field['searchCheckbox'])) {
+                if (is_null($field['searchCheckbox'])) {
                     continue;
                 }
                 $searchCheckboxes[$key] = $field['searchCheckbox'];
@@ -1126,7 +1126,7 @@ class ViewGenerator {
                 }
             }
             if ($searchCheckboxes) {
-                foreach($searchCheckboxes as $key=>$value)  {
+                foreach ($searchCheckboxes as $key=>$value)  {
                     $checkboxName = 'vg-'. $this->viewId .'-checkbox-field-'
                         . $key;
                     $checkboxWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
