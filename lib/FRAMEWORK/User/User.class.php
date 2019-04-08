@@ -1489,7 +1489,7 @@ class User extends User_Profile
         $qb->select('tblU')
             ->from('\Cx\Core\User\Model\Entity\User', 'tblU');
         if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
-            $qb = $this->getAttrConditions($filter, $qb, $names);
+            $this->getAttrConditions($filter, $qb, $names);
         } else if (!empty($filter)) {
             $userId = intval($filter);
         }
