@@ -1590,7 +1590,7 @@ class User extends User_Profile
      * @param string                          $parentName
      * @return array List of Doctrine expressions
      */
-    protected function getExpression($qb, $key, $value, &$params, &$counter, $attrNames, $arrExpr = array(), $parentName = '')
+    protected function getExpression($qb, $key, $value, &$params, &$counter, $attrNames, &$arrExpr = array(), $parentName = '')
     {
         $conditions = array(
             'AND',
