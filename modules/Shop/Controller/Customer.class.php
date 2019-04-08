@@ -885,7 +885,7 @@ class Customer extends \User
             if (!$objCustomer) {
                 $cx = \Cx\Core\Core\Controller\Cx::instanciate();
                 $order = $cx->getDb()->getEntityManager()->getRepository(
-                    'Cx\Modules\Shop\Model\Entity'
+                    'Cx\Modules\Shop\Model\Entity\Order'
                 )->findOneBy(
                     array('customerId' => $old_customer_id),
                     array('id' => 'DESC')
