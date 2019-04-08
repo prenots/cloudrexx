@@ -227,14 +227,6 @@ class User_Profile
                 $newValue = !isset($this->arrCachedUsers[$this->id]['profile'][$attributeId][$historyId]);
                 if ($newValue || $value != $this->arrCachedUsers[$this->id]['profile'][$attributeId][$historyId]) {
                     $value = '"' . contrexx_raw2db($value) . '"';
-                    if (
-                        $attributeId == 'title' && (
-                            $value == '""' ||
-                            $value == '"0"'
-                        )
-                    ) {
-                        $value = 'NULL';
-                    }
                     $query = $this->objAttribute->isCoreAttribute($attributeId) ?
                         "REPLACE INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", (SELECT `attribute_id` FROM `".DBPREFIX."access_user_attribute_name` WHERE `name` = '" . $attributeId . "'), ".$historyId.", " . $value . ")" :
                         "REPLACE INTO `".DBPREFIX."access_user_attribute_value` (`user_id`, `attribute_id`, `history_id`, `value`) VALUES (".$this->id.", $attributeId, ".$historyId.", " . $value . ")";
