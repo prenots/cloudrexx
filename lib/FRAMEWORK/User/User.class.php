@@ -1644,6 +1644,10 @@ class User extends User_Profile
             } else if (strpos($value, '%')) {
                 $exprMethod = 'like';
             }
+            $metadata = $qb->getEntityManager()->getClassMetadata(
+                'Cx\Core\User\Model\Entity\User'
+            );
+            $fieldName = $metadata->getFieldName($fieldName);
             $arrExpr[] = $qb->expr()->$exprMethod(
                 'tblU.' . $fieldName,
                 '?' . $counter
