@@ -1512,11 +1512,8 @@ class User extends User_Profile
 
         foreach ($users as $user) {
             foreach ($user->getUserAttributeValue() as $attr) {
-                $name = $attrNameRepo->findOneBy(
-                    array(
-                        'attributeId' => $attr->getAttributeId()
-                    )
-                )->getName();
+                // this is most likely wrong as it gets the name in the first lang
+                $name = $attr->getUserAttribute()->getUserAttributeName()->first()->getName();
                 if (count($arrSelectCoreExpressions) && in_array($name, $arrSelectCoreExpressions)) {
                     $this->arrCachedUsers[$user->getId()]['profile'][$name][0] = $this->arrLoadedUsers[$user->getId()]['profile'][$name][0] = $attr->getValue();
                 } else {
