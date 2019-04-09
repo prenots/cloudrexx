@@ -227,6 +227,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'dateTime' => array(
                 'showOverview' => true,
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'sorting' => false,
                 'formtext' => $_ARRAYLANG['DETAIL_DATETIME'],
                 'table' => array (
@@ -280,6 +281,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'gender' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'showDetail' => false,
                 'allowFiltering' => false,
             ),
@@ -289,22 +291,27 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'firstname' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'lastname' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'address' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'city' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'zip' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
                 'formtext' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
             ),
@@ -315,6 +322,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'phone' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'vatAmount' => array(
@@ -379,6 +387,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'note' => array(
                 'showOverview' => true,
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'sorting' => false,
                 'type' => 'div',
                 'table' => array(
@@ -440,6 +449,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'billingGender' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'formfield' => function (
                     $fieldname, $fieldtype, $fieldlength,
                     $fieldvalue, $fieldoptions
@@ -471,43 +481,53 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'billingCompany' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingFirstname' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingLastname' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingAddress' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingCity' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingZip' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'formtext' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
             ),
             'billingCountryId' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingPhone' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingFax' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'billingEmail' => array(
                 'showOverview' => false,
+                'allowSearching' => true,
                 'allowFiltering' => false,
             ),
             'orderItems' => array(
@@ -563,6 +583,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => true,
                 'showDetail' => false,
                 'sorting' => false,
+                'allowSearching' => true,
                 'table' => array (
                     'parse' => function ($value, $rowData) {
                         return $this->getCustomerLink($value, $rowData);
@@ -2115,16 +2136,16 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $orX = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
             \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_OR
         );
-
         foreach ($fields as $field) {
             if ($field == 'customer') {
                 $qb->join(
-                    '\Cx\Core\User\Model\Entity\User',
-                    'u', 'WITH', 'u.id = x.customerId'
+                    '\Cx\Core\User\Model\Entity\UserProfile',
+                    'u', 'WITH', 'u.userId = x.customerId'
                 );
-                $qb->andWhere(':search MEMBER OF u.group');
+                $orX->add($qb->expr()->like('u.lastname', ':search'));
+                $orX->add($qb->expr()->like('u.firstname', ':search'));
             } else {
-                $qb->andWhere($qb->expr()->like('x.' . $field, '?search'));
+                $orX->add($qb->expr()->like('x.' . $field, ':search'));
             }
         }
         $qb->andWhere($orX);
