@@ -811,6 +811,15 @@ class FormGenerator {
                 }
                 return $textarea;
                 break;
+            case 'div':
+                $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+                $text = new \Cx\Core\Html\Model\Entity\TextElement($value);
+                $wrapper->addChild($text);
+                if (isset($options['attributes'])) {
+                    $wrapper->setAttributes($options['attributes']);
+                }
+                return $wrapper;
+                break;
             case 'phone':
                 // input field with type phone
                 $input = new \Cx\Core\Html\Model\Entity\DataElement($title, $value);
@@ -851,9 +860,9 @@ class FormGenerator {
                 $mediaBrowser->setCallback('javascript_callback_function');
                 $mediaBrowser->setOptions(
                     array(
-                        'data-cx-mb-views' => 'filebrowser,uploader',
+                        'views' => 'filebrowser,uploader',
                         'id' => 'page_target_browse',
-                        'cxMbStartview' => 'MediaBrowserList'
+                        'startview' => 'filebrowser'
                     )
                 );
 
@@ -897,9 +906,9 @@ class FormGenerator {
                 $mediaBrowser->setOptions(array('type' => 'button'));
                 $mediaBrowser->setCallback('javascript_callback_function');
                 $defaultOptions = array(
-                    'data-cx-mb-views' => 'filebrowser,uploader',
+                    'views' => 'filebrowser,uploader',
                     'id' => 'page_target_browse',
-                    'cxMbStartview' => 'MediaBrowserList'
+                    'startview' => 'filebrowser'
                 );
 
                 $mediaBrowser->setOptions(

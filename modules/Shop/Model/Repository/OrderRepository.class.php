@@ -268,7 +268,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
      *                                and values from the order on success,
      *                                false otherwise
      */
-    public function getSubstitutionArray($order_id, $create_accounts=true)
+    public function getSubstitutionArray($order_id, $create_accounts=true, $updateStock=true)
     {
         global $_ARRAYLANG;
         /*
@@ -277,8 +277,6 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                     "/index.php?section=download\r\n";
         */
         $objOrder = $this->find($order_id);
-        // var_dump($order);
-        /// $objOrder = Order::getById($order_id);var_dump($objOrder);
         if (!$objOrder) {
             // Order not found
             return false;
@@ -387,9 +385,11 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             $quantity = $item['quantity'];
 // TODO: Add individual VAT rates for Products
 //            $orderItemVatPercent = $objResultItem->fields['vat_percent'];
-            // Decrease the Product stock count,
-            // applies to "real", shipped goods only
-            $objProduct->decreaseStock($quantity);
+            if ($updateStock) {
+                // Decrease the Product stock count,
+                // applies to "real", shipped goods only
+                $objProduct->decreaseStock($quantity);
+            }
             $product_code = $objProduct->code();
             // Pick the order items attributes
             $str_options = '';
