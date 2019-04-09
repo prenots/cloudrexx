@@ -1521,7 +1521,7 @@ class User extends User_Profile
                     $this->arrLoadedUsers[$user->getId()]['profile'][$attr->getAttributeId()][$attr->getHistory()] =
                         $attr->getValue();
 
-                    $historyAttributeId = $attr->getUserAttribute()->getHistoryAttributeId();
+                    $historyAttributeId = $attr->getHistory();
                     if ($attr->getHistory() &&
                         (!empty($historyAttributeId) &&
                             (
