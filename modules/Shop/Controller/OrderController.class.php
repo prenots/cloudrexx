@@ -75,29 +75,24 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $options['functions']['onclick']['delete'] = 'deleteOrder';
         $options['functions']['order']['id'] = SORT_DESC;
         $options['functions']['alphabetical'] = 'customer';
-        $options['functions']['searchCallback'] = function(
-            $qb,
-            $field,
-            $crit,
-            $i
-        ) {
-            if ($field == 'customer') {
-                $qb->join(
-                    '\Cx\Core\User\Model\Entity\User',
-                    'u', 'WITH', 'u.id = x.customerId'
-                );
-                $qb->andWhere('?'.$i.' MEMBER OF u.group');
-                $qb->setParameter($i, $crit);
-            } else {
-                $qb->andWhere($qb->expr()->eq('x.' . $field, '?' . $i));
-                $qb->setParameter($i, $crit);
-            }
-            return $qb;
-        };
         $options['multiActions']['delete'] = array(
             'title' => $_ARRAYLANG['TXT_DELETE'],
             'jsEvent' => 'delete:order'
         );
+
+        // Callback for expanded search
+        $options['functions']['filterCallback'] = function ($qb, $crit) {
+            return $this->filterCallback(
+                $qb, $crit
+            );
+        };
+
+        // Callback for search
+        $options['functions']['searchCallback'] = function ($qb, $searchFields, $term) {
+            return $this->searchCallback(
+                $qb, $searchFields, $term
+            );
+        };
 
         // Delete Event
         $scope = 'order';
@@ -637,6 +632,28 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 },
                 'showOverview' => false,
             ),
+            'showAllPendentOrders' => array(
+                'custom' => true,
+                'showOverview' => false,
+                'showDetail' => false,
+                'filterOptionsField' => function (
+                    $parseObject, $fieldName, $elementName, $formName
+                ) {
+                    $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+                        $elementName,
+                        1
+                    );
+                    $checkbox->setAttributes(
+                        array(
+                            'data-vg-attrgroup' => 'search',
+                            'data-vg-field' => $fieldName,
+                            'form' => $formName,
+                            'type' => 'checkbox',
+                        )
+                    );
+                    return $checkbox;
+                },
+            )
         );
         $order = new \Cx\Modules\Shop\Model\Entity\Order();
         if (!empty($this->orderId)) {
@@ -2026,5 +2043,93 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 
         // Always
         return false;
+    }
+
+
+    /**
+     * Callback function for expanded search
+     *
+     * @param $qb   \Doctrine\ORM\QueryBuilder QueryBuilder
+     * @param $crit string                     Search criteria
+     *
+     * @return \Doctrine\ORM\QueryBuilder $qb
+     */
+    protected function filterCallback($qb, $crit)
+    {
+        $i = 1;
+        $em = $this->cx->getDb()->getEntityManager();
+        $metaData = $em->getClassMetadata(
+            '\Cx\Modules\TodoManager\Model\Entity\Todo'
+        );
+
+        foreach ($crit as $field=>$value) {
+            if (
+                !isset($metaData->associationMappings[$field]) &&
+                !isset($metaData->fieldMappings[$field])
+            ) {
+                continue;
+            }
+
+            if (isset($metaData->associationMappings[$field])) {
+                if ($field == 'customer') {
+                    $qb->join(
+                        '\Cx\Core\User\Model\Entity\User',
+                        'u', 'WITH', 'u.id = x.customerId'
+                    );
+                    $qb->andWhere(':search MEMBER OF u.group');
+                } else {
+                    $qb->andWhere(
+                        $qb->expr()->eq('x.' . $field, '?' . $i)
+                    );
+                }
+            } else {
+                $qb->andWhere(
+                    $qb->expr()->like('x.' . $field, '?' . $i)
+                );
+            }
+
+            $qb->setParameter($i, $value);
+            $i++;
+        }
+
+        if (!isset($crit['showAllPendentOrders'])) {
+            $qb->andWhere($qb->expr()->eq('x.' . 'status', ':status'));
+            $qb->setParameter('status', 1);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Callback function for search
+     *
+     * @param $qb     \Doctrine\ORM\QueryBuilder QueryBuilder
+     * @param $fields array                      List with all field names to
+     *                                           be searched
+     * @param $term   string                     Term to filter the entities
+     *
+     * @return \Doctrine\ORM\QueryBuilder $qb
+     */
+    protected function searchCallback($qb, $fields, $term)
+    {
+        $orX = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+            \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_OR
+        );
+
+        foreach ($fields as $field) {
+            if ($field == 'customer') {
+                $qb->join(
+                    '\Cx\Core\User\Model\Entity\User',
+                    'u', 'WITH', 'u.id = x.customerId'
+                );
+                $qb->andWhere(':search MEMBER OF u.group');
+            } else {
+                $qb->andWhere($qb->expr()->like('x.' . $field, '?search'));
+            }
+        }
+        $qb->andWhere($orX);
+        $qb->setParameter('search', '%' . $term . '%');
+
+        return $qb;
     }
 }

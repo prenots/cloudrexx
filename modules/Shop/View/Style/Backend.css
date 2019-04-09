@@ -1,6 +1,12 @@
 #vg-0-filterSearch {
     float: left;
-    width: 12%;
+    width: 20%;
+    height: 90px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+#vg-0-filterSearch tr:nth-child(2) td {
+    padding: 5px 3px 4px;
 }
 
 #vg-0-filterSearch .row1  input[type="button"],
@@ -16,8 +22,11 @@
 
 #vg-0-extendedSearch {
     float: right;
-    width: 88%;
+    width: 80%;
     display:block !important;
+    height: 90px;
+    border-bottom: 1px solid #e5e5e5;
+    position: relative;
 }
 
 #vg-0-extendedSearch .adminlist th {
@@ -27,6 +36,28 @@
 #vg-0-extendedSearch .adminlist td,
 #vg-0-extendedSearch .adminlist tr:nth-child(n+2) {
     float: left;
+}
+
+#vg-0-extendedSearch .adminlist tr:nth-child(4) {
+    position: absolute;
+    left: -25%;
+    bottom: 1px;
+}
+
+#vg-0-extendedSearch .adminlist tr:nth-child(n+2):nth-child(-n+5) td {
+    border: none;
+}
+
+#vg-0-extendedSearch .adminlist tr:nth-child(5) td {
+    padding: 5px 3px;
+}
+
+#vg-0-extendedSearch .adminlist tr:nth-child(2) td {
+    margin-bottom: 3px;
+}
+
+#vg-0-extendedSearch table.adminlist {
+    border-bottom: #e5e5e5 1px solid;
 }
 
 #vg-0-alphabeticalSearch {

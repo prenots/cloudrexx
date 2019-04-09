@@ -116,6 +116,10 @@ jQuery(document).ready(function($){
             document.getElementById('form-0-footerRight').value = document.getElementById('footerRight').value
         };
     }
+
+    cx.jQuery('input[name="vg-0-filter-field-showAllPendentOrders"]').click(function() {
+        cx.jQuery('#vg-0-searchForm').submit();
+    });
 });
 
 function updateDefault(defaultEntity) {
