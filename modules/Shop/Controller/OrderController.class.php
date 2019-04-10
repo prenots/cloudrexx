@@ -178,7 +178,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         );
         $options['fields'] = array(
             'id' => array(
-
                 'showOverview' => true,
                 'showDetail' => true,
                 'allowSearching' => true,
@@ -670,8 +669,21 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                             'data-vg-field' => $fieldName,
                             'form' => $formName,
                             'type' => 'checkbox',
+                            'class' => 'vg-encode',
+                            'id' => $elementName,
                         )
                     );
+
+                    if (
+                        $this->cx->getRequest()->hasParam('search') &&
+                        strpos(
+                            $this->cx->getRequest()->getParam('search'),
+                            '{0,showAllPendentOrders=1}'
+                        ) === 0
+                    ) {
+                        $checkbox->setAttribute('checked', true);
+                    }
+
                     return $checkbox;
                 },
             )
@@ -2078,31 +2090,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     protected function filterCallback($qb, $crit)
     {
         $i = 1;
-        $em = $this->cx->getDb()->getEntityManager();
-        $metaData = $em->getClassMetadata(
-            '\Cx\Modules\TodoManager\Model\Entity\Todo'
-        );
-
         foreach ($crit as $field=>$value) {
-            if (
-                !isset($metaData->associationMappings[$field]) &&
-                !isset($metaData->fieldMappings[$field])
-            ) {
+            if ($field == 'customer') {
+                $qb->join(
+                    '\Cx\Core\User\Model\Entity\User',
+                    'u', 'WITH', 'u.id = x.customerId'
+                );
+                $qb->andWhere('?'. $i .' MEMBER OF u.group');
+            } else if ($field == 'showAllPendentOrders') {
                 continue;
-            }
-
-            if (isset($metaData->associationMappings[$field])) {
-                if ($field == 'customer') {
-                    $qb->join(
-                        '\Cx\Core\User\Model\Entity\User',
-                        'u', 'WITH', 'u.id = x.customerId'
-                    );
-                    $qb->andWhere(':search MEMBER OF u.group');
-                } else {
-                    $qb->andWhere(
-                        $qb->expr()->eq('x.' . $field, '?' . $i)
-                    );
-                }
             } else {
                 $qb->andWhere(
                     $qb->expr()->like('x.' . $field, '?' . $i)
@@ -2114,8 +2110,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         }
 
         if (!isset($crit['showAllPendentOrders'])) {
-            $qb->andWhere($qb->expr()->eq('x.' . 'status', ':status'));
-            $qb->setParameter('status', 1);
+            $qb->andWhere($qb->expr()->notLike('x.' . 'status', ':status'));
+            $qb->setParameter('status', 0);
         }
 
         return $qb;
@@ -2138,12 +2134,29 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         );
         foreach ($fields as $field) {
             if ($field == 'customer') {
-                $qb->join(
-                    '\Cx\Core\User\Model\Entity\UserProfile',
-                    'u', 'WITH', 'u.userId = x.customerId'
+                $andXLastname = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+                    \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_AND
                 );
-                $orX->add($qb->expr()->like('u.lastname', ':search'));
-                $orX->add($qb->expr()->like('u.firstname', ':search'));
+                $andXFirstname = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+                    \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_AND
+                );
+                $qb->join(
+                    'Cx\Core\User\Model\Entity\UserAttributeValue',
+                    'v', 'WITH', 'x.customerId = v.userId'
+                );
+                $qb->join(
+                    '\Cx\Core\User\Model\Entity\UserAttributeName',
+                    'a', 'WITH', 'v.attributeId = a.attributeId'
+                );
+                $andXLastname->add($qb->expr()->like('v.value', ':search'));
+                $andXLastname->add($qb->expr()->like('a.name', ':lastname'));
+                $orX->add($andXLastname);
+
+                $andXFirstname->add($qb->expr()->like('v.value', ':search'));
+                $andXFirstname->add($qb->expr()->like('a.name', ':firstname'));
+                $orX->add($andXFirstname);
+                $qb->setParameter('lastname', 'lastname');
+                $qb->setParameter('firstname', 'firstname');
             } else {
                 $orX->add($qb->expr()->like('x.' . $field, ':search'));
             }

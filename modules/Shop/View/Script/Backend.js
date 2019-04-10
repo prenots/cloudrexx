@@ -117,8 +117,8 @@ jQuery(document).ready(function($){
         };
     }
 
-    cx.jQuery('input[name="vg-0-filter-field-showAllPendentOrders"]').click(function() {
-        cx.jQuery('#vg-0-searchForm').submit();
+    cx.jQuery('#vg-0-filter-field-showAllPendentOrders').click(function() {
+        cx.jQuery('.vg-searchSubmit').click();
     });
 });
 
