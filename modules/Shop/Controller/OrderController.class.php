@@ -1539,36 +1539,36 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'SHOP_ARTICLES_SELECTED' => \Html::ATTRIBUTE_SELECTED,
                 'SHOP_CUSTOMERS_SELECTED' => '',
             ));
-             $query = $qb->select(
+            $query = $qb->select(
                 array(
                     'A.productId AS id', 'A.quantity AS shopColumn2',
                     'A.price AS total', 'B.stock AS shopColumn3', 'C.currencyId',
                     'B.name AS title'
                 )
             )->from('Cx\Modules\Shop\Model\Entity\OrderItem', 'A')
-            ->join(
-                'A.order', 'C', 'WITH',
-                $qb->expr()->eq('A.orderId', 'C.id')
-            )->join(
-                'A.product', 'B', 'WITH',
-                $qb->expr()->eq('A.productId', 'B.id')
-            )->where(
-                $qb->expr()->andX(
-                    'C.dateTime >= ?1',
-                    'C.dateTime < ?2',
-                    $qb->expr()->orX(
-                        $qb->expr()->eq('C.status', '?3'),
-                        $qb->expr()->eq('C.status', '?4')
+                ->join(
+                    'A.order', 'C', 'WITH',
+                    $qb->expr()->eq('A.orderId', 'C.id')
+                )->join(
+                    'A.product', 'B', 'WITH',
+                    $qb->expr()->eq('A.productId', 'B.id')
+                )->where(
+                    $qb->expr()->andX(
+                        'C.dateTime >= ?1',
+                        'C.dateTime < ?2',
+                        $qb->expr()->orX(
+                            $qb->expr()->eq('C.status', '?3'),
+                            $qb->expr()->eq('C.status', '?4')
+                        )
                     )
-                )
-            )->orderBy('shopColumn2', 'DESC')->setParameters(
-                 array(
-                     1 => $start_date,
-                     2 => $end_date,
-                     3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
-                     4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
-                 )
-            )->getQuery();
+                )->orderBy('shopColumn2', 'DESC')->setParameters(
+                    array(
+                        1 => $start_date,
+                        2 => $end_date,
+                        3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                        4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
+                    )
+                )->getQuery();
         } elseif ($selectedStat == 3) {
             // Customer statistic
             $objTemplate->setVariable(array(
@@ -1598,14 +1598,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     )
                 )
             )->groupBy('B.orderId')->orderBy('A.sum', 'DESC')
-             ->setParameters(
-                 array(
-                    1 => $start_date,
-                    2 => $end_date,
-                    3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
-                    4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
-                 )
-             )->getQuery();
+                ->setParameters(
+                    array(
+                        1 => $start_date,
+                        2 => $end_date,
+                        3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                        4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
+                    )
+                )->getQuery();
         } else {
             // Order statistic (default); sales per month
             $objTemplate->setVariable(array(
@@ -1623,27 +1623,27 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     'B.currencyId', 'B.sum AS total', 'B.dateTime'
                 )
             )->from('Cx\Modules\Shop\Model\Entity\OrderItem', 'A')
-            ->join(
-                'A.order', 'B', 'WITH',
-                $qb->expr()->eq('A.orderId', 'B.id')
-            )->where(
-                $qb->expr()->andX(
-                    'B.dateTime >= ?1',
-                    'B.dateTime < ?2',
-                    $qb->expr()->orX(
-                        $qb->expr()->eq('B.status', '?3'),
-                        $qb->expr()->eq('B.status', '?4')
+                ->join(
+                    'A.order', 'B', 'WITH',
+                    $qb->expr()->eq('A.orderId', 'B.id')
+                )->where(
+                    $qb->expr()->andX(
+                        'B.dateTime >= ?1',
+                        'B.dateTime < ?2',
+                        $qb->expr()->orX(
+                            $qb->expr()->eq('B.status', '?3'),
+                            $qb->expr()->eq('B.status', '?4')
+                        )
                     )
-                )
-            )->groupBy('A.id')->orderBy('B.dateTime', 'DESC')
-            ->setParameters(
-                array(
-                    1 => $start_date,
-                    2 => $end_date,
-                    3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
-                    4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
-                )
-            )->getQuery();
+                )->groupBy('A.id')->orderBy('B.dateTime', 'DESC')
+                ->setParameters(
+                    array(
+                        1 => $start_date,
+                        2 => $end_date,
+                        3 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                        4 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
+                    )
+                )->getQuery();
         }
         $arrayResults = array();
         $results = $query->getArrayResult();
@@ -1787,20 +1787,20 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $queryTotalProducts = $qbTotal->select(
             'SUM(B.quantity) AS shopTotalSoldProducts'
         )->from('Cx\Modules\Shop\Model\Entity\OrderItem', 'B')
-        ->join(
-            'B.order', 'A', 'WITH',
-            $qbTotal->expr()->eq('A.id', 'B.orderId')
-        )->where(
+            ->join(
+                'B.order', 'A', 'WITH',
+                $qbTotal->expr()->eq('A.id', 'B.orderId')
+            )->where(
                 $qbTotal->expr()->orX(
-                $qbTotal->expr()->eq('A.status', '?1'),
-                $qbTotal->expr()->eq('A.status', '?2')
-            )
-        )->setParameters(
-            array(
-                1 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
-                2 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
-            )
-        )->getQuery();
+                    $qbTotal->expr()->eq('A.status', '?1'),
+                    $qbTotal->expr()->eq('A.status', '?2')
+                )
+            )->setParameters(
+                array(
+                    1 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED,
+                    2 => \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED
+                )
+            )->getQuery();
         $resultTotal = $queryTotalProducts->getSingleResult();
 
         if ($resultTotal) {
