@@ -737,9 +737,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
         $nameElement = new \Cx\Core\Html\Model\Entity\TextElement($name);
         $link->addChild($nameElement);
-        // Use this when Ticket CLX-2296 is merged into master
-        // \Cx\Core\Html\Controller\ViewGenerator::getVgShowUrl(0, $rowData['id']);
-        $showUrl = '';
+        $showUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgShowUrl(0, $rowData['id']);
         $link->setAttribute('href', $showUrl);
 
         return $link;
