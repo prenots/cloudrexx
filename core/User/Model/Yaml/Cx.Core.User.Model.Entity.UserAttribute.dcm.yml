@@ -53,6 +53,7 @@ Cx\Core\User\Model\Entity\UserAttribute:
       mappedBy: parent
     userAttributeName:
       targetEntity: Cx\Core\User\Model\Entity\UserAttributeName
+      orderBy: { 'order': 'ASC' }
       mappedBy: userAttribute
     userAttributeValue:
       targetEntity: Cx\Core\User\Model\Entity\UserAttributeValue
