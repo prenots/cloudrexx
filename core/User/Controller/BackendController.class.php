@@ -34,6 +34,8 @@ namespace Cx\Core\User\Controller;
 class BackendController extends
     \Cx\Core\Core\Model\Entity\SystemComponentBackendController
 {
+    protected $userId;
+
     /**
      * This function returns the ViewGeneration options for a given entityClass
      *
@@ -299,16 +301,26 @@ class BackendController extends
                         'storecallback' => array(
                             'adapter' => 'User',
                             'method' => 'storeUserAttributeValue'
-                        ),
-                        'valueCallback' => function() use ($attr) {
+                        ), // todo: move value callback func in json controller
+                        'valueCallback' => function($value, $name, $data) use ($attr) {
                             $historyId = 0;
+                            $userId = 0;
+                            // Only use $data['id'] if the CLX-2542 ticket is
+                            // live.
+                            if (!empty($this->userId)) {
+                                $userId = $this->userId;
+                            } else if (isset($data['id'])) {
+                                $userId = $data['id'];
+                            } else {
+                                return '';
+                            }
 
                             $em = $this->cx->getDb()->getEntityManager();
                             $value = $em->getRepository(
                                 '\Cx\Core\User\Model\Entity\UserAttributeValue'
                             )->findOneBy(
                                 array(
-                                    'userId' => $this->userId,
+                                    'userId' => $userId,
                                     'attributeId' => $attr->getId(),
                                     'history' => $historyId
                                 )
