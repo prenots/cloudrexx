@@ -102,7 +102,18 @@ class BackendController extends
                     'edit' => true,
                     'delete' => true,
                     'add' => true,
+                    'status' => array(
+                        'field' => 'active'
+                    ),
                 );
+                $options['tabs']['groups'] = array(
+                    'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
+                    'fields' => array(
+                        'group',
+                        'primaryGroup'
+                    )
+                );
+
                 $options['fields'] = array(
                     'active' => array(
                         'showOverview' => true,
@@ -243,7 +254,7 @@ class BackendController extends
                     ),
                     'group' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'mode' => 'associate'
                     ),
                     'lastActivity' => array(
                         'table' => array(

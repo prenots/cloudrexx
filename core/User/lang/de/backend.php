@@ -103,8 +103,11 @@ $_ARRAYLANG['profileAccess'] = 'Privatsphäre';
 $_ARRAYLANG['frontendLangId'] = 'Sprache';
 $_ARRAYLANG['passwordConfirmed'] = 'Kennwort bestätigen';
 $_ARRAYLANG['password'] = 'Kennwort';
+$_ARRAYLANG['primaryGroup'] = 'Primäre Benutzergruppe';
+$_ARRAYLANG['group'] = 'Zugeordnete Gruppen';
 
 $_ARRAYLANG['TXT_CORE_USER_PROFILE'] = 'Profil';
+$_ARRAYLANG['TXT_CORE_USER_GROUP_S'] = "Benutzergruppe(n)";
 $_ARRAYLANG['TXT_CORE_USER_NONE_SPECIFIED'] = 'Keine Angabe';
 $_ARRAYLANG['TXT_CORE_USER_GENDER_UNDEFINED'] = 'Keine Angabe';
 $_ARRAYLANG['TXT_CORE_USER_GENDER_FEMALE'] = 'Weiblich';

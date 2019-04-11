@@ -52,3 +52,7 @@ form.cx-ui input[name="password"],
 .user-is-admin {
     padding: 3px;
 }
+
+#form_0_group_chosen {
+    width: 308px !important;
+}

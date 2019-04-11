@@ -97,8 +97,11 @@ $_ARRAYLANG['profileAccess'] = 'Privacy';
 $_ARRAYLANG['frontendLangId'] = 'Language';
 $_ARRAYLANG['passwordConfirmed'] = 'Confirm password';
 $_ARRAYLANG['password'] = 'Password';
+$_ARRAYLANG['primaryGroup'] = 'Primary User Group';
+$_ARRAYLANG['group'] = 'Assigned Groups';
 
 $_ARRAYLANG['TXT_CORE_USER_PROFILE'] = 'Profile';
+$_ARRAYLANG['TXT_CORE_USER_GROUP_S'] = "User group(s)";
 $_ARRAYLANG['TXT_CORE_USER_NONE_SPECIFIED'] = 'None specified';
 $_ARRAYLANG['TXT_CORE_USER_GENDER_UNDEFINED'] = 'Not specified';
 $_ARRAYLANG['TXT_CORE_USER_GENDER_FEMALE'] = 'Female';
