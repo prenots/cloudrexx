@@ -107,6 +107,7 @@ class BackendController extends
                     'status' => array(
                         'field' => 'active'
                     ),
+                    'alphabetical' => 'username'
                 );
                 $options['tabs']['groups'] = array(
                     'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
@@ -117,6 +118,9 @@ class BackendController extends
                 );
 
                 $options['fields'] = array(
+                    'id' => array(
+                        'allowFiltering' => false,
+                    ),
                     'active' => array(
                         'showOverview' => true,
                         'showDetail' => false,
@@ -129,6 +133,7 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => true,
+                        'allowFiltering' => false,
                     ),
                     'isAdmin' => array(
                         'header' => '',
@@ -148,6 +153,7 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => true,
+                        'allowFiltering' => false,
                     ),
                     'password' => array(
                         'showOverview' => false,
@@ -156,6 +162,7 @@ class BackendController extends
                             'method' => 'getPasswordField'
                         ),
                         'tooltip' => $this->getPasswordInfo(),
+                        'allowFiltering' => false,
                     ),
                     'passwordConfirmed' => array(
                         'custom' => true,
@@ -163,14 +170,17 @@ class BackendController extends
                         'attributes' => array(
                             'class' => 'access-pw-noauto',
                         ),
+                        'allowFiltering' => false,
                     ),
                     'authToken' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'authTokenTimeout' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'regdate' => array(
                         'table' => array(
@@ -180,6 +190,7 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'expiration' => array(
                         'showOverview' => true,
@@ -188,23 +199,28 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->getExpirationDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'validity' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'lastAuthStatus' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'lastAuth' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'emailAccess' => array(
                         'showOverview' => false,
                         'showDetail' => true,
                         'type' => 'hidden',
+                        'allowFiltering' => false,
                     ),
                     'frontendLangId' => array(
                         'showOverview' => false,
@@ -212,15 +228,18 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->getLangDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'backendLangId' => array(
                         'showOverview' => false,
                         'showDetail' => true,
                         'type' => 'hidden',
+                        'allowFiltering' => false,
                     ),
                     'verified' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'primaryGroup' => array(
                         'showOverview' => false,
@@ -230,6 +249,7 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->primaryGroupDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'profileAccess' => array(
                         'showOverview' => false,
@@ -237,22 +257,27 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->getProfileAccessDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'restoreKey' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'restoreKeyTime' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'u2uActive' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'userProfile' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'group' => array(
                         'showOverview' => false,
@@ -266,11 +291,21 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'userAttributeValue' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
+                    'accountType' => array(
+                        'custom' => true,
+                        'showOverview' => false,
+                        'showDetail' => false,
+                        'allowSearching' => false,
+                        'allowFiltering' => true,
+                        //$arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
+                    )
                 );
 
                 $em = $this->cx->getDb()->getEntityManager();
@@ -298,6 +333,7 @@ class BackendController extends
                     $attrOption = array(
                         'custom' => true,
                         'showOverview' => false,
+                        'allowFiltering' => false,
                         'storecallback' => array(
                             'adapter' => 'User',
                             'method' => 'storeUserAttributeValue'
