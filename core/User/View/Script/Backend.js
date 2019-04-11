@@ -6,16 +6,16 @@
  */
 
 jQuery(document).ready(function($){
-    if ( $( "#form-0-emailAccess" ).length ) {
-        var $value = $( "#form-0-emailAccess" ).val();
+    if ( cx.jQuery( "#form-0-emailAccess" ).length ) {
+        var value = $( "#form-0-emailAccess" ).val();
 
-        $( '[name="emailAccess"]' ).val($value);
+        cx.jQuery( '[name="emailAccess"]' ).val(value);
     }
 
-    if ( $( "#form-0-backendLangId" ).length ) {
-        var $value = $( "#form-0-backendLangId" ).val();
+    if ( cx.jQuery( "#form-0-backendLangId" ).length ) {
+        var value = cx.jQuery( "#form-0-backendLangId" ).val();
 
-        $( '[name="backendLangId"]' ).val($value);
+        cx.jQuery( '[name="backendLangId"]' ).val(value);
     }
 
     // START password
