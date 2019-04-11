@@ -126,17 +126,20 @@ class BackendController extends
                         'showOverview' => true,
                         'showDetail' => true,
                     ),
-                    'company' => array(
-                        'showOverview' => true,
-                    ),
-                    'firstname' => array(
-                        'showOverview' => true,
-                    ),
-                    'lastname' => array(
-                        'showOverview' => true,
-                    ),
                     'password' => array(
                         'showOverview' => false,
+                        'formfield' => array(
+                            'adapter' => 'User',
+                            'method' => 'getPasswordField'
+                        ),
+                        'tooltip' => $this->getPasswordInfo(),
+                    ),
+                    'passwordConfirmed' => array(
+                        'custom' => true,
+                        'showOverview' => false,
+                        'attributes' => array(
+                            'class' => 'access-pw-noauto',
+                        ),
                     ),
                     'authToken' => array(
                         'showOverview' => false,
@@ -1051,6 +1054,21 @@ class BackendController extends
 
         return $wrapper;
     }
+
+    /**
+     * Returns the password information string
+     *
+     * The string returned depends on the password complexity setting
+     * @return  string          The password complexity information
+     */
+    protected function getPasswordInfo()
+    {
+        global $_CONFIG, $_ARRAYLANG;
+
+        if (isset($_CONFIG['passwordComplexity'])
+            && $_CONFIG['passwordComplexity'] == 'on') {
+            return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS_WITH_COMPLEXITY'];
+        }
+        return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS'];
+    }
 }
-
-

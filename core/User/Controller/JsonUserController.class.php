@@ -59,6 +59,7 @@ class JsonUserController
         return array(
             'getAttributeValues',
             'storeUserAttributeValue',
+            'getPasswordField',
         );
     }
 
@@ -128,6 +129,71 @@ class JsonUserController
 
         $attrValue->setValue($param['postedValue']);
         $em->persist($attrValue);
+    }
+
+    public function getPasswordField($params)
+    {
+        global $_ARRAYLANG, $_CONFIG;
+
+        $name = $params['name'];
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $password = new \Cx\Core\Html\Model\Entity\DataElement($name);
+        $password->setAttributes(
+            array(
+                'type' => 'text',
+                'class' => 'access-pw-noauto'
+            )
+        );
+
+        $star = new \Cx\Core\Html\Model\Entity\HtmlElement('font');
+        $starText = new \Cx\Core\Html\Model\Entity\TextElement('&nbsp;*&nbsp;');
+        $star->addChild($starText);
+        $star->setAttribute('color', 'red');
+
+        $status = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+        $status->setAttribute('id', 'password-complexity');
+
+        $wrapper->addChildren(
+            array($password, $star, $status)
+        );
+
+        // Set JavaScript Variables
+        $cxJs = \ContrexxJavascript::getInstance();
+        $scope = 'user-password';
+        $cxJs->setVariable(
+            'TXT_CORE_USER_PASSWORD_TOO_SHORT',
+            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_TOO_SHORT'],
+            $scope
+        );
+        $cxJs->setVariable(
+            'TXT_CORE_USER_PASSWORD_INVALID',
+            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_INVALID'],
+            $scope
+        );
+        $cxJs->setVariable(
+            'TXT_CORE_USER_PASSWORD_WEAK',
+            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_WEAK'],
+            $scope
+        );
+        $cxJs->setVariable(
+            'TXT_CORE_USER_PASSWORD_GOOD',
+            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_GOOD'],
+            $scope
+        );
+        $cxJs->setVariable(
+            'TXT_CORE_USER_PASSWORD_STRONG',
+            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_STRONG'],
+            $scope
+        );
+        $cxJs->setVariable(
+            'CORE_USER_PASSWORT_COMPLEXITY',
+            isset($_CONFIG['passwordComplexity'])
+                ? $_CONFIG['passwordComplexity'] : 'off',
+            $scope
+        );
+
+        return $wrapper;
     }
 
     public function getAttributeValues($par)

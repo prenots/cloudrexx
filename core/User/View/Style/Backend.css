@@ -4,3 +4,47 @@
  * \JS::registerCSS(substr($this->getDirectory(false, true) . '/View/Style/FileName.css', 1));
  * or remove this file if you don't need it
  */
+/* START password */
+#form-0-password {
+    position: relative;
+}
+
+form.cx-ui input[name="password"],
+#form-0-passwordConfirmed {
+    text-security: disc;
+    -webkit-text-security: disc;
+}
+
+#password-complexity {
+    padding: 4px 8px 4px 8px;
+    font-weight: bold;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    height: 13px;
+    line-height: 14px;
+    position: absolute;
+    white-space: nowrap;
+    left: calc(100% + 25px);
+    top: 0px;
+}
+
+#password-complexity.short,
+#password-complexity.weak {
+    color: #B94A48;
+    border: 1px solid #EED3D7;
+    background: #F2DEDE;
+}
+
+#password-complexity.good {
+    color: #3A87AD;
+    border: 1px solid #BCE8F1;
+    background: #D9EDF7;
+}
+
+#password-complexity.strong {
+    color: #468847;
+    border: 1px solid #D6E9C6;
+    background: #DFF0D8;
+}
+/* END password */
