@@ -60,6 +60,7 @@ class JsonUserController
             'getAttributeValues',
             'storeUserAttributeValue',
             'getPasswordField',
+            'getRoleIcon'
         );
     }
 
@@ -194,6 +195,32 @@ class JsonUserController
         );
 
         return $wrapper;
+    }
+
+    public function getRoleIcon($params)
+    {
+        global $_ARRAYLANG;
+
+        if (empty($params['data'])) {
+            $source = $this->cx->getCodeBaseCoreWebPath()
+                . '/Core/View/Media/icons/no_admin.png';
+            $title = $_ARRAYLANG['TXT_CORE_USER_NO_ADMINISTRATOR'];
+        } else {
+            $source = $this->cx->getCodeBaseCoreWebPath()
+                . '/Core/View/Media/icons/admin.png';
+            $title = $_ARRAYLANG['TXT_CORE_USER_ADMINISTRATOR'];
+        }
+
+        $img = new \Cx\Core\Html\Model\Entity\HtmlElement('img');
+        $img->setAttributes(
+            array(
+                'title' => $title,
+                'src' => $source,
+                'class' => 'user-is-admin'
+            )
+        );
+
+        return $img;
     }
 
     public function getAttributeValues($par)

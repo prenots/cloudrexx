@@ -48,3 +48,7 @@ form.cx-ui input[name="password"],
     background: #DFF0D8;
 }
 /* END password */
+
+.user-is-admin {
+    padding: 3px;
+}

@@ -117,6 +117,16 @@ class BackendController extends
                         'showOverview' => true,
                         'showDetail' => true,
                     ),
+                    'isAdmin' => array(
+                        'header' => '',
+                        'formtext' => $_ARRAYLANG['isAdmin'],
+                        'table' => array(
+                            'parse' => array(
+                                'adapter' => 'User',
+                                'method' => 'getRoleIcon'
+                            )
+                        )
+                    ),
                     'email' => array(
                         'table' => array(
                             'parse' => function ($value, $rowData) {
