@@ -46,6 +46,12 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 {
     public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
+        if (isset($eventArgs->getEntityChangeSet()['email'][1])) {
+            $this->checkEmail($eventArgs->getEntity()->getEmail());
+        }
+        if (isset($eventArgs->getEntityChangeSet()['username'][1])) {
+            $this->checkUsername($eventArgs->getEntity()->getUsername());
+        }
         $this->setHashPassword(
             $eventArgs->getEntity(),
             $eventArgs->getEntityChangeSet()
@@ -54,6 +60,8 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
+        $this->checkEmail($eventArgs->getEntity()->getEmail());
+        $this->checkUsername($eventArgs->getEntity()->getUsername());
         $this->setHashPassword(
             $eventArgs->getEntity(),
             array()
@@ -167,5 +175,69 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
         throw new \Cx\Core\Error\Model\Entity\ShinyException(
             'Failed to generate a new password hash'
         );
+    }
+
+    protected function checkEmail($mail)
+    {
+        global $_CORELANG;
+
+        if (!\FWValidator::isEmail($mail)) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_CORELANG['TXT_ACCESS_INVALID_EMAIL_ADDRESS']
+            );
+        }
+
+        $em = $this->cx->getDb()->getEntityManager();
+        $existingEntity = $em->getRepository(
+            'Cx\Core\User\Model\Entity\User'
+        )->findOneBy(array('email' => $mail));
+
+        if (!empty($existingEntity)) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_CORELANG['TXT_ACCESS_EMAIL_ALREADY_USED']
+            );
+        }
+    }
+
+    protected function checkUsername($username)
+    {
+        global $_CORELANG;
+
+        if (!$this->isValidUsername($username)) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_CORELANG['TXT_ACCESS_INVALID_USERNAME']
+            );
+        }
+
+        $em = $this->cx->getDb()->getEntityManager();var_dump($username);
+        $existingEntity = $em->getRepository(
+            'Cx\Core\User\Model\Entity\User'
+        )->findOneBy(array('username' => $username));
+
+        if (!empty($existingEntity)) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_CORELANG['TXT_ACCESS_USERNAME_ALREADY_USED']
+            );
+        }
+    }
+
+    /**
+     * Returns true if the given $username is valid
+     * @param   string    $username
+     * @return  boolean
+     * @static
+     */
+    public static function isValidUsername($username)
+    {
+        if (preg_match('/^[a-zA-Z0-9-_]*$/', $username)) {
+            return true;
+        }
+        // For version 2.3, inspired by migrating Shop Customers to Users:
+        // In addition to the above, also accept usernames that look like valid
+        // e-mail addresses
+        if (\FWValidator::isEmail($username)) {
+            return true;
+        }
+        return false;
     }
 }
