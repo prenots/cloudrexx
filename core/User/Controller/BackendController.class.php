@@ -71,9 +71,11 @@ class BackendController extends
         );
 
         $uId = $this->getUserId();
-
         switch ($entityClassName) {
             case 'Cx\Core\User\Model\Entity\User':
+                $options['template'] = array(
+                    'tableView' => $this->cx->getCodeBaseCorePath(). '/User/View/Template/Backend/TableView.html'
+                );
                 $options['order'] = array(
                     'overview' => array(
                         'id',
@@ -109,6 +111,12 @@ class BackendController extends
                     ),
                     'alphabetical' => 'username'
                 );
+
+                $options['functions']['filterCallback'] = array(
+                    'adapter' => 'User',
+                    'method' => 'filterCallback'
+                );
+
                 $options['tabs']['groups'] = array(
                     'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
                     'fields' => array(
@@ -124,6 +132,24 @@ class BackendController extends
                     'active' => array(
                         'showOverview' => true,
                         'showDetail' => false,
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_USER_STATUS'],
+                                1 => $_ARRAYLANG['TXT_CORE_USER_ACTIVE'],
+                                0 => $_ARRAYLANG['TXT_CORE_USER_INACTIVE'],
+                            );
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     ),
                     'username' => array(
                         'table' => array(
@@ -134,6 +160,7 @@ class BackendController extends
                         'showOverview' => true,
                         'showDetail' => true,
                         'allowFiltering' => false,
+                        'allowSearching' => true,
                     ),
                     'isAdmin' => array(
                         'header' => '',
@@ -143,7 +170,25 @@ class BackendController extends
                                 'adapter' => 'User',
                                 'method' => 'getRoleIcon'
                             )
-                        )
+                        ),
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_USER_ROLE'],
+                                1 => $_ARRAYLANG['TXT_CORE_USER_ADMINISTRATORS'],
+                                0 => $_ARRAYLANG['TXT_CORE_USER_USERS']
+                            );
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     ),
                     'email' => array(
                         'table' => array(
@@ -281,7 +326,32 @@ class BackendController extends
                     ),
                     'group' => array(
                         'showOverview' => false,
-                        'mode' => 'associate'
+                        'mode' => 'associate',
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_SELECT_GROUP'],
+                            );
+
+                            $em = $this->cx->getDb()->getEntityManager();
+                            $groups = $em->getRepository(
+                                'Cx\Core\User\Model\Entity\Group'
+                            )->findBy(array('isActive' => 1));
+
+                            foreach ($groups as $group) {
+                                $validValues[$group->getGroupId()] = $group->getGroupName();
+                            }
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     ),
                     'lastActivity' => array(
                         'table' => array(
@@ -304,7 +374,24 @@ class BackendController extends
                         'showDetail' => false,
                         'allowSearching' => false,
                         'allowFiltering' => true,
-                        //$arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_USER_ACCOUNT'],
+                                1 => $_ARRAYLANG['TXT_CORE_USER_ALL'],
+                                0 => $_ARRAYLANG['TXT_CORE_USER_ONLY_CRM']
+                            );
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     )
                 );
 
@@ -1139,5 +1226,29 @@ class BackendController extends
             return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS_WITH_COMPLEXITY'];
         }
         return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS'];
+    }
+
+    protected function getFilterSelect($fieldName, $elementName, $formName, $validValues)
+    {
+        $select = new \Cx\Core\Html\Model\Entity\DataElement(
+            $elementName,
+            '',
+            'select',
+            null,
+            $validValues
+        );
+
+        $select->setAttributes(
+            array(
+                'data-vg-attrgroup' => 'search',
+                'data-vg-field' => $fieldName,
+                'form' => $formName,
+                'type' => 'checkbox',
+                'class' => 'vg-encode',
+                'id' => $elementName,
+            )
+        );
+
+        return $select;
     }
 }

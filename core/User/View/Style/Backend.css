@@ -56,3 +56,15 @@ form.cx-ui input[name="password"],
 #form_0_group_chosen {
     width: 308px !important;
 }
+
+#vg-0-extendedSearch .user-search td {
+    width: 5%;
+}
+
+#vg-0-extendedSearch .user-search td:last-child {
+    width: 85%;
+}
+
+#vg-0-filterSearch .search-bar {
+    width:300px;
+}

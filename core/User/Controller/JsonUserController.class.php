@@ -60,7 +60,8 @@ class JsonUserController
             'getAttributeValues',
             'storeUserAttributeValue',
             'getPasswordField',
-            'getRoleIcon'
+            'getRoleIcon',
+            'filterCallback'
         );
     }
 
@@ -226,5 +227,37 @@ class JsonUserController
     public function getAttributeValues($par)
     {
         // Todo: Übernehmen der ValueCallback Funktion
+    }
+
+    public function filterCallback($params)
+    {
+        $qb = $params['qb'];
+        $crit = $params['crit'];
+
+        $i = 1;
+        foreach ($crit as $field=>$value) {
+            if ($field == 'group') {
+                $qb->andWhere('?'. $i .' MEMBER OF x.group');
+            } else if ($field == 'accountType') {
+                continue;
+                //$arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
+                $qb->join(
+                    'Cx\Modules\Crm\Model\Entity\CrmContact',
+                    'c',
+                    'WITH',
+                    'c.userAccount = u.id'
+                );
+                continue;
+            } else {
+                $qb->andWhere(
+                    $qb->expr()->eq('x.' . $field, '?' . $i)
+                );
+            }
+
+            $qb->setParameter($i, $value);
+            $i++;
+        }
+
+        return $qb;
     }
 }
