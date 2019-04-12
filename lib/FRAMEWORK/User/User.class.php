@@ -869,62 +869,6 @@ class User extends User_Profile
     }
 
 
-    private function getFilteredUserIdList($arrFilter = null, $search = null)
-    {
-        $arrConditions = array();
-        $arrSearchConditions = array();
-        $tblCoreAttributes = false;
-        $tblCustomAttributes = false;
-        $tblGroup = false;
-        $groupTables = false;
-
-        // SQL JOIN statements used for each custom attribute
-        $customAttributeJoins = array();
-
-        // parse filter
-        if (isset($arrFilter) && is_array($arrFilter)) {
-            $arrConditions = $this->parseFilterConditions($arrFilter, $tblCoreAttributes, $tblGroup, $customAttributeJoins, $groupTables);
-        }
-
-        // parse search
-        if (!empty($search)) {
-            if (count($arrAccountConditions = $this->parseAccountSearchConditions($search))) {
-                $arrSearchConditions[] = implode(' OR ', $arrAccountConditions);
-            }
-            if (count($arrCoreAttributeConditions = $this->parseAttributeSearchConditions($search, true))) {
-                $arrSearchConditions[] = implode(' OR ', $arrCoreAttributeConditions);
-                $tblCoreAttributes = true;
-            }
-            if (count($arrCustomAttributeConditions = $this->parseAttributeSearchConditions($search, false))) {
-                $groupTables = true;
-                $arrSearchConditions[] = implode(' OR ', $arrCustomAttributeConditions);
-                $tblCustomAttributes = true;
-            }
-            if (count($arrSearchConditions)) {
-                $arrConditions[] = implode(' OR ', $arrSearchConditions);
-            }
-        }
-
-        $arrTables = array();
-        if (!empty($tblCoreAttributes)) {
-            $arrTables[] = 'core';
-        }
-        if (!empty($tblCustomAttributes)) {
-            $arrTables[] = 'custom';
-        }
-        if ($tblGroup) {
-            $arrTables[] = 'group';
-        }
-
-        return array(
-            'tables'        => $arrTables,
-            'conditions'    => $arrConditions,
-            'group_tables'  => $groupTables,
-            'joins'         => $customAttributeJoins,
-        );
-    }
-
-
     public function getFrontendLanguage()
     {
         if (!$this->frontend_language) {
@@ -1426,24 +1370,7 @@ class User extends User_Profile
         $this->arrLoadedUsers = array();
         $arrSelectMetaExpressions = array();
         $arrSelectCoreExpressions = array();
-        $arrSelectCustomExpressions = null;
         $this->filtered_search_count = 0;
-
-        // set sort order
-        if (isset($filter['group_id']) && $filter['group_id'] == 'groupless') {
-            $groupless = true;
-        } else {
-            $groupless = false;
-        }
-
-        // $filter != 1 needed because $filter can be 1 to show all active users
-        $crmUser = false;
-        if (isset($filter['crm']) && $filter != 1 && $filter['crm'] == 1 && is_array($filter)) {
-            $cx = \Env::get('cx');
-            if ($cx->getLicense()->isInLegalComponents('Crm')) {
-                $crmUser = true;
-            }
-        }
 
         // set field list
         if (is_array($arrAttributes)) {
@@ -1452,8 +1379,6 @@ class User extends User_Profile
                     $arrSelectMetaExpressions[] = $attribute;
                 } elseif ($this->objAttribute->isCoreAttribute($attribute) && !in_array($attribute, $arrSelectCoreExpressions)) {
                     $arrSelectCoreExpressions[] = $attribute;
-                } elseif ($this->objAttribute->isCustomAttribute($attribute) && (!isset($arrSelectCustomExpressions) || !in_array($attribute, $arrSelectCustomExpressions))) {
-                    $arrSelectCustomExpressions[] = $attribute;
                 }
             }
             if (!in_array('id', $arrSelectMetaExpressions)) {
@@ -1462,7 +1387,6 @@ class User extends User_Profile
         } else {
             $arrSelectMetaExpressions = array_keys($this->arrAttributes);
             $arrSelectCoreExpressions = $this->objAttribute->getCoreAttributeIds();
-            $arrSelectCustomExpressions = array();
         }
 
         $repo = $em->getRepository('\Cx\Core\User\Model\Entity\User');
@@ -1614,7 +1538,6 @@ class User extends User_Profile
                 foreach ($andCondition as $andKey=>$andValue) {
                     $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr);
                 }
-                $counter = $expr['counter'];
 
                 if ($key == 'AND') {
                     $arrExpr = $qb->expr()->andX($expr['expr']);
@@ -1627,7 +1550,6 @@ class User extends User_Profile
             foreach ($value as $andKey=>$andValue) {
                 $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, $fieldName);
             }
-            $counter = $expr['counter'];
 
             if (count($expr['expr']) > 1) {
                 $arrExpr[] = $qb->expr()->andX($expr['expr']);
@@ -1691,298 +1613,6 @@ class User extends User_Profile
     public function __clone()
     {
         $this->clean();
-    }
-
-
-    /**
-     * Parse and translate an array of filter rules into SQL statements to be
-     * used for filtering users.
-     *
-     * @param   array   $filter A nested array defining filter rules
-     * @param   boolean $tblCoreAttributes  Will be set to TRUE if the supplied
-     *                                      filter arguments $filter will need
-     *                                      a join to the core-attribute-table
-     * @param   boolean $tblGroup   Will be set to TRUE if the supplied filter
-     *                              arguments $filter will need a join to the
-     *                              user-group-table
-     * @param   array   $customAttributeJoins   Will be filled with SQL JOIN
-     *                                          statements to be used for
-     *                                          filtering the custom attributes
-     * @param   boolean $groupTables Will be set to TRUE if the SQL statement
-     *                               should be grouped (GROUP BY)
-     * @param   boolean $uniqueJoins Whether the filter arguments shall be
-     *                               joined by separate unique JOINs or by
-     *                               a single common JOIN statement.
-     * @param   integer $joinIdx     The current index used for separate
-     *                               unique JOINs.
-     * @return  array   List of SQL statements to be used as WHERE arguments
-     */
-    protected function parseFilterConditions($filter, &$tblCoreAttributes, &$tblGroup, &$customAttributeJoins, &$groupTables, $uniqueJoins = true, &$joinIdx = 0)
-    {
-        $arrConditions = array();
-
-        // somehow the pointer on $filter is sometimes wrong
-        // therefore we need to reset it
-        reset($filter);
-
-        // check if $filter is constructed by an OR or AND condition
-        if (count($filter) == 1 && in_array(strtoupper(key($filter)), array('OR', 'AND'))) {
-            // first key of $filter defines the join method (either OR or AND)
-            $joinMethod = strtoupper(key($filter));
-
-            // arguments that shall be joined by $joinMethod
-            $filterArguments = current($filter);
-
-            // generate new join to custom attribute table
-            if ($uniqueJoins) {
-                $joinIdx++;
-            }
-
-            // parse filter arguments (generate SQL statements)
-            foreach ($filterArguments as $argument) {
-                $filterConditions = $this->parseFilterConditions(
-                    $argument,
-                    $tblCoreAttributes,
-                    $tblGroup,
-                    $customAttributeJoins,
-                    $groupTables,
-                    $joinMethod == 'AND',
-                    $joinIdx
-                );
-
-                // don't add empty arguments to SQL query (through $arrConditions)
-                if (!$filterConditions) {
-                    continue;
-                }
-                $arrConditions[] = implode(' AND ', $filterConditions);
-            }
-
-            // join generated SQL statements by $joinMethod 
-            return array('(' . implode(' ) ' . $joinMethod . ' ( ', $arrConditions) . ')');
-        }
-
-        // proceed with below code as listed key-value pairs in $filter are
-        // simple attribute filters to be joind by AND
-
-        // filter by user attributes (if set)
-        if (count($arrAccountConditions = $this->parseAccountFilterConditions($filter))) {
-            $arrConditions[] = implode(' AND ', $arrAccountConditions);
-        }
-        if (count($arrCoreAttributeConditions = $this->parseCoreAttributeFilterConditions($filter))) {
-            $arrConditions[] = implode(' AND ', $arrCoreAttributeConditions);
-            $tblCoreAttributes = true;
-        }
-        $arrCustomAttributeConditions = $this->parseCustomAttributeFilterConditions(
-            $filter,
-            null,
-            $uniqueJoins,
-            $joinIdx
-        );
-        if (count($arrCustomAttributeConditions)) {
-            $groupTables = true;
-            $arrConditions[] = implode(' AND ', $arrCustomAttributeConditions);
-            foreach (array_keys($arrCustomAttributeConditions) as $customAttributeTable) {
-                $customAttributeJoins[] = ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS ' . $customAttributeTable . ' ON ' . $customAttributeTable . '.`user_id` = tblU.`id` ';
-            }
-
-            // drop redundant joins
-            $customAttributeJoins = array_unique($customAttributeJoins);
-        }
-
-        // filter by user group membership (if set)
-        if (in_array('group_id', array_keys($filter)) && !empty($filter['group_id'])) {
-            $arrGroupConditions = array();
-            if ($filter['group_id'] == 'groupless') {
-                $arrGroupConditions[] = 'tblG.`group_id` IS NULL';
-            } else if (is_array($filter['group_id'])) {
-                foreach ($filter['group_id'] as $groupId) {
-                    $arrGroupConditions[] = 'tblG.`group_id` = '.intval($groupId);
-                }
-                $groupTables = true;
-            } else {
-                $arrGroupConditions[] = 'tblG.`group_id` = '.intval($filter['group_id']);
-            }
-            $arrConditions[] = '('.implode(' OR ', $arrGroupConditions).')';
-
-            if (!FWUser::getFWUserObject()->isBackendMode()) {
-                $arrConditions[] = "tblGF.`is_active` = 1 AND tblGF.`type` = 'frontend'";
-            }
-
-            $tblGroup = true;
-        }
-
-        return $arrConditions;
-    }
-
-
-    /*private function parseSearchConditions($search)
-    {
-        $arrConditions = array();
-
-        if (count($arrAccountConditions = $this->parseAccountSearchConditions($search))) {
-            $arrConditions[] = implode(' OR ', $arrAccountConditions);
-        }
-        if (count($arrCoreAttributeConditions = $this->parseAttributeSearchConditions($search, true))) {
-            $arrConditions[] = implode(' OR ', $arrCoreAttributeConditions);
-        }
-        if (count($arrCustomAttributeConditions = $this->parseAttributeSearchConditions($search, false))) {
-            $arrConditions[] = implode(' OR ', $arrCustomAttributeConditions);
-        }
-
-        return $arrConditions;
-    }*/
-
-
-    /**
-     * Creates the SQL query snippet to match username (and e-mail in the
-     * backend) fields against the search term(s)
-     *
-     * Matches single (scalar) or multiple (array) search terms against a
-     * number of fields.  Generally, the term(s) are enclosed in percent
-     * signs ("%term%"), so any fields that contain them will match.
-     * However, if the search parameter is a string and does contain a percent
-     * sign already, none will be added to the query.
-     * This allows searches using custom patterns, like "fields beginning
-     * with "a" ("a%").
-     * (You might even want to extend this to work with arrays, too.
-     * Currently, only the shop module uses this feature.) -- RK 20100910
-     * @param   mixed     $search   The term or array of terms
-     * @return  array               The array of SQL snippets
-     */
-    private function parseAccountSearchConditions($search)
-    {
-        $FWUser = FWUser::getFWUserObject();
-        $arrConditions = array();
-        $arrAttribute = array('username');
-        if ($FWUser->isBackendMode()) {
-            $arrAttribute[] = 'email';
-        }
-        $percent = '%';
-        if (!is_array($search) && strpos('%', $search) !== false)
-            $percent = '';
-        foreach ($arrAttribute as $attribute) {
-            $arrConditions[] =
-                "(tblU.`".$attribute."` LIKE '$percent".
-                (is_array($search)
-                  ? implode("$percent' OR tblU.`".$attribute."` LIKE '$percent", array_map('addslashes', $search))
-                  : addslashes($search))."$percent')";
-        }
-        return $arrConditions;
-    }
-
-
-    private function setSortedUserIdList(
-        $arrSort, $sqlCondition=array(), $limit=null, $offset=null, $groupless=false, $crmUser=false
-    ) {
-        global $objDatabase;
-
-        $arrCustomJoins = array();
-        $arrCustomSelection = array();
-        $joinCoreTbl = false;
-        $joinCustomTbl = false;
-        $joinGroupTbl = false;
-        $arrUserIds = array();
-        $arrSortExpressions = array();
-        $groupTables = false;
-        $nr = 0;
-        if (!empty($sqlCondition)) {
-            if (isset($sqlCondition['tables'])) {
-                if (in_array('core', $sqlCondition['tables'])) {
-                    $joinCoreTbl = true;
-                }
-                if (in_array('custom', $sqlCondition['tables'])) {
-                    $joinCustomTbl = true;
-                }
-                if (in_array('group', $sqlCondition['tables'])) {
-                    $joinGroupTbl = true;
-                }
-            }
-            if (isset($sqlCondition['conditions']) && count($sqlCondition['conditions'])) {
-                $arrCustomSelection = $sqlCondition['conditions'];
-            }
-            if (!empty($sqlCondition['group_tables'])) {
-                $groupTables = true;
-            }
-            if (isset($sqlCondition['joins']) ) {
-                $arrCustomJoins = $sqlCondition['joins'];
-            }
-        }
-        if (is_array($arrSort)) {
-            foreach ($arrSort as $attribute => $direction) {
-                if (in_array(strtolower($direction), array('asc', 'desc'))) {
-                    if (isset($this->arrAttributes[$attribute])) {
-                        $arrSortExpressions[] = 'tblU.`'.$attribute.'` '.$direction;
-                    } elseif ($this->objAttribute->load($attribute)) {
-                        if ($this->objAttribute->isCoreAttribute($attribute)) {
-                            $arrSortExpressions[] = 'tblP.`'.$attribute.'` '.$direction;
-                            $joinCoreTbl = true;
-                        } else {
-                            $arrSortExpressions[] = 'tblA'.$nr.'.`value` '.$direction;
-                            $arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA'.$nr.' ON tblA'.$nr.'.`user_id` = tblU.`id`';
-                            $arrCustomSelection[] = 'tblA'.$nr.'.`attribute_id` = '.$attribute;
-                            ++$nr;
-                        }
-                    }
-                } elseif ($attribute == 'special') {
-                    $arrSortExpressions[] = $direction;
-                }
-            }
-        }
-        if (!is_array($arrSort) || !array_key_exists('id', $arrSort)) {
-            $arrSortExpressions[] = 'tblU.`id` ASC';
-        }
-        if ($crmUser == true) {
-            $arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
-        }
-        $query = '
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT tblU.`id`
-              FROM `'.DBPREFIX.'access_users` AS tblU'.
-            ($joinCoreTbl ? ' INNER JOIN `'.DBPREFIX.'access_user_profile` AS tblP ON tblP.`user_id`=tblU.`id`' : '').
-            ($joinCustomTbl ? ' INNER JOIN `'.DBPREFIX.'access_user_attribute_value` AS tblA ON tblA.`user_id`=tblU.`id`' : '').
-            ($joinGroupTbl
-                ? ($groupless
-                    ? ' LEFT JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id`=tblU.`id`'
-                    : ' INNER JOIN `'.DBPREFIX.'access_rel_user_group` AS tblG ON tblG.`user_id`=tblU.`id`')
-                : ''
-            ).
-            ($joinGroupTbl && !FWUser::getFWUserObject()->isBackendMode() ? ' INNER JOIN `'.DBPREFIX.'access_user_groups` AS tblGF ON tblGF.`group_id`=tblG.`group_id`' : '').
-            (count($arrCustomJoins) ? ' '.implode(' ',$arrCustomJoins) : '').
-            (count($arrCustomSelection) ? ' WHERE ('.implode(') AND (', $arrCustomSelection).')' : '').
-            (count($arrSortExpressions) ? ' ORDER BY '.implode(', ', $arrSortExpressions) : '');
-        $objUserId = false;
-        if (empty($limit)) {
-            $objUserId = $objDatabase->Execute($query);
-            $this->filtered_search_count = ($objUserId === false ? 0 : $objUserId->RecordCount());
-        } else {
-            $objUserId = $objDatabase->SelectLimit($query, $limit, intval($offset));
-            $objUserCount = $objDatabase->Execute('SELECT FOUND_ROWS()');
-            $this->filtered_search_count = $objUserCount->fields['FOUND_ROWS()'];
-        }
-        if ($objUserId !== false) {
-            while (!$objUserId->EOF) {
-                $arrUserIds[$objUserId->fields['id']] = array();
-                $objUserId->MoveNext();
-            }
-        }
-        $this->arrLoadedUsers = $arrUserIds;
-        if (!count($arrUserIds)) {
-            return false;
-        }
-        return array(
-            'tables' => array(
-                'core'      => $joinCoreTbl,
-                'custom'    => $joinCustomTbl,
-                'group'     => $joinGroupTbl
-            ),
-            'joins'         => $arrCustomJoins,
-            'conditions'    => $arrCustomSelection,
-            'sort'          => $arrSortExpressions,
-            'group_tables'  => $groupTables,
-        );
-        /*$arrNotSortedUserIds = array_diff(array_keys($this->arrLoadedUsers), $arrUserIds);
-        foreach ($arrNotSortedUserIds as $userId) {
-            $arrUserIds[$userId] = '';
-        }*/
     }
 
     public function generateAuthToken() {
