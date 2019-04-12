@@ -466,6 +466,9 @@ INPUT;
         $arrImageInfo   = pathinfo($strValue);
         $strImageName    = $arrImageInfo['basename'];
 
+        // urlencode the path, but retain slashes
+        $strValue = implode('/', array_map('urlencode', explode('/', $strValue)));
+
         return array(
             'TXT_MEDIADIR_INPUTFIELD_NAME' => htmlspecialchars(
                 $arrInputfield['name'][0], ENT_QUOTES, CONTREXX_CHARSET),
