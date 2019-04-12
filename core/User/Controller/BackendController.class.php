@@ -34,6 +34,8 @@ namespace Cx\Core\User\Controller;
 class BackendController extends
     \Cx\Core\Core\Model\Entity\SystemComponentBackendController
 {
+    protected $userId;
+
     /**
      * This function returns the ViewGeneration options for a given entityClass
      *
@@ -77,11 +79,10 @@ class BackendController extends
                         'id',
                         'active',
                         'isAdmin',
-                        'username',
+                        'email',
                         'company',
                         'firstname',
                         'lastname',
-                        'email',
                         'regdate',
                         'lastActivity',
                     ),
@@ -89,6 +90,7 @@ class BackendController extends
                         'email',
                         'username',
                         'password',
+                        'passwordConfirmed',
                         'backendLangId',
                         'frontendLangId',
                         'isAdmin',
@@ -102,8 +104,23 @@ class BackendController extends
                     'edit' => true,
                     'delete' => true,
                     'add' => true,
+                    'status' => array(
+                        'field' => 'active'
+                    ),
+                    'alphabetical' => 'username'
                 );
+                $options['tabs']['groups'] = array(
+                    'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
+                    'fields' => array(
+                        'group',
+                        'primaryGroup'
+                    )
+                );
+
                 $options['fields'] = array(
+                    'id' => array(
+                        'allowFiltering' => false,
+                    ),
                     'active' => array(
                         'showOverview' => true,
                         'showDetail' => false,
@@ -116,6 +133,17 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => true,
+                        'allowFiltering' => false,
+                    ),
+                    'isAdmin' => array(
+                        'header' => '',
+                        'formtext' => $_ARRAYLANG['isAdmin'],
+                        'table' => array(
+                            'parse' => array(
+                                'adapter' => 'User',
+                                'method' => 'getRoleIcon'
+                            )
+                        )
                     ),
                     'email' => array(
                         'table' => array(
@@ -125,26 +153,34 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => true,
-                    ),
-                    'company' => array(
-                        'showOverview' => true,
-                    ),
-                    'firstname' => array(
-                        'showOverview' => true,
-                    ),
-                    'lastname' => array(
-                        'showOverview' => true,
+                        'allowFiltering' => false,
                     ),
                     'password' => array(
                         'showOverview' => false,
+                        'formfield' => array(
+                            'adapter' => 'User',
+                            'method' => 'getPasswordField'
+                        ),
+                        'tooltip' => $this->getPasswordInfo(),
+                        'allowFiltering' => false,
+                    ),
+                    'passwordConfirmed' => array(
+                        'custom' => true,
+                        'showOverview' => false,
+                        'attributes' => array(
+                            'class' => 'access-pw-noauto',
+                        ),
+                        'allowFiltering' => false,
                     ),
                     'authToken' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'authTokenTimeout' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'regdate' => array(
                         'table' => array(
@@ -154,6 +190,7 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'expiration' => array(
                         'showOverview' => true,
@@ -162,23 +199,28 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->getExpirationDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'validity' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'lastAuthStatus' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'lastAuth' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'emailAccess' => array(
                         'showOverview' => false,
                         'showDetail' => true,
                         'type' => 'hidden',
+                        'allowFiltering' => false,
                     ),
                     'frontendLangId' => array(
                         'showOverview' => false,
@@ -186,15 +228,18 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->getLangDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'backendLangId' => array(
                         'showOverview' => false,
                         'showDetail' => true,
                         'type' => 'hidden',
+                        'allowFiltering' => false,
                     ),
                     'verified' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'primaryGroup' => array(
                         'showOverview' => false,
@@ -204,6 +249,7 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->primaryGroupDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'profileAccess' => array(
                         'showOverview' => false,
@@ -211,26 +257,31 @@ class BackendController extends
                             function ($fieldname, $fieldtype, $fieldlength, $fieldvalue){
                                 return $this->getProfileAccessDropdown($fieldname, $fieldvalue);
                             },
+                        'allowFiltering' => false,
                     ),
                     'restoreKey' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'restoreKeyTime' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'u2uActive' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'userProfile' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'group' => array(
                         'showOverview' => false,
-                        'showDetail' => false,
+                        'mode' => 'associate'
                     ),
                     'lastActivity' => array(
                         'table' => array(
@@ -240,12 +291,180 @@ class BackendController extends
                         ),
                         'showOverview' => true,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
                     'userAttributeValue' => array(
                         'showOverview' => false,
                         'showDetail' => false,
+                        'allowFiltering' => false,
                     ),
+                    'accountType' => array(
+                        'custom' => true,
+                        'showOverview' => false,
+                        'showDetail' => false,
+                        'allowSearching' => false,
+                        'allowFiltering' => true,
+                        //$arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
+                    )
                 );
+
+                $em = $this->cx->getDb()->getEntityManager();
+
+                //Todo: Maybe filter by type
+                $userAttrs = $em->getRepository(
+                    'Cx\Core\User\Model\Entity\UserAttribute'
+                )->findBy(array('parent' => null), array('isDefault' => 'DESC', 'orderId' => 'ASC'));
+
+                foreach ($userAttrs as $attr) {
+                    $attrNames = $attr->getUserAttributeName()->filter(
+                        function($entry) {
+                            if (empty($entry->getLangId()) || $entry->getLangId() == FRONTEND_LANG_ID) {
+                                return $entry;
+                            }
+                        }
+                    );
+
+                    if (empty($attrNames) || empty($attrNames[0])) {
+                        continue;
+                    }
+                    $name = $attrNames[0]->getName();
+                    $optionName = 'userAttr-' . $attr->getId();
+
+                    $attrOption = array(
+                        'custom' => true,
+                        'showOverview' => false,
+                        'allowFiltering' => false,
+                        'storecallback' => array(
+                            'adapter' => 'User',
+                            'method' => 'storeUserAttributeValue'
+                        ), // todo: move value callback func in json controller
+                        'valueCallback' => function($value, $name, $data) use ($attr) {
+                            $historyId = 0;
+                            $userId = 0;
+                            // Only use $data['id'] if the CLX-2542 ticket is
+                            // live.
+                            if (!empty($this->userId)) {
+                                $userId = $this->userId;
+                            } else if (isset($data['id'])) {
+                                $userId = $data['id'];
+                            } else {
+                                return '';
+                            }
+
+                            $em = $this->cx->getDb()->getEntityManager();
+                            $value = $em->getRepository(
+                                '\Cx\Core\User\Model\Entity\UserAttributeValue'
+                            )->findOneBy(
+                                array(
+                                    'userId' => $userId,
+                                    'attributeId' => $attr->getId(),
+                                    'history' => $historyId
+                                )
+                            );
+
+                            if (!empty($value)) {
+                                return $value->getValue();
+                            }
+                            return '';
+                        }
+                    );
+
+                    // Use Name of non core-attributes as header. The headers
+                    // for core-attributes are defined in the lang files.
+                    if ($attr->getIsDefault()) {
+                        $header = $_ARRAYLANG[$name];
+
+                        // replace vg-order with the correct option names
+                        if (in_array($name, $options['order']['overview'])) {
+                            $orderKey = array_search($name, $options['order']['overview']);
+                            $options['order']['overview'][$orderKey] = $optionName;
+                            $attrOption['showOverview'] = true;
+                        }
+                    } else {
+                        $header = $name;
+                    }
+
+                    $attrOption['header'] = $header;
+
+                    switch ($attr->getType()) {
+                        case 'date':
+                        case 'mail':
+                            $attrOption['type'] = $attr->getType();
+                            break;
+                        case 'uri':
+                            //<input type="hidden" name="[NAME]" value="[VALUE]" />
+                            //<em>[VALUE_TXT]</em>
+                            // <a href="javascript:void(0);"
+                            //    onclick="elLink=null;elDiv=null;elInput=null;pntEl=this.previousSibling;while ((typeof(elInput)==\'undefined\'||typeof(elDiv)!=\'undefined\')&& pntEl!=null) {switch(pntEl.nodeName) {case\'INPUT\':elInput=pntEl;break;case\'EM\':elDiv=pntEl;if (elDiv.getElementsByTagName(\'a\').length>0) {elLink=elDiv.getElementsByTagName(\'a\')[0];}break;}pntEl=pntEl.previousSibling;}accessSetWebsite(elInput,elDiv,elLink)" title="'.$_CORELANG['TXT_ACCESS_CHANGE_WEBSITE'].'"><img align="middle" src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/edit.gif" width="16" height="16" border="0" alt="'.$_CORELANG['TXT_ACCESS_CHANGE_WEBSITE'].'" /></a>',
+                            break;
+                        case 'image':
+                            //$attrOption['type'] = 'image';
+                            break;
+                        case 'checkbox':
+                            break;
+                        case 'menu':
+                            $validValues = array();
+                            if (!$attr->getMandatory()) {
+                                $validValues = array(
+                                    $_ARRAYLANG['TXT_CORE_USER_NONE_SPECIFIED']
+                                );
+                            }
+
+                            if (count($attr->getChildren())) {
+                                foreach ( $attr->getChildren() as $child) {
+                                    foreach ($child->getUserAttributeName() as $childName) {
+                                        if ($childName->getLangId() == FRONTEND_LANG_ID) {
+                                            $validValues[
+                                            $childName->getAttributeId()
+                                            ] = $childName->getName();
+                                        }
+                                    }
+                                }
+                            } else if ($name == 'gender') {
+                                $validValues = array(
+                                    'gender_undefined' => $_ARRAYLANG[
+                                        'TXT_CORE_USER_GENDER_UNDEFINED'
+                                    ],
+                                    'gender_female' => $_ARRAYLANG[
+                                        'TXT_CORE_USER_GENDER_FEMALE'
+                                    ],
+                                    'gender_male' => $_ARRAYLANG[
+                                        'TXT_CORE_USER_GENDER_MALE'
+                                    ]
+                                );
+                            }
+
+                            $attrOption['type'] = 'select';
+                            $attrOption['validValues'] = $validValues;
+                            break;
+                        case 'menu_option':
+                            break;
+                        case 'frame':
+                            // Later
+                            break;
+                        case 'group':
+                            // Later
+                            break;
+                        case 'history':
+                            // Later
+                            break;
+                        case 'textarea':
+                            $attrOption['type'] = 'text';
+                            break;
+                        case 'text':
+                        default:
+                            if ($name == 'country') {
+                                $attrOption['type'] = 'Country';
+                                break;
+                            }
+                            $attrOption['type'] = 'string';
+                            break;
+                    }
+
+                    $options['fields'][$optionName] = $attrOption;
+                    $options['tabs']['profile']['fields'][] = $optionName;
+                }
+                $options['tabs']['profile']['header'] = $_ARRAYLANG['TXT_CORE_USER_PROFILE'];
                 break;
             case 'Cx\Core\User\Model\Entity\Group':
                 $options['order'] = array(
@@ -904,6 +1123,21 @@ class BackendController extends
 
         return $wrapper;
     }
+
+    /**
+     * Returns the password information string
+     *
+     * The string returned depends on the password complexity setting
+     * @return  string          The password complexity information
+     */
+    protected function getPasswordInfo()
+    {
+        global $_CONFIG, $_ARRAYLANG;
+
+        if (isset($_CONFIG['passwordComplexity'])
+            && $_CONFIG['passwordComplexity'] == 'on') {
+            return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS_WITH_COMPLEXITY'];
+        }
+        return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS'];
+    }
 }
-
-
