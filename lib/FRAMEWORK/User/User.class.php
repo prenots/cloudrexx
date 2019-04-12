@@ -1402,18 +1402,18 @@ class User extends User_Profile
         // Rewrite set filter
         $userId = 0;
         $userAttrConditions = array();
-        $userNames = $attrNameRepo->findBy(array(), null, null, null);
+        $attributes = $attrNameRepo->findBy(array(), null, null, null);
 
-        $names = array();
-        foreach ($userNames as $attrName) {
-            $names[$attrName->getAttributeId()] = $attrName->getName();
+        $attributeList = array();
+        foreach ($attributes as $attrName) {
+            $attributeList[$attrName->getAttributeId()] = $attrName->getName();
         }
 
         $qb = $em->createQueryBuilder();
         $qb->select('tblU')
             ->from('\Cx\Core\User\Model\Entity\User', 'tblU');
         if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
-            $this->getAttrConditions($filter, $qb, $names);
+            $this->getAttrConditions($filter, $qb, $attributeList);
         } else if (!empty($filter)) {
             $userId = intval($filter);
         }
@@ -1479,15 +1479,15 @@ class User extends User_Profile
      *
      * @param array                       $conditions
      * @param \Doctrine\ORM\QueryBuilder  $qb
-     * @param array                       $userNames
+     * @param array $attributeList Key=>Value array with all attributes
      */
-    protected function getAttrConditions($conditions, $qb, $userNames)
+    protected function getAttrConditions($conditions, $qb, $attributeList)
     {
         $params = array();
         $counter = 0;
         $expr = array();
 
-        $attrNames = $this->getAttrNames($conditions, $userNames);
+        $attrNames = $this->getAttrNames($conditions, $attributeList);
 
         foreach ($conditions as $key=>$condition) {
             $expr = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
@@ -1591,19 +1591,19 @@ class User extends User_Profile
      * Get attribute names
      *
      * @param array $filters
-     * @param array $userNames
+     * @param array $attributeList
      *
      * @return array
      */
-    protected function getAttrNames($filters, $userNames)
+    protected function getAttrNames($filters, $attributeList)
     {
         $attrNames = array();
 
         foreach($filters as $key=>$value) {
-            if (in_array($key, $userNames)) {
-                $attrNames[array_search($key, $userNames)] = $key;
+            if (in_array($key, $attributeList)) {
+                $attrNames[array_search($key, $attributeList)] = $key;
             } else if (is_array($value)) {
-                $attrNames = $this->getAttrNames($value, $userNames);
+                $attrNames = $this->getAttrNames($value, $attributeList);
             }
         }
 
