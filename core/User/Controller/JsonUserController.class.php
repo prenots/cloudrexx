@@ -144,7 +144,8 @@ class JsonUserController
         $password->setAttributes(
             array(
                 'type' => 'text',
-                'class' => 'access-pw-noauto'
+                'class' => 'access-pw-noauto form-control',
+                'id' => 'form-0-' . $name
             )
         );
 

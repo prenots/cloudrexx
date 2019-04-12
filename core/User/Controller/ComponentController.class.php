@@ -152,4 +152,36 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 $e->getMessage() . '"';
         }
     }
+
+    /**
+     * Register your event listeners here
+     *
+     * USE CAREFULLY, DO NOT DO ANYTHING COSTLY HERE!
+     * CALCULATE YOUR STUFF AS LATE AS POSSIBLE.
+     * Keep in mind, that you can also register your events later.
+     * Do not do anything else here than initializing your event listeners and
+     * list statements like
+     * $this->cx->getEvents()->addEventListener($eventName, $listener);
+     */
+    public function registerEventListeners()
+    {
+        $userListener
+            = new \Cx\Core\User\Model\Event\UserEventListener(
+            $this->cx
+        );
+
+        $entityClass = 'Cx\\Core\\' . $this->getName()
+            . '\\Model\\Entity\\User';
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::preUpdate,
+            $entityClass,
+            $userListener
+        );
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::prePersist,
+            $entityClass,
+            $userListener
+        );
+    }
+
 }
