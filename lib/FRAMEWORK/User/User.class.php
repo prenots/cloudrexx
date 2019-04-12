@@ -1600,8 +1600,13 @@ class User extends User_Profile
         $attrNames = array();
 
         foreach($filters as $key=>$value) {
+            // if key is an attribute name
             if (in_array($key, $attributeList)) {
                 $attrNames[array_search($key, $attributeList)] = $key;
+            // if key is an attribute ID
+            } else if (isset($attributeList[$key])) {
+                $attrNames[$key] = $attributeList[$key];
+            // if value is an array -> recurse
             } else if (is_array($value)) {
                 $attrNames = $this->getAttrNames($value, $attributeList);
             }
