@@ -49,7 +49,7 @@ class MediaManager extends MediaLibrary
 {
     public $_objTpl;                          // var for the template object
     public $pageTitle;                        // var for the title of the active page
-    
+
     public $arrPaths;                         // array paths
     public $arrWebPaths;                      // array web paths
 
@@ -80,8 +80,8 @@ class MediaManager extends MediaLibrary
     public $archive;
 
     public $shopEnabled;
-	public $_strOkMessage = '';
-    
+    public $_strOkMessage = '';
+
     public $arrImageQualityValues = array(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100);
 
 
@@ -98,7 +98,7 @@ class MediaManager extends MediaLibrary
         $this->_objTpl = new \Cx\Core\Html\Sigma(ASCMS_CORE_MODULE_PATH.'/Media/View/Template/Backend');
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
-        
+
         $this->arrPaths     = array(ASCMS_MEDIA1_PATH.DIRECTORY_SEPARATOR,
                                     ASCMS_MEDIA2_PATH.DIRECTORY_SEPARATOR,
                                     ASCMS_MEDIA3_PATH.DIRECTORY_SEPARATOR,
@@ -184,7 +184,7 @@ class MediaManager extends MediaLibrary
 
         switch ($this->archive) {
             case 'themes':
-                \Permission::checkAccess(21, 'static');
+                \Permission::checkAccess(\Cx\Core\ViewManager\Controller\ViewManager::VIEW_MANAGER_ACCESS_ID, 'static');
                 $objTemplate->setVariable("CONTENT_NAVIGATION",
                    "<a href='index.php?cmd=Media&amp;archive=content'>". $_ARRAYLANG['TXT_IMAGE_CONTENT'] ."</a>
                     <a href='index.php?cmd=Media&amp;archive=attach'>". $_ARRAYLANG['TXT_MODULE'] ."</a>
@@ -227,7 +227,7 @@ class MediaManager extends MediaLibrary
                 $objTemplate->setVariable('CONTENT_NAVIGATION', '
                     <a href="index.php?cmd=Media&amp;archive=content">'. $_ARRAYLANG['TXT_IMAGE_CONTENT'] .'</a>
                     <a href="index.php?cmd=Media&amp;archive=attach" class="active">'. $_ARRAYLANG['TXT_MODULE'] .'</a>
-                    <a href="index.php?cmd=Media&amp;archive=themes">'. $_ARRAYLANG['TXT_MEDIA_LAYOUT'] .'</a>    
+                    <a href="index.php?cmd=Media&amp;archive=themes">'. $_ARRAYLANG['TXT_MEDIA_LAYOUT'] .'</a>
                 ');
                 break;
             case 'Blog':
@@ -285,15 +285,16 @@ class MediaManager extends MediaLibrary
                     <a href="index.php?cmd=Media&amp;archive=attach" class="active">'. $_ARRAYLANG['TXT_MODULE'] .'</a>
                     <a href="index.php?cmd=Media&amp;archive=themes">'. $_ARRAYLANG['TXT_MEDIA_LAYOUT'] .'</a>
                 ');
-                break; 
+                break;
             default:
                 \Permission::checkAccess(7, 'static');
+                $act = isset($_GET['act']) ? $_GET['act'] : '';
                 $objTemplate->setVariable('CONTENT_NAVIGATION', '
-                    <a href="index.php?cmd=Media&amp;archive=archive1" ' . ($this->archive == 'archive1' && !isset($_GET['act']) ? ' class="active"' : '') . '>'. $_ARRAYLANG['TXT_MEDIA_ARCHIVE'] .' #1</a>
+                    <a href="index.php?cmd=Media&amp;archive=archive1" ' . ($this->archive == 'archive1' && empty($act) ? ' class="active"' : '') . '>'. $_ARRAYLANG['TXT_MEDIA_ARCHIVE'] .' #1</a>
                     <a href="index.php?cmd=Media&amp;archive=archive2" ' . ($this->archive == 'archive2' ? ' class="active"' : '') . '>'. $_ARRAYLANG['TXT_MEDIA_ARCHIVE'] .' #2</a>
                     <a href="index.php?cmd=Media&amp;archive=archive3" ' . ($this->archive == 'archive3' ? ' class="active"' : '') . '>'. $_ARRAYLANG['TXT_MEDIA_ARCHIVE'] .' #3</a>
                     <a href="index.php?cmd=Media&amp;archive=archive4" ' . ($this->archive == 'archive4' ? ' class="active"' : '') . '>'. $_ARRAYLANG['TXT_MEDIA_ARCHIVE'] .' #4</a>
-                    <a href="index.php?cmd=Media&amp;archive=archive1&amp;act=settings" ' . ($this->archive == 'archive1' && $_GET['act'] == 'settings' ? ' class="active"' : '') . '>' . $_ARRAYLANG['TXT_MEDIA_SETTINGS'] . '</a>
+                    <a href="index.php?cmd=Media&amp;archive=archive1&amp;act=settings" ' . ($this->archive == 'archive1' && $act == 'settings' ? ' class="active"' : '') . '>' . $_ARRAYLANG['TXT_MEDIA_SETTINGS'] . '</a>
                 ');
                 break;
         }
@@ -316,13 +317,13 @@ class MediaManager extends MediaLibrary
      */
     private function checkModule($module) {
         global $objDatabase;
-        
+
         if (($objResult = $objDatabase->SelectLimit('SELECT `id` FROM `'.DBPREFIX.'modules` WHERE `name` = "'.$module.'" AND `status` = "y"', 1)) !== false) {
             if ($objResult->RecordCount() > 0) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -432,7 +433,7 @@ class MediaManager extends MediaLibrary
         global $_ARRAYLANG, $_CONFIG, $_CORELANG, $objDatabase;
 
         \JS::activate('shadowbox');
-        
+
         $this->_objTpl->loadTemplateFile('module_media.html', true, true);
 
         switch ($this->archive) {
@@ -454,7 +455,7 @@ class MediaManager extends MediaLibrary
             case 'MediaDir':
             case 'Podcast':
             case 'Shop':
-                
+
                 $archives = array(
                     'attach' => 'TXT_FILE_UPLOADS',
                     'Shop' => 'TXT_IMAGE_SHOP',
@@ -469,7 +470,7 @@ class MediaManager extends MediaLibrary
                 $moduleMatchTable = array(
                     'attach' => 'core',
                 );
-                
+
                 $subnavigation = '
                     <div id="subnavbar_level2">
                         <ul>';
@@ -585,7 +586,7 @@ class MediaManager extends MediaLibrary
                 $this->highlightName = $sessionHighlightCandidates;
             }
         }
-        
+
         // Check if an image has been edited.
         // If yes, we know the edited file and want to highlight them.
         if (!empty($_GET['editedImage'])) {
@@ -670,13 +671,13 @@ class MediaManager extends MediaLibrary
                     \Cx\Lib\FileSystem\FileSystem::path_relative_to_root($mediaWebPath);
                     $mediaWebPath = '/'. $mediaWebPath; // Filesystem removes the beginning slash(/)
                 }
-                $file = rawurlencode($fileName);
+                $file = $fileName;
                 if ($key == 'dir') {
-                    $path = rawurlencode($mediaWebPath . $fileName . '/');
+                    $path = $mediaWebPath . $fileName . '/';
                     $previewUrl->setParam('act', null);
                     $previewUrl->setParam('file', null);
                 } elseif ($key == 'file') {
-                    $path = rawurlencode($mediaWebPath);
+                    $path = $mediaWebPath;
 
                     $filePath = $mediaPath . $fileName;
                     if ($this->_isImage($filePath)) {
@@ -687,13 +688,13 @@ class MediaManager extends MediaLibrary
                         $previewUrl->setParam('file', $file);
                     }
                 }
-                $deleteUrl->setParam('path', $path);
-                $deleteUrl->setParam('file', $key == 'dir' ? null : $file);
+                $deleteUrl->setParam('path', $mediaWebPath);
+                $deleteUrl->setParam('file', $file);
 
-                $renameUrl->setParam('path', rawurlencode($mediaWebPath));
+                $renameUrl->setParam('path', $mediaWebPath);
                 $renameUrl->setParam('file', $file);
 
-                $editUrl->setParam('path', rawurlencode($mediaWebPath));
+                $editUrl->setParam('path', $mediaWebPath);
                 $editUrl->setParam('file', $file);
 
                 if (!$image) {
@@ -718,7 +719,8 @@ class MediaManager extends MediaLibrary
                         'MEDIA_FILE_NAME_PRE'       => 'preview_' . $fileName,
                         'MEDIA_FILE_NAME_IMG_HREF'  => $mediaWebPath . $fileName,
                         'MEDIA_FILE_NAME_IMG_SRC'   => $thumb,
-                        'MEDIA_FILE_NAME_IMG_SIZE'  => $thumbnails[0]['size']
+                        // TODO: size of thumbnails not supported by ThumbnailGenerator
+                        //'MEDIA_FILE_NAME_IMG_SIZE'  => $thumbnails[0]['size']
                     ));
                     $this->_objTpl->parse('mediaShowThumbnail');
 
@@ -792,7 +794,7 @@ class MediaManager extends MediaLibrary
             $uploader->setCallback('mediaCallbackJs');
             $uploader->setFinishedCallback(array(
                 ASCMS_CORE_MODULE_PATH . '/Media/Controller/MediaLibrary.class.php',
-                '\Cx\Core_modules\Media\Controller\MediaLibrary',
+                '\Cx\Core_Modules\Media\Controller\MediaLibrary',
                 'uploadFinished'
             ));
             $uploader->setOptions(//Set html attributes for styling or javascript.
@@ -960,24 +962,24 @@ class MediaManager extends MediaLibrary
 
         // Activate cx
         \JS::activate('cx');
-        
+
         // Activate jQuery and imgAreaSelect
         \JS::activate('jquery');
         \JS::activate('jquery-imgareaselect');
-        
+
         try {
             // Get quality options from the settings
             $arrImageSettings = $this->getImageSettings();
         } catch (\Exception $e) {
             \DBG::msg('Could not query image settings: '.$e->getMessage());
         }
-        
+
         $check = true;
         empty($this->getFile) ? $check = false : '';
         empty($this->getPath) ? $check = false : '';
         !file_exists($this->path.$this->getFile) ? $check = false : '';
-        
-        
+
+
         if ($check) { // File exists
             $this->_objTpl->setVariable(array(
                 'TXT_MEDIA_SAVE'       => $_ARRAYLANG['TXT_MEDIA_SAVE'],
@@ -1005,7 +1007,7 @@ class MediaManager extends MediaLibrary
 
             // Edit image
             $imageSize  = @getimagesize($this->path.$this->getFile);
-            
+
             $this->_objTpl->setVariable(array(
                 'TXT_MEDIA_IMAGE_MANIPULATION'    => $_ARRAYLANG['TXT_MEDIA_IMAGE_MANIPULATION'],
                 'TXT_MEDIA_WIDTH'                 => $_ARRAYLANG['TXT_MEDIA_WIDTH'],
@@ -1015,7 +1017,7 @@ class MediaManager extends MediaLibrary
                 'TXT_MEDIA_SAVE'                  => $_ARRAYLANG['TXT_MEDIA_SAVE'],
                 'TXT_MEDIA_RESET'                 => $_ARRAYLANG['TXT_MEDIA_RESET'],
                 'TXT_MEDIA_SET_IMAGE_NAME'        => $_ARRAYLANG['TXT_MEDIA_SET_IMAGE_NAME'],
-                'TXT_MEDIA_CONFIRM_REPLACE_IMAGE' => $_ARRAYLANG['TXT_MEDIA_CONFIRM_REPLACE_IMAGE'],
+                'TXT_MEDIA_CONFIRM_REPLACE_IMAGE' => addslashes($_ARRAYLANG['TXT_MEDIA_CONFIRM_REPLACE_IMAGE']),
                 'TXT_MEDIA_REPLACE'               => $_ARRAYLANG['TXT_MEDIA_REPLACE'],
                 'TXT_MEDIA_OR'                    => $_ARRAYLANG['TXT_MEDIA_OR'],
                 'TXT_MEDIA_SAVE_NEW_COPY'         => $_ARRAYLANG['TXT_MEDIA_SAVE_NEW_COPY'],
@@ -1030,7 +1032,7 @@ class MediaManager extends MediaLibrary
                 'MEDIA_IMG_WIDTH'                 => $imageSize[0],
                 'MEDIA_IMG_HEIGHT'                => $imageSize[1],
             ));
-            
+
             foreach ($this->arrImageQualityValues as $value) {
                 $this->_objTpl->setVariable(array(
                     'IMAGE_QUALITY_VALUE'          => $value,
@@ -1116,6 +1118,11 @@ class MediaManager extends MediaLibrary
             'TXT_BUTTON_SAVE'                       => $_ARRAYLANG['TXT_MEDIA_SAVE'],
             'TXT_CORE_MODULE_MEDIA_SEARCH_FUNCTION' => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_SEARCH_FUNCTION'],
             'TXT_CORE_MODULE_MEDIA_ENABLE_SEARCH_FUNCTIONALITY' => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_ENABLE_SEARCH_FUNCTIONALITY'],
+            'TXT_CORE_MODULE_MEDIA_PRETTY_FORMAT_FUNCTION' => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_PRETTY_FORMAT_FUNCTION'],
+            'TXT_CORE_MODULE_MEDIA_ENABLE_PRETTY_FORMAT_FUNCTIONALITY' => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_ENABLE_PRETTY_FORMAT_FUNCTIONALITY'],
+            'TXT_CORE_MODULE_MEDIA_SEARCH'          => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_SEARCH'],
+            'TXT_CORE_MODULE_MEDIA_REPLACE'         => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_REPLACE'],
+            'TXT_CORE_MODULE_MEDIA_PRETTY_FORMAT_FUNCTION_TOOLTIP'=> $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_PRETTY_FORMAT_FUNCTION_TOOLTIP'],
             'TXT_CORE_MODULE_MEDIA_DISABLED'        => $_ARRAYLANG['TXT_CORE_MODULE_MEDIA_DISABLED'],
         ));
 
@@ -1197,6 +1204,10 @@ class MediaManager extends MediaLibrary
                     'MEDIA_MANAGE_NOT_ASSOCIATED_GROUPS'    => implode("\n", $arrNotAssociatedGroupManageOptions),
                     'MEDIA_ALLOW_USER_SEARCH_ON'            => ($this->_arrSettings['media' . $k . '_frontend_search'] == 'on') ? 'checked="checked"' : '',
                     'MEDIA_ALLOW_USER_SEARCH_OFF'           => ($this->_arrSettings['media' . $k . '_frontend_search'] == 'off') ? 'checked="checked"' : '',
+                    'MEDIA_PRETTY_FORMAT_ON'                => ($this->_arrSettings['media' . $k . '_pretty_file_names'] == 'on') ? 'checked="checked"' : '',
+                    'MEDIA_PRETTY_FORMAT_OFF'               => ($this->_arrSettings['media' . $k . '_pretty_file_names'] == 'off') ? 'checked="checked"' : '',
+                    'MEDIA_PRETTY_FORMAT_REGEX'             => contrexx_raw2xhtml($this->_arrSettings['media' . $k . '_pretty_file_name_regexp']),
+                    'MEDIA_PRETTY_FORMAT_DISPLAY'           => ($this->_arrSettings['media' . $k . '_pretty_file_names'] == 'on') ? 'block' : 'none',
             ));
             if ($this->_objTpl->blockExists("mediaAccessSection")) {
                 $this->_objTpl->parse("mediaAccessSection");
@@ -1214,7 +1225,7 @@ class MediaManager extends MediaLibrary
         global $objDatabase, $_ARRAYLANG;
 
         $this->_arrSettings = $this->createSettingsArray();
-        for ($i = 0; $i <=4; $i++)
+        for ($i = 1; $i <=4; $i++)
         {
             $frontendSearchkey     = 'mediaSettings_Media'. $i .'FrontendSearch';
             $settingFrontendSearch = !empty($_POST[$frontendSearchkey]) && $_POST[$frontendSearchkey] == 'on'
@@ -1228,6 +1239,30 @@ class MediaManager extends MediaLibrary
                 WHERE
                     `name` = "media' . $i . '_frontend_search"
             ');
+
+            $prettyFormatKey     = 'mediaSettings_Media'. $i .'PrettyFormat';
+            $settingPrettyFormat = !empty($_POST[$prettyFormatKey]) && $_POST[$prettyFormatKey] == 'on'
+                                      ? 'on' : 'off';
+            $objDatabase->Execute('
+                UPDATE
+                    `'.DBPREFIX.'module_media_settings`
+                SET
+                    `value` = "' . $settingPrettyFormat . '"
+                WHERE
+                    `name` = "media' . $i . '_pretty_file_names"
+            ');
+
+            $prettyFormatRegexpKey     = 'mediaSettings_Media'. $i .'PrettyFormatRegexp';
+            $settingPrettyFormatRegexp = isset($_POST[$prettyFormatRegexpKey]) ? contrexx_input2raw($_POST[$prettyFormatRegexpKey]) : '';
+            $objDatabase->Execute('
+                UPDATE
+                    `'.DBPREFIX.'module_media_settings`
+                SET
+                    `value` = "' . contrexx_raw2db($settingPrettyFormatRegexp) . '"
+                WHERE
+                    `name` = "media' . $i . '_pretty_file_name_regexp"
+            ');
+
             $oldMediaSetting = $this->_arrSettings['media' . $i . '_frontend_changable'];
             $newMediaSetting = '';
             if (isset($_POST['mediaSettings_Media' . $i . 'FrontendChangable'])) {
@@ -1256,10 +1291,10 @@ class MediaManager extends MediaLibrary
                 if (isset($_POST['media' . $i . '_access_associated_groups'])) {
                     $accessGroups = $_POST['media' . $i . '_access_associated_groups'];
                 }
-                
+
                 // add AccessID
                 $newMediaSetting = \Permission::createNewDynamicAccessId();
-                
+
                 // save AccessID
                 if (count($accessGroups)) {
                     \Permission::setAccess($newMediaSetting, 'dynamic', $accessGroups);
