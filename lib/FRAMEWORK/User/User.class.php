@@ -1511,18 +1511,37 @@ class User extends User_Profile
      * @param string                          $parentName
      * @return array List of Doctrine expressions
      */
-    protected function getExpression($qb, $key, $value, &$params, &$counter, $attrNames, &$arrExpr = array(), $parentName = '')
+    protected function getExpression($qb, $key, $value, &$params, &$counter, $attrNames, &$arrExpr = array(), $parentName = '', &$joins = array())
     {
         $conditions = array(
             'AND',
             'OR',
         );
 
-        $fieldName = 'value';
+        $table = 'tblU';
+        $fieldName = $key;
         if (!in_array($key, $attrNames) && !empty($parentName)) {
             $fieldName = $parentName;
-        } else if (!in_array($key, $attrNames)) {
-            $fieldName = $key;
+        // if $key is an attribute key or name
+        } else if (in_array($key, $attrNames) || isset($attrNames[$key])) {
+            $attributeId = $key;
+            if (in_array($key, $attrNames)) {
+                $attributeId = array_search($key, $attrNames);
+            }
+            // join to table and get value over join
+            $fieldName = 'value';
+            $joinIndex = array_search($attributeId, $joins);
+            if ($joinIndex === false) {
+                $joinIndex = count($joins);
+                $joins[] = $attributeId;
+                $qb->innerJoin(
+                    'tblU.userAttributeValue',
+                    'tblV' . $joinIndex,
+                    'WITH',
+                    'tblV' . $joinIndex . '.attributeId = ' . $attributeId
+                );
+            }
+            $table = 'tblV' . $joinIndex;
         }
 
         $simpleExprs = array(
@@ -1536,7 +1555,7 @@ class User extends User_Profile
         if (in_array($key, $conditions)) {
             foreach ($value as $andCondition) {
                 foreach ($andCondition as $andKey=>$andValue) {
-                    $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr);
+                    $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, '', $joins);
                 }
 
                 if ($key == 'AND') {
@@ -1548,7 +1567,7 @@ class User extends User_Profile
             }
         } else if (is_array($value)) {
             foreach ($value as $andKey=>$andValue) {
-                $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, $fieldName);
+                $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, $fieldName, $joins);
             }
 
             if (count($expr['expr']) > 1) {
@@ -1568,7 +1587,7 @@ class User extends User_Profile
             );
             $fieldName = $metadata->getFieldName($fieldName);
             $arrExpr[] = $qb->expr()->$exprMethod(
-                'tblU.' . $fieldName,
+                $table . '.' . $fieldName,
                 '?' . $counter
             );
             $qb->setParameter($counter, $value);
