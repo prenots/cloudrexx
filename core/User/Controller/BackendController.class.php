@@ -1072,6 +1072,15 @@ class BackendController extends
         return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS'];
     }
 
+    /**
+     * Returns a select element for the extended search
+     *
+     * @param $fieldName   string name of field
+     * @param $elementName string name of element
+     * @param $formName    string name of form
+     * @param $validValues array  select options
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
     protected function getFilterSelect($fieldName, $elementName, $formName, $validValues)
     {
         $select = new \Cx\Core\Html\Model\Entity\DataElement(
@@ -1082,6 +1091,7 @@ class BackendController extends
             $validValues
         );
 
+        // attributes required for the filters to work
         $select->setAttributes(
             array(
                 'data-vg-attrgroup' => 'search',
