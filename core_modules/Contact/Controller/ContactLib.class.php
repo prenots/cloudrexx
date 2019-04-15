@@ -1670,7 +1670,7 @@ JS_misc;
      *
      * @param integer $formId Submission form id
      * @param integer $langId Language id
-     * @return \Cx\Core_Modules\Contact\Model\Entity\FormTemplate
+     * @return \Cx\Core_Modules\Contact\Model\Entity\FormTemplate FormTemplate object
      */
     public function getFormTemplate($formId, $langId)
     {
