@@ -2104,7 +2104,7 @@ CODE;
                 }
             }
             foreach (array('Template/Frontend', 'Style') as $offset) {
-                $componentDirectory = $cx->getClassLoader()->getFilePath(
+                $componentDirectory = $this->cx->getClassLoader()->getFilePath(
                     $component->getDirectory(false) . '/View/' . $offset
                 );
                 if (file_exists($componentDirectory)) {
