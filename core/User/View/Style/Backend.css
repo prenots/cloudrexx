@@ -68,3 +68,14 @@ form.cx-ui input[name="password"],
 #vg-0-filterSearch .search-bar {
     width:300px;
 }
+
+form.cx-ui > fieldset .group > .controls {
+    margin-left: 22px;
+    float: inherit;
+    display: inline-block;
+}
+
+form.cx-ui > fieldset .group > label {
+    float: unset;
+    display: inline-block;
+}
