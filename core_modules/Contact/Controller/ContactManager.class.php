@@ -1817,15 +1817,8 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
                 'lang' => $selectedInterfaceLanguage,
             ));
             $contentSiteExists = $page !== null;
-
-            $formRepo = $this->em->getRepository('Cx\Core_Modules\Contact\Model\Entity\Form');
-            $form     = $formRepo->find($formId);
-            $formTemplate = new \Cx\Core_Modules\Contact\Model\Entity\FormTemplate(
-                $form,
-                $page,
-                null
-            );
-            $sourceCode = $formTemplate->getHtml(true);
+            $formTemplate = $this->getFormTemplate($formId, $selectedInterfaceLanguage);
+            $sourceCode   = $formTemplate->getHtml(true);
             $formTemplate->parseFormTemplate();
 
             $this->_objTpl->setVariable(array(

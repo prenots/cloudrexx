@@ -1666,13 +1666,13 @@ JS_misc;
     }
 
     /**
-     * Generates the HTML Source code of the submission form
+     * Get the FormTemplate object based on the $formId
      *
      * @param integer $formId Submission form id
      * @param integer $langId Language id
-     * @return string HTML source code of contact form
+     * @return \Cx\Core_Modules\Contact\Model\Entity\FormTemplate
      */
-    public function getSourceCode($formId, $langId)
+    public function getFormTemplate($formId, $langId)
     {
         $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
         $em       = $cx->getDb()->getEntityManager();
@@ -1685,17 +1685,17 @@ JS_misc;
         ));
 
         if (!$page) {
-            return '';
+           $page = new \Cx\Core\ContentManager\Model\Entity\Page();
+           $page->setContent('{APPLICATION_DATA}');
         }
 
-        $formRepo     = $em->getRepository('Cx\Core_Modules\Contact\Model\Entity\Form');
-        $form         = $formRepo->find($formId);
-        $formTemplate = new \Cx\Core_Modules\Contact\Model\Entity\FormTemplate(
+        $formRepo = $em->getRepository('Cx\Core_Modules\Contact\Model\Entity\Form');
+        $form     = $formRepo->find($formId);
+
+        return new \Cx\Core_Modules\Contact\Model\Entity\FormTemplate(
             $form,
             $page,
             null
         );
-
-        return $formTemplate->getHtml(true);
     }
 }
