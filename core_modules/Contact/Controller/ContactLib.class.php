@@ -1664,4 +1664,38 @@ JS_isRequiredSelect;
 JS_misc;
         return $code;
     }
+
+    /**
+     * Generates the HTML Source code of the submission form
+     *
+     * @param integer $formId Submission form id
+     * @param integer $langId Language id
+     * @return string HTML source code of contact form
+     */
+    public function getSourceCode($formId, $langId)
+    {
+        $cx       = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em       = $cx->getDb()->getEntityManager();
+        $pageRepo = $em->getRepository('\Cx\Core\ContentManager\Model\Entity\Page');
+        $page     = $pageRepo->findOneBy(array(
+            'module' => 'Contact',
+            'cmd'    => $formId,
+            'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
+            'lang'   => $langId,
+        ));
+
+        if (!$page) {
+            return '';
+        }
+
+        $formRepo     = $em->getRepository('Cx\Core_Modules\Contact\Model\Entity\Form');
+        $form         = $formRepo->find($formId);
+        $formTemplate = new \Cx\Core_Modules\Contact\Model\Entity\FormTemplate(
+            $form,
+            $page,
+            null
+        );
+
+        return $formTemplate->getHtml(true);
+    }
 }
