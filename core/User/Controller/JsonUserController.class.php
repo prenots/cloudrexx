@@ -78,7 +78,7 @@ class JsonUserController
     /**
      * Returns default permission as object
      *
-     * @return \Cx\Core_Modules\Access\Model\Entity\Permissionl
+     * @return \Cx\Core_Modules\Access\Model\Entity\Permission
      */
     public function getDefaultPermissions()
     {
@@ -92,6 +92,11 @@ class JsonUserController
         return $permission;
     }
 
+    /**
+     * Store UserAttribute manually because these are custom options
+     *
+     * @param $param array parameters for callback
+     */
     public function storeUserAttributeValue($param)
     {
         if (empty($param['fieldName']) || empty($param['entity'])) {
@@ -133,6 +138,13 @@ class JsonUserController
         $em->persist($attrValue);
     }
 
+    /**
+     * Get a custom password field to hide the password and disable
+     * auto-complete
+     *
+     * @param $params array params for callback
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement password field
+     */
     public function getPasswordField($params)
     {
         global $_ARRAYLANG, $_CONFIG;
@@ -199,6 +211,12 @@ class JsonUserController
         return $wrapper;
     }
 
+    /**
+     * Get the appropriate role icon to display the roles graphically
+     *
+     * @param $params array params for table->parse callback
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement image with role icon
+     */
     public function getRoleIcon($params)
     {
         global $_ARRAYLANG;
@@ -230,6 +248,13 @@ class JsonUserController
         // Todo: Übernehmen der ValueCallback Funktion
     }
 
+    /**
+     * Custom filter callback function to filter the users by user groups and
+     * account type
+     *
+     * @param $params array contains all params for filter callback
+     * @return \Doctrine\ORM\QueryBuilder
+     */
     public function filterCallback($params)
     {
         $qb = $params['qb'];
