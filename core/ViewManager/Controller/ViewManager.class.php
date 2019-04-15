@@ -2283,8 +2283,9 @@ CODE;
             if ($isContactCustomFileExists) {
                 // If the $file is Contact form file(Contact/<form-ID>.html)
                 // then take its content from Contact component
-                $contactLib  = new \Cx\Core_Modules\Contact\Controller\ContactLib();
-                $content = $contactLib->getSourceCode($file->getName(), $_LANGID);
+                $contactLib   = new \Cx\Core_Modules\Contact\Controller\ContactLib();
+                $formTemplate = $contactLib->getFormTemplate($file->getName(), $_LANGID);
+                $content      = $formTemplate->getHtml(true);
             } else {
                 $content = $this->fileSystem->readFile($file);
             }
