@@ -4232,8 +4232,6 @@ die("Shop::processRedirect(): This method is obsolete!");
                 $product, $name, $price, $quantity, $vat_rate,
                 $weight, $arrProduct['options']
             );
-            $em->persist($objOrder);
-            $em->flush();
             // Store the Product Coupon, if applicable.
             // Note that it is not redeemed yet (uses=0)!
             if ($coupon_code) {
@@ -4250,6 +4248,8 @@ die("Shop::processRedirect(): This method is obsolete!");
                 }
             }
         } // foreach product in cart
+        $em->persist($objOrder);
+        $em->flush();
         // Store the Global Coupon, if applicable.
         // Note that it is not redeemed yet (uses=0)!
 //\DBG::log("Shop::process(): Looking for global Coupon $coupon_code");
