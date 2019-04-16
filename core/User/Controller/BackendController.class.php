@@ -37,6 +37,55 @@ class BackendController extends
     protected $userId;
 
     /**
+     * This is called by the ComponentController and does all the repeating work
+     *
+     * Temporary used to load old access views.
+     *
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page Resolved page
+     */
+    public function getPage(
+        \Cx\Core\ContentManager\Model\Entity\Page $page
+    ) {
+        global $_ARRAYLANG, $objInit;
+
+        $act = '';
+        if (!empty($_GET['act'])) {
+            $splitAct = explode('/', $_GET['act']);
+            $act = $splitAct[0];
+            $tpl = $splitAct[1];
+
+        }
+
+        switch($act)  {
+            case 'Settings':
+            case 'config':
+            case 'Group':
+            case 'group':
+                $mappedNavItems = array(
+                    'Settings' => 'config',
+                    'Group' => 'group',
+                );
+
+                if (!empty($mappedNavItems[$act])) {
+                    $_REQUEST['act'] = $mappedNavItems[$act];
+                }
+
+                //load lang placeholders from access
+                $langData   = $objInit->loadLanguageData('Access');
+                $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
+                $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
+                $objAccessManager = new \Cx\Core_Modules\Access\Controller\AccessManager();
+                $objAccessManager->getPage();
+                return;
+            case 'user':
+                $_GET['act'] = '';
+        }
+
+        parent::getPage($page);
+    }
+
+    /**
      * This function returns the ViewGeneration options for a given entityClass
      *
      * @param string $entityClassName   contains the FQCN from entity
