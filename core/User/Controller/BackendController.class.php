@@ -294,6 +294,11 @@ class BackendController extends
                                 return $this->getExpirationDropdown($fieldname, $fieldvalue);
                             },
                         'allowFiltering' => false,
+                        'table' => array(
+                            'parse' => function($value) {
+                                return $this->formatDate($value);
+                            }
+                        )
                     ),
                     'validity' => array(
                         'showOverview' => false,
@@ -657,6 +662,10 @@ class BackendController extends
      */
     protected function formatDate($value)
     {
+        if (empty($value)) {
+            return '-';
+        }
+
         $date = '@' . $value;
 
         $dateElement = new \DateTime($date);

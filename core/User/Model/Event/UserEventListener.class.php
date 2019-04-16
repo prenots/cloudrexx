@@ -68,6 +68,9 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             $eventArgs->getEntity(),
             array()
         );
+        // Set current date
+        $date = new \DateTime();
+        $eventArgs->getEntity()->setRegdate($date->getTimestamp());
     }
 
     protected function setHashPassword($entity, $changeSet)
