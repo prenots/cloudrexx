@@ -135,3 +135,4 @@ $_ARRAYLANG['TXT_CORE_USER_ACTIVE'] = "Aktiv";
 $_ARRAYLANG['TXT_CORE_USER_INACTIVE'] = "Inaktiv";
 $_ARRAYLANG['TXT_CORE_USER_ADMINISTRATORS'] = "Administratoren";
 $_ARRAYLANG['TXT_CORE_USER_USERS'] = "Benutzer";
+$_ARRAYLANG['TXT_CORE_USER_NO_USER_WITH_SAME_ID'] = "Sie können Ihr eigenes Benutzerkonto nicht deaktivieren.";

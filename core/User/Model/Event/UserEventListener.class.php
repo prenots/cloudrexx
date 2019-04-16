@@ -46,26 +46,46 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 {
     public function preUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
+        global $objInit, $_ARRAYLANG;
+
+        //get the language interface text
+        $langData   = $objInit->loadLanguageData('User');
+        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
+        $entity = $eventArgs->getEntity();
+
+        // Prevent the user from deactivating himself
+        $user = \FWUser::getFWUserObject()->objUser;
+        if (!$entity->getActive() && $user->getId() == $entity->getId()) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_ARRAYLANG['TXT_CORE_USER_NO_USER_WITH_SAME_ID']
+            );
+        }
+
         if (isset($eventArgs->getEntityChangeSet()['email'][1])) {
             $this->checkEmail($eventArgs->getEntity()->getEmail());
         }
         if (!empty($eventArgs->getEntityChangeSet()['username'][1])) {
-            $this->checkUsername($eventArgs->getEntity()->getUsername());
+            $this->checkUsername($entity->getUsername());
         }
-        $this->setHashPassword(
-            $eventArgs->getEntity(),
-            $eventArgs->getEntityChangeSet()
-        );
+
+        if (isset($eventArgs->getEntityChangeSet()['password'][1])) {
+            $this->setHashPassword(
+                $entity,
+                $eventArgs->getEntityChangeSet()
+            );
+        }
     }
 
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
-        $this->checkEmail($eventArgs->getEntity()->getEmail());
-        if (!empty($eventArgs->getEntity()->getUsername())) {
-            $this->checkUsername($eventArgs->getEntity()->getUsername());
+        $entity = $eventArgs->getEntity();
+        $this->checkEmail($entity->getEmail());
+        if (!empty($entity->getUsername())) {
+            $this->checkUsername($entity->getUsername());
         }
         $this->setHashPassword(
-            $eventArgs->getEntity(),
+            $entity,
             array()
         );
         // Set current date

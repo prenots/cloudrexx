@@ -129,3 +129,4 @@ $_ARRAYLANG['TXT_CORE_USER_ACTIVE'] = "Active";
 $_ARRAYLANG['TXT_CORE_USER_INACTIVE'] = "Inactive";
 $_ARRAYLANG['TXT_CORE_USER_ADMINISTRATORS'] = "Administrators";
 $_ARRAYLANG['TXT_CORE_USER_USERS'] = "Users";
+$_ARRAYLANG['TXT_CORE_USER_NO_USER_WITH_SAME_ID'] = "You can't disable your own user account.";
