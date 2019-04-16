@@ -49,7 +49,7 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
         if (isset($eventArgs->getEntityChangeSet()['email'][1])) {
             $this->checkEmail($eventArgs->getEntity()->getEmail());
         }
-        if (isset($eventArgs->getEntityChangeSet()['username'][1])) {
+        if (!empty($eventArgs->getEntityChangeSet()['username'][1])) {
             $this->checkUsername($eventArgs->getEntity()->getUsername());
         }
         $this->setHashPassword(
@@ -61,7 +61,9 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
         $this->checkEmail($eventArgs->getEntity()->getEmail());
-        $this->checkUsername($eventArgs->getEntity()->getUsername());
+        if (!empty($eventArgs->getEntity()->getUsername())) {
+            $this->checkUsername($eventArgs->getEntity()->getUsername());
+        }
         $this->setHashPassword(
             $eventArgs->getEntity(),
             array()
@@ -209,7 +211,7 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             );
         }
 
-        $em = $this->cx->getDb()->getEntityManager();var_dump($username);
+        $em = $this->cx->getDb()->getEntityManager();
         $existingEntity = $em->getRepository(
             'Cx\Core\User\Model\Entity\User'
         )->findOneBy(array('username' => $username));
