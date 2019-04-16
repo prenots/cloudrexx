@@ -153,8 +153,8 @@ class BackendController extends
                     ),
                     'username' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData) {
-                                return $this->addEditUrl($value, $rowData);
+                            'parse' => function ($value, $rowData, $vg) {
+                                return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
                         'showOverview' => true,
@@ -192,8 +192,8 @@ class BackendController extends
                     ),
                     'email' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData) {
-                                return $this->addEmailUrl($value, $rowData);
+                            'parse' => function ($value, $rowData, $vg) {
+                                return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
                         'showOverview' => true,
@@ -648,7 +648,7 @@ class BackendController extends
      * @param $rowData
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      */
-    protected function addEditUrl($value,$rowData)
+    protected function addEditUrl($value,$rowData, $vg)
     {
         global $_ARRAYLANG;
 
@@ -658,14 +658,11 @@ class BackendController extends
             'a'
         );
 
-        $editUrl = \Cx\Core\Routing\Url::fromMagic(
-            \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteBackendPath() .
-            '/' . $this->getName() . '/User'
-        );
-
         $userId = $rowData['id'];
-
-        $editUrl->setParam('editid', $userId);
+        $editUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
+            $vg,
+            $userId
+        );
 
         $setEditUrl->setAttributes(array('href' => $editUrl, 'title' => $_ARRAYLANG['TXT_CORE_USER_EDIT_TITLE']));
 
