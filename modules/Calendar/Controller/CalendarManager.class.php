@@ -1811,7 +1811,7 @@ class CalendarManager extends CalendarLibrary
         global $_ARRAYLANG;
 
         $this->_objTpl->loadTemplateFile('module_calendar_modify_registration.html');
-        
+
         $objEvent = new \Cx\Modules\Calendar\Controller\CalendarEvent($eventId);
         if (isset($_POST['submitModifyRegistration'])) {
             $objRegistration =
