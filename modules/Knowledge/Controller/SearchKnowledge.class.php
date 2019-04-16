@@ -57,7 +57,7 @@ class SearchKnowledge extends SearchInterface  {
     {
         $lib = new \Cx\Modules\Knowledge\Controller\KnowledgeLibrary();
         $this->isAllLangsActive = $lib->isAllLangsActive();
-        
+
         $this->term = addslashes($term);
 
         $this->parseResults($this->searchArticles(), "formatArticleURI");
@@ -76,22 +76,28 @@ class SearchKnowledge extends SearchInterface  {
     private function searchArticles()
     {
         global $objDatabase;
-        
+
         $additionalSelectField = '';
-        $additionalWhere = '';
+        $joinLangContent = '';
+        $joinLangTag = '';
         if ($this->isAllLangsActive) {
             $additionalSelectField = ', content.lang';
         } else {
-            $additionalWhere = 'lang = '.FRONTEND_LANG_ID.' AND';
+            $joinLangContent = 'AND content.lang = '.FRONTEND_LANG_ID;
+            $joinLangTag = 'AND tags.lang = ' . FRONTEND_LANG_ID;
         }
 
-        $query = "  SELECT articles.id as id" . $additionalSelectField . ", content.question as title, MATCH (content.answer, content.question) AGAINST ('%".$this->term."%' IN BOOLEAN MODE) as Relevance
+        $query = "  SELECT DISTINCT(articles.id) as id" . $additionalSelectField . ", content.question as title, MATCH (content.answer, content.question) AGAINST ('%".$this->term."%' IN BOOLEAN MODE) as Relevance
                     FROM `".DBPREFIX."module_knowledge".MODULE_INDEX."_articles` AS articles
-                    INNER JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_article_content` AS content ON articles.id = content.article
-                    WHERE " . $additionalWhere . "
-                        active = 1
+                    LEFT JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_article_content` AS content ON articles.id = content.article " . $joinLangContent . "
+                    LEFT JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_tags_articles` AS relTags ON relTags.article = articles.id
+                    LEFT JOIN `".DBPREFIX."module_knowledge".MODULE_INDEX."_tags` AS tags ON tags.id = relTags.tag " . $joinLangTag . "
+                    WHERE 
+                        articles.active = 1
                     AND (   content.answer like '%".$this->term."%' OR
-                            content.question like '%".$this->term."%')
+                            content.question like '%".$this->term."%' OR
+                            tags.name like '%".$this->term."%'
+                    )
                     ORDER BY Relevance DESC";
         if (($rs = $objDatabase->Execute($query)) === false) {
             throw new DatabaseError("error searching knowledge articles");
@@ -108,7 +114,7 @@ class SearchKnowledge extends SearchInterface  {
     private function searchCategories()
     {
         global $objDatabase;
-        
+
         $additionalSelectField = '';
         $additionalWhere = '';
         if ($this->isAllLangsActive) {

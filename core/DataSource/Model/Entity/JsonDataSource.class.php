@@ -46,7 +46,22 @@ namespace Cx\Core\DataSource\Model\Entity;
  */
 
 class JsonDataSource extends DataSource {
-    
+
+    /**
+     * Returns a list of field names this DataSource consists of
+     * @return array List of field names
+     */
+    public function listFields() {
+        throw new \Exception('Not yet implemented');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIdentifierFieldNames() {
+        throw new \Exception('Not yet implemented');
+    }
+
     /**
      * Gets one or more entries from this DataSource
      *
@@ -54,7 +69,7 @@ class JsonDataSource extends DataSource {
      * So if this is called without any arguments, all entries of this
      * DataSource are returned.
      * If no entry is found, an empty array is returned.
-     * @param string $elementId (optional) ID of the element if only one is to be returned
+     * @param array $elementId (optional) field=>value-type condition array identifying an entry
      * @param array $filter (optional) field=>value-type condition array, only supports = for now
      * @param array $order (optional) field=>order-type array, order is either "ASC" or "DESC"
      * @param int $limit (optional) If set, no more than $limit results are returned
@@ -64,7 +79,7 @@ class JsonDataSource extends DataSource {
      * @return array Two dimensional array (/table) of results (array($row=>array($fieldName=>$value)))
      */
     public function get(
-        $elementId = null,
+        $elementId = array(),
         $filter = array(),
         $order = array(),
         $limit = 0,
@@ -73,7 +88,7 @@ class JsonDataSource extends DataSource {
     ) {
         throw new \Exception('Not yet implemented');
     }
-    
+
     /**
      * Adds a new entry to this DataSource
      * @param array $data Field=>value-type array. Not all fields may be required.
@@ -82,24 +97,23 @@ class JsonDataSource extends DataSource {
     public function add($data) {
         throw new \Exception('Not yet implemented');
     }
-    
+
     /**
      * Updates an existing entry of this DataSource
-     * @param string $elementId ID of the element to update
+     * @param array $elementId field=>value-type condition array identifying an entry
      * @param array $data Field=>value-type array. Not all fields are required.
      * @throws \Exception If something did not go as planned
      */
     public function update($elementId, $data) {
         throw new \Exception('Not yet implemented');
     }
-    
+
     /**
      * Drops an entry from this DataSource
-     * @param string $elementId ID of the element to update
+     * @param array $elementId field=>value-type condition array identifying an entry
      * @throws \Exception If something did not go as planned
      */
     public function remove($elementId) {
         throw new \Exception('Not yet implemented');
     }
 }
-

@@ -61,37 +61,38 @@ class MediaDirectorySearch extends MediaDirectoryLibrary
 
 
 
-    function getSearchform($objTpl)
+    /**
+     * Get HTML search form
+     *
+     * @param   \Cx\Core\Html\Sigma $objTpl Template object
+     * @param   \Cx\Core\Routing\Url    $actionUrl  Optional Url object to be used as value of action attribute of HTML form-tag
+     * @return  string  HTML search form
+     */
+    public function getSearchform($objTpl, $actionUrl = null)
     {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID;
-
-        if (isset($_GET['cmd'])) {
-            $strSearchFormCmd = '<input name="cmd" value="'.$_GET['cmd'].'" type="hidden" />';
-        } else {
-            $strSearchFormCmd = '';
-        }
+        global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
         if (isset($_GET['term'])) {
-            $strSearchFormTerm = $_GET['term'];
+            $strSearchFormTerm = contrexx_input2xhtml($_GET['term']);
         } else {
             $strSearchFormTerm = '';
         }
 
-        $strSearchFormAction = CONTREXX_SCRIPT_PATH;
+        if (empty($actionUrl)) {
+            $actionUrl = \Cx\Core\Routing\Url::fromPage(\Cx\Core\Core\Controller\Cx::instanciate()->getPage());
+        }
+
         $strTextSearch = $_CORELANG['TXT_SEARCH'];
         $strTextSearchterm = $_ARRAYLANG['TXT_MEDIADIR_SEARCH_TERM'];
         $strExpandedInputfields = $this->getExpandedInputfields();
         $strSearchFormId = $this->moduleNameLC."SearchForm";
-        $strSectionValue = $this->moduleName;
         $strInputfieldSearch = $this->moduleNameLC."InputfieldSearch";
         $strButtonSearch = $this->moduleNameLC."ButtonSearch";
 
         $strSearchNormalForm = <<<EOF
 <div class="$strSearchFormId">
-<form method="get" action="$strSearchFormAction">
-<input name="section" value="$strSectionValue" type="hidden" />
+<form method="get" action="$actionUrl">
 <input name="type" value="normal" type="hidden" />
-$strSearchFormCmd
 <input name="term" class="$strInputfieldSearch searchbox" value="$strSearchFormTerm" onfocus="this.select();" type="text" />
 <input class="$strButtonSearch" value="$strTextSearch" name="search" type="submit">
 </form>
@@ -101,11 +102,9 @@ EOF;
         $strSearchExpandedForm = <<<EOF
 
 <div class="$strSearchFormId">
-<form method="get" action="$strSearchFormAction">
+<form method="get" action="$actionUrl">
 <div class="normal">
-<input name="section" value="$strSectionValue" type="hidden" />
 <input name="type" value="exp" type="hidden" />
-$strSearchFormCmd
 <p><label>$strTextSearchterm</label><input name="term" class="$strInputfieldSearch searchbox" value="$strSearchFormTerm" onfocus="this.select();" type="text" />
 <input class="$strButtonSearch" value="$strTextSearch" name="search" type="submit">
 </p>
@@ -131,42 +130,77 @@ EOF;
 
     function getExpandedInputfields()
     {
-        global $_ARRAYLANG, $objDatabase, $_LANGID;
+        global $_ARRAYLANG, $objDatabase;
 
         $formId = null;
         $strPleaseChoose = $_ARRAYLANG['TXT_MEDIADIR_PLEASE_CHOOSE'];
         $strExpandedInputfields = '';
+        $bolShowLevelSelector = false;
+        $bolShowCategorySelector = false;
+        $formDefinition = null;
 
-        //get ids
+        // determine if we shall display the level and/or category selection dropdown
         if (!empty($_GET['cmd'])) {
-            $bolShowLevelSelector = false;
-            $bolShowCategorySelector = false;
+            $arrIds = explode('-', $_GET['cmd']);
 
-            $arrIds = explode('-', $_GET['cmd']);  
-
-            if ($arrIds[0] != 'search' && $arrIds[0] != 'alphabetical'){
+            if ($arrIds[0] == 'detail' || substr($arrIds[0],0,6) == 'detail') {
+                $entryId = intval($_GET['eid']);
+                $objEntry = new MediaDirectoryEntry($this->moduleName);
+                $objEntry->getEntries($entryId);
+                $formDefinition = $objEntry->getFormDefinition();
+                $formId = $formDefinition['formId'];
+            } elseif ($arrIds[0] != 'search' && $arrIds[0] != 'alphabetical'){
                 $objForms = new MediaDirectoryForm(null, $this->moduleName);
                 foreach ($objForms->arrForms as $id => $arrForm) {
+                    // note: in a previous version of Cloudrexx, there was no check
+                    // if the form was active or not. this caused unexpected
+                    // behavior
+                    if (
+                        !$this->arrSettings['legacyBehavior'] &&
+                        !$arrForm['formActive']
+                    ) {
+                        continue;
+                    }
                     if (!empty($arrForm['formCmd']) && ($arrForm['formCmd'] == $_GET['cmd'])) {
                         $formId = intval($id);
+                        $formDefinition = $objForms->arrForms[$formId];
+                        break;
                     }
                 }
+            }
 
-                if (($objForms->arrForms[$formId]['formUseLevel'] == 1) && ($this->arrSettings['levelSelectorExpSearch'][$formId] == 1)) {
+            // in case the section of a specific form has been requested, do determine
+            // the usage of the level and/or category selection dropdown based on that
+            // form's configuration
+            //
+            // note: in a previous version of Cloudrexx the following was
+            //       always true. which resulted in a bug, that if a specific
+            //       category was request through the page's CMD, then the
+            //       level and category selection dropdowns were never used.
+            //       The legacyBehavior mode does simulate this fixed bug.
+            if ($formId || $this->arrSettings['legacyBehavior']) {
+                if (($formDefinition['formUseLevel'] == 1) && ($this->arrSettings['levelSelectorExpSearch'][$formId] == 1)) {
                     $bolShowLevelSelector = true;
                 }
-                if (($objForms->arrForms[$formId]['formUseCategory'] == 1) && ($this->arrSettings['categorySelectorExpSearch'][$formId] == 1)) {
+                if (($formDefinition['formUseCategory'] == 1) && ($this->arrSettings['categorySelectorExpSearch'][$formId] == 1)) {
                     $bolShowCategorySelector = true;
                 }
             } else {
+                // on search (section=mediadir&cmd=search) and alphabetical section (section=mediadir&cmd=alphabetical)
+                //
+                // activate level and category selection in case they are active in any forms
                 $bolShowLevelSelector = in_array(1, $this->arrSettings['levelSelectorExpSearch']);
                 $bolShowCategorySelector = in_array(1, $this->arrSettings['categorySelectorExpSearch']);
             }
         } else {
+            // on main application page (section=mediadir):
+            //
+            // activate level and category selection in case they are active in any forms
             $bolShowLevelSelector = in_array(1, $this->arrSettings['levelSelectorExpSearch']);
             $bolShowCategorySelector = in_array(1, $this->arrSettings['categorySelectorExpSearch']);
         }
 
+        $requestParams = $this->cx->getRequest()->getUrl()->getParamArray();
         if ($this->arrSettings['settingsShowLevels'] && $bolShowLevelSelector) {
             if (intval($arrIds[0]) != 0) {
                 $intLevelId = intval($arrIds[0]);
@@ -174,7 +208,9 @@ EOF;
                 $intLevelId = 0;
             }
 
-            $intLevelId = isset($_GET['lid']) ? intval($_GET['lid']) : $intLevelId;
+            if (isset($requestParams['lid'])) {
+                $intLevelId = intval($requestParams['lid']);
+            }
 
             $objLevels = new MediaDirectoryLevel(null, null, 1, $this->moduleName);
             $strLevelDropdown = $objLevels->listLevels($this->_objTpl, 3, $intLevelId);
@@ -204,10 +240,12 @@ EOF;
             $intCategoryId = 0;
         }
 
-        $intCategoryId = isset($_GET['cid']) ? intval($_GET['cid']) : $intCategoryId;
+        if (isset($requestParams['cid'])) {
+            $intCategoryId = intval($requestParams['cid']);
+        }
 
         if ($bolShowCategorySelector) {
-        	$objCategories = new MediaDirectoryCategory(null, null, 1, $this->moduleName);
+            $objCategories = new MediaDirectoryCategory(null, null, 1, $this->moduleName);
             $strCategoryDropdown = $objCategories->listCategories($this->_objTpl, 3, $intCategoryId);
             $strCategoryName = $_ARRAYLANG['TXT_MEDIADIR_CATEGORY'];
 
@@ -225,7 +263,7 @@ EOF;
 
     function searchEntries($arrData)
     {
-        global $_ARRAYLANG, $_CORELANG, $objDatabase, $_LANGID, $objInit;
+        global $_ARRAYLANG, $_CORELANG, $objDatabase, $objInit;
 
         $arrSelect = array();
         $arrWhere = array();
@@ -243,6 +281,15 @@ EOF;
         if (isset($_GET['cmd']) && $_GET['cmd'] != 'search') {
             $objForms = new MediaDirectoryForm(null, $this->moduleName);
             foreach ($objForms->arrForms as $intFormId => $arrForm) {
+                // note: in a previous version of Cloudrexx, there was no check
+                // if the form was active or not. this caused unexpected
+                // behavior
+                if (
+                    !$this->arrSettings['legacyBehavior'] &&
+                    !$arrForm['formActive']
+                ) {
+                    continue;
+                }
                 if (!empty($arrForm['formCmd']) && ($arrForm['formCmd'] == $_GET['cmd'])) {
                     $intCmdFormId = intval($intFormId);
                 }
@@ -292,7 +339,7 @@ EOF;
         $arrSelect[]    = 'entry.id AS `entry_id`';
 
         if (!empty($arrData['term'])) {
-            $strTerm        = contrexx_addslashes(trim($arrData['term']));
+            $strTerm        = contrexx_raw2db(trim($arrData['term']));
             $arrSelect[]    = 'MATCH (rel_inputfield.`value`) AGAINST ("%'.$strTerm.'%")  AS score';
             $arrJoins[]     = 'INNER JOIN '.DBPREFIX.'module_'.$this->moduleTablePrefix.'_inputfields AS inputfield ON rel_inputfield.`field_id` = inputfield.`id`';
             $strReplace     = '%" AND rel_inputfield.`value` LIKE "%';
@@ -312,15 +359,15 @@ EOF;
             $arrFoundLevelsCategories = $this->searchLevelsCategories(1, $strTerm, $intCmdFormId);
         }
         $arrFoundIds = array_merge($arrFoundIds, $arrFoundLevelsCategories);
-        
+
         //search countries
         $arrFoundCountries = $this->searchCountries($strTerm, $intCmdFormId);
         $arrFoundIds = array_merge($arrFoundIds, $arrFoundCountries);
-        
+
         if ($intCmdFormId != 0) {
             $arrWhere[] = "rel_inputfield.`form_id` = '".$intCmdFormId."'";
         }
-        
+
         if($objInit->mode == 'frontend') {
             $intToday = time();
             $arrWhere[] = "(`duration_type` = 1 OR (`duration_type` = 2 AND (`duration_start` < '$intToday' AND `duration_end` > '$intToday')))";
@@ -352,34 +399,61 @@ EOF;
                 }
 
                 $intInputfieldType = $objInputfields->arrInputfields[$intInputfieldId]['type'];
+                $inputfieldContextType = $objInputfields->arrInputfields[$intInputfieldId]['context_type'];
                 $strExpTerm = is_array($strExpTerm) ? contrexx_input2db(array_map('trim', $strExpTerm)) : contrexx_input2db(trim($strExpTerm));
                 $strTableName = 'rel_inputfield_'.intval($intInputfieldId);
                 $arrJoins[]  = 'INNER JOIN '.DBPREFIX.'module_'.$this->moduleTablePrefix.'_rel_entry_inputfields AS '.$strTableName.' ON '.$strTableName.'.`entry_id` = entry.id';
-                
-                if ($intInputfieldType == '11') { // 11 = classification
-                    switch ($this->arrSettings['settingsClassificationSearch']) {
-                        case 1:
-                            $strSearchOperator = '>=';
-                            break;
-                        case 2:
-                            $strSearchOperator = '<=';
-                            break;
-                        case 3:
-                            $strSearchOperator = '=';
-                            break;
-                    }
 
-                    $whereExp = $strTableName.'.`value` '.$strSearchOperator.' "'.$strExpTerm.'"';
-                } elseif ($intInputfieldType == '3' || $intInputfieldType == '25') { // 3 = dropdown, 25 = country
-                    $whereExp = $strTableName.'.`value` = "'.$strExpTerm.'"';
-                } elseif ($intInputfieldType == '5') { // 5 = checkbox
-                    $checkboxSearch = array();
-                    foreach ($strExpTerm as $value) {
-                        $checkboxSearch[] = ' FIND_IN_SET("'. $value .'",' . $strTableName . '.`value`) <> 0';
-                    }
-                    $whereExp = '('. implode(' AND ', $checkboxSearch) .')';
-                } else {
-                    $whereExp = $strTableName.'.`value` LIKE "%'.$strExpTerm.'%"';
+                switch ($inputfieldContextType) {
+                    case 'zip':
+                        $whereExp = $strTableName.'.`value` REGEXP "(^|[^a-z0-9])'.$strExpTerm.'([^a-z0-9]|$)"';
+                        $arrWhere[] = '('.$strTableName.'.`field_id` = '.intval($intInputfieldId).' AND '.$whereExp.')';
+                        continue;
+
+                        break;
+
+                    default:
+                        break;
+                }
+                switch ($intInputfieldType) {
+                    case '11': // 11 = classification
+                        switch ($this->arrSettings['settingsClassificationSearch']) {
+                            case 1:
+                                $strSearchOperator = '>=';
+                                break;
+                            case 2:
+                                $strSearchOperator = '<=';
+                                break;
+                            case 3:
+                                $strSearchOperator = '=';
+                                break;
+                        }
+
+                        $whereExp = $strTableName.'.`value` '.$strSearchOperator.' "'.$strExpTerm.'"';
+                        break;
+
+                    case '3': // 3 = dropdown
+                    case '25': // 25 = country
+                        $whereExp = $strTableName.'.`value` = "'.$strExpTerm.'"';
+                        break;
+
+                    case '5': // 5 = checkbox
+                        $checkboxSearch = array();
+                        foreach ($strExpTerm as $value) {
+                            $checkboxSearch[] = ' FIND_IN_SET("'. $value .'",' . $strTableName . '.`value`) <> 0';
+                        }
+                        $whereExp = '('. implode(' AND ', $checkboxSearch) .')';
+                        break;
+
+                    case '31': // Range Slider
+                        $intMin = (int)$strExpTerm[0];
+                        $intMax = (int)$strExpTerm[1];
+                        $whereExp = '('.$strTableName.'.`field_id` = '.intval($intInputfieldId).' AND '.$strTableName.'.`value` BETWEEN '.$intMin.' AND '.$intMax.')';
+                    break;
+
+                    default:
+                        $whereExp = $strTableName.'.`value` LIKE "%'.$strExpTerm.'%"';
+                        break;
                 }
                 $arrWhere[] = '('.$strTableName.'.`field_id` = '.intval($intInputfieldId).' AND '.$whereExp.')';
             }
@@ -397,7 +471,7 @@ EOF;
             ORDER BY
                 '.$order.'
         ';
-        
+
         $objRsSearchEntries = $objDatabase->Execute($query);
         if (!$objRsSearchEntries) {
             return;
@@ -434,7 +508,7 @@ EOF;
     function getSearchCategoryIds($intCatId)
     {
         global $objDatabase;
-        
+
         $objResultSearchCategories = $objDatabase->Execute("SELECT id FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_categories WHERE parent_id='$intCatId'");
 
         if ($objResultSearchCategories) {
@@ -448,31 +522,31 @@ EOF;
             }
         }
     }
-    
+
     //OSEC CUSTOMIZING (ev. �bernehmen und f�r levels ausbauen)
     function searchLevelsCategories($intType, $strTerm, $intCmdFormId)
     {
         global $objDatabase;
-        
+
         $arrFoundIds = array();
         $strWhereForm = $intCmdFormId ? "AND ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.form_id = '".$intCmdFormId."'" : '';
-                        
+
         $objResultSearchCategories = $objDatabase->Execute("
         SELECT
             ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories.entry_id AS entry_id
         FROM
             ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names
-        INNER JOIN 
-            ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories 
-        ON 
-            ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names.category_id = ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories.category_id 
-        INNER JOIN 
-            ".DBPREFIX."module_".$this->moduleTablePrefix."_entries 
-        ON 
+        INNER JOIN
+            ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories
+        ON
+            ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names.category_id = ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories.category_id
+        INNER JOIN
+            ".DBPREFIX."module_".$this->moduleTablePrefix."_entries
+        ON
             ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_categories.entry_id = ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.id
         WHERE
             ".DBPREFIX."module_".$this->moduleTablePrefix."_categories_names.category_name LIKE '%".$strTerm."%'
-        AND 
+        AND
             ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.active = '1'
             ".$strWhereForm."
         GROUP BY
@@ -484,34 +558,34 @@ EOF;
                 if (!empty($objResultSearchCategories->fields['entry_id'])) {
                     array_push($arrFoundIds, $objResultSearchCategories->fields['entry_id']);
                 }
-                
+
                 $objResultSearchCategories->MoveNext();
             }
         }
-        
+
         return $arrFoundIds;
     }
-    
+
     //OSEC CUSTOMIZING (ev. �bernehmen)
     function searchCountries($strTerm, $intCmdFormId)
     {
         global $objDatabase;
-        
+
         $arrFoundIds = array();
         $strWhereForm = $intCmdFormId ? "AND ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.form_id = '".$intCmdFormId."'" : '';
-        
+
         $objResultSearchCountry = $objDatabase->Execute("
         SELECT
             ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.id AS entry_id
-		FROM
-			".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields
-			INNER JOIN 
-                ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields 
-			ON 
-			    ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields.id = ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields.field_id
-			INNER JOIN 
-		        ".DBPREFIX."core_country 
-                        ON 
+        FROM
+            ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields
+            INNER JOIN
+                ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields
+            ON
+                ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields.id = ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields.field_id
+            INNER JOIN
+                ".DBPREFIX."core_country
+                        ON
                             ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields.value = ".DBPREFIX."core_country.id
                         INNER JOIN
                         ".DBPREFIX."core_text
@@ -519,15 +593,15 @@ EOF;
                             ".DBPREFIX."core_text.id = ".DBPREFIX."core_country.id
                         AND
                             ".DBPREFIX."core_text.key = 'core_country_name'
-                        INNER JOIN 
-                            ".DBPREFIX."module_".$this->moduleTablePrefix."_entries 
-                        ON 
+                        INNER JOIN
+                            ".DBPREFIX."module_".$this->moduleTablePrefix."_entries
+                        ON
                             ".DBPREFIX."module_".$this->moduleTablePrefix."_rel_entry_inputfields.entry_id = ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.id
                             WHERE
-                        ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields.type = '25' 
-                            AND 
-                                ".DBPREFIX."core_text.text LIKE '%".$strTerm."%' 
-                            AND 
+                        ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields.type = '25'
+                            AND
+                                ".DBPREFIX."core_text.text LIKE '%".$strTerm."%'
+                            AND
                                 ".DBPREFIX."module_".$this->moduleTablePrefix."_entries.active = '1'
                         ".$strWhereForm."
                             GROUP BY
@@ -539,11 +613,11 @@ EOF;
                 if (!empty($objResultSearchCountry->fields['entry_id'])) {
                     array_push($arrFoundIds, $objResultSearchCountry->fields['entry_id']);
                 }
-                
+
                 $objResultSearchCountry->MoveNext();
             }
         }
-        
+
         return array_unique($arrFoundIds);
     }
 }
