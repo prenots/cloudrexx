@@ -1728,6 +1728,9 @@ EOF;
 
         $newActiveLanguage = explode(',', $this->arrSettings['settingsActiveLanguages']);
         if ($newActiveLanguage != $oldActiveLanguage) {
+            // flush cache of used frontend locales
+            static::flushUsedFrontendLocales();
+
             // identify locales that have existed all along
             $existingLocaleIds = array_intersect($oldActiveLanguage, $newActiveLanguage);
 

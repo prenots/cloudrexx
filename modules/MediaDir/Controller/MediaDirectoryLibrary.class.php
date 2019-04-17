@@ -395,6 +395,11 @@ class MediaDirectoryLibrary
         $arrActiveLangs = array();
 
         $this->getSettings();
+
+        if (!empty(static::$usedFrontendLocales)) {
+            $this->arrFrontendLanguages = static::$usedFrontendLocales;
+            return;
+        }
         $arrActiveLangs = explode(",",$this->arrSettings['settingsActiveLanguages']);
 
         foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
@@ -1685,6 +1690,14 @@ EOF;
         }
 
         return $sourceLocaleId;
+    }
+
+
+    /**
+     * Flush cached list of used frontend locales
+     */
+    protected static function flushUsedFrontendLocales() {
+        static::$usedFrontendLocales = array();
     }
 
     /**
