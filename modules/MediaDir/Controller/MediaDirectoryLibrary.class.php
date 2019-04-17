@@ -112,6 +112,15 @@ class MediaDirectoryLibrary
     protected static $category = null;
     protected static $form = null;
 
+    /**
+     * Temporary container for the meta-data of the input fields.
+     * This is used to reduce the amount of queries made to the
+     * database system.
+     *
+     * @var array
+     */
+    protected static $inputFieldMetaData = array();
+
     /*
      * @var \Cx\Core\Core\Controller\Cx
      */
@@ -1692,6 +1701,18 @@ EOF;
         return $sourceLocaleId;
     }
 
+    /**
+     * Flush cache of input-field meta-data of a specific form
+     *
+     * @param   integer $id ID of form to flush the meta-data of its input
+     *                      fields from the cache.
+     */
+    protected static function flushInputFieldMetaDataByFormId($id) {
+        if (!isset(static::$inputFieldMetaData[$id])) {
+            return;
+        }
+        unset(static::$inputFieldMetaData[$id]);
+    }
 
     /**
      * Flush cached list of used frontend locales

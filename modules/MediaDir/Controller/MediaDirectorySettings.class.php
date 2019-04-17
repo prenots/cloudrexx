@@ -1790,6 +1790,9 @@ EOF;
                 //update form inputfields
                 $objInputField->updateInputFields($intFieldId, $arrFieldNames, $arrFieldDefaultValues, $arrFieldInfos);
             }
+
+            // flush cached meta-data of form
+            static::flushInputFieldMetaDataByFormId($formId);
         }
     }
 
@@ -1971,6 +1974,9 @@ EOF;
                         // next loop with an entry based on the same form,
                         // the slug field id will be gotten directly
                         $formsWithFieldAlreadyCreated[$arrForm['formId']] = $arrEntry['slug_field_id'];
+
+                        // flush cached meta-data of form
+                        static::flushInputFieldMetaDataByFormId($arrForm['formId']);
                     }
 
                 }

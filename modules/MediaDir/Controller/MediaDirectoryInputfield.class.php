@@ -94,6 +94,11 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
     {
         global $_ARRAYLANG, $objDatabase;
 
+        // fetch cached meta-data
+        if (isset(static::$inputFieldMetaData[$this->intFormId][$this->bolExpSearch])) {
+            return static::$inputFieldMetaData[$this->intFormId][$this->bolExpSearch];
+        }
+
         $langId = static::getOutputLocale()->getId();
 
         $whereFormId  = 'AND (`form`.`active` = 1)';
@@ -221,6 +226,14 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
             // in frontend, levelSelectorExpSearch is only set for active forms
             $arrLevelSelector['search'] = !empty($this->intFormId) ? $this->arrSettings['levelSelectorExpSearch'][$this->intFormId] : 0;
             $arrInputfields[2] = $arrLevelSelector;
+        }
+
+        // cache meta-data for later usage
+        if (!isset(static::$inputFieldMetaData[$this->intFormId])) {
+            static::$inputFieldMetaData[$this->intFormId] = array();
+        }
+        if (!isset(static::$inputFieldMetaData[$this->intFormId][$this->bolExpSearch])) {
+            static::$inputFieldMetaData[$this->intFormId][$this->bolExpSearch] = $arrInputfields;
         }
 
         return $arrInputfields;
@@ -727,6 +740,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
+        // flush cached meta-data of form
+        static::flushInputFieldMetaDataByFormId($this->intFormId);
+
         $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields WHERE form='".$this->intFormId."'");
         $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfield_names WHERE form_id='".$this->intFormId."'");
 
@@ -803,6 +819,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
     {
         global $objDatabase;
 
+        // flush cached meta-data of form
+        static::flushInputFieldMetaDataByFormId($this->intFormId);
+
         $objOrderInputfield = $objDatabase->Execute("
             SELECT
                 `id`
@@ -853,6 +872,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
     function moveInputfield($intFieldId, $intDirectionId)
     {
         global $objDatabase;
+
+        // flush cached meta-data of form
+        static::flushInputFieldMetaDataByFormId($this->intFormId);
 
         $bolChangeOrder = false;
         $intCountFields = count($this->arrInputfields)-1;
@@ -909,6 +931,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
     function deleteInputfield($intFieldId)
     {
         global $objDatabase;
+
+        // flush cached meta-data of form
+        static::flushInputFieldMetaDataByFormId($this->intFormId);
 
         //delete field
         $objAddInputfield = $objDatabase->Execute("

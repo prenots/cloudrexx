@@ -661,6 +661,9 @@ class MediaDirectoryForm extends MediaDirectoryLibrary
                                                         `id`='".intval($intFormId)."'
                                                     ");
 
+        // flush cached meta-data of form
+        static::flushInputFieldMetaDataByFormId(intval($intFormId));
+
         return true;
     }
 
