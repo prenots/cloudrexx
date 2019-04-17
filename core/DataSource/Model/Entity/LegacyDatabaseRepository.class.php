@@ -45,7 +45,58 @@ namespace Cx\Core\DataSource\Model\Entity;
  * @subpackage  core_datasource
  */
 class LegacyDatabaseRepository extends DataSource {
-    
+
+    /**
+     * Field list cache
+     * @var array List of fields
+     */
+    protected $fieldList = array();
+
+    /**
+     * Identifier field list cache
+     * @var array List of fields
+     */
+    protected $identifierFieldList = array();
+
+    /**
+     * Returns a list of field names this DataSource consists of
+     * @return array List of field names
+     */
+    public function listFields() {
+        if (!count($this->fieldList)) {
+            $this->initializeFields();
+        }
+        return $this->fieldList;
+    }
+
+    /**
+     * Initialize field caches
+     */
+    protected function initializeFields() {
+        $tableName = DBPREFIX . $this->getIdentifier();
+        $result = $this->cx->getDb()->getAdoDb()->query(
+            'SHOW COLUMNS FROM `' . $tableName . '`'
+        );
+        while (!$result->EOF) {
+            $this->fieldList[] = $result->fields['Field'];
+            if ($result->fields['Key'] == 'PRI') {
+                $this->identifierFieldList[] = $result->fields['Field'];
+            }
+            $result->MoveNext();
+        }
+        return $this->fieldList;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIdentifierFieldNames() {
+        if (!count($this->identifierFieldList)) {
+            $this->initializeFields();
+        }
+        return $this->identifierFieldList;
+    }
+
     /**
      * Gets one or more entries from this DataSource
      *
@@ -53,7 +104,7 @@ class LegacyDatabaseRepository extends DataSource {
      * So if this is called without any arguments, all entries of this
      * DataSource are returned.
      * If no entry is found, an empty array is returned.
-     * @param string $elementId (optional) ID of the element if only one is to be returned
+     * @param array $elementId (optional) field=>value-type condition array identifying an entry
      * @param array $filter (optional) field=>value-type condition array, only supports = for now
      * @param array $order (optional) field=>order-type array, order is either "ASC" or "DESC"
      * @param int $limit (optional) If set, no more than $limit results are returned
@@ -63,7 +114,7 @@ class LegacyDatabaseRepository extends DataSource {
      * @return array Two dimensional array (/table) of results (array($row=>array($fieldName=>$value)))
      */
     public function get(
-        $elementId = null,
+        $elementId = array(),
         $filter = array(),
         $order = array(),
         $limit = 0,
@@ -71,23 +122,31 @@ class LegacyDatabaseRepository extends DataSource {
         $fieldList = array()
     ) {
         $tableName = DBPREFIX . $this->getIdentifier();
-        
-        // $elementId
         $whereList = array();
-        if (isset($elementId)) {
-            $whereList[] = '`id` = "' . contrexx_raw2db($elementId) . '"';
-        }
-        
+
         // $filter
-        if (count($filter)) {
-            foreach ($filter as $field => $value) {
+        foreach ($filter as $field => $filterExpr) {
+            foreach ($filterExpr as $operation=>$value) {
+                if ($operation != 'eq') {
+                    throw new \InvalidArgumentException(
+                        'Operation "' . $operation . '" is not supported'
+                    );
+                }
                 if (count($fieldList) && !in_array($field, $fieldList)) {
                     continue;
                 }
                 $whereList[] = '`' . contrexx_raw2db($field) . '` = "' . contrexx_raw2db($value) . '"';
             }
         }
-        
+
+        // $elementId
+        foreach ($elementId as $field => $value) {
+            if (count($fieldList) && !in_array($field, $fieldList)) {
+                continue;
+            }
+            $whereList[] = '`' . contrexx_raw2db($field) . '` = "' . contrexx_raw2db($value) . '"';
+        }
+
         // $order
         $orderList = array();
         if (count($order)) {
@@ -101,7 +160,7 @@ class LegacyDatabaseRepository extends DataSource {
                 $orderList[] = '`' . contrexx_raw2db($field) . '` ' . $ascdesc;
             }
         }
-        
+
         // $limit, $offset
         $limitQuery = '';
         if ($limit) {
@@ -110,13 +169,13 @@ class LegacyDatabaseRepository extends DataSource {
                 $limitQuery .= ',' . intval($offset);
             }
         }
-        
+
         // $fieldList
         $fieldListQuery = '*';
         if (count($fieldList)) {
             $fieldListQuery = '`' . implode('`, `', $fieldList) . '`';
         }
-        
+
         // query parsing
         $whereQuery = '';
         if (count($whereList)) {
@@ -135,17 +194,17 @@ class LegacyDatabaseRepository extends DataSource {
             ' . $orderQuery . '
             ' . $limitQuery . '
         ';
-        
+
         $result = $this->cx->getDb()->getAdoDb()->query($query);
         $data = array();
         while (!$result->EOF) {
             $data[] = $result->fields;
             $result->MoveNext();
         }
-        
+
         return $data;//new \Cx\Core_Modules\Listing\Model\Entity\DataSet($data);//array($query);
     }
-    
+
     /**
      * Adds a new entry to this DataSource
      * @param array $data Field=>value-type array. Not all fields may be required.
@@ -154,24 +213,24 @@ class LegacyDatabaseRepository extends DataSource {
     public function add($data) {
         throw new \BadMethodCallException('Access denied');
     }
-    
+
     /**
      * Updates an existing entry of this DataSource
      * @param string $elementId ID of the element to update
+     * @param array $elementId field=>value-type condition array identifying an entry
      * @param array $data Field=>value-type array. Not all fields are required.
      * @throws \BadMethodCallException ALWAYS! Legacy is not intended to be used for write access!
      */
     public function update($elementId, $data) {
         throw new \BadMethodCallException('Access denied');
     }
-    
+
     /**
      * Drops an entry from this DataSource
-     * @param string $elementId ID of the element to update
+     * @param array $elementId field=>value-type condition array identifying an entry
      * @throws \BadMethodCallException ALWAYS! Legacy is not intended to be used for write access!
      */
     public function remove($elementId) {
         throw new \BadMethodCallException('Access denied');
     }
 }
-

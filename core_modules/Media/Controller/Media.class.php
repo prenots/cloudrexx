@@ -50,7 +50,7 @@ class Media extends MediaLibrary
     public $_objTpl;                       // var for the template object
     public $pageTitle;                     // var for the title of the active page
     public $statusMessage;                 // var for the status message
-    
+
     public $arrPaths;                      // array paths
     public $arrWebPaths;                   // array web paths
 
@@ -78,7 +78,7 @@ class Media extends MediaLibrary
         $this->_arrSettings =$this->createSettingsArray();
 
         $this->archive = (intval(substr($archive,-1,1)) == 0) ? 'Media1' : $archive;
-                
+
         $this->arrPaths = array(ASCMS_MEDIA1_PATH . '/',
                                     ASCMS_MEDIA2_PATH . '/',
                                     ASCMS_MEDIA3_PATH . '/',
@@ -205,7 +205,7 @@ class Media extends MediaLibrary
         if (!empty($_GET['highlightFiles'])) {
             $this->highlightName = array_merge($this->highlightName, array_map('basename', json_decode(contrexx_stripslashes(urldecode($_GET['highlightFiles'])))));
         }
-        
+
         // media directory tree
         $dirTree = array();
         $this->getDirectoryTree($this->path, $searchTerm, $dirTree, !empty($searchTerm));
@@ -222,6 +222,17 @@ class Media extends MediaLibrary
         $deleteUrl->setParam('redirect', $redirect);
         $renameUrl->setParam('act', 'rename');
         $deleteUrl->setParam('act', 'delete');
+
+        // we'll parse image specific functionality only,
+        // if related placeholder used for its output is present
+        // in the application template
+        if ($this->_objTpl->blockExists('mediaDirectoryTreeFile')) {
+            // check in file specific template block
+            $parseImagePreview = $this->_objTpl->placeholderExists('MEDIA_FILE_NAME_HREF', 'mediaDirectoryTreeFile');
+        } else {
+            // check in generic template block
+            $parseImagePreview = $this->_objTpl->placeholderExists('MEDIA_FILE_NAME_HREF', 'mediaDirectoryTree');
+        }
 
         $i = 0;
         foreach (array_keys($dirTree) as $key) {
@@ -246,10 +257,11 @@ class Media extends MediaLibrary
                         $this->_objTpl->hideBlock('manage_access_option');
                     }
                 }
+
                 $this->_objTpl->setVariable(array(  // file
                     'MEDIA_DIR_TREE_ROW'  => $class,
                     'MEDIA_FILE_ICON'     => $dirTree[$key]['icon'][$x],
-                    'MEDIA_FILE_NAME'     => $fileName,
+                    'MEDIA_FILE_NAME'     => $this->prettyFormatFilename($fileName),
                     'MEDIA_FILE_SIZE'     => $this->_formatSize($dirTree[$key]['size'][$x]),
                     'MEDIA_FILE_TYPE'     => $this->_formatType($dirTree[$key]['type'][$x]),
                     'MEDIA_FILE_DATE'     => $this->_formatDate($dirTree[$key]['date'][$x]),
@@ -268,36 +280,63 @@ class Media extends MediaLibrary
                     $mediaWebPath = '/'. $mediaWebPath; // Filesysystem removes the beginning slash(/)
                 }
 
-                $file = rawurlencode($fileName);
-                if ($key == 'dir') {
-                    $path = rawurlencode($mediaWebPath . $fileName . '/');
-                    $previewUrl->setParam('act', null);
-                    $previewUrl->setParam('file', null);
-                } elseif ($key == 'file') {
-                    $path = rawurlencode($mediaWebPath);
+                $file = $fileName;
+                switch ($key) {
+                    case 'dir':
+                        // build directory traversal url
+                        $path = $mediaWebPath . $fileName . '/';
+                        $previewUrl->setParam('act', null);
+                        $previewUrl->setParam('file', null);
+                        $previewUrl->setParam('path', $path);
 
-                    $filePath = $mediaPath . $fileName;
-                    if ($this->_isImage($filePath)) {
-                        $image        = true;
-                        $tmpSize      = getimagesize($filePath);
-                        $imagePreview = 'javascript: preview(\'' . $mediaWebPath . $fileName . '\', ' . $tmpSize[0] . ', ' . $tmpSize[1] . ');';
-                    } else {
+                        // show directory specific template block
+                        if ($this->_objTpl->blockExists('mediaDirectoryTreeDir')) {
+                            $this->_objTpl->touchBlock('mediaDirectoryTreeDir');
+                        }
+
+                        // hide file specific template block
+                        if ($this->_objTpl->blockExists('mediaDirectoryTreeFile')) {
+                            $this->_objTpl->hideBlock('mediaDirectoryTreeFile');
+                        }
+                        break;
+
+                    case 'file':
+                    default:
+                        // build file download url
+                        $path = $mediaWebPath;
                         $previewUrl->setParam('act', 'download');
+                        $previewUrl->setParam('path', $path);
                         $previewUrl->setParam('file', $file);
-                    }
+
+                        // build image preview url
+                        $filePath = $mediaPath . $fileName;
+                        if ($parseImagePreview && $this->_isImage($filePath)) {
+                            $image        = true;
+                            $tmpSize      = getimagesize($filePath);
+                            $imagePreview = 'javascript: preview(\'' . $mediaWebPath . $fileName . '\', ' . $tmpSize[0] . ', ' . $tmpSize[1] . ');';
+                        }
+
+                        // hide directory specific template block
+                        if ($this->_objTpl->blockExists('mediaDirectoryTreeDir')) {
+                            $this->_objTpl->hideBlock('mediaDirectoryTreeDir');
+                        }
+
+                        // show file specific template block
+                        if ($this->_objTpl->blockExists('mediaDirectoryTreeFile')) {
+                            $this->_objTpl->touchBlock('mediaDirectoryTreeFile');
+                        }
+                    break;
                 }
+
                 $deleteUrl->setParam('path', $path);
                 $deleteUrl->setParam('file', $key == 'dir' ? null : $file);
 
-                $renameUrl->setParam('path', rawurlencode($mediaWebPath));
+                $renameUrl->setParam('path', $mediaWebPath);
                 $renameUrl->setParam('file', $file);
-
-                if (!$image) {
-                    $previewUrl->setParam('path', $path);
-                }
 
                 $this->_objTpl->setVariable(array(
                     'MEDIA_FILE_NAME_HREF'   => $image ? $imagePreview : $previewUrl->toString(false),
+                    'MEDIA_FILE_NAME_SRC'    => $previewUrl->toString(false),
                     'MEDIA_FILE_RENAME_HREF' => $renameUrl->toString(false),
                     'MEDIA_FILE_DELETE_HREF' => $deleteUrl->toString(false),
                 ));
@@ -307,7 +346,7 @@ class Media extends MediaLibrary
         }
 
         // empty dir or php safe mode restriction
-        if ($i == 0 && !@opendir($this->rootPath)) {
+        if ($i == 0 && !@opendir($this->path)) {
             $tmpMessage = (!@opendir($this->path)) ? 'PHP Safe Mode Restriction or wrong path' : $_ARRAYLANG['TXT_MEDIA_DIR_EMPTY'];
 
             $this->_objTpl->setVariable(array(
@@ -386,7 +425,7 @@ class Media extends MediaLibrary
                 $uploader->setCallback('mediaCallbackJs');
                 $uploader->setFinishedCallback(array(
                     \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseCoreModulePath().'/Media/Controller/MediaLibrary.class.php',
-                    '\Cx\Core_modules\Media\Controller\MediaLibrary',
+                    '\Cx\Core_Modules\Media\Controller\MediaLibrary',
                     'uploadFinished'
                 ));
 
@@ -408,10 +447,10 @@ class Media extends MediaLibrary
                 'MEDIA_CREATE_DIRECTORY_URL'        => CONTREXX_SCRIPT_PATH . '?section=' . $this->archive . $this->getCmd . '&amp;act=newDir&amp;path=' . rawurlencode($this->webPath)
             ));
             $this->_objTpl->parse('media_create_directory');
-            
+
             //custom uploader
             \JS::activate('cx'); // the uploader needs the framework
-            
+
             $uploader = new \Cx\Core_Modules\Uploader\Model\Entity\Uploader(); //create an uploader
             $uploadId = $uploader->getId();
             $uploader->setCallback('customUploader');
@@ -419,7 +458,11 @@ class Media extends MediaLibrary
                 'id'    => 'custom_'.$uploadId,
             ));
 
-            $folderWidget   = new \Cx\Core_Modules\MediaBrowser\Model\Entity\FolderWidget(\cmsSession::getInstance()->getTempPath() . '/' . $uploadId, true);
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $folderWidget   = new \Cx\Core_Modules\MediaBrowser\Model\Entity\FolderWidget(
+                $cx->getComponent('Session')->getSession()->getTempPath() . '/' . $uploadId,
+                true
+            );
             $folderWidgetId = $folderWidget->getId();
             $extendedFileInputCode = <<<CODE
     <script type="text/javascript">
@@ -438,6 +481,42 @@ CODE;
                 'FOLDER_WIDGET_CODE' => $folderWidget->getXHtml()
             ));
         }
+    }
+
+    /**
+     * Format a filename according to configuration option 'Pretty format'
+     * of currently loaded media archive.
+     *
+     * @param   string  $filename The filename to pretty format
+     * @return  string  The pretty formatted filename. In case of any error
+     *                  or if the function to pretty format is disabled,
+     *                  then the original $filename is being returned.
+     */
+    protected function prettyFormatFilename($filename) {
+        // return original filename in case pretty format function is disabled
+        if ($this->_arrSettings[strtolower($this->archive) . '_pretty_file_names'] == 'off') {
+            return $filename;
+        }
+
+        // check if a regexp is set
+        $regexpConf = $this->_arrSettings[strtolower($this->archive) . '_pretty_file_name_regexp'];
+
+        // generate pretty formatted filename
+        try {
+            $regularExpression = new \Cx\Lib\Helpers\RegularExpression($regexpConf);
+            $prettyFilename = $regularExpression->replace($filename);
+
+            // return pretty filename if conversion was successful
+            if (!is_null($prettyFilename)) {
+                return $prettyFilename;
+            }
+        } catch (\Exception $e) {
+            \DBG::msg($e->getMessage());
+        }
+
+        // return original filename in case anything
+        // didn't work out as expected
+        return $filename;
     }
 
     /**
@@ -589,13 +668,14 @@ CODE;
     private function processFormUpload()
     {
         global $_ARRAYLANG;
-        
-        $objSession = \cmsSession::getInstance();
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objSession = $cx->getComponent('Session')->getSession();
         $uploaderId = isset($_POST['media_upload_file']) ? contrexx_input2raw($_POST['media_upload_file']) : 0;
         if (empty($uploaderId)) {
             return false;
         }
-        
+
         $tempPath = $objSession->getTempPath() .'/' . contrexx_input2raw($uploaderId);
         if (!\Cx\Lib\FileSystem\FileSystem::exists($tempPath)) {
             return false;
@@ -649,13 +729,13 @@ CODE;
     function _renameFiles()
     {
         global $_ARRAYLANG;
-        
+
         // check permissions
         if (!$this->manageAccessGranted()) {
             \Message::error($_ARRAYLANG['TXT_MEDIA_DIRCREATION_NOT_ALLOWED']);
             return $this->handleRedirect();
         }
-        
+
         if (MediaLibrary::isIllegalFileName($this->getFile)) {
             \Message::error($_ARRAYLANG['TXT_MEDIA_FILE_DONT_EDIT']);
             return $this->handleRedirect();
