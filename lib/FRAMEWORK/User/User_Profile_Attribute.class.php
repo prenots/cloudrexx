@@ -586,6 +586,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 `read_access_id`
             FROM
                 `'.DBPREFIX.'access_user_core_attribute`
+            WHERE `is_default` = 1
         ');
         if ($objAttribute) {
             while (!$objAttribute->EOF) {
@@ -628,28 +629,44 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
 
     function loadCoreAttributeTitle()
     {
-        global $objDatabase;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
 
-        $objResult = $objDatabase->Execute('SELECT `id`, `title`, `order_id` FROM '.DBPREFIX.'access_user_title');
-        if ($objResult) {
-            while (!$objResult->EOF) {
-                $this->arrAttributes['title_'.$objResult->fields['id']] = array(
+        $qb->select('a.id, n1.name, a.orderId')
+            ->from('Cx\Core\User\Model\Entity\UserAttribute', 'a')
+            ->join(
+                'Cx\Core\User\Model\Entity\UserAttributeName',
+                'n1',
+                'WITH',
+                $qb->expr()->eq('a.id', 'n1.attributeId')
+            )->join(
+                'Cx\Core\User\Model\Entity\UserAttributeName',
+                'n2',
+                'WITH',
+                $qb->expr()->eq('a.parent', 'n2.attributeId')
+            )->where($qb->expr()->eq('n2.name', '?1'))
+            ->setParameter(1, 'title');
+
+        $titles = $qb->getQuery()->getArrayResult();
+
+        if ($titles) {
+            foreach($titles as $title) {
+                $this->arrAttributes['title_'.$title['id']] = array(
                     'type' => 'menu_option',
                     'multiline' => false,
                     'mandatory' => false,
                     'sort_type' => 'asc',
                     'parent_id' => 'title',
-                    'desc' => $objResult->fields['title'],
-                    'value' => $objResult->fields['id'],
-                    'order_id' => $objResult->fields['order_id'],
+                    'desc' => $title['name'],
+                    'value' => $title['id'],
+                    'order_id' => $title['orderId'],
                     'modifiable' => array('names'),
                 );
-
                 // add names for all languages
                 foreach (\FWLanguage::getLanguageArray() as $langId => $langData) {
-                    $this->arrAttributes['title_'.$objResult->fields['id']]['names'][$langId] = $objResult->fields['title'];
+                    $this->arrAttributes['title_'.$title['id']]['names'][$langId] = $title['name'];
                 }
-                $objResult->MoveNext();
             }
         }
     }
