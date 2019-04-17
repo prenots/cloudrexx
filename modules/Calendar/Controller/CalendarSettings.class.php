@@ -353,10 +353,10 @@ class CalendarSettings extends CalendarLibrary
             'TXT_'.$this->moduleLangVar.'_FIELDS'                   => $_ARRAYLANG['TXT_CALENDAR_FIELDS'],
             'TXT_'.$this->moduleLangVar.'_REGISTRATION_DATA'        => $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_DATA'],
             'TXT_'.$this->moduleLangVar.'_ADD_OPTION'               => $_ARRAYLANG['TXT_CALENDAR_ADD_OPTION'],
-        ));       
-        
-        $objFormManager = new \Cx\Modules\Calendar\Controller\CalendarFormManager();  
-        $objFormManager->showForm($objTpl, intval($formId), 1);    
+        ));
+
+        $objFormManager = new \Cx\Modules\Calendar\Controller\CalendarFormManager();
+        $objFormManager->showForm($objTpl, intval($formId), 1);
     }
 
     /**
