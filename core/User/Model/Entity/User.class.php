@@ -713,4 +713,10 @@ class User extends \Cx\Model\Base\EntityBase {
     {
         return $this->userAttributeValue;
     }
+
+    public function __toString()
+    {
+        // TODO: (Firstname Lastname)
+        return $this->getEmail();
+    }
 }
