@@ -450,6 +450,7 @@ class BackendController extends
                 );
 
                 $options = $this->appendUserAttributes($options);
+                $options = $this->appendNewsletterLists($options);
                 break;
             case 'Cx\Core\User\Model\Entity\Group':
                 $options['order'] = array(
@@ -1361,5 +1362,118 @@ class BackendController extends
         $attrOption['validValues'] = $validValues;
 
         return $attrOption;
+    }
+
+    protected function appendNewsletterLists($options)
+    {
+        global $_CONFIG, $objDatabase, $objInit, $_ARRAYLANG;
+
+        $options['tabs']['newsletter']['header'] = $_ARRAYLANG['newsletter'];
+        $options['fields']['newsletter'] = array(
+            'custom' => true,
+            'type' => 'checkboxes',
+            'mode' => 'key',
+            'storecallback' => array(
+                'adapter' => 'User',
+                'method' => 'storeNewsletterLists'
+            ),
+            'showOverview' => false,
+            'allowFiltering' => false,
+        );
+
+        if (empty($this->userId)) {
+            return $options;
+        }
+
+        $user = \FWUser::getFWUserObject()->objUser->getUser($this->userId);
+        if (empty($user)) {
+            return $options;
+        }
+
+        if (
+            \Cx\Core_Modules\License\License::getCached(
+                $_CONFIG, $objDatabase
+            )->isInLegalComponents('Newsletter')
+        ) {
+            $arrSubscribedNewsletterListIDs = $user->getSubscribedNewsletterListIDs();
+            $arrNewsletterLists = \Cx\Modules\Newsletter\Controller\NewsletterLib::getLists();
+
+            if (!count($arrNewsletterLists)) {
+                return $options;
+            }
+
+            $consent = array();
+            if (
+                \Cx\Core\Core\Controller\Cx::instanciate()->getMode() ==
+                \Cx\Core\Core\Controller\Cx::MODE_BACKEND &&
+                !empty($user->getId())
+            ) {
+                // load additional newsletter data
+                $query = '
+                    SELECT
+                        `newsletterCategoryID` as `category`,
+                        `source`,
+                        `consent`
+                    FROM
+                        `' . DBPREFIX . 'module_newsletter_access_user`
+                    WHERE
+                        `accessUserID` = ' . $user->getId() . '
+                ';
+                $consentResult = $objDatabase->Execute($query);
+                while (!$consentResult->EOF) {
+                    $consent[$consentResult->fields['category']] = array(
+                        'source' => $consentResult->fields['source'],
+                        'consent' => $consentResult->fields['consent'],
+                    );
+                    $consentResult->MoveNext();
+                }
+                $_ARRAYLANG += $objInit->getComponentSpecificLanguageData(
+                    'Newsletter',
+                    false
+                );
+            }
+
+            $newsletterOption = $options['fields']['newsletter'];
+            $validValues = array();
+            $selectedValues = array();
+            foreach ($arrNewsletterLists as $listId => $arrList) {
+                if (
+                    $objInit->mode != 'backend' &&
+                    !$arrList['status'] &&
+                    !in_array($listId, $arrSubscribedNewsletterListIDs)
+                ) {
+                    continue;
+                }
+
+                $value = contrexx_raw2xhtml($arrList['name']);
+                if (count($consent)) {
+                    if (!isset($consent[$listId])) {
+                        $consent[$listId] = array(
+                            'source' => 'undefined',
+                            'consent' => '',
+                        );
+                    }
+
+                    $consentView = \Cx\Modules\Newsletter\Controller\NewsletterLib::parseConsentView(
+                        $consent[$listId]['source'],
+                        $consent[$listId]['consent']
+                    );
+
+                    $value .= ' ' . $consentView;
+                }
+
+                $validValues[$listId] = $value;
+
+                if (in_array($listId, $arrSubscribedNewsletterListIDs)) {
+                    $selectedValues[] = $listId;
+                }
+            }
+            $newsletterOption['valueCallback'] = implode(',', $selectedValues);
+            $newsletterOption['validValues'] = $validValues;
+            $options['fields']['newsletter'] = $newsletterOption;
+            $options['tabs']['newsletter']['fields'] = array('newsletter');
+        }
+
+        return $options;
     }
 }

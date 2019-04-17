@@ -105,6 +105,7 @@ $_ARRAYLANG['passwordConfirmed'] = 'Kennwort bestätigen';
 $_ARRAYLANG['password'] = 'Kennwort';
 $_ARRAYLANG['primaryGroup'] = 'Primäre Benutzergruppe';
 $_ARRAYLANG['group'] = 'Zugeordnete Gruppen';
+$_ARRAYLANG['newsletter'] = 'Newsletter';
 
 $_ARRAYLANG['TXT_CORE_USER_PROFILE'] = 'Profil';
 $_ARRAYLANG['TXT_CORE_USER_GROUP_S'] = "Benutzergruppe(n)";

@@ -99,6 +99,7 @@ $_ARRAYLANG['passwordConfirmed'] = 'Confirm password';
 $_ARRAYLANG['password'] = 'Password';
 $_ARRAYLANG['primaryGroup'] = 'Primary User Group';
 $_ARRAYLANG['group'] = 'Assigned Groups';
+$_ARRAYLANG['newsletter'] = 'Newsletter';
 
 $_ARRAYLANG['TXT_CORE_USER_PROFILE'] = 'Profile';
 $_ARRAYLANG['TXT_CORE_USER_GROUP_S'] = "User group(s)";

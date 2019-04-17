@@ -61,7 +61,8 @@ class JsonUserController
             'storeUserAttributeValue',
             'getPasswordField',
             'getRoleIcon',
-            'filterCallback'
+            'filterCallback',
+            'storeNewsletterLists',
         );
     }
 
@@ -285,5 +286,60 @@ class JsonUserController
         }
 
         return $qb;
+    }
+
+    public function storeNewsletterLists($params)
+    {
+        global $objDatabase;
+
+        if (!isset($params) || empty($params['entity'])) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                'Fail'
+            );
+        }
+        $user = $params['entity'];
+        $values = array();
+        if (!empty($params['postedValue'])) {
+            $values = $params['postedValue'];
+        }
+
+        // Original FWUSer storeNewsletterSubscriptions
+        if (count($values)) {
+            foreach ($values as $key) {
+                $query = sprintf(
+                    'INSERT IGNORE INTO `%smodule_newsletter_access_user`
+                    (
+                        `accessUserId`, `newsletterCategoryID`, `code`
+                    ) VALUES (
+                        %s, %s, \'%s\'
+                    )',
+                    DBPREFIX,
+                    $user->getId(),
+                    intval($key),
+                    \Cx\Modules\Newsletter\Controller\NewsletterLib::_emailCode()
+                );
+                $objDatabase->Execute($query);
+            }
+            $delString = implode(',', $values);
+            $query = sprintf(
+                'DELETE FROM `%smodule_newsletter_access_user`
+                WHERE `newsletterCategoryID` NOT IN (%s)
+                AND `accessUserId`=%s',
+                DBPREFIX,
+                $delString,
+                $user->getId()
+            );
+        } else {
+            $query = sprintf(
+                'DELETE FROM `%smodule_newsletter_access_user`
+                WHERE `accessUserId`=%s',
+                DBPREFIX,
+                $user->getId()
+            );
+        }
+
+        if ($objDatabase->Execute($query) === false) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException('Fail');
+        }
     }
 }
