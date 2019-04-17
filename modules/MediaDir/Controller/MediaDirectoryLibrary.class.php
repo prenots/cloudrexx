@@ -421,8 +421,12 @@ class MediaDirectoryLibrary
     {
         global $objDatabase;
 
+        if (!empty(static::$settings)) {
+            $this->arrSettings = static::$settings;
+            return;
+        }
+
         $this->arrSettings = array();
-        static::$settings = array();
 
         $objSettings = $objDatabase->Execute("SELECT id,name,value FROM ".DBPREFIX."module_".$this->moduleNameLC."_settings ORDER BY name ASC");
         if ($objSettings === false) {
@@ -1681,5 +1685,12 @@ EOF;
         }
 
         return $sourceLocaleId;
+    }
+
+    /**
+     * Flush cached configuration data of component
+     */
+    protected static function flushSettings() {
+        static::$settings = array();
     }
 }

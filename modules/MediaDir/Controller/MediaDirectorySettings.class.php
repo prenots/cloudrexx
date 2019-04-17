@@ -522,6 +522,9 @@ EOF;
     {
         global $_ARRAYLANG, $_CORELANG, $objDatabase;
 
+        // flush cached settings
+        static::flushSettings();
+
         $strValueLon = contrexx_addslashes($arrData['settingsGoogleMap']['lon']);
         $strValueLat = contrexx_addslashes($arrData['settingsGoogleMap']['lat']);
         $strValueZoom = contrexx_addslashes($arrData['settingsGoogleMap']['zoom']);
@@ -1716,6 +1719,10 @@ EOF;
             }
         }
 
+        // flush cached settings
+        static::flushSettings();
+
+        // init updated settings
         parent::getSettings();
         parent::getCommunityGroups();
 

@@ -787,6 +787,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
         $objCategorySelector = $objDatabase->Execute("UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_order_rel_forms_selectors SET `selector_order`='".  contrexx_input2int($selectorOrder)."', `exp_search`='".intval($selectorExpSearch)."' WHERE `selector_id`='9' AND `form_id`='".$this->intFormId."'");
         $objLevelSelector = $objDatabase->Execute("UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_order_rel_forms_selectors SET `selector_order`='".  contrexx_input2int($selectorOrder2)."', `exp_search`='".intval($selectorExpSearch2)."' WHERE `selector_id`='10' AND `form_id`='".$this->intFormId."'");
 
+        // flush cached settings
+        static::flushSettings();
+
         if ($objCategorySelector === false || $objLevelSelector === false) {
             return false;
         }
@@ -895,6 +898,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
                     $objDatabase->Execute("UPDATE ".DBPREFIX."module_".$this->moduleTablePrefix."_inputfields SET `order`='".intval($arrData['order'])."' WHERE `id`='".intval($arrData['id'])."'");
                 }
             }
+
+            // flush cached settings
+            static::flushSettings();
         }
     }
 
@@ -925,6 +931,9 @@ class MediaDirectoryInputfield extends MediaDirectoryLibrary
 
         //refresh order
         $this->refreshOrder();
+
+        // flush cached settings
+        static::flushSettings();
     }
 
 
