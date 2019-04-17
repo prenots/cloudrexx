@@ -667,6 +667,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         array(
                             'data-vg-attrgroup' => 'search',
                             'data-vg-field' => $fieldName,
+                            'data-vg-no-fill' => true,
                             'form' => $formName,
                             'type' => 'checkbox',
                             'class' => 'vg-encode',
@@ -682,6 +683,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         ) === 0
                     ) {
                         $checkbox->setAttribute('checked', true);
+                        $checkbox->setAttribute('value', 0);
                     }
 
                     return $checkbox;
@@ -2107,7 +2109,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $i++;
         }
 
-        if (!isset($crit['showAllPendentOrders'])) {
+        if (empty($crit['showAllPendentOrders'])) {
             $qb->andWhere($qb->expr()->notLike('x.' . 'status', ':status'));
             $qb->setParameter('status', 0);
         }
