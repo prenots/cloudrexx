@@ -2003,6 +2003,7 @@ class User extends User_Profile
             \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->deleteComponentFiles('Access');
         }
 
+        \Cx\Core\Core\Controller\Cx::instanciate()->getComponent('Cache')->getCacheDriver()->flushAll();
 
         return true;
     }
