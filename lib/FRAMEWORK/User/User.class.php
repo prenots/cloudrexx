@@ -1432,8 +1432,12 @@ class User extends User_Profile
         $qb->setFirstResult($offset);
 
         $users = $qb->getQuery()->getResult();
-        // TODO: This is wrong:
-        $this->filtered_search_count = count($users);
+
+        $qb->select('count(tblU.id)');
+        $qb->setMaxResults(null);
+        $qb->setFirstResult(null);
+
+        $this->filtered_search_count = $qb->getQuery()->getSingleScalarResult();
 
         foreach ($users as $user) {
             foreach ($user->getUserAttributeValue() as $attr) {
