@@ -1622,9 +1622,9 @@ class User extends User_Profile
             $fieldName = $metadata->getFieldName($fieldName);
             $arrExpr[] = $qb->expr()->$exprMethod(
                 $table . '.' . $fieldName,
-                '?' . $counter
+                ':filter' . $counter
             );
-            $qb->setParameter($counter, $value);
+            $qb->setParameter('filter' . $counter, $value);
             $counter++;
         }
 
