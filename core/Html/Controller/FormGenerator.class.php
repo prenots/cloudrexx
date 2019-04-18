@@ -780,18 +780,29 @@ class FormGenerator {
                 $dataElementGroupType = \Cx\Core\Html\Model\Entity\DataElementGroup::TYPE_CHECKBOX;
             case 'radio':
                 $values = array();
-                if (isset($options['validValues'])) {
+                if (
+                    isset($options['validValues']) && 
+                    !is_array($options['validValues'])
+                ) {
                     $values = explode(',', $options['validValues']);
                     $values = array_combine($values, $values);
+                } else if (isset($options['validValues'])) {
+                    $values = $options['validValues'];
                 }
                 if (!isset($dataElementGroupType)) {
                     $dataElementGroupType = \Cx\Core\Html\Model\Entity\DataElementGroup::TYPE_RADIO;
+                }
+                $modern = false;
+                if (isset($options['mode']) && $options['mode'] == 'modern') {
+                    $modern = true;
                 }
                 $radio = new \Cx\Core\Html\Model\Entity\DataElementGroup(
                     $title,
                     $values,
                     $value,
-                    $dataElementGroupType
+                    $dataElementGroupType,
+                    null,
+                    $modern
                 );
                 if (isset($options['attributes'])) {
                     $radio->setAttributes($options['attributes']);
