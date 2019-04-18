@@ -326,10 +326,6 @@ class User extends User_Profile
      */
     public $error_msg = array();
 
-    protected $tblAttr = 'tblA';
-    protected $tblAttrVal = 'tblP';
-    protected $tblAttrName = 'tblN';
-
 
     /**
      * TRUE if user is authenticated
