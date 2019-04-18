@@ -1557,7 +1557,7 @@ class User extends User_Profile
         if (!in_array($key, $attrNames) && !empty($parentName)) {
             $fieldName = $parentName;
         // if $key is an attribute key or name
-        } else if (in_array($key, $attrNames) || isset($attrNames[$key])) {
+        } else if (in_array($key, $attrNames, true) || isset($attrNames[$key])) {
             $attributeId = $key;
             if (in_array($key, $attrNames)) {
                 $attributeId = array_search($key, $attrNames);
@@ -1599,7 +1599,10 @@ class User extends User_Profile
                 }
 
             }
-        } else if (is_array($value)) {
+        } else if (
+            is_array($value) &&
+            in_array(strtoupper(key($value)), array('OR', 'AND'))
+        ) {
             foreach ($value as $andKey=>$andValue) {
                 $expr = $this->getExpression($qb, $andKey, $andValue, $params, $counter, $attrNames, $arrExpr, $fieldName, $joins);
             }
@@ -1613,9 +1616,12 @@ class User extends User_Profile
             $exprMethod = 'eq';
             if (isset($simpleExprs[$key])) {
                 $exprMethod = $simpleExprs[$key];
+            } else if (is_array($value)) {
+                $exprMethod = 'in';
             } else if (strpos($value, '%')) {
                 $exprMethod = 'like';
             }
+
             $metadata = $qb->getEntityManager()->getClassMetadata(
                 'Cx\Core\User\Model\Entity\User'
             );
@@ -1640,7 +1646,7 @@ class User extends User_Profile
             $counter++;
         }
 
-        if (in_array($key, $attrNames)) {
+        if (in_array($key, $attrNames, true)) {
             $arrExpr = array( $qb->expr()->andX(
                 $arrExpr[0],
                 $qb->expr()->eq('attributeId', '?' . $counter)
