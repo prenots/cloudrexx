@@ -1368,6 +1368,11 @@ class User extends User_Profile
         $arrSelectCoreExpressions = array();
         $this->filtered_search_count = 0;
 
+        // if $filter is an integer its an ID by definition (see DocBlock)
+        if (is_numeric($filter)) {
+            $filter = array('id' => $filter);
+        }
+
         // set field list
         if (is_array($arrAttributes)) {
             foreach ($arrAttributes as $attribute) {
