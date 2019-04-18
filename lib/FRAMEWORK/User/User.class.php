@@ -1498,7 +1498,7 @@ class User extends User_Profile
             $expr = $this->getExpression($qb, $key, $condition, $params, $counter, $attrNames, $expr);
         }
 
-        foreach($expr as $ex) {
+        foreach ($expr as $ex) {
             $qb->andWhere($ex);
         }
     }
