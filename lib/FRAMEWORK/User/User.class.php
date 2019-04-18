@@ -1620,10 +1620,22 @@ class User extends User_Profile
                 'Cx\Core\User\Model\Entity\User'
             );
             $fieldName = $metadata->getFieldName($fieldName);
-            $arrExpr[] = $qb->expr()->$exprMethod(
-                $table . '.' . $fieldName,
-                ':filter' . $counter
-            );
+            // TODO: This should be resolved using metadata:
+            if ($fieldName == 'group_id') {
+                $fieldName = 'group';
+            }
+            if (
+                isset($metadata->associationMappings[$fieldName]) &&
+                $metadata->associationMappings[$fieldName]['type'] ==
+                \Doctrine\ORM\Mapping\ClassMetadataInfo::MANY_TO_MANY
+            ) {
+                $arrExpr[] = ':filter' . $counter . ' MEMBER OF ' . 'tblU.' . $fieldName;
+            } else {
+                $arrExpr[] = $qb->expr()->$exprMethod(
+                    $table . '.' . $fieldName,
+                    ':filter' . $counter
+                );
+            }
             $qb->setParameter('filter' . $counter, $value);
             $counter++;
         }
