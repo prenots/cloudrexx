@@ -2316,6 +2316,8 @@ class ViewGenerator {
                 $fieldoption,
                 $this->viewId
             );
+        } else if (isset($callback)) {
+            $value = $callback;
         }
         return $value;
     }
