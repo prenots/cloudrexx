@@ -60,7 +60,9 @@ class JsonUserController
             'getAttributeValues',
             'storeUserAttributeValue',
             'getPasswordField',
-            'getRoleIcon'
+            'getRoleIcon',
+            'filterCallback',
+            'storeNewsletterLists',
         );
     }
 
@@ -77,7 +79,7 @@ class JsonUserController
     /**
      * Returns default permission as object
      *
-     * @return \Cx\Core_Modules\Access\Model\Entity\Permissionl
+     * @return \Cx\Core_Modules\Access\Model\Entity\Permission
      */
     public function getDefaultPermissions()
     {
@@ -91,6 +93,11 @@ class JsonUserController
         return $permission;
     }
 
+    /**
+     * Store UserAttribute manually because these are custom options
+     *
+     * @param $param array parameters for callback
+     */
     public function storeUserAttributeValue($param)
     {
         if (empty($param['fieldName']) || empty($param['entity'])) {
@@ -132,6 +139,13 @@ class JsonUserController
         $em->persist($attrValue);
     }
 
+    /**
+     * Get a custom password field to hide the password and disable
+     * auto-complete
+     *
+     * @param $params array params for callback
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement password field
+     */
     public function getPasswordField($params)
     {
         global $_ARRAYLANG, $_CONFIG;
@@ -143,7 +157,8 @@ class JsonUserController
         $password->setAttributes(
             array(
                 'type' => 'text',
-                'class' => 'access-pw-noauto'
+                'class' => 'access-pw-noauto form-control',
+                'id' => 'form-0-' . $name
             )
         );
 
@@ -197,6 +212,12 @@ class JsonUserController
         return $wrapper;
     }
 
+    /**
+     * Get the appropriate role icon to display the roles graphically
+     *
+     * @param $params array params for table->parse callback
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement image with role icon
+     */
     public function getRoleIcon($params)
     {
         global $_ARRAYLANG;
@@ -226,5 +247,99 @@ class JsonUserController
     public function getAttributeValues($par)
     {
         // Todo: Übernehmen der ValueCallback Funktion
+    }
+
+    /**
+     * Custom filter callback function to filter the users by user groups and
+     * account type
+     *
+     * @param $params array contains all params for filter callback
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function filterCallback($params)
+    {
+        $qb = $params['qb'];
+        $crit = $params['crit'];
+
+        $i = 1;
+        foreach ($crit as $field=>$value) {
+            if ($field == 'group') {
+                $qb->andWhere('?'. $i .' MEMBER OF x.group');
+            } else if ($field == 'accountType') {
+                continue;
+                //$arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
+                $qb->join(
+                    'Cx\Modules\Crm\Model\Entity\CrmContact',
+                    'c',
+                    'WITH',
+                    'c.userAccount = u.id'
+                );
+                continue;
+            } else {
+                $qb->andWhere(
+                    $qb->expr()->eq('x.' . $field, '?' . $i)
+                );
+            }
+
+            $qb->setParameter($i, $value);
+            $i++;
+        }
+
+        return $qb;
+    }
+
+    public function storeNewsletterLists($params)
+    {
+        global $objDatabase;
+
+        if (!isset($params) || empty($params['entity'])) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                'Fail'
+            );
+        }
+        $user = $params['entity'];
+        $values = array();
+        if (!empty($params['postedValue'])) {
+            $values = $params['postedValue'];
+        }
+
+        // Original FWUSer storeNewsletterSubscriptions
+        if (count($values)) {
+            foreach ($values as $key) {
+                $query = sprintf(
+                    'INSERT IGNORE INTO `%smodule_newsletter_access_user`
+                    (
+                        `accessUserId`, `newsletterCategoryID`, `code`
+                    ) VALUES (
+                        %s, %s, \'%s\'
+                    )',
+                    DBPREFIX,
+                    $user->getId(),
+                    intval($key),
+                    \Cx\Modules\Newsletter\Controller\NewsletterLib::_emailCode()
+                );
+                $objDatabase->Execute($query);
+            }
+            $delString = implode(',', $values);
+            $query = sprintf(
+                'DELETE FROM `%smodule_newsletter_access_user`
+                WHERE `newsletterCategoryID` NOT IN (%s)
+                AND `accessUserId`=%s',
+                DBPREFIX,
+                $delString,
+                $user->getId()
+            );
+        } else {
+            $query = sprintf(
+                'DELETE FROM `%smodule_newsletter_access_user`
+                WHERE `accessUserId`=%s',
+                DBPREFIX,
+                $user->getId()
+            );
+        }
+
+        if ($objDatabase->Execute($query) === false) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException('Fail');
+        }
     }
 }

@@ -37,6 +37,55 @@ class BackendController extends
     protected $userId;
 
     /**
+     * This is called by the ComponentController and does all the repeating work
+     *
+     * Temporary used to load old access views.
+     *
+     * @param \Cx\Core\ContentManager\Model\Entity\Page $page Resolved page
+     */
+    public function getPage(
+        \Cx\Core\ContentManager\Model\Entity\Page $page
+    ) {
+        global $_ARRAYLANG, $objInit;
+
+        $act = '';
+        if (!empty($_GET['act'])) {
+            $splitAct = explode('/', $_GET['act']);
+            $act = $splitAct[0];
+            $tpl = $splitAct[1];
+
+        }
+
+        switch($act)  {
+            case 'Settings':
+            case 'config':
+            case 'Group':
+            case 'group':
+                $mappedNavItems = array(
+                    'Settings' => 'config',
+                    'Group' => 'group',
+                );
+
+                if (!empty($mappedNavItems[$act])) {
+                    $_REQUEST['act'] = $mappedNavItems[$act];
+                }
+
+                //load lang placeholders from access
+                $langData   = $objInit->loadLanguageData('Access');
+                $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
+                $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
+                $objAccessManager = new \Cx\Core_Modules\Access\Controller\AccessManager();
+                $objAccessManager->getPage();
+                return;
+            case 'user':
+                $_GET['act'] = '';
+        }
+
+        parent::getPage($page);
+    }
+
+    /**
      * This function returns the ViewGeneration options for a given entityClass
      *
      * @param string $entityClassName   contains the FQCN from entity
@@ -71,9 +120,11 @@ class BackendController extends
         );
 
         $uId = $this->getUserId();
-
         switch ($entityClassName) {
             case 'Cx\Core\User\Model\Entity\User':
+                $options['template'] = array(
+                    'tableView' => $this->cx->getCodeBaseCorePath(). '/User/View/Template/Backend/TableView.html'
+                );
                 $options['order'] = array(
                     'overview' => array(
                         'id',
@@ -109,6 +160,12 @@ class BackendController extends
                     ),
                     'alphabetical' => 'username'
                 );
+
+                $options['functions']['filterCallback'] = array(
+                    'adapter' => 'User',
+                    'method' => 'filterCallback'
+                );
+
                 $options['tabs']['groups'] = array(
                     'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
                     'fields' => array(
@@ -124,16 +181,35 @@ class BackendController extends
                     'active' => array(
                         'showOverview' => true,
                         'showDetail' => false,
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_USER_STATUS'],
+                                1 => $_ARRAYLANG['TXT_CORE_USER_ACTIVE'],
+                                0 => $_ARRAYLANG['TXT_CORE_USER_INACTIVE'],
+                            );
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     ),
                     'username' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData) {
-                                return $this->addEditUrl($value, $rowData);
+                            'parse' => function ($value, $rowData, $vg) {
+                                return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
                         'showOverview' => true,
                         'showDetail' => true,
                         'allowFiltering' => false,
+                        'allowSearching' => true,
                     ),
                     'isAdmin' => array(
                         'header' => '',
@@ -143,12 +219,30 @@ class BackendController extends
                                 'adapter' => 'User',
                                 'method' => 'getRoleIcon'
                             )
-                        )
+                        ),
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_USER_ROLE'],
+                                1 => $_ARRAYLANG['TXT_CORE_USER_ADMINISTRATORS'],
+                                0 => $_ARRAYLANG['TXT_CORE_USER_USERS']
+                            );
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     ),
                     'email' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData) {
-                                return $this->addEmailUrl($value, $rowData);
+                            'parse' => function ($value, $rowData, $vg) {
+                                return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
                         'showOverview' => true,
@@ -200,6 +294,11 @@ class BackendController extends
                                 return $this->getExpirationDropdown($fieldname, $fieldvalue);
                             },
                         'allowFiltering' => false,
+                        'table' => array(
+                            'parse' => function($value) {
+                                return $this->formatDate($value);
+                            }
+                        )
                     ),
                     'validity' => array(
                         'showOverview' => false,
@@ -281,7 +380,32 @@ class BackendController extends
                     ),
                     'group' => array(
                         'showOverview' => false,
-                        'mode' => 'associate'
+                        'mode' => 'associate',
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_SELECT_GROUP'],
+                            );
+
+                            $em = $this->cx->getDb()->getEntityManager();
+                            $groups = $em->getRepository(
+                                'Cx\Core\User\Model\Entity\Group'
+                            )->findBy(array('isActive' => 1));
+
+                            foreach ($groups as $group) {
+                                $validValues[$group->getGroupId()] = $group->getGroupName();
+                            }
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     ),
                     'lastActivity' => array(
                         'table' => array(
@@ -304,167 +428,29 @@ class BackendController extends
                         'showDetail' => false,
                         'allowSearching' => false,
                         'allowFiltering' => true,
-                        //$arrCustomJoins[] = 'INNER JOIN `'.DBPREFIX.'module_crm_contacts` AS tblCrm ON tblCrm.`user_account` = tblU.`id`';
+                        // todo: use a json adapter when ticket CLX-2671 is live
+                        'filterOptionsField' => function($parseObject, $fieldName, $elementName, $formName)
+                        {
+                            global $_ARRAYLANG;
+
+                            $validValues = array(
+                                '' => $_ARRAYLANG['TXT_CORE_USER_ACCOUNT'],
+                                1 => $_ARRAYLANG['TXT_CORE_USER_ALL'],
+                                0 => $_ARRAYLANG['TXT_CORE_USER_ONLY_CRM']
+                            );
+
+                            return $this->getFilterSelect(
+                                $fieldName,
+                                $elementName,
+                                $formName,
+                                $validValues
+                            );
+                        }
                     )
                 );
 
-                $em = $this->cx->getDb()->getEntityManager();
-
-                //Todo: Maybe filter by type
-                $userAttrs = $em->getRepository(
-                    'Cx\Core\User\Model\Entity\UserAttribute'
-                )->findBy(array('parent' => null), array('isDefault' => 'DESC', 'orderId' => 'ASC'));
-
-                foreach ($userAttrs as $attr) {
-                    $attrNames = $attr->getUserAttributeName()->filter(
-                        function($entry) {
-                            if (empty($entry->getLangId()) || $entry->getLangId() == FRONTEND_LANG_ID) {
-                                return $entry;
-                            }
-                        }
-                    );
-
-                    if (empty($attrNames) || empty($attrNames[0])) {
-                        continue;
-                    }
-                    $name = $attrNames[0]->getName();
-                    $optionName = 'userAttr-' . $attr->getId();
-
-                    $attrOption = array(
-                        'custom' => true,
-                        'showOverview' => false,
-                        'allowFiltering' => false,
-                        'storecallback' => array(
-                            'adapter' => 'User',
-                            'method' => 'storeUserAttributeValue'
-                        ), // todo: move value callback func in json controller
-                        'valueCallback' => function($value, $name, $data) use ($attr) {
-                            $historyId = 0;
-                            $userId = 0;
-                            // Only use $data['id'] if the CLX-2542 ticket is
-                            // live.
-                            if (!empty($this->userId)) {
-                                $userId = $this->userId;
-                            } else if (isset($data['id'])) {
-                                $userId = $data['id'];
-                            } else {
-                                return '';
-                            }
-
-                            $em = $this->cx->getDb()->getEntityManager();
-                            $value = $em->getRepository(
-                                '\Cx\Core\User\Model\Entity\UserAttributeValue'
-                            )->findOneBy(
-                                array(
-                                    'userId' => $userId,
-                                    'attributeId' => $attr->getId(),
-                                    'history' => $historyId
-                                )
-                            );
-
-                            if (!empty($value)) {
-                                return $value->getValue();
-                            }
-                            return '';
-                        }
-                    );
-
-                    // Use Name of non core-attributes as header. The headers
-                    // for core-attributes are defined in the lang files.
-                    if ($attr->getIsDefault()) {
-                        $header = $_ARRAYLANG[$name];
-
-                        // replace vg-order with the correct option names
-                        if (in_array($name, $options['order']['overview'])) {
-                            $orderKey = array_search($name, $options['order']['overview']);
-                            $options['order']['overview'][$orderKey] = $optionName;
-                            $attrOption['showOverview'] = true;
-                        }
-                    } else {
-                        $header = $name;
-                    }
-
-                    $attrOption['header'] = $header;
-
-                    switch ($attr->getType()) {
-                        case 'date':
-                        case 'mail':
-                            $attrOption['type'] = $attr->getType();
-                            break;
-                        case 'uri':
-                            //<input type="hidden" name="[NAME]" value="[VALUE]" />
-                            //<em>[VALUE_TXT]</em>
-                            // <a href="javascript:void(0);"
-                            //    onclick="elLink=null;elDiv=null;elInput=null;pntEl=this.previousSibling;while ((typeof(elInput)==\'undefined\'||typeof(elDiv)!=\'undefined\')&& pntEl!=null) {switch(pntEl.nodeName) {case\'INPUT\':elInput=pntEl;break;case\'EM\':elDiv=pntEl;if (elDiv.getElementsByTagName(\'a\').length>0) {elLink=elDiv.getElementsByTagName(\'a\')[0];}break;}pntEl=pntEl.previousSibling;}accessSetWebsite(elInput,elDiv,elLink)" title="'.$_CORELANG['TXT_ACCESS_CHANGE_WEBSITE'].'"><img align="middle" src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/edit.gif" width="16" height="16" border="0" alt="'.$_CORELANG['TXT_ACCESS_CHANGE_WEBSITE'].'" /></a>',
-                            break;
-                        case 'image':
-                            //$attrOption['type'] = 'image';
-                            break;
-                        case 'checkbox':
-                            break;
-                        case 'menu':
-                            $validValues = array();
-                            if (!$attr->getMandatory()) {
-                                $validValues = array(
-                                    $_ARRAYLANG['TXT_CORE_USER_NONE_SPECIFIED']
-                                );
-                            }
-
-                            if (count($attr->getChildren())) {
-                                foreach ( $attr->getChildren() as $child) {
-                                    foreach ($child->getUserAttributeName() as $childName) {
-                                        if ($childName->getLangId() == FRONTEND_LANG_ID) {
-                                            $validValues[
-                                            $childName->getAttributeId()
-                                            ] = $childName->getName();
-                                        }
-                                    }
-                                }
-                            } else if ($name == 'gender') {
-                                $validValues = array(
-                                    'gender_undefined' => $_ARRAYLANG[
-                                        'TXT_CORE_USER_GENDER_UNDEFINED'
-                                    ],
-                                    'gender_female' => $_ARRAYLANG[
-                                        'TXT_CORE_USER_GENDER_FEMALE'
-                                    ],
-                                    'gender_male' => $_ARRAYLANG[
-                                        'TXT_CORE_USER_GENDER_MALE'
-                                    ]
-                                );
-                            }
-
-                            $attrOption['type'] = 'select';
-                            $attrOption['validValues'] = $validValues;
-                            break;
-                        case 'menu_option':
-                            break;
-                        case 'frame':
-                            // Later
-                            break;
-                        case 'group':
-                            // Later
-                            break;
-                        case 'history':
-                            // Later
-                            break;
-                        case 'textarea':
-                            $attrOption['type'] = 'text';
-                            break;
-                        case 'text':
-                        default:
-                            if ($name == 'country') {
-                                $attrOption['type'] = 'Country';
-                                break;
-                            }
-                            $attrOption['type'] = 'string';
-                            break;
-                    }
-
-                    $options['fields'][$optionName] = $attrOption;
-                    $options['tabs']['profile']['fields'][] = $optionName;
-                }
-                $options['tabs']['profile']['header'] = $_ARRAYLANG['TXT_CORE_USER_PROFILE'];
+                $options = $this->appendUserAttributes($options);
+                $options = $this->appendNewsletterLists($options);
                 break;
             case 'Cx\Core\User\Model\Entity\Group':
                 $options['order'] = array(
@@ -677,6 +663,10 @@ class BackendController extends
      */
     protected function formatDate($value)
     {
+        if (empty($value)) {
+            return '-';
+        }
+
         $date = '@' . $value;
 
         $dateElement = new \DateTime($date);
@@ -717,7 +707,7 @@ class BackendController extends
      * @param $rowData
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      */
-    protected function addEditUrl($value,$rowData)
+    protected function addEditUrl($value,$rowData, $vg)
     {
         global $_ARRAYLANG;
 
@@ -727,14 +717,11 @@ class BackendController extends
             'a'
         );
 
-        $editUrl = \Cx\Core\Routing\Url::fromMagic(
-            \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteBackendPath() .
-            '/' . $this->getName() . '/User'
-        );
-
         $userId = $rowData['id'];
-
-        $editUrl->setParam('editid', $userId);
+        $editUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
+            $vg,
+            $userId
+        );
 
         $setEditUrl->setAttributes(array('href' => $editUrl, 'title' => $_ARRAYLANG['TXT_CORE_USER_EDIT_TITLE']));
 
@@ -1139,5 +1126,354 @@ class BackendController extends
             return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS_WITH_COMPLEXITY'];
         }
         return $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS'];
+    }
+
+    /**
+     * Returns a select element for the extended search
+     *
+     * @param $fieldName   string name of field
+     * @param $elementName string name of element
+     * @param $formName    string name of form
+     * @param $validValues array  select options
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
+    protected function getFilterSelect($fieldName, $elementName, $formName, $validValues)
+    {
+        $select = new \Cx\Core\Html\Model\Entity\DataElement(
+            $elementName,
+            '',
+            'select',
+            null,
+            $validValues
+        );
+
+        // attributes required for the filters to work
+        $select->setAttributes(
+            array(
+                'data-vg-attrgroup' => 'search',
+                'data-vg-field' => $fieldName,
+                'form' => $formName,
+                'type' => 'checkbox',
+                'class' => 'vg-encode',
+                'id' => $elementName,
+            )
+        );
+
+        return $select;
+    }
+
+    /**
+     * Add a custom ViewGenerator option for each UserAttribute. The output will
+     * vary depending on the type of attribute.
+     *
+     * @param $options array already configured options
+     * @return array ViewGenerator options with appended custom options
+     */
+    protected function appendUserAttributes($options)
+    {
+        global $_ARRAYLANG;
+
+        $options['tabs']['profile']['header'] = $_ARRAYLANG[
+            'TXT_CORE_USER_PROFILE'
+        ];
+
+        $em = $this->cx->getDb()->getEntityManager();
+        $userAttrs = $em->getRepository(
+            'Cx\Core\User\Model\Entity\UserAttribute'
+        )->findBy(
+            array('parent' => null),
+            array('isDefault' => 'DESC', 'orderId' => 'ASC')
+        );
+
+        foreach ($userAttrs as $attr) {
+            $attrNames = $attr->getUserAttributeName()->filter(
+                function($entry) {
+                    if (
+                        empty($entry->getLangId()) ||
+                        $entry->getLangId() == FRONTEND_LANG_ID
+                    ) {
+                        return $entry;
+                    }
+                }
+            );
+
+            if (empty($attrNames) || empty($attrNames[0])) {
+                continue;
+            }
+            $name = $attrNames[0]->getName();
+            $optionName = 'userAttr-' . $attr->getId();
+
+            $attrOption = array(
+                'custom' => true,
+                'showOverview' => false,
+                'allowFiltering' => false,
+                'storecallback' => array(
+                    'adapter' => 'User',
+                    'method' => 'storeUserAttributeValue'
+                ), // todo: move value callback func in json controller
+                'valueCallback' => function($value, $name, $data) use ($attr) {
+                    $historyId = 0;
+                    // Only use $data['id'] if the CLX-2542 ticket is
+                    // live.
+                    if (!empty($this->userId)) {
+                        $userId = $this->userId;
+                    } else if (isset($data['id'])) {
+                        $userId = $data['id'];
+                    } else {
+                        return '';
+                    }
+
+                    $em = $this->cx->getDb()->getEntityManager();
+                    $value = $em->getRepository(
+                        '\Cx\Core\User\Model\Entity\UserAttributeValue'
+                    )->findOneBy(
+                        array(
+                            'userId' => $userId,
+                            'attributeId' => $attr->getId(),
+                            'history' => $historyId
+                        )
+                    );
+
+                    if (!empty($value)) {
+                        return $value->getValue();
+                    }
+                    return '';
+                }
+            );
+
+            // Use Name of non core-attributes as header. The headers
+            // for core-attributes are defined in the lang files.
+            if ($attr->getIsDefault()) {
+                $header = $_ARRAYLANG[$name];
+
+                // replace vg-order with the correct option names
+                if (in_array($name, $options['order']['overview'])) {
+                    $orderKey = array_search(
+                        $name, $options['order']['overview']
+                    );
+                    $options['order']['overview'][$orderKey] = $optionName;
+                    $attrOption['showOverview'] = true;
+                }
+            } else {
+                $header = $name;
+            }
+
+            $attrOption['header'] = $header;
+
+            switch ($attr->getType()) {
+                case 'date':
+                case 'mail':
+                    $attrOption['type'] = $attr->getType();
+                    break;
+                case 'uri':
+                    //<input type="hidden" name="[NAME]" value="[VALUE]" />
+                    //<em>[VALUE_TXT]</em>
+                    // <a href="javascript:void(0);"
+                    //    onclick="elLink=null;elDiv=null;elInput=null;pntEl=this.previousSibling;while ((typeof(elInput)==\'undefined\'||typeof(elDiv)!=\'undefined\')&& pntEl!=null) {switch(pntEl.nodeName) {case\'INPUT\':elInput=pntEl;break;case\'EM\':elDiv=pntEl;if (elDiv.getElementsByTagName(\'a\').length>0) {elLink=elDiv.getElementsByTagName(\'a\')[0];}break;}pntEl=pntEl.previousSibling;}accessSetWebsite(elInput,elDiv,elLink)" title="'.$_CORELANG['TXT_ACCESS_CHANGE_WEBSITE'].'"><img align="middle" src="'.ASCMS_CORE_MODULE_WEB_PATH.'/Access/View/Media/edit.gif" width="16" height="16" border="0" alt="'.$_CORELANG['TXT_ACCESS_CHANGE_WEBSITE'].'" /></a>',
+                    break;
+                case 'image':
+                    //$attrOption['type'] = 'image';
+                    break;
+                case 'checkbox':
+                    break;
+                case 'menu':
+                    $attrOption = $this->getCustomMenuOption(
+                        $attr, $name, $attrOption
+                    );
+                    break;
+                case 'menu_option':
+                    break;
+                case 'frame':
+                    // Later
+                    break;
+                case 'group':
+                    // Later
+                    break;
+                case 'history':
+                    // Later
+                    break;
+                case 'textarea':
+                    $attrOption['type'] = 'text';
+                    break;
+                case 'text':
+                default:
+                    if ($name == 'country') {
+                        $attrOption['type'] = 'Country';
+                        break;
+                    }
+                    $attrOption['type'] = 'string';
+                    break;
+            }
+
+            $options['fields'][$optionName] = $attrOption;
+            $options['tabs']['profile']['fields'][] = $optionName;
+        }
+
+        return $options;
+    }
+
+
+    /**
+     * Get an array of ViewGenerator configurations for a select element
+     *
+     * @param $attr       \Cx\Core\User\Model\Entity\UserAttribute attribute
+     * @param $name       string                                   name of
+     *                                                             attribute
+     * @param $attrOption array                                    presets
+     * @return array configurations for ViewGenerator
+     */
+    protected function getCustomMenuOption($attr, $name, $attrOption)
+    {
+        global $_ARRAYLANG;
+
+        $validValues = array();
+
+        if (!$attr->getMandatory()) {
+            $validValues = array(
+                $_ARRAYLANG['TXT_CORE_USER_NONE_SPECIFIED']
+            );
+        }
+
+        if (count($attr->getChildren())) {
+            foreach ( $attr->getChildren() as $child) {
+                foreach ($child->getUserAttributeName() as $childName) {
+                    if ($childName->getLangId() == FRONTEND_LANG_ID) {
+                        $validValues[
+                        $childName->getAttributeId()
+                        ] = $childName->getName();
+                    }
+                }
+            }
+        } else if ($name == 'gender') {
+            $validValues = array(
+                'gender_undefined' => $_ARRAYLANG[
+                'TXT_CORE_USER_GENDER_UNDEFINED'
+                ],
+                'gender_female' => $_ARRAYLANG[
+                'TXT_CORE_USER_GENDER_FEMALE'
+                ],
+                'gender_male' => $_ARRAYLANG[
+                'TXT_CORE_USER_GENDER_MALE'
+                ]
+            );
+        }
+
+        $attrOption['type'] = 'select';
+        $attrOption['validValues'] = $validValues;
+
+        return $attrOption;
+    }
+
+    protected function appendNewsletterLists($options)
+    {
+        global $_CONFIG, $objDatabase, $objInit, $_ARRAYLANG;
+
+        $options['tabs']['newsletter']['header'] = $_ARRAYLANG['newsletter'];
+        $options['fields']['newsletter'] = array(
+            'custom' => true,
+            'type' => 'checkboxes',
+            'mode' => 'key',
+            'storecallback' => array(
+                'adapter' => 'User',
+                'method' => 'storeNewsletterLists'
+            ),
+            'showOverview' => false,
+            'allowFiltering' => false,
+        );
+
+        if (empty($this->userId)) {
+            return $options;
+        }
+
+        $user = \FWUser::getFWUserObject()->objUser->getUser($this->userId);
+        if (empty($user)) {
+            return $options;
+        }
+
+        if (
+            \Cx\Core_Modules\License\License::getCached(
+                $_CONFIG, $objDatabase
+            )->isInLegalComponents('Newsletter')
+        ) {
+            $arrSubscribedNewsletterListIDs = $user->getSubscribedNewsletterListIDs();
+            $arrNewsletterLists = \Cx\Modules\Newsletter\Controller\NewsletterLib::getLists();
+
+            if (!count($arrNewsletterLists)) {
+                return $options;
+            }
+
+            $consent = array();
+            if (
+                \Cx\Core\Core\Controller\Cx::instanciate()->getMode() ==
+                \Cx\Core\Core\Controller\Cx::MODE_BACKEND &&
+                !empty($user->getId())
+            ) {
+                // load additional newsletter data
+                $query = '
+                    SELECT
+                        `newsletterCategoryID` as `category`,
+                        `source`,
+                        `consent`
+                    FROM
+                        `' . DBPREFIX . 'module_newsletter_access_user`
+                    WHERE
+                        `accessUserID` = ' . $user->getId() . '
+                ';
+                $consentResult = $objDatabase->Execute($query);
+                while (!$consentResult->EOF) {
+                    $consent[$consentResult->fields['category']] = array(
+                        'source' => $consentResult->fields['source'],
+                        'consent' => $consentResult->fields['consent'],
+                    );
+                    $consentResult->MoveNext();
+                }
+                $_ARRAYLANG += $objInit->getComponentSpecificLanguageData(
+                    'Newsletter',
+                    false
+                );
+            }
+
+            $newsletterOption = $options['fields']['newsletter'];
+            $validValues = array();
+            $selectedValues = array();
+            foreach ($arrNewsletterLists as $listId => $arrList) {
+                if (
+                    $objInit->mode != 'backend' &&
+                    !$arrList['status'] &&
+                    !in_array($listId, $arrSubscribedNewsletterListIDs)
+                ) {
+                    continue;
+                }
+
+                $value = contrexx_raw2xhtml($arrList['name']);
+                if (count($consent)) {
+                    if (!isset($consent[$listId])) {
+                        $consent[$listId] = array(
+                            'source' => 'undefined',
+                            'consent' => '',
+                        );
+                    }
+
+                    $consentView = \Cx\Modules\Newsletter\Controller\NewsletterLib::parseConsentView(
+                        $consent[$listId]['source'],
+                        $consent[$listId]['consent']
+                    );
+
+                    $value .= ' ' . $consentView;
+                }
+
+                $validValues[$listId] = $value;
+
+                if (in_array($listId, $arrSubscribedNewsletterListIDs)) {
+                    $selectedValues[] = $listId;
+                }
+            }
+            $newsletterOption['valueCallback'] = implode(',', $selectedValues);
+            $newsletterOption['validValues'] = $validValues;
+            $options['fields']['newsletter'] = $newsletterOption;
+            $options['tabs']['newsletter']['fields'] = array('newsletter');
+        }
+
+        return $options;
     }
 }

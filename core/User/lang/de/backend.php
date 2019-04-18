@@ -105,6 +105,7 @@ $_ARRAYLANG['passwordConfirmed'] = 'Kennwort bestätigen';
 $_ARRAYLANG['password'] = 'Kennwort';
 $_ARRAYLANG['primaryGroup'] = 'Primäre Benutzergruppe';
 $_ARRAYLANG['group'] = 'Zugeordnete Gruppen';
+$_ARRAYLANG['newsletter'] = 'Newsletter';
 
 $_ARRAYLANG['TXT_CORE_USER_PROFILE'] = 'Profil';
 $_ARRAYLANG['TXT_CORE_USER_GROUP_S'] = "Benutzergruppe(n)";
@@ -123,3 +124,16 @@ $_ARRAYLANG['TXT_CORE_USER_PASSWORD_MINIMAL_CHARACTERS_WITH_COMPLEXITY'] = "Das 
 
 $_ARRAYLANG['TXT_CORE_USER_NO_ADMINISTRATOR'] = "Kein Administrator";
 $_ARRAYLANG['TXT_CORE_USER_ADMINISTRATOR'] = "Administrator";
+
+$_ARRAYLANG['TXT_CORE_USER_FILTER'] = 'Filter';
+$_ARRAYLANG['TXT_CORE_USER_ALL'] = 'Alle';
+$_ARRAYLANG['TXT_CORE_SELECT_GROUP'] = 'Gruppe auswählen';
+$_ARRAYLANG['TXT_CORE_USER_ACCOUNT'] = "Benutzerkonto";
+$_ARRAYLANG['TXT_CORE_USER_ROLE'] = "Benutzerrolle";
+$_ARRAYLANG['TXT_CORE_USER_STATUS'] = "Benutzerstatus";
+$_ARRAYLANG['TXT_CORE_USER_ONLY_CRM'] = "Nur CRM";
+$_ARRAYLANG['TXT_CORE_USER_ACTIVE'] = "Aktiv";
+$_ARRAYLANG['TXT_CORE_USER_INACTIVE'] = "Inaktiv";
+$_ARRAYLANG['TXT_CORE_USER_ADMINISTRATORS'] = "Administratoren";
+$_ARRAYLANG['TXT_CORE_USER_USERS'] = "Benutzer";
+$_ARRAYLANG['TXT_CORE_USER_NO_USER_WITH_SAME_ID'] = "Sie können Ihr eigenes Benutzerkonto nicht deaktivieren.";

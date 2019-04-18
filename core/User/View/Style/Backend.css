@@ -56,3 +56,67 @@ form.cx-ui input[name="password"],
 #form_0_group_chosen {
     width: 308px !important;
 }
+
+#vg-0-extendedSearch .user-search td {
+    width: 5%;
+}
+
+#vg-0-extendedSearch .user-search td:last-child {
+    width: 85%;
+}
+
+#vg-0-filterSearch .search-bar {
+    width:300px;
+}
+
+form.cx-ui > fieldset .group > .controls {
+    margin-left: 22px;
+    float: inherit;
+    display: inline-block;
+}
+
+form.cx-ui > fieldset .group > label {
+    float: unset;
+    display: inline-block;
+}
+
+form.cx-ui > fieldset #form-0-newsletter .group > label {
+    display: none;
+}
+form.cx-ui > fieldset #form-0-newsletter .group > .controls {
+    margin: 0;
+}
+
+#form-0-newsletter .controls {
+    width: 100%;
+}
+
+#content div[name="newsletter"] {
+    display: block;
+}
+#content #form-0-newsletter .group {
+    padding-bottom: 0;
+}
+
+#content div[name="newsletter"] label {
+    width: calc(100% - 25px);
+    float: right;
+    line-height: 27px;
+}
+
+#content div[name="newsletter"] input {
+    float: left;
+    margin: 7px 5px !important;
+}
+
+#content div[name="newsletter"] label::after {
+    border-bottom: 1px solid #e5e5e5;
+    content: ' ';
+    width: calc(100% + 25px);
+    float: left;
+    margin-left: -25px;
+}
+
+#content div[name="newsletter"] label:last-of-type::after {
+    display: none;
+}
