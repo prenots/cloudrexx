@@ -1413,6 +1413,9 @@ class User extends User_Profile
         $qb = $em->createQueryBuilder();
         $qb->select('tblU')
             ->from('\Cx\Core\User\Model\Entity\User', 'tblU');
+        if (!empty($search)) {
+            $this->parseSearchConditions($search, $qb, $attributeList);
+        }
         if (isset($filter) && is_array($filter) && count($filter) || !empty($search)) {
             $this->getAttrConditions($filter, $qb, $attributeList);
         } else if (!empty($filter)) {
@@ -1477,6 +1480,32 @@ class User extends User_Profile
         }
         $this->first();
         return true;
+    }
+
+    /**
+     * Parses conditions for search
+     *
+     * @todo: $search is not properly parsed if its not an array
+     * @todo: search should be surrounded with % according to old code
+     * @todo: Search for attributes
+     * @param array|string $search What to search for
+     * @param \Doctrine\ORM\QueryBuilder $qb Query builder to apply search conditions to
+     */
+    protected function parseSearchConditions($search, $qb) {
+        $attributes = array('username');
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        if ($cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
+            $attributes[] = 'email';
+        }
+        foreach ($attributes as $attribute) {
+            $qb->orWhere(
+                $qb->expr()->like('tblU.' . $attribute, ':search')
+            );
+        }
+        $qb->setParameter('search', current($search));
+
+        //all attributes with read permission of type "text", "mail", "uri",
+        //"image", "menu"
     }
 
     /**
