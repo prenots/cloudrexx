@@ -174,7 +174,7 @@ class UserAttributeName extends \Cx\Model\Base\EntityBase {
      * @param \Cx\Core\User\Model\Entity\UserAttribute $userAttribute
      * @return UserAttributeName
      */
-    public function setUserAttribute(\Cx\Core\User\Model\Entity\UserAttribute $userAttribute = null)
+    public function setUserAttribute(\Cx\Core\User\Model\Entity\UserAttribute $userAttribute)
     {
         $this->userAttribute = $userAttribute;
     }

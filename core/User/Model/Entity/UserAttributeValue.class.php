@@ -162,7 +162,7 @@ class UserAttributeValue extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Core\User\Model\Entity\User $user
      */
-    public function setUser(\Cx\Core\User\Model\Entity\User $user = null)
+    public function setUser(\Cx\Core\User\Model\Entity\User $user)
     {
         $this->user = $user;
     }
@@ -182,7 +182,7 @@ class UserAttributeValue extends \Cx\Model\Base\EntityBase {
      *
      * @param \Cx\Core\User\Model\Entity\UserAttribute $userAttribute
      */
-    public function setUserAttribute(\Cx\Core\User\Model\Entity\UserAttribute $userAttribute = null)
+    public function setUserAttribute(\Cx\Core\User\Model\Entity\UserAttribute $userAttribute)
     {
         $this->userAttribute = $userAttribute;
     }
