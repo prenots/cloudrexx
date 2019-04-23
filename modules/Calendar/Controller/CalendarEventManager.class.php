@@ -593,8 +593,7 @@ class CalendarEventManager extends CalendarLibrary
      *
      * @return null
      */
-    function getEvent($event, $eventStartDate, $forceCalculateSeries = false)
-    {
+    function getEvent($event, $eventStartDate, $forceCalculateSeries = false) {
         global $objInit;
 
         if ($event instanceof \Cx\Modules\Calendar\Controller\CalendarEvent) {
