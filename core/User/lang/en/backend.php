@@ -137,3 +137,6 @@ $_ARRAYLANG['TXT_CORE_USER_ADD_DAM_CATEGORY'] = "Add a new, personal category to
 $_ARRAYLANG['TXT_CORE_USER_CUSTOMER_TITLE'] = "Customer: %s";
 $_ARRAYLANG['TXT_CORE_USER_ACCOUNT_GROUP_DESC'] = "Personal group of the user %s";
 $_ARRAYLANG['TXT_CORE_USER_NEW_DAM_CATEGORY_CREATED_TXT'] = "A new category has been created for the user %s in the Digital Asset Management module. The category's name is %s.";
+$_ARRAYLANG['TXT_CORE_USER_NOT FOUND'] = 'User could not be found.';
+$_ARRAYLANG['TXT_CORE_USER_NOT_BE_SAVED'] = 'User could not be saved.';
+$_ARRAYLANG['TXT_CORE_USER_ATTRIBUTE_NOT_FOUND'] = 'Attribute could not be found.';
