@@ -262,7 +262,7 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
      * @return  boolean
      * @static
      */
-    public static function isValidUsername($username)
+    protected function isValidUsername($username)
     {
         if (preg_match('/^[a-zA-Z0-9-_]*$/', $username)) {
             return true;
