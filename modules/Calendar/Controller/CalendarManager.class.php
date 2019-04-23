@@ -1836,7 +1836,7 @@ class CalendarManager extends CalendarLibrary
                 $this->okMessage = $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_SUCCESSFULLY_SAVED'];
                 \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd='.$this->moduleName.'&act=event_registrations&tpl='.$tpl.'&id='.$eventId);
             } else {
-                    $this->errMessage = $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_CORRUPT_SAVED'];
+                $this->errMessage = $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_CORRUPT_SAVED'];
             }
         }
 
