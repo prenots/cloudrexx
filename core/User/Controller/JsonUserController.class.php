@@ -102,17 +102,21 @@ class JsonUserController
      */
     public function storeUserAttributeValue($param)
     {
+        global $_ARRAYLANG;
+
         if (empty($param['fieldName']) || empty($param['entity'])) {
-            // Todo: exception
-            return;
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_ARRAYLANG['TXT_CORE_USER_NOT_FOUND']
+            );
         }
         $fieldName = $param['fieldName'];
         $user = $param['entity'];
         $attrId = explode('-', $fieldName)[1];
 
         if (empty($attrId)) {
-            // Todo: exception
-            return;
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_ARRAYLANG['TXT_CORE_USER_ATTRIBUTE_NOT_FOUND']
+            );
         }
 
         $em = $this->cx->getDb()->getEntityManager();
