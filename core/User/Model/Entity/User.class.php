@@ -714,9 +714,77 @@ class User extends \Cx\Model\Base\EntityBase {
         return $this->userAttributeValue;
     }
 
+    /**
+     * Return the first- and lastname if they are defined. If this is not the
+     * case, check if a username exists. If this also does not exist, the
+     * e-mail address will be returned.
+     *
+     * @return string firstname & lastname, username or email
+     */
     public function __toString()
     {
-        // TODO: (Firstname Lastname)
-        return $this->getEmail();
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+
+        // values which we would like to get
+        $profileAttrs = array(
+            'lastname' => '',
+            'firstname' => ''
+        );
+
+        $attrNameRepo = $em->getRepository(
+            'Cx\Core\User\Model\Entity\UserAttributeName'
+        );
+
+        foreach ($profileAttrs as $name => $value) {
+            $selectedAttrName = $attrNameRepo->findOneBy(
+                array('name' => $name)
+            );
+
+            $userAttrValues = array();
+            if (!empty($this->getUserAttributeValue())) {
+                $userAttrValues = $this->getUserAttributeValue();
+            }
+
+            if (is_array($userAttrValues)) {
+                // must be converted, since $userAttrValues is an array
+                $collection = new \Doctrine\Common\Collections\ArrayCollection(
+                    $userAttrValues
+                );
+            } else {
+                $collection = $userAttrValues;
+            }
+
+
+            if (!empty($selectedAttrName)) {
+                $attrId = $selectedAttrName->getAttributeId();
+                $selectedAttrValue = $collection->filter(
+                    function($attrValue) use ($attrId) {
+                        if ($attrId == $attrValue->getAttributeId()) {
+                            return $attrValue;
+                        }
+                    }
+                )->first();
+
+                if (!empty($value)) {
+                    $profileAttrs[$name] = $selectedAttrValue->getValue();
+                }
+            }
+        }
+
+        if (
+            !empty($profileAttrs['firstname']) ||
+            !empty($profileAttrs['lastname'])
+        ) {
+            $userName = trim(
+                $profileAttrs['firstname'].' '. $profileAttrs['lastname']
+            );
+        } else if (!empty($this->getUsername())) {
+            $userName = $this->getUsername();
+        } else {
+            $userName = $this->getEmail();
+        }
+
+        return $userName;
     }
 }
