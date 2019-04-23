@@ -1405,29 +1405,24 @@ class BackendController extends
             'custom' => true,
             'type' => 'checkboxes',
             'mode' => 'key',
-            'storecallback' => array(
-                'adapter' => 'User',
-                'method' => 'storeNewsletterLists'
-            ),
             'showOverview' => false,
             'allowFiltering' => false,
         );
-
-        if (empty($this->userId)) {
-            return $options;
-        }
-
-        $user = \FWUser::getFWUserObject()->objUser->getUser($this->userId);
-        if (empty($user)) {
-            return $options;
-        }
 
         if (
             \Cx\Core_Modules\License\License::getCached(
                 $_CONFIG, $objDatabase
             )->isInLegalComponents('Newsletter')
         ) {
-            $arrSubscribedNewsletterListIDs = $user->getSubscribedNewsletterListIDs();
+
+            $arrSubscribedNewsletterListIDs = array();
+            if (!empty($this->userId)) {
+                $user = \FWUser::getFWUserObject()->objUser->getUser($this->userId);
+                if (!empty($user)) {
+                    $arrSubscribedNewsletterListIDs = $user->getSubscribedNewsletterListIDs();
+                }
+            }
+
             $arrNewsletterLists = \Cx\Modules\Newsletter\Controller\NewsletterLib::getLists();
 
             if (!count($arrNewsletterLists)) {
@@ -1438,7 +1433,7 @@ class BackendController extends
             if (
                 \Cx\Core\Core\Controller\Cx::instanciate()->getMode() ==
                 \Cx\Core\Core\Controller\Cx::MODE_BACKEND &&
-                !empty($user->getId())
+                !empty($this->userId)
             ) {
                 // load additional newsletter data
                 $query = '
@@ -1449,7 +1444,7 @@ class BackendController extends
                     FROM
                         `' . DBPREFIX . 'module_newsletter_access_user`
                     WHERE
-                        `accessUserID` = ' . $user->getId() . '
+                        `accessUserID` = ' . $this->userId . '
                 ';
                 $consentResult = $objDatabase->Execute($query);
                 while (!$consentResult->EOF) {

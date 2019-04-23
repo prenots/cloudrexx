@@ -62,7 +62,9 @@ class JsonUserController
             'getPasswordField',
             'getRoleIcon',
             'filterCallback',
-            'storeNewsletterLists',
+            'storeNewsletter',
+            'storeDownloadExtension',
+            'storeOnlyNewsletterLists',
         );
     }
 
@@ -288,19 +290,36 @@ class JsonUserController
         return $qb;
     }
 
-    public function storeNewsletterLists($params)
+    /**
+     * If only newsletter lists are to be removed, the entity is not persisted
+     * and as a result the storeNewsletter function is not called. To remove the
+     * newsletter lists this method is called as StoreCallback. To prevent the
+     * newsletter lists from being saved twice, the storeNewsletter method is
+     * only called if newsletter lists are to be removed
+     *
+     * @param $params array contains all params for store callback
+     * @throws \Cx\Core\Error\Model\Entity\ShinyException
+     */
+    public function storeOnlyNewsletterLists($params)
     {
-        global $objDatabase;
+        if (isset($params) && empty($params['postedValue'])) {
+            $this->storeNewsletter($params);
+        }
+    }
+
+    public function storeNewsletter($params)
+    {
+        global $_ARRAYLANG, $objDatabase;
 
         if (!isset($params) || empty($params['entity'])) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                'Fail'
+                $_ARRAYLANG['TXT_CORE_USER_NOT_FOUND']
             );
         }
         $user = $params['entity'];
         $values = array();
-        if (!empty($params['postedValue'])) {
-            $values = $params['postedValue'];
+        if ($this->cx->getRequest()->hasParam('newsletter', false)) {
+            $values = $this->cx->getRequest()->getParam('newsletter', false);
         }
 
         // Original FWUSer storeNewsletterSubscriptions
@@ -340,7 +359,7 @@ class JsonUserController
 
         if ($objDatabase->Execute($query) === false) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                'Konnte nicht gespeichert werden'
+                $_ARRAYLANG['TXT_CORE_USER_NOT_BE_SAVED']
             );
         }
     }
