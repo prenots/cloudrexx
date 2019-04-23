@@ -61,9 +61,11 @@ class BackendController extends
             case 'config':
             case 'Group':
             case 'group':
+            case 'export':
                 $mappedNavItems = array(
                     'Settings' => 'config',
                     'Group' => 'group',
+                    'export' => 'export',
                 );
 
                 if (!empty($mappedNavItems[$act])) {
@@ -478,11 +480,15 @@ class BackendController extends
                     'add' => true,
                     'edit' => true,
                     'delete' => true,
+                    'status' => array(
+                        'field' => 'isActive'
+                    ),
                 );
                 $options['fields'] = array(
                     'isActive' => array(
                         'showOverview' => true,
                         'allowFiltering' => false,
+                        'type' => 'boolean'
                     ),
                     'groupId' => array(
                         'showOverview' => true,
@@ -557,6 +563,12 @@ class BackendController extends
                         ),
                         'allowFiltering' => false,
                     ),
+                    'selectType' => array(
+                        'custom' => true,
+                        'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions) {
+                            return $this->getOverlay($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions);
+                        }
+                    )
                 );
                 break;
             case 'Cx\Core\User\Model\Entity\Settings':
@@ -1506,5 +1518,35 @@ class BackendController extends
         }
 
         return $options;
+    }
+
+    protected function getOverlay($fieldname, $fieldtype, $fieldlength, $fieldvalue, $fieldoptions)
+    {
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $subTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $checkWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $checkFrontend = new \Cx\Core\Html\Model\Entity\DataElement(
+            'form-0-select-type',
+            'frontend'
+        );
+        $labelFrontend = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $labelBackend = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $textFrontend = new \Cx\Core\Html\Model\Entity\TextElement('Webseite (frontend)');
+        $textBackend = new \Cx\Core\Html\Model\Entity\TextElement('Webseite (backend)');
+
+        $checkBackend = new \Cx\Core\Html\Model\Entity\DataElement(
+            'form-0-select-type',
+            'backend'
+        );
+
+        $checkFrontend->setAttribute('type', 'checkbox');
+        $checkBackend->setAttribute('type', 'checkbox');
+
+        $wrapper->addChildren(array($subTitle, $checkWrapper));
+        $checkWrapper->addChildren(array($checkFrontend, $labelFrontend, $checkBackend, $labelBackend));
+        $labelFrontend->addChild($textFrontend);
+        $labelBackend->addChild($textBackend);
+        $wrapper->setClass('visible');
+        return $wrapper;
     }
 }
