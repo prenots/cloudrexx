@@ -136,9 +136,9 @@ class JsonUserController
             $attrValue->setUserAttribute($attr);
             $attrValue->setHistory(0);
         }
-
         $attrValue->setValue($param['postedValue']);
         $em->persist($attrValue);
+        $user->addUserAttributeValue($attrValue);
     }
 
     /**

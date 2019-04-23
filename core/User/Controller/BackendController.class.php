@@ -1407,6 +1407,10 @@ class BackendController extends
             'mode' => 'key',
             'showOverview' => false,
             'allowFiltering' => false,
+            'storecallback' => array(
+                'adapter' => 'User',
+                'method' => 'storeOnlyNewsletterLists'
+            ),
         );
 
         if (
