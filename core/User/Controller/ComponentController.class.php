@@ -182,6 +182,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $entityClass,
             $userListener
         );
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::postPersist,
+            $entityClass,
+            $userListener
+        );
+        $this->cx->getEvents()->addModelListener(
+            \Doctrine\ORM\Events::postUpdate,
+            $entityClass,
+            $userListener
+        );
     }
 
 }

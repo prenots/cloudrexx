@@ -339,7 +339,143 @@ class JsonUserController
         }
 
         if ($objDatabase->Execute($query) === false) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException('Fail');
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                'Konnte nicht gespeichert werden'
+            );
         }
+    }
+
+    /**
+     * Creates a new user group and assigns it to the user. A new category is
+     * created in the DAM, which is named after the user and assigned to the
+     * created user group
+     *
+     * @param $params array contains the user and the entity manager
+     * @return bool if the category could be created
+     */
+    public function storeDownloadExtension($params)
+    {
+        global $_ARRAYLANG;
+
+        if (!isset($params) || empty($params['entity'])) {
+            return false;
+        }
+        $user = $params['entity'];
+        $em = $params['em'];
+        $objUser = \FWUser::getFWUserObject()->objUser->getUser($user->getId());
+        $objDownloadLib = new \Cx\Modules\Downloads\Controller\DownloadsLibrary();
+        $arrDownloadSettings = $objDownloadLib->getSettings();
+
+        // Set associated download groups
+        $groupIds = array();
+        if ($objUser) {
+            $groupIds = array_merge(
+                $objUser->getAssociatedGroupIds(),
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        $arrDownloadSettings['associate_user_to_groups']
+                    )
+                )
+            );
+        };
+        if (!empty($groupIds) && !empty($groupIds[0])) {
+            $groupRepo = $em->getRepository(
+                'Cx\Core\Model\Entity\Group'
+            );
+            foreach ($groupRepo->findBy($groupIds) as $group) {
+                $user->addGroup($group);
+            }
+            $em->persist($user);
+        }
+
+        $userName = $user->__toString();
+
+        $group = new \Cx\Core\User\Model\Entity\Group();
+        $group->setGroupName(
+            sprintf($_ARRAYLANG['TXT_CORE_USER_CUSTOMER_TITLE'], $userName)
+        );
+        $group->setGroupDescription(
+            sprintf($_ARRAYLANG['TXT_CORE_USER_ACCOUNT_GROUP_DESC'], $userName)
+        );
+        $group->setIsActive(true);
+        $group->setType('frontend');
+        $group->addUser($user);
+        $em->persist($group);
+        $em->flush();
+
+        $arrLanguageIds = array_keys(\FWLanguage::getLanguageArray());
+        $arrNames = array();
+        $arrDescription = array();
+        foreach ($arrLanguageIds as $langId) {
+            $arrNames[$langId] = sprintf(
+                $_ARRAYLANG['TXT_CORE_USER_CUSTOMER_TITLE'],
+                $userName
+            );
+            $arrDescription[$langId] = '';
+        }
+
+        $objCategory = new \Cx\Modules\Downloads\Controller\Category();
+        $objCategory->setActiveStatus(true);
+        $objCategory->setVisibility(false);
+        $objCategory->setNames($arrNames);
+        $objCategory->setDescriptions($arrDescription);
+        $objCategory->setOwner($user->getId());
+        $objCategory->setDeletableByOwner(false);
+        $objCategory->setModifyAccessByOwner(false);
+        $objCategory->setPermissions(
+            array(
+                'read'  => array(
+                    'protected' => true,
+                    'groups'    => array($group->getGroupId())
+                ),
+                'add_subcategories' => array(
+                    'protected' => true,
+                    'groups'    => array($group->getGroupId())
+                ),
+                'manage_subcategories' => array(
+                    'protected' => true,
+                    'groups'    => array($group->getGroupId())
+                ),
+                'add_files' => array(
+                    'protected' => true,
+                    'groups'    => array($group->getGroupId())
+                ),
+                'manage_files' => array(
+                    'protected' => true,
+                    'groups'    => array($group->getGroupId())
+                )
+            )
+        );
+
+        if (!$objCategory->store()) {
+            return false;
+        }
+
+        $damCategoryUrl = \Cx\Core\Routing\Url::fromBackend('Downloads');
+        $damCategoryUrl->setParams(
+            array(
+                'act' => 'categories',
+                'parent_id' => $objCategory->getId()
+            )
+        );
+        $damCategoryAnchor = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $damCategoryAnchor->setAttribute('href', $damCategoryUrl);
+        $damCategoryAnchorText = new \Cx\Core\Html\Model\Entity\TextElement(
+            htmlentities(
+                $objCategory->getName(LANG_ID), ENT_QUOTES, CONTREXX_CHARSET
+            )
+        );
+        $damCategoryAnchor->addChild($damCategoryAnchorText);
+
+        $message = sprintf(
+            $_ARRAYLANG['TXT_CORE_USER_NEW_DAM_CATEGORY_CREATED_TXT'],
+            $user->__toString(),
+            $damCategoryAnchor
+        );
+
+        \Message::add($message);
+        return true;
     }
 }

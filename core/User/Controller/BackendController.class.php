@@ -450,6 +450,7 @@ class BackendController extends
                 );
 
                 $options = $this->appendUserAttributes($options);
+                $options = $this->appendModuleSpecificExtensions($options);
                 $options = $this->appendNewsletterLists($options);
                 break;
             case 'Cx\Core\User\Model\Entity\Group':
@@ -1362,6 +1363,38 @@ class BackendController extends
         $attrOption['validValues'] = $validValues;
 
         return $attrOption;
+    }
+
+    protected function appendModuleSpecificExtensions($options)
+    {
+        global $_ARRAYLANG;
+
+        $status = false;
+        $tabFields = array();
+
+        // Add a category in the digital asset management module
+        // ToDo: use not obsolete method
+        if (contrexx_isModuleInstalled('Downloads')) {
+            $options['fields']['downloadExtension'] = array(
+                'custom' => true,
+                'showOverview' => false,
+                'allowFiltering' => false,
+                'type' => 'checkboxes',
+                'mode' => 'key',
+                'validValues' => array( 1 =>
+                    $_ARRAYLANG['TXT_CORE_USER_ADD_DAM_CATEGORY']),
+            );
+            $tabFields[] = 'downloadExtension';
+            $status = true;
+        }
+
+        if ($status) {
+            $options['tabs']['moduleSpecificExtensions'] = array(
+                'fields' => $tabFields,
+            );
+        }
+
+        return $options;
     }
 
     protected function appendNewsletterLists($options)
