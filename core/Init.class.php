@@ -125,7 +125,7 @@ class InitCMS
      * Constructor
      */
     function __construct(
-        $mode = \Cx\Core\Core\Controller\Cx::MODE_BACKEND,
+        $mode = \Cx\Core\Core\Controller\Cx::MODE_FRONTEND,
         $entityManager = null
     ) {
         // TODO: what is this used for?
@@ -1103,7 +1103,7 @@ class InitCMS
      */
     function getUserFrontendLangMenu($force = false)
     {
-        global $_ARRAYLANG;
+        global $_CORELANG;
 
         $arrLanguageName = FWLanguage::getNameArray();
         // No dropdown at all if there is a single active frontend language
@@ -1149,7 +1149,9 @@ class InitCMS
                 // The old way
                 $i = 0;
                 $return = "\n<form action='' method='post' name='userFrontendLangIdForm'>\n";
-                $return .= "<select name='userFrontendLangId' size='1' class='chzn-select' onchange=\"document.forms['userFrontendLangIdForm'].submit()\">\n";
+                $return .= "<select name='userFrontendLangId' size='1' class='chzn-select'
+                    data-disable_search='false' data-no_results_text='" . $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST'] . "'
+                    onchange=\"document.forms['userFrontendLangIdForm'].submit()\">\n";
                 foreach ($this->arrLang as $id=>$value){
                     if ($this->arrLang[$id]['frontend']==1) {
                         $i++;
@@ -1184,7 +1186,8 @@ class InitCMS
                 FWLanguage::getMenuoptions($this->userFrontendLangId),
                 false,
                 'submitUserFrontendLanguage();',
-                'size="1" class="chzn-select"')."\n</form>\n";
+                'size="1" class="chzn-select" data-disable_search="true"'
+            ) . "\n</form>\n";
     }
 
 
