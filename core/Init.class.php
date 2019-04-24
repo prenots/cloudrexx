@@ -1186,7 +1186,8 @@ class InitCMS
                 FWLanguage::getMenuoptions($this->userFrontendLangId),
                 false,
                 'submitUserFrontendLanguage();',
-                'size="1" class="chzn-select" data-disable_search="true"'
+                'size="1" class="chzn-select" data-disable_search="false"
+                data-no_results_text="' . $_CORELANG['TXT_CORE_LOCALE_DOESNT_EXIST'] . '"'
             ) . "\n</form>\n";
     }
 
