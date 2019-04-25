@@ -1502,13 +1502,17 @@ class User extends User_Profile
      * Parses conditions for search
      *
      * @todo: $search is not properly parsed if its not an array
-     * @todo: search should be surrounded with % according to old code
      * @todo: only attributesof type text, mail, uri, image and menu
      * @todo: only attributes with read permission
      * @param array|string $search What to search for
      * @param \Doctrine\ORM\QueryBuilder $qb Query builder to apply search conditions to
      */
     protected function parseSearchConditions($search, $qb) {
+        $percent = '%';
+        // this condition is legacy code
+        if (!is_array($search) && strpos('%', $search) !== false) {
+            $percent = '';
+        }
         $attributes = array('tblU.username');
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
@@ -1528,7 +1532,7 @@ class User extends User_Profile
         }
         $i = 0;
         foreach ($search as $term) {
-            $qb->setParameter('search' . $i, $term);
+            $qb->setParameter('search' . $i, $percent . $term . $percent);
             $i++;
         }
     }
