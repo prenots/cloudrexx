@@ -1403,7 +1403,7 @@ class User extends User_Profile
         // Rewrite set filter
         $userId = 0;
         $userAttrConditions = array();
-        $attributes = $attrNameRepo->findBy(array(), null, null, null);
+        $attributes = $attrNameRepo->findAll();
 
         $attributeList = array();
         foreach ($attributes as $attrName) {
