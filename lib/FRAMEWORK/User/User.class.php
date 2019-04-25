@@ -1411,8 +1411,15 @@ class User extends User_Profile
         }
 
         $qb = $em->createQueryBuilder();
-        $qb->select('tblU')
-            ->from('\Cx\Core\User\Model\Entity\User', 'tblU');
+        $qb->select(
+            'tblA'
+        )->from(
+            '\Cx\Core\User\Model\Entity\UserAttributeValue',
+            'tblA'
+        )->leftJoin(
+            'tblA.user',
+            'tblU'
+        );
         if (!empty($search)) {
             $this->parseSearchConditions($search, $qb, $attributeList);
         }
@@ -1434,13 +1441,22 @@ class User extends User_Profile
         $qb->setMaxResults($limit);
         $qb->setFirstResult($offset);
 
-        $users = $qb->getQuery()->getResult();
+        $userAttributes = $qb->getQuery()->getResult();
 
         $qb->select('count(tblU.id)');
         $qb->setMaxResults(null);
         $qb->setFirstResult(null);
 
         $this->filtered_search_count = $qb->getQuery()->getSingleScalarResult();
+
+        // todo: this is not very efficient
+        $users = array();
+        foreach ($userAttributes as $userAttribute) {
+            if (in_array($userAttribute->getUser(), $users)) {
+                continue;
+            }
+            $users[] = $userAttribute->getUser();
+        }
 
         foreach ($users as $user) {
             foreach ($user->getUserAttributeValue() as $attr) {
@@ -1564,18 +1580,7 @@ class User extends User_Profile
             }
             // join to table and get value over join
             $fieldName = 'value';
-            $joinIndex = array_search($attributeId, $joins);
-            if ($joinIndex === false) {
-                $joinIndex = count($joins);
-                $joins[] = $attributeId;
-                $qb->innerJoin(
-                    'tblU.userAttributeValue',
-                    'tblV' . $joinIndex,
-                    'WITH',
-                    'tblV' . $joinIndex . '.attributeId = ' . $attributeId
-                );
-            }
-            $table = 'tblV' . $joinIndex;
+            $table = 'tblA';
         }
 
         $simpleExprs = array(
