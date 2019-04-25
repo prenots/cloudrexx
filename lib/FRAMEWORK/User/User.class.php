@@ -1501,7 +1501,6 @@ class User extends User_Profile
     /**
      * Parses conditions for search
      *
-     * @todo: $search is not properly parsed if its not an array
      * @todo: only attributesof type text, mail, uri, image and menu
      * @todo: only attributes with read permission
      * @param array|string $search What to search for
@@ -1512,6 +1511,9 @@ class User extends User_Profile
         // this condition is legacy code
         if (!is_array($search) && strpos('%', $search) !== false) {
             $percent = '';
+        }
+        if (!is_array($search)) {
+            $search = array($search);
         }
         $attributes = array('tblU.username');
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
