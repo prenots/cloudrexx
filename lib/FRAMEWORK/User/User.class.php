@@ -1503,25 +1503,34 @@ class User extends User_Profile
      *
      * @todo: $search is not properly parsed if its not an array
      * @todo: search should be surrounded with % according to old code
-     * @todo: Search for attributes
+     * @todo: only attributesof type text, mail, uri, image and menu
+     * @todo: only attributes with read permission
      * @param array|string $search What to search for
      * @param \Doctrine\ORM\QueryBuilder $qb Query builder to apply search conditions to
      */
     protected function parseSearchConditions($search, $qb) {
-        $attributes = array('username');
+        $attributes = array('tblU.username');
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         if ($cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_BACKEND) {
-            $attributes[] = 'email';
+            $attributes[] = 'tblU.email';
         }
-        foreach ($attributes as $attribute) {
-            $qb->orWhere(
-                $qb->expr()->like('tblU.' . $attribute, ':search')
-            );
-        }
-        $qb->setParameter('search', current($search));
-
         //all attributes with read permission of type "text", "mail", "uri",
         //"image", "menu"
+        $attributes[] = 'tblA.value';
+        foreach ($attributes as $attribute) {
+            $i = 0;
+            foreach ($search as $term) {
+                $qb->orWhere(
+                    $qb->expr()->like($attribute, ':search' . $i)
+                );
+                $i++;
+            }
+        }
+        $i = 0;
+        foreach ($search as $term) {
+            $qb->setParameter('search' . $i, $term);
+            $i++;
+        }
     }
 
     /**
