@@ -201,12 +201,12 @@ function changeInputFieldType(source, type) {
 
     return $field;
 }
-function addTagIt(selector, callCallback = true) {
+function addTagIt(selector, updateLangTagIt = true) {
   var options = {
     placeholderText: "{TXT_CALENDAR_ADD_OPTION}",
     allowSpaces: true,
   };
-  if (callCallback === true) {
+  if (updateLangTagIt === true) {
     options.afterTagAdded = function(event, ui) {
       updateLangTagItFields(event, ui);
       updateDefaultTagItFields(event, ui);
