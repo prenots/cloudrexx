@@ -129,6 +129,7 @@ function changeFieldType(container) {
         case 'select':
         case 'radio':
         case 'checkbox':
+        case 'salutation':
             container.find('.col_default_value .input_field').tagit('destroy');
             // tagit ul is not removed
             container.find('.col_default_value ul.tagit').remove();
@@ -148,6 +149,7 @@ function changeFieldType(container) {
         case 'select':
         case 'radio':
         case 'checkbox':
+        case 'salutation':
             addTagIt(container.find('.col_default_value .input_field'));
             container.find(".col_default_value .input_field").hide();
             updateLangFlag(container);
