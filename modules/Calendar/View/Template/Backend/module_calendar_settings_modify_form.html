@@ -36,7 +36,7 @@ function ExpandMinimize(toggle, id) {
     if (toggle != "lang_name") {
         var masterValue = $J("tr#inputfield_"+id+" .lang_"+toggle+"_master").val();
         $J("tr#inputfield_"+id+" #inputfield_"+id+"_"+toggle+"_Expanded input").each(function(){
-            if ($J(this).val() == '') {
+            if ($J(this).val() == '' && $J(this).hasClass('ui-widget-content') === false) {
                 $J(this).val(masterValue);
             }
         });
@@ -201,20 +201,22 @@ function changeInputFieldType(source, type) {
 
     return $field;
 }
-function addTagIt(selector) {
-  $J(selector)
-    .tagit({
-        placeholderText: "{TXT_CALENDAR_ADD_OPTION}",
-        allowSpaces: true,
-        afterTagAdded: function(event, ui) {
-            updateLangTagItFields(event, ui);
-            updateDefaultTagItFields(event, ui);
-        },
-        afterTagRemoved: function(event, ui) {
-            updateLangTagItFields(event, ui);
-            updateDefaultTagItFields(event, ui);
-        }
-    });
+function addTagIt(selector, callCallback = true) {
+  var options = {
+    placeholderText: "{TXT_CALENDAR_ADD_OPTION}",
+    allowSpaces: true,
+  };
+  if (callCallback === true) {
+    options.afterTagAdded = function(event, ui) {
+      updateLangTagItFields(event, ui);
+      updateDefaultTagItFields(event, ui);
+    };
+    options.afterTagRemoved = function(event, ui) {
+      updateLangTagItFields(event, ui);
+      updateDefaultTagItFields(event, ui);
+    };
+  }
+  $J(selector).tagit(options);
 }
 function updateLangTagItFields(event, ui) {
     var $elm = cx.jQuery(event.target);
@@ -226,7 +228,7 @@ function updateLangTagItFields(event, ui) {
                 cx.jQuery('#'+ relatedFieldPrefix + '_' + id +'_'+ v).val($elm.val());
                 cx.jQuery('#'+ relatedFieldPrefix + '_' + id +'_'+ v).tagit('destroy');
                 cx.jQuery('#'+ relatedFieldPrefix + '_' + id +'_'+ v).next('ul.tagit').remove();
-                addTagIt('#'+ relatedFieldPrefix + '_' + id +'_'+ v);
+                addTagIt('#'+ relatedFieldPrefix + '_' + id +'_'+ v, false);
             }
         });
         updateLangFlag(cx.jQuery('#'+ relatedFieldPrefix + '_' + id).closest('tr'));
@@ -244,7 +246,7 @@ function updateDefaultTagItFields(event, ui) {
         cx.jQuery(defaultFieldId).tagit('destroy');
         cx.jQuery(defaultFieldId).next('ul.tagit').remove();
         cx.jQuery(defaultFieldId).data('isDirty', true);
-        addTagIt(defaultFieldId);
+        addTagIt(defaultFieldId, false);
         cx.jQuery(defaultFieldId).data('isDirty', false);
         cx.jQuery(defaultFieldId).data('lastDefaultValue', $elm.val());
     }
