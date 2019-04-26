@@ -36,7 +36,7 @@ function ExpandMinimize(toggle, id) {
     if (toggle != "lang_name") {
         var masterValue = $J("tr#inputfield_"+id+" .lang_"+toggle+"_master").val();
         $J("tr#inputfield_"+id+" #inputfield_"+id+"_"+toggle+"_Expanded input").each(function(){
-            if ($J(this).val() == '' && $J(this).hasClass('ui-widget-content') === false) {
+            if (cx.jQuery(this).val() == '' && cx.jQuery(this).hasClass('ui-widget-content') === false) {
                 $J(this).val(masterValue);
             }
         });
@@ -216,7 +216,7 @@ function addTagIt(selector, updateLangTagIt = true) {
       updateDefaultTagItFields(event, ui);
     };
   }
-  $J(selector).tagit(options);
+  cx.jQuery(selector).tagit(options);
 }
 function updateLangTagItFields(event, ui) {
     var $elm = cx.jQuery(event.target);
