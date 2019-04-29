@@ -217,6 +217,7 @@ function addTagIt(selector, updateLangTagIt = true) {
     };
   }
   cx.jQuery(selector).tagit(options);
+  addSortable(cx.jQuery(selector).closest('.col_default_value'));
 }
 function updateLangTagItFields(event, ui) {
     var $elm = cx.jQuery(event.target);
@@ -250,6 +251,40 @@ function updateDefaultTagItFields(event, ui) {
         cx.jQuery(defaultFieldId).data('isDirty', false);
         cx.jQuery(defaultFieldId).data('lastDefaultValue', $elm.val());
     }
+}
+function addSortable(selectorElm) {
+    if (selectorElm.html() === null || typeof selectorElm.html() === 'undefined') {
+        return;
+    }
+
+    var tagItElm;
+    selectorElm.find('input.input_field').each(function() {
+        tagItElm = cx.jQuery(this).next('ul.tagit');
+        if (tagItElm.hasClass('ui-sortable')) {
+            tagItElm.sortable('destroy');
+        }
+        tagItElm.data('id', cx.jQuery(this).attr('id'));
+        tagItElm.sortable({
+            placeholder: 'ui-state-highlight',
+            revert: true,
+            opacity: 0.6,
+            forceHelperSize: true,
+            forcePlaceholderSize: true,
+            cursor: 'move',
+
+            stop: function(event, ui) {
+                cx.jQuery('#' + cx.jQuery(this).data('id')).val(
+                    cx.jQuery('.tagit-label', cx.jQuery(this))
+                    .clone()
+                    .text(function(index, text) {
+                        return (index === 0) ? text : ',' + text;
+                    })
+                    .text()
+                );
+                cx.jQuery('.tagit-choice', cx.jQuery(this)).attr('style', '');
+            }
+        });
+    });
 }
 </script>
 <script id="blankField" type="jquery/tmpl">
