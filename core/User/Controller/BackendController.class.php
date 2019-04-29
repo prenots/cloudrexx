@@ -1219,7 +1219,7 @@ class BackendController extends
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'storecallback' => array(
+                'postCallback' => array(
                     'adapter' => 'User',
                     'method' => 'storeUserAttributeValue'
                 ), // todo: move value callback func in json controller
