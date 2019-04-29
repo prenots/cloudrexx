@@ -112,7 +112,6 @@ Cx\Modules\Shop\Model\Entity\Order:
       type: integer
       options:
         unsigned: true
-        default: '0'
       column: payment_id
     paymentAmount:
       type: decimal
