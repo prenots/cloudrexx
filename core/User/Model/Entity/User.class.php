@@ -726,6 +726,7 @@ class User extends \Cx\Model\Base\EntityBase {
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $em = $cx->getDb()->getEntityManager();
+        $userName = '';
 
         // values which we would like to get
         $profileAttrs = array(
@@ -782,8 +783,10 @@ class User extends \Cx\Model\Base\EntityBase {
             );
         } else if (!empty($this->getUsername())) {
             $userName = $this->getUsername();
-        } else {
+        } else if (!empty($this->getEmail())) {
             $userName = $this->getEmail();
+        } else {
+            $userName = parent::__toString();
         }
 
         return $userName;
