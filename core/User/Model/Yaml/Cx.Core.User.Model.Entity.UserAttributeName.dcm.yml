@@ -16,7 +16,7 @@ Cx\Core\User\Model\Entity\UserAttributeName:
       unsigned: true
       column: attribute_id
       options:
-        default: 0
+        unsigned: true
     langId:
       type: integer
       unsigned: true
