@@ -3186,7 +3186,7 @@ CREATE TABLE `contrexx_module_shop_article_group` (
 ) ENGINE=InnoDB ;
 CREATE TABLE `contrexx_module_shop_attribute` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `type` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `type` int(1) unsigned NOT NULL DEFAULT '1',
   `name` varchar(255) DEFAULT '' NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
@@ -3326,7 +3326,7 @@ CREATE TABLE `contrexx_module_shop_orders` (
   `vat_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `shipment_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `shipment_id` int(10) unsigned DEFAULT NULL,
-  `payment_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `payment_id` int(10) unsigned NOT NULL,
   `payment_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `ip` varchar(50) NOT NULL DEFAULT '',
   `lang_id` int(10) NOT NULL DEFAULT '0',
