@@ -250,6 +250,7 @@ class BackendController extends
                         'showOverview' => true,
                         'showDetail' => true,
                         'allowFiltering' => false,
+                        'allowSearching' => true,
                     ),
                     'password' => array(
                         'showOverview' => false,
