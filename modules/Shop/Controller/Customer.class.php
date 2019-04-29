@@ -110,27 +110,6 @@ class Customer extends \User
     }
 
     /**
-     * Get or set the password
-     *
-     * Note that the password is set as plain text, but only the md5 hash
-     * is returned!
-     * If setting the password fails, returns null.
-     * @param   string    $password       The optional password in plain text
-     * @return  string                    The md5 password hash on success,
-     *                                    null otherwise
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    function password($password=null)
-    {
-        if (isset($password)) {
-            // plain!
-            if (!$this->setPassword($password)) return null;
-        }
-        // md5!
-        return $this->password;
-    }
-
-    /**
      * Get or set the e-mail address
      * @param   string    $email          The optional e-mail address
      * @return  string                    The e-mail address
@@ -370,6 +349,11 @@ class Customer extends \User
     function active($active=null)
     {
         if (isset($active)) {
+            // do not change the status of the currently signed-in user
+            if ($this->getId() == \FWUser::getFWUserObject()->objUser->getId()) {
+                return $this->getActiveStatus();
+            }
+
             $this->setActiveStatus($active);
         }
         return $this->getActiveStatus();
@@ -569,6 +553,7 @@ class Customer extends \User
             $this->firstname(), $this->lastname(), $this->company(), $title);
         $arrSubstitution = array(
             'CUSTOMER_SALUTATION' => $salutation,
+            'CUSTOMER_TITLE' => $title,
             'CUSTOMER_ID' => $this->id(),
             'CUSTOMER_EMAIL' => $this->email(),
             'CUSTOMER_COMPANY' => $this->company(),
@@ -581,6 +566,7 @@ class Customer extends \User
             'CUSTOMER_PHONE' => $this->phone(),
             'CUSTOMER_FAX' => $this->fax(),
             'CUSTOMER_USERNAME' => $this->username(),
+            'CUSTOMER_BIRTHDAY' => date(ASCMS_DATE_FORMAT_DATE, $this->getProfileAttribute('birthday')),
 // There are not used in any MailTemplate so far:
 //            'CUSTOMER_COUNTRY_ID' => $this->country_id(),
 //            'CUSTOMER_NOTE' => $this->getProfileAttribute($index_notes),
@@ -877,7 +863,6 @@ class Customer extends \User
             }
             if (!$objCustomer) {
                 $lang_id = Order::getLanguageIdByCustomerId($old_customer_id);
-                $lang_id = \FWLanguage::getLangIdByIso639_1($lang_id);
                 if (!$lang_id) $lang_id = $default_lang_id;
                 $objCustomer = new Customer();
                 if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
@@ -913,7 +898,7 @@ class Customer extends \User
 // as usernames!
                 $objCustomer->username($objResult->fields['username']);
                 // Copy the md5 hash of the password!
-                $objCustomer->password = $objResult->fields['password'];
+                $objCustomer->setHashedPassword($objResult->fields['password']);
                 $objCustomer->setFrontendLanguage($lang_id);
             }
             if ($objResult->fields['is_reseller']) {
