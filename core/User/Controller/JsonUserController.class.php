@@ -104,6 +104,7 @@ class JsonUserController
      * Store UserAttribute manually because these are custom options
      *
      * @param $param array parameters for callback
+     * @throws \Cx\Core\Error\Model\Entity\ShinyException
      */
     public function storeUserAttributeValue($param)
     {

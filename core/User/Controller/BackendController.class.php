@@ -52,8 +52,6 @@ class BackendController extends
         if (!empty($_GET['act'])) {
             $splitAct = explode('/', $_GET['act']);
             $act = $splitAct[0];
-            $tpl = $splitAct[1];
-
         }
 
         switch($act)  {
@@ -76,7 +74,11 @@ class BackendController extends
                 $langData   = $objInit->loadLanguageData('Access');
                 $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
 
-                $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
+                $this->cx->getTemplate()->addBlockfile(
+                    'CONTENT_OUTPUT',
+                    'content_master',
+                    'LegacyContentMaster.html'
+                );
                 $objAccessManager = new \Cx\Core_Modules\Access\Controller\AccessManager();
                 $objAccessManager->getPage();
                 return;
