@@ -7,20 +7,20 @@ ALTER TABLE contrexx_access_user_groups ENGINE = InnoDB;
 ALTER TABLE contrexx_access_user_mail ENGINE = InnoDB;
 ALTER TABLE contrexx_access_user_network ENGINE = InnoDB;
 ALTER TABLE contrexx_access_user_validity ENGINE = InnoDB;
-ALTER TABLE contrexx_access_user_settings ENGINE = InnoDB;
-ALTER TABLE contrexx_access_user_rel_user_group ENGINE = InnoDB;
-ALTER TABLE contrexx_access_user_group_static_ids ENGINE = InnoDB;
-ALTER TABLE contrexx_access_user_group_dynamic_ids ENGINE = InnoDB;
+ALTER TABLE contrexx_access_settings ENGINE = InnoDB;
+ALTER TABLE contrexx_access_rel_user_group ENGINE = InnoDB;
+ALTER TABLE contrexx_access_group_static_ids ENGINE = InnoDB;
+ALTER TABLE contrexx_access_group_dynamic_ids ENGINE = InnoDB;
 
-ALTER TABLE contrexx_access_user_attribute ADD is_default TINYINT(1) DEFAULT '0' NOT NULL;
-ALTER TABLE contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395;
-ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323B6E62EFA FOREIGN KEY (attribute_id) REFERENCES contrexx_access_user_attribute (id);
-
-ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395A76ED395A76ED395A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
-CREATE INDEX IDX_B0DEA323B6E62EFA ON contrexx_access_user_attribute_value (attribute_id);
+ALTER TABLE contrexx_access_user_attribute
+	ADD is_default TINYINT(1) DEFAULT '0' NOT NULL;
 
 /*Migrate core attribute to user attribute*/
-INSERT INTO `contrexx_access_user_attribute`(`mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default`) SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, '1' FROM `contrexx_access_user_core_attribute`;
+INSERT INTO `contrexx_access_user_attribute`(`mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, `is_default`)
+  SELECT `mandatory`, `sort_type`, `order_id`, `access_special`, `access_id`, `read_access_id`, '1'
+  FROM `contrexx_access_user_core_attribute`;
+UPDATE `contrexx_access_user_attribute` SET `parent_id`= null WHERE parent_id = 0;
+
 /*Migrate user profile to user attribute*/
 ALTER TABLE contrexx_access_user_attribute ADD tmp_name TEXT;
 
@@ -51,11 +51,11 @@ ALTER TABLE contrexx_access_user_profile ADD tmp_name TEXT;
 
 ALTER TABLE contrexx_access_user_attribute_value ADD tmp_name TEXT;
 
-ALTER TABLE `contrexx_access_user_attribute_value` CHANGE `attribute_id` `attribute_id` INT(11) NULL;
+ALTER TABLE `contrexx_access_user_attribute_value` DROP FOREIGN KEY IF EXISTS `FK_B0DEA323B6E62EFA`;
 
-ALTER TABLE `contrexx_access_user_attribute_value` DROP FOREIGN KEY `FK_B0DEA323B6E62EFA`;
+ALTER TABLE contrexx_access_user_attribute_value DROP FOREIGN KEY IF EXISTS FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
 
-ALTER TABLE contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
+ALTER TABLE `contrexx_access_user_attribute_value` CHANGE `attribute_id` `attribute_id` INT(11) UNSIGNED NOT NULL;
 
 UPDATE `contrexx_access_user_profile` SET `tmp_name` = 'gender';
 
@@ -156,9 +156,11 @@ UPDATE `contrexx_access_user_profile` SET `tmp_name` = 'picture';
 
 INSERT INTO `contrexx_access_user_attribute_value`(`tmp_name`,`attribute_id`, `user_id`, `value`) SELECT `tmp_name`, (SELECT `id` FROM `contrexx_access_user_attribute` WHERE `tmp_name` = 'picture'), `user_id`, `picture` FROM `contrexx_access_user_profile`;
 
-
-ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323B6E62EFA FOREIGN KEY (attribute_id) REFERENCES contrexx_access_user_attribute (id);
-ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395A76ED395A76ED395A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
+/* Delete all user attribute values which do not belong to any user */
+DELETE v FROM `contrexx_access_user_attribute_value` AS v
+LEFT JOIN contrexx_access_users as u ON u.id = v.user_id
+LEFT JOIN contrexx_access_user_attribute as a ON a.id = v.attribute_id
+WHERE u.id IS NULL OR a.id IS NULL;
 
 /*Insert attribute name*/
 ALTER TABLE contrexx_access_user_attribute_name ADD `order` INT;
@@ -209,11 +211,15 @@ UPDATE `contrexx_access_user_attribute_value` JOIN `contrexx_access_user_attribu
 SET `contrexx_access_user_attribute_value`.`value` = `attrName`.`attribute_id`
 WHERE `contrexx_access_user_attribute_value`.`tmp_name` = 'title';
 
-ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name, CHANGE attribute_id attribute_id INT NOT NULL;
+ALTER TABLE contrexx_access_user_attribute_value DROP tmp_name;
 
-DROP TABLE contrexx_access_user_profile;
+ALTER TABLE contrexx_access_user_profile DROP FOREIGN KEY IF EXISTS FK_959DBF6CA76ED395;
+ALTER TABLE contrexx_access_user_profile DROP FOREIGN KEY IF EXISTS  FK_959DBF6C2B36786B;
+ALTER TABLE contrexx_access_user_attribute_value DROP FOREIGN KEY IF EXISTS  FK_B0DEA323A76ED395;
+
 DROP TABLE contrexx_access_user_title;
 DROP TABLE contrexx_access_user_core_attribute;
+DROP TABLE contrexx_access_user_profile;
 
 /* View for user title
  * This view is only temporary
@@ -316,9 +322,112 @@ JOIN contrexx_access_user_attribute_name as name on value.attribute_id = name.at
 WHERE name.name = 'picture' AND lang_id = 0 AND value.user_id = users.id) AS 'picture'
 FROM contrexx_access_users AS users);
 
+
+/* Update */
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'menu', `a`.`order_id` = 2
+   WHERE `n`.`name` = 'gender' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 3
+   WHERE `n`.`name` = 'title' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 4
+   WHERE `n`.`name` = 'designation' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 5
+   WHERE `n`.`name` = 'firstname' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 6
+   WHERE `n`.`name` = 'lastname' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 7
+   WHERE `n`.`name` = 'company' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'uri', `a`.`order_id` = 8
+   WHERE `n`.`name` = 'address' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 9
+   WHERE `n`.`name` = 'city' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 11
+   WHERE `n`.`name` = 'country' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 10
+   WHERE `n`.`name` = 'zip' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 12
+   WHERE `n`.`name` = 'phone_office' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 13
+   WHERE `n`.`name` = 'phone_private' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+
+   SET `a`.`order_id` = 14
+   WHERE `n`.`name` = 'phone_mobile' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 15
+   WHERE `n`.`name` = 'phone_fax' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'date', `a`.`order_id` = 16
+   WHERE `n`.`name` = 'birthday' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'uri', `a`.`order_id` = 17
+   WHERE `n`.`name` = 'website' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`order_id` = 18
+   WHERE `n`.`name` = 'profession' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'textarea', `a`.`order_id` = 19
+   WHERE `n`.`name` = 'interests' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'textarea', `a`.`order_id` = 20
+   WHERE `n`.`name` = 'signature' AND `a`.`is_default` = 1;
+
+UPDATE `contrexx_access_user_attribute` AS `a`
+   JOIN `contrexx_access_user_attribute_name` AS `n` ON `n`.`attribute_id` = `a`.`id`
+   SET `a`.`type` = 'image', `a`.`order_id` = 1
+   WHERE `n`.`name` = 'picture' AND `a`.`is_default` = 1;
+
 /*Alter table access_users unsigned*/
-ALTER TABLE dev.contrexx_access_rel_user_group DROP FOREIGN KEY FK_401DFD43A76ED395;
-ALTER TABLE dev.contrexx_access_user_attribute_value DROP FOREIGN KEY FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
+ALTER TABLE dev.contrexx_access_rel_user_group DROP FOREIGN KEY IF EXISTS FK_401DFD43A76ED395;
+ALTER TABLE dev.contrexx_access_user_attribute_value DROP FOREIGN KEY IF EXISTS  FK_B0DEA323A76ED395A76ED395A76ED395A76ED395;
 
 ALTER TABLE contrexx_access_users
   CHANGE id id INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -337,12 +446,53 @@ ALTER TABLE contrexx_access_users
 ALTER TABLE contrexx_access_rel_user_group CHANGE user_id user_id INT UNSIGNED NOT NULL;
 ALTER TABLE contrexx_access_user_attribute_value CHANGE user_id user_id INT UNSIGNED NOT NULL;
 
+/** Drop Foreign Keys To Modify Tables **/
+ALTER TABLE `contrexx_access_user_attribute_value` DROP FOREIGN KEY IF EXISTS `FK_B0DEA323A76ED395`;
+ALTER TABLE `contrexx_access_user_attribute_value` DROP FOREIGN KEY IF EXISTS `FK_B0DEA323B6E62EFA`;
+ALTER TABLE `contrexx_access_user_attribute_name` DROP FOREIGN KEY IF EXISTS `FK_90502F6CB6E62EFA`;
+ALTER TABLE `contrexx_access_user_attribute` DROP FOREIGN KEY IF EXISTS `FK_D97727BE727ACA70`;
+
+ALTER TABLE contrexx_access_user_attribute
+	CHANGE id id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	CHANGE parent_id parent_id INT UNSIGNED DEFAULT NULL;
+
+ALTER TABLE contrexx_access_user_attribute_name
+	CHANGE attribute_id attribute_id INT UNSIGNED NOT NULL;
+
+ALTER TABLE contrexx_access_user_attribute_value
+	CHANGE attribute_id attribute_id INT UNSIGNED NOT NULL,
+	CHANGE user_id user_id INT UNSIGNED NOT NULL,
+	CHANGE history_id history_id INT UNSIGNED DEFAULT 0 NOT NULL;
+
+/** Delete all invalid entries **/
+DELETE FROM contrexx_access_user_attribute_value WHERE attribute_id = 0;
+/* Delete all user attribute values which do not belong to any user */
+DELETE v FROM `contrexx_access_user_attribute_value` AS v
+LEFT JOIN contrexx_access_users as u ON u.id = v.user_id
+WHERE u.id IS NULL;
+
+UPDATE `contrexx_access_user_attribute` SET `parent_id`= null WHERE parent_id = 0;
+
 DELETE g FROM contrexx_access_rel_user_group AS g LEFT JOIN contrexx_access_users AS u ON u.id = g.user_id WHERE u.id IS NULL;
 
 ALTER TABLE contrexx_access_rel_user_group ADD CONSTRAINT FK_401DFD43A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id);
-ALTER TABLE contrexx_access_user_attribute_value ADD CONSTRAINT FK_B0DEA323A76ED395 FOREIGN KEY (user_id) REFERENCES contrexx_access_users (id) ON DELETE RESTRICT;
 
 /*Add unique index to access_user_attribute_name*/
 ALTER TABLE contrexx_access_user_attribute_name DROP PRIMARY KEY;
 ALTER TABLE contrexx_access_user_attribute_name ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY;
 CREATE UNIQUE INDEX fk_module_user_attribute_name_unique_idx ON contrexx_access_user_attribute_name (attribute_id, lang_id);
+
+/** Add Foreign Keys **/
+ALTER TABLE `contrexx_access_user_attribute_value` ADD CONSTRAINT `FK_B0DEA323B6E62EFA`
+	FOREIGN KEY (`attribute_id`) REFERENCES `contrexx_access_user_attribute` (`id`);
+ALTER TABLE `contrexx_access_user_attribute_value` ADD CONSTRAINT `FK_B0DEA323A76ED395A76ED395A76ED395A76ED395`
+	FOREIGN KEY (`user_id`) REFERENCES `contrexx_access_users` (`id`);
+
+ALTER TABLE `contrexx_access_user_attribute_name`ADD CONSTRAINT `FK_90502F6CB6E62EFA`
+	FOREIGN KEY (`attribute_id`) REFERENCES `contrexx_access_user_attribute`(`id`);
+
+ALTER TABLE `contrexx_access_user_attribute`ADD CONSTRAINT `FK_D97727BE727ACA70`
+	FOREIGN KEY (`parent_id`) REFERENCES `contrexx_access_user_attribute`(`id`);
+
+/** Add Indexes **/
+CREATE INDEX IDX_B0DEA323B6E62EFA ON contrexx_access_user_attribute_value (attribute_id);
