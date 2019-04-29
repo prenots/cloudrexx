@@ -294,23 +294,6 @@ class JsonUserController
         return $qb;
     }
 
-    /**
-     * If only newsletter lists are to be removed, the entity is not persisted
-     * and as a result the storeNewsletter function is not called. To remove the
-     * newsletter lists this method is called as StoreCallback. To prevent the
-     * newsletter lists from being saved twice, the storeNewsletter method is
-     * only called if newsletter lists are to be removed
-     *
-     * @param $params array contains all params for store callback
-     * @throws \Cx\Core\Error\Model\Entity\ShinyException
-     */
-    public function storeOnlyNewsletterLists($params)
-    {
-        if (isset($params) && empty($params['postedValue'])) {
-            $this->storeNewsletter($params);
-        }
-    }
-
     public function storeNewsletter($params)
     {
         global $_ARRAYLANG, $objDatabase;
@@ -381,10 +364,10 @@ class JsonUserController
         global $_ARRAYLANG;
 
         if (!isset($params) || empty($params['entity'])) {
-            return false;
+            return null;
         }
         $user = $params['entity'];
-        $em = $params['em'];
+        $em = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getEntityManager();
         $objUser = \FWUser::getFWUserObject()->objUser->getUser($user->getId());
         $objDownloadLib = new \Cx\Modules\Downloads\Controller\DownloadsLibrary();
         $arrDownloadSettings = $objDownloadLib->getSettings();
@@ -427,6 +410,7 @@ class JsonUserController
         $group->addUser($user);
         $em->persist($group);
         $em->flush();
+        $user->addGroup($group);
 
         $arrLanguageIds = array_keys(\FWLanguage::getLanguageArray());
         $arrNames = array();
@@ -473,7 +457,7 @@ class JsonUserController
         );
 
         if (!$objCategory->store()) {
-            return false;
+            return $user;
         }
 
         $damCategoryUrl = \Cx\Core\Routing\Url::fromBackend('Downloads');
@@ -499,6 +483,6 @@ class JsonUserController
         );
 
         \Message::add($message);
-        return true;
+        return $user;
     }
 }

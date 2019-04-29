@@ -1395,6 +1395,10 @@ class BackendController extends
                 'mode' => 'key',
                 'validValues' => array( 1 =>
                     $_ARRAYLANG['TXT_CORE_USER_ADD_DAM_CATEGORY']),
+                'postCallback' => array(
+                    'adapter' => 'User',
+                    'method' => 'storeDownloadExtension'
+                ),
             );
             $tabFields[] = 'downloadExtension';
             $status = true;
@@ -1420,9 +1424,9 @@ class BackendController extends
             'mode' => 'key',
             'showOverview' => false,
             'allowFiltering' => false,
-            'storecallback' => array(
+            'postCallback' => array(
                 'adapter' => 'User',
-                'method' => 'storeOnlyNewsletterLists'
+                'method' => 'storeNewsletter'
             ),
         );
 

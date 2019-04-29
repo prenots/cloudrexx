@@ -93,16 +93,6 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
         $eventArgs->getEntity()->setRegdate($date->getTimestamp());
     }
 
-    public function postPersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs) {
-        $this->storeSpecialAttribute($eventArgs->getEntity(), 'downloadExtension', $eventArgs->getEntityManager());
-        $this->storeSpecialAttribute($eventArgs->getEntity(), 'newsletter', $eventArgs->getEntityManager());
-    }
-
-    public function postUpdate(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs) {
-        $this->storeSpecialAttribute($eventArgs->getEntity(), 'downloadExtension', $eventArgs->getEntityManager());
-        $this->storeSpecialAttribute($eventArgs->getEntity(), 'newsletter', $eventArgs->getEntityManager());
-    }
-
     protected function setHashPassword($entity, $changeSet)
     {
         global $_CORELANG, $_CONFIG;
@@ -275,23 +265,4 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
         }
         return false;
     }
-
-    protected function storeSpecialAttribute($entity, $name, $em)
-    {
-        if (!$this->cx->getRequest()->hasParam($name, false)) {
-            return;
-        }
-
-        $method = 'store' . ucfirst($name);
-        $json = new \Cx\Core\Json\JsonData();
-        $json->data(
-            'User',
-            $method,
-            array(
-                'entity' => $entity,
-                'em' => $em
-            )
-        );
-    }
-
 }
