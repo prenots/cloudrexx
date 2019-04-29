@@ -1,3 +1,34 @@
+/** Change database type to InnoDB **/
+ALTER TABLE contrexx_module_shop_article_group ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_attribute ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_categories ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_currencies ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_customer_group ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_discountgroup_count_name ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_discountgroup_count_rate ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_discount_coupon ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_importimg ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_lsv ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_manufacturer ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_option ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_orders ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_order_attributes ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_order_items ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_payment ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_payment_processors ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_pricelists ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_products ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_rel_countries ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_rel_customer_coupon ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_rel_discount_group ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_rel_payment ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_rel_product_attribute ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_rel_shipper ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_shipment_cost ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_shipper ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_vat ENGINE = InnoDB;
+ALTER TABLE contrexx_module_shop_zones ENGINE = InnoDB;
+
 /** Create Tables **/
 CREATE TABLE contrexx_module_shop_rel_category_pricelist (
   category_id INT UNSIGNED NOT NULL,
@@ -56,7 +87,7 @@ ALTER TABLE contrexx_module_shop_payment ADD `name` VARCHAR(255) DEFAULT '' NOT 
 
 ALTER TABLE contrexx_module_shop_shipper ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_vat ADD `class` VARCHAR(255) NOT NULL;
+ALTER TABLE contrexx_module_shop_vat ADD `class` VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_article_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
 
@@ -73,7 +104,10 @@ ALTER TABLE contrexx_module_shop_orders
   CHANGE date_time date_time DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
   CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL,
   CHANGE modified_on modified_on DATETIME DEFAULT NULL,
+  CHANGE payment_id payment_id INT UNSIGNED NOT NULL,
   CHANGE status status INT UNSIGNED DEFAULT 0 NOT NULL;
+
+ALTER TABLE contrexx_module_shop_attribute CHANGE `type` `type` INT(1) UNSIGNED DEFAULT 1 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_products
   CHANGE date_start date_start DATETIME DEFAULT NULL,
@@ -95,6 +129,7 @@ ALTER TABLE contrexx_module_shop_shipper ADD zone_id INT UNSIGNED DEFAULT NULL;
 /** Drop Primary Keys **/
 ALTER TABLE contrexx_module_shop_discount_coupon DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
+ALTER TABLE contrexx_module_shop_rel_category_pricelist DROP PRIMARY KEY;
 
 
 /** To insert relations without problems **/
@@ -224,6 +259,7 @@ CREATE UNIQUE INDEX fk_module_shop_currency_unique_idx ON contrexx_module_shop_c
 
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
+ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD PRIMARY KEY (category_id, pricelist_id);
 
 
 /** Merge Data **/
