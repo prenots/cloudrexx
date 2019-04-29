@@ -1107,10 +1107,10 @@ die("Cart::view(): ERROR: No template");
                 'TXT_SHIP_COUNTRY' => $_ARRAYLANG['TXT_SHIP_COUNTRY'],
                 // Old, obsolete
                 'SHOP_COUNTRIES_MENU' => ShopLibrary::getCountryMenu(
-                                            'countryId2',
-                                            $_SESSION['shop']['countryId2'],
-                                            "document.forms['shopForm'].submit()"
-                                        ),
+                    'countryId2',
+                    $_SESSION['shop']['countryId2'],
+                    "document.forms['shopForm'].submit()"
+                ),
                 // New; use this so you can apply CSS more easily
                 'SHOP_COUNTRIES_MENUOPTIONS' => ShopLibrary::getCountryMenuoptions(
                     $_SESSION['shop']['countryId2']),

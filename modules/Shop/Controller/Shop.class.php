@@ -438,7 +438,7 @@ die("Failed to get Customer for ID $customer_id");
      */
     public static function getPageTitle() {
         return static::$pageTitle;
-        }
+    }
 
     /**
      * Returns the short description of the current product or the short
@@ -1489,7 +1489,7 @@ die("Failed to update the Cart!");
                         $pictureLink =
                                 contrexx_raw2encodedUrl($cx->getWebsiteImagesShopWebPath() . '/' . $image['img']) .
                                 // Hack ahead!
-                            '" rel="shadowbox['.($formId+1).']';
+                                '" rel="shadowbox['.($formId+1).']';
                         $imageFilePath = contrexx_raw2encodedUrl($cx->getWebsiteImagesShopWebPath() . '/' . $image['img']);
                         // Thumbnail display size
                         $arrSize = array($image['width'], $image['height']);
@@ -3895,11 +3895,11 @@ die("Shop::processRedirect(): This method is obsolete!");
                     // hide non-specific VAT template block
                     if (self::$objTemplate->blockExists('taxrow')) {
                         self::$objTemplate->hideBlock('taxrow');
-            }
+                    }
                 } elseif (self::$objTemplate->blockExists('taxrow')) {
                     // parse non-specific VAT template block
                     self::$objTemplate->touchBlock('taxrow');
-        }
+                }
 
                 // hide specific VAT-excl template block
                 if (self::$objTemplate->blockExists('shopVatExcl')) {
@@ -4010,8 +4010,8 @@ die("Shop::processRedirect(): This method is obsolete!");
 // Unregistered Customers are stored as well, as their information is needed
 // nevertheless.  Their active status, however, is set to false.
             if (!self::$objCustomer) {
-            self::$objCustomer = Customer::getUnregisteredByEmail(
-                $_SESSION['shop']['email']);
+                self::$objCustomer = Customer::getUnregisteredByEmail(
+                    $_SESSION['shop']['email']);
             }
             if (!self::$objCustomer) {
                 self::$objCustomer = new Customer();
@@ -4141,7 +4141,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (!Cart::needs_shipment()) {
             $objOrder->country_id(0);
         } else {
-        $objOrder->country_id($_SESSION['shop']['countryId2']);
+            $objOrder->country_id($_SESSION['shop']['countryId2']);
         }
         $objOrder->phone($_SESSION['shop']['phone2']);
         $objOrder->vat_amount($_SESSION['shop']['vat_price']);
@@ -4768,24 +4768,24 @@ die("Shop::processRedirect(): This method is obsolete!");
             $fileext  = '';
         }
 
-            $newFileName = $filename.'['.uniqid().']'.$fileext;
-            $newFilePath = Order::UPLOAD_FOLDER.$newFileName;
-            //Move the uploaded file to the path specified in the variable $newFilePath
-            try {
-                $objFile = new \Cx\Lib\FileSystem\File($tmpFile);
+        $newFileName = $filename.'['.uniqid().']'.$fileext;
+        $newFilePath = Order::UPLOAD_FOLDER.$newFileName;
+        //Move the uploaded file to the path specified in the variable $newFilePath
+        try {
+            $objFile = new \Cx\Lib\FileSystem\File($tmpFile);
             if (
                 $objFile->move(
                     $cx->getWebsiteDocumentRootPath() . '/' . $newFilePath,
                 false
                 )
             ) {
-                   return $newFileName;
-                } else {
-                    \Message::error($_ARRAYLANG['TXT_SHOP_ERROR_UPLOADING_FILE']);
-                }
-            } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
-                \DBG::msg($e->getMessage());
+               return $newFileName;
+            } else {
+                \Message::error($_ARRAYLANG['TXT_SHOP_ERROR_UPLOADING_FILE']);
             }
+        } catch (\Cx\Lib\FileSystem\FileSystemException $e) {
+            \DBG::msg($e->getMessage());
+        }
 
         return '';
     }
