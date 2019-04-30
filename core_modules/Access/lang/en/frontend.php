@@ -5,7 +5,7 @@
  *
  * @link      http://www.cloudrexx.com
  * @copyright Cloudrexx AG 2007-2015
- * 
+ *
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
  * or under a proprietary license.
@@ -24,7 +24,7 @@
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
- 
+
 /**
  * @copyright   CLOUDREXX CMS - CLOUDREXX AG
  * @author      Cloudrexx Development Team <info@cloudrexx.com>
@@ -136,3 +136,9 @@ $_ARRAYLANG['TXT_ACCESS_ADDITIONAL_DATA'] = 'Additional data';
 $_ARRAYLANG['TXT_ACCESS_ADDITIONAL_DATA_DESC'] = 'Additional data can be added after successful registration in your user profile';
 $_ARRAYLANG['TXT_ACCESS_NEWSLETTER_SUBSCRIPTION'] = 'Newsletter subscriptions';
 $_ARRAYLANG['TXT_ACCESS_TERMS'] = 'Terms';
+$_ARRAYLANG['TXT_ACCESS_REGISTERED_SINCE'] = "Registered since";
+$_ARRAYLANG['TXT_ACCESS_GROUPS'] = "Groups";
+$_ARRAYLANG['TXT_ACCESS_ATTRIBUTE'] = 'Attribute';
+$_ARRAYLANG['TXT_ACCESS_OLD_VALUE'] = 'Old value';
+$_ARRAYLANG['TXT_ACCESS_NEW_VALUE'] = 'New value';
+$_ARRAYLANG['TXT_ACCESS_VALUE'] = 'Value';

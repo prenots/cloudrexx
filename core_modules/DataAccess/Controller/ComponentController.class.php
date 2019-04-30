@@ -53,7 +53,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return array List of Controller class names (without namespace)
      */
     public function getControllerClasses() {
-        return array('JsonOutput', 'RawOutput');
+        return array('JsonOutput', 'CliOutput');
     }
     
     /**
@@ -105,9 +105,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @see getCommandsForCommandMode()
      * @param string $command Name of command to execute
      * @param array $arguments List of arguments for the command
+     * @param array  $dataArguments (optional) List of data arguments for the command
      * @return void
      */
-    public function executeCommand($command, $arguments, $dataArguments) {
+    public function executeCommand($command, $arguments, $dataArguments = array()) {
         try {
             switch ($command) {
                 case 'v1':
@@ -129,12 +130,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return void
      */
     public function apiV1($command, $arguments, $dataArguments) {
-        $method = strtolower($_SERVER['REQUEST_METHOD']);
+        $method = $this->cx->getRequest()->getHttpRequestMethod();
         
         // handle CLI
         if (php_sapi_name() == 'cli') {
-            // we force usage of output module "raw" in CLI
-            array_unshift($arguments, 'raw');
+            try {
+                $this->getOutputModule(current($arguments));
+            } catch (\Exception $e) {
+                // we default to output module "cli" in CLI
+                array_unshift($arguments, 'cli');
+            }
             
             // method will not be set in CLI, there for we educate-guess it
             $method = 'get';
@@ -157,10 +162,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 throw new \InvalidArgumentException('Not enough arguments');
             }
             $dataSource = $this->getDataSource($arguments[1]);
-            
-            $elementId = null;
+            $elementId = array();
             if (isset($arguments[2])) {
-                $elementId = $arguments[2];
+                $argumentKeys = array_keys($arguments);
+                $primaryKeyNames = $dataSource->getIdentifierFieldNames();
+                for ($i = 0; $i < count($arguments) - 2; $i++) {
+                    if (!is_numeric($argumentKeys[$i + 2])) {
+                        break;
+                    }
+                    $elementId[$primaryKeyNames[$i]] = $arguments[$i + 2];
+                }
             }
             
             $apiKey = null;
@@ -169,24 +180,41 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
             
             $order = array();
-            if (isset($arguments['order'])) {
-                $order = $arguments['order'];
-            }
-            $order = array();
-            if (isset($arguments['order'])) {
-                $orderStrings = explode(';', $arguments['order']);
-                foreach ($orderStrings as $orderString) {
-                    $orderStringParts = explode('/', $orderString);
-                    $order[$orderStringParts[0]] = $orderStringParts[1];
+            if (isset($arguments['order']) && is_array($arguments['order'])) {
+                foreach ($arguments['order'] as $field=>$sortOrder) {
+                    if (!$dataSource->hasField($field)) {
+                        throw new \InvalidArgumentsException(
+                            'Unknown field "' . $field . '"'
+                        );
+                    }
+                    if (!in_array(strtolower($sortOrder), array('asc', 'desc'))) {
+                        throw new \InvalidArgumentsException(
+                            'Unknown sort order "' . $sortOrder . '"'
+                        );
+                    }
                 }
+                $order = $arguments['order'];
             }
             
             $filter = array();
-            if (isset($arguments['filter'])) {
-                $filterStrings = explode(';', $arguments['filter']);
-                foreach ($filterStrings as $filterString) {
-                    $filterStringParts = explode('=', $filterString);
-                    $filter[$filterStringParts[0]] = $filterStringParts[1];
+            if (isset($arguments['filter']) && is_array($arguments['filter'])) {
+                foreach ($arguments['filter'] as $field=>$filterExpr) {
+                    if (!is_array($filterExpr)) {
+                        $filterExpr = array('eq' => $filterExpr);
+                    }
+                    foreach ($filterExpr as $operation=>$value) {
+                        if (!$dataSource->hasField($field)) {
+                            throw new \InvalidArgumentException(
+                                'Unknown field "' . $field . '"'
+                            );
+                        }
+                        if (!$dataSource->supportsOperation($operation)) {
+                            throw new \InvalidArgumentsException(
+                                'Unsupported operation "' . $operation . '"'
+                            );
+                        }
+                        $filter[$field][$operation] = $value;
+                    }
                 }
             }
             
@@ -271,7 +299,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             
             $response->send($outputModule);
         } catch (\Exception $e) {
-            global $_ARRAYLANG;
+            $lang = \Env::get('init')->getComponentSpecificLanguageData(
+                $this->getName(),
+                false
+            );
             
             $response->setStatus(
                 \Cx\Core_Modules\DataAccess\Model\Entity\ApiResponse::STATUS_ERROR
@@ -279,7 +310,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             $response->addMessage(
                 \Cx\Core_Modules\DataAccess\Model\Entity\ApiResponse::MESSAGE_TYPE_ERROR,
                 sprintf(
-                    $_ARRAYLANG['TXT_CORE_MODULE_DATA_ACCESS_ERROR'],
+                    $lang['TXT_CORE_MODULE_DATA_ACCESS_ERROR'],
                     get_class($e),
                     $e->getMessage()
                 )
