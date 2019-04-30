@@ -214,14 +214,12 @@ function updateShipment()
     var found = -1;
     // try all the available shipments;
     // (see Shipment.class.php::getJSArrays())
-console.log(shipments);
     for (var i = 0; i < shipments.length; ++i) {
         var price_free = shipments[i][2];
         var max_weight = getWeightGrams(shipments[i][1]);
         // get the shipment conditions that are closest to our order:
         // we have to make sure the maximum weight is big enough for the order,
         // or that it's unspecified (don't care)
-        console.log(max_weight);
         if ((max_weight > 0 && weight <= max_weight ) || max_weight == 0) {
             // if price_free is set, the order amount has to be higher than that
             // in order to get the shipping for free.
