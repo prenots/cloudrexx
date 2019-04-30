@@ -253,7 +253,7 @@ function updateDefaultTagItFields(event, ui) {
     }
 }
 function addSortable(selectorElm) {
-    if (selectorElm.html() === null || typeof selectorElm.html() === 'undefined') {
+    if (selectorElm.html() === null) {
         return;
     }
 
