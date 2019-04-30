@@ -288,8 +288,13 @@ function calcPrice(orderItemId)
     }
     var couponAmount = document.getElementById('coupon-amount');
     if (couponAmount) {
-        couponAmount.value = '-' + (totalSum / 100 * Number(couponAmount.dataset.rate)).toFixed(2);
-        totalSum = (totalSum / 100 * (100-Number(couponAmount.dataset.rate))).toFixed(2);
+        if (couponAmount.dataset.rate > 0) {
+            couponAmount.value = '-' + (totalSum / 100 * Number(couponAmount.dataset.rate)).toFixed(2);
+            totalSum = (totalSum / 100 * (100-Number(couponAmount.dataset.rate))).toFixed(2);
+        } else if (couponAmount.dataset.amount > 0) {
+            couponAmount.value = '-' + couponAmount.dataset.amount;
+            totalSum = (totalSum - couponAmount.dataset.amount).toFixed(2);
+        }
     }
     // store totalSum as net total before adding VAT
     document.getElementById("netprice").value =

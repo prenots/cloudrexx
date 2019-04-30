@@ -1288,6 +1288,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 array(
                     'id' => 'coupon-amount',
                     'data-rate' => $discountCoupon->getDiscountRate(),
+                    'data-amount' => $discountCoupon->getDiscountAmount(),
                     'readonly' => 'readonly'
                 )
             );
