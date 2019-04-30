@@ -48,6 +48,13 @@ namespace Cx\Modules\Shop\Model\Entity;
  */
 class Category extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Translatable {
     /**
+     * Flag for virtual categories
+     *
+     * @var string
+     */
+    const VIRTUAL_FLAG = '__VIRTUAL__';
+
+    /**
      * @var string
      */
     protected $locale;
@@ -428,4 +435,17 @@ class Category extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\
         return $this->getName();
     }
 
+    /**
+     * Check if a category is virtual.
+     *
+     * @return  boolean             True if the ShopCategory is virtual,
+     *                              false otherwise
+     */
+    function isVirtual()
+    {
+        return preg_match(
+            '/(?:^|\s)' . preg_quote(self::VIRTUAL_FLAG, '/') . '(?:\s|\=|$)/i',
+            $this->getFlags()
+        );
+    }
 }
