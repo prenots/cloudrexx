@@ -199,9 +199,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $objShopManager->getPage($navigation->get());
                 return;
         }
-        if ($tpl) {
-            $_GET['act'] = $tpl;
-        }
 
         parent::getPage($page);
     }
