@@ -232,7 +232,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'table' => array (
                     'parse' => function ($value, $rowData) {
                         $date = new \DateTime($value);
-                        $fieldvalue = $date->format('d.m.Y h:m:s');
+                        $fieldvalue = $date->format('d.m.Y H:i:s');
                         return $fieldvalue;
                     },
                     'attributes' => array(
