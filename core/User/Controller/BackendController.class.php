@@ -1349,7 +1349,15 @@ class BackendController extends
             );
         }
 
-        if (count($attr->getChildren())) {
+        if ($name == 'title') {
+            foreach ( $attr->getChildren() as $child) {
+                foreach ($child->getUserAttributeName() as $childName) {
+                    $validValues[
+                    $childName->getAttributeId()
+                    ] = $childName->getName();
+                }
+            }
+        } else if (count($attr->getChildren())) {
             foreach ( $attr->getChildren() as $child) {
                 foreach ($child->getUserAttributeName() as $childName) {
                     if ($childName->getLangId() == FRONTEND_LANG_ID) {
