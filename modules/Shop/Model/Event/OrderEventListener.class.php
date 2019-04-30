@@ -11,7 +11,7 @@ namespace Cx\Modules\Shop\Model\Event;
 
 class OrderEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 {
-    public function preRemove() : void
+    public function preRemove()
     {
         $entityId = 0;
         $updateStock = false;
