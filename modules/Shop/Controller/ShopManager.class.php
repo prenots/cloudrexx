@@ -1792,7 +1792,7 @@ if ($test === NULL) {
      */
     function delete_categories($category_id=0)
     {
-        global $objDatabase, $_ARRAYLANG;
+        global $_ARRAYLANG;
 
         $arrCategoryId = array();
         $deleted = false;
@@ -1821,34 +1821,6 @@ if ($test === NULL) {
             if (count($arrChildId)) {
                 \Message::warning(
                     $_ARRAYLANG['TXT_CATEGORY_NOT_DELETED_BECAUSE_IN_USE'].
-                    "&nbsp;(".$_ARRAYLANG['TXT_CATEGORY']."&nbsp;".$category_id.")");
-                continue;
-            }
-            // Get Products in this category
-            $count = 1e9;
-            $arrProducts = \Cx\Modules\Shop\Controller\ProductController::getByShopParams($count, 0, null,
-                $category_id, null, null, false, false, '', null, true);
-//DBG::log("delete_categories($category_id): Products in $category_id: ".var_export($arrProducts, true));
-            // Delete the products in the category
-            foreach ($arrProducts as $objProduct) {
-                // Check whether there are orders with this Product ID
-                $product_id = $objProduct->id();
-                $query = "
-                    SELECT 1
-                      FROM ".DBPREFIX."module_shop".MODULE_INDEX."_order_items
-                     WHERE product_id=$product_id";
-                $objResult = $objDatabase->Execute($query);
-                if (!$objResult || $objResult->RecordCount()) {
-                    \Message::error(
-                        $_ARRAYLANG['TXT_COULD_NOT_DELETE_ALL_PRODUCTS'].
-                        "&nbsp;(".
-                        sprintf($_ARRAYLANG['TXT_SHOP_CATEGORY_ID_FORMAT'],
-                            $category_id).")");
-                    continue 2;
-                }
-            }
-            if (Products::deleteByShopCategory($category_id) === false) {
-                \Message::error($_ARRAYLANG['TXT_ERROR_DELETING_PRODUCT'].
                     "&nbsp;(".$_ARRAYLANG['TXT_CATEGORY']."&nbsp;".$category_id.")");
                 continue;
             }
