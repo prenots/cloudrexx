@@ -60,7 +60,8 @@ CREATE TABLE `contrexx_access_user_attribute_value` (
   `value` text NOT NULL,
   PRIMARY KEY (`attribute_id`, `user_id`, `history_id`),
   FULLTEXT KEY `value` (`value`),
-  INDEX `contrexx_access_user_attribute_value_user_id_ibfk` (`user_id`)
+  INDEX `contrexx_access_user_attribute_value_user_id_ibfk` (`user_id`),
+  INDEX IDX_B0DEA323B6E62EFA (attribute_id)
 ) ENGINE=InnoDB;
 CREATE TABLE `contrexx_access_user_groups` (
   `group_id` int NOT NULL AUTO_INCREMENT,
