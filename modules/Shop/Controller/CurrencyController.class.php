@@ -99,6 +99,9 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
         $options['functions']['sorting'] = false;
         $options['functions']['edit'] = false;
         $options['functions']['editable'] = true;
+        $options['functions']['status'] = array(
+            'field' => 'active'
+        );
         $options['order']['overview'] = array(
             'id',
             'code',
