@@ -271,7 +271,6 @@ function addSortable(selectorElm) {
             forceHelperSize: true,
             forcePlaceholderSize: true,
             cursor: 'move',
-
             stop: function(event, ui) {
                 cx.jQuery('#' + cx.jQuery(this).data('id')).val(
                     cx.jQuery('.tagit-label', cx.jQuery(this))
