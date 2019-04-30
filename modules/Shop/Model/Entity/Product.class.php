@@ -630,6 +630,20 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     }
 
     /**
+     * Remove a flag
+     *
+     * If the flag is not present, nothing is changed.
+     * Note that the match is case insensitive.
+     * @param   string    $flag             The flag to be removed
+     */
+    function removeFlag($flag)
+    {
+        $this->setFlags(
+            trim(preg_replace("/\\s*$flag\\s*/i", ' ', $this->getFlags()))
+        );
+    }
+
+    /**
      * Set groupId
      *
      * @param integer $groupId
