@@ -706,4 +706,297 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         return \Html::getOptions($arrAvailableOrder,
             \Cx\Core\Setting\Controller\Setting::getValue('product_sorting','Shop'));
     }
+
+    /**
+     * Delete Products from the ShopCategory given by its ID.
+     *
+     * If deleting one of the Products fails, aborts and returns false
+     * immediately without trying to delete the remaining Products.
+     * Deleting the ShopCategory after this method failed will most
+     * likely result in Product bodies in the database!
+     * @param   integer     $category_id        The ShopCategory ID
+     * @param   boolean     $flagDeleteImages   Delete images, if true
+     * @param   boolean     $recursive          Delete Products from
+     *                                          subcategories, if true
+     * @return  boolean                         True on success, null on noop,
+     *                                          false otherwise
+     * @static
+     * @author  Reto Kohli <reto.kohli@comvation.com>
+     */
+    static function deleteByShopCategory($category_id, $flagDeleteImages=false,
+                                         $recursive=false)
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $catRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Category');
+
+        // Verify that the Category still exists
+        $objShopCategory = $catRepo->find($category_id);
+        if (!$objShopCategory) {
+//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Info: Category ID $category_id does not exist");
+            return null;
+        }
+
+        $products = $objShopCategory->getProducts();
+        if (empty($products)) {
+//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to get Product IDs in that Category");
+            return false;
+        }
+        // Look whether this is within a virtual ShopCategory
+        $virtualContainer = '';
+        $parent_id = $category_id;
+        do {
+            $objShopCategory = $catRepo->find($parent_id);
+            if (!$objShopCategory) {
+//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to get parent Category");
+                return false;
+            }
+            if ($objShopCategory->isVirtual()) {
+                // The name of any virtual ShopCategory is used to mark
+                // Products within
+                $virtualContainer = $objShopCategory->getName();
+                break;
+            }
+            $parent_id = $objShopCategory->getParentId();
+        } while ($parent_id != 0);
+
+        // Remove the Products in one way or another
+        foreach ($products as $product) {
+            if (empty($product)) {
+//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to get Product IDs $product_id");
+                return false;
+            }
+            if ($virtualContainer != ''
+                && $product->getFlags() != '') {
+                // Virtual ShopCategories and their content depends on
+                // the Product objects' flags.
+                $product->removeFlag($virtualContainer);
+                $em->persist($product);
+                if (!self::changeFlagsByProductCode(
+                    $product->getCode(),
+                    $product->getFlags()
+                )) {
+//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to update Product flags for ID ".$objProduct->id());
+                    return false;
+                }
+
+            } else {
+                // Normal, non-virtual ShopCategory.
+                // Remove Products having the same Product code.
+                // Don't delete Products having more than one Category assigned.
+                // Instead, remove them from the chosen Category only.
+                $arrCategoryId = $product->getCategories();
+                if (count($arrCategoryId) > 1) {
+                    $product->removeCategory($objShopCategory);
+                    $em->persist($product);
+                } else {
+                    $em->remove($product);
+                }
+            }
+        }
+        $em->flush();
+
+        if ($recursive) {
+            $arrCategories = $objShopCategory->getChildren();
+            foreach ($arrCategories as $category) {
+                if (!self::deleteByShopCategory(
+                    $category->getId(), $flagDeleteImages, $recursive)) {
+                    \DBG::log("ERROR: Failed to delete Products in Category ID ".$category->getId());
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Apply the flags to all Products matching the given Product code
+     *
+     * Any Product and ShopCategory carrying one or more of the names
+     * of any ShopCategory marked as "__VIRTUAL__" is cloned and added
+     * to that category.  Those having any such flags removed are deleted
+     * from the respective category.  Identical copies of the same Products
+     * are recognized by their "product_id" (the Product code).
+     *
+     * Note that in this current version, only the flags of Products are
+     * tested and applied.  Products are cloned and added together with
+     * their immediate parent ShopCategories (aka "Article").
+     *
+     * Thus, all Products within the same "Article" ShopCategory carry the
+     * same flags, as does the containing ShopCategory itself.
+     * @param   integer     $productCode  The Product code (*NOT* the ID).
+     *                                    This must be non-empty!
+     * @param   string      $strNewFlags  The new flags for the Product
+     * @static
+     * @author      Reto Kohli <reto.kohli@comvation.com>
+     */
+    static function changeFlagsByProductCode($productCode, $strNewFlags)
+    {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+
+        if (empty($productCode)) return false;
+        // Get all available flags.  These are represented by the names
+        // of virtual root ShopCategories.
+        $arrVirtual = ShopCategories::getVirtualCategoryNameArray();
+
+        // Get the affected identical Products
+        $arrProduct = self::getByCustomId($productCode);
+        // No way we can do anything useful without them.
+        if (count($arrProduct) == 0) return false;
+
+        // Get the Product flags.  As they're all the same, we'll use the
+        // first one here.
+        // Note that this object is used for reference only and is never stored.
+        // Its database entry will be updated along the way, however.
+        $_objProduct = $arrProduct[0];
+        $strOldFlags = $_objProduct->getFlags();
+        // Flag indicating whether the article has been cloned already
+        // for all new flags set.
+        $flagCloned = false;
+
+        // Now apply the changes to all those identical Products, their parent
+        // ShopCategories, and all sibling Products within them.
+        foreach ($arrProduct as $objProduct) {
+            // Get the containing article ShopCategory.
+            $category = $objProduct->getCategories();
+            $objArticleCategory = $category->first();
+            if (!$objArticleCategory) continue;
+
+            // Get parent (subgroup)
+            $objSubGroupCategory =
+                ShopCategory::getById($objArticleCategory->getParentId());
+            // This should not happen!
+            if (!$objSubGroupCategory) continue;
+            $subgroupName = $objSubGroupCategory->getName();
+
+            // Get grandparent (group, root ShopCategory)
+            $objRootCategory =
+                ShopCategory::getById($objSubGroupCategory->getParentId());
+            if (!$objRootCategory) continue;
+
+            // Apply the new flags to all Products and Article ShopCategories.
+            // Update the flags of the original Article ShopCategory first
+            $objArticleCategory->getFlags($strNewFlags);
+            $em->persist($objArticleCategory);
+
+            // Get all sibling Products affected by the same flags
+            $arrSiblingProducts = Products::getByShopCategory(
+                $objArticleCategory->getId()
+            );
+
+            // Set the new flag set for all Products within the Article
+            // ShopCategory.
+            foreach ($arrSiblingProducts as $objProduct) {
+                $objProduct->getFlags($strNewFlags);
+                $em->persist($objProduct);
+            }
+
+            // Check whether this group is affected by the changes.
+            // If its name matches one of the flags, the Article and subgroup
+            // may have to be removed.
+            $strFlag = $objRootCategory->getName();
+            if (preg_match("/$strFlag/", $strNewFlags))
+                // The flag is still there, don't bother.
+                continue;
+
+            // Also check whether this is a virtual root ShopCategory.
+            if (in_array($strFlag, $arrVirtual)) {
+                // It is one of the virtual roots, and the flag is missing.
+                // So the Article has to be removed from this group.
+                $em->remove($objArticleCategory);
+                $objArticleCategory = false;
+                // And if the subgroup happens to contain no more
+                // "Article", delete it as well.
+                $arrChildren = $objSubGroupCategory->getChildren();
+                if (count($arrChildren) == 0)
+                    $em->remove($objSubGroupCategory);
+                continue;
+            }
+
+            // Here, the virtual ShopCategory groups have been processed,
+            // the only ones left are the "normal" ShopCategories.
+            // Clone one of the Article ShopCategories for each of the
+            // new flags set.
+            // Already did that?
+            if ($flagCloned) continue;
+
+            // Find out what flags have been added.
+            foreach ($arrVirtual as $strFlag) {
+                // That flag is not present in the new flag set.
+                if (!preg_match("/$strFlag/", $strNewFlags)) continue;
+                // But it has been before.  The respective branch has
+                // been truncated above already.
+                if (preg_match("/$strFlag/", $strOldFlags)) continue;
+
+                // That is a new flag for which we have to clone the Article.
+                // Get the affected grandparent (group, root ShopCategory)
+                $objTargetRootCategory =
+                    ShopCategories::getChildNamed($strFlag, 0, false);
+                if (!$objTargetRootCategory) continue;
+                // Check whether the subgroup exists already
+                $objTargetSubGroupCategory =
+                    ShopCategories::getChildNamed(
+                        $subgroupName, $objTargetRootCategory->getId(), false);
+                if (!$objTargetSubGroupCategory) {
+                    // Nope, add the subgroup.
+                    $objSubGroupCategory->makeClone();
+                    $objSubGroupCategory->getParent()->map(
+                        function($category) { return $category->getId(); }
+                    );
+                    $em->persist($objSubGroupCategory);
+                    $objTargetSubGroupCategory = $objSubGroupCategory;
+                }
+
+                // Check whether the Article ShopCategory exists already
+                $objTargetArticleCategory =
+                    ShopCategories::getChildNamed(
+                        $objArticleCategory->getName(),
+                        $objTargetSubGroupCategory->getId(),
+                        false
+                    );
+                if ($objTargetArticleCategory) {
+                    // The Article Category already exists.
+                } else {
+                    // Nope, clone the "Article" ShopCategory and add it to the
+                    // subgroup.  Note that the flags have been set already
+                    // and don't need to be changed again here.
+                    // Also note that the cloning process includes all content
+                    // of the Article ShopCategory, but the flags will remain
+                    // unchanged. That's why the flags have already been
+                    // changed right at the beginning of the process.
+                    $objArticleCategory->makeClone(true, true);
+                    $objArticleCategory->getParent()->map(
+                        function($category) { return $category->getId(); }
+                    );
+                    $em->persist($objArticleCategory);
+                    $objTargetArticleCategory = $objArticleCategory;
+                }
+            } // foreach $arrVirtual
+        } // foreach $arrProduct
+        // And we're done!
+        $em->flush();
+        return true;
+    }
+
+    /**
+     * Returns an array of Product objects sharing the same Product code.
+     * @param   string      $customId   The Product code
+     * @return  mixed                   The array of matching Product objects
+     *                                  on success, false otherwise.
+     * @static
+     * @author      Reto Kohli <reto.kohli@comvation.com>
+     */
+    static function getByCustomId($customId)
+    {
+        if (empty($customId)) return false;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $productRepo = $em->getRepository('\Cx\Modules\Shop\Model\Entity\Product');
+        $products = $productRepo->findBy(array('code' => $customId));
+
+        return $products;
+    }
 }

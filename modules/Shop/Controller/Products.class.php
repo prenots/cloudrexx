@@ -288,110 +288,6 @@ class Products
         return array($querySelect, $queryCount, $queryTail, $queryOrder);
     }
 
-
-    /**
-     * Delete Products from the ShopCategory given by its ID.
-     *
-     * If deleting one of the Products fails, aborts and returns false
-     * immediately without trying to delete the remaining Products.
-     * Deleting the ShopCategory after this method failed will most
-     * likely result in Product bodies in the database!
-     * @param   integer     $category_id        The ShopCategory ID
-     * @param   boolean     $flagDeleteImages   Delete images, if true
-     * @param   boolean     $recursive          Delete Products from
-     *                                          subcategories, if true
-     * @return  boolean                         True on success, null on noop,
-     *                                          false otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function deleteByShopCategory($category_id, $flagDeleteImages=false,
-        $recursive=false)
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $em = $cx->getDb()->getEntityManager();
-        $catRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Category');
-
-        // Verify that the Category still exists
-        $objShopCategory = $catRepo->find($category_id);
-        if (!$objShopCategory) {
-//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Info: Category ID $category_id does not exist");
-            return null;
-        }
-
-        $products = $objShopCategory->getProducts();
-        if (empty($products)) {
-//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to get Product IDs in that Category");
-            return false;
-        }
-        // Look whether this is within a virtual ShopCategory
-        $virtualContainer = '';
-        $parent_id = $category_id;
-        do {
-            $objShopCategory = $catRepo->find($parent_id);
-            if (!$objShopCategory) {
-//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to get parent Category");
-                return false;
-            }
-            if ($objShopCategory->isVirtual()) {
-                // The name of any virtual ShopCategory is used to mark
-                // Products within
-                $virtualContainer = $objShopCategory->getName();
-                break;
-            }
-            $parent_id = $objShopCategory->getParentId();
-        } while ($parent_id != 0);
-
-        // Remove the Products in one way or another
-        foreach ($products as $product) {
-            if (empty($product)) {
-//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to get Product IDs $product_id");
-                return false;
-            }
-            if ($virtualContainer != ''
-             && $product->getFlags() != '') {
-                // Virtual ShopCategories and their content depends on
-                // the Product objects' flags.
-                $product->removeFlag($virtualContainer);
-                $em->persist($product);
-                if (!Products::changeFlagsByProductCode(
-                    $product->getCode(),
-                    $product->getFlags()
-                )) {
-//\DBG::log("Products::deleteByShopCategory($category_id, $flagDeleteImages): Failed to update Product flags for ID ".$objProduct->id());
-                    return false;
-                }
-
-            } else {
-                // Normal, non-virtual ShopCategory.
-                // Remove Products having the same Product code.
-                // Don't delete Products having more than one Category assigned.
-                // Instead, remove them from the chosen Category only.
-                $arrCategoryId = $product->getCategories();
-                if (count($arrCategoryId) > 1) {
-                    $product->removeCategory($objShopCategory);
-                    $em->persist($product);
-                } else {
-                    $em->remove($product);
-                }
-            }
-        }
-        $em->flush();
-
-        if ($recursive) {
-            $arrCategories = $objShopCategory->getChildren();
-            foreach ($arrCategories as $category) {
-                if (!self::deleteByShopCategory(
-                    $category->getId(), $flagDeleteImages, $recursive)) {
-\DBG::log("ERROR: Failed to delete Products in Category ID ".$category->getId());
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
     /**
      * Returns an array of Product IDs contained by the given
      * ShopCategory ID.
@@ -450,7 +346,7 @@ class Products
         $objResult = $objDatabase->SelectLimit($query, 1);
         if ($objResult && $objResult->RecordCount() > 0) {
             // Got a picture
-            $arrImages = Products::get_image_array_from_base64(
+            $arrImages = ProductController::get_image_array_from_base64(
                 $objResult->fields['picture']);
             $imageName = $arrImages[1]['img'];
             return $imageName;

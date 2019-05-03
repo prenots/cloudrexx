@@ -1440,7 +1440,7 @@ die("Failed to update the Cart!");
         foreach ($arrProduct as $objProduct) {
             $id = $objProduct->id();
             $productSubmitFunction = '';
-            $arrPictures = Products::get_image_array_from_base64($objProduct->pictures());
+            $arrPictures = ProductController::get_image_array_from_base64($objProduct->pictures());
             $havePicture = false;
             $arrProductImages = array();
             foreach ($arrPictures as $index => $image) {
