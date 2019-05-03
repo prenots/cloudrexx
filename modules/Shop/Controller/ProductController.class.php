@@ -230,8 +230,16 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'picture' => array(
                 'showOverview' => false,
-                'type' => 'image',
+                'header' => $_ARRAYLANG['TXT_SHOP_EDIT_OR_ADD_IMAGE'],
                 'allowFiltering' => false,
+                'formfield' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getImageBrowser'
+                ),
+                'storecallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'storePicture'
+                )
             ),
             'groupId' => array(
                 'showOverview' => false,

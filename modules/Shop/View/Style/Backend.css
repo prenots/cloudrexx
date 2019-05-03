@@ -238,3 +238,23 @@ td.small {
 .product-name {
     width: 42%;
 }
+.product-images {
+    max-width: 100%;
+    height: auto;
+    border: none;
+    display: block;
+}
+#form-0-picture {
+    width: 100%;
+}
+.product-images-wrapper {
+    width: 32%;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+}
+.product-images-wrapper a {
+    display: inline-block;
+    margin-bottom: 5px;
+    vertical-align: bottom;
+}
