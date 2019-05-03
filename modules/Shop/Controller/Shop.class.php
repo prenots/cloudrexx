@@ -1091,8 +1091,12 @@ die("Failed to update the Cart!");
             }
             $arrSize = $arrDefaultImageSize;
             if (!$imageName) {
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $productRepo = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity\Product'
+                );
                 // Look for a picture in the Products.
-                $imageName = Products::getPictureByCategoryId($id);
+                $imageName = $productRepo->getPictureByCategoryId($id);
             }
             if (!$imageName) {
                 // Look for a picture in the subcategories and their Products.

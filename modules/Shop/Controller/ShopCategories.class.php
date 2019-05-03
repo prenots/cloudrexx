@@ -544,7 +544,11 @@ class ShopCategories
         $arrChildCategoryId =
             self::getChildCategoryIdArray($catId, $active);
         foreach ($arrChildCategoryId as $catId) {
-            $imageName = Products::getPictureByCategoryId($catId);
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $productRepo = $cx->getDb()->getEntityManager()->getRepository(
+                'Cx\Modules\Shop\Model\Entity\Product'
+            );
+            $imageName = $productRepo->getPictureByCategoryId($catId);
             if ($imageName) return $imageName;
         }
 
