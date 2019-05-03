@@ -77,7 +77,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return array(
             'getImageBrowser',
             'storePicture',
-            'addEditLink'
+            'addEditLink',
+            'setEmptyDateToNull'
         );
     }
 
@@ -355,5 +356,14 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         $link->addChild($linkText);
 
         return $link;
+    }
+
+
+    public function setEmptyDateToNull($params)
+    {
+        if (empty($params['postedValue'])) {
+            $method = 'set' . ucfirst($params['fieldName']);
+            $params['entity']->$method(null);
+        }
     }
 }

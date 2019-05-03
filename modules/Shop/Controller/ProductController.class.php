@@ -273,10 +273,18 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'dateStart' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'postCallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'setEmptyDateToNull'
+                ),
             ),
             'dateEnd' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'postCallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'setEmptyDateToNull'
+                ),
             ),
             'manufacturerId' => array(
                 'showOverview' => false,
