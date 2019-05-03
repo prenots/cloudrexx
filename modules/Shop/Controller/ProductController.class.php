@@ -157,6 +157,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                     'attributes' => array(
                         'class' => 'product-name',
                     ),
+                    'parse' => array(
+                        'adapter' => 'Product',
+                        'method' => 'addEditLink'
+                    )
                 ),
             ),
             'discountActive' => array(

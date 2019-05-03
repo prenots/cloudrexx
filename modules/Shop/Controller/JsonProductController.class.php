@@ -77,6 +77,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return array(
             'getImageBrowser',
             'storePicture',
+            'addEditLink'
         );
     }
 
@@ -317,5 +318,42 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         }
 
         return $value;
+    }
+
+    /**
+     * Adds a link around the text
+     *
+     * @param $param array callback values
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement
+     */
+    public function addEditLink($param)
+    {
+        global $_ARRAYLANG;
+
+        if (empty($param['rows']) || empty($param['rows']['id'])) {
+            return $param['data'];
+        }
+
+        $id = $param['rows']['id'];
+        $text = $param['data'];
+        $vgId = $param['vgId'];
+
+
+        $linkText = new \Cx\Core\Html\Model\Entity\TextElement($text);
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $editUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
+            $vgId,
+            $id
+        );
+
+        $link->setAttributes(
+            array(
+                'href' => $editUrl,
+                'title' => $_ARRAYLANG['TXT_SHOP_EDIT_ENTRY']
+            )
+        );
+        $link->addChild($linkText);
+
+        return $link;
     }
 }
