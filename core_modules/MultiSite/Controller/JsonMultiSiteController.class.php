@@ -4732,6 +4732,93 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                     if ($response->status == 'error' || (isset($response->data) && $response->data->status == 'error')) {
                         throw new MultiSiteException('Restore failed');
                     }
+
+                    // init notification mail
+                    \Cx\Core\MailTemplate\Controller\MailTemplate::init('MultiSite');
+                    $substitution = array();
+
+                    // add info about backup
+                    $backupData = array();
+                    if (
+                        isset($response->data) &&
+                        isset($response->data->backup_website_name)
+                    ) {
+                        $backupData['BACKUP_WEBSITE_NAME'] = $response->data->backup_website_name;
+                    }
+                    if (
+                        isset($response->data) &&
+                        isset($response->data->backup_date)
+                    ) {
+                        $backupData['BACKUP_DATE'] = $response->data->backup_date;
+                    }
+                    if (
+                        isset($response->data) &&
+                        isset($response->data->backup_source)
+                    ) {
+                        $backupData['BACKUP_SOURCE'] = $response->data->backup_source;
+                    }
+                    if ($backupData) {
+                        $substitution['BACKUP'] = array(
+                            '0' => $backupData,
+                        );
+                    }
+
+                    // fetch owner details
+                    $objUser = \FWUser::getFWUserObject()->objUser;
+                    $user = $objUser->getUser($selectedUserId);
+                    if ($user) {
+                        $gender = $user->objAttribute->getById($user->getProfileAttribute('gender'));
+                        $country = $user->objAttribute->getById('country_' . $user->getProfileAttribute('country'));
+                        $substitution['CUSTOMER'] = array(
+                            '0' => array(
+                                'CUSTOMER_EMAIL' => $user->getEmail(),
+                                'CUSTOMER_GENDER' => $gender->getId() ? $gender->getName() : '',
+                                'CUSTOMER_FIRSTNAME' => $user->getProfileAttribute('firstname'),
+                                'CUSTOMER_LASTNAME' => $user->getProfileAttribute('lastname'),
+                                'CUSTOMER_COMPANY' => $user->getProfileAttribute('company'),
+                                'CUSTOMER_ZIP' => $user->getProfileAttribute('zip'),
+                                'CUSTOMER_CITY' => $user->getProfileAttribute('city'),
+                                'CUSTOMER_COUNTRY' => $country->getId() ? $country->getName() : '',
+                                'CUSTOMER_PHONE' => $user->getProfileAttribute('phone_office'),
+                            ),
+                        );
+                    }
+
+                    $subscription = null;
+                    if ($subscriptionId) {
+                        $subscriptionRepo = \Env::get('em')->getRepository('Cx\Modules\Order\Model\Entity\Subscription');
+                        $subscription = $subscriptionRepo->findOneBy(array('externalSubscriptionId' => $subscriptionId));
+                    }
+                    if ($subscription) {
+                        $substitution['SUBSCRIPTION'] = array(
+                            '0' => array(
+                                'SUBSCRIPTION_ID' => $subscription->getId(),
+                                'SUBSCRIPTION_NAME' => $subscription->getProduct()->getName(),
+                            ),
+                        );
+                    }
+
+                    $websiteUrl = ComponentController::getApiProtocol().$websiteName.'.'.\Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite');
+
+                    // send notification mail to admin
+                    \DBG::msg(__METHOD__ . ': send notification email > ADMIN');
+                    \Cx\Core\MailTemplate\Controller\MailTemplate::send(array(
+                        'section' => 'MultiSite',
+                        'key' => 'notifyRestoreInfo',
+                        'search' => array(
+                            '[[MULTISITE_DOMAIN]]',
+                            '[[WEBSITE_URL]]',
+                            '[[WEBSITE_NAME]]',
+                            '[[WEBSITE_SERVICE_SERVER_NAME]]',
+                        ),
+                        'replace' => array(
+                            \Cx\Core\Setting\Controller\Setting::getValue('multiSiteDomain','MultiSite'),
+                            $websiteUrl,
+                            $websiteName,
+                            $websiteServiceServer->getHostname(),
+                        ),
+                        'substitution' => $substitution,
+                    ));
     
                     if (isset($response->data)) {
                         return $response->data;
@@ -4763,11 +4850,24 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
 
                     $this->updateUserAccountsOnRestore($website, $selectedUserId, false);
 
+                    $websiteInfoArray = $this->getWebsiteInfoFromZip($websiteBackupFilePath, 'info/meta.yml');
+                    $backupWebsiteName = '';
+                    $backupDate = '';
+                    if ($websiteInfoArray['website']['websiteName']) {
+                        $backupWebsiteName = $websiteInfoArray['website']['websiteName'];
+                    }
+                    if ($websiteInfoArray['backupDateTime']) {
+                        $backupDate = $websiteInfoArray['backupDateTime'];
+                    }
+
                     return array(
                         'status'    => 'success', 
                         'message'   => sprintf($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_RESTORE_SUCCESS'], $websiteName),
                         'websiteUrl'=> ComponentController::getApiProtocol() . $website->getBaseDn()->getName(),
                         'websiteId' => $website->getId(),
+                        'backup_website_name' => $backupWebsiteName,
+                        'backup_date' => $backupDate,
+                        'backup_source' => $websiteBackupFilePath,
                         'log'       => \DBG::getMemoryLogs(),
                     ); 
                     break;
