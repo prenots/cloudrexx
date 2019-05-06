@@ -6330,7 +6330,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
      */
     
     public function getResourceUsageStats() {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $_CONFIG;
         self::loadLanguageData();
         
         try {
@@ -6356,8 +6356,11 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                                 break;
 
                             case 'Shop':
+                                $pagingLimitBkp = $_CONFIG['corePagingLimit'];
+                                $_CONFIG['corePagingLimit'] = 10000;
                                 $count = 0;
                                 $products = \Cx\Modules\Shop\Controller\Products::getByShopParams($count, 0, null, null, null, null, false, false, null, null, true);
+                                $_CONFIG['corePagingLimit'] = $pagingLimitBkp;
                                 $usage = count($products);
                                 break;
 
