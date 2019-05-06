@@ -347,6 +347,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'mode' => 'associate',
                 'allowFiltering' => false,
+                'formfield' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getProductAttributes'
+                )
             ),
             'manufacturer' => array(
                 'showOverview' => false,

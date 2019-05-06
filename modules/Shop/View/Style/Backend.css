@@ -136,7 +136,8 @@ label[for='form-0-shipmentAmount'],
 label[for='form-0-paymentAmount'],
 label[for='form-0-sum'],
 label[for='form-0-note'],
-label[for='form-0-emptyField'] {
+label[for='form-0-emptyField'],
+label[for='form-0-relProductAttributes']{
     display:none;
 }
 #form-0-orderItems {
@@ -257,4 +258,32 @@ td.small {
     display: inline-block;
     margin-bottom: 5px;
     vertical-align: bottom;
+}
+#form-0-relProductAttributes {
+    width: 100%;
+}
+#content input.product-option-checkbox {
+    float: left;
+    margin: 6px;
+    box-sizing: content-box;
+}
+#content .child input.product-option-checkbox {
+    margin-left: 50px;
+}
+
+#content .child {
+    display: none;
+}
+
+#content .open .child {
+    display: block;
+}
+
+.product-option-label {
+    width: 100%;
+    display: block;
+    padding: 2px;
+}
+#form-0-product-option .controls {
+    margin: 0;
 }

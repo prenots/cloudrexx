@@ -78,7 +78,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'getImageBrowser',
             'storePicture',
             'addEditLink',
-            'setEmptyDateToNull'
+            'setEmptyDateToNull',
+            'getProductAttributes'
         );
     }
 
@@ -365,5 +366,119 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $method = 'set' . ucfirst($params['fieldName']);
             $params['entity']->$method(null);
         }
+    }
+
+    public function getProductAttributes($params)
+    {
+        $name = $params['name'];
+        $entityId = $params['id'];
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $wrapper->setAttribute('name', $name);
+
+        $attributeRepo = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Attribute'
+        );
+        $relProductAttrRepo = $this->cx->getDb()->getEntityManager()
+            ->getRepository('Cx\Modules\Shop\Model\Entity\RelProductAttribute');
+        $attributes = $attributeRepo->findAll();
+        $productAttributes = $relProductAttrRepo->findBy(
+            array('productId' => $entityId)
+        );
+
+        // All option IDs written into an array to simplify the check
+        $productOptions = array();
+        foreach ($productAttributes as $productAttribute) {
+            $productOptions[] = $productAttribute->getOptionId();
+        }
+
+        $wrapper = $this->getProductOptionCheckboxes(
+            $attributes,
+            $name,
+            $wrapper,
+            $productOptions
+        );
+        return $wrapper;
+    }
+
+    protected function getProductOptionCheckboxes($options, $name, $wrapper, $productOptions, $parentElement = null)
+    {
+        foreach ($options as $option) {
+            $optionWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+            $attrName = $name . '[' . $option->getId() . ']';
+            $attrId = $name . '-' . $option->getId();
+            $attrValue = $option->getName();
+            if (
+                method_exists(get_class($option), 'getPrice') &&
+                !empty($option->getPrice())
+            ) {
+                $defaultCurrency = $this->cx->getDb()->getEntityManager()
+                    ->getRepository(
+                        'Cx\Modules\Shop\Model\Entity\Currency'
+                    )->getDefaultCurrency();
+
+                $attrValue .= ' (' . $option->getPrice() . ' ' .
+                    $defaultCurrency->getSymbol() . ')';
+            }
+            $checkbox = new \Cx\Core\Html\Model\Entity\HtmlElement(
+                'input'
+            );
+            $checkbox->setAttribute('type', 'checkbox');
+            $checkbox->setAttribute('value', 1);
+            $checkbox->addClass('product-option-checkbox');
+
+            $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+            $label->addChild(
+                new \Cx\Core\Html\Model\Entity\TextElement($attrValue)
+            );
+            $label->addClass('product-option-label');
+
+            if (!empty($parentElement)) {
+                $parentElement->addClass('parent');
+                $optionWrapper->addClass('child');
+                $parentInput = null;
+                foreach ($parentElement->getChildren() as $child) {
+                    if ($child->getName() == 'input') {
+                        $parentInput = $child;
+                    }
+                }
+                if (in_array($option->getId(), $productOptions)) {
+                    $checkbox->setAttribute('checked');
+                    if (isset($parentInput)) {
+                        $parentInput->setAttribute('checked');
+                    }
+                    $parentElement->addClass('open');
+                }
+
+                $attrName = $parentInput->getAttribute('name') . '[' .
+                    $option->getId() . ']';
+                $attrId = $parentInput->getAttribute('id') . '-' .
+                    $option->getId();
+
+                $parentElement->addChild($optionWrapper);
+                $label->setAttribute('for', $attrId);
+            } else {
+                $wrapper->addChild($optionWrapper);
+            }
+
+            $checkbox->setAttribute('name', $attrName);
+            $checkbox->setAttribute('id', $attrId);
+            $optionWrapper->addChild($checkbox);
+            $optionWrapper->addChild($label);
+
+            if (
+                method_exists(get_class($option), 'getOptions') &&
+                !empty($option->getOptions())
+            ) {
+                $wrapper = $this->getProductOptionCheckboxes(
+                    $option->getOptions(),
+                    $name,
+                    $wrapper,
+                    $productOptions,
+                    $optionWrapper
+                );
+            }
+        }
+        return $wrapper;
     }
 }

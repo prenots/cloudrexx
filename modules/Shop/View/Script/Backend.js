@@ -165,6 +165,16 @@ jQuery(document).ready(function($){
             document.getElementById('form-0-footerRight').value = document.getElementById('footerRight').value
         };
     }
+
+    cx.jQuery('.parent').click(function() {
+        if (cx.jQuery(this).hasClass('open')) {
+            cx.jQuery(this).find('input').attr('checked', false);
+            cx.jQuery(this).removeClass('open');
+        } else {
+            cx.jQuery(this).find('input').attr('checked', true);
+            cx.jQuery(this).addClass('open');
+        }
+    })
 });
 
 function updateDefault(defaultEntity) {
