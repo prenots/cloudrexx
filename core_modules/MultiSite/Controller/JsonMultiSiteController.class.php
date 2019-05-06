@@ -6653,7 +6653,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         static::executeCommandOnServiceServer(
                             'updateWebDistributionAlias',
                             $params['post'],
-                            $website->getServiceServer()
+                            $website->getWebsiteServiceServer()
                         );
                     } catch (\Exception $e) {
                         \DBG::log('SYSERROR: Could not update WebDistributionAlias while executing "' . $methodName . '" for website "' . $website->getName() . '"!');
@@ -6673,7 +6673,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         $result = static::executeCommandOnServiceServer(
                             'updateAutomaticCertificates',
                             $certParams,
-                            $website->getServiceServer()
+                            $website->getWebsiteServiceServer()
                         );
                     } catch (\Exception $e) {
                         \DBG::log('SYSERROR: Could not update self-signed certificates while executing "' . $methodName . '" for website "' . $website->getName() . '"!');
