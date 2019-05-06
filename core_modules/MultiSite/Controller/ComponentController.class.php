@@ -2419,13 +2419,29 @@ MultiSite Cache flush [<pattern>] [-v] [--exec]
             $websiteRepo = \Env::get('em')->getRepository('\Cx\Core_Modules\MultiSite\Model\Entity\Website');
             $website = $websiteRepo->findOneBy(array('name' => $websiteName));
             if (!\FWValidator::isEmpty($website)) {
-                return array('status' => 'success', 'message' => array('message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_SUCCESS'], 'websiteId' => $website->getId()), 'reload' => (isset($_GET['page_reload']) && $_GET['page_reload'] == 'reload_page' ? true : false));
+                return array(
+                    'status' => 'success',
+                    'message' => array(
+                        'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_SUCCESS'],
+                        'websiteId' => $website->getId()
+                    ),
+                    'reload' => (isset($_GET['page_reload']) && $_GET['page_reload'] == 'reload_page' ? true : false),
+                    'log'    => \DBG::getMemoryLogs(),
+                );
             }
             
-            return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED']);
+            return array(
+                'status' => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED'],
+                'log'    => \DBG::getMemoryLogs(),
+            );
         } catch (Exception $e) {
             \DBG::log("Failed to add website:" . $e->getMessage());
-            return array('status' => 'error', 'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED']);
+            return array(
+                'status' => 'error',
+                'message' => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_ADD_WEBSITE_FAILED'],
+                'log'    => \DBG::getMemoryLogs(),
+            );
         }
     }
     
