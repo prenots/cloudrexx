@@ -71,6 +71,9 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'field' => 'discountActive'
         );
 
+        $options['tabs']['overview']['header'] = $_ARRAYLANG[
+            'TXT_PRODUCT_INFORMATIONS'
+        ];
         $options['tabs']['product-option'] = array(
             'header' => $_ARRAYLANG['TXT_PRODUCT_OPTIONS'],
             'fields' => array(
