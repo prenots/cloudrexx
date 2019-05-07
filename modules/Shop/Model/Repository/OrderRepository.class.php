@@ -59,7 +59,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
 
         if ($order
             && $customer = $objUser->getUser($order->getCustomerId())) {
-            $usernamePrefix = \Cx\Modules\Shop\Model\Entity\Orders::USERNAME_PREFIX;
+            $usernamePrefix = \Cx\Modules\Shop\Model\Entity\Order::USERNAME_PREFIX;
 
             $customerEmail = $usernamePrefix ."_${$id}_%-"
                 . $customer->getEmail();

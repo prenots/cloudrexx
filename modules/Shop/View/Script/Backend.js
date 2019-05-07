@@ -18,12 +18,13 @@ cx.bind("delete", function (deleteIds) {
 
 // Function to overwrite delete onclick event. See BackendController $option['functions]['onclick']['delete']
 function deleteOrder(deleteUrl) {
+    var scopeDelete = 'order';
     if (confirm(
-        cx.variables.get('TXT_CONFIRM_DELETE_ORDER', scope)+'\n'+ cx.variables.get('TXT_ACTION_IS_IRREVERSIBLE', scope)
+        cx.variables.get('TXT_CONFIRM_DELETE_ORDER', scopeDelete)+'\n'+ cx.variables.get('TXT_ACTION_IS_IRREVERSIBLE', scopeDelete)
     )) {
         var stockUpdate = false;
         if (confirm(
-            cx.variables.get('TXT_SHOP_CONFIRM_RESET_STOCK', scope)
+            cx.variables.get('TXT_SHOP_CONFIRM_RESET_STOCK', scopeDelete)
         )) {
             stockUpdate = true;
         }
