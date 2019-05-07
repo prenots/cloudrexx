@@ -367,6 +367,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $method = 'set' . ucfirst($params['fieldName']);
             $params['entity']->$method(null);
         }
+        return $params['entity'];
     }
 
     public function getProductAttributes($params)
