@@ -406,7 +406,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
     {
         foreach ($options as $option) {
             $optionWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-            $attrName = $name . '[' . $option->getId() . ']';
+            $attrName = $name;
             $attrId = $name . '-' . $option->getId();
             $attrValue = $option->getName();
             if (

@@ -166,13 +166,13 @@ jQuery(document).ready(function($){
         };
     }
 
-    cx.jQuery('.parent').click(function() {
-        if (cx.jQuery(this).hasClass('open')) {
-            cx.jQuery(this).find('input').attr('checked', false);
-            cx.jQuery(this).removeClass('open');
+    cx.jQuery('.parent label').click(function() {
+        if (cx.jQuery(this).parent().hasClass('open')) {
+            cx.jQuery(this).parent().find('input').attr('checked', false);
+            cx.jQuery(this).parent().removeClass('open');
         } else {
-            cx.jQuery(this).find('input').attr('checked', true);
-            cx.jQuery(this).addClass('open');
+            cx.jQuery(this).parent().find('input').attr('checked', true);
+            cx.jQuery(this).parent().addClass('open');
         }
     })
 });
