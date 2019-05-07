@@ -79,7 +79,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'storePicture',
             'addEditLink',
             'setEmptyDateToNull',
-            'getProductAttributes'
+            'getProductAttributes',
+            'storeProductAttributes'
         );
     }
 
@@ -480,5 +481,57 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             }
         }
         return $wrapper;
+    }
+
+    public function storeProductAttributes($params)
+    {
+        if (empty($params['entity'])) {
+            return $params['entity'];
+        }
+        $entity = $params['entity'];
+        $options = $params['postedValue'];
+        if (empty($options)) {
+            $options = array();
+        }
+        $relProductAttributeRepo = $this->cx->getDb()->getEntityManager()
+            ->getRepository(
+                'Cx\Modules\Shop\Model\Entity\RelProductAttribute'
+            );
+        $optionRepo = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Option'
+        );
+
+        $existingProductAttributes = $entity->getRelProductAttributes();
+
+        foreach ($existingProductAttributes as $relProductAttribute) {
+            if (!isset($options[$relProductAttribute->getOptionId()])) {
+                $this->cx->getDb()->getEntityManager()->remove(
+                    $relProductAttribute
+                );
+                $entity->removeRelProductAttribute($relProductAttribute);
+            }
+        }
+
+        foreach ($options as $optionId=>$value) {
+            $productAttribute = $relProductAttributeRepo->findOneBy(
+                array(
+                    'productId' => $entity->getId(),
+                    'optionId' => $optionId
+                )
+            );
+            if (empty($productAttribute)) {
+                $productAttribute = new \Cx\Modules\Shop\Model\Entity\RelProductAttribute();
+                $productAttribute->setProductId($entity->getId());
+                $productAttribute->setProduct($entity);
+                $productAttribute->setOptionId($optionId);
+                $productAttribute->setOption($optionRepo->find($optionId));
+                $productAttribute->setOrd(0);
+                $this->cx->getDb()->getEntityManager()->persist(
+                    $productAttribute
+                );
+            }
+            $entity->addRelProductAttribute($productAttribute);
+        }
+        return $entity;
     }
 }

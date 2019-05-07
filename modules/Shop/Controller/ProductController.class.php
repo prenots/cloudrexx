@@ -345,12 +345,18 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'relProductAttributes' => array(
                 'showOverview' => false,
-                'mode' => 'associate',
                 'allowFiltering' => false,
                 'formfield' => array(
                     'adapter' => 'Product',
                     'method' => 'getProductAttributes'
-                )
+                ),
+                'storecallback' => function() {
+                    return null;
+                },
+                'postCallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'storeProductAttributes'
+                ),
             ),
             'manufacturer' => array(
                 'showOverview' => false,
