@@ -170,7 +170,7 @@ class CalendarRegistration extends CalendarLibrary
     protected $invite;
 
     /**
-     * Registration type Normal registration
+     * Registration type normal registration
      */
     const REGISTRATION_TYPE_REGISTRATION = 1;
 
