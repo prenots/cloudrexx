@@ -412,16 +412,12 @@ class ContentManager extends \Module
 
         // TODO: move including of add'l JS dependencies to cx obj from /cadmin/index.html
         $getLangOptions=$this->getLangOptions();
-        $statusPageLayout='';
-        $languageDisplay='';
-        if (((!empty($_GET['act']) && $_GET['act'] == 'new')
-                ||!empty($_GET['page'])) && $getLangOptions=="") {
-            $statusPageLayout='margin0';
-            $languageDisplay='display:none';
+        $multiLocaleMode ='';
+        if (!$getLangOptions) {
+            $multiLocaleMode ='cm-single-locale';
         }
 
-        $this->template->setVariable('ADMIN_LIST_MARGIN', $statusPageLayout);
-        $this->template->setVariable('LANGUAGE_DISPLAY', $languageDisplay);
+        $this->template->setVariable('CONTENTMANAGER_LOCALE_CSS_CLASS', $statusPageLayout);
 
         // TODO: move including of add'l JS dependencies to cx obj from /cadmin/index.html
         $this->template->setVariable('SKIN_OPTIONS', $this->getSkinOptions());
@@ -447,7 +443,10 @@ class ContentManager extends \Module
             'regExpUriProtocol'  =>  \FWValidator::REGEX_URI_PROTO,
             'contrexxBaseUrl'    => ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] . ASCMS_PATH_OFFSET . '/',
             'contrexxPathOffset' => ASCMS_PATH_OFFSET,
-            'showLocaleTagsByDefault'  => $_CONFIG['showLocaleTagsByDefault'],
+            'showLocaleTagsByDefault'  => \Cx\Core\Setting\Controller\Setting::getValue(
+                'showLocaleTagsByDefault',
+                'Config'
+            ),
         ), 'contentmanager');
 
         // manually set Wysiwyg variables as the Ckeditor will be
