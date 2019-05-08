@@ -289,7 +289,7 @@ cx.ready(function() {
         }
         data.lang  = cx.jQuery('#site-tree').jstree('get_lang');
         data.nodes = new Array();
-        cx.jQuery('#site-tree ul li.jstree-checked').not(".action-item").each(function() {
+        cx.jQuery('#site-tree ul li.jstree-checked:not(.action-item):not(.translation)').each(function() {
             nodeId = cx.jQuery(this).attr('id').match(/\d+$/)[0];
             data.nodes.push(nodeId);
         });
@@ -484,20 +484,6 @@ cx.ready(function() {
     });
     cx.jQuery(".chzn-select").trigger('change');
     cx.cm.updateLocaleSelect();
-
-    cx.jQuery('div.actions-expanded li.action-item').live('click', function(event) {
-        var classes =  cx.jQuery(event.target).attr("class").split(/\s+/);
-        var url = cx.jQuery(event.target).attr('data-href');
-        var lang = cx.jQuery('#site-tree').jstree('get_lang');
-
-        var action = classes[1];
-        var pageId = cx.jQuery(event.target).closest(".jstree-wrapper").nextAll("a." + lang).attr("id");
-        var nodeId = cx.jQuery(event.target).closest(".jstree-wrapper").parent().attr("id").split("_")[1];
-
-        cx.cm.performAction(action, pageId, nodeId);
-
-        cx.jQuery(event.target).closest('.actions-expanded').hide();
-    });
 
     //add callback to reload custom content templates available as soon as template or module changes
     cx.jQuery('#page select[name="page[skin]"]').bind('change', function() {
@@ -1048,10 +1034,10 @@ cx.cm = function(target) {
     cx.jQuery(document).ready(function() {
         if (cx.jQuery('#languageCount').val()<=1) {
             cx.jQuery("#site-language").hide();
-            cx.jQuery(".adminlist ").addClass("margin0");
+            cx.jQuery("#content-manager").addClass("cm-single-locale");
         } else {
             cx.jQuery("#site-language").show();
-            cx.jQuery(".adminlist ").removeClass("margin0");
+            cx.jQuery("#content-manager ").removeClass("cm-single-locale");
         }
         if (cx.jQuery('#pageId').val() == 'new') {
             // make sure history tab is hidden
@@ -1517,6 +1503,7 @@ cx.cm.createJsTree = function(target, data, nodeLevels, open_all) {
                   if (!cx.jQuery(e.target).is(".translations > .translation")) {
                       cx.jQuery(this).children(".translations-expanded").toggle();
                       cx.jQuery(".translations.dropdown").not(this).children(".translations-expanded").hide();
+                      cx.jQuery('.actions-expanded').hide();
                   }
               });
             var translationDropdown = translations.find(".translations-expanded ul");
@@ -1542,6 +1529,7 @@ cx.cm.createJsTree = function(target, data, nodeLevels, open_all) {
                                 e.stopPropagation();
                                 cx.jQuery(this).children(".actions-expanded").toggle();
                                 cx.jQuery(".actions").not(this).children(".actions-expanded").hide();
+                                cx.jQuery('.translations-expanded').hide();
                             });
             var wrapper = cx.jQuery(actions).wrap('<div class="jstree-wrapper" />').parent();
             wrapper.prepend(translations);
@@ -2208,6 +2196,19 @@ cx.cm.updateActionMenu = function(args) {
             menu.append(cx.jQuery("<li class=\"action-item\">").addClass("show").text(cx.variables.get("show", "contentmanager/lang/actions")));
         }
         menu.append(cx.jQuery("<li class=\"action-item\">").addClass("delete").text(cx.variables.get("delete", "contentmanager/lang/actions")));
+        menu.find('li.action-item').click(function(event) {
+            var classes = cx.jQuery(event.target).attr('class').split(/\s+/);
+            var lang    = cx.jQuery('#site-tree').jstree('get_lang');
+            var action  = classes[1];
+            var pageId  = cx.jQuery(event.target).closest('.jstree-wrapper').nextAll('a.' + lang).attr('id');
+            var nodeId  = cx.jQuery(event.target).closest('.jstree-wrapper').parent().attr('id').split('_')[1];
+
+            cx.cm.performAction(action, pageId, nodeId);
+
+            setTimeout(function(){
+                cx.jQuery(event.target).closest('.actions-expanded').hide();
+            }, 100);
+        });
     }
 }
 
@@ -3092,8 +3093,8 @@ cx.cm.pageLoaded = function(page, selectTab, reloadHistory, historyId) {
 
     // store page's locale in last used locales
     var lastUsedLocales = '';
-    if (!!cx.jQuery.cookie('lastUsedLocales')) {
-        lastUsedLocales = cx.jQuery.cookie('lastUsedLocales');
+    if (!!Cookies.get('lastUsedLocales')) {
+        lastUsedLocales = Cookies.get('lastUsedLocales');
     }
     if (lastUsedLocales.length) {
         lastUsedLocales = lastUsedLocales.split(",");
@@ -3108,7 +3109,7 @@ cx.cm.pageLoaded = function(page, selectTab, reloadHistory, historyId) {
     });
     // convert to string and store last used locales in cookie
     lastUsedLocales = lastUsedLocales.join(",");
-    cx.jQuery.cookie('lastUsedLocales', lastUsedLocales);
+    Cookies.set('lastUsedLocales', lastUsedLocales);
 
     cx.cm.updateLocaleSelect();
 };
@@ -3373,8 +3374,8 @@ cx.cm.setSelectedMetaimage = function (data) {
  */
 cx.cm.updateLocaleSelect = function() {
     // place last used locales on top of select
-    if (!!cx.jQuery.cookie("lastUsedLocales")) {
-        var lastUsedLocales = cx.jQuery.cookie("lastUsedLocales").split(",");
+    if (!!Cookies.get("lastUsedLocales")) {
+        var lastUsedLocales = Cookies.get("lastUsedLocales").split(",");
         // loop over last used locales backwards
         for (var i = lastUsedLocales.length - 1; i >= 0; --i) {
             // place option on top of select
@@ -3485,6 +3486,10 @@ cx.cm.getSiteStructureCols = function() {
  * @param toggle Wether to switch or not
  */
 cx.cm.switchTagDropdown = function(toggle) {
+    // do not render locale-selection-dropdown in single-locale-mode
+    if (cx.jQuery('#content-manager').hasClass('cm-single-locale')) {
+        return;
+    }
     var switchTagDropdown = cx.jQuery(".switch-tag-dropdown");
     var translations = cx.jQuery("#site-tree .translations");
 
