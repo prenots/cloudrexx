@@ -358,25 +358,25 @@ class MediaDirectoryLibrary
 
                 switch($strStatus) {
                     case 'no_access':
-                        header('Location: '.CONTREXX_SCRIPT_PATH.'?section=Login&cmd=noaccess');
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section=Login&cmd=noaccess');
                         exit;
                         break;
                     case 'login':
                         $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
-                        header("Location: ".CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
                         exit;
                         break;
                     case 'redirect':
-                        header('Location: '.CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName);
                         exit;
                         break;
                     case 'confirm_in_progress':
-                        header('Location: '.CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName.'&cmd=confirm_in_progress');
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName.'&cmd=confirm_in_progress');
                         exit;
                         break;
                     default:
                         if(substr($strStatus,0,4) == 'osec') {
-                            header('Location: '.CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName.'&cmd=edit5&eid='.intval(substr($strStatus,4)));
+                            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName.'&cmd=edit5&eid='.intval(substr($strStatus,4)));
                             exit;
                         }
                         break;

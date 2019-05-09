@@ -119,7 +119,7 @@ class MediaDirectory extends MediaDirectoryLibrary
                     parent::checkAccess('delete_entry');
                     $this->deleteEntry();
                 } else {
-                    header("Location: index.php?section=".$this->moduleName);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
                     exit;
                 }
                 break;
@@ -168,7 +168,7 @@ class MediaDirectory extends MediaDirectoryLibrary
                         parent::checkAccess('edit_entry');
                         $this->modifyEntry();
                     } else {
-                        header("Location: index.php?section=".$this->moduleName);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
                         exit;
                     }
                 } else {
@@ -873,7 +873,7 @@ class MediaDirectory extends MediaDirectoryLibrary
         $this->getNavtree($intCategoryId, $intLevelId);
 
         if (!$intEntryId || !$this->_objTpl->blockExists($this->moduleNameLC.'EntryList')) {
-            header("Location: index.php?section=".$this->moduleName);
+            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
             exit;
         }
 
@@ -884,7 +884,7 @@ class MediaDirectory extends MediaDirectoryLibrary
             $this->_objTpl->hideBlock($this->moduleNameLC.'EntryList');
             $this->_objTpl->clearVariables();
 
-            header("Location: index.php?section=".$this->moduleName);
+            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
             exit;
         }
 
@@ -1703,7 +1703,7 @@ class MediaDirectory extends MediaDirectoryLibrary
                 $this->_objTpl->hideBlock($this->moduleNameLC.'EntrySaveOnlyMessage');
             }
         } else {
-            header("Location: index.php?section=".$_GET['section']);
+            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$_GET['section']);
             exit;
         }
 
