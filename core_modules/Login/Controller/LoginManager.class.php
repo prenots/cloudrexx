@@ -98,7 +98,7 @@ class LoginManager {
         $endcode = $ls->replace();
 
         echo $endcode;
-        exit();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**

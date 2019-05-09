@@ -558,7 +558,7 @@ class Resolver {
             if (!$this->page->isTargetInternal()) {
                 header('Connection: close');
             }
-            exit;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         // If an alias like /de/alias1 was resolved, redirect to /alias1
@@ -578,7 +578,7 @@ class Resolver {
             // need to drop the complete page cache (since we don't know which
             // is the correct cache file for this redirect)
             header('Location: ' . $correctUrl->toString(), true, 301);
-            exit();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         return $this->page;
     }
@@ -772,7 +772,7 @@ class Resolver {
                     \Env::get('cx')->getComponent('Cache')->postFinalize($emptyString);
                     header('Location: ' . $target, true, 301);
                     header('Connection: close');
-                    exit;
+                    throw new \Cx\Core\Core\Controller\InstanceException();
                 } else {
                     if ($target[0] == '/') {
                         $target = substr($target, 1);
@@ -797,7 +797,7 @@ class Resolver {
                     http_response_code(301);
                     \Env::get('cx')->getComponent('Cache')->postFinalize($emptyString);
                     header('Location: ' . $target, true, 301);
-                    exit;
+                    throw new \Cx\Core\Core\Controller\InstanceException();
                 }
             }
         }
@@ -815,7 +815,7 @@ class Resolver {
             http_response_code(301);
             \Env::get('cx')->getComponent('Cache')->postFinalize($emptyString);
             header('Location: ' . $target->toString() . $this->url->getSuggestedAnchor(), true, 301);
-            exit;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         // in case the requested page is of type fallback, we will now handle/load this page

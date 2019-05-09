@@ -152,7 +152,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             // Component is not published in ContentManager.
             // Let's abort
             echo json_encode(array());
-            exit;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         // limit the result to a content branch,
@@ -174,7 +174,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $arraySearchResults = array();
         if (strlen($term) < 3) {
             echo json_encode(array());
-            exit;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         // get passed options
@@ -190,7 +190,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $arraySearchResults = $search->getSearchResult($term, $options);
 
         echo json_encode($arraySearchResults);
-        exit;
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**

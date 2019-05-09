@@ -59,7 +59,7 @@ class ConsoleInterface extends UserInterface {
                         $command->getDescription() . "\r\n\r\n" .
                         $command->getSynopsis() . "\r\n\r\n" .
                         $command->getHelp() . "\r\n";
-                    exit;
+                    throw new \Cx\Core\Core\Controller\InstanceException();
                 } else {
                     echo 'No such subcommand, read the list:' . "\r\n\r\n";
                 }

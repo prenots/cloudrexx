@@ -237,7 +237,7 @@ class NewsletterManager extends NewsletterLib
             ));
         } else {
             $this->_objTpl->show();
-            exit;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
     }
 

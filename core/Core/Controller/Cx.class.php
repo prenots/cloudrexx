@@ -1321,7 +1321,7 @@ namespace Cx\Core\Core\Controller {
             );
             \header($_SERVER['SERVER_PROTOCOL'] . ' 301 Moved Permanently');
             \header('Location: ' . $url);
-            exit;
+            throw new InstanceException();
         }
 
         /**
@@ -2228,7 +2228,7 @@ namespace Cx\Core\Core\Controller {
                     );
                     $objPDF->setContent($endcode);
                     $objPDF->Create();
-                    exit;
+                    throw new InstanceException();
                 }
 
                 // fetch the parsed webpage

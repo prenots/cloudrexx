@@ -111,7 +111,7 @@ class PayrexxProcessor
         }
 
         \header('Location: ' . $link);
-        exit;
+        throw new \Cx\Core\Core\Controller\InstanceException();
 
         // modal solution, not yet implemented
         $modalJs = \Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseModuleWebPath() . '/Shop/payments/payrexx/modal.js';

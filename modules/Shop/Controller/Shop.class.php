@@ -4872,7 +4872,7 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (!$objList->send_as_pdf()) {
             return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_SENDING']);
         }
-        exit();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 

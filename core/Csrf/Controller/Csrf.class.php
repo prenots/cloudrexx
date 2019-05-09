@@ -179,7 +179,7 @@ class Csrf {
             printf('Redirecting to: <a href="%s">%s</a>.', $url, $url);
         }
         if ($exit) {
-            exit;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         return true;
     }
