@@ -171,7 +171,7 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
         }
 
         if (empty($newsid)) {
-            header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('News'));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('News'));
             exit;
         }
 
@@ -244,7 +244,7 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
         $objResult = $objDatabase->SelectLimit($query, 1);
 
         if (!$objResult || $objResult->EOF) {
-            header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('News'));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('News'));
             exit;
         }
 
@@ -271,8 +271,8 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
                 if ($this->arrSettings['login_redirect'] == '1') {
                     \Permission::noAccess($base64Redirect);
                 }
-                header(
-                    'Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('News')
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd('News')
                 );
                 exit;
             }
@@ -1343,7 +1343,7 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
 
         // redirect to the news overview page in case the submit function has been disabled
         if (!$this->arrSettings['news_submit_news'] == '1') {
-            header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('News'));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('News'));
             exit;
         }
 
@@ -1353,12 +1353,12 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
             $objFWUser = \FWUser::getFWUserObject();
             if (!$objFWUser->objUser->login()) {
                 $link = base64_encode(CONTREXX_DIRECTORY_INDEX.'?'.$_SERVER['QUERY_STRING']);
-                header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', FRONTEND_LANG_ID, array('redirect' => $link)));
+                \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', FRONTEND_LANG_ID, array('redirect' => $link)));
                 exit;
             }
 
             if (!\Permission::checkAccess(61, 'static')) {
-                header('Location: '.\Cx\Core\Routing\Url::fromModuleAndCmd('Login', 'noaccess', FRONTEND_LANG_ID));
+                \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Login', 'noaccess', FRONTEND_LANG_ID));
                 exit;
             }
         }
