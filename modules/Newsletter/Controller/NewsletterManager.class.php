@@ -2900,7 +2900,8 @@ class NewsletterManager extends NewsletterLib
         global $objDatabase, $_ARRAYLANG;
 
         if (!isset($_REQUEST['id'])) {
-            die($_ARRAYLANG['TXT_NEWSLETTER_INVALID_EMAIL']);
+            echo $_ARRAYLANG['TXT_NEWSLETTER_INVALID_EMAIL'];
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         $mailId = intval($_REQUEST['id']);
 
@@ -2910,7 +2911,8 @@ class NewsletterManager extends NewsletterLib
                 'sentComplete' => true,
                 'message' => $_ARRAYLANG['TXT_CATEGORY_ERROR']
             );
-            die(json_encode($arrJsonData));
+            echo json_encode($arrJsonData);
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         //Get some newsletter data
@@ -2974,7 +2976,8 @@ class NewsletterManager extends NewsletterLib
                     }
                 }
 
-        die(json_encode($arrJsonData));
+                echo json_encode($arrJsonData);
+                throw new \Cx\Core\Core\Controller\InstanceException();
             } else {
                 // request was sent through regular POST
                 $this->_objTpl->setVariable(array(
@@ -3011,7 +3014,8 @@ class NewsletterManager extends NewsletterLib
                     'progressbarStatus' => $progressbarStatus,
                     'message'           => $message,
                 );
-                die(json_encode($arrJsonData));
+                echo json_encode($arrJsonData);
+                throw new \Cx\Core\Core\Controller\InstanceException();
             } else {
                 // request was sent through regular POST
                 $this->_objTpl->setVariable('NEWSLETTER_MAIL_SENT_STATUS', $message);
