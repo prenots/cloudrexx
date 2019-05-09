@@ -2084,19 +2084,19 @@ class Config
 
         $key = $_GET['key'];
         if (!preg_match("/[A-Z0-9]{5}/i", $key)){
-            die;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $processFile = $session->getTempPath() .'/progress' . $key . '.txt';
         if (\Cx\Lib\FileSystem\FileSystem::exists($processFile)) {
-            die;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         try {
             $objProcessFile = new \Cx\Lib\FileSystem\File($processFile);
             $objProcessFile->touch();
         } catch (\Cx\Lib\FileSystem\FileSystemException $ex) {
-            die;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $recursiveIteratorIterator
@@ -2160,7 +2160,7 @@ class Config
 
         if ($imageFilesCount == 0) {
             $objProcessFile->write(100);
-            die;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
 
@@ -2219,7 +2219,7 @@ class Config
         }
 
         $objProcessFile->write(100);
-        die;
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**
@@ -2246,7 +2246,7 @@ class Config
         }
 
         echo $process;
-        die;
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**

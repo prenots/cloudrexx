@@ -577,13 +577,11 @@ class FeedManager extends FeedLibrary
             $this->showNewsRefresh($id, $time, $this->feedpath);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_REFRESH_NEWS_FEED'];
             $this->goToReplace('');
-            die;
         }
         //preview
         if (isset($_GET['show']) and $_GET['show'] == 1 and isset($_GET['id']) and $_GET['id'] != ''){
             $id = intval($_GET['id']);
             $this->showNewsPreview($id);
-            die;
         }
         //new
         if (isset($_GET['new']) and $_GET['new'] == 1){
@@ -615,18 +613,15 @@ class FeedManager extends FeedLibrary
             }
 
             $this->goToReplace('');
-            die;
         }
 
         //sortbycategory
         if (isset($_GET['sort']) and $_GET['sort'] != 0){
             $_SESSION['feedCategorySort'] = $_GET['sort'];
             $this->goToReplace('');
-            die;
         }elseif (isset($_GET['sort']) and $_GET['sort'] == 0){
             unset($_SESSION['feedCategorySort']);
             $this->goToReplace('');
-            die;
         }
 
         if (isset($_GET['chg']) and $_GET['chg'] == 1 and isset($_POST['form_selected']) and is_array($_POST['form_selected'])){
@@ -636,7 +631,6 @@ class FeedManager extends FeedLibrary
                 $this->showNewsDelete($ids);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_DELETED_NEWS'];
                 $this->goToReplace('');
-                die;
             }
             //changestatus
             if ($_POST['form_activate'] != '' or $_POST['form_deactivate'] != ''){
@@ -649,7 +643,6 @@ class FeedManager extends FeedLibrary
                 }
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_STATUS'];
                 $this->goToReplace('');
-                die;
             }
         }
 
@@ -660,7 +653,6 @@ class FeedManager extends FeedLibrary
             $this->showNewsChangePos($ids, $pos);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SORT'];
             $this->goToReplace('');
-            die;
         }
         if (isset($_GET['chg'])){
             $ids = $_POST['form_id'];
@@ -668,7 +660,6 @@ class FeedManager extends FeedLibrary
             $this->showNewsChangePos($ids, $pos);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SORT'];
             $this->goToReplace('');
-            die;
         }
 
         //categories
@@ -914,6 +905,8 @@ class FeedManager extends FeedLibrary
         foreach ($rss->getItems() as $value) {
             echo '<li>'.strip_tags($value['title']).'</li>';
         }
+
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 
@@ -933,7 +926,6 @@ class FeedManager extends FeedLibrary
                 if (!copy($link, $this->feedpath.$filename)){
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_LINK_NO_NEWS'];
                     $this->goToReplace('');
-                    die;
                 }
 
                 /*$str = file_get_contents($link);
@@ -952,7 +944,6 @@ class FeedManager extends FeedLibrary
                     unlink($this->feedpath.$filename);
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_LINK_NO_NEWS'];
                     $this->goToReplace('');
-                    die;
                 }
             }
 
@@ -971,7 +962,6 @@ class FeedManager extends FeedLibrary
         } else{
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_NEWS'];
             $this->goToReplace('');
-            die;
         }
     }
 
@@ -1044,7 +1034,6 @@ class FeedManager extends FeedLibrary
         if (!isset($_GET['set'])){
             if (!isset($_GET['id']) or $_GET['id'] == ''){
                 $this->goToReplace('');
-                die;
             }
         }
 
@@ -1077,20 +1066,17 @@ class FeedManager extends FeedLibrary
                     $this->showEditSetNew($id, $subid, $name, $link, $filename, $articles, $cache, $time, $image, $status);
                     $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SUCCESSFULL_EDIT_NEWS'];
                     $this->goToReplace('');
-                    die;
                 }
                 else
                 {
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
                     $this->goToReplace('&act=edit&id='.$_POST['form_id']);
-                    die;
                 }
             }
             else
             {
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
                 $this->goToReplace('&act=edit&id='.$_POST['form_id']);
-                die;
             }
         }
 
@@ -1255,7 +1241,6 @@ class FeedManager extends FeedLibrary
                 if (!copy($link, $this->feedpath.$filename)) {
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_NEWS_FEED'];
                     $this->goToReplace('&act=edit&id='.$id);
-                    die;
                 }
 
                 //rss class
@@ -1270,7 +1255,6 @@ class FeedManager extends FeedLibrary
                     unlink($this->feedpath.$filename);
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_NEWS_FEED'];
                     $this->goToReplace('&act=edit&id='.$id);
-                    die;
                 }
             }
 
@@ -1289,7 +1273,6 @@ class FeedManager extends FeedLibrary
         } else {
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_NEWS'];
             $this->goToReplace('&act=edit&id='.$id);
-            die;
         }
 
         //delete old #02
@@ -1297,7 +1280,6 @@ class FeedManager extends FeedLibrary
             if (!unlink($this->feedpath.$old_filename)) {
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_DELETE'];
                 $this->goToReplace('');
-                die;
             }
         }
     }
@@ -1323,7 +1305,6 @@ class FeedManager extends FeedLibrary
             }
 
             $this->goToReplace('&act=category');
-            die;
         }
         if (isset($_GET['chg']) and $_GET['chg'] == 1 and isset($_POST['form_selected']) and is_array($_POST['form_selected'])) {
             //discharge
@@ -1332,14 +1313,12 @@ class FeedManager extends FeedLibrary
                 $this->showCategoryDischarge($ids);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SUCCESSFUL_DISCHARGE'];
                 $this->goToReplace('&act=category');
-                die;
             }
             //delete
             if ($_POST['form_delete'] != '') {
                 $ids = $_POST['form_selected'];
                 $this->showCategoryDelete($ids);
                 $this->goToReplace('&act=category');
-                die;
             }
             //changestatus
             if ($_POST['form_activate'] != '' or $_POST['form_deactivate'] != '') {
@@ -1352,7 +1331,6 @@ class FeedManager extends FeedLibrary
                 }
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_STATUS'];
                 $this->goToReplace('&act=category');
-                die;
             }
         }
         //sort
@@ -1362,7 +1340,6 @@ class FeedManager extends FeedLibrary
             $this->showCategoryChangePos($ids, $pos);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SORT'];
             $this->goToReplace('&act=category');
-            die;
         }
 
         //lang
@@ -1517,7 +1494,6 @@ class FeedManager extends FeedLibrary
         } else {
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_CAT'];
             $this->goToReplace('&act=category');
-            die;
         }
     }
 
@@ -1542,7 +1518,6 @@ class FeedManager extends FeedLibrary
                     if (!unlink($this->feedpath.$filename)) {
                         $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_DELETE'];
                         $this->goToReplace('&act=category');
-                        die;
                     }
                 }
                 $objResult->MoveNext();
@@ -1632,7 +1607,6 @@ class FeedManager extends FeedLibrary
         if (!isset($_GET['set'])) {
             if (!isset($_GET['id']) or $_GET['id'] == '') {
                 $this->goToReplace('&act=category');
-                die;
             }
         }
 
@@ -1648,11 +1622,9 @@ class FeedManager extends FeedLibrary
                 $this->showCatEditSet($id, $name, $status, $time, $lang);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SUCCESSFUL_EDIT_CAT'];
                 $this->goToReplace('&act=category');
-                die;
             } else {
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
                 $this->goToReplace('&act=catedit&id='.$_POST['form_id']);
-                die;
             }
         }
 
@@ -1740,7 +1712,6 @@ class FeedManager extends FeedLibrary
         } else {
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_CAT'];
             $this->goToReplace('&act=catedit&id='.$id);
-            die;
         }
     }
 

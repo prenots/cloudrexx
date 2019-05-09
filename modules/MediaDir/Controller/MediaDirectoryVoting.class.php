@@ -228,7 +228,7 @@ EOF;
 
         $this->refreshVotes($intEnrtyId);
 
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 

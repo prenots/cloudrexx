@@ -1727,7 +1727,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         global $objDatabase;
 
         if (!isset($_GET['id']) && !isset($_GET['switchTo'])) {
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $id = intval($_GET['id']);
@@ -1737,7 +1737,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                     SET active = '".$switchTo."'
                     WHERE message_id = ".$id;
         $objDatabase->Execute($query);
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**
@@ -1749,7 +1749,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
         global $objDatabase;
 
         if (!isset($_GET['id']) && !isset($_GET['switchTo'])) {
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $id = intval($_GET['id']);
@@ -1762,7 +1762,7 @@ class DataAdmin extends \Cx\Modules\Data\Controller\DataLibrary {
                     WHERE category_id = ".$id;
         $objDatabase->Execute($query);
 
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 

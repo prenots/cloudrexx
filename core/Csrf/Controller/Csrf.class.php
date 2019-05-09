@@ -393,7 +393,7 @@ class Csrf {
         $endcode = $ls->replace();
 
         echo $endcode;
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 

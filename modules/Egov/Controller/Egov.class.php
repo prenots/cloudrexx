@@ -337,7 +337,7 @@ class Egov extends EgovLibrary
               case -1:
                 // Go validate PayPal IPN
                 $this->paymentPaypalIpn($order_id, $amount);
-                die();
+                throw new \Cx\Core\Core\Controller\InstanceException();
               case 0:
                 // Payment failed
                 break;
@@ -399,9 +399,9 @@ class Egov extends EgovLibrary
         $objPaypal->add_field('quantity', $quantity);
         $objPaypal->add_field('currency_code', self::GetProduktValue('product_paypal_currency', $product_id));
         $objPaypal->add_field('custom', $order_id);
-//die();
+
         $objPaypal->submit_paypal_post();
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 
@@ -409,20 +409,24 @@ class Egov extends EgovLibrary
     {
         $product_id = self::GetOrderValue('order_product', $order_id);
         if (empty($product_id)) {
-            die(); //return 'alert("'.$_ARRAYLANG['TXT_EGOV_ERROR_PROCESSING_ORDER']."\");\n";
+            //return 'alert("'.$_ARRAYLANG['TXT_EGOV_ERROR_PROCESSING_ORDER']."\");\n";
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         $objPaypal = new Paypal();
         if (!self::GetProduktValue('product_paypal', $product_id)) {
             // How did we get here?  PayPal isn't even enabled for this product.
-            die(); //return 'alert("'.$_ARRAYLANG['TXT_EGOV_PAYPAL_NOT_VALID']."\");\n";
+            //return 'alert("'.$_ARRAYLANG['TXT_EGOV_PAYPAL_NOT_VALID']."\");\n";
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         if (self::GetSettings('set_paypal_ipn') == 0) {
             // PayPal IPN is disabled.
-            die(); //return '';
+            //return '';
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         if (!$objPaypal->validate_ipn()) {
             // Verification failed.
-            die(); //return 'alert("'.$_ARRAYLANG['TXT_EGOV_PAYPAL_NOT_VALID']."\");\n";
+            //return 'alert("'.$_ARRAYLANG['TXT_EGOV_PAYPAL_NOT_VALID']."\");\n";
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 /*
         // PayPal IPN Confirmation by email
@@ -506,7 +510,7 @@ class Egov extends EgovLibrary
             \DBG::log(
                 "Yellowpay could not be initialized:\n".
                 join("\n", \Yellowpay::$arrError));
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         die("<!DOCTYPE html>
 <html>
@@ -536,7 +540,7 @@ $yellowpayForm
                     $this->updateOrder($order_id);
                 }
             }
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $strReturn = '';

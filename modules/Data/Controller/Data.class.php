@@ -402,7 +402,7 @@ class Data extends \Cx\Modules\Data\Controller\DataLibrary
         }
         $this->_objTpl->parse("shadowbox");
         $this->_objTpl->show();
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 }

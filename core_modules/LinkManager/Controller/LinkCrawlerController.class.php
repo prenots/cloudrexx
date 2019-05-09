@@ -200,7 +200,7 @@ class LinkCrawlerController extends \Cx\Core\Core\Model\Entity\Controller {
                     $this->initializeScript((string) $value, $page->getId());
                     if (!$this->checkMemoryLimit(self::MiB2)) {
                         $this->updateCrawlerStatus($crawler, self::RUN_STATUS_INCOMPLETE);
-                        die(); // memory limit exceeded
+                        throw new \Cx\Core\Core\Controller\InstanceException();
                     }
                 }
             }

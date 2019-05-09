@@ -393,7 +393,7 @@ class MediaManager extends MediaLibrary
                 } catch (\Exception $e) {
                     \DBG::msg('Could not get image preview: '.$e->getMessage());
                 }
-                die();
+                throw new \Cx\Core\Core\Controller\InstanceException();
                 break;
             case 'editImage':
                 try {

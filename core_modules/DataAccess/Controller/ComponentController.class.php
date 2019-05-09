@@ -256,7 +256,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     http_response_code(204); // No Content
                     $allowedMethods = $dataAccessRepo->getAllowedMethods($dataSource, $apiKey);
                     header('Allow: ' . implode(', ', $allowedMethods));
-                    die();
+                    throw new \Cx\Core\Core\Controller\InstanceException();
                     break;
                 
                 // write access

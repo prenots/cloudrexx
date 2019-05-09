@@ -182,8 +182,6 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             'response' => $this->cx->getResponse(),
         );
         echo $json->jsondata($adapter, $method, $arguments);
-
-        \DBG::writeFinishLine($this->cx, false, 'json');
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 }

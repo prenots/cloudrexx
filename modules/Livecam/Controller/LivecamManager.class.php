@@ -283,9 +283,9 @@ class LivecamManager extends LivecamLibrary
         if ($objDatabase->Execute($query) === false) {
             // return a 500 or so
             header("HTTP/1.0 500 Internal Server Error");
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**

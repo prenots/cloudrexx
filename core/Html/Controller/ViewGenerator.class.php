@@ -1734,7 +1734,8 @@ class ViewGenerator {
                 }
                 return;
             } catch (\Exception $e) {
-                echo $e->getMessage();die();
+                echo $e->getMessage();
+                throw new \Cx\Core\Core\Controller\InstanceException();
             }
 
         } else {
@@ -1866,7 +1867,8 @@ class ViewGenerator {
         try {
             return (string) $this->render();
         } catch (\Exception $e) {
-            echo $e->getMessage();die();
+            echo $e->getMessage();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
     }
 

@@ -326,7 +326,7 @@ EOF;
             echo 'fail';
         }
 
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 
@@ -360,7 +360,7 @@ EOF;
             }
         }
 
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 

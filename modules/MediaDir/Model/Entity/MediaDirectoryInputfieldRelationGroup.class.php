@@ -478,7 +478,7 @@ EOF;
 
                 echo $listElementsJSON = json_encode($arrSelectedList);*/
 
-                die();
+                throw new \Cx\Core\Core\Controller\InstanceException();
 
                 break;
         }

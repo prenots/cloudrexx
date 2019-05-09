@@ -1099,7 +1099,7 @@ namespace Cx\Core\Core\Controller {
                         // do not use \Cx\Core\Csrf\Controller\Csrf::header() here, since ClassLoader is not loaded at this time
 // TODO: is this actually the cause of the CSRF missing issue?
                         header('Location: ' . $this->getWebsiteBackendPath() . '/');
-                        die();
+                        throw new \Cx\Core\Core\Controller\InstanceException();
                     }
                     $mode = self::MODE_BACKEND;
                     break;

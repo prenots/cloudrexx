@@ -279,7 +279,7 @@ class Gallery
         // we need to read the category id out of the database to prevent abusement
         $intCatId = $this->getCategoryId($intPicId);
         if (!$intCatId) {
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         $this->checkAccessToCategory($intCatId);
 
@@ -314,7 +314,7 @@ class Gallery
                                         WHERE
                                             `id` = '. $intPicId);
         if (!$picture) {
-            die;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
         $imagePath       = $this->strImagePath . $picture->fields['path'];
         $imageReso       = getimagesize($imagePath);
@@ -372,7 +372,7 @@ class Gallery
         $this->parsePictureCommentsTab($objTpl, $intCatId, $intPicId);
 
         $objTpl->show();
-        die;
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**

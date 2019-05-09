@@ -153,7 +153,8 @@ EOF;
         }
 
         if ($_POST['transaction']['status'] === 'waiting') {
-            die(); // we don't want the shop to update the status to cancelled or confirmed
+            // we don't want the shop to update the status to cancelled or confirmed
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         if ($_POST['transaction']['status'] !== 'confirmed') {

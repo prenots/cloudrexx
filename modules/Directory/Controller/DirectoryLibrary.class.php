@@ -808,7 +808,7 @@ class DirectoryLibrary
         if (!copy($link, $this->mediaPath."ext_feeds/".$filename))
         {
             $this->statusMessage = $_ARRAYLANG['DIRECTORY_NO_NEWS'];
-            die;
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         //rss class

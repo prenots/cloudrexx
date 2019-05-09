@@ -94,7 +94,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                     true,
                     $rewriteRule->getRewriteStatusCode()
                 );
-                die();
+                throw new \Cx\Core\Core\Controller\InstanceException();
             }
             try {
                 \DBG::log('Fetching content from ' . $url->toString());

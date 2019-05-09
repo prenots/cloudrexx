@@ -910,7 +910,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
         global $objDatabase;
 
         if (!isset($_GET['id']) && !isset($_GET['state']) && !isset($_GET['type'])) {
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $intId = intval($_GET['id']);
@@ -939,7 +939,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
 
         $objDatabase->Execute($query);
 
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
 
@@ -1150,7 +1150,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
         \Permission::checkAccess(MediaDirectoryAccessIDs::ManageLevels, 'static');
 
         if (!isset($_GET['levelid']) && !isset($_GET['state'])) {
-            die();
+            throw new \Cx\Core\Core\Controller\InstanceException();
         }
 
         $intId = intval($_GET['levelid']);
@@ -1161,7 +1161,7 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
                     WHERE id = ".$intId;
         $objDatabase->Execute($query);
 
-        die();
+        throw new \Cx\Core\Core\Controller\InstanceException();
     }
 
     /**

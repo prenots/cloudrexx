@@ -1452,7 +1452,7 @@ EOF;
                 //return
                 echo $strInputfields;
 
-                die();
+                throw new \Cx\Core\Core\Controller\InstanceException();
                 break;
         }
 
