@@ -597,7 +597,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                 'act' => null,
                 'provider' => null,
             ));
-            header('Location: ' . $currentUrl->__toString());
+            \Cx\Core\Csrf\Controller\Csrf::redirect($currentUrl);
             exit;
         }
 
