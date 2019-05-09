@@ -806,6 +806,7 @@ namespace Cx\Core\Core\Controller {
              * has reached its execution end.
              */
             catch (InstanceException $e) {
+                \DBG::writeFinishLine($this);
                 return;
             }
 
