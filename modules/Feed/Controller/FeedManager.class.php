@@ -1747,7 +1747,7 @@ class FeedManager extends FeedLibrary
 
     function goToReplace($add)
     {
-        \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?cmd=Feed".$add);
+        \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?cmd=Feed".$add);
     }
 
 }

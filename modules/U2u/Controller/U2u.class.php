@@ -334,8 +334,7 @@ class U2u extends U2uLibrary
          $query = 'SELECT 1 FROM '.DBPREFIX.'module_u2u_address_list WHERE user_id="'.$id.'" AND buddies_id="'.$buddies_id.'"';
          $objRS = $objDatabase->SelectLimit($query, 1);
          if($objRS->RecordCount() > 0){
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_SCRIPT_PATH."?section=Access&cmd=members");
-            die();
+            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Access&cmd=members");
          }
          $query='REPLACE INTO '.DBPREFIX.'module_u2u_address_list  (
                                          user_id ,
@@ -343,8 +342,7 @@ class U2u extends U2uLibrary
                                          )
                                          VALUES ('.$id.','.$buddies_id.')';
          $objDatabase->Execute($query);
-         \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_SCRIPT_PATH."?section=Access&cmd=members");
-         die();
+         \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Access&cmd=members");
     }
 
     /**

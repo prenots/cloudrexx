@@ -1792,8 +1792,7 @@ class Config
             $stmt->bindParam(':size', intval($_POST['size']));
             $stmt->execute();
         }
-        Csrf::redirect('index.php?cmd=Config&act=image');
-        die;
+        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Config&act=image');
     }
 
     /**
