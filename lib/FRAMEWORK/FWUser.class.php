@@ -234,18 +234,18 @@ class FWUser extends User_Setting
         if ($this->backendMode) {
             $pathOffset = ASCMS_PATH_OFFSET;
 
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: '.(!empty($pathOffset)
+            \Cx\Core\Csrf\Controller\Csrf::redirect(!empty($pathOffset)
                 ? $pathOffset
-                : '/'));
+                : '/');
         } else {
             $redirect = '';
             if (!empty($_REQUEST['redirect'])) {
                 $redirect = self::getRedirectUrl($_REQUEST['redirect']);
             }
 
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: '.(!empty($redirect)
+            \Cx\Core\Csrf\Controller\Csrf::redirect(!empty($redirect)
                 ? $redirect
-                : CONTREXX_DIRECTORY_INDEX.'?section=Login'));
+                : CONTREXX_DIRECTORY_INDEX.'?section=Login');
         }
         exit;
     }

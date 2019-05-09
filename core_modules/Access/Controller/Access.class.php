@@ -110,7 +110,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
             if ($objUser->getProfileAccess() != 'everyone') {
                 if (!$objFWUser->objUser->login()) {
-                    \Cx\Core\Csrf\Controller\Csrf::header('Location: '.CONTREXX_DIRECTORY_INDEX.'?section=Login&redirect='.base64_encode(ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].CONTREXX_SCRIPT_PATH.'?section=Access&cmd=user&id='.$objUser->getId()));
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX.'?section=Login&redirect='.base64_encode(ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].CONTREXX_SCRIPT_PATH.'?section=Access&cmd=user&id='.$objUser->getId()));
                     exit;
                 }
 
@@ -118,7 +118,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                     && $objUser->getProfileAccess() == 'nobody'
                     && !$objFWUser->objUser->getAdminStatus()
                 ) {
-                    \Cx\Core\Csrf\Controller\Csrf::header('Location: '.CONTREXX_DIRECTORY_INDEX.'?section=Login&cmd=noaccess&redirect='.base64_encode(ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].CONTREXX_SCRIPT_PATH.'?section=Access&cmd=user&id='.$objUser->getId()));
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX.'?section=Login&cmd=noaccess&redirect='.base64_encode(ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].CONTREXX_SCRIPT_PATH.'?section=Access&cmd=user&id='.$objUser->getId()));
                     exit;
                 }
             }
@@ -156,7 +156,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
             $this->_objTpl->setVariable("ACCESS_REFERER", '$(HTTP_REFERER)');
         } else {
             // or would it be better to redirect to the home page?
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Access&cmd=members');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Access&cmd=members');
             exit;
         }
     }
@@ -468,7 +468,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
 
         $objFWUser = \FWUser::getFWUserObject();
         if (!$objFWUser->objUser->login()) {
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: '.CONTREXX_DIRECTORY_INDEX.'?section=Login&redirect='.base64_encode(ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].CONTREXX_SCRIPT_PATH.'?section=Access&cmd='.rawurlencode($_REQUEST['cmd'])));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX.'?section=Login&redirect='.base64_encode(ASCMS_PROTOCOL.'://'.$_CONFIG['domainUrl'].CONTREXX_SCRIPT_PATH.'?section=Access&cmd='.rawurlencode($_REQUEST['cmd'])));
             exit;
         }
         $settingsDone = false;

@@ -304,7 +304,7 @@ class Login
             if (!empty($redirect)) {
                 $redirect = \FWUser::getRedirectUrl(urlencode(base64_decode($redirect)));
             }
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: '.(empty($redirect) ? $groupRedirect : $redirect));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(empty($redirect) ? $groupRedirect : $redirect);
             exit;
         } else {
             if (isset($_POST['login'])) {

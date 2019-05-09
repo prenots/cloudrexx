@@ -224,9 +224,9 @@ Drops all no-longer required profile images';
 
                 if (isset($_POST['redirect'])) {
                     $redirect = \FWUser::getRedirectUrl(urlencode($_POST['redirect']));
-                    \Cx\Core\Csrf\Controller\Csrf::header('location: ' . $redirect);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect($redirect);
                 } elseif (!empty($_GET['auth-token'])) {
-                    \Cx\Core\Csrf\Controller\Csrf::header('location: ' . \Env::get('cx')->getWebsiteBackendPath() . '/');
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(\Env::get('cx')->getWebsiteBackendPath() . '/');
                 }
                 break;
 

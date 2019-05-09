@@ -422,7 +422,7 @@ class CrmTask extends CrmLibrary
                     $dispatcher->triggerEvent(CRM_EVENT_ON_TASK_CREATED, null, $info);
                 }
 
-                \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName.base64_decode($redirect));
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName.base64_decode($redirect));
                 exit();
             }
         } elseif (!empty($id)) {

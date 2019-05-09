@@ -313,7 +313,7 @@ class DownloadsManager extends DownloadsLibrary
                 $objDownload->send($langId);
             } else {
                 // add socket -> prevent to hide the source from the customer
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: '.$objDownload->getSource($langId));
+                \Cx\Core\Csrf\Controller\Csrf::redirect($objDownload->getSource($langId));
             }
         }
     }

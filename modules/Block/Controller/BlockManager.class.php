@@ -1377,7 +1377,7 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             ';
             $objDatabase->Execute($query);
 
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Block&act=settings');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&act=settings');
         }
 
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_SETTINGS'];

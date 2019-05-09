@@ -401,7 +401,7 @@ class Forum extends ForumLibrary {
 
         if ($intForumId == 0) {
             //wrong id, redirect
-            \Cx\Core\Csrf\Controller\Csrf::header('location: index.php?section=Forum');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum');
             die();
         }
 
@@ -600,7 +600,7 @@ class Forum extends ForumLibrary {
                 $cacheManager = new \Cx\Core_Modules\Cache\Controller\CacheManager();
                 $cacheManager->deleteSingleFile($pageId);
             }
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: ?section=Forum&cmd=board&id='.$intForumId);
+            \Cx\Core\Csrf\Controller\Csrf::redirect('?section=Forum&cmd=board&id='.$intForumId);
             die();
         }
     }
@@ -630,7 +630,7 @@ class Forum extends ForumLibrary {
         }
 
         if(empty($intCatId)){
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Forum');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum');
             die();
         }
         if ($objFWUser->objUser->login()) {
@@ -958,7 +958,7 @@ class Forum extends ForumLibrary {
                 $cacheManager = new \Cx\Core_Modules\Cache\Controller\CacheManager();
                 $cacheManager->deleteSingleFile($pageId);
             }
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Forum&cmd=thread&id='.$intThreadId.'&pos='.$this->_getLastPos($postId, $intThreadId));
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum&cmd=thread&id='.$intThreadId.'&pos='.$this->_getLastPos($postId, $intThreadId));
             die();
         }
 
@@ -1059,7 +1059,7 @@ class Forum extends ForumLibrary {
                 $cacheManager->deleteSingleFile($pageId);
             }
 
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Forum&cmd=thread&id='.$intThreadId.'&pos='.$this->_getLastPos($postId, $intThreadId));
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum&cmd=thread&id='.$intThreadId.'&pos='.$this->_getLastPos($postId, $intThreadId));
             die();
         }
 
@@ -1119,7 +1119,7 @@ class Forum extends ForumLibrary {
                     'FORUM_CATEGORY_ID'                                     => $intCatId,
                     'FORUM_THREAD_ID'                                       => $intThreadId,
                 ));
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Forum&cmd=thread&id='.$thread);
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum&cmd=thread&id='.$thread);
             }
         }
 
@@ -1165,7 +1165,7 @@ class Forum extends ForumLibrary {
                     break;
                 }
                 if($action != 'move'){
-                    \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?section=Forum&cmd=thread&id='.$intThreadId.'&a='.$action.'&r='.$success.'&s='.$suffix);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum&cmd=thread&id='.$intThreadId.'&a='.$action.'&r='.$success.'&s='.$suffix);
                 }
             }else{
                 $this->_objTpl->setVariable('TXT_THREAD_ACTION_ERROR', $_ARRAYLANG['TXT_FORUM_NO_ACCESS']);
@@ -1498,7 +1498,7 @@ class Forum extends ForumLibrary {
                 $this->_objTpl->setVariable('TXT_THREADS_NONE', $_ARRAYLANG['TXT_FORUM_THREADS_NONE']);
             }
         } else {
-            \Cx\Core\Csrf\Controller\Csrf::header('location: index.php?section=Forum');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Forum');
             die();
         }
 

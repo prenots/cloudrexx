@@ -1696,8 +1696,8 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
         if(isset($_GET['source'])){
             switch ($_GET['source']){
                 case 'Newsletter':
-                    \Cx\Core\Csrf\Controller\Csrf::header('Location:
-                        index.php?cmd=Newsletter&act=users&store=true'. //and add Params for Newsletter Filter
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        'index.php?cmd=Newsletter&act=users&store=true'. //and add Params for Newsletter Filter
                         (!empty($_GET['newsletterListId']) ? '&newsletterListId='.contrexx_input2raw($_GET['newsletterListId']) : '').
                         (!empty($_GET['filterkeyword']) ? '&filterkeyword='.contrexx_input2raw($_GET['filterkeyword']) : '').
                         (!empty($_GET['filterattribute']) ? '&filterattribute='.contrexx_input2raw($_GET['filterattribute']) : '').

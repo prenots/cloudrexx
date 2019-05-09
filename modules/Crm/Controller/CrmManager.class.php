@@ -315,7 +315,7 @@ class CrmManager extends CrmLibrary
                 if ($return) {
                     return false;
                 }
-                \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$customer_id}");
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$customer_id}");
                 exit();
             }
         }
@@ -1422,7 +1422,7 @@ END;
         $message = base64_encode("deleted");
         $redirect = isset($_GET['redirect']) ? base64_decode($_GET['redirect']) : '';
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        \Cx\Core\Csrf\Controller\Csrf::header("location:".$cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=customers$redirect&mes=$message");
+        \Cx\Core\Csrf\Controller\Csrf::redirect($cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=customers$redirect&mes=$message");
         exit();
     }
 
@@ -1979,7 +1979,7 @@ END;
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_CUSTOMER_TYPES_DELETED_SUCCESSFULLY'];
             }
         }
-        \Cx\Core\Csrf\Controller\Csrf::header('location:./index.php?cmd=Crm&act=settings&tpl=customertypes');
+        \Cx\Core\Csrf\Controller\Csrf::redirect('./index.php?cmd=Crm&act=settings&tpl=customertypes');
         exit();
     }
 
@@ -2255,10 +2255,10 @@ END;
 
                 if (isset($_POST['save_add_new_contact'])) {
                     $contactTypeUrl = $contactType == 2 ? '&type=contact' : '';
-                    \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName."&act=customers&tpl=managecontact&mes=".base64_encode($msg).$contactTypeUrl);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=customers&tpl=managecontact&mes=".base64_encode($msg).$contactTypeUrl);
                     exit();
                 }
-                \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName."&act=customers&mes=".base64_encode($msg).base64_decode($redirect));
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=customers&mes=".base64_encode($msg).base64_decode($redirect));
                 exit();
             } elseif (empty($accountUserEmail)) {
                 $this->_strErrMessage = $_ARRAYLANG['TXT_CRM_EMAIL_EMPTY'];
@@ -2758,7 +2758,7 @@ END;
                     $db = $objDatabase->Execute($sql);
                     if ($db) {
                         $_SESSION['TXT_MSG_OK'] = ($id) ? $_ARRAYLANG['TXT_CRM_COMMENT_UPDATESUCESSMESSAGE'] : $_ARRAYLANG['TXT_CRM_COMMENT_SUCESSMESSAGE'];
-                        \Cx\Core\Csrf\Controller\Csrf::header("Location: ".base64_decode($redirect));
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(base64_decode($redirect));
                         exit();
                     } else {
                         $this->_strErrMessage = "Some thing went wrong";
@@ -3158,7 +3158,7 @@ END;
                                                                                             WHERE id      = '$id'");
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_NOTES_UPDATED'];
                 $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                \Cx\Core\Csrf\Controller\Csrf::header("Location:".$cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=settings&tpl=notes");
+                \Cx\Core\Csrf\Controller\Csrf::redirect($cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=settings&tpl=notes");
                 exit();
             } else {
                 $this->_strErrMessage = $_ARRAYLANG['TXT_CRM_ERROR'];
@@ -3253,7 +3253,7 @@ END;
                 }
             }
         }
-        \Cx\Core\Csrf\Controller\Csrf::header('location:./index.php?cmd=Crm&act=settings&tpl=currency');
+        \Cx\Core\Csrf\Controller\Csrf::redirect('./index.php?cmd=Crm&act=settings&tpl=currency');
         exit();
     }
 
@@ -5111,7 +5111,7 @@ END;
                 }
 
                 if ($db) {
-                    \Cx\Core\Csrf\Controller\Csrf::header("Location:./?cmd=".$this->moduleName."&act=settings&tpl=industry");
+                    \Cx\Core\Csrf\Controller\Csrf::redirect("./?cmd=".$this->moduleName."&act=settings&tpl=industry");
                     exit();
                 } else {
                     $this->_strErrMessage = "Error in saving Data";
@@ -5447,7 +5447,7 @@ END;
             }
 
             if ($db) {
-                \Cx\Core\Csrf\Controller\Csrf::header("Location:./?cmd=".$this->moduleName."&act=settings&tpl=membership");
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./?cmd=".$this->moduleName."&act=settings&tpl=membership");
                 exit();
             } else {
                 $this->_strErrMessage = "Error in saving Data";

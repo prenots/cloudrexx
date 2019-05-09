@@ -1156,7 +1156,7 @@ class Newsletter extends NewsletterLib
             $date    = date(ASCMS_DATE_FORMAT_DATE, $dateSent);
         } else {
             // newsletter not found > redirect to homepage
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: '.\Cx\Core\Routing\Url::fromDocumentRoot());
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromDocumentRoot());
             exit();
         }
         $crmUser = new \Cx\Modules\Crm\Model\Entity\CrmContact();
@@ -1483,7 +1483,7 @@ class Newsletter extends NewsletterLib
 
         $arrSettings = static::_getSettings();
         if (!$arrSettings['statistics']['setvalue']) {
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: '.$url);
+            \Cx\Core\Csrf\Controller\Csrf::redirect($url);
             exit;
         }
 
@@ -1557,7 +1557,7 @@ class Newsletter extends NewsletterLib
             $url = \Cx\Core\Routing\Url::fromModuleAndCmd('Error');
         }
 
-        \Cx\Core\Csrf\Controller\Csrf::header('Location: '.$url);
+        \Cx\Core\Csrf\Controller\Csrf::redirect($url);
         exit;
     }
 }

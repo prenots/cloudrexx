@@ -262,7 +262,7 @@ class VotingManager
            $query= "SELECT id, date as datesec, question, votes FROM ".DBPREFIX."voting_system where ".($votingId > 0 ? "id=".$votingId : "status=1");
         $objResult = $objDatabase->SelectLimit($query, 1);
         if ($objResult->RecordCount()==0 && $totalrows==0) {
-           \Cx\Core\Csrf\Controller\Csrf::header("Location: ?cmd=Voting&act=add");
+           \Cx\Core\Csrf\Controller\Csrf::redirect("?cmd=Voting&act=add");
            exit;
         } else {
             $votingId=$objResult->fields['id'];

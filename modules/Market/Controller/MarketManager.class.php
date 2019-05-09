@@ -1146,7 +1146,7 @@ class MarketManager extends MarketLibrary
             }
 
             if ($objResult !== false) {
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: ?cmd=Market&act=settings&tpl=spez_fields');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('?cmd=Market&act=settings&tpl=spez_fields');
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_SETTINGS_UPDATED'];
             }else{
                 $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];
@@ -1227,7 +1227,7 @@ class MarketManager extends MarketLibrary
             }
 
             if ($objResult !== false) {
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Market&act=settings');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Market&act=settings');
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_SETTINGS_UPDATED'];
             }else{
                 $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];
@@ -1298,7 +1298,7 @@ class MarketManager extends MarketLibrary
         if (isset($_POST['submitSettings'])) {
             $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_market_mail SET title='".$_POST['mailTitle']."', content='".$_POST['mailContent']."', mailcc='".$_POST['mailCC']."', active='".$_POST['mailOn']."' WHERE id='1'");
             if ($objResult !== false) {
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Market&act=settings&tpl=email');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Market&act=settings&tpl=email');
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_SETTINGS_UPDATED'];
             }else{
                 $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];
@@ -1375,7 +1375,7 @@ class MarketManager extends MarketLibrary
             }
 
             if ($objResult !== false) {
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Market&act=settings&tpl=email_code');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Market&act=settings&tpl=email_code');
                 $this->strOkMessage = $_ARRAYLANG['TXT_MARKET_SETTINGS_UPDATED'];
             }else{
                 $this->strErrMessage = $_CORELANG['TXT_DATABASE_QUERY_ERROR'];

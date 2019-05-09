@@ -275,7 +275,7 @@ class CheckoutManager extends CheckoutLibrary {
         global $_ARRAYLANG;
 
         if (empty($_GET['id'])) {
-            \Cx\Core\Csrf\Controller\Csrf::header('location: index.php?cmd=Checkout');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Checkout');
         }
 
         $tableRow = '';
@@ -366,7 +366,7 @@ class CheckoutManager extends CheckoutLibrary {
         global $_ARRAYLANG;
 
         if (empty($_GET['id'])) {
-            \Cx\Core\Csrf\Controller\Csrf::header('location: index.php?cmd=Checkout');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Checkout');
         }
 
         if ($this->objTransaction->delete($_GET['id'])) {

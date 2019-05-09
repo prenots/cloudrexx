@@ -92,7 +92,7 @@ class U2u extends U2uLibrary
         $objFWUser = \FWUser::getFWUserObject();
         if (!$objFWUser->objUser->login()) {
             $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
             exit;
         }
 

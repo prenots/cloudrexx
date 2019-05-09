@@ -261,7 +261,7 @@ class Jobs extends JobsLibrary
                 $objResult->MoveNext();
             }
         } else {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?section=Jobs");
+            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=Jobs");
             exit;
         }
 

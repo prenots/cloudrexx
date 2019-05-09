@@ -311,7 +311,7 @@ class CrmSettings extends CrmLibrary
         $id                 = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
         if (empty($id)) {
-            \Cx\Core\Csrf\Controller\Csrf::header("location:./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes");
+            \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes");
             exit();
         }
 
@@ -345,7 +345,7 @@ class CrmSettings extends CrmLibrary
             }
 
             if ($success) {
-                \Cx\Core\Csrf\Controller\Csrf::header("location:./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes");
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes");
                 exit();
             }
         } else {
@@ -421,7 +421,7 @@ class CrmSettings extends CrmLibrary
         }
 
         if ($success) {
-            \Cx\Core\Csrf\Controller\Csrf::header("location:./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes");
+            \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes");
             exit();
         }
 
@@ -634,7 +634,7 @@ class CrmSettings extends CrmLibrary
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         if (empty($id)) {
             $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-            \Cx\Core\Csrf\Controller\Csrf::header($cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=settings&tpl=currency");
+            \Cx\Core\Csrf\Controller\Csrf::redirect($cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=settings&tpl=currency");
             exit();
         }
 
@@ -668,7 +668,7 @@ class CrmSettings extends CrmLibrary
                 $objDatabase->Execute($updateProjectTypes);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_CURRENCY_UPDATED_SUCCESSFULLY'];
 
-                \Cx\Core\Csrf\Controller\Csrf::header("location:./index.php?cmd=".$this->moduleName."&act=settings&tpl=currency");
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=settings&tpl=currency");
                 exit();
             }
         } else {
@@ -776,7 +776,7 @@ class CrmSettings extends CrmLibrary
                 'TXT_CRM_DELETE_SELECTED'             => $_ARRAYLANG['TXT_CRM_DELETE_SELECTED'],
                 'PM_SETTINGS_CURRENCY_JAVASCRIPT' => $objJs->getAddCurrencyJavascript(),
         ));
-        \Cx\Core\Csrf\Controller\Csrf::header('location:./index.php?cmd=Crm&act=settings&tpl=currency');
+        \Cx\Core\Csrf\Controller\Csrf::redirect('./index.php?cmd=Crm&act=settings&tpl=currency');
         exit();
     }
 
@@ -920,7 +920,7 @@ class CrmSettings extends CrmLibrary
         if (isset($_POST['saveTaskType'])) {
             $this->saveTaskTypes($id);
             $msg = "taskUpdated";
-            \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName."&act=settings&tpl=tasktypes&msg=".base64_encode($msg));
+            \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=settings&tpl=tasktypes&msg=".base64_encode($msg));
             exit();
         }
 
@@ -1539,7 +1539,7 @@ class CrmSettings extends CrmLibrary
             $objResult = $objDatabase->Execute($query);
             if ($objResult) {
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_ENTRY_UPDATED_SUCCESS'];
-                \Cx\Core\Csrf\Controller\Csrf::header("location:./index.php?cmd=" . $this->moduleName . "&act=settings&tpl=companySize");
+                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=" . $this->moduleName . "&act=settings&tpl=companySize");
                 exit();
             }else{
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_CRM_ENTRY_UPDATE_ERROR'];

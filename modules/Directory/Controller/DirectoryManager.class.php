@@ -1558,7 +1558,7 @@ EOF;
                 //change status
                 $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_directory_levels SET status='".$levelStatus."' WHERE id='".$levelId."'");
 
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Directory&act=levels');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Directory&act=levels');
                 exit;
             } else {
                 //get id and status
@@ -1568,7 +1568,7 @@ EOF;
                 //change status
                 $objResult = $objDatabase->Execute("UPDATE ".DBPREFIX."module_directory_categories SET status='".$catStatus."' WHERE id='".$catId."'");
 
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Directory');
+                \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Directory');
                 exit;
             }
         }
@@ -2946,7 +2946,7 @@ EOF;
                 }
             }
 
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: ?cmd=Directory&act=settings&tpl=homecontent');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('?cmd=Directory&act=settings&tpl=homecontent');
             exit;
 
             $this->strOkMessage = $_ARRAYLANG['TXT_DIR_SETTINGS_SUCCESFULL_SAVE'];

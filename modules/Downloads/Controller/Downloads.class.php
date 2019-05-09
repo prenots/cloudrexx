@@ -1603,7 +1603,7 @@ JS_CODE;
                 ) ||
                 !$objDownload->getActiveStatus()
             ) {
-                \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_DIRECTORY_INDEX."?section=Error&id=404");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX."?section=Error&id=404");
                 exit;
             }
 
@@ -1639,7 +1639,7 @@ JS_CODE;
                 );
             } else {
                 // add socket -> prevent to hide the source from the customer
-                \Cx\Core\Csrf\Controller\Csrf::header('Location: '.$objDownload->getSource());
+                \Cx\Core\Csrf\Controller\Csrf::redirect($objDownload->getSource());
             }
         }
     }

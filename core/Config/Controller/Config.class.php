@@ -1792,7 +1792,7 @@ class Config
             $stmt->bindParam(':size', intval($_POST['size']));
             $stmt->execute();
         }
-        Csrf::header('Location: index.php?cmd=Config&act=image');
+        Csrf::redirect('index.php?cmd=Config&act=image');
         die;
     }
 

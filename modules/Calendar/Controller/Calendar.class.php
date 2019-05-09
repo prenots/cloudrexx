@@ -185,7 +185,7 @@ class Calendar extends CalendarLibrary
             }
 
             // abort as event does not exist
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: ' . \Cx\Core\Routing\Url::fromModuleAndCmd('Error'));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Error'));
             exit;
         }
 

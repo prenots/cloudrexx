@@ -754,7 +754,7 @@ class EgovManager extends EgovLibrary
              WHERE order_id=".intval($_REQUEST['id']);
         $objResult = $objDatabase->Execute($query);
         if (!$objResult || $objResult->RecordCount() != 1) {
-            \Cx\Core\Csrf\Controller\Csrf::header('Location: index.php?cmd=Egov&err=Wrong Order ID');
+            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Egov&err=Wrong Order ID');
             exit;
         }
 
