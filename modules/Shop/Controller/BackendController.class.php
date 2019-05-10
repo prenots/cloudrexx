@@ -210,11 +210,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function getCommands()
     {
         return array(
-            'Order',
+            'Order' => array(
+                'translatable' => true
+            ),
             'Category' => array(
                 'children' => array(
                     'Pricelist'
                 ),
+                'translatable' => true
             ),
             'Product' => array(
                 'children' => array(
@@ -222,7 +225,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Attribute',
                     'DiscountgroupCountName',
                     'ArticleGroup'
-                )
+                ),
+                'translatable' => true
             ),
             'Manufacturer' => array(
                 'translatable' => true
@@ -231,10 +235,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'children' => array(
                     'RelDiscountGroup',
                     'CustomerGroup'
-                )
+                ),
+                'translatable' => true
             ),
-            'Statistic',
-            'Import',
+            'Statistic' => array(
+                'translatable' => true
+            ),
+            'Import' => array(
+                'translatable' => true
+            ),
             'Setting' => array(
                 'children' => array(
                     'Vat',
@@ -246,6 +255,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Mail',
                     'DiscountCoupon'
                 ),
+                'translatable' => true
             ),
         );
     }
