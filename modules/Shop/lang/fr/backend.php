@@ -1003,3 +1003,4 @@ $_ARRAYLANG['payment'] = 'Bezahlung';
 $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
 $_ARRAYLANG['showAllPendentOrders'] = 'Voir les commandes ouvertes';
+$_ARRAYLANG['TXT_SHOP_TOO_FEW_ARGUMENTS'] = 'Zu wenig Argumente';

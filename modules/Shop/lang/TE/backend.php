@@ -495,3 +495,4 @@ $_ARRAYLANG['payment'] = 'Bezahlung';
 $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
 $_ARRAYLANG['showAllPendentOrders'] = 'Pendente Bestellungen anzeigen';
+$_ARRAYLANG['TXT_SHOP_TOO_FEW_ARGUMENTS'] = 'Zu wenig Argumente';

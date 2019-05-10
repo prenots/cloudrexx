@@ -104,6 +104,14 @@ class JsonOrderController
 
     public function updateOrderStatus($arguments)
     {
+        global $_ARRAYLANG, $objInit;
+
+        $langData   = $objInit->getComponentSpecificLanguageData(
+            'Shop',
+            false
+        );
+        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
         if (empty($arguments['post']) ||
             empty($arguments['post']['orderId']) ||
             empty($arguments['post']['statusId'])
@@ -133,9 +141,12 @@ class JsonOrderController
                 $arguments['post']['orderId']
             );
             if ($email) {
-                $this->messages[] = 'email versendet ' . $email;
+                $this->messages[] = sprintf(
+                    $_ARRAYLANG['TXT_EMAIL_SEND_SUCCESSFULLY'],
+                    $email
+                );
             } else {
-                $this->messages[] = 'email nicht versendet';
+                $this->messages[] = $_ARRAYLANG['TXT_MESSAGE_SEND_ERROR'];
             }
         }
 

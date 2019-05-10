@@ -1072,3 +1072,4 @@ $_ARRAYLANG['payment'] = 'Payment method';
 $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
 $_ARRAYLANG['showAllPendentOrders'] = 'View pending orders';
+$_ARRAYLANG['TXT_SHOP_TOO_FEW_ARGUMENTS'] = 'Too fet arguments';
