@@ -121,7 +121,67 @@ jQuery(document).ready(function($){
     cx.jQuery('#vg-0-filter-field-showAllPendentOrders').click(function() {
         cx.jQuery('.vg-searchSubmit').click();
     });
+
+    let previousStatusId;
+    cx.jQuery('.order-status select').focus(function(e) {
+        previousStatusId = cx.jQuery(this).val();
+    }).change(function () {
+        scope = 'order';
+        let updateStock = false;
+        let sendMail = false;
+        const statusId = cx.jQuery(this).find('option:selected').val();
+        if (confirm(cx.variables.get('TXT_SHOP_CONFIRM_UPDATE_STATUS', scope))) {
+            if (   shopOrder.isStockIncreasable(previousStatusId, statusId)
+                || shopOrder.isStockDecreasable(previousStatusId, statusId)) {
+                updateStock = true;
+            }
+            if (statusId == 4 && confirm(cx.variables.get('TXT_SHOP_SEND_TEMPLATE_TO_CUSTOMER', scope))) {
+                sendMail = true;
+            }
+
+            cx.ajax(
+                'Order',
+                'updateOrderStatus',
+                {
+                    type: 'POST',
+                    data: {
+                        orderId: parseInt(cx.jQuery(this).parent().parent().find('.order-id').text()),
+                        statusId: statusId,
+                        updateStock: updateStock,
+                        sendMail: sendMail,
+                    },
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            cx.tools.StatusMessage.showMessage(response.message);
+                        }
+                    },
+                    preError: function(xhr, status, error) {
+                        cx.tools.StatusMessage.showMessage(error);
+                    }
+                },
+                cx.variables.get('language', 'contrexx')
+            );
+        } else {
+            cx.jQuery(this).val(previousStatusId);
+        }
+
+    })
 });
+
+var shopOrder = {
+    jq: cx.jQuery,
+    deletedStatus: [2, 3],
+    isStockIncreasable: function(oldStatus, newStatus) {
+        return    this.jq.inArray(parseInt(oldStatus), this.deletedStatus) == -1
+            && this.jq.inArray(parseInt(newStatus), this.deletedStatus) != -1
+            && confirm(cx.variables.get('TXT_SHOP_CONFIRM_RESET_STOCK', scope));
+    },
+    isStockDecreasable: function(oldStatus, newStatus) {
+        return     this.jq.inArray(parseInt(oldStatus), this.deletedStatus) != -1
+            && this.jq.inArray(parseInt(newStatus), this.deletedStatus) == -1
+            && confirm(cx.variables.get('TXT_SHOP_CONFIRM_REDUCE_STOCK', scope));
+    }
+};
 
 function updateDefault(defaultEntity) {
     cx.jQuery(".adminlist tbody tr").has('.id').each(function(index, el) {

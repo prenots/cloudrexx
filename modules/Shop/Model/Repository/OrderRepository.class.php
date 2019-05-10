@@ -602,4 +602,20 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         }
         return $arrSubstitution;
     }
+
+    public function updateStatus($orderId, $statusId, $updateStock)
+    {
+        $order = $this->find($orderId);
+        if (empty($order)) {
+            return false;
+        }
+        $order->setStatus($statusId);
+
+        if ($updateStock) {
+            $this->updateStock($order);
+        }
+        $this->_em->persist($order);
+        $this->_em->flush();
+        return true;
+    }
 }

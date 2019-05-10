@@ -116,7 +116,29 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $_ARRAYLANG['TXT_SHOP_CONFIRM_RESET_STOCK'],
             $scope
         );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_SHOP_CONFIRM_REDUCE_STOCK',
+            $_ARRAYLANG['TXT_SHOP_CONFIRM_REDUCE_STOCK'],
+            $scope
+        );
 
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_SHOP_CONFIRM_UPDATE_STATUS',
+            $_ARRAYLANG['TXT_CONFIRM_CHANGE_STATUS'],
+            $scope
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'SHOP_UPDATE_ORDER_STATUS_URL',
+            \Cx\Core\Routing\Url::fromApi(
+                'updateOrderStatus', array()
+            )->toString(),
+            $scope
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_SHOP_SEND_TEMPLATE_TO_CUSTOMER',
+            $_ARRAYLANG['TXT_SEND_MAIL'],
+            $scope
+        );
 
         \ContrexxJavascript::getInstance()->setVariable(
             'SHOP_ORDER_PENDENT_KEY',
