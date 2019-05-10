@@ -50,12 +50,6 @@ namespace Cx\Modules\Shop\Controller;
  */
 class Products
 {
-    const DEFAULT_VIEW_NONE = 0;
-    const DEFAULT_VIEW_MARKED = 1;
-    const DEFAULT_VIEW_DISCOUNTS = 2;
-    const DEFAULT_VIEW_LASTFIVE = 3;
-    const DEFAULT_VIEW_COUNT = 4;
-
     /**
      * Sorting order strings according to the corresponding setting
      *
@@ -186,7 +180,7 @@ class Products
 
         $querySpecialOffer = '';
         if (   $flagLastFive
-            || $flagSpecialoffer === self::DEFAULT_VIEW_LASTFIVE) {
+            || $flagSpecialoffer === \Cx\Modules\Shop\Controller\ProductController::DEFAULT_VIEW_LASTFIVE) {
             // Select last five (or so) products added to the database
 // TODO: Extend for searching for most recently modified Products
             $limit = ($flagLastFive === true ? 5 : $flagLastFive);
@@ -195,10 +189,10 @@ class Products
         } else {
             // Build standard full featured query
             $querySpecialOffer =
-                (   $flagSpecialoffer === self::DEFAULT_VIEW_DISCOUNTS
+                (   $flagSpecialoffer === \Cx\Modules\Shop\Controller\ProductController::DEFAULT_VIEW_DISCOUNTS
                  || $flagSpecialoffer === true // Old behavior!
                   ? ' AND `product`.`discount_active`=1'
-                  : ($flagSpecialoffer === self::DEFAULT_VIEW_MARKED
+                  : ($flagSpecialoffer === \Cx\Modules\Shop\Controller\ProductController::DEFAULT_VIEW_MARKED
                       ? " AND `product`.`flags` LIKE '%__SHOWONSTARTPAGE__%'" : '')
                 );
             // Limit by Product ID (unused by getByShopParameters()!)

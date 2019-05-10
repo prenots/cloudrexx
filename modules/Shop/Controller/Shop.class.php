@@ -1195,7 +1195,7 @@ die("Failed to update the Cart!");
 
         $flagSpecialoffer = intval(\Cx\Core\Setting\Controller\Setting::getValue('show_products_default','Shop'));
         if (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] == 'discounts') {
-            $flagSpecialoffer = Products::DEFAULT_VIEW_DISCOUNTS;
+            $flagSpecialoffer = \Cx\Modules\Shop\Controller\ProductController::DEFAULT_VIEW_DISCOUNTS;
         }
         $flagLastFive = isset($_REQUEST['lastFive']);
         $product_id = (isset($_REQUEST['productId'])
@@ -1402,7 +1402,7 @@ die("Failed to update the Cart!");
 // TODO: There are other cases of flag combinations that are not indivuidually
 // handled here yet.
             if ($term == '') {
-                if ($flagSpecialoffer == Products::DEFAULT_VIEW_DISCOUNTS) {
+                if ($flagSpecialoffer == \Cx\Modules\Shop\Controller\ProductController::DEFAULT_VIEW_DISCOUNTS) {
                     self::$objTemplate->setVariable(
                         'SHOP_PRODUCTS_IN_CATEGORY',
                             $_ARRAYLANG['TXT_SHOP_PRODUCTS_SPECIAL_OFFER']);
