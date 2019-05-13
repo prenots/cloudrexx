@@ -214,17 +214,18 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'distribution' => array(
                 'type' => 'select',
-                'valueCallback' => function($val) {
-                    global $_ARRAYLANG;
-                    return $_ARRAYLANG[$val];
-                },
-                'validValues' => implode(
-                    ',',
-                    \Cx\Modules\Shop\Controller\Distribution::getArrDistributionTypes()
+                'formfield' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getDistributionDropdown'
                 ),
-                'storecallback' => function() {
-
-                },
+                'table' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        return $_ARRAYLANG[
+                            'TXT_DISTRIBUTION_' . strtoupper($value)
+                        ];
+                    }
+                ),
                 'allowFiltering' => false,
             ),
             'code' => array(

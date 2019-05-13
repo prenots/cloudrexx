@@ -80,7 +80,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'addEditLink',
             'setEmptyDateToNull',
             'getProductAttributes',
-            'storeProductAttributes'
+            'storeProductAttributes',
+            'getDistributionDropdown'
         );
     }
 
@@ -534,5 +535,29 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $entity->addRelProductAttribute($productAttribute);
         }
         return $entity;
+    }
+
+    public function getDistributionDropdown($params)
+    {
+        global $_ARRAYLANG;
+
+        $validValues = array();
+        $distributionTypes = \Cx\Modules\Shop\Controller\Distribution::getArrDistributionTypes();
+
+        foreach ($distributionTypes as $distributionType) {
+            $validValues[$distributionType] = $_ARRAYLANG[
+                'TXT_DISTRIBUTION_' . strtoupper($distributionType)
+            ];
+        }
+
+        $dropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+            $params['name'],
+            $params['value'],
+            'select',
+            null,
+            $validValues
+        );
+
+        return $dropdown;
     }
 }
