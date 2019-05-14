@@ -4540,7 +4540,16 @@ $WhereStatement = '';
         if (isset($_POST['import_cancel'])) {
             // Abbrechen. Siehe Abbrechen
             $objImport->cancel();
-            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?cmd=Newsletter&act=users&tpl=import");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Newsletter',
+                    'users',
+                    0,
+                    array(
+                        'tpl' => 'import'
+                    )
+                )
+            );
             exit;
         } elseif (isset($_POST['fieldsSelected'])) {
             // Speichern der Daten. Siehe Final weiter unten.
