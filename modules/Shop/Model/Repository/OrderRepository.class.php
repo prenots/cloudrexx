@@ -353,7 +353,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                 )),
             );
         }
-        $arrItems = $objOrder->getItems();
+        $arrItems = $objOrder->getOrderItems();
         if (!$arrItems) {
             \Message::warning($_ARRAYLANG['TXT_SHOP_ORDER_WARNING_NO_ITEM']);
         }
@@ -390,9 +390,9 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
 //DBG::log("Orders::getSubstitutionArray(): Item: Product ID $product_id");
-            $product_name = substr($item['name'], 0, 40);
-            $item_price = $item['price'];
-            $quantity = $item['quantity'];
+            $product_name = substr($item->getName(), 0, 40);
+            $item_price = $item->getPrice();
+            $quantity = $item->getQuantity();
 // TODO: Add individual VAT rates for Products
 //            $orderItemVatPercent = $objResultItem->fields['vat_percent'];
             // Decrease the Product stock count,
@@ -403,10 +403,10 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             $str_options = '';
             $optionList = array();
             // Any attributes?
-            if ($item['attributes']) {
+            if ($objOrder->getOptionArray()) {
                 $str_options = '  '; // '[';
                 $attribute_name_previous = '';
-                foreach ($item['attributes'] as $attribute_name => $arrAttribute) {
+                foreach ($objOrder->getOptionArray() as $attribute_name => $arrAttribute) {
                     $optionValues = array();
 //DBG::log("Attribute /$attribute_name/ => ".var_export($arrAttribute, true));
 // NOTE: The option price is optional and may be left out
@@ -538,6 +538,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         $newCoupon->setGlobal(true);
                         $newCoupon->setUses(1e10);
 
+                        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
                         $em = $cx->getDb()->getEntityManager();
                         $em->persist($newCoupon);
                         $em->flush();
