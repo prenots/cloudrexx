@@ -1004,3 +1004,4 @@ $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
 $_ARRAYLANG['showAllPendentOrders'] = 'Pendente Bestellungen anzeigen';
 $_ARRAYLANG['TXT_SHOP_TOO_FEW_ARGUMENTS'] = 'Zu wenig Argumente';
+$_ARRAYLANG['TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'] = 'This product was ordered with options. These options cannot be edited.<br/>';

@@ -1187,3 +1187,4 @@ $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
 
 $_ARRAYLANG['showAllPendentOrders'] = 'Pendente Bestellungen anzeigen';
 $_ARRAYLANG['TXT_SHOP_TOO_FEW_ARGUMENTS'] = 'Zu wenig Argumente';
+$_ARRAYLANG['TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'] = 'Dieses Produkt wurde mit Optionen bestellt. Diese Optionen können nicht bearbeitet werden.<br/>';

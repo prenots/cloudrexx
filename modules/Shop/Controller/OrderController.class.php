@@ -304,7 +304,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'allowSearching' => true,
                 'showDetail' => false,
-                'allowFiltering' => false,
+                'allowFiltering' => false
             ),
             'company' => array(
                 'showOverview' => false,
@@ -1166,11 +1166,43 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     $td->addChild($hiddenField);
                 }
 
+                $td->addChild($field);
+
                 if ($key == 'sum') {
                     $field->setAttribute('readonly', 'readonly');
+                } else if ($key == 'price') {
+                    $attributePrice = 0;
+                    if (count($orderItem->getOrderAttributes()) > 0) {
+                        foreach($orderItem->getOrderAttributes() as $attribute) {
+                            $attributePrice += $attribute->getPrice();
+                        }
+                    }
+                    $field->setAttribute('data-priceattributes', $attributePrice);
+                } else if ($key == 'product_name') {
+                    if (count($orderItem->getOrderAttributes()) > 0) {
+                        $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                        $toolTipTrigger->addClass('icon-info tooltip-trigger');
+                        $toolTipTrigger->allowDirectClose(false);
+                        $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                        $toolTipMessage->addClass('tooltip-message');
+                        $messageText = $_ARRAYLANG[
+                            'TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'
+                        ];
+                        foreach ($orderItem->getOrderAttributes() as $attribute) {
+                            $attributeText = '- '. $attribute->getOptionName()
+                                . ': ' . $attribute->getPrice() . ' '
+                                . $currency .'<br/>';
+                            $messageText .= $attributeText;
+                        }
+                        $message = new \Cx\Core\Html\Model\Entity\TextElement(
+                            $messageText
+                        );
+                        $toolTipMessage->addChild($message);
+                        $td->addChild($toolTipTrigger);
+                        $td->addChild($toolTipMessage);
+                    }
                 }
 
-                $td->addChild($field);
                 $tr->addChild($td);
 
                 if (empty($header['addition'])) {

@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
         swapSendToStatus(this.value);
     }
     swapSendToStatus();
+
+    document.getElementsByName("shipmentAmount")[0].addEventListener('change', calcShipPaymentCost);
+    document.getElementsByName("paymentAmount")[0].addEventListener('change', calcShipPaymentCost);
 });
 
 
@@ -264,14 +267,21 @@ function calcPrice(orderItemId)
         document.getElementById("product_product_id-"+orderItemId).value;
     if (newProductId > 0) {
         var price =
-            document.getElementById("product_price-"+orderItemId).value;
+            Number(document.getElementById("product_price-"+orderItemId).value);
         var quantity =
             document.getElementById("product_quantity-"+orderItemId).value;
     }
+    let priceAttributes = 0;
+    if (typeof document.getElementById("product_price-"+orderItemId).dataset.priceattributes !== 'undefined') {
+        priceAttributes = Number(
+            document.getElementById("product_price-"+orderItemId).dataset.priceattributes
+        )
+    }
+
     document.getElementById("product_price-"+orderItemId).value =
         Number(price).toFixed(2);
     document.getElementById("product_sum-"+orderItemId).value =
-        (quantity * price).toFixed(2);
+        (quantity * (price + priceAttributes)).toFixed(2);
     // Totals
     var totalVat = 0;
     var totalSum = 0;
@@ -282,6 +292,7 @@ function calcPrice(orderItemId)
                 "product_vat_rate-"+arrProductId[i]['id']).value)
             * Number(document.getElementById(
             "product_sum-"+arrProductId[i]['id']).value) / 100;
+
         // update the total order value
         totalSum += Number(document.getElementById(
             "product_sum-"+arrProductId[i]['id']).value);
@@ -316,6 +327,13 @@ function calcPrice(orderItemId)
 
     document.getElementsByName("sum")[1].value = totalSum.toFixed(2);
     document.getElementsByName("vatAmount")[0].value = totalVat.toFixed(2);
+}
+
+function calcShipPaymentCost() {
+    let totalSum = Number(document.getElementsByName("sum")[1].value);
+    totalSum -= Number(this.defaultValue);
+    totalSum += Number(this.value);
+    document.getElementsByName("sum")[1].value = totalSum.toFixed(2);
 }
 
 function swapSendToStatus()
