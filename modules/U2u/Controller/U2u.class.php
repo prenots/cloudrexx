@@ -92,7 +92,16 @@ class U2u extends U2uLibrary
         $objFWUser = \FWUser::getFWUserObject();
         if (!$objFWUser->objUser->login()) {
             $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Login',
+                    '',
+                    '',
+                    array(
+                        'redirect' => $link
+                    )
+                )
+            );
             exit;
         }
 
@@ -334,7 +343,12 @@ class U2u extends U2uLibrary
          $query = 'SELECT 1 FROM '.DBPREFIX.'module_u2u_address_list WHERE user_id="'.$id.'" AND buddies_id="'.$buddies_id.'"';
          $objRS = $objDatabase->SelectLimit($query, 1);
          if($objRS->RecordCount() > 0){
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Access&cmd=members");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Access',
+                    'members'
+                )
+            );
          }
          $query='REPLACE INTO '.DBPREFIX.'module_u2u_address_list  (
                                          user_id ,
@@ -342,7 +356,12 @@ class U2u extends U2uLibrary
                                          )
                                          VALUES ('.$id.','.$buddies_id.')';
          $objDatabase->Execute($query);
-         \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Access&cmd=members");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Access',
+                'members'
+            )
+        );
     }
 
     /**
