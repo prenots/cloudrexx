@@ -1734,7 +1734,12 @@ class MemberDirManager extends MemberDirLibrary
 
         if (isset($_POST['import_cancel'])) {
             $importlib->cancel();
-            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?cmd=MemberDir&act=import");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'MemberDir',
+                    'import'
+                )
+            );
             exit;
         } elseif (isset($_POST['fieldsSelected'])) {
             $fieldnames = $this->getFieldData($_POST['directory']);
