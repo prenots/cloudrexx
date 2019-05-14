@@ -709,7 +709,16 @@ class MediaDirectoryManager extends MediaDirectoryLibrary
                 'TXT_'.$this->moduleLangVar.'_ENTRY_STATUS' => $_ARRAYLANG['TXT_MEDIADIR_ACTIVE'],
             ));
         } else {
-            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?cmd=".$this->moduleName."&act=settings&tpl=forms");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    $this->moduleName,
+                    'settings',
+                    0,
+                    array(
+                        'tpl' => 'forms'
+                    )
+                )
+            );
             exit;
         }
     }

@@ -119,7 +119,9 @@ class MediaDirectory extends MediaDirectoryLibrary
                     parent::checkAccess('delete_entry');
                     $this->deleteEntry();
                 } else {
-                    \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromModuleAndCmd($this->moduleName)
+                    );
                     exit;
                 }
                 break;
@@ -168,7 +170,9 @@ class MediaDirectory extends MediaDirectoryLibrary
                         parent::checkAccess('edit_entry');
                         $this->modifyEntry();
                     } else {
-                        \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromModuleAndCmd($this->moduleName)
+                        );
                         exit;
                     }
                 } else {
@@ -873,7 +877,9 @@ class MediaDirectory extends MediaDirectoryLibrary
         $this->getNavtree($intCategoryId, $intLevelId);
 
         if (!$intEntryId || !$this->_objTpl->blockExists($this->moduleNameLC.'EntryList')) {
-            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd($this->moduleName)
+            );
             exit;
         }
 
@@ -884,7 +890,9 @@ class MediaDirectory extends MediaDirectoryLibrary
             $this->_objTpl->hideBlock($this->moduleNameLC.'EntryList');
             $this->_objTpl->clearVariables();
 
-            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$this->moduleName);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd($this->moduleName)
+            );
             exit;
         }
 
@@ -1703,7 +1711,9 @@ class MediaDirectory extends MediaDirectoryLibrary
                 $this->_objTpl->hideBlock($this->moduleNameLC.'EntrySaveOnlyMessage');
             }
         } else {
-            \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?section=".$_GET['section']);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd($_GET['section'])
+            );
             exit;
         }
 

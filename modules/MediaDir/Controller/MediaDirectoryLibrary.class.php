@@ -358,25 +358,55 @@ class MediaDirectoryLibrary
 
                 switch($strStatus) {
                     case 'no_access':
-                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section=Login&cmd=noaccess');
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                'Login',
+                                'noaccess'
+                            )
+                        );
                         exit;
                         break;
                     case 'login':
                         $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
-                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                'Login',
+                                '',
+                                '',
+                                array(
+                                    'redirect' => $link
+                                )
+                            )
+                        );
                         exit;
                         break;
                     case 'redirect':
-                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromModuleAndCmd($this->moduleName)
+                        );
                         exit;
                         break;
                     case 'confirm_in_progress':
-                        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName.'&cmd=confirm_in_progress');
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                $this->moduleName,
+                                'confirm_in_progress'
+                            )
+                        );
                         exit;
                         break;
                     default:
                         if(substr($strStatus,0,4) == 'osec') {
-                            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section='.$this->moduleName.'&cmd=edit5&eid='.intval(substr($strStatus,4)));
+                            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                    $this->moduleName,
+                                    'edit5',
+                                    '',
+                                    array(
+                                        'eid' => intval(substr($strStatus,4))
+                                    )
+                                )
+                            );
                             exit;
                         }
                         break;
