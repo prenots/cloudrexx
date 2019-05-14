@@ -775,7 +775,12 @@ class Immo extends ImmoLib
         if (!empty($_GET['id'])) {
             $immoID = intval($_GET['id']);
             if (empty($immoID)) {
-                \Cx\Core\Csrf\Controller\Csrf::redirect('?section=immo&cmd=immolist');
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'immo',
+                        'immolist'
+                    )
+                );
                 die();
             }
         }
