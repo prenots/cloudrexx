@@ -585,9 +585,13 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         if (!$objResult) return Product::errorHandler();
 //\DBG::deactivate(DBG_ADODB);
         $arrProduct = array();
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $productRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        );
         while (!$objResult->EOF) {
             $product_id = $objResult->fields['id'];
-            $objProduct = Product::getById($product_id);
+            $objProduct = $productRepo->find($product_id);
             if ($objProduct)
                 $arrProduct[$product_id] = $objProduct;
             $objResult->MoveNext();
@@ -632,6 +636,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 
         if (!is_array($arrId)) return false;
         $error = false;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $productRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        );
         $objImageManager = new \ImageManager();
         foreach ($arrId as $product_id) {
             if ($product_id <= 0) {
@@ -639,13 +647,13 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 $error = true;
                 continue;
             }
-            $objProduct = Product::getById($product_id);
+            $objProduct = $productRepo->find($product_id);
             if (!$objProduct) {
                 \Message::error(sprintf($_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'], $product_id));
                 $error = true;
                 continue;
             }
-            $imageName = $objProduct->pictures();
+            $imageName = $objProduct->getPicture();
             $imagePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopPath() . '/' . $imageName;
             // only try to create thumbs from entries that contain a
             // plain text file name (i.e. from an import)
@@ -701,8 +709,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                     '?'.base64_encode($width).
                     '?'.base64_encode($height).
                     ':??:??';
-                $objProduct->pictures($shopPicture);
-                $objProduct->store();
+                $objProduct->setPicture($shopPicture);
+                $cx->getDb()->getEntityManager()->persist($objProduct);
             } else {
                 \Message::error(sprintf(
                     $_ARRAYLANG['TXT_SHOP_ERROR_CREATING_PRODUCT_THUMBNAIL'],
@@ -710,6 +718,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 $error = true;
             }
         }
+        $cx->getDb()->getEntityManager()->flush();
         return $error;
     }
 

@@ -224,21 +224,21 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         $arrCategoryName = ShopCategories::getNameArray( false, $pricelist->getLangId());
         $arrOutput = array();
         foreach ($arrProduct as $product_id => $objProduct) {
-            $categoryIds = explode(',', $objProduct->category_id());
+            $categoryIds = explode(',', $objProduct->getCategoryId());
             $arrCategoryNames = array();
             foreach ($categoryIds as $categoryId){
                 $arrCategoryNames[] = $arrCategoryName[$categoryId];
             }
 //$objProduct = new Product();
             $arrOutput[$product_id] = array(
-                'product_name' => self::decode($objProduct->name()),
+                'product_name' => self::decode($objProduct->getName()),
                 'category_name' => self::decode(implode(', ', $arrCategoryNames)),
-                'product_code' => self::decode($objProduct->code()),
-                'product_id' => self::decode($objProduct->id()),
+                'product_code' => self::decode($objProduct->getCode()),
+                'product_id' => self::decode($objProduct->getId()),
                 'price' =>
-                    ($objProduct->discount_active()
-                        ? "S " . \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice())
-                        : \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price())) .
+                    ($objProduct->getDiscountActive()
+                        ? "S " . \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->getDiscountopice())
+                        : \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->getNormalprice())) .
                     ' ' . $currency_symbol,
             );
         }

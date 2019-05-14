@@ -1900,19 +1900,26 @@ if ($test === NULL) {
             $arrProductId[] = $product_id;
         }
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $productRepo = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        );
+
         $result = true;
         if (count($arrProductId) > 0) {
             foreach ($arrProductId as $product_id) {
-                $objProduct = Product::getById($product_id);
+                $objProduct = $productRepo->find($product_id);
                 if (!$objProduct) continue;
 //                $code = $objProduct->code();
 //                if (empty($code)) {
-                    $result &= $objProduct->delete();
+                    $result &= $em->remove($objProduct);
 //                } else {
 //                    $result &= !Products::deleteByCode($objProduct->code());
 //                }
             }
         }
+        $em->flush();
         return $result;
     }
 
@@ -3010,9 +3017,9 @@ if ($test === NULL) {
         \JS::activate('schedule-publish-tooltip', array());
         foreach ($arrProducts as $objProduct) {
             $productStatus = 'inactive';
-            if ($objProduct->active()) {
-                $hasScheduledPublishing =   $objProduct->date_start()
-                                         || $objProduct->date_end();
+            if ($objProduct->getActive()) {
+                $hasScheduledPublishing =   $objProduct->getDateStart()
+                                         || $objProduct->getDateEnd();
                 $productStatus = 'active';
                 if ($hasScheduledPublishing) {
                     $productStatus =  $objProduct->getActiveByScheduledPublishing()
@@ -3022,7 +3029,7 @@ if ($test === NULL) {
 
             $discount_active = '';
             $specialOfferValue = '';
-            if ($objProduct->discount_active()) {
+            if ($objProduct->getDiscountActive()) {
                 $discount_active = \Html::ATTRIBUTE_CHECKED;
                 $specialOfferValue = 1;
             }
@@ -3030,33 +3037,33 @@ if ($test === NULL) {
                 'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
                 'SHOP_PRODUCT_ID' => $objProduct->id(),
                 'SHOP_PRODUCT_CODE' => $objProduct->code(),
-                'SHOP_PRODUCT_NAME' => contrexx_raw2xhtml($objProduct->name()),
-                'SHOP_PRODUCT_PRICE1' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->price()),
-                'SHOP_PRODUCT_PRICE2' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->resellerprice()),
-                'SHOP_PRODUCT_DISCOUNT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->discountprice()),
+                'SHOP_PRODUCT_NAME' => contrexx_raw2xhtml($objProduct->getName()),
+                'SHOP_PRODUCT_PRICE1' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->getNormalprice()),
+                'SHOP_PRODUCT_PRICE2' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->getResellerprice()),
+                'SHOP_PRODUCT_DISCOUNT' => \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($objProduct->getDiscountprice()),
                 'SHOP_PRODUCT_SPECIAL_OFFER' => $discount_active,
                 'SHOP_SPECIAL_OFFER_VALUE_OLD' => $specialOfferValue,
                 'SHOP_PRODUCT_VAT_MENU' => Vat::getShortMenuString(
-                    $objProduct->vat_id(),
-                    'taxId['.$objProduct->id().']'),
-                'SHOP_PRODUCT_VAT_ID' => ($objProduct->vat_id()
-                    ? $objProduct->vat_id() : 'NULL'),
-                'SHOP_PRODUCT_DISTRIBUTION' => $objProduct->distribution(),
-                'SHOP_PRODUCT_STOCK' => $objProduct->stock(),
-                'SHOP_PRODUCT_SHORT_DESC' => $objProduct->short(),
+                    $objProduct->getVatId(),
+                    'taxId['.$objProduct->getId().']'),
+                'SHOP_PRODUCT_VAT_ID' => ($objProduct->getVatId()
+                    ? $objProduct->getVatId() : 'NULL'),
+                'SHOP_PRODUCT_DISTRIBUTION' => $objProduct->getDistribution(),
+                'SHOP_PRODUCT_STOCK' => $objProduct->getStock(),
+                'SHOP_PRODUCT_SHORT_DESC' => $objProduct->getShort(),
                 'SHOP_PRODUCT_STATUS_CLASS' => $productStatus,
-                'SHOP_SORT_ORDER' => $objProduct->ord(),
+                'SHOP_SORT_ORDER' => $objProduct->getOrd(),
 //                'SHOP_DISTRIBUTION_MENU' => Distribution::getDistributionMenu($objProduct->distribution(), "distribution[".$objProduct->id()."]"),
 //                'SHOP_PRODUCT_WEIGHT' => Weight::getWeightString($objProduct->weight()),
                 'SHOP_DISTRIBUTION' => $_ARRAYLANG['TXT_DISTRIBUTION_'.
-                    strtoupper($objProduct->distribution())],
+                    strtoupper($objProduct->getDistribution())],
                 'SHOP_SHOW_PRODUCT_ON_START_PAGE_CHECKED' =>
                     ($objProduct->shown_on_startpage()
                       ? \Html::ATTRIBUTE_CHECKED : ''),
                 'SHOP_SHOW_PRODUCT_ON_START_PAGE_OLD' =>
                     ($objProduct->shown_on_startpage() ? '1' : ''),
 // This is used when the Product name can be edited right on the overview
-                'SHOP_PRODUCT_NAME' => contrexx_raw2xhtml($objProduct->name()),
+                'SHOP_PRODUCT_NAME' => contrexx_raw2xhtml($objProduct->getName()),
             ));
             // All languages active
             foreach ($arrLanguages as $lang_id => $arrLanguage) {

@@ -323,13 +323,19 @@ class Discount
         if (!static::isDiscountCumulative($group_id)) {
             return $count;
         }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $productRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        );
+
         // find number of products in cart matching supplied group id
         // count them
         $products = Cart::get_products_array();
         $count = 0;
         foreach ($products as $productArr) {
-            $product = Product::getById($productArr['id']);
-            if ($product->group_id() != $group_id) {
+            $product = $productRepo->find($productArr['id']);
+            if ($product->getGroupId() != $group_id) {
                 continue;
             }
             $count += $productArr['quantity'];

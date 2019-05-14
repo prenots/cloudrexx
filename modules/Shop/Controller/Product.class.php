@@ -1390,6 +1390,11 @@ class Product
         $objProduct->arrRelations =
             Attributes::getRelationArray($objProduct->id);
 //die("dfhreh: ".$objProduct->category_id());
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $productRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        );
+        $product = $productRepo->find($id);
         return $objProduct;
     }
 

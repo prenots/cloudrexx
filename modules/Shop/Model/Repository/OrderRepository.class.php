@@ -376,11 +376,15 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         }
         $orderItemCount = 0;
         $total_item_price = 0;
+
+        $productRepo = $this->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        );
         // Suppress Coupon messages (see Coupon::available())
         \Message::save();
         foreach ($arrItems as $item) {
-            $product_id = $item['product_id'];
-            $objProduct = \Cx\Modules\Shop\Controller\Product::getById($product_id);
+            $product_id = $item->getProductId();
+            $objProduct = $item->getProduct();
             if (!$objProduct) {
 //die("Product ID $product_id not found");
                 continue;
@@ -393,8 +397,8 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
 //            $orderItemVatPercent = $objResultItem->fields['vat_percent'];
             // Decrease the Product stock count,
             // applies to "real", shipped goods only
-            $objProduct->decreaseStock($quantity);
-            $product_code = $objProduct->code();
+            $objProduct = $productRepo->decreaseStock($objProduct, $quantity);
+            $product_code = $objProduct->getCode();
             // Pick the order items attributes
             $str_options = '';
             $optionList = array();
@@ -470,11 +474,11 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                     // In case there are protected downloads in the cart,
                     // collect the group IDs
                     $arrUsergroupId = array();
-                    if ($objProduct->distribution() == 'download') {
-                        $usergroupIds = $objProduct->usergroup_ids();
+                    if ($objProduct->getDistribution() == 'download') {
+                        $usergroupIds = $objProduct->getUserGroupIds();
                         if ($usergroupIds != '') {
                             $arrUsergroupId = explode(',', $usergroupIds);
-                            $validity = $objProduct->weight();
+                            $validity = $objProduct->getWeight();
                         }
                     }
                     // create an account that belongs to all collected
@@ -522,7 +526,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         );
                     }
 //echo("Instance $instance");
-                    if ($objProduct->distribution() == 'coupon') {
+                    if ($objProduct->getDistribution() == 'coupon') {
                         if (empty($arrProduct['COUPON_DATA']))
                             $arrProduct['COUPON_DATA'] = array();
 //DBG::log("Orders::getSubstitutionArray(): Getting code");

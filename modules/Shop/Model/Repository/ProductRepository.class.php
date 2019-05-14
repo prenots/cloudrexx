@@ -47,4 +47,26 @@ class ProductRepository extends \Doctrine\ORM\EntityRepository
         // No picture found here
         return '';
     }
+
+    /**
+     * Decrease the Product stock count
+     *
+     * This applies to "real", shipped goods only.  These have "delivery"
+     * set as their "distribution" field value.
+     * @oaram \Cx\Modules\Shop\Model\Entity\Product $product  Referred product
+     * @param integer                               $quantity The quantity to
+     *                                                        subtract from the
+     *                                                        stock
+     * @return  \Cx\Modules\Shop\Model\Entity\Product  updated product
+     */
+    public function decreaseStock($product, $quantity)
+    {
+        if ($product->getDistribution() == 'delivery') {
+            $product->setStock($product->getStock() - $quantity);
+        }
+
+        $this->_em->persist($product);
+        $this->_em->flush();
+        return $product;
+    }
 }
