@@ -1603,7 +1603,16 @@ JS_CODE;
                 ) ||
                 !$objDownload->getActiveStatus()
             ) {
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX."?section=Error&id=404");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Error',
+                        '',
+                        0,
+                        array(
+                            'id' => 404
+                        )
+                    )
+                );
                 exit;
             }
 
