@@ -1696,12 +1696,27 @@ class AccessManager extends \Cx\Core_Modules\Access\Controller\AccessLib
         if(isset($_GET['source'])){
             switch ($_GET['source']){
                 case 'Newsletter':
+                    $params = array('store' => true);
+                    if (!empty($_GET['newsletterListId'])) {
+                        $params['newsletterListId'] = contrexx_input2raw($_GET['newsletterListId']);
+                    }
+                    if (!empty($_GET['filterkeyword'])) {
+                        $params['filterkeyword'] = contrexx_input2raw($_GET['filterkeyword']);
+                    }
+                    if (!empty($_GET['filterattribute'])) {
+                        $params['filterattribute'] = contrexx_input2raw($_GET['filterattribute']);
+                    }
+                    if (!empty($_GET['filterStatus'])) {
+                        $params['filterStatus'] = contrexx_input2raw($_GET['filterStatus']);
+                    }
+
                     \Cx\Core\Csrf\Controller\Csrf::redirect(
-                        'index.php?cmd=Newsletter&act=users&store=true'. //and add Params for Newsletter Filter
-                        (!empty($_GET['newsletterListId']) ? '&newsletterListId='.contrexx_input2raw($_GET['newsletterListId']) : '').
-                        (!empty($_GET['filterkeyword']) ? '&filterkeyword='.contrexx_input2raw($_GET['filterkeyword']) : '').
-                        (!empty($_GET['filterattribute']) ? '&filterattribute='.contrexx_input2raw($_GET['filterattribute']) : '').
-                        (!empty($_GET['filterStatus']) ? '&filterStatus='.contrexx_input2raw($_GET['filterStatus']) : '')
+                        \Cx\Core\Routing\Url::fromBackend(
+                            'Newsletter',
+                            'users',
+                            0,
+                            $params
+                        )
                     );
                     exit;
             }
