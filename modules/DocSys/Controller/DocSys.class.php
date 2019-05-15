@@ -97,7 +97,9 @@ class DocSys extends DocSysLibrary
         $this->_objTpl->setGlobalVariable('MODULE_INDEX', MODULE_INDEX);
         $id = intval($_GET['id']);
         if ($id <= 0) {
-            \Cx\Core\Csrf\Controller\Csrf::redirect("?section=DocSys" . MODULE_INDEX);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd('DocSys' . MODULE_INDEX)
+            );
             exit;
         }
         $query = "
