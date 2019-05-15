@@ -823,7 +823,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 if ($this->_updateBlock($blockId, $blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
                     if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&modified=true&blockname=' . $blockName . $categoryParam);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromBackend(
+                                'Block',
+                                '',
+                                0,
+                                array(
+                                    'modified'  => true,
+                                    'blockname' => $blockName . $categoryParam
+                                )
+                            )
+                        );
                         exit;
                     }
                 }
@@ -832,7 +842,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 if ($blockId = $this->_addBlock($blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
                     if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
-                        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&added=true&blockname=' . $blockName . $categoryParam);
+                        \Cx\Core\Csrf\Controller\Csrf::redirect(
+                            \Cx\Core\Routing\Url::fromBackend(
+                                'Block',
+                                '',
+                                0,
+                                array(
+                                    'added'     => true,
+                                    'blockname' => $blockName . $categoryParam
+                                )
+                            )
+                        );
                         exit;
                     }
                 }
@@ -1258,8 +1278,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             );
         }
 
-        $categoryParam = isset($_GET['catId']) ? '&catId=' . contrexx_input2int($_GET['catId']) : '';
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block' . $categoryParam);
+        $categoryParam = isset($_GET['catId'])
+            ? array('catId' => contrexx_input2int($_GET['catId']))
+            : array();
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'Block',
+                '',
+                0,
+                $categoryParam
+            )
+        );
     }
 
     /**
@@ -1301,8 +1330,17 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             );
         }
 
-        $categoryParam = isset($_GET['catId']) ? '&catId=' . contrexx_input2int($_GET['catId']) : '';
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block' . $categoryParam);
+        $categoryParam = isset($_GET['catId'])
+            ? array('catId' => contrexx_input2int($_GET['catId']))
+            : array();
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'Block',
+                '',
+                0,
+                $categoryParam
+            )
+        );
     }
 
     /**
@@ -1377,7 +1415,12 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             ';
             $objDatabase->Execute($query);
 
-            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Block&act=settings');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Block',
+                    'settings'
+                )
+            );
         }
 
         $this->_pageTitle = $_ARRAYLANG['TXT_BLOCK_SETTINGS'];
