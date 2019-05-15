@@ -106,16 +106,33 @@ class Gallery
         if (isset($_GET['pId']) && !empty($_GET['pId'])) {
             if (isset($_POST['frmGalComAdd_PicId'])) {
                 $this->addComment();
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX.'?section=Gallery'.html_entity_decode($this->strCmd, ENT_QUOTES, CONTREXX_CHARSET).'&cid='.
-                    intval($_POST['frmGalComAdd_GalId']).'&pId='.
-                    intval($_POST['frmGalComAdd_PicId']));
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Gallery',
+                        $_GET['cmd'],
+                        '',
+                        array(
+                            'cid' => contrexx_input2int($_POST['frmGalComAdd_GalId']),
+                            'pId' => contrexx_input2int($_POST['frmGalComAdd_PicId'])
+                        )
+                    )
+                );
                 exit;
             }
 
             if (isset($_GET['mark'])) {
                 $this->countVoting($_GET['pId'],$_GET['mark']);
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX.'?section=Gallery'.html_entity_decode($this->strCmd, ENT_QUOTES, CONTREXX_CHARSET).'&cid='.
-                    intval($_GET['cid']).'&pId='.intval($_GET['pId']));
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Gallery',
+                        $_GET['cmd'],
+                        '',
+                        array(
+                            'cid' => contrexx_input2int($_GET['cid']),
+                            'pId' => contrexx_input2int($_GET['pId'])
+                        )
+                    )
+                );
                 exit;
             }
 
@@ -1366,7 +1383,16 @@ END;
         }
         if (!\Permission::checkAccess($categoryProtected, 'dynamic', true)) {
             $link = base64_encode($_SERVER['PHP_SELF'] .'?'. $_SERVER['QUERY_STRING']);
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX."?section=Login&cmd=noaccess&redirect=".$link);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Login',
+                    'noaccess',
+                    '',
+                    array(
+                        'redirect' => $link
+                    )
+                )
+            );
             exit;
         }
     }
