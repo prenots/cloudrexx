@@ -354,7 +354,16 @@ class Resolver {
                 // If the error module is not installed, show this
                 die($_CORELANG['TXT_THIS_MODULE_DOESNT_EXISTS']);
             }
-            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?section=Error&id=404');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Error',
+                    '',
+                    '',
+                    array(
+                        'id' => 404
+                    )
+                )
+            );
             exit;
         }*/
 
