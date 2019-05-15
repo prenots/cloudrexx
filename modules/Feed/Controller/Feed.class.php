@@ -267,7 +267,7 @@ class Feed extends FeedLibrary
                            AND status = '1'";
             $objResult = $objDatabase->Execute($query);
             if($objResult->RecordCount() == 0){
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX."?section=Feed");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Feed'));
             }
 
 

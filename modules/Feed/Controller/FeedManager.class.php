@@ -576,7 +576,7 @@ class FeedManager extends FeedLibrary
             $time = time();
             $this->showNewsRefresh($id, $time, $this->feedpath);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_REFRESH_NEWS_FEED'];
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }
         //preview
@@ -614,18 +614,18 @@ class FeedManager extends FeedLibrary
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
             }
 
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }
 
         //sortbycategory
         if (isset($_GET['sort']) and $_GET['sort'] != 0){
             $_SESSION['feedCategorySort'] = $_GET['sort'];
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }elseif (isset($_GET['sort']) and $_GET['sort'] == 0){
             unset($_SESSION['feedCategorySort']);
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }
 
@@ -635,7 +635,7 @@ class FeedManager extends FeedLibrary
                 $ids = $_POST['form_selected'];
                 $this->showNewsDelete($ids);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_DELETED_NEWS'];
-                $this->goToReplace('');
+                $this->goToReplace();
                 die;
             }
             //changestatus
@@ -648,7 +648,7 @@ class FeedManager extends FeedLibrary
                     $this->showNewsChange($ids, 0);
                 }
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_STATUS'];
-                $this->goToReplace('');
+                $this->goToReplace();
                 die;
             }
         }
@@ -659,7 +659,7 @@ class FeedManager extends FeedLibrary
             $pos = $_POST['form_pos'];
             $this->showNewsChangePos($ids, $pos);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SORT'];
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }
         if (isset($_GET['chg'])){
@@ -667,7 +667,7 @@ class FeedManager extends FeedLibrary
             $pos = $_POST['form_pos'];
             $this->showNewsChangePos($ids, $pos);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SORT'];
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }
 
@@ -932,7 +932,7 @@ class FeedManager extends FeedLibrary
                 $filename = "feed_".$time."_".basename($link);
                 if (!copy($link, $this->feedpath.$filename)){
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_LINK_NO_NEWS'];
-                    $this->goToReplace('');
+                    $this->goToReplace();
                     die;
                 }
 
@@ -951,7 +951,7 @@ class FeedManager extends FeedLibrary
                 if ($content == ''){
                     unlink($this->feedpath.$filename);
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_LINK_NO_NEWS'];
-                    $this->goToReplace('');
+                    $this->goToReplace();
                     die;
                 }
             }
@@ -970,7 +970,7 @@ class FeedManager extends FeedLibrary
             $objResult = $objDatabase->Execute($query);
         } else{
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_NEWS'];
-            $this->goToReplace('');
+            $this->goToReplace();
             die;
         }
     }
@@ -1043,7 +1043,7 @@ class FeedManager extends FeedLibrary
         // check
         if (!isset($_GET['set'])){
             if (!isset($_GET['id']) or $_GET['id'] == ''){
-                $this->goToReplace('');
+                $this->goToReplace();
                 die;
             }
         }
@@ -1076,20 +1076,20 @@ class FeedManager extends FeedLibrary
 
                     $this->showEditSetNew($id, $subid, $name, $link, $filename, $articles, $cache, $time, $image, $status);
                     $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SUCCESSFULL_EDIT_NEWS'];
-                    $this->goToReplace('');
+                    $this->goToReplace();
                     die;
                 }
                 else
                 {
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
-                    $this->goToReplace('&act=edit&id='.$_POST['form_id']);
+                    $this->goToReplace('edit', array('id' => $_POST['form_id']));
                     die;
                 }
             }
             else
             {
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
-                $this->goToReplace('&act=edit&id='.$_POST['form_id']);
+                $this->goToReplace('edit', array('id' => $_POST['form_id']));
                 die;
             }
         }
@@ -1254,7 +1254,7 @@ class FeedManager extends FeedLibrary
                 $filename = "feed_".$time."_".basename($link);
                 if (!copy($link, $this->feedpath.$filename)) {
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_NEWS_FEED'];
-                    $this->goToReplace('&act=edit&id='.$id);
+                    $this->goToReplace('edit', array('id' => $id));
                     die;
                 }
 
@@ -1269,7 +1269,7 @@ class FeedManager extends FeedLibrary
                 if ($content == '') {
                     unlink($this->feedpath.$filename);
                     $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_NEWS_FEED'];
-                    $this->goToReplace('&act=edit&id='.$id);
+                    $this->goToReplace('edit', array('id' => $id));
                     die;
                 }
             }
@@ -1288,7 +1288,7 @@ class FeedManager extends FeedLibrary
             $objResult = $objDatabase->Execute($query);
         } else {
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_NEWS'];
-            $this->goToReplace('&act=edit&id='.$id);
+            $this->goToReplace('edit', array('id' => $id));
             die;
         }
 
@@ -1296,7 +1296,7 @@ class FeedManager extends FeedLibrary
         if ($old_link != '') {
             if (!unlink($this->feedpath.$old_filename)) {
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_DELETE'];
-                $this->goToReplace('');
+                $this->goToReplace();
                 die;
             }
         }
@@ -1322,7 +1322,7 @@ class FeedManager extends FeedLibrary
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
             }
 
-            $this->goToReplace('&act=category');
+            $this->goToReplace('category');
             die;
         }
         if (isset($_GET['chg']) and $_GET['chg'] == 1 and isset($_POST['form_selected']) and is_array($_POST['form_selected'])) {
@@ -1331,14 +1331,14 @@ class FeedManager extends FeedLibrary
                 $ids = $_POST['form_selected'];
                 $this->showCategoryDischarge($ids);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SUCCESSFUL_DISCHARGE'];
-                $this->goToReplace('&act=category');
+                $this->goToReplace('category');
                 die;
             }
             //delete
             if ($_POST['form_delete'] != '') {
                 $ids = $_POST['form_selected'];
                 $this->showCategoryDelete($ids);
-                $this->goToReplace('&act=category');
+                $this->goToReplace('category');
                 die;
             }
             //changestatus
@@ -1351,7 +1351,7 @@ class FeedManager extends FeedLibrary
                     $this->showCategoryChange($ids, 0);
                 }
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_STATUS'];
-                $this->goToReplace('&act=category');
+                $this->goToReplace('category');
                 die;
             }
         }
@@ -1361,7 +1361,7 @@ class FeedManager extends FeedLibrary
             $pos = $_POST['form_pos'];
             $this->showCategoryChangePos($ids, $pos);
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SORT'];
-            $this->goToReplace('&act=category');
+            $this->goToReplace('category');
             die;
         }
 
@@ -1516,7 +1516,7 @@ class FeedManager extends FeedLibrary
             $objResult = $objDatabase->Execute($query);
         } else {
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_CAT'];
-            $this->goToReplace('&act=category');
+            $this->goToReplace('category');
             die;
         }
     }
@@ -1541,7 +1541,7 @@ class FeedManager extends FeedLibrary
                 if ($link != '') {
                     if (!unlink($this->feedpath.$filename)) {
                         $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_DELETE'];
-                        $this->goToReplace('&act=category');
+                        $this->goToReplace('category');
                         die;
                     }
                 }
@@ -1631,7 +1631,7 @@ class FeedManager extends FeedLibrary
         // check
         if (!isset($_GET['set'])) {
             if (!isset($_GET['id']) or $_GET['id'] == '') {
-                $this->goToReplace('&act=category');
+                $this->goToReplace('category');
                 die;
             }
         }
@@ -1647,11 +1647,11 @@ class FeedManager extends FeedLibrary
 
                 $this->showCatEditSet($id, $name, $status, $time, $lang);
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_SUCCESSFUL_EDIT_CAT'];
-                $this->goToReplace('&act=category');
+                $this->goToReplace('category');
                 die;
             } else {
                 $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_FILL_IN_ALL'];
-                $this->goToReplace('&act=catedit&id='.$_POST['form_id']);
+                $this->goToReplace('catedit', array('id' => $_POST['form_id']));
                 die;
             }
         }
@@ -1739,17 +1739,28 @@ class FeedManager extends FeedLibrary
             $objResult = $objDatabase->Execute($query);
         } else {
             $_SESSION['strErrMessage'] = $_ARRAYLANG['TXT_FEED_MESSAGE_ERROR_EXISTING_CAT'];
-            $this->goToReplace('&act=catedit&id='.$id);
+            $this->goToReplace('catedit', array('id' => $id));
             die;
         }
     }
 
 
-    function goToReplace($add)
+    /**
+     * Redirect url
+     *
+     * @param string $act        The component's action
+     * @param array  $parameters HTTP GET parameters to append
+     */
+    function goToReplace($act = '', $parameters = array())
     {
-        \Cx\Core\Csrf\Controller\Csrf::redirect("index.php?cmd=Feed".$add);
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'Feed',
+                $act,
+                0,
+                $parameters
+            )
+        );
     }
 
 }
-
-?>
