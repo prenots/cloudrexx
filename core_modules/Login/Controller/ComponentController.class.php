@@ -70,7 +70,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
             case \Cx\Core\Core\Controller\Cx::MODE_BACKEND:
                 if (\FWUser::getFWUserObject()->objUser->login(true)) {
-                    \Cx\Core\Csrf\Controller\Csrf::redirect('index.php');
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('Home'));
                 }
                 $this->cx->getTemplate()->addBlockfile('CONTENT_OUTPUT', 'content_master', 'LegacyContentMaster.html');
                 $objTemplate = $this->cx->getTemplate();

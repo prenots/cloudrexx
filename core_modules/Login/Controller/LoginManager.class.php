@@ -230,7 +230,7 @@ class LoginManager {
 // TODO: implement error message
         }
 
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Home');
+        \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('Home'));
         exit;
     }
 
