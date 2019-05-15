@@ -1423,18 +1423,32 @@ $this->arrRows[2] = '';
         $status="error";
 
         if (!$this->settings['addFeed']['value'] == '1' || (!$this->communityModul && $this->settings['addFeed_only_community']['value'] == '1')) {
-           \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section=Directory');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Directory'));
             exit;
         } elseif ($this->settings['addFeed_only_community']['value'] == '1') {
             $objFWUser = \FWUser::getFWUserObject();
             if ($objFWUser->objUser->login()) {
                 if (!\Permission::checkAccess(96, 'static', true)) {
-                    \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&cmd=noaccess");
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromModuleAndCmd(
+                            'Login',
+                            'noaccess'
+                        )
+                    );
                     exit;
                 }
             }else {
                 $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Login',
+                        '',
+                        '',
+                        array(
+                            'redirect' => $link
+                        )
+                    )
+                );
                 exit;
             }
         } else {
@@ -1558,19 +1572,33 @@ $this->arrRows[2] = '';
         global $objDatabase, $_ARRAYLANG, $_CONFIG;
 
         if (!$this->communityModul && $this->settings['addFeed_only_community']['value'] == '1') {
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section=Directory');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Directory'));
             exit;
         }
 
         $objFWUser = \FWUser::getFWUserObject();
         if ($objFWUser->objUser->login()) {
             if (!\Permission::checkAccess(94, 'static', true)) {
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&cmd=noaccess");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Login',
+                        'noaccess'
+                    )
+                );
                 exit;
             }
         }else {
             $link = base64_encode($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Login',
+                    '',
+                    '',
+                    array(
+                        'redirect' => $link
+                    )
+                )
+            );
             exit;
         }
 
@@ -1642,19 +1670,33 @@ $this->arrRows[2] = '';
         $status = "error";
 
         if (!$this->settings['editFeed']['value'] == '1' || (!$this->communityModul && $this->settings['addFeed_only_community']['value'] == '1')) {
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section=Directory&cmd=myfeeds');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Directory', 'myfeeds'));
             exit;
         }
 
         $objFWUser = \FWUser::getFWUserObject();
         if ($objFWUser->objUser->login()) {
             if (!\Permission::checkAccess(94, 'static', true)) {
-                \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&cmd=noaccess");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                        'Login',
+                        'noaccess'
+                    )
+                );
                 exit;
             }
         }else {
             $link = base64_encode($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH."?section=Login&redirect=".$link);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Login',
+                    '',
+                    '',
+                    array(
+                        'redirect' => $link
+                    )
+                )
+            );
             exit;
         }
 
@@ -1667,7 +1709,7 @@ $this->arrRows[2] = '';
         }
 
         if ($_GET['id'] == '' && $_POST['edit_id'] == '') {
-            \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_SCRIPT_PATH.'?section=Directory&cmd=myfeeds');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Directory', 'myfeeds'));
             exit;
         }
 
