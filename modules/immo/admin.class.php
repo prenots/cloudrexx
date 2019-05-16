@@ -2889,7 +2889,7 @@ WHERE id = $immoID )";
             }
         }
 
-        \Cx\Core\Csrf\Controller\Csrf::header("Location: ?cmd=immo&act=settings");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('immo', 'settings'));
         exit;
     }
 
