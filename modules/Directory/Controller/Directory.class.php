@@ -1724,7 +1724,12 @@ $this->arrRows[2] = '';
         }
 
         if ($author != $objFWUser->objUser->getId()) {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_SCRIPT_PATH."?section=Directory&cmd=myfeeds");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromModuleAndCmd(
+                    'Directory',
+                    'myfeeds'
+                )
+            );
         }
 
         //get navigation
