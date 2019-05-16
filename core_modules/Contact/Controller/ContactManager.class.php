@@ -1968,7 +1968,7 @@ class ContactManager extends \Cx\Core_Modules\Contact\Controller\ContactLib
         );
 
         if (empty($formId)) {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?cmd=Contact");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('Contact'));
             return;
         }
 
