@@ -5190,6 +5190,9 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             
             \DBG::log('JsonMultiSiteController: Restore website Configurations..');
             $resp = JsonMultiSiteController::executeCommandOnWebsite('updateWebsiteConfig', $websiteConfigInfo, $website);
+            if (isset($resp->data) && isset($resp->data->log)) {
+                \DBG::appendLogs(array_map(function($logEntry)use($website) {return '(Website: '.$website->getName().') '.$logEntry;}, $resp->data->log));
+            }
             if ($resp->status == 'error' || $resp->data->status == 'error') {
                 throw new MultiSiteJsonException('Failed to update website configurations.');
             }
@@ -5222,19 +5225,22 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
     public function updateWebsiteConfig($params)
     {
         global $_ARRAYLANG;
-        
+
         try {
             if (empty($params) || empty($params['post'])) {
                 throw new MultiSiteJsonException($_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_WEBSITE_INVALID_PARAMS']);
             }
-            
+
             \DBG::log('JsonMultiSiteController: Restore website multisite configurations..');
             $this->updateWebsiteMultisiteConfigOnRestore($params['post']['websiteMultisite']);
             
             \DBG::log('JsonMultiSiteController: Restore website configurations / settings..');
             $this->updateWebsiteConfigOnRestore($params['post']['websiteConfig']);
-            
-            return array('status' => 'success');
+
+            return array(
+                'status' => 'success',
+                'log'    => \DBG::getMemoryLogs(),
+            );
         } catch (\Throwable $e) {
             \DBG::log(__METHOD__.' failed! : '.$e->getMessage());
             return array(
@@ -5286,22 +5292,40 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
         if (empty($websiteInfo)) {
             throw new MultiSiteJsonException(__METHOD__.' : failed!. Website info should not be empty');
         }
-        
-        $updateConfigArray = array(
-            'systemStatus', 'languageDetection', 'coreGlobalPageTitle', 'mainDomainId', 'forceDomainUrl', 
-            'coreListProtectedPages', 'searchVisibleContentOnly', 'advancedUploadFrontend', 'forceProtocolFrontend',
-            'coreAdminEmail', 'contactFormEmail', 'contactCompany', 'contactAddress', 'contactZip', 'contactPlace',
-            'contactCountry', 'contactPhone', 'contactFax', 'dashboardNews', 'dashboardStatistics',
-            'advancedUploadBackend', 'sessionLifeTime', 'sessionLifeTimeRememberMe', 'forceProtocolBackend', 
-            'coreIdsStatus', 'passwordComplexity', 'coreAdminName', 'xmlSitemapStatus', 'frontendEditingStatus',
-            'corePagingLimit','searchDescriptionLength', 'googleMapsAPIKey', 'googleAnalyticsTrackingId'
-        );
-        
+
         \Cx\Core\Setting\Controller\Setting::init('Config', null, 'Yaml');
-        foreach ($updateConfigArray as $config) {
-            \Cx\Core\Setting\Controller\Setting::set($config, $websiteInfo[$config]['value']);
+        foreach ($websiteInfo as $config) {
+            // skip system info
+            if (
+                in_array(
+                    $config['group'],
+                    array('license', 'release')
+                ) ||
+                $config['name'] == 'installationId'
+            ) {
+                continue;
+            }
+
+            // skip special options
+            if (
+                in_array(
+                    $config['name'],
+                    array(
+                        // setting the main domain is not possible,
+                        // as the specified domain most likely does not exist
+                        'mainDomainId',
+                        // forcing the main domain might result
+                        // in unexpected behavior
+                        'forceDomainUrl',
+                    )
+                )
+            ) {
+                continue;
+            }
+
+            // update config
+            \Cx\Core\Setting\Controller\Setting::set($config['name'], $config['value']);
         }
-        
         \Cx\Core\Setting\Controller\Setting::updateAll();
     }
     
