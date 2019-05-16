@@ -987,7 +987,7 @@ class MemberDirManager extends MemberDirLibrary
             if (!empty($_GET['id'])) {
                 $id = $_GET['id'];
             } else {
-                \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?cmd=MemberDir");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('MemberDir'));
             }
         }
 
@@ -1784,7 +1784,16 @@ class MemberDirManager extends MemberDirLibrary
                     echo $objDatabase->ErrorMsg();
                 }
 
-                \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?cmd=MemberDir&act=showdir&id=".$_POST['directory']);
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        'MemberDir',
+                        'showdir',
+                        0,
+                        array(
+                            'id' => $_POST['directory']
+                        )
+                    )
+                );
             }
 
         } elseif (empty($_POST['importfile'])) {
