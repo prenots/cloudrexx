@@ -329,7 +329,7 @@ function VotingSubmit(){
             $objDatabase->Execute($query);
             _store_additional_data($voting_id);
     }
-        \Cx\Core\Csrf\Controller\Csrf::header("Location: ?section=Voting");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Voting'));
     }
 }
 
