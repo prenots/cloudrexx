@@ -241,10 +241,25 @@ class SurveyManager extends SurveyLibrary {
         }
         if(isset($_POST['create_submit'])) {
             if($_POST['createSurvey'] == "create") {
-                \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=addSurvey");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        'Survey',
+                        'addSurvey'
+                    )
+                );
             } else {
                 $selectedSurvey = (int) $_REQUEST['selectSurvey'];
-                \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=modify_survey&copy=1&id={$selectedSurvey}");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        'Survey',
+                        'modify_survey',
+                        0,
+                        array(
+                            'copy' => 1,
+                            'id'   => $selectedSurvey
+                        )
+                    )
+                );
             }
         }
     }
@@ -612,7 +627,17 @@ class SurveyManager extends SurveyLibrary {
 
         $objResult = $objDatabase->Execute('SELECT 1 FROM '.DBPREFIX.'module_survey_surveyQuestions WHERE survey_id='.$id);
         if ($objResult->RecordCount() == 0) {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=addQuestions&surveyId=".$id."&linkId=".$linkId);
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Survey',
+                    'addQuestions',
+                    0,
+                    array(
+                        'surveyId' => $id,
+                        'linkId'   => $linkId
+                    )
+                )
+            );
         }
 
         $this->_pageTitle = $_ARRAYLANG['TXT_QUESTION_OVERVIEW'];
@@ -1030,7 +1055,18 @@ class SurveyManager extends SurveyLibrary {
                     $objDatabase->Execute($query);
                 }
             }
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=editQuestionsOverview&id=$survey_id&linkId=$linkId&mes=updated");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Survey',
+                    'editQuestionsOverview',
+                    0,
+                    array(
+                        'id'     => $survey_id,
+                        'linkId' => $linkId,
+                        'mes'    => 'updated'
+                    )
+                )
+            );
         }
     }
 
@@ -1394,7 +1430,12 @@ class SurveyManager extends SurveyLibrary {
         $row = 'row1';
 
         if ($objResult->RecordCount() == 0) {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=createOrCopy");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Survey',
+                    'createOrCopy'
+                )
+            );
         }
 
         $this->_objTpl->setVariable(array(
@@ -1658,7 +1699,18 @@ class SurveyManager extends SurveyLibrary {
 
             }
         }
-        \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=editQuestionsOverview&id=$lid&linkId=$lid&mes=deleted");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'Survey',
+                'editQuestionsOverview',
+                0,
+                array(
+                    'id'     => $lid,
+                    'linkId' => $lid,
+                    'mes'    => 'deleted'
+                )
+            )
+        );
     }
 
     function deleteSurvey() {
@@ -1793,7 +1845,16 @@ class SurveyManager extends SurveyLibrary {
 
             // Last Inserted Id
             $lastId = $objDatabase->Insert_Id();
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=addQuestions&surveyId=$lastId");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Survey',
+                    'addQuestions',
+                    0,
+                    array(
+                        'surveyId' => $lastId
+                    )
+                )
+            );
         }
     }
 
@@ -1995,7 +2056,16 @@ class SurveyManager extends SurveyLibrary {
                              WHERE id = "'.$id.'"';
             $objDatabase->Execute($insertSurvey);
 
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".ASCMS_PATH_OFFSET.ASCMS_BACKEND_PATH."/index.php?cmd=Survey&act=settings&mes=update");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'Survey',
+                    'settings',
+                    0,
+                    array(
+                        'mes' => 'update'
+                    )
+                )
+            );
         }
 
     }

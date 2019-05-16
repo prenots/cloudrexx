@@ -834,7 +834,16 @@ END;
                         setcookie ("votingcookie_$surveyId", $cookieVal, time()+3600*24); // 1 Day
                     }
 
-                    \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_SCRIPT_PATH."?section=Survey&cmd=surveyattend&id=".$idOfSurvey);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromModuleAndCmd(
+                            'Survey',
+                            'surveyattend',
+                            '',
+                            array(
+                                'id' => $idOfSurvey
+                            )
+                        )
+                    );
                     $this->_objTpl->setVariable(array(
                         'SURVEY_SUCCESS' => "<div style='padding:0px; color:rgb(2, 146, 2);'>$_ARRAYLANG[TXT_SURVEY_COMPLETED]</div>"
                     ));
@@ -1463,7 +1472,16 @@ END;
                         setcookie ("votingcookie_$surveyId", $cookieVal, time()+3600*24); // 1 Day
                     }
 
-                    \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_SCRIPT_PATH."?section=Survey&cmd=surveyattend&id=".$idOfSurvey);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromModuleAndCmd(
+                            'Survey',
+                            'surveyattend',
+                            '',
+                            array(
+                                'id' => $idOfSurvey
+                            )
+                        )
+                    );
                     $this->_objTpl->setVariable(array(
                         'SURVEY_SUCCESS' => "<div class='text-success'>$_ARRAYLANG[TXT_SURVEY_COMPLETED]</div>"
                     ));
