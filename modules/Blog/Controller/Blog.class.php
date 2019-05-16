@@ -188,7 +188,7 @@ class Blog extends \Cx\Modules\Blog\Controller\BlogLibrary  {
         $intMessageId = intval($intMessageId);
 
         if ($intMessageId < 1) {
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: index.php?section=Blog");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Blog'));
         }
 
         //Empty form-values
