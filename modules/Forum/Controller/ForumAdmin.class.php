@@ -681,7 +681,7 @@ class ForumAdmin extends ForumLibrary {
 
         } else {
             //no category with this id, redirect
-            \Cx\Core\Csrf\Controller\Csrf::header("location: index.php?cmd=Forum");
+            \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('Forum'));
         }
 
     }
@@ -884,7 +884,7 @@ class ForumAdmin extends ForumLibrary {
                }
            } else {
                //wrong id, redirect
-               \Cx\Core\Csrf\Controller\Csrf::header("location: index.php?cmd=Forum");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromBackend('Forum'));
            }
     }
 
