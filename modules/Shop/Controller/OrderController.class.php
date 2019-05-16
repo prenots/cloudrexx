@@ -1189,9 +1189,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                             'TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'
                         ];
                         foreach ($orderItem->getOrderAttributes() as $attribute) {
-                            $attributeText = '- '. $attribute->getOptionName()
-                                . ': ' . $attribute->getPrice() . ' '
-                                . $currency .'<br/>';
+                            $attributeText = '- '.$attribute->getAttributeName()
+                                . ': '. $attribute->getOptionName()
+                                . ' (' . $attribute->getPrice() . ' '
+                                . $currency .')<br/>';
                             $messageText .= $attributeText;
                         }
                         $message = new \Cx\Core\Html\Model\Entity\TextElement(
