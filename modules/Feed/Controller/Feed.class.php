@@ -215,7 +215,7 @@ class Feed extends FeedLibrary
             if(!isset($_GET['cat']) and !isset($_GET['news'])){
                 $this->_objTpl->setVariable('FEED_NO_NEWSFEED', $_ARRAYLANG['TXT_FEED_NO_NEWSFEED']);
             }else{
-                \Cx\Core\Csrf\Controller\Csrf::header("Location: ".CONTREXX_DIRECTORY_INDEX."?section=Feed");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Feed'));
             }
         } else {
             if ($this->_objTpl->blockExists('feed_cat')) {
