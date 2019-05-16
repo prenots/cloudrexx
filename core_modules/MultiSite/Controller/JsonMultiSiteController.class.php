@@ -5197,7 +5197,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
                         // as the specified domain most likely does not exist
                         'mainDomainId',
                         // forcing the main domain might result
-                        // in unexpected behaviour
+                        // in unexpected behavior
                         'forceDomainUrl',
                     )
                 )
