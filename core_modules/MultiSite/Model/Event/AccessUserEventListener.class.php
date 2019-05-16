@@ -129,6 +129,7 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                             !empty($params) &&
                             !$objUser->isVerified()
                         ) {
+// TODO: add language variable
                             throw new \Exception('Diese Funktion ist noch nicht freigeschalten. Aus Sicherheitsgründen bitten wir Sie, Ihre Anmeldung &uuml;ber den im Willkommens-E-Mail hinterlegten Link zu best&auml;tigen. Anschliessend wird Ihnen diese Funktion zur Verf&uuml;gung stehen. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
                         }
 
@@ -136,9 +137,14 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                             \FWUser::getFWUserObject()->objUser->isLoggedIn() &&
                             $objUser->getId() != \FWUser::getFWUserObject()->objUser->getId()
                         ) {
+// TODO: add language variable
                             throw new \Exception('Das Benutzerkonto des Websitebetreibers kann nicht ge&auml;ndert werden. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
                         }
                         
+                        // this check must be done after the two verifications
+                        // above, to ensure that the thrown exceptions above
+                        // will prevent the execution of any code that follows
+                        // the store event of the user afterwards
                         if (empty($params)) {
                             break;
                         }
@@ -161,11 +167,13 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
                                 if (isset($resp->log)) {
                                     \DBG::appendLogs(array_map(function($logEntry) {return '(Website: './*$this->getName().*/') '.$logEntry;}, $resp->log));
                                 }
-                                throw new \Exception('Die Aktualisierung des Benutzerkontos hat leider nicht geklapt. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
+// TODO: add language variable
+                                throw new \Exception('Die Aktualisierung des Benutzerkontos hat leider nicht geklappt. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
                             }
                         } catch (\Exception $e) {
                             \DBG::msg($e->getMessage());
-                            throw new \Exception('Die Aktualisierung des Benutzerkontos hat leider nicht geklapt. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
+// TODO: add language variable
+                            throw new \Exception('Die Aktualisierung des Benutzerkontos hat leider nicht geklappt. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
                         }
 // TODO: add language variable
                         //throw new \Exception('Das Benutzerkonto des Websitebetreibers kann nicht ge&auml;ndert werden. <a href="javascript:window.history.back()">Zur&uuml;ck</a>');
@@ -294,6 +302,21 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
         }
     }
 
+    /**
+     * Fetch data of an owner user in a pre-processed format,
+     * so that it can be used for passing to the JsonMultiSite::updateUser()
+     * API call.
+     *
+     * @param   \Cx\Core\User\Model\Entity\User|\User   $objUser The user to
+     *                      fetch the data frouser to
+     *                      fetch the data from.
+     * @param   boolean $onlyOnChange   Whether to data shall only be returned
+     *                      if there had been a modification on the user.
+     * @return  array       Data of supplied user $objUser as array.
+     *                      If $onlyOneChange is set to TRUE, then an empty
+     *                      array is returned, in case the user $objUser
+     *                      has not been altered in the current event.
+     */
     public static function fetchUserData($objUser, $onlyOnChange = false) {
         if ($objUser instanceof \Cx\Core\User\Model\Entity\User) {
             // important: we do loose any local changes on $objUser here!
@@ -302,16 +325,23 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
         }
 
         \DBG::msg(__METHOD__. ': only on change: '.$onlyOnChange);
+        // check if the profile has been modified,
+        // if not, then the process shall be aborted
+        //
+        // note: additionally, we have to check if we're in the
+        // process of synchronizing the user's password (
+        // User::getHashedPassword()). If so, then we shall abort
+        // the process as well, as otherwise we would end up in an
+        // infinite loop
         if (
             $onlyOnChange &&
             empty($objUser->getHashedPassword())
-            //&& isset($_REQUEST['debugcache'])
         ) {
             \DBG::msg(__METHOD__. ': only update on diff');
             $originalUser = \FWUser::getFWUserObject()->objUser->getUser($objUser->getId(), true);
             $originalUserData = $originalUser->toArray();
 
-            // fetch potentiall modified user data
+            // fetch potentially modified user data
             $userData = $objUser->toArray();
 
             // clear last-activity of user profiles as this will
@@ -324,7 +354,8 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
             $originalUserData['last_auth'] = null;
             $userData['last_auth'] = null;
 
-            // ignore language changes
+            // ignore language changes,
+            // as the selected language is specific to each website
             $originalUserData['frontend_lang_id'] = $userData['frontend_lang_id'];
             $originalUserData['backend_lang_id'] = $userData['backend_lang_id'];
 
