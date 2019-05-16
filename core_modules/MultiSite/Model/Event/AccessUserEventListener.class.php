@@ -359,6 +359,24 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
             $originalUserData['frontend_lang_id'] = $userData['frontend_lang_id'];
             $originalUserData['backend_lang_id'] = $userData['backend_lang_id'];
 
+            // ignore custom profile attributes
+            $objUser->objAttribute->first();
+            while (!$objUser->objAttribute->EOF) {
+                // diff core attributes
+                if ($objUser->objAttribute->isCoreAttribute()) {
+                    $objUser->objAttribute->next();
+                    continue;
+                }
+                // drop custom profile attribute data
+                if (isset($originalUserData['profile'][$objUser->objAttribute->getId()])) {
+                    unset($originalUserData['profile'][$objUser->objAttribute->getId()]);
+                }
+                if (isset($userData['profile'][$objUser->objAttribute->getId()])) {
+                    unset($userData['profile'][$objUser->objAttribute->getId()]);
+                }
+                $objUser->objAttribute->next();
+            }
+
             // check if user has been modified
             if ($userData == $originalUserData) {
                 \DBG::msg(__METHOD__. ': no diff');
