@@ -308,7 +308,6 @@ class AccessUserEventListener implements \Cx\Core\Event\Model\Entity\EventListen
      * API call.
      *
      * @param   \Cx\Core\User\Model\Entity\User|\User   $objUser The user to
-     *                      fetch the data frouser to
      *                      fetch the data from.
      * @param   boolean $onlyOnChange   Whether to data shall only be returned
      *                      if there had been a modification on the user.
