@@ -530,9 +530,8 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         $newCoupon->setGlobal(true);
                         $newCoupon->setUses(1e10);
 
-                        $em = $cx->getDb()->getEntityManager();
-                        $em->persist($newCoupon);
-                        $em->flush();
+                        $this->_em->persist($newCoupon);
+                        $this->_em->flush();
 
                         $arrProduct['COUPON_DATA'][] = array(
                             'COUPON_CODE' => $code
