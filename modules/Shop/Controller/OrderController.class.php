@@ -65,6 +65,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 )[1]
             )[0];
         }
+        if ($this->cx->getRequest()->hasParam('showid')) {
+            $this->orderId = explode(
+                '}',
+                explode(
+                    ',',
+                    $this->cx->getRequest()->getParam('showid')
+                )[1]
+            )[0];
+        }
 
         $options['functions']['filtering'] = true;
         $options['functions']['searching'] = true;
@@ -196,7 +205,49 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'sum',
                 'titleNote',
                 'note'
-            )
+            ),
+            'show' => array(
+                'id',
+                'dateTime',
+                'status',
+                'modifiedOn',
+                'modifiedBy',
+                'lang',
+                'sum',
+                'titleAddress',
+                'billingCompany',
+                'billingGender',
+                'billingLastname',
+                'billingFirstname',
+                'billingAddress',
+                'billingZip',
+                'billingCity',
+                'billingCountryId',
+                'billingPhone',
+                'billingFax',
+                'billingEmail',
+                'company',
+                'gender',
+                'lastname',
+                'firstname',
+                'address',
+                'zip',
+                'city',
+                'country',
+                'phone',
+                'shipper',
+                'titlePaymentInfos',
+                'payment',
+                'lsvs',
+                'titleBill',
+                'orderItems',
+                'vatAmount',
+                'emptyField',
+                'shipmentAmount',
+                'paymentAmount',
+                'titleNote',
+                'note'
+            ),
         );
         $options['fields'] = array(
             'id' => array(
@@ -220,11 +271,17 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'currencyId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'sum' => array(
                 'showOverview' => true,
@@ -243,7 +300,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         $fieldname,
                         $fieldvalue
                     );
-                }
+                },
+                'show' => array(
+                    'header' => $_ARRAYLANG['TXT_ORDER_SUM'],
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'appendCurrency'
+                    )
+                )
             ),
             'dateTime' => array(
                 'showOverview' => true,
@@ -299,12 +363,42 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         $formName
                     );
                 },
+                'show' => array(
+                    'parse' => function($value) {
+                        $statusValues = $this->cx->getDb()
+                            ->getEntityManager()->getRepository(
+                                $this->getNamespace()
+                                . '\\Model\Entity\Order'
+                            )->getStatusValues();
+
+                        return $statusValues[$value];
+                    }
+                )
             ),
             'gender' => array(
                 'showOverview' => false,
                 'allowSearching' => true,
                 'showDetail' => false,
-                'allowFiltering' => false
+                'allowFiltering' => false,
+                'show' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+
+                        $validData = array(
+                            'gender_undefined' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_UNDEFINED'
+                            ],
+                            'gender_male' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_MALE'
+                            ],
+                            'gender_female' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_FEMALE'
+                            ]
+                        );
+                        $value = $validData[$value];
+                        return $value;
+                    }
+                )
             ),
             'company' => array(
                 'showOverview' => false,
@@ -319,6 +413,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'allowSearching' => true,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => true,
+                )
             ),
             'address' => array(
                 'showOverview' => false,
@@ -340,6 +437,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'phone' => array(
                 'showOverview' => false,
@@ -357,7 +457,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         $fieldname,
                         $fieldvalue
                     );
-                }
+                },
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'shipmentAmount' => array(
                 'showOverview' => false,
@@ -370,17 +473,26 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         $fieldname,
                         $fieldvalue
                     );
-                }
+                },
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'shipmentId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'paymentId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'paymentAmount' => array(
                 'showOverview' => false,
@@ -393,17 +505,26 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         $fieldname,
                         $fieldvalue
                     );
-                }
+                },
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'ip' => array(
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'langId' => array(
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'note' => array(
                 'showOverview' => true,
@@ -421,7 +542,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 ),
                 'formfield' => function($name, $type, $length, $value) {
                     return $this->getDivWrapper($value);
-                }
+                },
+                'show' => array(
+                    'parse' => function($value) {
+                        if (empty($value)) {
+                            return ' ';
+                        }
+                        return $value;
+                    }
+                )
             ),
             'modifiedOn' => array(
                 'showOverview' => false,
@@ -453,7 +582,17 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'storecallback' => function($value) {
                     $date = new \DateTime('now');
                     return $date->format('Y-m-d H:i:s');
-                }
+                },
+                'show' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED'];
+                        }
+                        $date = new \DateTime($value);
+                        return  $date->format('Y-m-d H:i:s');
+                    }
+                )
 
             ),
             'modifiedBy' => array(
@@ -498,22 +637,60 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     );
 
                     return $genderDropdown;
-                }
+                },
+                'show' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+
+                        $validData = array(
+                            'gender_undefined' => $_ARRAYLANG[
+                                'TXT_SHOP_GENDER_UNDEFINED'
+                            ],
+                            'gender_male' => $_ARRAYLANG[
+                                'TXT_SHOP_GENDER_MALE'
+                            ],
+                            'gender_female' => $_ARRAYLANG[
+                                'TXT_SHOP_GENDER_FEMALE'
+                            ]
+                        );
+                        $value = $validData[$value];
+                        return $value;
+                    }
+                )
             ),
             'billingCompany' => array(
                 'showOverview' => false,
                 'allowSearching' => true,
                 'allowFiltering' => false,
+                'show' => array(
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'addCustomerLink'
+                    )
+                )
             ),
             'billingFirstname' => array(
                 'showOverview' => false,
                 'allowSearching' => true,
                 'allowFiltering' => false,
+                'show' => array(
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'addCustomerLink'
+                    )
+                )
             ),
             'billingLastname' => array(
                 'showOverview' => false,
                 'allowSearching' => true,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => true,
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'addCustomerLink'
+                    )
+                )
             ),
             'billingAddress' => array(
                 'showOverview' => false,
@@ -565,6 +742,13 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         'Cx\Modules\Shop\Model\Entity\OrderItem'
                     )->save($value, $entity);
                 },
+                'show' => array(
+                    'show' => true,
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'generateOrderItemShowView'
+                    ),
+                ),
             ),
             'relCustomerCoupons' => array(
                 'showOverview' => false,
@@ -572,8 +756,12 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'mode' => 'associate',
                 'type' => 'hidden',
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'lang' => array(
+                'header' => $_ARRAYLANG['TXT_BROWSER_LANGUAGE'],
                 'showOverview' => false,
                 'allowFiltering' => false,
                 'attributes' => array(
@@ -586,6 +774,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'shipper' => array(
                 'showOverview' => false,
@@ -618,6 +809,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 ) {
                     return $this->getCustomerGroupMenu($elementName, $formName);
                 },
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'titleAddress' => array(
                 'custom' => true,
@@ -631,7 +825,19 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                             $_ARRAYLANG['TXT_SHIPPING_ADDRESS']
                         )
                     );
-                }
+                },
+                'show' => array(
+                    'show' => true,
+                    'parse' => function() {
+                        global $_ARRAYLANG;
+                        return $this->getTitleRow(
+                            array(
+                                $_ARRAYLANG['TXT_BILLING_ADDRESS'],
+                                $_ARRAYLANG['TXT_SHIPPING_ADDRESS']
+                            )
+                        );
+                    },
+                ),
             ),
             'titlePaymentInfos' => array(
                 'custom' => true,
@@ -642,7 +848,18 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getTitleRow(
                         array($_ARRAYLANG['TXT_PAYMENT_INFORMATIONS'])
                     );
-                }
+                },
+                'show' => array(
+                    'show' => true,
+                    'parse' => function() {
+                        global $_ARRAYLANG;
+                        return $this->getTitleRow(
+                            array(
+                                $_ARRAYLANG['TXT_PAYMENT_INFORMATIONS']
+                            )
+                        );
+                    },
+                ),
             ),
             'titleBill' => array(
                 'custom' => true,
@@ -653,7 +870,18 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getTitleRow(
                         array($_ARRAYLANG['TXT_BILL'])
                     );
-                }
+                },
+                'show' => array(
+                    'show' => true,
+                    'parse' => function() {
+                        global $_ARRAYLANG;
+                        return $this->getTitleRow(
+                            array(
+                                $_ARRAYLANG['TXT_BILL']
+                            )
+                        );
+                    },
+                ),
             ),
             'titleNote' => array(
                 'custom' => true,
@@ -664,7 +892,18 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getTitleRow(
                         array($_ARRAYLANG['TXT_CUSTOMER_REMARKS'])
                     );
-                }
+                },
+                'show' => array(
+                    'show' => true,
+                    'parse' => function() {
+                        global $_ARRAYLANG;
+                        return $this->getTitleRow(
+                            array(
+                                $_ARRAYLANG['TXT_CUSTOMER_REMARKS']
+                            )
+                        );
+                    },
+                ),
             ),
             'emptyField' => array(
                 'custom' => true,
@@ -673,6 +912,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     return $this->getDivWrapper('');
                 },
                 'showOverview' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             ),
             'showAllPendentOrders' => array(
                 'custom' => true,
@@ -710,6 +952,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 
                     return $checkbox;
                 },
+                'show' => array(
+                    'show' => false,
+                ),
             )
         );
         $order = new \Cx\Modules\Shop\Model\Entity\Order();
@@ -734,13 +979,21 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                             '\Cx\Modules\Shop\Model\Entity\Lsv'
                         );
                     $repo->save($value, $entity->getId());
-                }
+                },
+                'show' => array(
+                    'parse' =>  function ($fieldvalue) {
+                        return $this->generateLsvs($fieldvalue);
+                    },
+                ),
             );
         } else {
             $options['fields']['lsvs'] = array(
                 'showOverview' => false,
                 'allowFiltering' => false,
                 'showDetail' => false,
+                'show' => array(
+                    'show' => false,
+                ),
             );
         }
         return $options;

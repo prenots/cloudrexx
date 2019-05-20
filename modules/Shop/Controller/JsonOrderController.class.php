@@ -71,7 +71,13 @@ class JsonOrderController
     public function getAccessableMethods()
     {
         return array(
-            'updateOrderStatus'
+            'updateOrderStatus',
+            'setEmptyForOrderItem',
+            'generateOrderItemShowView',
+            'setEmptyForWeight',
+            'setEmptyForPrice',
+            'appendCurrency',
+            'addCustomerLink'
         );
     }
 
@@ -151,5 +157,316 @@ class JsonOrderController
         }
 
         return array('message' => $this->messages);
+    }
+
+    public function setEmptyForOrderItem($params)
+    {
+        if (empty($params['data'])) {
+            return ' ';
+        }
+        return $params['data'];
+    }
+
+    public function setEmptyForWeight($params)
+    {
+        if (empty($params['data']) && !is_numeric($params['data'])) {
+            return '';
+        }
+        return $params['data'] .'g';
+    }
+
+    public function setEmptyForPrice($params)
+    {
+        if (empty($params['data']) && !is_numeric($params['data'])) {
+            return '';
+        }
+        $currency = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Currency'
+        )->findOneBy(array('active' => 1));
+        return $params['data'] .' ' . $currency->getCode();
+    }
+
+    public function generateOrderItemShowView($params)
+    {
+        global $_ARRAYLANG;
+
+        if (!isset($params['entity'])) {
+            throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                $_ARRAYLANG['TXT_SHOP_ORDER_COULD_NOT_BE_FOUND']
+            );
+        }
+
+        $order = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Order'
+        )->findOneBy(array('id' => $params['entity']['id']));
+
+        $tableContent = array();
+        $netPrice = 0;
+        $totalWeight = 0;
+        $totalVat = 0;
+
+        foreach ($order->getOrderItems() as $item) {
+            $price = $item->getPrice();
+            if (count($item->getOrderAttributes()) > 0) {
+                foreach ($item->getOrderAttributes() as $attribute) {
+                    $price += $attribute->getPrice();
+                }
+            }
+            $price = number_format($price, 2);
+            $sum = number_format(
+                $price * $item->getQuantity(),
+                2
+            );
+
+            $totalWeight += $item->getWeight();
+            $netPrice += $sum;
+
+            $productCode = '';
+
+            $tableContent[] = array(
+                'quantity' => $item->getQuantity(),
+                'productId' => $item->getProductId(),
+                'productCode' => $productCode,
+                'productName' => $item->getProductName(),
+                'totalWeight' => '',
+                'weight' => $item->getWeight(),
+                'price' => $price,
+                'vat' => $item->getVatRate(),
+                'sum' => $sum,
+                'orderAttributes' => $item->getOrderAttributes()
+            );
+        }
+
+        foreach ($order->getRelCustomerCoupons() as $coupon) {
+            $netPrice -= $coupon->getAmount();
+
+            $tableContent[] = array(
+                'quantity' => '',
+                'productId' => '',
+                'productCode' => $coupon->getCode(),
+                'productName' => $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'],
+                'totalWeight' => '',
+                'weight' => '',
+                'price' => '',
+                'vat' => '',
+                'sum' => '-' . $coupon->getAmount(),
+                'orderAttributes' => ''
+            );
+        }
+
+        $netPrice = number_format($netPrice, 2);
+        $total = $params['entity']['shipmentAmount']
+            + $params['entity']['paymentAmount']
+            + $netPrice;
+
+        if (!Vat::isIncluded()) {
+            $total += $totalVat;
+        }
+
+        $total = number_format($total, 2);
+
+        $customAttrs = array(
+            'TXT_SHOP_DETAIL_NETPRICE' => $netPrice,
+            Vat::isIncluded() ? 'TXT_TAX_PREFIX_INCL' : 'TXT_TAX_PREFIX_EXCL' => '0.00',
+            'empty' => '',
+            'shipmentAmount' => $params['entity']['shipmentAmount'],
+            'paymentAmount' => $params['entity']['paymentAmount'],
+            'TXT_TOTAL' => $total
+        );
+
+        foreach ($customAttrs as $key=>$value) {
+            $row = array(
+                'quantity' => '',
+                'productId' => '',
+                'productCode' => '',
+                'productName' => '',
+                'totalWeight' => '',
+                'weight' => '',
+                'price' => '',
+                'vat' => $_ARRAYLANG[$key],
+                'sum' => $value
+            );
+            if ($key == 'shipmentAmount') {
+                $row['totalWeight'] = $_ARRAYLANG['TXT_TOTAL_WEIGHT'];
+                $row['weight'] = $totalWeight;
+            }
+            $tableContent[] = $row;
+        }
+
+        $options = array(
+            'fields' => array(
+                'orderAttributes' => array(
+                    'showOverview' => false,
+                ),
+                'vat' => array(
+                    'table' => array(
+                        'parse' => function($vatRate, $rowData) {
+                            if (!is_numeric($vatRate)) {
+                                return '<b>'.$vatRate.'</b>';
+                            }
+                            $price = $rowData['price'];
+                            $quantity = $rowData['quantity'];
+                            $sum = $price * $quantity;
+
+                            $vatSum = number_format(
+                                $sum * ($vatRate / 100),
+                                2
+                            );
+
+                            $vatRateWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                            $vatRateWrapper->addChild(
+                                new \Cx\Core\Html\Model\Entity\TextElement(
+                                    $vatRate .'%'
+                                )
+                            );
+                            $vatSumWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                            $vatSumWrapper->addChild(
+                                new \Cx\Core\Html\Model\Entity\TextElement(
+                                    $vatSum . ' CHF'
+                                )
+                            );
+                            return $vatRateWrapper . $vatSumWrapper;
+                        },
+                        'attributes' => array(
+                            'class' => 'vat-detail align-right'
+                        )
+                    ),
+                ),
+                'productName' => array(
+                    'table' => array(
+                        'parse' => function($value, $rowData) {
+                            $productName = $value;
+                            if (isset($rowData['orderAttributes'])) {
+                                foreach($rowData['orderAttributes'] as $attribute) {
+                                    $productName .= '<br/><i> - '
+                                        . $attribute->getAttributeName() .': '
+                                        . $attribute->getOptionName() . ' ('
+                                        . $attribute->getPrice() . ')</i>';
+                                }
+                            }
+
+                            return $productName;
+                        },
+                        'attributes' => array(
+                            'class' => 'product-name-detail'
+                        ),
+                    )
+                ),
+                'productId' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForOrderItem'
+                        ),
+                        'attributes' => array(
+                            'class' => 'product-id-detail'
+                        ),
+                    )
+                ),
+                'productCode' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForOrderItem'
+                        ),
+                        'attributes' => array(
+                            'class' => 'product-code-detail'
+                        ),
+                    )
+                ),
+                'quantity' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForOrderItem'
+                        ),
+                        'attributes' => array(
+                            'class' => 'quantity-detail'
+                        ),
+                    )
+                ),
+                'totalWeight' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForOrderItem'
+                        ),
+                        'attributes' => array(
+                            'class' => 'strong-text align-right'
+                        ),
+                    )
+                ),
+                'weight' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForWeight'
+                        ),
+                        'attributes' => array(
+                            'class' => 'align-right weight-detail'
+                        ),
+                    )
+                ),
+                'price' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForPrice'
+                        ),
+                        'attributes' => array(
+                            'class' => 'align-right price-detail'
+                        ),
+                    )
+                ),
+                'sum' => array(
+                    'table' => array(
+                        'parse' => array(
+                            'adapter' => 'Order',
+                            'method' => 'setEmptyForPrice'
+                        ),
+                        'attributes' => array(
+                            'class' => 'align-right sum-detail'
+                        ),
+                    )
+                ),
+            )
+        );
+
+        $table = new \Cx\Core_Modules\Listing\Model\Entity\DataSet(
+            $tableContent
+        );
+
+        return new \BackendTable($table, $options, '', null);
+    }
+
+    public function appendCurrency($params)
+    {
+        $currency = $params['entity']['currency'];
+        return $params['value'] . ' ' . $currency->getCode();
+    }
+
+    public function addCustomerLink($params)
+    {
+        if (empty($params['value'])) {
+            return ' ';
+        }
+        if (empty($params['entity']['customerId'])) {
+            return $params['value'];
+        }
+
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $link->addChild(
+            new \Cx\Core\Html\Model\Entity\TextElement(
+                $params['value']
+            )
+        );
+
+        $customerId = $params['entity']['customerId'];
+        $linkUrl = \Cx\Core\Routing\Url::fromBackend('Shop', 'customerdetails');
+        $linkUrl->setParam('customer_id', $customerId);
+
+        $link->setAttribute('href', $linkUrl);
+
+        return $link;
     }
 }
