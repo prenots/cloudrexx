@@ -1352,7 +1352,8 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
         if ($this->arrSettings['news_submit_only_community'] == '1') {
             $objFWUser = \FWUser::getFWUserObject();
             if (!$objFWUser->objUser->login()) {
-                $link = base64_encode(CONTREXX_DIRECTORY_INDEX.'?'.$_SERVER['QUERY_STRING']);
+                $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+                $link = base64_encode($cx->getRequest()->getUrl()->toString());
                 \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', FRONTEND_LANG_ID, array('redirect' => $link)));
                 exit;
             }
