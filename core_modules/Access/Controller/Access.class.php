@@ -117,7 +117,14 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                             '',
                             array(
                                 'redirect' => base64_encode(
-                                    ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] . CONTREXX_SCRIPT_PATH . '?section=Access&cmd=user&id=' . $objUser->getId()
+                                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                        'Access',
+                                        'user',
+                                        '',
+                                        array(
+                                            'id' => $objUser->getId()
+                                        )
+                                    )->toString(true)
                                 )
                             )
                         )
@@ -136,7 +143,14 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                             '',
                             array(
                                 'redirect' => base64_encode(
-                                    ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] . CONTREXX_SCRIPT_PATH . '?section=Access&cmd=user&id=' . $objUser->getId()
+                                    \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                        'Access',
+                                        'user',
+                                        '',
+                                        array(
+                                            'id' => $objUser->getId()
+                                        )
+                                    )->toString(true)
                                 )
                             )
                         )
@@ -502,7 +516,10 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                     '',
                     array(
                         'redirect' => base64_encode(
-                            ASCMS_PROTOCOL . '://' . $_CONFIG['domainUrl'] . CONTREXX_SCRIPT_PATH . '?section=Access&cmd=' . rawurlencode($_REQUEST['cmd'])
+                            \Cx\Core\Routing\Url::fromModuleAndCmd(
+                                'Access',
+                                rawurlencode($_REQUEST['cmd'])
+                            )->toString(true)
                         )
                     )
                 )
