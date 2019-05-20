@@ -91,7 +91,8 @@ class U2u extends U2uLibrary
 
         $objFWUser = \FWUser::getFWUserObject();
         if (!$objFWUser->objUser->login()) {
-            $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
+            $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+            $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
             \Cx\Core\Csrf\Controller\Csrf::redirect(
                 \Cx\Core\Routing\Url::fromModuleAndCmd(
                     'Login',
