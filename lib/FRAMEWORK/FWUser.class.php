@@ -245,7 +245,8 @@ class FWUser extends User_Setting
 
             \Cx\Core\Csrf\Controller\Csrf::redirect(!empty($redirect)
                 ? $redirect
-                : CONTREXX_DIRECTORY_INDEX.'?section=Login');
+                : \Cx\Core\Routing\Url::fromModuleAndCmd('Login')
+            );
         }
         exit;
     }
