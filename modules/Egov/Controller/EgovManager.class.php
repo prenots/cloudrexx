@@ -760,7 +760,7 @@ class EgovManager extends EgovLibrary
                     '',
                     0,
                     array(
-                        'err' => 'Wrong Order ID'
+                        'err' => $_ARRAYLANG['TXT_EGOV_ORDER_WRONG_ID_MSG']
                     )
                 )
             );
