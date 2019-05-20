@@ -104,7 +104,28 @@ class Permission
         global $objInit;
 
         $objFWUser = FWUser::getFWUserObject();
-        \Cx\Core\Csrf\Controller\Csrf::redirect(CONTREXX_DIRECTORY_INDEX.'?'.($objInit->mode == 'backend' ? '' : 'section=Login&'.(!empty($redirect) ? 'redirect='.$redirect.'&' : '')).($objFWUser->objUser->login() ? 'cmd=noaccess' : ''));
+
+        $cmd = '';
+        if ($objFWUser->objUser->login()) {
+            $cmd = 'noaccess';
+        }
+
+        if ($objInit->mode == 'backend') {
+            $url = \Cx\Core\Routing\Url::fromBackend(
+                'Home',
+                $cmd
+            );
+        } else {
+            $params = !empty($redirect) ? array('redirect' => $redirect) : array();
+            $url = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'Login',
+                $cmd,
+                '',
+                $params
+            );
+        }
+
+        \Cx\Core\Csrf\Controller\Csrf::redirect($url);
         exit;
     }
 
