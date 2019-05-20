@@ -1438,7 +1438,8 @@ $this->arrRows[2] = '';
                     exit;
                 }
             }else {
-                $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
+                $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+                $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd(
                         'Login',
@@ -1588,7 +1589,8 @@ $this->arrRows[2] = '';
                 exit;
             }
         }else {
-            $link = base64_encode($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+            $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+            $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
             \Cx\Core\Csrf\Controller\Csrf::redirect(
                 \Cx\Core\Routing\Url::fromModuleAndCmd(
                     'Login',
@@ -1686,7 +1688,8 @@ $this->arrRows[2] = '';
                 exit;
             }
         }else {
-            $link = base64_encode($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+            $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+            $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
             \Cx\Core\Csrf\Controller\Csrf::redirect(
                 \Cx\Core\Routing\Url::fromModuleAndCmd(
                     'Login',
