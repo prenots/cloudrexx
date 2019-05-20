@@ -1028,7 +1028,7 @@ class JsonMultiSiteController extends    \Cx\Core\Core\Model\Entity\Controller
             'status'    => 'success',
             'log'       => \DBG::getMemoryLogs(),
             'message'   => $_ARRAYLANG['TXT_CORE_MODULE_MULTISITE_USER_PROFILE_UPDATED_SUCCESS'],
-            'reload'    => ($params['post']['reload'] ? true : false ),
+            'reload'    => !empty($params['post']['reload']),
         );
     }
     
