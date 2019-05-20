@@ -792,7 +792,6 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
             );
         }
 
-        $categoryParam = !empty($catId) ? '&catId=' . $catId : '';
         if (isset($_POST['block_save_block'])) {
             $blockCat               = !empty($_POST['blockCat']) ? intval($_POST['blockCat']) : 0;
             $blockContent           = isset($_POST['blockFormText_']) ? array_map('contrexx_input2raw', $_POST['blockFormText_']) : array();
@@ -823,15 +822,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 if ($this->_updateBlock($blockId, $blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
                     if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
+                        $params = array(
+                            'modified'  => true,
+                            'blockname' => $blockName
+                        );
+                        if (!empty($catId)) {
+                            $params['catId'] = $catId;
+                        }
                         \Cx\Core\Csrf\Controller\Csrf::redirect(
                             \Cx\Core\Routing\Url::fromBackend(
                                 'Block',
                                 '',
                                 0,
-                                array(
-                                    'modified'  => true,
-                                    'blockname' => $blockName . $categoryParam
-                                )
+                                $params
                             )
                         );
                         exit;
@@ -842,15 +845,19 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
                 if ($blockId = $this->_addBlock($blockCat, $blockContent, $blockName, $blockStart, $blockEnd, $blockRandom, $blockRandom2, $blockRandom3, $blockRandom4, $blockWysiwygEditor, $blockLangActive)) {
                     if ($this->storePlaceholderSettings($blockId, $blockGlobal, $blockDirect, $blockCategory, $blockGlobalAssociatedPageIds, $blockDirectAssociatedPageIds, $blockCategoryAssociatedPageIds)) {
                         $this->storeTargetingSettings($blockId, $targetingStatus, $targeting);
+                        $params = array(
+                            'added'     => true,
+                            'blockname' => $blockName
+                        );
+                        if (!empty($catId)) {
+                            $params['catId'] = $catId;
+                        }
                         \Cx\Core\Csrf\Controller\Csrf::redirect(
                             \Cx\Core\Routing\Url::fromBackend(
                                 'Block',
                                 '',
                                 0,
-                                array(
-                                    'added'     => true,
-                                    'blockname' => $blockName . $categoryParam
-                                )
+                                $params
                             )
                         );
                         exit;
