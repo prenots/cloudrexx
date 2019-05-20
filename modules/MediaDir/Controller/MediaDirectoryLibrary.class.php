@@ -367,7 +367,7 @@ class MediaDirectoryLibrary
                         exit;
                         break;
                     case 'login':
-                        $link = base64_encode(CONTREXX_SCRIPT_PATH.'?'.$_SERVER['QUERY_STRING']);
+                        $link = base64_encode($this->cx->getRequest()->getUrl()->toString(true));
                         \Cx\Core\Csrf\Controller\Csrf::redirect(
                             \Cx\Core\Routing\Url::fromModuleAndCmd(
                                 'Login',
