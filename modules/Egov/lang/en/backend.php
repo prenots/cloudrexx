@@ -205,3 +205,4 @@ $_ARRAYLANG['TXT_EGOV_ORDER_STATE_NOT_PAID_DESK'] = 'Order state is set to <stro
 $_ARRAYLANG['TXT_EGOV_ORDER_STATE_EMAIL_NOTIFICATION'] = 'Email notification is sent';
 $_ARRAYLANG['TXT_EGOV_ORDER_STATE_HANDLE_EMAIL_NOTIFICATION'] = 'Email notification is sent with set attachment';
 $_ARRAYLANG['TXT_EGOV_ORDER_STATE_NOT_PAID_EMAIL_NOTIFICATION'] = 'No email notification is being sent';
+$_ARRAYLANG['TXT_EGOV_ORDER_WRONG_ID_MSG'] = 'Wrong Order Id';
