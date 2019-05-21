@@ -1751,7 +1751,7 @@ class FeedManager extends FeedLibrary
      * @param string $act        The component's action
      * @param array  $parameters HTTP GET parameters to append
      */
-    function goToReplace($act = '', $parameters = array())
+    protected function goToReplace($act = '', $parameters = array())
     {
         \Cx\Core\Csrf\Controller\Csrf::redirect(
             \Cx\Core\Routing\Url::fromBackend(
