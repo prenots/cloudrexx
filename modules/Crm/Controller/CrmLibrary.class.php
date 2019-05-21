@@ -1915,8 +1915,14 @@ class CrmLibrary
 
         }
         $message = base64_encode("dealsdeleted");
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        \Cx\Core\Csrf\Controller\Csrf::header("location:".$cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=deals&mes=$message");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                $this->moduleName,
+                'deals',
+                0,
+                array('mes' => $message)
+            )
+        );
     }
 
     /**
@@ -3564,4 +3570,18 @@ class CrmLibrary
         return $defaultCurrencyId;
     }
 
+    /**
+     * Get url parameters as array from encoded
+     *
+     * @param string $encodedUrl String of encoded url parameters
+     * @return array Array of url parameters
+     */
+    public function getUrlParamsAsArray($encodedUrl)
+    {
+        $resultArray = [];
+        $decodedUrl  = base64_decode($encodedUrl);
+        parse_str($decodedUrl, $resultArray);
+
+        return $resultArray;
+    }
 }

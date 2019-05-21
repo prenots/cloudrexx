@@ -315,7 +315,14 @@ class CrmManager extends CrmLibrary
                 if ($return) {
                     return false;
                 }
-                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$customer_id}");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        $this->moduleName,
+                        'customers',
+                        0,
+                        array('tpl' => 'showcustdetail', 'id' => $customer_id)
+                    )
+                );
                 exit();
             }
         }
@@ -1420,9 +1427,16 @@ END;
         if (isset($_GET['ajax']))
             exit();
         $message = base64_encode("deleted");
-        $redirect = isset($_GET['redirect']) ? base64_decode($_GET['redirect']) : '';
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        \Cx\Core\Csrf\Controller\Csrf::redirect($cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=customers$redirect&mes=$message");
+        $urlParams = isset($_GET['redirect']) ? $this->getUrlParamsAsArray($_GET['redirect']) : array();
+        $urlParams['mes'] = $message;
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                $this->moduleName,
+                'customers',
+                0,
+                $urlParams
+            )
+        );
         exit();
     }
 
@@ -1513,7 +1527,14 @@ END;
             }
         }
         $message = base64_encode($mes);
-        \Cx\Core\Csrf\Controller\Csrf::header("Location: ./index.php?cmd=".$this->moduleName."&act=settings&tpl=customertypes&mes={$message}");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                $this->moduleName,
+                'settings',
+                0,
+                array('tpl' => 'customertypes', 'mes' => $message)
+            )
+        );
 
     }
 
@@ -1979,7 +2000,14 @@ END;
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_CUSTOMER_TYPES_DELETED_SUCCESSFULLY'];
             }
         }
-        \Cx\Core\Csrf\Controller\Csrf::redirect('./index.php?cmd=Crm&act=settings&tpl=customertypes');
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'Crm',
+                'settings',
+                0,
+                array('tpl' => 'customertypes')
+            )
+        );
         exit();
     }
 
@@ -2254,11 +2282,33 @@ END;
                 }
 
                 if (isset($_POST['save_add_new_contact'])) {
-                    $contactTypeUrl = $contactType == 2 ? '&type=contact' : '';
-                    \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=customers&tpl=managecontact&mes=".base64_encode($msg).$contactTypeUrl);
+                    $params =  array(
+                        'tpl' => 'managecontact',
+                        'mes' => base64_encode($msg)
+                    );
+                    if ($contactType == 2) {
+                        $params['type'] = 'contact';
+                    }
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromBackend(
+                            $this->moduleName,
+                            'customers',
+                            0,
+                            $params
+                        )
+                    );
                     exit();
                 }
-                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName."&act=customers&mes=".base64_encode($msg).base64_decode($redirect));
+                $urlParams = $this->getUrlParamsAsArray($redirect);
+                $urlParams['mes'] = base64_encode($msg);
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        $this->moduleName,
+                        'customers',
+                        0,
+                        $urlParams
+                    )
+                );
                 exit();
             } elseif (empty($accountUserEmail)) {
                 $this->_strErrMessage = $_ARRAYLANG['TXT_CRM_EMAIL_EMPTY'];
@@ -2721,7 +2771,19 @@ END;
         $noteTypeId     = isset($_POST['notes_type']) ? (int) $_POST['notes_type'] : 0;
         $noteDate       = isset($_POST['date']) ? contrexx_input2raw($_POST['date']) : date('Y-m-d');
         $projectid      = isset($_REQUEST['projectid']) ? (int) $_REQUEST['projectid'] : 0;
-        $redirect       = isset($_REQUEST['redirect']) ? $_REQUEST['redirect'] : base64_encode("./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$customerId}");
+
+        if (isset($_REQUEST['redirect'])) {
+            $redirect = $_REQUEST['redirect'];
+        } else {
+            $redirect = base64_encode(
+                \Cx\Core\Routing\Url::fromBackend(
+                    $this->moduleName,
+                    'customers',
+                    0,
+                    array('tpl' => 'showcustdetail', 'id' => $customerId)
+                )->toString()
+            );
+        }
 
         $description    = isset($_POST['customer_comment']) ? $_POST['customer_comment'] : '';
 
@@ -3157,8 +3219,14 @@ END;
                                                                                                   pos     = '$position'
                                                                                             WHERE id      = '$id'");
                 $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_NOTES_UPDATED'];
-                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-                \Cx\Core\Csrf\Controller\Csrf::redirect($cx->getCodeBaseOffsetPath(). $cx->getBackendFolderName()."/index.php?cmd=".$this->moduleName."&act=settings&tpl=notes");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        $this->moduleName,
+                        'settings',
+                        0,
+                        array('tpl' => 'notes')
+                    )
+                );
                 exit();
             } else {
                 $this->_strErrMessage = $_ARRAYLANG['TXT_CRM_ERROR'];
@@ -3253,7 +3321,14 @@ END;
                 }
             }
         }
-        \Cx\Core\Csrf\Controller\Csrf::redirect('./index.php?cmd=Crm&act=settings&tpl=currency');
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'Crm',
+                'settings',
+                0,
+                array('tpl' => 'currency')
+            )
+        );
         exit();
     }
 
@@ -3304,7 +3379,14 @@ END;
             }
             $_SESSION['strOkMessage'] = $_ARRAYLANG['TXT_CRM_DEACTIVATED_SUCCESSFULLY'];
         }
-        \Cx\Core\Csrf\Controller\Csrf::header("Location: ./index.php?cmd=".$this->moduleName."&act=settings&tpl=currency");
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                $this->moduleName,
+                'settings',
+                0,
+                array('tpl' => 'currency')
+            )
+        );
         $_GET['tpl'] = 'currency';
         $this->settingsSubmenu();
     }
@@ -5111,7 +5193,14 @@ END;
                 }
 
                 if ($db) {
-                    \Cx\Core\Csrf\Controller\Csrf::redirect("./?cmd=".$this->moduleName."&act=settings&tpl=industry");
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromBackend(
+                            $this->moduleName,
+                            'settings',
+                            0,
+                            array('tpl' => 'industry')
+                        )
+                    );
                     exit();
                 } else {
                     $this->_strErrMessage = "Error in saving Data";
@@ -5447,7 +5536,14 @@ END;
             }
 
             if ($db) {
-                \Cx\Core\Csrf\Controller\Csrf::redirect("./?cmd=".$this->moduleName."&act=settings&tpl=membership");
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        $this->moduleName,
+                        'settings',
+                        0,
+                        array('tpl' => 'membership')
+                    )
+                );
                 exit();
             } else {
                 $this->_strErrMessage = "Error in saving Data";

@@ -422,7 +422,20 @@ class CrmTask extends CrmLibrary
                     $dispatcher->triggerEvent(CRM_EVENT_ON_TASK_CREATED, null, $info);
                 }
 
-                \Cx\Core\Csrf\Controller\Csrf::redirect("./index.php?cmd=".$this->moduleName.base64_decode($redirect));
+                $urlParams = $this->getUrlParamsAsArray($redirect);
+                $act       = '';
+                if (isset($urlParams['act'])) {
+                    $act = $urlParams['act'];
+                    unset($urlParams['act']);
+                }
+                \Cx\Core\Csrf\Controller\Csrf::redirect(
+                    \Cx\Core\Routing\Url::fromBackend(
+                        $this->moduleName,
+                        $act,
+                        0,
+                        $urlParams
+                    )
+                );
                 exit();
             }
         } elseif (!empty($id)) {
@@ -599,7 +612,21 @@ class CrmTask extends CrmLibrary
         if (!empty($id)) {
             $objResult = $objDatabase->Execute("DELETE FROM ".DBPREFIX."module_{$this->moduleNameLC}_task WHERE id = '$id'");
 
-            \Cx\Core\Csrf\Controller\Csrf::header("Location:index.php?cmd=".$this->moduleName.base64_decode($redirect)."&mes=".  base64_encode('taskDeleted'));
+            $urlParams = $this->getUrlParamsAsArray($redirect);
+            $act = '';
+            if (isset($urlParams['act'])) {
+                $act = $urlParams['act'];
+                unset($urlParams['act']);
+            }
+            $urlParams['mes'] = base64_encode('taskDeleted');
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    $this->moduleName,
+                    $act,
+                    0,
+                    $urlParams
+                )
+            );
         }
     }
 }
