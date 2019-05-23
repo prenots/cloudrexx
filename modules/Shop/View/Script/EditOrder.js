@@ -287,11 +287,20 @@ function calcPrice(orderItemId)
     var totalSum = 0;
     for (var i = 0; i < arrProductId.length; ++i) {
         // update the total VAT amount
-        totalVat +=
-            Number(document.getElementById(
-                "product_vat_rate-"+arrProductId[i]['id']).value)
-            * Number(document.getElementById(
-            "product_sum-"+arrProductId[i]['id']).value) / 100;
+        if (vat_included) {
+            let exclVat =
+                Number(document.getElementById(
+                    "product_sum-"+arrProductId[i]['id']).value) / (Number(document.getElementById(
+                "product_vat_rate-"+arrProductId[i]['id']).value) / 100 + 1);
+            totalVat += Number(document.getElementById(
+                "product_sum-"+arrProductId[i]['id']).value) - exclVat;
+        } else {
+            totalVat +=
+                Number(document.getElementById(
+                    "product_vat_rate-"+arrProductId[i]['id']).value)
+                * Number(document.getElementById(
+                "product_sum-"+arrProductId[i]['id']).value) / 100;
+        }
 
         // update the total order value
         totalSum += Number(document.getElementById(
