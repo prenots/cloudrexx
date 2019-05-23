@@ -60,7 +60,6 @@ $_ARRAYLANG['TXT_MODULE_SHOP_ACT_SETTING_MAIL'] = 'E-Mail Vorlagen';
 $_ARRAYLANG['TXT_MODULE_SHOP_ACT_SETTING_DISCOUNTCOUPON'] = 'Gutschein Codes';
 
 $_ARRAYLANG['id'] = 'ID';
-$_ARRAYLANG['sum'] = 'Summe';
 $_ARRAYLANG['dateTime'] = 'Datum';
 $_ARRAYLANG['note'] = 'Bemerkungen';
 $_ARRAYLANG['status'] = 'Status';
@@ -1187,10 +1186,15 @@ $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
 
 $_ARRAYLANG['showAllPendentOrders'] = 'Pendente Bestellungen anzeigen';
 $_ARRAYLANG['TXT_SHOP_TOO_FEW_ARGUMENTS'] = 'Zu wenig Argumente';
-$_ARRAYLANG['TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'] = 'Dieses Produkt wurde mit Optionen bestellt. Diese Optionen können nicht bearbeitet werden.<br/>';
+$_ARRAYLANG['TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'] = 'Dieses Produkt wurde mit den folgenden Optionen bestellt. Diese Optionen können nicht bearbeitet werden:<br/>';
 $_ARRAYLANG['productId'] = 'Produkt ID';
 $_ARRAYLANG['productName'] = 'Produkt Name';
 $_ARRAYLANG['productCode'] = 'Produkt Code';
 $_ARRAYLANG['vat'] = 'Mehrwertsteuer Satz';
 $_ARRAYLANG['totalWeight'] = ' ';
 $_ARRAYLANG['TXT_SHOP_ORDER_COULD_NOT_BE_FOUND'] = 'Bestellung konnte nicht gefunden werden';
+$_ARRAYLANG['TXT_SHOP_ORDER_ITEMS_ARE_ADDED_TO_SUM'] = 'Die Optionen werden zur Produktsumme dazugerechnet.';
+$_ARRAYLANG['sum'] = 'Total';
+
+$_ARRAYLANG['emptyField'] = ' ';
+$_ARRAYLANG['countryId'] = 'Land';

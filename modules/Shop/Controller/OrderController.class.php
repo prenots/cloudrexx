@@ -45,6 +45,60 @@ namespace Cx\Modules\Shop\Controller;
 class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
+     * @var array all possible fields for the order show view
+     */
+    protected $allFields = array(
+        'id',
+        'dateTime',
+        'status',
+        'modifiedOn',
+        'modifiedBy',
+        'lang',
+        'titleAddress',
+        'billingCompany',
+        'billingGender',
+        'billingLastname',
+        'billingFirstname',
+        'billingAddress',
+        'billingZip',
+        'billingCity',
+        'billingCountryId',
+        'billingPhone',
+        'billingFax',
+        'billingEmail',
+        'company',
+        'gender',
+        'lastname',
+        'firstname',
+        'address',
+        'zip',
+        'city',
+        'country',
+        'phone',
+        'shipper',
+        'titlePaymentInfos',
+        'payment',
+        'lsvs',
+        'orderItems',
+        'vatAmount',
+        'emptyField',
+        'shipmentAmount',
+        'paymentAmount',
+        'sum',
+        'note',
+        'currencyId',
+        'countryId',
+        'shipmentId',
+        'paymentId',
+        'ip',
+        'langId',
+        'relCustomerCoupons',
+        'currency',
+        'customer',
+        'customerId'
+    );
+
+    /**
      * Get ViewGenerator options for Manufacturer entity
      *
      * @param $options array predefined ViewGenerator options
@@ -2267,5 +2321,405 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $qb->setParameter('search', '%' . $term . '%');
 
         return $qb;
+    }
+
+    public function parseOrderDetailPage($template, $entityClassName, $options)
+    {
+        if (!$template->blockExists('shop_order_detail')) {
+            return $template;
+        }
+
+        $orderSections = array(
+            'Info',
+            'Billing',
+            'Shipping',
+            'Payment',
+            'Items',
+            'Note'
+        );
+
+        $entityId = 0;
+        if ($this->cx->getRequest()->hasParam('showid')) {
+            $entityId = \Cx\Core\Html\Controller\ViewGenerator::getParam(
+                0, $this->cx->getRequest()->getParam('showid')
+            );
+        }
+
+        foreach ($orderSections as $section) {
+            $methodName = 'getVgOptionsOrder'.$section;
+            $vgOptions = $this->$methodName($options);
+            $view = new \Cx\Core\Html\Controller\ViewGenerator(
+                $entityClassName,
+                array($entityClassName => $vgOptions)
+            );
+            if ($view->getViewId() > 0) {
+                $vgEntityId = ',{'.$view->getViewId().','.$entityId.'}';
+                if ($this->cx->getRequest()->hasParam('showid')) {
+                    $_GET['showid'] .= $vgEntityId;
+                }
+            }
+
+            $renderedContent = $view->render($isSingle);
+            $template->setVariable(
+                'SHOP_ORDER_' . strtoupper($section),
+                $renderedContent
+            );
+        }
+
+        $template->touchBlock('shop_order_detail');
+        return $template;
+    }
+
+    protected function selectOrderOptions($options, $fieldsToShow)
+    {
+        $options['order']['show'] = $fieldsToShow;
+        $options['functions']['order']['id'] = SORT_DESC;
+        foreach ($this->allFields as $field) {
+            if (!in_array($field, $fieldsToShow)) {
+                $options['fields'][$field] = array(
+                    'show' => array(
+                        'show' => false,
+                    )
+                );
+            }
+        }
+
+        return $options;
+    }
+
+    protected function getVgOptionsOrderInfo()
+    {
+        global $_ARRAYLANG;
+
+        $options = array(
+            'header' => $_ARRAYLANG['TXT_ORDER']
+        );
+
+        $fieldsToShow = array(
+            'id',
+            'dateTime',
+            'status',
+            'modifiedOn',
+            'lang',
+            'sum'
+        );
+
+        $options['fields'] = array(
+            'id' => array(
+                'show' => array(
+                    'header' => $_ARRAYLANG['DETAIL_ID'],
+                ),
+            ),
+            'sum' => array(
+                'header' => $_ARRAYLANG['TXT_SHOP_ORDER_SUM'],
+                'show' => array(
+                    'header' => $_ARRAYLANG['TXT_ORDER_SUM'],
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'appendCurrency'
+                    )
+                )
+            ),
+            'dateTime' => array(
+                'show' => array(
+                    'header' => $_ARRAYLANG['DETAIL_DATETIME'],
+                    'parse' => function($value) {
+                        $date = new \DateTime($value);
+                        return $date->format('Y-m-d H:i:s');
+                    }
+                ),
+            ),
+            'status' => array(
+                'show' => array(
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getStatus'
+                    ),
+                    'header' => $_ARRAYLANG['DETAIL_STATUS'],
+                ),
+            ),
+            'modifiedOn' => array(
+                'show' => array(
+                    'parse' => function($value, $entity) {
+                        global $_ARRAYLANG;
+                        if (empty($value)) {
+                            return $_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED'];
+                        }
+                        $date = new \DateTime($value);
+                        return  $date->format('Y-m-d H:i:s') . ' ' .
+                            $_ARRAYLANG['modifiedBy'] . ' ' .
+                            $entity['modifiedBy'];
+                    }
+                )
+            ),
+        );
+
+        return $this->selectOrderOptions($options, $fieldsToShow);
+    }
+
+    protected function getVgOptionsOrderBilling()
+    {
+        global $_ARRAYLANG;
+
+        $options = array(
+            'header' => $_ARRAYLANG['TXT_BILLING_ADDRESS']
+        );
+
+        $fieldsToShow = array(
+            'billingCompany',
+            'billingGender',
+            'billingLastname',
+            'billingFirstname',
+            'billingAddress',
+            'billingZip',
+            'billingCountryId',
+            'billingPhone',
+            'billingFax',
+            'billingEmail',
+            'emptyField'
+        );
+
+        $options['fields'] = array(
+            'billingCompany' => array(
+                'show' => array(
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'addCustomerLink'
+                    )
+                )
+            ),
+            'billingGender' => array(
+                'show' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+
+                        $validData = array(
+                            'gender_undefined' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_UNDEFINED'
+                            ],
+                            'gender_male' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_MALE'
+                            ],
+                            'gender_female' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_FEMALE'
+                            ]
+                        );
+                        $value = $validData[$value];
+                        return $value;
+                    }
+                )
+            ),
+            'billingLastname' => array(
+                'show' => array(
+                    'show' => true,
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'addCustomerLink'
+                    )
+                )
+            ),
+            'billingFirstname' => array(
+                'show' => array(
+                    'show' => true,
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'addCustomerLink'
+                    )
+                )
+            ),
+            'billingZip' => array(
+                'show' => array(
+                    'header' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getZipAndCity'
+                    )
+                ),
+            ),
+            'billingCountryId' => array(
+                'type' => 'Country',
+                'show' => array(
+                    'parse' => function($value) {
+                        return \Cx\Core\Country\Controller\Country::getNameById($value);
+                    }
+                )
+            ),
+            'emptyField' => array(
+                'custom' => true,
+                'show' => array(
+                    'parse' => function() {
+                        return $this->getDivWrapper('');
+                    }
+                ),
+            ),
+        );
+
+        return $this->selectOrderOptions($options, $fieldsToShow);
+    }
+
+    protected function getVgOptionsOrderShipping()
+    {
+        global $_ARRAYLANG;
+
+        $options = array(
+            'header' => $_ARRAYLANG['TXT_SHIPPING_ADDRESS']
+        );
+
+        $fieldsToShow = array(
+            'company',
+            'gender',
+            'lastname',
+            'firstname',
+            'address',
+            'zip',
+            'countryId',
+            'phone',
+            'emptyField',
+            'shipper',
+        );
+
+        $options['fields'] = array(
+            'gender' => array(
+                'show' => array(
+                    'parse' => function($value) {
+                        global $_ARRAYLANG;
+
+                        $validData = array(
+                            'gender_undefined' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_UNDEFINED'
+                            ],
+                            'gender_male' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_MALE'
+                            ],
+                            'gender_female' => $_ARRAYLANG[
+                            'TXT_SHOP_GENDER_FEMALE'
+                            ]
+                        );
+                        $value = $validData[$value];
+                        return $value;
+                    }
+                )
+            ),
+            'zip' => array(
+                'show' => array(
+                    'header' => $_ARRAYLANG['DETAIL_ZIP_CITY'],
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getZipAndCity'
+                    )
+                ),
+            ),
+            'countryId' => array(
+                'type' => 'Country',
+                'show' => array(
+                    'parse' => function($value) {
+                        return \Cx\Core\Country\Controller\Country::getNameById($value);
+                    }
+                )
+            ),
+            'emptyField' => array(
+                'custom' => true,
+                'show' => array(
+                    'parse' => function() {
+                        return $this->getDivWrapper('');
+                    }
+                ),
+            ),
+        );
+
+        return $this->selectOrderOptions($options, $fieldsToShow);
+    }
+
+    protected function getVgOptionsOrderPayment()
+    {
+        global $_ARRAYLANG;
+
+        $options = array(
+            'header' => $_ARRAYLANG['TXT_PAYMENT_INFORMATIONS']
+        );
+
+        $fieldsToShow = array(
+            'payment',
+            'lsvs',
+        );
+
+        $order = new \Cx\Modules\Shop\Model\Entity\Order();
+        if (!empty($this->orderId)) {
+            $order = $this->cx->getDb()->getEntityManager()->getRepository(
+                '\Cx\Modules\Shop\Model\Entity\Order'
+            )->findOneBy(array('id' => $this->orderId));
+        }
+        if (!empty($order) && count($order->getLsvs()) > 0) {
+            $options['fields']['lsvs'] = array(
+                'show' => array(
+                    'parse' =>  function ($fieldvalue) {
+                        return $this->generateLsvs($fieldvalue);
+                    },
+                ),
+            );
+        } else {
+            $options['fields']['lsvs'] = array(
+                'show' => array(
+                    'show' => false,
+                ),
+            );
+        }
+
+        return $this->selectOrderOptions($options, $fieldsToShow);
+    }
+
+    protected function getVgOptionsOrderItems()
+    {
+        global $_ARRAYLANG;
+
+        $options = array(
+            'header' => $_ARRAYLANG['TXT_BILL']
+        );
+
+        $fieldsToShow = array(
+            'orderItems',
+        );
+
+        $options['fields'] = array(
+            'orderItems' => array(
+                'show' => array(
+                    'show' => true,
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'generateOrderItemShowView'
+                    ),
+                ),
+            ),
+        );
+
+        return $this->selectOrderOptions($options, $fieldsToShow);
+    }
+
+    protected function getVgOptionsOrderNote()
+    {
+        global $_ARRAYLANG;
+
+        $options = array(
+            'header' => $_ARRAYLANG['TXT_CUSTOMER_REMARKS']
+        );
+
+        $fieldsToShow = array(
+            'note'
+        );
+
+        $options['fields'] = array(
+            'note' => array(
+                'show' => array(
+                    'parse' => function($value) {
+                        if (empty($value)) {
+                            return ' ';
+                        }
+                        return $value;
+                    }
+                )
+            ),
+        );
+
+        return $this->selectOrderOptions($options, $fieldsToShow);
     }
 }

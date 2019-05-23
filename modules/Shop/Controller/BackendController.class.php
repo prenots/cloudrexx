@@ -375,4 +375,44 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
 
         return $options;
     }
+
+    /**
+     * Load custom view for order detail view
+     *
+     * @param \Cx\Core\Html\Sigma $template Backend template for this page
+     * @param array $cmd Supplied CMD
+     * @param bool $isSingle if page is single
+     */
+    public function parsePage(\Cx\Core\Html\Sigma $template, array $cmd, &$isSingle = false)
+    {
+        // Last entry will be empty if we're on a nav-entry without children
+        // or on the first child of a nav-entry.
+        // The following code works fine as long as we don't want an entity
+        // view on the first child of a nav-entry or introduce a third
+        // nav-level. If we want either, we need to refactor getCommands() and
+        // parseNavigation().
+        $entityName = '';
+        if (!empty($cmd) && !empty($cmd[count($cmd) - 1])) {
+            $entityName = $cmd[count($cmd) - 1];
+        } else if (!empty($cmd)) {
+            $entityName = $cmd[0];
+        }
+
+        // Parse entity view generation pages
+        $entityClassName = $this->getNamespace() . '\\Model\\Entity\\'
+            . $entityName;
+        if (
+            $entityName == 'Order' &&
+            $this->cx->getRequest()->hasParam('showid')
+        ) {
+            $options = parent::getViewGeneratorOptions($entityClassName);
+
+            return $this->getSystemComponentController()->getController(
+                'Order'
+            )->parseOrderDetailPage($template, $entityClassName, $options);
+        }
+
+        return parent::parsePage($template, $cmd,$isSingle);
+
+    }
 }

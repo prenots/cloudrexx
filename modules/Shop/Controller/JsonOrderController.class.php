@@ -77,7 +77,9 @@ class JsonOrderController
             'setEmptyForWeight',
             'setEmptyForPrice',
             'appendCurrency',
-            'addCustomerLink'
+            'addCustomerLink',
+            'getZipAndCity',
+            'getStatus'
         );
     }
 
@@ -172,7 +174,7 @@ class JsonOrderController
         if (empty($params['data']) && !is_numeric($params['data'])) {
             return '';
         }
-        return $params['data'] .'g';
+        return $params['data'] .' g';
     }
 
     public function setEmptyForPrice($params)
@@ -468,5 +470,21 @@ class JsonOrderController
         $link->setAttribute('href', $linkUrl);
 
         return $link;
+    }
+
+    public function getZipAndCity($params)
+    {
+        return $params['value'] . ' ' . $params['entity']['city'];
+    }
+
+    public function getStatus($params)
+    {
+        $statusValues = $this->cx->getDb()
+            ->getEntityManager()->getRepository(
+                $this->getNamespace()
+                . '\\Model\Entity\Order'
+            )->getStatusValues();
+
+        return $statusValues[$params['value']];
     }
 }
