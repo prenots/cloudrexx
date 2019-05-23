@@ -1084,3 +1084,5 @@ $_ARRAYLANG['TXT_SHOP_ORDER_ITEMS_ARE_ADDED_TO_SUM'] = 'The options are added to
 $_ARRAYLANG['sum'] = 'Total';
 $_ARRAYLANG['emptyField'] = ' ';
 $_ARRAYLANG['countryId'] = 'Country';
+$_ARRAYLANG['TXT_SHOP_DELETED_ORDER'] = 'Bestellung wurde gelöscht.';
+$_ARRAYLANG['TXT_SHOP_ORDER_STATUS_CHANGED'] = 'Status der Bestellung wurde geändert.';
