@@ -284,3 +284,27 @@ div#form-0-type div {
     display: inline-block;
     float: left;
 }
+
+/** to align billing and shipping address side by side **/
+ form.cx-ui.order > fieldset .group:nth-child(2n+8):nth-child(-n+29) {
+    float: left !important;
+    width: 49.2% !important;
+    height: 25px !important;
+}
+
+.order .group:nth-child(2n+9):nth-child(-n+29) {
+    float: left !important;
+    width: 50% !important;
+    height: 25px;
+}
+
+.order .group:nth-child(30) {
+    clear: both;
+}
+
+.order #form-0-titleAddress th:first-child {
+    width: 50%;
+}
+.order #form-0-titleAddress th:last-child {
+    padding-left: 0px;
+}
