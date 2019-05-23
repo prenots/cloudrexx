@@ -205,7 +205,7 @@ class JsonOrderController
         $tableContent = array();
         $netPrice = 0;
         $totalWeight = 0;
-        $totalVat = 0;
+        $totalVat = $params['entity']['vatAmount'];
 
         foreach ($order->getOrderItems() as $item) {
             $price = $item->getPrice();
@@ -255,25 +255,24 @@ class JsonOrderController
                 'orderAttributes' => ''
             );
         }
-
-        $netPrice = number_format($netPrice, 2);
-        $total = $params['entity']['shipmentAmount']
-            + $params['entity']['paymentAmount']
-            + $netPrice;
+        $total = (float)$params['entity']['shipmentAmount']
+            + (float)$params['entity']['paymentAmount']
+            + (float)$netPrice;
 
         if (!Vat::isIncluded()) {
             $total += $totalVat;
         }
 
+        $netPrice = number_format($netPrice, 2);
         $total = number_format($total, 2);
 
         $customAttrs = array(
             'TXT_SHOP_DETAIL_NETPRICE' => $netPrice,
-            Vat::isIncluded() ? 'TXT_TAX_PREFIX_INCL' : 'TXT_TAX_PREFIX_EXCL' => '0.00',
+            Vat::isIncluded() ? 'TXT_TAX_PREFIX_INCL' : 'TXT_TAX_PREFIX_EXCL' => $totalVat,
             'empty' => '',
             'shipmentAmount' => $params['entity']['shipmentAmount'],
             'paymentAmount' => $params['entity']['paymentAmount'],
-            'TXT_TOTAL' => $total
+            'sum' => $total
         );
 
         foreach ($customAttrs as $key=>$value) {
@@ -311,7 +310,7 @@ class JsonOrderController
                             $sum = $price * $quantity;
 
                             $vatSum = number_format(
-                                $sum * ($vatRate / 100),
+                                Vat::amount($vatRate, $sum),
                                 2
                             );
 
@@ -429,7 +428,8 @@ class JsonOrderController
                         'attributes' => array(
                             'class' => 'align-right sum-detail'
                         ),
-                    )
+                    ),
+                    'header' => $_ARRAYLANG['TXT_SHOP_ORDER_SUM']
                 ),
             )
         );

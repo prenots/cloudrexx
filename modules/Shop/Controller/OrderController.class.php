@@ -1179,6 +1179,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         foreach ($tableConfig['header'] as $key => $header) {
             $th = new \Cx\Core\Html\Model\Entity\HtmlElement('th');
             $title = $_ARRAYLANG[$key];
+            if (isset($header['header'])) {
+                $title = $header['header'];
+            }
             $title = new \Cx\Core\Html\Model\Entity\TextElement($title);
             $th->addChild($title);
             $th->setAttributes(
@@ -1265,8 +1268,32 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 
                 $td->addChild($field);
 
+                if (!empty($header['addition'])) {
+                    $addition = new \Cx\Core\Html\Model\Entity\TextElement(
+                        $header['addition']
+                    );
+                    $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                    $spanWrapper->addChild($addition);
+                    $td->addChild($spanWrapper);
+                }
+
                 if ($key == 'sum') {
                     $field->setAttribute('readonly', 'readonly');
+                    $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                    $toolTipTrigger->addClass('icon-info tooltip-trigger tooltip-order-item');
+                    $toolTipTrigger->allowDirectClose(false);
+                    $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                    $toolTipMessage->addClass('tooltip-message');
+                    $messageText = $_ARRAYLANG['TXT_SHOP_ORDER_ITEMS_ARE_ADDED_TO_SUM'];
+                    $message = new \Cx\Core\Html\Model\Entity\TextElement(
+                        $messageText
+                    );
+                    $toolTipMessage->addChild($message);
+                    $td->addChild($toolTipTrigger);
+                    $td->addChild($toolTipMessage);
+                    if (count($orderItem->getOrderAttributes()) > 0) {
+                        $toolTipTrigger->addClass('show');
+                    }
                 } else if ($key == 'price') {
                     $attributePrice = 0;
                     if (count($orderItem->getOrderAttributes()) > 0) {
@@ -1302,16 +1329,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 }
 
                 $tr->addChild($td);
-
-                if (empty($header['addition'])) {
-                    continue;
-                }
-                $addition = new \Cx\Core\Html\Model\Entity\TextElement(
-                    $header['addition']
-                );
-                $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                $spanWrapper->addChild($addition);
-                $td->addChild($spanWrapper);
             }
             $tableBody->addChild($tr);
         }
@@ -1503,8 +1520,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'readonly' => 'readonly'
             )
         );
-
-        $additionChf = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
 
         $tdNetpriceInput->addChild($netpriceInput);
         $tdNetpriceInput->addChild($spanWrapper);

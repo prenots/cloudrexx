@@ -89,6 +89,12 @@
 .tooltip-wrapper {
     padding: 6px 32px;
 }
+.tooltip-order-item {
+    visibility: hidden;
+}
+.tooltip-order-item.show {
+    visibility: inherit;
+}
 
 .order-id {
     width: 4%;
