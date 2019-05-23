@@ -244,7 +244,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'address',
                 'zip',
                 'city',
-                'country',
+                'countryId',
                 'phone',
                 'shipper',
                 'titlePaymentInfos',
@@ -293,6 +293,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => true,
                 'allowFiltering' => false,
                 'sorting' => false,
+                'header' => $_ARRAYLANG['TXT_SHOP_ORDER_SUM'],
                 'table' => array(
                     'attributes' => array(
                         'class' => 'order-sum',
@@ -324,6 +325,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         'class' => 'order-date-time',
                     ),
                 ),
+                'formfield' => function($name, $type, $length, $value) {
+                    $date = new \DateTime($value);
+                    return $date->format('Y-m-d H:i:s');
+                },
                 'attributes' => array(
                     'class' => 'readonly',
                 ),
@@ -366,27 +371,36 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'gender' => array(
                 'showOverview' => false,
                 'allowSearching' => true,
-                'showDetail' => false,
+                'showDetail' => true,
                 'allowFiltering' => false,
-                'show' => array(
-                    'parse' => function($value) {
-                        global $_ARRAYLANG;
+                'formfield' => function (
+                    $fieldname, $fieldtype, $fieldlength,
+                    $fieldvalue, $fieldoptions
+                ) {
+                    global $_ARRAYLANG;
 
-                        $validData = array(
-                            'gender_undefined' => $_ARRAYLANG[
-                            'TXT_SHOP_GENDER_UNDEFINED'
-                            ],
-                            'gender_male' => $_ARRAYLANG[
-                            'TXT_SHOP_GENDER_MALE'
-                            ],
-                            'gender_female' => $_ARRAYLANG[
-                            'TXT_SHOP_GENDER_FEMALE'
-                            ]
-                        );
-                        $value = $validData[$value];
-                        return $value;
-                    }
-                )
+                    $validData = array(
+                        'gender_undefined' => $_ARRAYLANG[
+                        'TXT_SHOP_GENDER_UNDEFINED'
+                        ],
+                        'gender_male' => $_ARRAYLANG[
+                        'TXT_SHOP_GENDER_MALE'
+                        ],
+                        'gender_female' => $_ARRAYLANG[
+                        'TXT_SHOP_GENDER_FEMALE'
+                        ]
+                    );
+
+                    $genderDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
+                        $fieldname,
+                        $fieldvalue,
+                        'select',
+                        null,
+                        $validData
+                    );
+
+                    return $genderDropdown;
+                },
             ),
             'company' => array(
                 'showOverview' => false,
@@ -420,7 +434,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'countryId' => array(
                 'showOverview' => false,
-                'showDetail' => false,
                 'allowFiltering' => false,
                 'type' => 'Country',
             ),
@@ -512,10 +525,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'modifiedOn' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'attributes' => array(
-                    'class' => 'readonly',
-                    'readonly' => 'readonly'
-                ),
                 'formfield' => function (
                     $fieldname, $fieldtype, $fieldlength, $fieldvalue,
                     $fieldoptions
@@ -528,36 +537,22 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         return $field;
                     }
 
-                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                        $fieldname,
-                        $fieldvalue,
-                        'input'
+                    $date = new \DateTime($fieldvalue);
+                    return $field = new \Cx\Core\Html\Model\Entity\TextElement(
+                        $date->format('Y-m-d H:i:s')
                     );
-                    $field->setAttributes($fieldoptions['attributes']);
-                    return $field;
                 },
                 'storecallback' => function($value) {
                     $date = new \DateTime('now');
                     return $date->format('Y-m-d H:i:s');
                 },
-                'show' => array(
-                    'parse' => function($value) {
-                        global $_ARRAYLANG;
-                        if (empty($value)) {
-                            return $_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED'];
-                        }
-                        $date = new \DateTime($value);
-                        return  $date->format('Y-m-d H:i:s');
-                    }
-                )
-
             ),
             'modifiedBy' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'readonly' => false,
                 'attributes' => array(
-                    'class' => 'readonly',
-                    'readonly' => 'readonly',
+                    'class' => 'readonly'
                 ),
                 'storecallback' => function($value) {
                     return $objFWUser = \FWUser::getFWUserObject()->objUser->getEmail();
@@ -629,6 +624,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'billingCountryId' => array(
                 'showOverview' => false,
+                'type' => 'Country',
                 'allowSearching' => true,
                 'allowFiltering' => false,
             ),
@@ -1169,6 +1165,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'sum' => array(
                 'type' => 'input',
                 'addition' => $currency,
+                'header' => $_ARRAYLANG['TXT_SHOP_ORDER_SUM']
             ),
         );
 
