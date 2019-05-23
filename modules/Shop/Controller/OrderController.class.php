@@ -494,9 +494,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
                 'showDetail' => false,
                 'allowFiltering' => false,
-                'show' => array(
-                    'show' => false,
-                ),
             ),
             'langId' => array(
                 'showOverview' => false,
@@ -663,9 +660,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'mode' => 'associate',
                 'type' => 'hidden',
                 'allowFiltering' => false,
-                'show' => array(
-                    'show' => false,
-                ),
             ),
             'lang' => array(
                 'header' => $_ARRAYLANG['TXT_BROWSER_LANGUAGE'],
