@@ -357,11 +357,13 @@ class JsonOrderController
                             $price = $rowData['price'];
                             $quantity = $rowData['quantity'];
                             $sum = $price * $quantity;
+                            if (Vat::isIncluded()) {
+                                $vatSum = $sum - ($sum / ($vatRate / 100 + 1));
+                            } else {
+                                $vatSum = $sum * $vatRate;
+                            }
 
-                            $vatSum = number_format(
-                                Vat::amount($vatRate, $sum),
-                                2
-                            );
+                            $vatSum = number_format($vatSum, 2);
 
                             $vatRateWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
                             $vatRateWrapper->addChild(
