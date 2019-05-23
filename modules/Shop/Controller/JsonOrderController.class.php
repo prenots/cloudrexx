@@ -72,6 +72,7 @@ class JsonOrderController
     {
         return array(
             'updateOrderStatus',
+            'deleteOrder',
             'setEmptyForOrderItem',
             'generateOrderItemShowView',
             'setEmptyForWeight',
@@ -122,7 +123,7 @@ class JsonOrderController
 
         if (empty($arguments['post']) ||
             empty($arguments['post']['orderId']) ||
-            empty($arguments['post']['statusId'])
+            !isset($arguments['post']['statusId'])
         ) {
             $this->messages[] = 'Zu wenige Argumente';
             return array('status' => 'error', 'message' => $this->messages);
@@ -130,11 +131,17 @@ class JsonOrderController
         }
         $updateStock = false;
         if (!empty($arguments['post']['updateStock'])) {
-            $updateStock = (bool)$arguments['post']['updateStock'];
+            $updateStock = filter_var(
+                $arguments['post']['updateStock'],
+                FILTER_VALIDATE_BOOLEAN
+            );
         }
         $sendMail = false;
-        if (!empty($arguments['post']['sendMail'])) {
-            $sendMail = (bool)$arguments['post']['sendMail'];
+        if (!empty($arguments['post']['sendMailToCrm'])) {
+            $sendMail = filter_var(
+                $arguments['post']['sendMailToCrm'],
+                FILTER_VALIDATE_BOOLEAN
+            );
         }
         $em = $this->cx->getDb()->getEntityManager();
         $orderRepo = $em->getRepository('Cx\Modules\Shop\Model\Entity\Order');
@@ -157,6 +164,48 @@ class JsonOrderController
                 $this->messages[] = $_ARRAYLANG['TXT_MESSAGE_SEND_ERROR'];
             }
         }
+
+        $this->messages[] = $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_CHANGED'];
+
+        return array('message' => $this->messages);
+    }
+
+    public function deleteOrder($params)
+    {
+        global $_ARRAYLANG, $objInit;
+
+        $langData   = $objInit->getComponentSpecificLanguageData(
+            'Shop',
+            false
+        );
+        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
+        $entityId = 0;
+        $updateStock = false;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        if ($params['post'] && !empty($params['post']['orderId'])) {
+            $entityId = $params['post']['orderId'];
+
+            if (isset($params['post']['updateStock'])) {
+                $updateStock = filter_var(
+                    $params['post']['updateStock'],
+                    FILTER_VALIDATE_BOOLEAN
+                );
+            }
+        }
+
+        if (empty($entityId)) {
+            return;
+        }
+
+        $em = $cx->getDb()->getEntityManager();
+
+        $em->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Order'
+        )->deleteById($entityId, $updateStock);
+
+        $this->messages[] = $_ARRAYLANG['TXT_SHOP_DELETED_ORDER'];
 
         return array('message' => $this->messages);
     }

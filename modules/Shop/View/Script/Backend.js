@@ -28,9 +28,44 @@ function deleteOrder(deleteUrl) {
         )) {
             stockUpdate = true;
         }
-        window.location.replace(deleteUrl + (stockUpdate ? '&update_stock=1' : ''));
+
+        const entityId = parseInt(getParameterByName('deleteid', deleteUrl));
+
+        cx.ajax(
+            'Order',
+            'deleteOrder',
+            {
+                type: 'POST',
+                data: {
+                    orderId: entityId,
+                    updateStock: stockUpdate,
+                },
+                success: function(response) {
+                    if (response.status == 'success') {
+                        cx.tools.StatusMessage.showMessage(response.message);
+                        document.getElementsByName('status-' + entityId)[0].selectedIndex = 2;
+                    }
+                },
+                preError: function(xhr, status, error) {
+                    cx.tools.StatusMessage.showMessage(error);
+                }
+            },
+            cx.variables.get('language', 'contrexx')
+        );
     }
 }
+
+// https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
 var scope = 'shopDelete';
 cx.bind("delete", function (deleteIds) {
     if (confirm(
@@ -128,7 +163,7 @@ jQuery(document).ready(function($){
     }).change(function () {
         scope = 'order';
         let updateStock = false;
-        let sendMail = false;
+        let sendMailToCrm = false;
         const statusId = cx.jQuery(this).find('option:selected').val();
         if (confirm(cx.variables.get('TXT_SHOP_CONFIRM_UPDATE_STATUS', scope))) {
             if (   shopOrder.isStockIncreasable(previousStatusId, statusId)
@@ -136,7 +171,7 @@ jQuery(document).ready(function($){
                 updateStock = true;
             }
             if (statusId == 4 && confirm(cx.variables.get('TXT_SHOP_SEND_TEMPLATE_TO_CUSTOMER', scope))) {
-                sendMail = true;
+                sendMailToCrm = true;
             }
 
             cx.ajax(
@@ -148,7 +183,7 @@ jQuery(document).ready(function($){
                         orderId: parseInt(cx.jQuery(this).parent().parent().find('.order-id').text()),
                         statusId: statusId,
                         updateStock: updateStock,
-                        sendMail: sendMail,
+                        sendMailToCrm: sendMailToCrm,
                     },
                     success: function(response) {
                         if (response.status == 'success') {
