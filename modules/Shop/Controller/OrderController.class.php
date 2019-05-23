@@ -1463,14 +1463,24 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     'code' => $couponRel->getCode(),
                 )
             );
-            $input->setAttributes(
-                array(
-                    'id' => 'coupon-amount',
-                    'data-rate' => $discountCoupon->getDiscountRate(),
-                    'data-amount' => $discountCoupon->getDiscountAmount(),
-                    'readonly' => 'readonly'
-                )
+
+            $attributes =  array(
+                'id' => 'coupon-amount',
+                'readonly' => 'readonly'
             );
+
+            if (!empty($discountCoupon)) {
+                $attributes['data-rate'] = $discountCoupon->getDiscountRate();
+                $attributes['data-amount'] = $discountCoupon->getDiscountAmount();
+            } else {
+                $attributes['data-amount'] = $couponRel->getAmount();
+            }
+
+
+            $input->setAttributes(
+                $attributes
+            );
+
             $tdAmount->addChild($input);
             $trCoupon->addChild($tdAmount);
 
