@@ -846,15 +846,23 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 
     protected function getCustomerLink($value, $rowData)
     {
-        $objUser = \FWUser::getFWUserObject()->objUser->getUser(
-            $value->getId()
-        );
+        if (empty($value)) {
+            if (isset($rowData['firstname']) && isset($rowData['lastname'])) {
+                $name = $rowData['firstname'] .' '. $rowData['lastname'];
+            } else {
+                return $value;
+            }
+        } else {
+            $objUser = \FWUser::getFWUserObject()->objUser->getUser(
+                $value->getId()
+            );
 
         $name = $objUser->getProfileAttribute(
                 'lastname'
             ) . ' ' .$objUser->getProfileAttribute(
                 'firstname'
             );
+        }
 
         $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
         $nameElement = new \Cx\Core\Html\Model\Entity\TextElement($name);
