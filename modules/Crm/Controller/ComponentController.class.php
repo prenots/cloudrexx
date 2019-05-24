@@ -78,4 +78,59 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm->addModelListener(\Doctrine\ORM\Events::postUpdate, 'User', $userEventListener);
     }
 
+    /**
+     * Returns a list of command mode commands provided by this component
+     *
+     * @return array List of command names
+     */
+    public function getCommandsForCommandMode() {
+        return array('Crm');
+    }
+
+    /**
+     * Execute api command
+     *
+     * @param string $command       Name of command to execute
+     * @param array  $arguments     List of arguments for the command
+     * @param array  $dataArguments (optional) List of data arguments for the command
+     */
+    public function executeCommand($command, $arguments, $dataArguments = array()) {
+        $subcommand = null;
+        if (!empty($arguments[0])) {
+            $subcommand = $arguments[0];
+        }
+
+        $crmManager = new CrmManager($this->getName());
+        switch ($command) {
+            case 'Crm':
+                switch ($subcommand) {
+                    case 'exportvcf':
+                        $crmManager->exportVcf();
+                        break;
+                    case 'customertooltipdetail':
+                        $crmManager->customerTooltipDetail();
+                        break;
+                    case 'addcontact':
+                        $crmManager->addContact();
+                        break;
+                    case 'download':
+                        $fileName = $crmManager->getContactFileNameById(
+                            contrexx_input2int($_GET['id']),
+                            contrexx_input2int($_GET['customer'])
+                        );
+                        $crmManager->download($fileName);
+                        break;
+                    case 'exportcsv':
+                        $crmInterface = new CrmInterface(
+                            $crmManager->_objTpl,
+                            $this->getName()
+                        );
+                        $crmInterface->csvExport();
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }

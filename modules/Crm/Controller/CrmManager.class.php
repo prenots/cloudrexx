@@ -181,9 +181,6 @@ class CrmManager extends CrmLibrary
         case 'getcontactdocuments':
                 $this->getContactDocuments();
             break;
-        case 'addcontact':
-                $this->addContact();
-            break;
         case 'getcustomers':
                 $this->getCustomers();
             break;
@@ -211,17 +208,11 @@ class CrmManager extends CrmLibrary
         case 'getlinkcontacts':
                 $this->getLinkContacts();
             break;
-        case 'customertooltipdetail':
-                $this->customerTooltipDetail();
-            break;
         case 'notesdetail':
                 $this->notesDetail();
             break;
         case 'changecontactstatus':
                 $this->changeCustomerContactStatus();
-            break;
-        case 'exportvcf':
-                $this->exportVcf();
             break;
         case 'changecustomerstatus':
                 $this->changeCustomerStatus();
@@ -2877,9 +2868,6 @@ END;
         case 'export':
                 $this->crmInterfaceController->showExport();
             break;
-        case 'exportcsv':
-                $this->crmInterfaceController->csvExport();
-            break;
         case 'importCsv';
                 $this->crmInterfaceController->csvImport();
             break;
@@ -3384,8 +3372,7 @@ END;
      */
     function exportVcf()
     {
-        global $objDatabase;
-
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
         $id   = (int) $_GET['id'];
 
         $query    = "SELECT c.`customer_name`,
@@ -3686,8 +3673,13 @@ END;
      */
     function customerTooltipDetail()
     {
-        global $_ARRAYLANG, $objDatabase, $objJs;
-
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        $objInit     = \Env::get('init');
+        $_ARRAYLANG  = $objInit->getComponentSpecificLanguageData(
+            'Crm',
+            false,
+            $objInit->getBackendLangId()
+        );
         $objtpl  = $this->_objTpl;
         $this->_objTpl->loadTemplateFile('module_'.$this->moduleNameLC.'_customer_tooltip_detail.html');
         $objtpl->setGlobalVariable("MODULE_NAME", $this->moduleName);
@@ -3776,8 +3768,7 @@ END;
      */
     function addContact()
     {
-        global $objDatabase, $_ARRAYLANG;
-
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
         $contactId  = (isset ($_GET['id'])) ? (int) $_GET['id'] : 0;
         $customerId = (isset ($_GET['customerid'])) ? (int) $_GET['customerid'] : 0;
         $tpl = isset($_GET['tpl']) ? $_GET['tpl'] : '';
@@ -4194,10 +4185,6 @@ END;
             switch ($tpl) {
             case 'delete':
                     $this->deleteContactDocument();
-                break;
-            case 'download':
-                    $fileName    = $this->getContactFileNameById((int) $_GET['id'], (int) $_GET['customer']);
-                    $this->download($fileName);
                 break;
             }
             exit();

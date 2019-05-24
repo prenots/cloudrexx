@@ -51,7 +51,7 @@ $J(function(){
 
         $J.ajax({
             type: 'GET',
-            url: 'index.php?cmd=Crm&act=customertooltipdetail',
+            url: '/api/Crm/customertooltipdetail',
             data: 'contactid=' + pageID,
             success: function(data)
             {

@@ -529,7 +529,7 @@ $J(function() {
         select: function(event, ui) {
             //alert(ui.item.id);
             assignedId.push(ui.item.id);
-            $J.get("index.php?cmd=Crm&act=addcontact&id="+ui.item.id+"&customerid="+$J('#customer_id').val(), function(data) {
+            $J.get('/api/Crm/addcontact?id='+ui.item.id+'&customerid='+$J('#customer_id').val(), function(data) {
                 $J("table#contacts").append(data);
                 $J(".exContactSelect #selectContact").val("");
             //                $J("table#contacts tfoot").hide("fast");
@@ -576,7 +576,7 @@ $J(function() {
     $J('a[class^="removeContact_"]').live("click", function(){
         id = $J(this).attr("class").split('_')[1];
 
-        $J.get("index.php?cmd=Crm&act=addcontact&tpl=delete&id="+id, function(data) {
+        $J.get('/api/Crm/addcontact?tpl=delete&id='+id, function(data) {
             $J("a.removeContact_"+id).closest('tr').fadeOut("slow");
             $J("a.removeContact_"+id).closest('tr').remove();
             assignedId = $J.grep(assignedId, function(value) {
@@ -603,7 +603,7 @@ $J(function() {
             return ;
         $J.ajax( {
             type: "POST",
-            url: "./index.php?cmd=Crm&act=addcontact&tpl=add",
+            url: '/api/Crm/addcontact?tpl=add',
             data: $J(".input-addcontact").serialize()+"&customer_id"+$J('#customer_id').val(),
             success: function( data ) {
                 $J("table#contacts").append(data);

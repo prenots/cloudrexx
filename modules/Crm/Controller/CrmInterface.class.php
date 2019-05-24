@@ -343,8 +343,14 @@ class CrmInterface extends CrmLibrary
      */
     function csvExport()
     {
-        global $_ARRAYLANG,$objDatabase, $_LANGID;
-
+        $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
+        $objInit     = \Env::get('init');
+        $_LANGID     = $objInit->getBackendLangId();
+        $_ARRAYLANG  = $objInit->getComponentSpecificLanguageData(
+            'Crm',
+            false,
+            $_LANGID
+        );
         $alphaFilter = isset($_REQUEST['companyname_filter']) ? contrexx_input2raw($_REQUEST['companyname_filter']) : '';
         if (!empty($alphaFilter)) {
             $where[] = " (c.customer_name LIKE '".contrexx_input2raw($alphaFilter)."%')";
