@@ -3667,8 +3667,6 @@ END;
     /**
      * customer tool tip
      *
-     * @global array $_ARRAYLANG
-     * @global object $objDatabase
      * @return true
      */
     function customerTooltipDetail()
@@ -3762,8 +3760,6 @@ END;
     /**
      * add new contact
      *
-     * @global array $_ARRAYLANG
-     * @global object $objDatabase
      * @return true
      */
     function addContact()
