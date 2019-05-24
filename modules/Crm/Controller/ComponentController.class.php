@@ -83,7 +83,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @return array List of command names
      */
-    public function getCommandsForCommandMode() {
+    public function getCommandsForCommandMode()
+    {
         return array('Crm');
     }
 
@@ -94,7 +95,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param array  $arguments     List of arguments for the command
      * @param array  $dataArguments (optional) List of data arguments for the command
      */
-    public function executeCommand($command, $arguments, $dataArguments = array()) {
+    public function executeCommand($command, $arguments, $dataArguments = array())
+    {
         $subcommand = null;
         if (!empty($arguments[0])) {
             $subcommand = $arguments[0];
