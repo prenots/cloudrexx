@@ -651,7 +651,14 @@ class CalendarRegistration extends CalendarLibrary
                 $value = join(',', $subvalue);
             } else {
                 // additional field
-                if (isset($data['registrationFieldAdditional'][$id][$value-1])) {
+                if (
+                    // first check if any additional data for the selected
+                    // inputfield does exists, as otherwise $value might
+                    // not be an index and would therefore cause an invalid
+                    // array access
+                    isset($data['registrationFieldAdditional'][$id]) &&
+                    isset($data['registrationFieldAdditional'][$id][$value-1])
+                ) {
                     $value = $value . '[[' . $data['registrationFieldAdditional'][$id][$value-1] . ']]';
                 }
             }
