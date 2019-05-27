@@ -339,14 +339,9 @@ class CrmInterface extends CrmLibrary
      */
     function csvExport()
     {
+        global $_ARRAYLANG;
+
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
-        $objInit     = \Env::get('init');
-        $_LANGID     = $objInit->getBackendLangId();
-        $_ARRAYLANG  = $objInit->getComponentSpecificLanguageData(
-            'Crm',
-            false,
-            $_LANGID
-        );
         $alphaFilter = isset($_REQUEST['companyname_filter']) ? contrexx_input2raw($_REQUEST['companyname_filter']) : '';
         if (!empty($alphaFilter)) {
             $where[] = " (c.customer_name LIKE '".contrexx_input2raw($alphaFilter)."%')";
@@ -452,7 +447,7 @@ class CrmInterface extends CrmLibrary
                        LEFT JOIN `".DBPREFIX."module_{$this->moduleNameLC}_industry_types` AS Intype
                          ON c.industry_type = Intype.id
                        LEFT JOIN `".DBPREFIX."module_{$this->moduleNameLC}_industry_type_local` AS Inloc
-                         ON Intype.id = Inloc.entry_id AND Inloc.lang_id = ".$_LANGID."
+                         ON Intype.id = Inloc.entry_id AND Inloc.lang_id = " . LANG_ID . "
                        LEFT JOIN `".DBPREFIX."module_{$this->moduleNameLC}_currency` AS cur
                          ON cur.id = c.customer_currency
                 $filter
@@ -566,7 +561,7 @@ class CrmInterface extends CrmLibrary
                                 LEFT JOIN `".DBPREFIX."module_{$this->moduleNameLC}_customer_membership` AS mem
                                     ON c.id = mem.contact_id
                                 LEFT JOIN `".DBPREFIX."module_{$this->moduleNameLC}_membership_local` AS memloc
-                                ON (memloc.entry_id = mem.membership_id AND memloc.lang_id = {$_LANGID})
+                                ON (memloc.entry_id = mem.membership_id AND memloc.lang_id = " . LANG_ID .  ")
                               WHERE c.id = {$objResult->fields['id']}";
                 $objMember = $objDatabase->Execute($query);
                 while (!$objMember->EOF) {

@@ -111,7 +111,9 @@ class CrmManager extends CrmLibrary
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->_objTpl);
 
         $this->_objTpl->setErrorHandling(PEAR_ERROR_DIE);
-        $this->act = $_REQUEST['act'];
+        if (isset($_REQUEST['act'])) {
+            $this->act = $_REQUEST['act'];
+        }
 
         $contentNavigation = '';
 
@@ -719,6 +721,7 @@ class CrmManager extends CrmLibrary
                 'CRM_ACCESS_PROFILE_IMG_WEB_PATH'=> \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesCrmProfileWebPath(),
                 'TXT_CRM_ENTER_SEARCH_TERM'     =>  $_ARRAYLANG['TXT_CRM_ENTER_SEARCH_TERM'],
                 'CRM_REDIRECT_LINK'             =>  '&redirect='.base64_encode($searchLink.$sortLink.$pageLink),
+                'LANG_CODE'                     => \FWLanguage::getLanguageCodeById($_LANGID)
         ));
 
         // There are two different options for filtering by name:
@@ -1515,7 +1518,8 @@ END;
      */
     function settingsSubmenu()
     {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $_LANGID;
+
         $this->_objTpl->loadTemplateFile('module_'.$this->moduleNameLC.'_settings_submenu.html', true, true);
         $this->_pageTitle = $_ARRAYLANG['TXT_CRM_SETTINGS'];
 
@@ -1579,7 +1583,8 @@ END;
                 'TXT_CRM_MAIL_TEMPLATE'          => $_ARRAYLANG['TXT_CRM_MAIL_TEMPLATE'],
                 'TXT_CRM_INTERFACE'              => $_ARRAYLANG['TXT_CRM_INTERFACE'],
                 'TXT_CRM_CUSTOMER_MEMBERSHIP'    => $_ARRAYLANG['TXT_CRM_CUSTOMER_MEMBERSHIP'],
-                strtoupper($tpl)."_ACTIVE"       => 'active'
+                strtoupper($tpl)."_ACTIVE"       => 'active',
+                'LANG_CODE'                      => \FWLanguage::getLanguageCodeById($_LANGID)
         ));
     }
 
@@ -3671,13 +3676,9 @@ END;
      */
     function customerTooltipDetail()
     {
+        global $_ARRAYLANG;
+
         $objDatabase = \Cx\Core\Core\Controller\Cx::instanciate()->getDb()->getAdoDb();
-        $objInit     = \Env::get('init');
-        $_ARRAYLANG  = $objInit->getComponentSpecificLanguageData(
-            'Crm',
-            false,
-            $objInit->getBackendLangId()
-        );
         $objtpl  = $this->_objTpl;
         $this->_objTpl->loadTemplateFile('module_'.$this->moduleNameLC.'_customer_tooltip_detail.html');
         $objtpl->setGlobalVariable("MODULE_NAME", $this->moduleName);

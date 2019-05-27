@@ -97,10 +97,18 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function executeCommand($command, $arguments, $dataArguments = array())
     {
+        global $_ARRAYLANG;
+
         $subcommand = null;
         if (!empty($arguments[0])) {
             $subcommand = $arguments[0];
         }
+
+        $_ARRAYLANG = \Env::get('init')->getComponentSpecificLanguageData(
+            'Crm',
+            false,
+            LANG_ID
+        );
 
         $crmManager = new CrmManager($this->getName());
         switch ($command) {
@@ -117,8 +125,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                         break;
                     case 'download':
                         $fileName = $crmManager->getContactFileNameById(
-                            contrexx_input2int($_GET['id']),
-                            contrexx_input2int($_GET['customer'])
+                            contrexx_input2int($arguments['id']),
+                            contrexx_input2int($arguments['customer'])
                         );
                         $crmManager->download($fileName);
                         break;
