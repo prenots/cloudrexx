@@ -317,6 +317,9 @@ class CalendarRegistration extends CalendarLibrary
                 $affiliationStatus = $data['registrationField'][$arrInputfield['id']];
             }
         } */
+
+        // set default seating option
+        $numSeating = 1;
         
         foreach ($this->getForm()->inputfields as $key => $arrInputfield) {
             /* if($affiliationStatus == 'sameAsContact') {
@@ -343,6 +346,25 @@ class CalendarRegistration extends CalendarLibrary
                         return false;    
                     }
                 }
+
+                // fetch set seating option
+                if ($arrInputfield['type'] == 'seating') {
+                    $seatingOptions = explode(
+                        ',',
+                        $arrInputfield['default_value'][FRONTEND_LANG_ID]
+                    );
+                    $selectedSeat = contrexx_input2int(
+                        $data['registrationField'][$arrInputfield['id']]
+                    );
+                    // the index of the form data is offset by one.
+                    // this is caused by the fact, that the selection of a
+                    // dropdown option (like the seating is one) can be
+                    // optional. the option with index 0 represents the
+                    // 'no-selection' option.
+                    if (isset($seatingOptions[$selectedSeat - 1])) {
+                        $numSeating = $seatingOptions[$selectedSeat - 1];
+                    }
+                }
             /* } */
         }
         
@@ -366,40 +388,6 @@ class CalendarRegistration extends CalendarLibrary
             if (empty($objEvent)) {
                 return false;
             }
-        }
-
-        $seatingOption = $objDatabase->Execute('
-            SELECT
-                `ff`.`id` AS `id`,
-                `fn`.`default` AS `seating_option`
-            FROM
-                `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration_form` AS `f`
-            INNER JOIN
-                `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration_form_field` AS `ff`
-            ON
-                `f`.`id` = `ff`.`form`
-            INNER JOIN
-                `'.DBPREFIX.'module_'.$this->moduleTablePrefix.'_registration_form_field_name` AS `fn`
-            ON
-                `ff`.`id` = `fn`.`field_id`
-            WHERE
-                `f`.`id` = '. contrexx_input2int($formId) .'
-            AND
-                `ff`.`type` = "seating"
-            ORDER BY CASE `fn`.lang_id
-                WHEN '. $_LANGID .' THEN 1
-                ELSE 2
-                END
-        ');
-
-        $numSeating = 1;
-        if ($seatingOption && $seatingOption->RecordCount() > 0) {
-            $seatingOptionArray = explode(',', $seatingOption->fields['seating_option']);
-            $selectedSeat       = contrexx_input2int(
-                $data['registrationField'][$seatingOption->fields['id']]
-            );
-            $numSeating         = !empty($seatingOptionArray[$selectedSeat])
-                                 ? $seatingOptionArray[$selectedSeat] : 1;
         }
 
         // set registration type
