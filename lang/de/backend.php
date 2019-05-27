@@ -140,7 +140,6 @@ $_ARRAYLANG['TXT_PAGING_OUT_OF'] = "von";
 $_ARRAYLANG['TXT_PAGING_TO'] = "bis";
 $_ARRAYLANG['TXT_FIRST_NAME'] = "Vorname";
 $_ARRAYLANG['TXT_PASSWORD_FIELD_EMPTY'] = "Wenn das Passwortfeld leer bleibt, wird das aktuelle Passwort beibehalten! ";
-$_ARRAYLANG['TXT_PASSWORD_MD5_ENCRYPTED'] = "Das Passwort wird mit dem MD5 Logarithmus verschlüsselt.";
 $_ARRAYLANG['TXT_VALUE'] = "Wert";
 $_ARRAYLANG['TXT_SIZE'] = "Dateigrösse";
 $_ARRAYLANG['TXT_DATABASE_QUERY_ERROR'] = "Fehler beim Ausführen der Datenbankabfrage!";
@@ -1278,7 +1277,7 @@ $_ARRAYLANG['TXT_CORE_CONTENTTITLE'] = "Titel (Seite)";
 
 // CORE/CM
 $_ARRAYLANG['TXT_CORE_CM_STATUS_PAGE'] = 'Status / Seite';
-$_ARRAYLANG['TXT_CORE_CM_TRANSLATIONS'] = 'Übersetzungen';
+$_ARRAYLANG['TXT_CORE_CM_TRANSLATIONS'] = 'Sprachversionen';
 $_ARRAYLANG['TXT_CORE_CM_SECTION_CMD'] = 'Section / CMD';
 $_ARRAYLANG['TXT_CORE_CM_LOG'] = 'Log';
 $_ARRAYLANG['TXT_CORE_CM_LAST_MODIFIED'] = 'Letzte Änderung durch Benutzer';
@@ -1402,6 +1401,7 @@ $_ARRAYLANG['TXT_CORE_CM_COPY_N_OF_PAGE'] = '%s. Kopie';
 $_ARRAYLANG['TXT_CORE_CM_HISTORY_ENTRIES'] = 'Einträge';
 $_ARRAYLANG['TXT_CORE_CM_HISTORY_HIDE_DRAFTS'] = 'Entwürfe ausblenden';
 $_ARRAYLANG['TXT_CORE_CM_SLUG'] = 'URI-Slug';
+$_ARRAYLANG['TXT_CORE_LOCALE_DOESNT_EXIST'] = 'Es wurde keine Sprache gefunden';
 
 // core login
 $_ARRAYLANG['TXT_CORE_CAPTCHA'] = "Sicherheitscode";

@@ -140,7 +140,6 @@ $_ARRAYLANG['TXT_PAGING_OUT_OF'] = "out of";
 $_ARRAYLANG['TXT_PAGING_TO'] = "to";
 $_ARRAYLANG['TXT_FIRST_NAME'] = "First name";
 $_ARRAYLANG['TXT_PASSWORD_FIELD_EMPTY'] = "If the password field remains empty, the current password is maintained!";
-$_ARRAYLANG['TXT_PASSWORD_MD5_ENCRYPTED'] = "The password is encoded with the MD5 hashing algorithm.";
 $_ARRAYLANG['TXT_VALUE'] = "Value";
 $_ARRAYLANG['TXT_SIZE'] = "File size";
 $_ARRAYLANG['TXT_DATABASE_QUERY_ERROR'] = "Database Query Error!";
@@ -1202,7 +1201,7 @@ $_ARRAYLANG['TXT_USE_CONTENT_FROM_LANGUAGE_HELPTEXT'] = "Verwenden Sie diese Opt
 
 
 $_ARRAYLANG['TXT_CORE_CM_STATUS_PAGE'] = 'Status / Page';
-$_ARRAYLANG['TXT_CORE_CM_TRANSLATIONS'] = 'Translations';
+$_ARRAYLANG['TXT_CORE_CM_TRANSLATIONS'] = 'Locales';
 $_ARRAYLANG['TXT_CORE_CM_SECTION_CMD'] = 'Section / CMD';
 $_ARRAYLANG['TXT_CORE_CM_LOG'] = 'Log';
 $_ARRAYLANG['TXT_CORE_CM_LAST_MODIFIED'] = 'Last modified by user';
@@ -1326,6 +1325,7 @@ $_ARRAYLANG['TXT_CORE_CM_COPY_N_OF_PAGE'] = 'Copy %s';
 $_ARRAYLANG['TXT_CORE_CM_HISTORY_ENTRIES'] = 'Entries';
 $_ARRAYLANG['TXT_CORE_CM_HISTORY_HIDE_DRAFTS'] = 'Hide drafts';
 $_ARRAYLANG['TXT_CORE_CM_SLUG'] = 'URI-Slug';
+$_ARRAYLANG['TXT_CORE_LOCALE_DOESNT_EXIST'] = 'No language was found';
 
 // upload
 $_ARRAYLANG['TXT_CORE_UPLOAD_MORE'] = "Upload more";
