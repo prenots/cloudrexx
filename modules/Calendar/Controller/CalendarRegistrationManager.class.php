@@ -716,6 +716,14 @@ class CalendarRegistrationManager extends CalendarLibrary
 
         $countSeating = 0;
         foreach ($this->registrationList as $registration) {
+            // check if the registration contains any seating-info
+            if (!isset($registration->fields[$seatingFieldId])) {
+                // simply increment the attendees count by 1 as no seating info
+                // is present
+                $countSeating += 1;
+                continue;
+            }
+
             $arrOptions    = explode(',', $registration->fields[$seatingFieldId]['default']);
             $optionIdx = $registration->fields[$seatingFieldId]['value'] - 1;
             if (isset($arrOptions[$optionIdx])) {
