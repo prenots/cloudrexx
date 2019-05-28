@@ -60,7 +60,13 @@ var switchActive = function(id, obj, action)
 {
     new Ajax.Request('index.php', {
         method: 'get',
-        parameters: {cmd : "knowledge{MODULE_INDEX}", act : "categories", tpl : "switchState", id : id, switchTo : action},
+        parameters: {
+            cmd : 'jsondata',
+            object : 'Knowledge',
+            act : 'categorySwitchState',
+            id : id,
+            switchTo : action
+        },
         onSuccess: function(transport) {
             if (statusMsg(transport.responseText)) {
                 var img = obj.getElementsByTagName("img")[0];
@@ -88,7 +94,12 @@ var deleteCategory = function(entryId, amount)
     if (confirm("{TXT_CONFIRM_CATEGORY_DELETION}".replace(/%amount%/, amount))) {
         new Ajax.Request('index.php', {
             method: 'get',
-            parameters: {cmd : "knowledge{MODULE_INDEX}", act : "categories", tpl : "delete", id : entryId},
+            parameters: {
+                cmd : 'jsondata',
+                object : 'Knowledge',
+                act : 'deleteCategory',
+                id : entryId
+            },
             onSuccess: function() {
                 catTree.deleteRow(entryId);
             }
@@ -204,7 +215,7 @@ var init = function()
  */
 var updateSort = function(id)
 {
-    new Ajax.Request("index.php?cmd=Knowledge{MODULE_INDEX}&act=categories&tpl=sort", {
+    new Ajax.Request('index.php?cmd=jsondata&object=Knowledge&act=sortCategories', {
             method : "post",
             parameters : Sortable.serialize(id),
             onSuccess : function(transport) {

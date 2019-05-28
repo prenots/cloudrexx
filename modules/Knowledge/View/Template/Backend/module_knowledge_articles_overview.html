@@ -123,7 +123,7 @@ var initSortableArea = function()
         Sortable.create("articlelist", {
            onUpdate: function() {
                 setRows();
-                new Ajax.Request("index.php?cmd=Knowledge{MODULE_INDEX}&act=articles&tpl=sort", {
+                new Ajax.Request('index.php?cmd=jsondata&object=Knowledge&act=sortArticles', {
                     method : "post",
                     parameters : Sortable.serialize("articlelist"),
                     onSuccess : function(transport) {
@@ -195,7 +195,13 @@ var switchActive = function(id, obj, action)
 {
     new Ajax.Request('index.php', {
         method: 'get',
-        parameters: {cmd : "knowledge{MODULE_INDEX}", act : "articles", tpl : "switchState", id : id, switchTo : action},
+        parameters: {
+            cmd : 'jsondata',
+            object : 'Knowledge',
+            act : 'articleSwitchState',
+            id : id,
+            switchTo : action
+        },
         onSuccess: function(transport) {
             if (statusMsg(transport.responseText)) {
                 var img = obj.getElementsByTagName("img")[0];
@@ -217,7 +223,12 @@ var deleteArticle = function(id)
     if (confirm("{TXT_CONFIRM_ARTICLE_DELETION}")) {
         new Ajax.Request('index.php', {
             method: 'get',
-            parameters: {cmd : "knowledge{MODULE_INDEX}", act : "articles", tpl : "delete", id : id},
+            parameters: {
+                cmd : 'jsondata',
+                object : 'Knowledge',
+                act : 'deleteArticle',
+                id : id
+            },
             onSuccess: function() {
                 articles.deleteRow(id);
             }
