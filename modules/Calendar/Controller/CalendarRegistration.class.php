@@ -385,6 +385,23 @@ class CalendarRegistration extends CalendarLibrary
         // set registration as default
         $this->type = static::REGISTRATION_TYPE_REGISTRATION;
 
+        // fetch submitted type
+        if (
+            isset($data['registrationType']) &&
+            in_array(
+                $data['registrationType'],
+                array(
+                    static::REGISTRATION_TYPE_REGISTRATION,
+                    static::REGISTRATION_TYPE_WAITLIST,
+                    static::REGISTRATION_TYPE_CANCELLATION,
+                )
+            )
+        ) {
+            // note: the intval() is required to prevent
+            // invalid casts due of the existing array element '0'
+            $this->type = intval($data['registrationType']);
+        }
+
         $mode = \Cx\Core\Core\Controller\Cx::instanciate()->getMode();
         // set registration type
         if (
@@ -396,8 +413,6 @@ class CalendarRegistration extends CalendarLibrary
             intval($objEvent->getFreePlaces() - $numSeating) < 0
         ) {
             $this->type = static::REGISTRATION_TYPE_WAITLIST;
-        } elseif (isset($data['registrationType'])) {
-            $this->type = intval($data['registrationType']);
         }
 
         $paymentMethod = empty($data['paymentMethod']) ? 0 : intval($data['paymentMethod']);
