@@ -1329,9 +1329,9 @@ UPLOADER;
             return;
         }
 
-        if ($objRegistration->saveIn == 2) {
+        if ($objRegistration->saveIn == CalendarRegistration::REGISTRATION_TYPE_WAITLIST) {
             $status = $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_SUCCESSFULLY_ADDED_WAITLIST'];
-        } else if ($objRegistration->saveIn == 0) {
+        } else if ($objRegistration->saveIn == CalendarRegistration::REGISTRATION_TYPE_CANCELLATION) {
             $status =$_ARRAYLANG['TXT_CALENDAR_REGISTRATION_SUCCESSFULLY_ADDED_SIGNOFF'];
         } else {
             $status = $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_SUCCESSFULLY_ADDED'];

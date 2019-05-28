@@ -1824,14 +1824,14 @@ class CalendarManager extends CalendarLibrary
                 );
             if ($objRegistration->save($_POST, $objEvent)) {
                 switch ($_POST['registrationType']) {
-                    case 0:
+                    case CalendarRegistration::REGISTRATION_TYPE_CANCELLATION:
                         $tpl = 'd';
                         break;
-                    case 1:
+                    case CalendarRegistration::REGISTRATION_TYPE_REGISTRATION:
                     default:
                         $tpl = 'r';
                         break;
-                    case 2:
+                    case CalendarRegistration::REGISTRATION_TYPE_WAITLIST:
                         $tpl = 'w';
                         break;
                 }
