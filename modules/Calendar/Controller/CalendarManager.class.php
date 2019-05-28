@@ -1827,7 +1827,7 @@ class CalendarManager extends CalendarLibrary
                     $regId
                 );
             if ($objRegistration->save($_POST, $objEvent)) {
-                switch ($_POST['registrationType']) {
+                switch ($objRegistration->type) {
                     case CalendarRegistration::REGISTRATION_TYPE_CANCELLATION:
                         $tpl = 'd';
                         break;
