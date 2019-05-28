@@ -424,10 +424,8 @@ class CalendarRegistration extends CalendarLibrary
                 abs($objEvent->numSubscriber - $attendeeCount - $numSeating)
             ));
         } elseif (
-            (
-                empty($regId) ||
-                $mode == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND
-            ) &&
+            $this->type == static::REGISTRATION_TYPE_REGISTRATION &&
+            $mode == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND &&
             !empty($objEvent->numSubscriber) &&
             intval($objEvent->getFreePlaces() - $numSeating) < 0
         ) {
