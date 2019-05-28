@@ -70,6 +70,7 @@ class JsonUserController
             'storeNewsletter',
             'storeDownloadExtension',
             'storeOnlyNewsletterLists',
+            'userEditPermission',
         );
     }
 
@@ -490,5 +491,41 @@ class JsonUserController
 
         \Message::add($message);
         return $user;
+    }
+
+    /**
+     * This returns true if the request protocol is HTTPS, the mode is
+     * "command", the command is "v1" and the API action is not a read action.
+     *
+     * @todo: Specify if we should allow method "DELETE"
+     * @return boolean True if permission to edit a user is granted.
+     */
+    public function userEditPermission() {
+        // request protocol must be HTTPS
+        if ($this->cx->getRequest()->getUrl()->getProtocol() != 'https') {
+            //return false;
+        }
+        // request mode must be "command"
+        if ($this->cx->getMode() != \Cx\Core\Core\Controller\Cx::MODE_COMMAND) {
+            return false;
+        }
+        // command must be "v1"
+        // As we require HTTPS to get here, we can assume we're not on CLI
+        $path = $this->cx->getRequest()->getUrl()->getSuggestedTargetPath();
+        $pathParts = explode('/', $path);
+        // $pathParts[0] would be 'api'
+        if ($pathParts[1] != 'v1') {
+            return false;
+        }
+        // method must be one of "POST", "PUT", "PATCH"
+        if (
+            !in_array(
+                $this->cx->getRequest()->getHttpRequestMethod(),
+                array('POST', 'PUT', 'PATCH')
+            )
+        ) {
+            return false;
+        }
+        return true;
     }
 }
