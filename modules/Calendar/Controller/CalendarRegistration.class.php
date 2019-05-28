@@ -656,7 +656,7 @@ class CalendarRegistration extends CalendarLibrary
             $objMailManager = new \Cx\Modules\Calendar\Controller\CalendarMailManager();
 
             // send notification mail about successful registration to user
-            if ($this->type != self::REGISTRATION_TYPE_WAITLIST) {
+            if ($this->type != static::REGISTRATION_TYPE_WAITLIST) {
                 // Do not send confirmation mail, incase registration type is in waiting list
                 $objMailManager->sendMail(
                     $objEvent,
