@@ -45,10 +45,18 @@ namespace Cx\Modules\Knowledge\Controller;
  * @subpackage  module_knowledge
  */
 class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentController {
+    /**
+     * {@inheritdoc}
+     */
     public function getControllerClasses() {
-        // Return an empty array here to let the component handler know that there
-        // does not exist a backend, nor a frontend controller of this component.
-        return array();
+        return array('JsonKnowledge');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getControllersAccessableByJson() {
+        return array('JsonKnowledgeController');
     }
 
      /**
