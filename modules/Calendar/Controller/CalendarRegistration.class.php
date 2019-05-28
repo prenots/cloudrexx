@@ -385,11 +385,12 @@ class CalendarRegistration extends CalendarLibrary
         // set registration as default
         $this->type = static::REGISTRATION_TYPE_REGISTRATION;
 
+        $mode = \Cx\Core\Core\Controller\Cx::instanciate()->getMode();
         // set registration type
         if (
             (
                 empty($regId) ||
-                \Cx\Core\Core\Controller\Cx::instanciate()->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND
+                $mode == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND
             ) &&
             !empty($objEvent->numSubscriber) &&
             intval($objEvent->getFreePlaces() - $numSeating) < 0
