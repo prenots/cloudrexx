@@ -130,14 +130,6 @@ class CalendarRegistration extends CalendarLibrary
     public $paid;
     
     /**
-     * Save In
-     *
-     * @access public
-     * @var integer 
-     */
-    public $saveIn;
-    
-    /**
      * Fields
      *
      * @access public
@@ -399,13 +391,12 @@ class CalendarRegistration extends CalendarLibrary
             !empty($objEvent->numSubscriber) &&
             intval($objEvent->getFreePlaces() - $numSeating) < 0
         ) {
-            $type = static::REGISTRATION_TYPE_WAITLIST;
+            $this->type = static::REGISTRATION_TYPE_WAITLIST;
         } elseif (isset($data['registrationType'])) {
-            $type = intval($data['registrationType']);
+            $this->type = intval($data['registrationType']);
         } else {
-            $type = static::REGISTRATION_TYPE_REGISTRATION;
+            $this->type = static::REGISTRATION_TYPE_REGISTRATION;
         }
-        $this->saveIn = intval($type);
 
         $paymentMethod = empty($data['paymentMethod']) ? 0 : intval($data['paymentMethod']);
         $paid = empty($data['paid']) ? 0 : intval($data['paid']);
@@ -432,7 +423,7 @@ class CalendarRegistration extends CalendarLibrary
         $formData = array(
             'fields' => array(
                 'date'          => $eventDate,
-                'type'          => $type,
+                'type'          => $this->type,
                 'userId'        => $userId,
                 'langId'        => $this->langId ? $this->langId : FRONTEND_LANG_ID,
                 'paymentMethod' => $paymentMethod,
@@ -472,7 +463,7 @@ class CalendarRegistration extends CalendarLibrary
                         SET `event_id`         = ' . $eventId . ',
                             `submission_date`  = "' . $submissionDate->format('Y-m-d H:i:s') .'",
                             `date`             = ' . $eventDate . ',
-                            `type`             = ' . $type . ',
+                            `type`             = ' . $this->type . ',
                             `invite_id`        = ' . $this->invite->getId(). ',
                             `user_id`          = ' . $userId . ',
                             `lang_id`          = ' . ($this->langId ? $this->langId : FRONTEND_LANG_ID) . ',
@@ -512,7 +503,7 @@ class CalendarRegistration extends CalendarLibrary
                              `date` = '.$eventDate.',
                              `invite_id` = '.$this->invite->getId().',
                              `user_id` = '.$userId.',
-                             `type`    = '.$type.',
+                             `type`    = '.$this->type.',
                              `lang_id` = ' . ($this->langId ? $this->langId : FRONTEND_LANG_ID) . ',
                              `payment_method` = '.$paymentMethod.',
                              `paid` = '.$paid.'
@@ -602,7 +593,7 @@ class CalendarRegistration extends CalendarLibrary
             $objMailManager = new \Cx\Modules\Calendar\Controller\CalendarMailManager();
 
             // send notification mail about successful registration to user
-            if ($type != self::REGISTRATION_TYPE_WAITLIST) {
+            if ($this->type != self::REGISTRATION_TYPE_WAITLIST) {
                 // Do not send confirmation mail, incase registration type is in waiting list
                 $objMailManager->sendMail(
                     $objEvent,
