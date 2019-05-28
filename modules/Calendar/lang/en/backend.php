@@ -679,3 +679,4 @@ $_ARRAYLANG['TXT_CALENDAR_CRM_EXCLUDED_MEMBERSHIPS'] = 'Exclude persons of custo
 $_ARRAYLANG['TXT_CALENDAR_CHOOSE_CRM_MEMBERSHIPS'] = 'Select customer groups';
 $_ARRAYLANG['TXT_CALENDAR_PUBLISHED'] = 'Published';
 $_ARRAYLANG['TXT_CALENDAR_USE_CUSTOM_FORMAT'] = 'Use custom format';
+$_ARRAYLANG['TXT_CALENDAR_REGISTRATION_CAUSED_OVERBOOKING'] = 'Registration has been stored, even though that the event is now overbooked by %s attendees!';

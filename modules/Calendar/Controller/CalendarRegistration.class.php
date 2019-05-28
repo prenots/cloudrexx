@@ -302,7 +302,7 @@ class CalendarRegistration extends CalendarLibrary
      */
     function save($data, CalendarEvent $objEvent)
     {
-        global $objDatabase, $objInit, $_LANGID;
+        global $objDatabase, $objInit, $_LANGID, $_ARRAYLANG;
         
         /* foreach ($this->getForm()->inputfields as $key => $arrInputfield) {
             if($arrInputfield['type'] == 'selectBillingAddress') { 
@@ -403,8 +403,27 @@ class CalendarRegistration extends CalendarLibrary
         }
 
         $mode = \Cx\Core\Core\Controller\Cx::instanciate()->getMode();
-        // set registration type
+
+        // verify selected seating option
         if (
+            $mode == \Cx\Core\Core\Controller\Cx::MODE_BACKEND &&
+            $this->type == static::REGISTRATION_TYPE_REGISTRATION &&
+            $_POST['regtpl'] != 'r' &&
+            !empty($objEvent->numSubscriber) &&
+            intval($objEvent->getFreePlaces() - $numSeating) < 0
+        ) {
+            // in backend, do allow overbooking, but show a
+            // warning message to the user
+            $registrationManager =
+                new \Cx\Modules\Calendar\Controller\CalendarRegistrationManager(
+                    $objEvent
+                );
+            $attendeeCount = $registrationManager->getEscortData();
+            \Message::warning(sprintf(
+                $_ARRAYLANG['TXT_CALENDAR_REGISTRATION_CAUSED_OVERBOOKING'],
+                abs($objEvent->numSubscriber - $attendeeCount - $numSeating)
+            ));
+        } elseif (
             (
                 empty($regId) ||
                 $mode == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND
