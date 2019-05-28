@@ -117,9 +117,13 @@ class CalendarManager extends CalendarLibrary
             case 'modify_registration':
             case 'add_registration':
                 \Permission::checkAccess(182, 'static');
+                $registrationId = 0;
+                if (!empty($_GET['rid'])) {
+                    $registrationId = contrexx_input2int($_GET['rid']);
+                }
                 $this->modifyRegistration(
                     contrexx_input2int($_GET['event_id']),
-                    contrexx_input2int($_GET['rid'])
+                    $registrationId
                 );
                 break;
             default:
@@ -1877,13 +1881,16 @@ class CalendarManager extends CalendarLibrary
         } else {
             $this->_objTpl->hideBlock('calendarRegistrationPayment');
         }
-
+        $tpl = '';
+        if (isset($_GET['tpl'])) {
+            $tpl = $_GET['tpl'];
+        }
         $this->_objTpl->setGlobalVariable(array(
             'TXT_'.$this->moduleLangVar.'_REGISTRATION_TITLE'    => $this->_pageTitle,
             'TXT_'.$this->moduleLangVar.'_SAVE'                  => $_ARRAYLANG['TXT_CALENDAR_SAVE'],
             'TXT_'.$this->moduleLangVar.'_BACK'                  => $_ARRAYLANG['TXT_CALENDAR_BACK'],
             $this->moduleLangVar.'_EVENT_ID'                     => $eventId,
-            $this->moduleLangVar.'_REGISTRATION_TPL'             => $_GET['tpl'],
+            $this->moduleLangVar.'_REGISTRATION_TPL'             => $tpl,
             $this->moduleLangVar.'_REGISTRATION_ID'              => $regId,
             $this->moduleLangVar.'_REGISTRATION_TYPE'            => $objRegistration->type,
             $this->moduleLangVar.'_FORM_ID'                      => $objEvent->registrationForm,
