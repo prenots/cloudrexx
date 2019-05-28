@@ -312,6 +312,14 @@ class CalendarRegistration extends CalendarLibrary
 
         // set default seating option
         $numSeating = 1;
+
+        // will be used to hold the seating option if we're updating
+        // an existing registration
+        $storedSeatingOption = 0;
+
+        // will be holding the ID of the form input field
+        // of the seating select option
+        $seatingFieldId = 0;
         
         foreach ($this->getForm()->inputfields as $key => $arrInputfield) {
             /* if($affiliationStatus == 'sameAsContact') {
@@ -339,16 +347,28 @@ class CalendarRegistration extends CalendarLibrary
                     }
                 }
 
-                // fetch set seating option
+                // process seating option
                 if ($arrInputfield['type'] == 'seating') {
+                    // remember ID of form input field
+                    $seatingFieldId = $arrInputfield['id'];
+
+                    // Remember option of stored registration.
+                    // Will be used in case the event is fully booked already.
+                    if ($this->id) {
+                        $storedSeatingOption =
+                            $this->fields[$arrInputfield['id']]['value'];
+                    }
+                    // fetch available seating options
                     $seatingOptions = explode(
                         ',',
                         $arrInputfield['default_value'][FRONTEND_LANG_ID]
                     );
+                    // fetch submitted seating selection
                     $selectedSeat = contrexx_input2int(
                         $data['registrationField'][$arrInputfield['id']]
                     );
-                    // the index of the form data is offset by one.
+                    // Set selected seating option.
+                    // The index of the form data is offset by one.
                     // this is caused by the fact, that the selection of a
                     // dropdown option (like the seating is one) can be
                     // optional. the option with index 0 represents the
@@ -429,7 +449,16 @@ class CalendarRegistration extends CalendarLibrary
             !empty($objEvent->numSubscriber) &&
             intval($objEvent->getFreePlaces() - $numSeating) < 0
         ) {
-            $this->type = static::REGISTRATION_TYPE_WAITLIST;
+            // event is booked out, therefore we do not allow
+            // to modify existing seating option
+            if ($storedSeatingOption) {
+                // set seating option from loaded registration
+                $data['registrationField'][$seatingFieldId]['value'] =
+                    $storedSeatingOption;
+            } else {
+                // new registrations are put into waiting list
+                $this->type = static::REGISTRATION_TYPE_WAITLIST;
+            }
         }
 
         $paymentMethod = empty($data['paymentMethod']) ? 0 : intval($data['paymentMethod']);
