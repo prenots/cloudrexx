@@ -313,6 +313,11 @@ class CalendarRegistrationManager extends CalendarLibrary
                         case 'salutation':
                         case 'seating':
                         case 'select':
+                            // abort in case an invalid selection is stored
+                            if ($objResult->fields['value'] == '') {
+                                break;
+                            }
+                            // validate selected option
                             $optionIdx = $objResult->fields['value'] - 1;
                             if (isset($options[$optionIdx])) {
                                 $value = $options[$optionIdx];
