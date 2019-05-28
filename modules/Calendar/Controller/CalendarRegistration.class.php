@@ -382,6 +382,9 @@ class CalendarRegistration extends CalendarLibrary
             }
         }
 
+        // set registration as default
+        $this->type = static::REGISTRATION_TYPE_REGISTRATION;
+
         // set registration type
         if (
             (
@@ -394,8 +397,6 @@ class CalendarRegistration extends CalendarLibrary
             $this->type = static::REGISTRATION_TYPE_WAITLIST;
         } elseif (isset($data['registrationType'])) {
             $this->type = intval($data['registrationType']);
-        } else {
-            $this->type = static::REGISTRATION_TYPE_REGISTRATION;
         }
 
         $paymentMethod = empty($data['paymentMethod']) ? 0 : intval($data['paymentMethod']);
