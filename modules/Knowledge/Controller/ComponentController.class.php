@@ -48,14 +48,16 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     /**
      * {@inheritdoc}
      */
-    public function getControllerClasses() {
+    public function getControllerClasses()
+    {
         return array('JsonKnowledge');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getControllersAccessableByJson() {
+    public function getControllersAccessableByJson()
+    {
         return array('JsonKnowledgeController');
     }
 
