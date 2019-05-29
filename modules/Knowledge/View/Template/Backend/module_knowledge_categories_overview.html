@@ -62,7 +62,7 @@ var switchActive = function(id, obj, action)
         method: 'get',
         parameters: {
             cmd : 'jsondata',
-            object : 'Knowledge',
+            object : 'Knowledge{MODULE_INDEX}',
             act : 'categorySwitchState',
             id : id,
             switchTo : action
@@ -96,7 +96,7 @@ var deleteCategory = function(entryId, amount)
             method: 'get',
             parameters: {
                 cmd : 'jsondata',
-                object : 'Knowledge',
+                object : 'Knowledge{MODULE_INDEX}',
                 act : 'deleteCategory',
                 id : entryId
             },
@@ -215,7 +215,7 @@ var init = function()
  */
 var updateSort = function(id)
 {
-    new Ajax.Request('index.php?cmd=jsondata&object=Knowledge&act=sortCategories', {
+    new Ajax.Request('index.php?cmd=jsondata&object=Knowledge{MODULE_INDEX}&act=sortCategories', {
             method : "post",
             parameters : Sortable.serialize(id),
             onSuccess : function(transport) {
