@@ -36,6 +36,16 @@
  */
 namespace Cx\Modules\Knowledge\Controller;
 
+/**
+ * Class KnowledgeJsonException for this Component.
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Project Team SS4U <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  module_knowledge
+ */
+class KnowledgeJsonException extends \Exception {}
+
 define('ACCESS_ID_EDIT_CATEGORIES', 133);
 define('ACCESS_ID_EDIT_ARTICLES', 131);
 
@@ -48,7 +58,16 @@ define('ACCESS_ID_EDIT_ARTICLES', 131);
  * @package     cloudrexx
  * @subpackage  module_knowledge
  */
-class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller implements \Cx\Core\Json\JsonAdapter {
+class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
+                              implements \Cx\Core\Json\JsonAdapter {
+
+    /**
+     * Status message
+     *
+     * @var String String of message
+     */
+    protected $message = '';
+
     /**
      * Returns the internal name used as identifier for this adapter
      *
@@ -56,7 +75,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
      */
     public function getName()
     {
-        return parent::getName();
+        return 'Knowledge';
     }
 
     /**
@@ -77,13 +96,13 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
     }
 
     /**
-     * Returns all messages as string
+     * Return the message
      *
-     * @return String HTML encoded error messages
+     * @return String Status message
      */
     public function getMessagesAsString()
     {
-        return '';
+        return $this->message;
     }
 
     /**
@@ -118,14 +137,10 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
                 $msg = $langData['TXT_KNOWLEDGE_MSG_DEACTIVE'];
             }
         } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
-        echo json_encode(array(
-            'status'  => 1,
-            'message' => $msg
-        ));
-        exit();
+        $this->message = $msg;
     }
 
     /**
@@ -145,15 +160,11 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
                 }
             }
         } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
-        echo json_encode(array(
-            'status'  => 1,
-            'message' => $langData['TXT_KNOWLEDGE_MSG_SORT']
-        ));
-        exit();
+        $this->message = $langData['TXT_KNOWLEDGE_MSG_SORT'];
     }
 
     /**
@@ -176,15 +187,11 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
             $tags = new KnowledgeTags();
             $tags->clearTags();
         } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
-        echo json_encode(array(
-            'status'  => 1,
-            'message' => $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL']
-        ));
-        exit();
+        $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
     }
 
     /**
@@ -201,14 +208,11 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
                 $articles->setSort($id, $position);
             }
         } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
-        echo json_encode(array(
-            'status'  => 1,
-            'message' => $langData['TXT_KNOWLEDGE_MSG_SORT']
-        ));
+        $this->message = $langData['TXT_KNOWLEDGE_MSG_SORT'];
     }
 
     /**
@@ -233,14 +237,10 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
                 $msg = $langData['TXT_KNOWLEDGE_MSG_DEACTIVE'];
             }
         } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
-        echo json_encode(array(
-            'status'  => 1,
-            'message' => $msg
-        ));
-        exit();
+        $this->message = $msg;
     }
 
     /**
@@ -259,20 +259,16 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
             $tags = new KnowledgeTags();
             $tags->clearTags();
         } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
-        echo json_encode(array(
-            'status'  => 1,
-            'message' => $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL']
-        ));
-        exit();
+        $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
     }
 
     /**
-     * Check acces for ajax request
-     * When the page is ajax requested the response should be
+     * Check access for AJAX request
+     * When the page is AJAX requested the response should be
      * different so that the page can display a message that the user
      * hasn't got permissions to do what he tried.
      * Hence, this function returns a JSON object containing a status
@@ -284,23 +280,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller impl
     {
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
         if (!\Permission::checkAccess($id, 'static', true)) {
-            $this->sendAjaxError($langData['TXT_KNOWLEDGE_ACCESS_DENIED']);
+            throw new KnowledgeJsonException($langData['TXT_KNOWLEDGE_ACCESS_DENIED']);
         }
-    }
-
-    /**
-     * Send ajax error message
-     * Sends an json object for ajax request to communcate that there has been
-     * an error.
-     *
-     * @param string $message String of message
-     */
-    protected function sendAjaxError($message)
-    {
-        echo json_encode(array(
-            'status'  => 0,
-            'message' => $message
-        ));
-        exit();
     }
 }
