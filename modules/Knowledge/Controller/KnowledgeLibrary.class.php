@@ -75,6 +75,16 @@ class KnowledgeLibrary {
     protected $tags;
 
     /**
+     * Access id for edit categories
+     */
+    const ACCESS_ID_EDIT_CATEGORIES = 133;
+
+    /**
+     * Access id for edit articles
+     */
+    const ACCESS_ID_EDIT_ARTICLES = 131;
+
+    /**
      * Initialise the needed objects
      */
     public function __construct() {

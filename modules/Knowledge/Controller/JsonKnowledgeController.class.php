@@ -46,9 +46,6 @@ namespace Cx\Modules\Knowledge\Controller;
  */
 class KnowledgeJsonException extends \Exception {}
 
-define('ACCESS_ID_EDIT_CATEGORIES', 133);
-define('ACCESS_ID_EDIT_ARTICLES', 131);
-
 /**
  * JsonKnowledgeController
  * Json controller for knowledge module
@@ -122,7 +119,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function categorySwitchState($params = array())
     {
-        $this->checkAjaxAccess(ACCESS_ID_EDIT_CATEGORIES);
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
+
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
@@ -150,7 +148,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function sortCategories($params = array())
     {
-        $this->checkAjaxAccess(ACCESS_ID_EDIT_CATEGORIES);
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
+
         $keys = array_keys($params['post']);
         try {
             $category = new KnowledgeCategory();
@@ -174,7 +173,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function deleteCategory($params = array())
     {
-        \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
+
         $id = contrexx_input2int($params['get']['id']);
         try {
             $category = new KnowledgeCategory();
@@ -201,7 +201,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function sortArticles($params = array())
     {
-        $this->checkAjaxAccess(ACCESS_ID_EDIT_ARTICLES);
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
+
         try {
             $articles = new KnowledgeArticles();
             foreach ($params['post']['articlelist'] as $position => $id) {
@@ -222,7 +223,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function articleSwitchState($params = array())
     {
-        $this->checkAjaxAccess(ACCESS_ID_EDIT_ARTICLES);
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
+
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
@@ -250,7 +252,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function deleteArticle($params = array())
     {
-        $this->checkAjaxAccess(ACCESS_ID_EDIT_ARTICLES);
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
+
         $id = contrexx_input2int($params['get']['id']);
 
         try {
@@ -278,8 +281,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     protected function checkAjaxAccess($id)
     {
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
         if (!\Permission::checkAccess($id, 'static', true)) {
+            $langData = \Env::get('init')->loadLanguageData('Knowledge');
             throw new KnowledgeJsonException($langData['TXT_KNOWLEDGE_ACCESS_DENIED']);
         }
     }
