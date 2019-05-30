@@ -5,12 +5,13 @@
 
 function tidyTags(caller)
 {
-    $J.ajax({url: "index.php",
-        method: "get",
+    $J.ajax({
+        url : 'index.php',
+        method : 'get',
         data: {
-            cmd : "knowledge{MODULE_INDEX}",
-            act : "settings",
-            tpl : "tidyTags"
+            cmd : 'jsondata',
+            object : 'Knowledge',
+            act : 'settingsTidyTags'
         },
         dataType: 'json',
         success: showOkMessage
@@ -19,13 +20,13 @@ function tidyTags(caller)
 
 function resetVotes()
 {
-    $J.ajax({
-        url: "index.php",
-        method: "get",
+   $J.ajax({
+        url : 'index.php',
+        method : 'get',
         data: {
-            cmd : "knowledge{MODULE_INDEX}",
-            act : "settings",
-            tpl : "resetVotes"
+            cmd : 'jsondata',
+            object : 'Knowledge',
+            act : 'settingsResetVotes'
         },
         dataType: 'json',
         success: showOkMessage
@@ -33,9 +34,12 @@ function resetVotes()
 }
 
 var showOkMessage = function(data){
-    if(data.ok){
-        $J('#errormessagetarget').append('<div id="okbox">'+data.ok+'</div>').find(':last-child')
-        .fadeIn('slow').animate({opacity: 1.0}, 3000).fadeOut(10000, function(){$J(this).remove()});
+    if(data.status === 'success'){
+        $J('#errormessagetarget')
+            .append('<div id="okbox">' + data.message + '</div>')
+            .find(':last-child')
+            .fadeIn('slow').animate({opacity: 1.0}, 3000)
+            .fadeOut(10000, function(){$J(this).remove()});
     }
 }
 

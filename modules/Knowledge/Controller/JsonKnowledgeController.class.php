@@ -88,7 +88,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'deleteCategory',
             'sortArticles',
             'articleSwitchState',
-            'deleteArticle'
+            'deleteArticle',
+            'settingsTidyTags',
+            'settingsResetVotes',
         );
     }
 
@@ -285,5 +287,38 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             $langData = \Env::get('init')->loadLanguageData('Knowledge');
             throw new KnowledgeJsonException($langData['TXT_KNOWLEDGE_ACCESS_DENIED']);
         }
+    }
+
+    /**
+     * Tidy the tags
+     * Call the function to remove unnecessary tags
+     */
+    public function settingsTidyTags()
+    {
+        try {
+            $tags = new KnowledgeTags();
+            $tags->tidy();
+        } catch (DatabaseError $e) {
+            throw new KnowledgeJsonException($e);
+        }
+
+        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $this->message = $langData['TXT_KNOWLEDGE_TIDY_TAGS_SUCCESSFUL'];
+    }
+
+    /**
+     * Reset the vote statistics
+     */
+    public function settingsResetVotes()
+    {
+        try {
+            $articles = new KnowledgeArticles();
+            $articles->resetVotes();
+        } catch (DatabaseError $e) {
+            throw new KnowledgeJsonException($e);
+        }
+
+        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $this->message = $langData['TXT_KNOWLEDGE_RESET_VOTES_SUCCESSFUL'];
     }
 }
