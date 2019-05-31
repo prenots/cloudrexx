@@ -119,7 +119,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Switch category to activate or deactivate
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      */
     public function categorySwitchState($params = array())
     {
@@ -148,7 +148,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Sort a categories
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      */
     public function sortCategories($params = array())
     {
@@ -173,7 +173,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Delete a category
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      */
     public function deleteCategory($params = array())
     {
@@ -201,7 +201,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Sort an articles
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      */
     public function sortArticles($params = array())
     {
@@ -223,7 +223,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Switch article to activate or deactivate
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      */
     public function articleSwitchState($params = array())
     {
@@ -252,7 +252,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Delete an article
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      */
     public function deleteArticle($params = array())
     {
@@ -275,11 +275,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
 
     /**
      * Check access for AJAX request
-     * When the page is AJAX requested the response should be
-     * different so that the page can display a message that the user
-     * hasn't got permissions to do what he tried.
-     * Hence, this function returns a JSON object containing a status
-     * code (0 for fail) and an error message.
      *
      * @param integer $id Id to check access
      */
@@ -325,9 +320,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Get list of tags
+     * Get the list of tags
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      * @return array Array of tags in JSON data
      */
     public function getTags($params = array())
@@ -372,9 +367,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Get list of articles
+     * Get the list of articles
      *
-     * @param array $params Array of GET or POST parameters
+     * @param array $params Array of parameters
      * @return array Array of articles in JSON data
      */
     public function getArticles($params = array())
@@ -449,7 +444,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Get language data based on component
+     * Get the language data based on component
      *
      * @return array Array of language data
      */
