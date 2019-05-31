@@ -85,6 +85,11 @@ class KnowledgeLibrary {
     const ACCESS_ID_EDIT_ARTICLES = 131;
 
     /**
+     * Access id for overview
+     */
+    const ACCESS_ID_OVERVIEW = 130;
+
+    /**
      * Initialise the needed objects
      */
     public function __construct() {

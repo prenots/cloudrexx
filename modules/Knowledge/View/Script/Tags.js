@@ -54,17 +54,18 @@ Tags.prototype.getTags = function(sort)
 {
     var ref = this;
     new Ajax.Request('index.php', {
-        method: "get",
-        parameters : {  cmd  : "Knowledge",
-                        act  : "articles",
-                        tpl  : "getTags",
-                        sort : sort,
-                        lang : ref.lang
+        method : 'get',
+        parameters : {
+            cmd    : 'jsondata',
+            object : 'Knowledge',
+            act    : 'getTags',
+            sort   : sort,
+            lang   : ref.lang
         },
         onSuccess : function(transport) {
             var response = transport.responseText.evalJSON();
-            $('taglist_'+ref.lang).update(response.html);
-            ref.availableTags = $H(response.available_tags);
+            $('taglist_' + ref.lang).update(response.data.html);
+            ref.availableTags = $H(response.data.available_tags);
             ref.loaded = true;
             ref.typing();
         }

@@ -22,16 +22,16 @@ Articles.prototype.getCategory = function(id) {
 
     this.setLoading();
     new Ajax.Request('index.php', {
-        method : "get",
+        method : 'get',
         parameters : {
-            cmd     : "Knowledge",
-            act     : "articles",
-            tpl     : "getArticles",
-            id      : id
+            cmd    : 'jsondata',
+            object : 'Knowledge',
+            act    : 'getArticles',
+            id     : id
         },
         onSuccess : function(transport) {
             response = transport.responseText.evalJSON();
-            $('articles').update(response.list);
+            $('articles').update(response.data.list);
             /*$('head').update(response.category);*/
             setRows();
             initSortableArea();

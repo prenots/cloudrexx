@@ -91,6 +91,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'deleteArticle',
             'settingsTidyTags',
             'settingsResetVotes',
+            'getTags',
+            'getArticles',
         );
     }
 
@@ -299,7 +301,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             $tags = new KnowledgeTags();
             $tags->tidy();
         } catch (DatabaseError $e) {
-            throw new KnowledgeJsonException($e);
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
@@ -315,10 +317,134 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             $articles = new KnowledgeArticles();
             $articles->resetVotes();
         } catch (DatabaseError $e) {
-            throw new KnowledgeJsonException($e);
+            throw new KnowledgeJsonException($e->getMessage());
         }
 
         $langData = \Env::get('init')->loadLanguageData('Knowledge');
         $this->message = $langData['TXT_KNOWLEDGE_RESET_VOTES_SUCCESSFUL'];
+    }
+
+    /**
+     * Get list of tags
+     *
+     * @param array $params Array of GET or POST parameters
+     * @return array Array of tags in JSON data
+     */
+    public function getTags($params = array())
+    {
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
+
+        $lang = (isset($params['get']['lang'])) ? $params['get']['lang'] : 1;
+        try {
+            $knowledgeTags = new KnowledgeTags();
+            if ($params['get']['sort'] === 'popularity') {
+                $tags = $knowledgeTags->getAllOrderByPopularity($lang);
+            } else {
+                $tags = $knowledgeTags->getAllOrderAlphabetically($lang);
+            }
+        } catch (DatabaseError $e) {
+            throw new KnowledgeJsonException($e->getMessage());
+        }
+
+        $tpl = new \Cx\Core\Html\Sigma(
+            $this->cx->getCodeBaseModulePath() . '/Knowledge/View/Template/Backend'
+        );
+        \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
+        $tpl->setErrorHandling(PEAR_ERROR_DIE);
+        $tpl->loadTemplateFile('module_knowledge_articles_edit_taglist.html');
+
+        $return_tags = array();
+        $classnumber = 1;
+        foreach ($tags as $tag) {
+            $tpl->setVariable(array(
+                'TAG'         => $tag['name'],
+                'TAGID'       => $tag['id'],
+                'CLASSNUMBER' => (++$classnumber % 2) + 1,
+                'LANG'        => $lang,
+            ));
+            $tpl->parse('tag');
+            $return_tags[$tag['id']] = $tag['name'];
+        }
+        $tpl->parse('taglist');
+        $taglist = $tpl->get('taglist');
+
+        return array('html' => $taglist, 'available_tags' => $return_tags);
+    }
+
+    /**
+     * Get list of articles
+     *
+     * @param array $params Array of GET or POST parameters
+     * @return array Array of articles in JSON data
+     */
+    public function getArticles($params = array())
+    {
+        global $_LANGID;
+
+        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
+
+        $id = contrexx_input2int($params['get']['id']);
+        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+
+        try {
+            $knowledgeArticles = new KnowledgeArticles();
+            $articles = $knowledgeArticles->getArticlesByCategory($id);
+            $knowledgeCategory = new KnowledgeCategory();
+            $category = $knowledgeCategory->getOneCategory($id);
+        } catch (DatabaseError $e) {
+            throw new KnowledgeJsonException($e->getMessage());
+        }
+
+        $tpl = new \Cx\Core\Html\Sigma(
+            $this->cx->getCodeBaseModulePath() . '/Knowledge/View/Template/Backend/'
+        );
+        $tpl->setErrorHandling(PEAR_ERROR_DIE);
+        $tpl->loadTemplateFile('module_knowledge_articles_overview_articlelist.html');
+        \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
+
+        $tpl->setGlobalVariable(array(
+            // language variables
+            'TXT_NAME'          => $langData['TXT_NAME'],
+            'TXT_VIEWED'        => $langData['TXT_KNOWLEDGE_VIEWED'],
+            'TXT_SORT'          => $langData['TXT_KNOWLEDGE_SORT'],
+            'TXT_STATE'         => $langData['TXT_KNOWLEDGE_STATE'],
+            'TXT_QUESTION'      => $langData['TXT_KNOWLEDGE_QUESTION'],
+            'TXT_HITS'          => $langData['TXT_KNOWLEDGE_HITS'],
+            'TXT_RATING'        => $langData['TXT_KNOWLEDGE_RATING'],
+            'TXT_ACTIONS'       => $langData['TXT_KNOWLEDGE_ACTIONS'],
+            'TXT_CATEGORY_NAME' => $category['content'][$_LANGID]['name'] ,
+            // getPaging(count, position, extraargv, paging-text, showeverytime, limit)
+            //"PAGING"            => getPaging()
+            'TXT_BY'            => $langData['TXT_KNOWLEDGE_AT'],
+            'TXT_VOTINGS'       => $langData['TXT_KNOWLEDGE_VOTERS']
+        ));
+
+        if (!empty($articles)) {
+            $settings = new KnowledgeSettings();
+            foreach ($articles as $key => $article) {
+                $tpl->setVariable(array(
+                    'ARTICLEID'             => $key,
+                    'QUESTION'              => contrexx_raw2xhtml($article['content'][$_LANGID]['question']),
+                    'ACTIVE_STATE'          => abs($article['active']-1),
+                    'CATEGORY_ACTIVE_LED'   => ($article['active']) ? 'green' : 'red',
+                    'HITS'                  => $article['hits'],
+                    'VOTEVALUE'             => round(
+                        (($article['votes'] > 0) ? $article['votevalue'] / $article['votes'] : 0), 2
+                    ),
+                    'VOTECOUNT'             => $article['votes'],
+                    'MAX_RATING'            => $settings->get('max_rating')
+                ));
+                $tpl->parse('row');
+            }
+        } else {
+            $tpl->setVariable(array(
+                'TXT_NO_ARTICLES' => $langData['TXT_KNOWLEDGE_NO_ARTICLES_IN_CAT']
+            ));
+            $tpl->parse('no_articles');
+        }
+
+        $tpl->parse('content');
+
+        return array('list' => $tpl->get('content'));
     }
 }
