@@ -128,7 +128,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         try {
             $category = new KnowledgeCategory();
             if ($action == 1) {
@@ -166,7 +166,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             throw new KnowledgeJsonException($e->getMessage());
         }
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_MSG_SORT'];
     }
 
@@ -194,7 +194,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             throw new KnowledgeJsonException($e->getMessage());
         }
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
     }
 
@@ -216,7 +216,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             throw new KnowledgeJsonException($e->getMessage());
         }
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_MSG_SORT'];
     }
 
@@ -232,7 +232,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         try {
             $articles = new KnowledgeArticles();
             if ($action == 1) {
@@ -269,7 +269,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             throw new KnowledgeJsonException($e->getMessage());
         }
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
     }
 
@@ -286,7 +286,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     protected function checkAjaxAccess($id)
     {
         if (!\Permission::checkAccess($id, 'static', true)) {
-            $langData = \Env::get('init')->loadLanguageData('Knowledge');
+            $langData = $this->getLangData();
             throw new KnowledgeJsonException($langData['TXT_KNOWLEDGE_ACCESS_DENIED']);
         }
     }
@@ -304,7 +304,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             throw new KnowledgeJsonException($e->getMessage());
         }
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_TIDY_TAGS_SUCCESSFUL'];
     }
 
@@ -320,7 +320,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             throw new KnowledgeJsonException($e->getMessage());
         }
 
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_RESET_VOTES_SUCCESSFUL'];
     }
 
@@ -384,7 +384,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
 
         $id = contrexx_input2int($params['get']['id']);
-        $langData = \Env::get('init')->loadLanguageData('Knowledge');
+        $langData = $this->getLangData();
 
         try {
             $knowledgeArticles = new KnowledgeArticles();
@@ -446,5 +446,21 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $tpl->parse('content');
 
         return array('list' => $tpl->get('content'));
+    }
+
+    /**
+     * Get language data based on component
+     *
+     * @return array Array of language data
+     */
+    protected function getLangData()
+    {
+        global $_LANGID;
+
+        return \Env::get('init')->getComponentSpecificLanguageData(
+            $this->getName(),
+            false,
+            $_LANGID
+        );
     }
 }
