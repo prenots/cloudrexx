@@ -167,18 +167,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
                         $id = $this->insertCategory();
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=categories&tpl=overview&highlight=' . $id);
                         break;
-                    case 'delete':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
-                        $this->deleteCategory();
-                        break;
-                    case 'switchState':
-                        $this->checkAjaxAccess(ACCESS_ID_EDIT_CATEGORIES);
-                        $this->switchCategoryState();
-                        break;
-                    case 'sort':
-                        $this->checkAjaxAccess(ACCESS_ID_EDIT_CATEGORIES);
-                        $this->sortCategory();
-                        break;
                     case 'overview':
                     default:
                        \Permission::checkAccess(ACCESS_ID_CATEGORIES, 'static');
@@ -214,26 +202,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
                         $content = $this->articleOverview();
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=articles&tpl=edit&id=' . $id . '&updated=true');
                         break;
-                    case 'getArticles':
-                        \Permission::checkAccess(ACCESS_ID_OVERVIEW, 'static');
-                        $this->getArticles();
-                        break;
-                    case 'sort':
-                        $this->checkAjaxAccess(ACCESS_ID_EDIT_ARTICLES);
-                        $this->sortArticles();
-                        break;
-                    case 'switchState':
-                        $this->checkAjaxAccess(ACCESS_ID_EDIT_ARTICLES);
-                        $this->switchArticleState();
-                        break;
-                    case 'getTags':
-                        \Permission::checkAccess(ACCESS_ID_OVERVIEW, 'static');
-                        $this->getTags();
-                        break;
-                    case 'delete':
-                        $this->checkAjaxAccess(ACCESS_ID_EDIT_ARTICLES);
-                        $this->deleteArticle();
-                        break;
                     case 'overview':
                     default:
                         \Permission::checkAccess(ACCESS_ID_OVERVIEW, 'static');
@@ -246,12 +214,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
             case 'settings':
                 \Permission::checkAccess(ACCESS_ID_SETTINGS, 'static');
                 switch ($_GET['tpl']) {
-                    case 'tidyTags':
-                        $this->tidyTags();
-                        break;
-                    case 'resetVotes':
-                        $this->resetVotes();
-                        break;
                     case 'placeholders':
                         $content = $this->settingsPlaceholders();
                         $active = "placeholders";
@@ -372,48 +334,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
         }
 
         return $this->categories->insertCategory($state, $parentCategory);
-    }
-
-    /**
-     * Delete a category
-     *
-     * This function is called through ajax and deletes
-     * a category.
-     * @param int $catId
-     */
-    private function deleteCategory($catId=null)
-    {
-        if (!isset($catId)) {
-            $catId = intval($_GET['id']);
-        }
-
-        try {
-            $deletedCategories = $this->categories->deleteCategory($catId);
-            // delete the articles that were assigned to the deleted categories
-            foreach ($deletedCategories as $cat) {
-                $this->articles->deleteArticlesByCategory($cat);
-            }
-            $this->tags->clearTags();
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-
-        die();
-    }
-
-    /**
-     * Delete an article
-     */
-    private function deleteArticle()
-    {
-        $id = intval($_GET['id']);
-
-        try {
-            $this->articles->deleteOneArticle($id);
-            $this->tags->clearTags();
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
     }
 
     /**
@@ -738,53 +658,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
     */
 
     /**
-     * Switch the category state
-     *
-     * Make a category either active or inactive. This is
-     * called through ajax.
-     */
-    private function switchCategoryState()
-    {
-        $id = intval($_GET['id']);
-        $action = intval($_GET['switchTo']);
-
-        try {
-            if ($action == 1) {
-                $this->categories->activate($id);
-            } else {
-                $this->categories->deactivate($id);
-            }
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-
-        die(1);
-    }
-
-    /**
-     * Switch the entry state
-     *
-     * Make a state either active or inactive. This is
-     * called through ajax.
-     */
-    private function switchArticleState()
-    {
-        $id = intval($_GET['id']);
-        $action = intval($_GET['switchTo']);
-
-        try {
-            if ($action == 1) {
-                $this->articles->activate($id);
-            } else {
-                $this->articles->deactivate($id);
-            }
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-        die(1);
-    }
-
-    /**
      * Show the article title bar
      *
      * Show the article title bar and below the content of the
@@ -893,108 +766,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
         $this->tpl->parse("list");
         return $this->tpl->get("list", true);
     }
-
-    /**
-     * Generate an articlelist
-     *
-     * @param $articles An array of articles
-     * @param $category Category information
-     * @return String
-     */
-    private function parseArticleList($articles, $categoryname="", $count, $position, $standalone=false)
-    {
-        global $_LANGID, $_ARRAYLANG, $_CORELANG;
-
-        $id = intval($_GET['id']);
-
-        try {
-            $articles = $this->articles->getArticlesByCategory($id);
-            $category = $this->categories->getOneCategory($id);
-        } catch (DatabaseError $e) {
-            die($e->plain());
-        }
-
-        $tpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH."/Knowledge/View/Template/Backend/");
-        $tpl->setErrorHandling(PEAR_ERROR_DIE);
-        $tpl->loadTemplateFile("module_knowledge_articles_overview_articlelist.html");
-        \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
-        $tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
-        $tpl->setGlobalVariable(array(
-            // language variables
-            "TXT_NAME"          => $_ARRAYLANG['TXT_NAME'],
-            "TXT_VIEWED"        => $_ARRAYLANG['TXT_KNOWLEDGE_VIEWED'],
-            "TXT_SORT"          => $_ARRAYLANG['TXT_KNOWLEDGE_SORT'],
-            "TXT_STATE"         => $_ARRAYLANG['TXT_KNOWLEDGE_STATE'],
-            "TXT_QUESTION"      => $_ARRAYLANG['TXT_KNOWLEDGE_QUESTION'],
-            "TXT_HITS"          => $_ARRAYLANG['TXT_KNOWLEDGE_HITS'],
-            "TXT_RATING"        => $_ARRAYLANG['TXT_KNOWLEDGE_RATING'],
-            "TXT_ACTIONS"       => $_ARRAYLANG['TXT_KNOWLEDGE_ACTIONS'],
-            "TXT_CATEGORY_NAME" => $categoryname ,
-            // getPaging(count, position, extraargv, paging-text, showeverytime, limit)
-            //"PAGING"            => getPaging()
-            "TXT_BY"            => "bei",
-            "TXT_VOTINGS"       => "Abstimmungen"
-        ));
-
-        if (!empty($articles)) {
-            foreach ($articles as $key => $article) {
-                $tpl->setVariable(array(
-                    "ARTICLEID"             => $key,
-                    "QUESTION"              => contrexx_raw2xhtml($article['content'][$_LANGID]['question']),
-                    "ACTIVE_STATE"          => abs($article['active']-1),
-                    "CATEGORY_ACTIVE_LED"   => ($article['active']) ? "green" : "red",
-                    "HITS"                  => $article['hits'],
-                    "VOTEVALUE"             => round((($article['votes'] > 0) ? $article['votevalue'] / $article['votes'] : 0), 2),
-                    "VOTECOUNT"             => $article['votes'],
-                    "MAX_RATING"            => $this->settings->get("max_rating")
-                ));
-                $tpl->parse("row");
-            }
-        } else {
-            $tpl->setVariable(array(
-                "TXT_NO_ARTICLES"       => $_ARRAYLANG['TXT_KNOWLEDGE_NO_ARTICLES_IN_CAT']
-            ));
-            $tpl->parse("no_articles");
-        }
-
-        $tpl->parse("content");
-        return $tpl->get("content");
-    }
-
-    /**
-     * Get Articles
-     *
-     * This function is called through ajax.
-     * Return a JSON object with all the needed information for the
-     * article overview.
-     * @global $_LANGID
-     * @global $_ARRAYLANG
-     * @global $_CORELANG
-     */
-    private function getArticles()
-    {
-        global $_LANGID, $_ARRAYLANG, $_CORELANG;
-
-        $id = intval($_GET['id']);
-
-        try {
-            $articles = $this->articles->getArticlesByCategory($id);
-            $category = $this->categories->getOneCategory($id);
-        } catch (DatabaseError $e) {
-            die($e->plain());
-        }
-
-        $content = $this->parseArticleList($articles, $category['content'][$_LANGID]['name']);
-        $response = Array();
-        $response['list'] = $content;
-
-        \Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH . '/PEAR/Services/JSON.php');
-        $objJson = new \Services_JSON();
-        $jsonResponse = $objJson->encode($response);
-        echo $jsonResponse;
-        die();
-    }
-
 
     /**
      * Show the edit form
@@ -1225,104 +996,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
     }
 
     /**
-     * Save article order
-     *
-     * Save the new order of article. Called through ajax.
-     */
-    private function sortArticles()
-    {
-        if (empty($_POST['articlelist'])) {
-            die();
-        }
-
-        try {
-            foreach ($_POST['articlelist'] as $position => $id) {
-                $this->articles->setSort($id, $position);
-            }
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-
-        die();
-
-        print $_GET['order'];
-        $order = explode("articlelist[]=", $_GET['order']);
-
-        foreach ($order as $sort => $id) {
-            $id = intval($id);
-            if ($id) {
-                $this->articles->setSort($id, $sort);
-            }
-        }
-
-        die();
-    }
-
-    /**
-     * Save a category's order
-     *
-     * Called through ajax.
-     */
-    private function sortCategory()
-    {
-        $keys = array_keys($_POST);
-        try {
-            if (preg_match("/ul_[0-9]*/", $keys[0])) {
-                foreach ($_POST[$keys[0]] as $position => $id) {
-                    $this->categories->setSort($id, $position);
-                }
-            }
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-
-        die(1);
-    }
-
-    /**
-     * Return a list of tags
-     *
-     * Called through ajax
-     */
-    private function getTags()
-    {
-        $lang = (isset($_GET['lang'])) ? $_GET['lang'] : 1;
-        try {
-            if ($_GET['sort'] == "popularity") {
-                $tags = $this->tags->getAllOrderByPopularity($lang);
-            } else {
-                $tags = $this->tags->getAllOrderAlphabetically($lang);
-            }
-        } catch (DatabaseError $e) {
-            // TODO
-            // this is not handled anyhow (and not only here)
-            $this->sendAjaxError($e->formatted());
-        }
-        $this->tpl->loadTemplateFile('module_knowledge_articles_edit_taglist.html');
-        $this->tpl->setGlobalVariable("MODULE_INDEX", MODULE_INDEX);
-        $return_tags = array();
-        $classnumber = 1;
-        foreach ($tags as $tag) {
-            $this->tpl->setVariable(array(
-                "TAG"       => $tag['name'],
-                "TAGID"     => $tag['id'],
-                "CLASSNUMBER" => (++$classnumber % 2) + 1,
-                "LANG"      => $lang,
-            ));
-            $this->tpl->parse("tag");
-            $return_tags[$tag['id']] = $tag['name'];
-        }
-        $this->tpl->parse("taglist");
-        $taglist = $this->tpl->get("taglist");
-
-        \Env::get('ClassLoader')->loadFile(ASCMS_LIBRARY_PATH . '/PEAR/Services/JSON.php');
-        $objJson = new \Services_JSON();
-        $jsonResponse = $objJson->encode(array("html" => $taglist, "available_tags" => $return_tags));
-
-        die($jsonResponse);
-    }
-
-    /**
      * Show the settings title row
      *
      * @param string $content
@@ -1445,43 +1118,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
             $this->errorMessage = $_ARRAYLANG['TXT_KNOWLEDGE_ERROR_OVERVIEW'];
                $this->errorMessage .= $e->formatted();
         }
-    }
-
-    /**
-     * Tidy the tags
-     *
-     * Call the function that removes unecessary tags.
-     * Called through ajax.
-     */
-    private function tidyTags()
-    {
-        global $_ARRAYLANG;
-        try {
-            $this->tags->tidy();
-            die(json_encode(array('ok' => $_ARRAYLANG['TXT_KNOWLEDGE_TIDY_TAGS_SUCCESSFUL'])));
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-
-        die();
-    }
-
-    /**
-     * Reset the vote statistics
-     *
-     * Called through ajax.
-     */
-    private function resetVotes()
-    {
-        global $_ARRAYLANG;
-        try {
-            $this->articles->resetVotes();
-            die(json_encode(array('ok' => $_ARRAYLANG['TXT_KNOWLEDGE_RESET_VOTES_SUCCESSFUL'])));
-        } catch (DatabaseError $e) {
-            $this->sendAjaxError($e->formatted());
-        }
-
-        die();
     }
 
     /**
