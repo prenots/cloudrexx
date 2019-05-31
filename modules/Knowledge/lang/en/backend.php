@@ -317,3 +317,5 @@ $_ARRAYLANG['TXT_KNOWLEDGE_SAVE'] = "Save";
 $_ARRAYLANG['TXT_KNOWLEDGE_MSG_ACTIVE']   = 'Activated Successfully';
 $_ARRAYLANG['TXT_KNOWLEDGE_MSG_DEACTIVE'] = 'Deactivated Successfully';
 $_ARRAYLANG['TXT_KNOWLEDGE_MSG_SORT'] = 'Sorted Successfully';
+$_ARRAYLANG['TXT_KNOWLEDGE_AT'] = 'at';
+$_ARRAYLANG['TXT_KNOWLEDGE_VOTERS'] = 'Voters';

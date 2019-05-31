@@ -314,4 +314,5 @@ $_ARRAYLANG['TXT_KNOWLEDGE_JUMP'] = "Springen";
 $_ARRAYLANG['TXT_KNOWLEDGE_TIDY_TAGS_SUCCESSFUL'] = "Stichworte wurden aufgeräumt.";
 $_ARRAYLANG['TXT_KNOWLEDGE_RESET_VOTES_SUCCESSFUL'] = "Bewertungsstatistiken wurden zurückgesetzt.";
 $_ARRAYLANG['TXT_KNOWLEDGE_SAVE'] = "Speichern";
-?>
+$_ARRAYLANG['TXT_KNOWLEDGE_AT'] = 'bei';
+$_ARRAYLANG['TXT_KNOWLEDGE_VOTERS'] = 'Abstimmungen';
