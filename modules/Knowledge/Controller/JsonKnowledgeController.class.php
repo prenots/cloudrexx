@@ -95,6 +95,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'getArticles',
             'rate',
             'hitArticle',
+            'liveSearch'
         );
     }
 
@@ -494,5 +495,16 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
+    }
+
+    /**
+     * Live search
+     *
+     * @return array Array of search result in JSON data
+     */
+    public function liveSearch()
+    {
+        $search = new Search();
+        return $search->performSearch();
     }
 }

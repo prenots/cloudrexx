@@ -97,20 +97,18 @@ var Search = {
         }
 
         cx.ready(function() {
-            this.curRequest = new Ajax.Request("/modules/Knowledge/Controller/search.php", {
-                method : "get",
+            this.curRequest = new Ajax.Request('/api/Data/Json/Knowledge/liveSearch', {
+                method : 'get',
                 parameters : {
-                    section : "Knowledge",
-                    act : "liveSearch",
                     searchterm : $('searchinput').value,
                     lang : cx.variables.get('language')
                 },
                 onSuccess : function(transport)
                 {
                     var data = transport.responseText.evalJSON();
-                    if (data.status == 1) {
+                    if (data.data.status == 1) {
                         ref.clearBox();
-                        $(ref.resultBox).insert(data.content);
+                        $(ref.resultBox).insert(data.data.content);
                         ref.showBox();
                     } else {
                         ref.hideBox();

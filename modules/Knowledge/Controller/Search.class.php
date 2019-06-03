@@ -76,13 +76,6 @@ class Search {
     private $tpl;
 
     /**
-     * The response object
-     *
-     * @var object
-     */
-    private $response;
-
-    /**
      * Initialise the whole stuff
      *
      */
@@ -96,8 +89,6 @@ class Search {
         $this->tpl->setErrorHandling(PEAR_ERROR_DIE);
         $this->tpl->loadTemplateFile($this->templateFile);
 
-        // make a response object
-        $this->response = new SearchResponse();
         $this->interfaces[] = new SearchKnowledge();
     }
 
@@ -107,13 +98,12 @@ class Search {
      */
     public function performSearch()
     {
-        $status = 1;
-
-
+        $status  = 1;
+        $content = '';
         if (empty($_GET['searchterm'])) {
             // no search term given
             $status = 2;
-        } else{
+        } else {
             $searchterm = $_GET['searchterm'];
             $results = $this->getResults($searchterm);
 
@@ -123,19 +113,16 @@ class Search {
             } else {
                 foreach ($results as $result) {
                     $this->tpl->setVariable(array(
-                        "URI"       => $this->makeURI($result['uri']),
-                        "TITLE"     => $this->formatTitle($result['title'])
+                        'URI'   => $this->makeURI($result['uri']),
+                        'TITLE' => $this->formatTitle($result['title'])
                     ));
                     $this->tpl->parse("result");
                 }
-                $this->response->content = $this->tpl->get();
+                $content = $this->tpl->get();
             }
         }
 
-        $this->response->status = $status;
-        $response = json_encode($this->response);
-
-        die($response);
+        return array('status' => $status, 'content' => $content);
     }
 
     /**
