@@ -59,9 +59,6 @@ class JsonData {
         '\\Cx\\Core\\Json\\Adapter\\User' => array(
             'JsonUser',
         ),
-        '\\Cx\\Core\\Json\\Adapter\\Calendar' => array(
-            'JsonCalendar',
-        ),
         '\\Cx\\Modules\\Crm\\Controller' => array(
             'JsonCrm',
         ),
@@ -243,6 +240,24 @@ class JsonData {
         $response = new \Cx\Core\Routing\Model\Entity\Response($data);
         $response->setParser($this->getParser());
         return $response->getParsedContent();
+    }
+
+    /**
+     * Checks whether an adapter or an adapter's method exists
+     *
+     * @param string $adapterName Adapter name to check for
+     * @param string $methodName (optional) Method name to check for
+     * @return boolean True if adapter or adapter's method exists, false otherwise
+     */
+    public function hasAdapterAndMethod($adapterName, $methodName = '') {
+        $adapterExists = isset(static::$adapters[$adapterName]);
+        if (empty($methodName) || !$adapterExists) {
+            return $adapterExists;
+        }
+        $adapter = static::$adapters[$adapterName];
+        $methods = $adapter->getAccessableMethods();
+        // $methods has two possible formats: value can be a permission
+        return isset($methods[$methodName]) || in_array($methodName, $methods);
     }
 
     /**

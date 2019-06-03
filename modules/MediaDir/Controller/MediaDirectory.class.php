@@ -287,6 +287,15 @@ class MediaDirectory extends MediaDirectoryLibrary
 
             $objForms = new MediaDirectoryForm(null, $this->moduleName);
             foreach ($objForms->arrForms as $intFormId => $arrForm) {
+                // note: in a previous version of Cloudrexx, there was no check
+                // if the form was active or not. this caused unexpected
+                // behavior
+                if (
+                    !$this->arrSettings['legacyBehavior'] &&
+                    !$arrForm['formActive']
+                ) {
+                    continue;
+                }
                 if(!empty($arrForm['formCmd'])) {
                     $arrFormCmd[$arrForm['formCmd']] = intval($intFormId);
                 }
@@ -385,8 +394,42 @@ class MediaDirectory extends MediaDirectoryLibrary
         // fetch entries
         if ($showEntries) {
             $objEntries = new MediaDirectoryEntry($this->moduleName);
-// TODO: Show all entries regardless of set pagging
-            $objEntries->getEntries(null,$intLevelId,$intCategoryId,null,$bolLatest,null,1,$intLimitStart, $intLimitEnd, null, null, $intCmdFormId);
+
+            // custom sort order
+            $forceAlphabeticalOrder = false;
+            $popular = null;
+
+            // check for custom sort order
+            // but only if option 'legacy behavior' is not set
+            if (
+                !$this->arrSettings['legacyBehavior'] &&
+                $this->_objTpl->blockExists($this->moduleNameLC . 'EntryList')
+            ) {
+                $config = static::fetchMediaDirListConfigFromTemplate($this->moduleNameLC . 'EntryList', $this->_objTpl);
+                if (
+                    !empty($config['sort']['alphabetical']) &&
+                    $objEntries->arrSettings['settingsIndividualEntryOrder']
+                ) {
+                    $forceAlphabeticalOrder = true;
+                    $objEntries->arrSettings['settingsIndividualEntryOrder'] = false;
+                }
+                if (isset($config['sort']['popular'])) {
+                    $popular = $config['sort']['popular'];
+                }
+                if (isset($config['list']['limit'])) {
+                    $intLimitEnd = $config['list']['limit'];
+                }
+                if (isset($config['list']['offset'])) {
+                    $intLimitStart = $config['list']['offset'];
+                }
+            }
+
+            $objEntries->getEntries(null,$intLevelId,$intCategoryId,null,$bolLatest,null,1,$intLimitStart, $intLimitEnd, null, $popular, $intCmdFormId);
+
+            // reset default order behaviour
+            if ($forceAlphabeticalOrder) {
+                $objEntries->arrSettings['settingsIndividualEntryOrder'] = true;
+            }
         }
 
         // parse the level details
@@ -442,7 +485,7 @@ class MediaDirectory extends MediaDirectoryLibrary
             if($this->arrSettings['settingsShowLevels'] == 1 && $intCategoryId == 0 && $bolFormUseLevel) {
                 $objLevels = new MediaDirectoryLevel(null, $intLevelId, 1, $this->moduleName);
                 $objCategories = new MediaDirectoryCategory(null, $intCategoryId, 1, $this->moduleName);
-                $objLevels->listLevels($this->_objTpl, 2, null, null, null, $arrExistingBlocks);
+                $objLevels->listLevels($this->_objTpl, 2, null, null, null, $arrExistingBlocks, null, $intCmdFormId);
                 $this->_objTpl->clearVariables();
                 $this->_objTpl->setVariable($this->moduleLangVar.'_CATEGORY_LEVEL_TYPE', 'level');
                 $this->_objTpl->parse($this->moduleNameLC.'CategoriesLevelsList');
@@ -455,7 +498,7 @@ class MediaDirectory extends MediaDirectoryLibrary
             // or selected form hat option 'Use categories' activ and option 'Use levels' inactive
             if((((isset($objLevel) && $objLevel->arrLevels[$intLevelId]['levelShowCategories'] == 1) || $intLevelId === 0) || $this->arrSettings['settingsShowLevels'] == 0 || $intCategoryId != 0) || ($bolFormUseCategory && !$bolFormUseLevel)) {
                 $objCategories = new MediaDirectoryCategory(null, $intCategoryId, 1, $this->moduleName);
-                $objCategories->listCategories($this->_objTpl, 2, null, null, null, $arrExistingBlocks);
+                $objCategories->listCategories($this->_objTpl, 2, null, null, null, $arrExistingBlocks, 1, $intCmdFormId);
                 $this->_objTpl->clearVariables();
                 $this->_objTpl->setVariable($this->moduleLangVar.'_CATEGORY_LEVEL_TYPE', 'category');
                 $this->_objTpl->parse($this->moduleNameLC.'CategoriesLevelsList');
@@ -567,10 +610,12 @@ class MediaDirectory extends MediaDirectoryLibrary
 
         $this->_objTpl->setTemplate($this->pageContent, true, true);
 
+        $formId = 0;
+        $categoryId = 0;
+        $levelId = 0;
+
         //get navtree
-        $intCategoryId = 0;
-        $intLevelId = 0;
-        $this->getNavtree($intCategoryId, $intLevelId);
+        $this->getNavtree($categoryId, $levelId);
 
         //get searchform
         $searchTerm = null;
@@ -580,9 +625,23 @@ class MediaDirectory extends MediaDirectoryLibrary
             $searchTerm = isset($_GET['term']) ? contrexx_input2raw($_GET['term']) : null;
         }
 
-        $objEntries = new MediaDirectoryEntry($this->moduleName);
-        $objEntries->getEntries(null,null,null,$searchTerm,false,null,true);
-        $objEntries->listEntries($this->_objTpl,3);
+        // fetch special config from application template
+        $config = static::fetchMediaDirListConfigFromTemplate($this->moduleNameLC . 'EntryList', $this->_objTpl);
+
+        if (isset($config['filter']['form'])) {
+            $formId = $config['filter']['form'];
+        }
+        if (isset($config['filter']['category'])) {
+            $categoryId = $config['filter']['category'];
+        }
+        if (isset($config['filter']['level'])) {
+            $levelId = $config['filter']['level'];
+        }
+
+        // fetch & list entries
+        $objEntry = new MediaDirectoryEntry($this->moduleName);
+        $objEntry->getEntries(null, $levelId, $categoryId, $searchTerm, false, null, true, null, 'n', null, null, $formId);
+        $objEntry->listEntries($this->_objTpl, 3);
     }
 
     function showSearch()
@@ -915,7 +974,7 @@ class MediaDirectory extends MediaDirectoryLibrary
         }
 
         // parse related entries
-        $this->parseRelatedEntries($objEntry, $intEntryId, $intCategoryId, $intLevelId);
+        $this->parseRelatedEntries($this->_objTpl, $objEntry, $intEntryId, $intCategoryId, $intLevelId);
 
         // parse previous entry
         $this->parsePreviousEntry($objEntry, $intEntryId, $intCategoryId, $intLevelId);
@@ -929,14 +988,15 @@ class MediaDirectory extends MediaDirectoryLibrary
      * See (@see fetchMediaDirListConfigFromTemplate) for a list of functional
      * placeholders to be used in the template.
      *
+     * @param   \Cx\Core\Html\Sigma $template   Template object to be used for parsing
      * @param   MediaDirectoryEntry $objEntry   Instance of current MediaDirectoryEntry
      * @param   integer $intEntryId ID of the currently processing entry
      * @param   integer $intCategoryId ID of the currently selected category
      * @param   integer $intLevelId ID of the currently selected level
      */
-    protected function parseRelatedEntries($objEntry, $intEntryId, $intCategoryId = 0, $intLevelId = 0) {
+    public function parseRelatedEntries($template, $objEntry, $intEntryId, $intCategoryId = 0, $intLevelId = 0, $templatePrefix = '') {
         // check if we shall parse any related entries
-        if (!$this->_objTpl->blockExists($this->moduleNameLC.'RelatedList')) {
+        if (!$template->blockExists($this->moduleNameLC . $templatePrefix . 'RelatedList')) {
             return;
         }
 
@@ -946,8 +1006,10 @@ class MediaDirectory extends MediaDirectoryLibrary
         $formId = null;
         $categoryId = null;
         $levelId = null;
+        $entryId = null;
+        $templatePrefixLC = '';
 
-        $config = MediaDirectoryLibrary::fetchMediaDirListConfigFromTemplate($this->moduleNameLC.'RelatedList', $this->_objTpl, null, $intCategoryId, $intLevelId);
+        $config = MediaDirectoryLibrary::fetchMediaDirListConfigFromTemplate($this->moduleNameLC . $templatePrefix . 'RelatedList', $template, null, $intCategoryId, $intLevelId);
 
         if (isset($config['list']['latest'])) {
             $latest = $config['list']['latest'];
@@ -970,11 +1032,12 @@ class MediaDirectory extends MediaDirectoryLibrary
         $associated = false;
         if (isset($config['filter']['associated'])) {
             $associated = true;
+            $entryId = $intEntryId;
         }
 
         // fetch related entries
         $objEntry->resetEntries();
-        $objEntry->getEntries(null, $levelId, $categoryId, null, $latest, null,
+        $objEntry->getEntries($entryId, $levelId, $categoryId, null, $latest, null,
             true, $offset, $limit, null, null, $formId,
             null, 0, 0, $associated);
 
@@ -984,15 +1047,18 @@ class MediaDirectory extends MediaDirectoryLibrary
         // abort in case no related entries are present
         if (empty($objEntry->arrEntries)) {
             // hide block being used to display related entries
-            $this->_objTpl->hideBlock($this->moduleNameLC.'RelatedList');
+            $template->hideBlock($this->moduleNameLC . $templatePrefix . 'RelatedList');
             return;
         }
 
         // set mediadirRelatedList tempalte block to be parsed
-        $objEntry->setStrBlockName($this->moduleNameLC.'RelatedListEntry');
+        $objEntry->setStrBlockName($this->moduleNameLC . $templatePrefix . 'RelatedListEntry');
 
         // prarse related entries
-        $objEntry->listEntries($this->_objTpl, 5, 'related');
+        if (!empty($templatePrefix)) {
+            $templatePrefixLC = strtolower($templatePrefix) . '_';
+        }
+        $objEntry->listEntries($template, 5, $templatePrefixLC . 'related');
     }
 
     /**
@@ -1337,6 +1403,8 @@ class MediaDirectory extends MediaDirectoryLibrary
         $formId = null;
         $categoryId = null;
         $levelId = null;
+        $forceAlphabeticalOrder = false;
+        $popular = null;
 
         if (isset($config['list']['latest'])) {
             $latest = $config['list']['latest'];
@@ -1356,14 +1424,29 @@ class MediaDirectory extends MediaDirectoryLibrary
         if (isset($config['filter']['level'])) {
             $levelId = $config['filter']['level'];
         }
+        if (
+            !empty($config['sort']['alphabetical']) &&
+            $objEntry->arrSettings['settingsIndividualEntryOrder']
+        ) {
+            $forceAlphabeticalOrder = true;
+            $objEntry->arrSettings['settingsIndividualEntryOrder'] = false;
+        }
+        if (isset($config['sort']['popular'])) {
+            $popular = $config['sort']['popular'];
+        }
 
         if (empty($block)) {
             $block = $this->moduleNameLC.'List';
         }
 
-        $objEntry->getEntries(null, $levelId, $categoryId, null, $latest, null, true, $offset, $limit, null, null, $formId);
+        $objEntry->getEntries(null, $levelId, $categoryId, null, $latest, null, true, $offset, $limit, null, $popular, $formId);
         $objEntry->setStrBlockName($block);
         $objEntry->listEntries($template, 2);
+
+        // reset default order behaviour
+        if ($forceAlphabeticalOrder) {
+            $objEntry->arrSettings['settingsIndividualEntryOrder'] = true;
+        }
     }
 
     function showPopular()
