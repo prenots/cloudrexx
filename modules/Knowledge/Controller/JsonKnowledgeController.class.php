@@ -342,7 +342,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         }
 
         $tpl = new \Cx\Core\Html\Sigma(
-            $this->cx->getCodeBaseModulePath() . '/Knowledge/View/Template/Backend'
+            $this->getDirectory() . '/View/Template/Backend'
         );
         \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
@@ -391,7 +391,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         }
 
         $tpl = new \Cx\Core\Html\Sigma(
-            $this->cx->getCodeBaseModulePath() . '/Knowledge/View/Template/Backend/'
+            $this->getDirectory() . '/View/Template/Backend/'
         );
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
         $tpl->loadTemplateFile('module_knowledge_articles_overview_articlelist.html');
