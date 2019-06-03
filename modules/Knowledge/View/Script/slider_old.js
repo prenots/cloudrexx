@@ -72,12 +72,10 @@ Slider.prototype.closeOthers = function()
 
 Slider.prototype.hit = function()
 {
-  new Ajax.Request("index.php",
+  new Ajax.Request('/api/Data/Json/Knowledge/hitArticle',
   {
-     method : "get",
+     method : 'get',
      parameters : {
-         section : "Knowledge",
-         act : "hitArticle",
          id : this.blankId
      }
   });

@@ -93,7 +93,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'settingsResetVotes',
             'getTags',
             'getArticles',
-            'rate'
+            'rate',
+            'hitArticle',
         );
     }
 
@@ -476,6 +477,22 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             } catch (DatabaseError $e) {
                 throw new KnowledgeJsonException($e->getMessage());
             }
+        }
+    }
+
+    /**
+     * Hit an article
+     *
+     * @param array $params Array of parameters
+     */
+    public function hitArticle($params = array())
+    {
+        $id = contrexx_input2int($params['get']['id']);
+        try {
+            $knowledgeArticles = new KnowledgeArticles();
+            $knowledgeArticles->hit($id);
+        } catch (DatabaseError $e) {
+            throw new KnowledgeJsonException($e->getMessage());
         }
     }
 }
