@@ -66,7 +66,7 @@
         starPath: cx.variables.get('basePath')+'modules/Knowledge/View/Media/',
         elemPrefix: 'rating_elem_',
         onRate: function(data, rating) {
-            var foo = new Ajax.Request(cx.variables.get('path')+'index.php?section=Knowledge&act=rate', {
+            var foo = new Ajax.Request('/api/Data/Json/Knowledge/rate', {
                 method: "post",
                 parameters: {
                     id: data.nr,

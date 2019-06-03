@@ -93,6 +93,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'settingsResetVotes',
             'getTags',
             'getArticles',
+            'rate'
         );
     }
 
@@ -457,5 +458,24 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             false,
             $_LANGID
         );
+    }
+
+    /**
+     * Rate an article
+     *
+     * @param array $params Array of parameters
+     */
+    public function rate($params = array())
+    {
+        $id    = contrexx_input2int($params['post']['id']);
+        $rated = contrexx_input2int($params['post']['rated']);
+        if (!isset($_COOKIE['knowledge_rating_' . $id])) {
+            try {
+                $knowledgeArticles = new KnowledgeArticles();
+                $knowledgeArticles->vote($id, $rated);
+            } catch (DatabaseError $e) {
+                throw new KnowledgeJsonException($e->getMessage());
+            }
+        }
     }
 }
