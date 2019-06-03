@@ -97,22 +97,6 @@ class Knowledge extends KnowledgeLibrary
             $_GET['act'] = "";
         }
 
-        /**
-         * The ajax stuff
-         */
-        if ($_GET['act'] == "liveSearch") {
-           $search = new Search();
-           $search->performSearch();
-           die();
-        } elseif ($_GET['act'] == "hitArticle") {
-            $this->hitArticle();
-// TODO: There is nothing to be broken break here!  What's the point?
-//            break;
-        } elseif ($_GET['act'] == "rate") {
-            $this->rate();
-            die();
-        }
-
         if (!isset($_GET['cmd'])) {
             $_GET['cmd'] = '';
         }
@@ -408,25 +392,6 @@ class Knowledge extends KnowledgeLibrary
         }
         $this->tpl->setVariable("TXT_TAGS", $_ARRAYLANG['TXT_TAGS']);
         $this->tpl->parse("tags");
-    }
-
-    /**
-     * Hit article
-     *
-     * Increment the hit counter of an article.
-     * Called through ajax.
-     */
-    private function hitArticle()
-    {
-        static $e;
-
-        $id = intval($_GET['id']);
-        try {
-            $this->articles->hit($id);
-        } catch (DatabaseError $e) {
-            return;
-        }
-        die();
     }
 
     /**
@@ -834,26 +799,6 @@ class Knowledge extends KnowledgeLibrary
         }
 
         return false;
-    }
-
-    /**
-     * Rate an article
-     *
-     * Called through ajax
-     */
-    private function rate()
-    {
-        $id = intval($_POST['id']);
-
-        $rated = intval($_POST['rated']);
-        if (!isset($_COOKIE['knowledge_rating_'.$id])) {
-            try {
-                $this->articles->vote($id, $rated);
-            } catch (DatabaseError $e) {
-                die($e->plain());
-            }
-        }
-        die();
     }
 
     /**
