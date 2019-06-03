@@ -253,38 +253,6 @@ class KnowledgeAdmin extends KnowledgeLibrary
     }
 
     /**
-     * Check acces for ajax request
-     *
-     * When the page is ajax requested the response should be
-     * different so that the page can display a message that the user
-     * hasn't got permissions to do what he tried.
-     * Hence, this function returns a JSON object containing a status
-     * code (0 for fail) and an error message.
-     * @param int $id
-     * @global $_ARRAYLANG
-     */
-    private function checkAjaxAccess($id)
-    {
-        global $_ARRAYLANG;
-
-        if (!\Permission::checkAccess($id, 'static', true)) {
-            $this->sendAjaxError($_ARRAYLANG['TXT_KNOWLEDGE_ACCESS_DENIED']);
-        }
-    }
-
-    /**
-     * Send ajax error message
-     *
-     * Sends an json object for ajax request to communcate that there has been
-     * an error.
-     * @param string $message
-     */
-    private function sendAjaxError($message)
-    {
-        die("{'status' : 0, 'message' : '".$message."'}");
-    }
-
-    /**
      * Main function for categories
      *
      * Shows the bar on the top with the category section links
