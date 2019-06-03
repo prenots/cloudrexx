@@ -82,17 +82,26 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getAccessableMethods()
     {
+        $callbackForEditArticles = function() {
+            return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static', true);
+        };
+        $callbackForEditCategories = function() {
+            return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static', true);
+        };
+        $callbackForOverview = function() {
+            return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW, 'static', true);
+        };
         return array(
-            'categorySwitchState',
-            'sortCategories',
-            'deleteCategory',
-            'sortArticles',
-            'articleSwitchState',
-            'deleteArticle',
+            'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditCategories),
+            'sortCategories' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('post'), false, null, null, $callbackForEditCategories),
+            'deleteCategory' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditCategories),
+            'sortArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('post'), false, null, null, $callbackForEditArticles),
+            'articleSwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditArticles),
+            'deleteArticle' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditArticles),
             'settingsTidyTags',
             'settingsResetVotes',
-            'getTags',
-            'getArticles',
+            'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForOverview),
+            'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForOverview),
             'rate',
             'hitArticle',
             'liveSearch'
@@ -126,8 +135,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function categorySwitchState($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
-
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
@@ -155,8 +162,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function sortCategories($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
-
         $keys = array_keys($params['post']);
         try {
             $category = new KnowledgeCategory();
@@ -180,8 +185,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function deleteCategory($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
-
         $id = contrexx_input2int($params['get']['id']);
         try {
             $category = new KnowledgeCategory();
@@ -208,8 +211,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function sortArticles($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
-
         try {
             $articles = new KnowledgeArticles();
             foreach ($params['post']['articlelist'] as $position => $id) {
@@ -230,8 +231,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function articleSwitchState($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
-
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
@@ -259,8 +258,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function deleteArticle($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
-
         $id = contrexx_input2int($params['get']['id']);
 
         try {
@@ -274,19 +271,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
 
         $langData = $this->getLangData();
         $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
-    }
-
-    /**
-     * Check access for AJAX request
-     *
-     * @param integer $id Id to check access
-     */
-    protected function checkAjaxAccess($id)
-    {
-        if (!\Permission::checkAccess($id, 'static', true)) {
-            $langData = $this->getLangData();
-            throw new KnowledgeJsonException($langData['TXT_KNOWLEDGE_ACCESS_DENIED']);
-        }
     }
 
     /**
@@ -330,8 +314,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getTags($params = array())
     {
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
-
         $lang = (isset($params['get']['lang'])) ? $params['get']['lang'] : 1;
         try {
             $knowledgeTags = new KnowledgeTags();
@@ -378,8 +360,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     public function getArticles($params = array())
     {
         global $_LANGID;
-
-        $this->checkAjaxAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
 
         $id = contrexx_input2int($params['get']['id']);
         $langData = $this->getLangData();
