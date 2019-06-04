@@ -20,7 +20,7 @@ class OrderEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListene
                 FILTER_VALIDATE_BOOLEAN
             )
         ) {
-            \Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail(
+            \Cx\Modules\Shop\Controller\ShopManager::sendProcessedMail(
                 $args->getEntity()->getId()
             );
         }
