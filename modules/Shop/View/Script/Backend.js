@@ -188,6 +188,7 @@ jQuery(document).ready(function($){
                     data: {
                         orderId: parseInt(cx.jQuery(this).parent().parent().find('.order-id').text()),
                         statusId: statusId,
+                        oldStatusId: previousStatusId,
                         updateStock: updateStock,
                         sendMailToCrm: sendMailToCrm,
                     },

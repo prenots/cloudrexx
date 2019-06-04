@@ -602,7 +602,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         return $arrSubstitution;
     }
 
-    public function updateStatus($orderId, $statusId, $updateStock)
+    public function updateStatus($orderId, $statusId, $oldStatusId, $updateStock)
     {
         $order = $this->find($orderId);
         if (empty($order)) {
@@ -611,10 +611,28 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         $order->setStatus($statusId);
 
         if ($updateStock) {
-            $this->updateStock($order);
+            $this->updateStock(
+                $order,
+                $this->isStockIncreasable($oldStatusId, $statusId)
+            );
         }
         $this->_em->persist($order);
         $this->_em->flush();
         return true;
+    }
+
+    /**
+     * Is given status can increase stock
+     *
+     * @param integer $oldStatus Old order status
+     * @param integer $newStatus New order status
+     *
+     * @return boolean True when given status can increase stock, False otherwise
+     */
+    public function isStockIncreasable($oldStatus, $newStatus)
+    {
+        $deletedStatus = array(self::STATUS_DELETED, self::STATUS_CANCELLED);
+        return   in_array($newStatus, $deletedStatus)
+            && !in_array($oldStatus, $deletedStatus);
     }
 }

@@ -123,7 +123,8 @@ class JsonOrderController
 
         if (empty($arguments['post']) ||
             empty($arguments['post']['orderId']) ||
-            !isset($arguments['post']['statusId'])
+            !isset($arguments['post']['statusId']) ||
+            !isset($arguments['post']['oldStatusId'])
         ) {
             $this->messages[] = 'Zu wenige Argumente';
             return array('status' => 'error', 'message' => $this->messages);
@@ -148,13 +149,20 @@ class JsonOrderController
         $orderRepo->updateStatus(
             intval($arguments['post']['orderId']),
             intval($arguments['post']['statusId']),
+            intval($arguments['post']['oldStatusId']),
             $updateStock
         );
 
         if ($sendMail) {
-            $email = \Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail(
-                $arguments['post']['orderId']
-            );
+            $email = false;
+            switch ($arguments['post']['statusId']) {
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_CONFIRMED:
+                    $email = \Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail($arguments['post']['orderId']);
+                    break;
+                case \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED:
+                    $email = \Cx\Modules\Shop\Controller\ShopManager::sendProcessedMail($arguments['post']['orderId']);
+                    break;
+            }
             if ($email) {
                 $this->messages[] = sprintf(
                     $_ARRAYLANG['TXT_EMAIL_SEND_SUCCESSFULLY'],
