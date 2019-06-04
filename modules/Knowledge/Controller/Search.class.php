@@ -105,8 +105,7 @@ class Search {
             // no search term given
             $status = 2;
         } else {
-            $searchterm = $_GET['searchterm'];
-            $results = $this->getResults($searchterm);
+            $results = $this->getResults(contrexx_input2raw($_GET['searchterm']));
 
             if (count($results) == 0) {
                 // nothing found

@@ -58,7 +58,7 @@ class SearchKnowledge extends SearchInterface  {
         $lib = new \Cx\Modules\Knowledge\Controller\KnowledgeLibrary();
         $this->isAllLangsActive = $lib->isAllLangsActive();
 
-        $this->term = addslashes($term);
+        $this->term = contrexx_raw2db($term);
 
         $this->parseResults($this->searchArticles(), "formatArticleURI");
 

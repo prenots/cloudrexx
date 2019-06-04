@@ -165,7 +165,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             $category = new KnowledgeCategory();
             if (preg_match('/ul_[0-9]*/', $keys[0])) {
                 foreach ($params['post'][$keys[0]] as $position => $id) {
-                    $category->setSort($id, $position);
+                    $category->setSort(contrexx_input2int($id), contrexx_input2int($position));
                 }
             }
         } catch (DatabaseError $e) {
@@ -212,7 +212,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         try {
             $articles = new KnowledgeArticles();
             foreach ($params['post']['articlelist'] as $position => $id) {
-                $articles->setSort($id, $position);
+                $articles->setSort(contrexx_input2int($id), contrexx_input2int($position));
             }
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
@@ -312,7 +312,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     public function getTags($params = array())
     {
         $lang = (isset($params['get']['lang']))
-            ? $params['get']['lang']
+            ? contrexx_input2int($params['get']['lang'])
             : \FWLanguage::getDefaultBackendLangId();
         try {
             $knowledgeTags = new KnowledgeTags();
