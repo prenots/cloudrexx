@@ -79,7 +79,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 if (file_exists($this->cx->getClassLoader()->getFilePath($this->getDirectory() . '/View/Style/backend.css'))) {
                     \JS::registerCSS(substr($this->getDirectory(false, true) . '/View/Style/backend.css', 1));
                 }
-
+                if (file_exists($this->cx->getClassLoader()->getFilePath($this->getDirectory() . '/View/Script/Backend.js'))) {
+                    \JS::registerJS(substr($this->getDirectory(false, true) . '/View/Script/Backend.js', 1));
+                }
                 \Permission::checkAccess(129, 'static');
                 $subMenuTitle = $_CORELANG['TXT_KNOWLEDGE'];
                 $objKnowledge = new KnowledgeAdmin();
