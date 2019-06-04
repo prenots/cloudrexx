@@ -92,17 +92,17 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW, 'static', true);
         };
         return array(
-            'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditCategories),
-            'sortCategories' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('post'), false, null, null, $callbackForEditCategories),
-            'deleteCategory' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditCategories),
-            'sortArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('post'), false, null, null, $callbackForEditArticles),
-            'articleSwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditArticles),
-            'deleteArticle' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForEditArticles),
-            'settingsTidyTags',
-            'settingsResetVotes',
-            'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForOverview),
-            'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(null, array('get'), false, null, null, $callbackForOverview),
-            'rate',
+            'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditCategories),
+            'sortCategories' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), array(), $callbackForEditCategories),
+            'deleteCategory' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditCategories),
+            'sortArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), array(), $callbackForEditArticles),
+            'articleSwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditArticles),
+            'deleteArticle' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditArticles),
+            'settingsTidyTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array(), true),
+            'settingsResetVotes' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array(), true),
+            'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForOverview),
+            'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForOverview),
+            'rate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), false),
             'hitArticle',
             'liveSearch'
         );
@@ -125,7 +125,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getDefaultPermissions()
     {
-        return new \Cx\Core_Modules\Access\Model\Entity\Permission(null, null, false);
+        return new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), false);
     }
 
     /**
