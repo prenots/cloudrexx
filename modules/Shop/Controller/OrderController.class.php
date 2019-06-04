@@ -2608,6 +2608,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'phone',
             'emptyField',
             'shipper',
+            'endRow'
         );
 
         $options['fields'] = array(
@@ -2650,6 +2651,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 )
             ),
             'emptyField' => array(
+                'custom' => true,
+                'show' => array(
+                    'parse' => function() {
+                        return $this->getDivWrapper('');
+                    }
+                ),
+            ),
+            'endRow' => array(
+                'header' => ' ',
                 'custom' => true,
                 'show' => array(
                     'parse' => function() {
