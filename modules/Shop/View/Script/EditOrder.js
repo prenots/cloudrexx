@@ -323,17 +323,25 @@ function calcPrice(orderItemId)
     // if the total weight changes, so may the shipping conditions
     updateShipment();
     // round prices to cents
-    totalVat = Math.round(totalVat*100)/100;
-    if (vat_included == 0) {
-        totalSum += totalVat;
-    }
-    // add shipping and payment cost
+    totalVat = Math.floor(totalVat*100)/100;
     totalSum = Number(totalSum);
+    if (vat_included == 0) {
+        totalVat -= Math.abs(Number(couponAmount.value)) * Number(document.getElementById(
+            "product_vat_rate-"+arrProductId[0]['id']).value) / 100;
+        totalSum += Number(totalVat);
+    } else {
+        totalVat -= Math.abs(Number(couponAmount.value)) / (1 + Number(document.getElementById(
+            "product_vat_rate-"+arrProductId[0]['id']).value) / 100) * Number(document.getElementById(
+            "product_vat_rate-"+arrProductId[0]['id']).value) / 100;
+    }
+    totalVat = Math.round(totalVat / 0.05) * 0.05;
+
+    // add shipping and payment cost
     totalSum +=
         Number(document.getElementsByName("shipmentAmount")[0].value)
         + Number(document.getElementsByName("paymentAmount")[0].value);
-    totalSum = Math.round(totalSum*100)/100;
 
+    totalSum = Math.round(totalSum*100)/100;
     document.getElementsByName("sum")[1].value = totalSum.toFixed(2);
     document.getElementsByName("vatAmount")[0].value = totalVat.toFixed(2);
 }
