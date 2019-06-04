@@ -165,7 +165,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $keys = array_keys($params['post']);
         try {
             $category = new KnowledgeCategory();
-            if (preg_match("/ul_[0-9]*/", $keys[0])) {
+            if (preg_match('/ul_[0-9]*/', $keys[0])) {
                 foreach ($params['post'][$keys[0]] as $position => $id) {
                     $category->setSort($id, $position);
                 }
@@ -314,7 +314,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getTags($params = array())
     {
-        $lang = (isset($params['get']['lang'])) ? $params['get']['lang'] : 1;
+        $lang = (isset($params['get']['lang']))
+            ? $params['get']['lang']
+            : \FWLanguage::getDefaultBackendLangId();
         try {
             $knowledgeTags = new KnowledgeTags();
             if ($params['get']['sort'] === 'popularity') {
@@ -333,7 +335,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
         $tpl->loadTemplateFile('module_knowledge_articles_edit_taglist.html');
 
-        $return_tags = array();
+        $tagList = array();
         $classnumber = 1;
         foreach ($tags as $tag) {
             $tpl->setVariable(array(
@@ -343,12 +345,11 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
                 'LANG'        => $lang,
             ));
             $tpl->parse('tag');
-            $return_tags[$tag['id']] = $tag['name'];
+            $tagList[$tag['id']] = $tag['name'];
         }
         $tpl->parse('taglist');
-        $taglist = $tpl->get('taglist');
 
-        return array('html' => $taglist, 'available_tags' => $return_tags);
+        return array('html_format' => $tpl->get('taglist'), 'array_format' => $tagList);
     }
 
     /**
@@ -382,7 +383,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
 
         $tpl->setGlobalVariable(array(
             // language variables
-            'TXT_NAME'          => $langData['TXT_NAME'],
             'TXT_VIEWED'        => $langData['TXT_KNOWLEDGE_VIEWED'],
             'TXT_SORT'          => $langData['TXT_KNOWLEDGE_SORT'],
             'TXT_STATE'         => $langData['TXT_KNOWLEDGE_STATE'],
