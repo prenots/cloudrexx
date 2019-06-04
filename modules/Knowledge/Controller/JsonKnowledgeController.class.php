@@ -26,7 +26,6 @@
  */
 
 /**
- * JsonKnowledgeController
  * Json controller for knowledge module
  *
  * @copyright   Cloudrexx AG
@@ -47,7 +46,6 @@ namespace Cx\Modules\Knowledge\Controller;
 class KnowledgeJsonException extends \Exception {}
 
 /**
- * JsonKnowledgeController
  * Json controller for knowledge module
  *
  * @copyright   Cloudrexx AG
@@ -129,7 +127,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Switch category to activate or deactivate
+     * Switch the category entry status to 'Active' or 'Deactive'
      *
      * @param array $params Array of parameters
      */
@@ -156,7 +154,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Sort a categories
+     * Sort category
      *
      * @param array $params Array of parameters
      */
@@ -179,7 +177,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Delete a category
+     * Delete category
      *
      * @param array $params Array of parameters
      */
@@ -205,7 +203,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Sort an articles
+     * Sort articles
      *
      * @param array $params Array of parameters
      */
@@ -225,7 +223,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Switch article to activate or deactivate
+     * Switch the article entry status to 'Active or 'Deactive'
      *
      * @param array $params Array of parameters
      */
@@ -274,8 +272,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Tidy the tags
-     * Call the function to remove unnecessary tags
+     * Use this method to remove unnecessary tags
      */
     public function settingsTidyTags()
     {
@@ -291,7 +288,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Reset the vote statistics
+     * Reset the 'Vote' statistics
      */
     public function settingsResetVotes()
     {
@@ -307,10 +304,10 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Get the list of tags
+     * Get the list of 'Tags'
      *
      * @param array $params Array of parameters
-     * @return array Array of tags in JSON data
+     * @return array Array of 'Tags' in HTML and Array format
      */
     public function getTags($params = array())
     {
@@ -353,10 +350,10 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Get the list of articles
+     * Get the list of 'Articles'
      *
      * @param array $params Array of parameters
-     * @return array Array of articles in JSON data
+     * @return array Array of article list in HTML format
      */
     public function getArticles($params = array())
     {
@@ -428,7 +425,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Get the language data based on component
+     * Get the 'Language' data based on component
      *
      * @return array Array of language data
      */
@@ -444,7 +441,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Rate an article
+     * Rate an Article
      *
      * @param array $params Array of parameters
      */
@@ -463,7 +460,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Hit an article
+     * Hit an Article
      *
      * @param array $params Array of parameters
      */
@@ -479,7 +476,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     }
 
     /**
-     * Live search
+     * Live Search
      *
      * @return array Array of search result in JSON data
      */

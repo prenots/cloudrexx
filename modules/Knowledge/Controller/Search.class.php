@@ -93,8 +93,9 @@ class Search {
     }
 
     /**
-     * Get the result and return them so they can be displayed
-     * at the frontend
+     * Get search results
+     *
+     * @return array Array of search status and result in HTML content
      */
     public function performSearch()
     {
