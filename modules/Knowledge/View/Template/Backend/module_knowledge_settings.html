@@ -14,7 +14,7 @@ function tidyTags(caller)
             act : 'settingsTidyTags'
         },
         dataType: 'json',
-        success: showOkMessage
+        success: showStatusMessage
     });
 }
 
@@ -29,30 +29,13 @@ function resetVotes()
             act : 'settingsResetVotes'
         },
         dataType: 'json',
-        success: showOkMessage
+        success: showStatusMessage
     });
 }
-
-var showOkMessage = function(data){
-    if (data.status === 'success') {
-        $J('#errormessagetarget')
-            .append('<div id="okbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-    } else {
-        $J('#errormessagetarget')
-            .append('<div id="alertbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-    }
-}
-
 /* ]]> */
 </script>
 
-<div id="errormessagetarget"></div>
+<div id="messageBox"></div>
 
 <form action="index.php?cmd=Knowledge{MODULE_INDEX}&act=settings&tpl=update" method="post">
 <table class="adminlist" cellspacing="0" cellpadding="3" border="0" style="width: 100%;">
