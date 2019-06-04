@@ -174,6 +174,12 @@ jQuery(document).ready(function($){
                 sendMailToCrm = true;
             }
 
+            let togglePending = false;
+            if (statusId == 0) {
+                togglePending = true;
+            }
+
+            const el = cx.jQuery(this);
             cx.ajax(
                 'Order',
                 'updateOrderStatus',
@@ -188,6 +194,12 @@ jQuery(document).ready(function($){
                     success: function(response) {
                         if (response.status == 'success') {
                             cx.tools.StatusMessage.showMessage(response.message);
+                            if (togglePending) {
+                                el.closest('tr').toggleClass('pending');
+                            }
+                            if (!getParameterByName('search').includes('showAllPendentOrders=1')) {
+                                el.closest('tr').remove();
+                            }
                         }
                     },
                     preError: function(xhr, status, error) {
