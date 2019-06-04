@@ -1040,8 +1040,16 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
         $wrapper->addClass('custom-input');
 
+        if ($fieldname == 'vatAmount') {
+            $header = Vat::isIncluded()
+                ? $_ARRAYLANG['TXT_SHOP_VAT_PREFIX_INCL']
+                : $_ARRAYLANG['TXT_SHOP_VAT_PREFIX_EXCL'];
+        } else {
+            $header = $_ARRAYLANG[$fieldname];
+        }
+
         $title = new \Cx\Core\Html\Model\Entity\TextElement(
-            $_ARRAYLANG[$fieldname]
+            $header
         );
         $input = new \Cx\Core\Html\Model\Entity\DataElement(
             $fieldname,
