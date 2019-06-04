@@ -198,7 +198,7 @@ jQuery(document).ready(function($){
                             if (togglePending) {
                                 el.closest('tr').toggleClass('pending');
                             }
-                            if (!getParameterByName('search').includes('showAllPendentOrders=1')) {
+                            if (togglePending && (!getParameterByName('search') || !getParameterByName('search').includes('showAllPendentOrders=1'))) {
                                 el.closest('tr').remove();
                             }
                         }
