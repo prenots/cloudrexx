@@ -211,7 +211,7 @@ class BackendController extends
                     ),
                     'username' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData, $vg) {
+                            'parse' => function ($value, $rowData, $options, $vg) {
                                 return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
@@ -250,7 +250,7 @@ class BackendController extends
                     ),
                     'email' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData, $vg) {
+                            'parse' => function ($value, $rowData, $options, $vg) {
                                 return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
