@@ -431,12 +431,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     protected function getLangData()
     {
-        global $_LANGID;
-
         return \Env::get('init')->getComponentSpecificLanguageData(
             $this->getName(),
-            false,
-            $_LANGID
+            false
         );
     }
 
