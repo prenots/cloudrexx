@@ -261,19 +261,16 @@ class BackendController extends
                     ),
                     'password' => array(
                         'showOverview' => false,
-                        'formfield' => array(
-                            'adapter' => 'User',
-                            'method' => 'getPasswordField'
-                        ),
+                        'type' => 'password',
+                        'mode' => 'nocomplete',
                         'tooltip' => $this->getPasswordInfo(),
                         'allowFiltering' => false,
                     ),
                     'passwordConfirmed' => array(
                         'custom' => true,
                         'showOverview' => false,
-                        'attributes' => array(
-                            'class' => 'access-pw-noauto',
-                        ),
+                        'type' => 'password',
+                        'mode' => 'nocomplete',
                         'allowFiltering' => false,
                     ),
                     'authToken' => array(

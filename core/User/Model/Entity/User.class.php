@@ -233,18 +233,18 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Set plaintext (/unhashed) password
+     * Set password
      *
      * @param string $password
+     * @return User
      */
     public function setPassword($password)
     {
-        $this->checkPasswordValidity($password);
-        $this->password = $this->hashPassword($password);
+        $this->password = $password;
     }
 
     /**
-     * Get hashed password
+     * Get password
      *
      * @return string 
      */
@@ -425,10 +425,10 @@ class User extends \Cx\Model\Base\EntityBase {
      * Set email
      *
      * @param string $email
+     * @return User
      */
     public function setEmail($email)
     {
-        $this->checkEmail($email);
         $this->email = $email;
     }
 
@@ -595,9 +595,11 @@ class User extends \Cx\Model\Base\EntityBase {
      * @param string $restoreKey
      * @return User
      */
-    public function setRestoreKey($restoreKey)
+    public function setRestoreKey($restoreKey = null)
     {
-        $this->restoreKey = $restoreKey;
+        $this->restoreKey = !empty($restoreKey)
+                            ? $restoreKey
+                            : md5($this->email . $this->regdate . time());
     }
 
     /**
@@ -716,128 +718,22 @@ class User extends \Cx\Model\Base\EntityBase {
     }
 
     /**
-     * Returns true if the given $password is valid
-     * @param   string    $password
-     * @return  boolean
+     * Return the first- and lastname if they are defined. If this is not the
+     * case, check if a username exists. If this also does not exist, the
+     * e-mail address will be returned.
+     *
+     * @return string firstname & lastname, username or email
      */
-    protected function checkPasswordValidity($password)
+    public function isBackendGroupUser()
     {
-        global $_CONFIG, $_CORELANG;
-
-        if (strlen($password) < 6) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_INVALID_PASSWORD']
-            );
+        if (!$this->group) {
+            return false;
         }
-        if (
-            isset($_CONFIG['passwordComplexity']) &&
-            $_CONFIG['passwordComplexity'] == 'on'
-        ) {
-            // Password must contain the following characters: upper, lower
-            // case and numbers
-            if (
-                !preg_match('/[A-Z]+/', $password) ||
-                !preg_match('/[a-z]+/', $password) ||
-                !preg_match('/[0-9]+/', $password)
-            ) {
-                throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                    $_CORELANG['TXT_ACCESS_INVALID_PASSWORD_WITH_COMPLEXITY']
-                );
+
+        foreach ($this->group as $group) {
+            if ($group->getType() === 'backend') {
+                return true;
             }
-        }
-    }
-
-    /**
-     * Generate hash of password with default hash algorithm
-     *
-     * @param string $password Password to be hashed
-     *
-     * @return string The generated hash of the supplied password
-     * @throws  \Cx\Core\Error\Model\Entity\ShinyException In case the password
-     *                                                    hash generation fails
-     */
-    protected function hashPassword($password)
-    {
-        $hash = password_hash($password, \PASSWORD_BCRYPT);
-        if ($hash !== false) {
-            return $hash;
-        }
-
-        throw new \Cx\Core\Error\Model\Entity\ShinyException(
-            'Failed to generate a new password hash'
-        );
-    }
-
-    /**
-     * Checks if the given mail address is valid and unique
-     * @param string $mail Mail address to check
-     * @throws \Cx\Core\Error\Model\Entity\ShinyException If validation fails
-     */
-    protected function checkEmail($mail)
-    {
-        global $_CORELANG;
-
-        if (!\FWValidator::isEmail($mail)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_INVALID_EMAIL_ADDRESS']
-            );
-        }
-
-        $em = $this->cx->getDb()->getEntityManager();
-        $existingEntity = $em->getRepository(
-            'Cx\Core\User\Model\Entity\User'
-        )->findOneBy(array('email' => $mail));
-
-        if (!empty($existingEntity)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_EMAIL_ALREADY_USED']
-            );
-        }
-    }
-
-    /**
-     * Checks if the given username is valid and unique
-     * @param string $username username to check
-     * @throws \Cx\Core\Error\Model\Entity\ShinyException If validation fails
-     */
-    protected function checkUsername($username)
-    {
-        global $_CORELANG;
-
-        if (!$this->isValidUsername($username)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_INVALID_USERNAME']
-            );
-        }
-
-        $em = $this->cx->getDb()->getEntityManager();
-        $existingEntity = $em->getRepository(
-            'Cx\Core\User\Model\Entity\User'
-        )->findOneBy(array('username' => $username));
-
-        if (!empty($existingEntity)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_USERNAME_ALREADY_USED']
-            );
-        }
-    }
-
-    /**
-     * Returns true if the given $username is valid
-     * @param   string    $username
-     * @return  boolean
-     * @static
-     */
-    public static function isValidUsername($username)
-    {
-        if (preg_match('/^[a-zA-Z0-9-_]*$/', $username)) {
-            return true;
-        }
-        // For version 2.3, inspired by migrating Shop Customers to Users:
-        // In addition to the above, also accept usernames that look like valid
-        // e-mail addresses
-        if (\FWValidator::isEmail($username)) {
-            return true;
         }
         return false;
     }
