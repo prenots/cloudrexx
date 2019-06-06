@@ -312,8 +312,14 @@ function calcPrice(orderItemId)
             couponAmount.value = '-' + (totalSum / 100 * Number(couponAmount.dataset.rate)).toFixed(2);
             totalSum = (totalSum / 100 * (100-Number(couponAmount.dataset.rate))).toFixed(2);
         } else if (couponAmount.dataset.amount > 0) {
-            couponAmount.value = '-' + couponAmount.dataset.amount;
-            totalSum = (totalSum - couponAmount.dataset.amount).toFixed(2);
+            if (couponAmount.dataset.amount >= totalSum) {
+                couponAmount.value = '-' + totalSum.toFixed(2);
+                totalSum = 0.00;
+            } else {
+                couponAmount.value = '-' + couponAmount.dataset.amount;
+                totalSum = (totalSum - couponAmount.dataset.amount).toFixed(2);
+            }
+            
         }
     }
     // store totalSum as net total before adding VAT
@@ -326,13 +332,17 @@ function calcPrice(orderItemId)
     totalVat = Math.floor(totalVat*100)/100;
     totalSum = Number(totalSum);
     if (vat_included == 0) {
-        totalVat -= Math.abs(Number(couponAmount.value)) * Number(document.getElementById(
-            "product_vat_rate-"+arrProductId[0]['id']).value) / 100;
+        if (couponAmount) {
+            totalVat -= Math.abs(Number(couponAmount.value)) * Number(document.getElementById(
+                "product_vat_rate-"+arrProductId[0]['id']).value) / 100;
+        }
         totalSum += Number(totalVat);
     } else {
-        totalVat -= Math.abs(Number(couponAmount.value)) / (1 + Number(document.getElementById(
+        if (couponAmount) {
+            totalVat -= Math.abs(Number(couponAmount.value)) / (1 + Number(document.getElementById(
             "product_vat_rate-"+arrProductId[0]['id']).value) / 100) * Number(document.getElementById(
             "product_vat_rate-"+arrProductId[0]['id']).value) / 100;
+        }
     }
     totalVat = Math.round(totalVat / 0.05) * 0.05;
 
