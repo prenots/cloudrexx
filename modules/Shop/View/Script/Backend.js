@@ -175,7 +175,7 @@ jQuery(document).ready(function($){
             }
 
             let togglePending = false;
-            if (statusId == 0) {
+            if (statusId == 0 || previousStatusId == 0) {
                 togglePending = true;
             }
 
