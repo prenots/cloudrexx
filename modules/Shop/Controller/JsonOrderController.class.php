@@ -259,6 +259,10 @@ class JsonOrderController
             '\Cx\Modules\Shop\Model\Entity\Order'
         )->findOneBy(array('id' => $params['entity']['id']));
 
+        if (empty($order)) {
+            return null;
+        }
+
         $tableContent = array();
         $netPrice = 0;
         $totalWeight = 0;
