@@ -67,6 +67,7 @@ class JsonUserController
             'getPasswordField',
             'getRoleIcon',
             'filterCallback',
+            'searchCallback',
             'storeNewsletter',
             'storeDownloadExtension',
             'storeOnlyNewsletterLists',
@@ -296,6 +297,47 @@ class JsonUserController
             $qb->setParameter($i, $value);
             $i++;
         }
+
+        return $qb;
+    }
+
+    /**
+     * Custom filter callback function to filter the users by user groups and
+     * account type
+     *
+     * @param $params array contains all params for filter callback
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function searchCallback($params)
+    {
+        $qb = $params['qb'];
+        $fields = $params['fields'];
+        $crit = $params['crit'];
+
+        // Default
+        $orX = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+            \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_OR
+        );
+        $i = 1;
+        $joinTable = true;
+        foreach ($fields as $field) {
+            if (preg_match('/userAttr-\d+/', $field)) {
+                if ($joinTable) {
+                    $qb->leftJoin(
+                        'Cx\Core\User\Model\Entity\UserAttributeValue',
+                        'av',
+                        'WITH',
+                        'av.userId = x.id'
+                    );
+                    $joinTable = false;
+                }
+                $orX->add($qb->expr()->like('av.value', ':search'));
+            } else {
+                $orX->add($qb->expr()->like('x.' . $field, ':search'));
+            }
+        }
+        $qb->andWhere($orX);
+        $qb->setParameter('search', '%' . $crit . '%');
 
         return $qb;
     }

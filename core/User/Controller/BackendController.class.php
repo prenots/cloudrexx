@@ -170,6 +170,11 @@ class BackendController extends
                     'method' => 'filterCallback'
                 );
 
+                $options['functions']['searchCallback'] = array(
+                    'adapter' => 'User',
+                    'method' => 'searchCallback'
+                );
+
                 $options['tabs']['groups'] = array(
                     'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
                     'fields' => array(
@@ -1222,6 +1227,7 @@ class BackendController extends
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'postCallback' => array(
                     'adapter' => 'User',
                     'method' => 'storeUserAttributeValue'
