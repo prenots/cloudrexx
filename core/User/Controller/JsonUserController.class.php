@@ -337,7 +337,11 @@ class JsonUserController
     {
         global $_ARRAYLANG;
 
-        if (!isset($params) || empty($params['entity'])) {
+        if (
+            !isset($params) ||
+            empty($params['entity']) ||
+            empty($params['postedValue'])
+        ) {
             return null;
         }
         $user = $params['entity'];
