@@ -973,19 +973,13 @@ class BackendController extends
     {
         $em = $this->cx->getDb()->getEntityManager();
 
-        $userId = intval($this->userId);
-
-        $user = $em->getRepository('Cx\Core\User\Model\Entity\User')->findOneBy(array('id' => $userId));
-
         $validValues = array(0 => '-');
-        if (!empty($user)) {
-            $groups = $user->getGroup();
-        } else {
-            // Select all active groups
-            $groups = $em->getRepository(
-                'Cx\Core\User\Model\Entity\Group'
-            )->findBy(array('isActive' => 1));
-        }
+
+        // Select all active groups
+        $groups = $em->getRepository(
+            'Cx\Core\User\Model\Entity\Group'
+        )->findBy(array('isActive' => 1));
+
         foreach ($groups as $group) {
             $validValues[$group->getGroupId()] = $group->getGroupName();
         }
