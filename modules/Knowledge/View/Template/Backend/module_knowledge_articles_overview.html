@@ -126,7 +126,7 @@ var initSortableArea = function()
         Sortable.create("articlelist", {
            onUpdate: function() {
                 setRows();
-                new Ajax.Request('index.php?cmd=jsondata&object=Knowledge&act=sortArticles', {
+                new Ajax.Request('/api/Data/Json/Knowledge/sortArticles', {
                     method : "post",
                     parameters : Sortable.serialize("articlelist"),
                     onSuccess : function(transport) {
