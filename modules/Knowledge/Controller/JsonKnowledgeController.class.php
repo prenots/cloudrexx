@@ -80,10 +80,22 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getAccessableMethods()
     {
-        $articlePermissionIds  = array(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
-        $categoryPermissionIds = array(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
-        $overviewPermissionIds = array(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
-        $settingsPermissionIds = array(KnowledgeLibrary::ACCESS_ID_SETTINGS);
+        $articlePermissionIds  = array(
+            KnowledgeLibrary::ACCESS_ID_KNOWLEDGE,
+            KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES
+        );
+        $categoryPermissionIds = array(
+            KnowledgeLibrary::ACCESS_ID_KNOWLEDGE,
+            KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES
+        );
+        $overviewPermissionIds = array(
+            KnowledgeLibrary::ACCESS_ID_KNOWLEDGE,
+            KnowledgeLibrary::ACCESS_ID_OVERVIEW
+        );
+        $settingsPermissionIds = array(
+            KnowledgeLibrary::ACCESS_ID_KNOWLEDGE,
+            KnowledgeLibrary::ACCESS_ID_SETTINGS
+        );
 
         return array(
             'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $categoryPermissionIds),
