@@ -100,7 +100,7 @@ ALTER TABLE contrexx_module_shop_customer_group ADD `name` VARCHAR(255) DEFAULT 
 
 /** Structural adjustments  **/
 ALTER TABLE contrexx_module_shop_orders
-  CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL,
+  CHANGE customer_id customer_id INT DEFAULT NULL,
   CHANGE date_time date_time DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
   CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL,
   CHANGE modified_on modified_on DATETIME DEFAULT NULL,
@@ -160,7 +160,7 @@ ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB1B213FA4 FOREIG
 ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB138248176 FOREIGN KEY (currency_id) REFERENCES contrexx_module_shop_currencies (id);
 ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB17BE036FC FOREIGN KEY (shipment_id) REFERENCES contrexx_module_shop_shipper (id);
 ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB14C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
-ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB19395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id);
+ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB19395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
 
 ALTER TABLE contrexx_module_shop_order_attributes ADD CONSTRAINT FK_273F59F6126F525E FOREIGN KEY (item_id) REFERENCES contrexx_module_shop_order_items (id);
 
