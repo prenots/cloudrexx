@@ -185,15 +185,13 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     {
         $id = contrexx_input2int($params['get']['id']);
         try {
-            $category = new KnowledgeCategory();
-            $deletedCategories = $category->deleteCategory($id);
+            $knowledgeLibrary  = new KnowledgeLibrary();
+            $deletedCategories = $knowledgeLibrary->getCategory()->deleteCategory($id);
             // delete the articles that were assigned to the deleted categories
-            $articles = new KnowledgeArticles();
             foreach ($deletedCategories as $cat) {
-                $articles->deleteArticlesByCategory($cat);
+                $knowledgeLibrary->getArticle()->deleteArticlesByCategory($cat);
             }
-            $tags = new KnowledgeTags();
-            $tags->clearTags();
+            $knowledgeLibrary->getTags()->clearTags();
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
@@ -210,9 +208,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     public function sortArticles($params = array())
     {
         try {
-            $articles = new KnowledgeArticles();
+            $knowledgeLibrary = new KnowledgeLibrary();
             foreach ($params['post']['articlelist'] as $position => $id) {
-                $articles->setSort(contrexx_input2int($id), contrexx_input2int($position));
+                $knowledgeLibrary->getArticle()->setSort(contrexx_input2int($id), contrexx_input2int($position));
             }
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
@@ -234,12 +232,12 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
 
         $langData = $this->getLangData();
         try {
-            $articles = new KnowledgeArticles();
+            $knowledgeLibrary = new KnowledgeLibrary();
             if ($action == 1) {
-                $articles->activate($id);
+                $knowledgeLibrary->getArticle()->activate($id);
                 $msg = $langData['TXT_KNOWLEDGE_MSG_ACTIVE'];
             } else {
-                $articles->deactivate($id);
+                $knowledgeLibrary->getArticle()->deactivate($id);
                 $msg = $langData['TXT_KNOWLEDGE_MSG_DEACTIVE'];
             }
         } catch (DatabaseError $e) {
@@ -259,10 +257,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id = contrexx_input2int($params['get']['id']);
 
         try {
-            $articles = new KnowledgeArticles();
-            $articles->deleteOneArticle($id);
-            $tags = new KnowledgeTags();
-            $tags->clearTags();
+            $knowledgeLibrary = new KnowledgeLibrary();
+            $knowledgeLibrary->getArticle()->deleteOneArticle($id);
+            $knowledgeLibrary->getTags()->clearTags();
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
@@ -293,8 +290,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     public function settingsResetVotes()
     {
         try {
-            $articles = new KnowledgeArticles();
-            $articles->resetVotes();
+            $knowledgeLibrary = new KnowledgeLibrary();
+            $knowledgeLibrary->getArticle()->resetVotes();
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
@@ -362,11 +359,10 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id = contrexx_input2int($params['get']['id']);
         $langData = $this->getLangData();
 
+        $knowledgeLibrary = new KnowledgeLibrary();
         try {
-            $knowledgeArticles = new KnowledgeArticles();
-            $articles = $knowledgeArticles->getArticlesByCategory($id);
-            $knowledgeCategory = new KnowledgeCategory();
-            $category = $knowledgeCategory->getOneCategory($id);
+            $articles = $knowledgeLibrary->getArticle()->getArticlesByCategory($id);
+            $category = $knowledgeLibrary->getCategory()->getOneCategory($id);
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
@@ -395,7 +391,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         ));
 
         if (!empty($articles)) {
-            $settings = new KnowledgeSettings();
             foreach ($articles as $key => $article) {
                 $tpl->setVariable(array(
                     'ARTICLEID'             => $key,
@@ -407,7 +402,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
                         (($article['votes'] > 0) ? $article['votevalue'] / $article['votes'] : 0), 2
                     ),
                     'VOTECOUNT'             => $article['votes'],
-                    'MAX_RATING'            => $settings->get('max_rating')
+                    'MAX_RATING'            => $knowledgeLibrary->getSettings()->get('max_rating')
                 ));
                 $tpl->parse('row');
             }
@@ -448,8 +443,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $rated = contrexx_input2int($params['post']['rated']);
         if (!isset($_COOKIE['knowledge_rating_' . $id])) {
             try {
-                $knowledgeArticles = new KnowledgeArticles();
-                $knowledgeArticles->vote($id, $rated);
+                $knowledgeLibrary = new KnowledgeLibrary();
+                $knowledgeLibrary->getArticle()->vote($id, $rated);
             } catch (DatabaseError $e) {
                 throw new KnowledgeJsonException($e->getMessage());
             }
@@ -465,8 +460,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     {
         $id = contrexx_input2int($params['get']['id']);
         try {
-            $knowledgeArticles = new KnowledgeArticles();
-            $knowledgeArticles->hit($id);
+            $knowledgeLibrary = new KnowledgeLibrary();
+            $knowledgeLibrary->getArticle()->hit($id);
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
