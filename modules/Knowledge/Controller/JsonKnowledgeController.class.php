@@ -313,7 +313,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             : \FWLanguage::getDefaultBackendLangId();
         try {
             $knowledgeTags = new KnowledgeTags();
-            if ($params['get']['sort'] === 'popularity') {
+            if ($params['get']['sort'] == 'popularity') {
                 $tags = $knowledgeTags->getAllOrderByPopularity($lang);
             } else {
                 $tags = $knowledgeTags->getAllOrderAlphabetically($lang);
