@@ -359,8 +359,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id = contrexx_input2int($params['get']['id']);
         $langData = $this->getLangData();
 
-        $knowledgeLibrary = new KnowledgeLibrary();
         try {
+            $knowledgeLibrary = new KnowledgeLibrary();
             $articles = $knowledgeLibrary->getArticle()->getArticlesByCategory($id);
             $category = $knowledgeLibrary->getCategory()->getOneCategory($id);
         } catch (DatabaseError $e) {
