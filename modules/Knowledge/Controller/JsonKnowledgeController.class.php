@@ -80,26 +80,21 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getAccessableMethods()
     {
-        $callbackForEditArticles = function() {
-            return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static', true);
-        };
-        $callbackForEditCategories = function() {
-            return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static', true);
-        };
-        $callbackForOverview = function() {
-            return \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW, 'static', true);
-        };
+        $articlePermissionIds  = array(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
+        $categoryPermissionIds = array(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
+        $overviewPermissionIds = array(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
+
         return array(
-            'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditCategories),
-            'sortCategories' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), array(), $callbackForEditCategories),
-            'deleteCategory' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditCategories),
-            'sortArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), array(), $callbackForEditArticles),
-            'articleSwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditArticles),
-            'deleteArticle' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForEditArticles),
+            'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $categoryPermissionIds),
+            'sortCategories' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), $categoryPermissionIds),
+            'deleteCategory' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $categoryPermissionIds),
+            'sortArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), $articlePermissionIds),
+            'articleSwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $articlePermissionIds),
+            'deleteArticle' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $articlePermissionIds),
             'settingsTidyTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array(), true),
             'settingsResetVotes' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array(), true),
-            'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForOverview),
-            'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), array(), $callbackForOverview),
+            'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
+            'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
             'rate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), false),
             'hitArticle',
             'liveSearch'
