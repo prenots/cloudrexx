@@ -325,7 +325,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $tpl = new \Cx\Core\Html\Sigma(
             $this->getDirectory() . '/View/Template/Backend'
         );
-        \Cx\Core\Csrf\Controller\Csrf::add_placeholder($tpl);
         $tpl->setErrorHandling(PEAR_ERROR_DIE);
         $tpl->loadTemplateFile('module_knowledge_articles_edit_taglist.html');
 
