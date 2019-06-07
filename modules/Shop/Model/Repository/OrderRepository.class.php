@@ -57,18 +57,19 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         $order = $this->findOneBy(array('id'=>$id));
         $objUser = \FWUser::getFWUserObject()->objUser;
 
-        if ($order
-            && $customer = $objUser->getUser($order->getCustomerId())) {
-            $usernamePrefix = \Cx\Modules\Shop\Model\Entity\Order::USERNAME_PREFIX;
+        if ($order) {
+            if ($customer = $objUser->getUser($order->getCustomerId())) {
+                $usernamePrefix = \Cx\Modules\Shop\Model\Entity\Order::USERNAME_PREFIX;
 
-            $customerEmail = $usernamePrefix ."_${$id}_%-"
-                . $customer->getEmail();
-            $allCustomerWithEmail = $objUser->getUsers(
-                array('email' => $customerEmail)
-            );
+                $customerEmail = $usernamePrefix ."_${$id}_%-"
+                    . $customer->getEmail();
+                $allCustomerWithEmail = $objUser->getUsers(
+                    array('email' => $customerEmail)
+                );
 
-            foreach ($allCustomerWithEmail as $customerWithEmail) {
-                $customerWithEmail->setActiveStatus(false);
+                foreach ($allCustomerWithEmail as $customerWithEmail) {
+                    $customerWithEmail->setActiveStatus(false);
+                }
             }
 
             $order->setStatus($this::STATUS_DELETED);

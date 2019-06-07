@@ -1581,8 +1581,12 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $products = new \Cx\Modules\Shop\Model\Entity\Product();
         $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
 
-        $isReseller = $customer->isReseller();
-        $groupId = $customer->getGroupId();
+        $isReseller = false;
+        $groupId = 0;
+        if ($customer) {
+            $isReseller = $customer->isReseller();
+            $groupId = $customer->getGroupId();
+        }
         $productsJsArr = $products->getJsArray($groupId, $isReseller);
 
         $shipmentCostJsArr = $shipper->getJsArray();
