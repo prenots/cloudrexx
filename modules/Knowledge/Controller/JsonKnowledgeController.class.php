@@ -83,6 +83,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $articlePermissionIds  = array(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES);
         $categoryPermissionIds = array(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES);
         $overviewPermissionIds = array(KnowledgeLibrary::ACCESS_ID_OVERVIEW);
+        $settingsPermissionIds = array(KnowledgeLibrary::ACCESS_ID_SETTINGS);
 
         return array(
             'categorySwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $categoryPermissionIds),
@@ -91,8 +92,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'sortArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), true, array(), $articlePermissionIds),
             'articleSwitchState' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $articlePermissionIds),
             'deleteArticle' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $articlePermissionIds),
-            'settingsTidyTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array(), true),
-            'settingsResetVotes' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array(), true),
+            'settingsTidyTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $settingsPermissionIds),
+            'settingsResetVotes' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $settingsPermissionIds),
             'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
             'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
             'rate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), false),
