@@ -351,6 +351,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      *
      * @param array $params Array of parameters
      * @return array Array of article list in HTML format
+     * @global $_LANGID Language id
      */
     public function getArticles($params = array())
     {
