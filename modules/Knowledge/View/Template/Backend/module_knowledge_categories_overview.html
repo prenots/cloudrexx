@@ -221,7 +221,7 @@ var init = function()
  */
 var updateSort = function(id)
 {
-    new Ajax.Request('index.php?cmd=jsondata&object=Knowledge&act=sortCategories', {
+    new Ajax.Request('/api/Data/Json/Knowledge/sortCategories', {
             method : "post",
             parameters : Sortable.serialize(id),
             onSuccess : function(transport) {
