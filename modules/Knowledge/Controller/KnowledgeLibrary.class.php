@@ -90,6 +90,21 @@ class KnowledgeLibrary {
     const ACCESS_ID_OVERVIEW = 130;
 
     /**
+     * Access id for knowledge component
+     */
+    const ACCESS_ID_KNOWLEDGE = 129;
+
+    /**
+     * Access id for categories
+     */
+    const ACCESS_ID_CATEGORIES = 132;
+
+    /**
+     * Access id for settings
+     */
+    const ACCESS_ID_SETTINGS = 134;
+
+    /**
      * Initialise the needed objects
      */
     public function __construct() {

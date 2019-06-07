@@ -36,13 +36,6 @@
 
 namespace Cx\Modules\Knowledge\Controller;
 
-define("ACCESS_ID_KNOWLEDGE", 129);
-define("ACCESS_ID_OVERVIEW", 130);
-define("ACCESS_ID_EDIT_ARTICLES", 131);
-define("ACCESS_ID_CATEGORIES", 132);
-define("ACCESS_ID_EDIT_CATEGORIES", 133);
-define("ACCESS_ID_SETTINGS", 134);
-
 /**
  * All the backend stuff of the Knowledgemodul
  *
@@ -104,7 +97,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
         \JS::activate('prototype');
         \JS::activate('scriptaculous');
 
-        \Permission::checkAccess(ACCESS_ID_KNOWLEDGE, 'static');
+        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_KNOWLEDGE, 'static');
 
         parent::__construct();
         $this->tpl = new \Cx\Core\Html\Sigma(ASCMS_MODULE_PATH.'/Knowledge'.MODULE_INDEX.'/View/Template/Backend');
@@ -148,28 +141,28 @@ class KnowledgeAdmin extends KnowledgeLibrary
             case 'categories':
                 switch ($_GET['tpl']) {
                     case 'add':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static');
                         $content = $this->editCategory(true);
                         $active = "add";
                         break;
                     case 'edit':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static');
                         $content = $this->editCategory();
                         $active = "";
                         break;
                     case 'update':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static');
                         $id = $this->updateCategory();
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=categories&tpl=overview&highlight=' . $id);
                         break;
                     case 'insert':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static');
                         $id = $this->insertCategory();
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=categories&tpl=overview&highlight=' . $id);
                         break;
                     case 'overview':
                     default:
-                       \Permission::checkAccess(ACCESS_ID_CATEGORIES, 'static');
+                       \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_CATEGORIES, 'static');
                        $content = $this->categoriesOverview();
                        $active = "overview";
                        break;
@@ -181,30 +174,30 @@ class KnowledgeAdmin extends KnowledgeLibrary
             case 'articles':
                 switch ($_GET['tpl']) {
                     case 'add':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_ARTICLES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static');
                         $content = $this->editArticle(true);
                         $active = "add";
                         break;
                     case 'edit':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_ARTICLES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static');
                         $content = $this->editArticle();
                         $active = "";
                         break;
                     case 'insert':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_ARTICLES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static');
                         $id = $this->insertArticle();
                         $content = $this->articleOverview();
                         $active = "overview";
                         break;
                     case 'update':
-                        \Permission::checkAccess(ACCESS_ID_EDIT_ARTICLES, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static');
                         $id = $this->updateArticle();
                         $content = $this->articleOverview();
                         \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Knowledge' . MODULE_INDEX . '&act=articles&tpl=edit&id=' . $id . '&updated=true');
                         break;
                     case 'overview':
                     default:
-                        \Permission::checkAccess(ACCESS_ID_OVERVIEW, 'static');
+                        \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_OVERVIEW, 'static');
                         $content = $this->articleOverview();
                         $active = "overview";
                         break;
@@ -212,7 +205,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
                 $this->articles($content, $active);
                 break;
             case 'settings':
-                \Permission::checkAccess(ACCESS_ID_SETTINGS, 'static');
+                \Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_SETTINGS, 'static');
                 switch ($_GET['tpl']) {
                     case 'placeholders':
                         $content = $this->settingsPlaceholders();
@@ -371,7 +364,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
             'TXT_ENTRIES_SUBMIT_DELETE'            => $_ARRAYLANG['TXT_KNOWLEDGE_CATEGORY_MANAGE_SUBMIT_DELETE'],
                'TXT_ENTRIES_SUBMIT_DELETE_JS'        => $_ARRAYLANG['TXT_KNOWLEDGE_ENTRY_MANAGE_SUBMIT_DELETE_JS'],
 
-               "EDIT_ALLOWED"                        => (\Permission::checkAccess(ACCESS_ID_EDIT_CATEGORIES, 'static', true)) ? "true" : "false",
+            'EDIT_ALLOWED' => (\Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_CATEGORIES, 'static', true)) ? 'true' : 'false',
             'NOT_ALLOWED_MSG'                   => $_ARRAYLANG['TXT_KNOWLEDGE_ACCESS_DENIED']
            ));
 
@@ -686,7 +679,7 @@ class KnowledgeAdmin extends KnowledgeLibrary
 
             // other stuff
             "CATLIST"                       => $catTree,
-            "EDIT_ALLOWED"                  => (\Permission::checkAccess(ACCESS_ID_EDIT_ARTICLES, 'static', true)) ? "true" : "false",
+            'EDIT_ALLOWED'                  => (\Permission::checkAccess(KnowledgeLibrary::ACCESS_ID_EDIT_ARTICLES, 'static', true)) ? 'true' : 'false',
             'NOT_ALLOWED_MSG'               => $_ARRAYLANG['TXT_KNOWLEDGE_ACCESS_DENIED'],
         ));
 
