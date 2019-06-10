@@ -141,7 +141,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function categorySwitchState($params = array())
     {
-        $id     = contrexx_input2int($params['get']['id']);
+        $id     = $params['get']['id'];
         $action = contrexx_input2int($params['get']['switchTo']);
 
         $langData = $this->getLangData();
@@ -173,7 +173,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             $category = new KnowledgeCategory();
             if (preg_match('/ul_[0-9]*/', $keys[0])) {
                 foreach ($params['post'][$keys[0]] as $position => $id) {
-                    $category->setSort(contrexx_input2int($id), contrexx_input2int($position));
+                    $category->setSort($id, $position);
                 }
             }
         } catch (DatabaseError $e) {
@@ -191,10 +191,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function deleteCategory($params = array())
     {
-        $id = contrexx_input2int($params['get']['id']);
         try {
             $knowledgeLibrary  = new KnowledgeLibrary();
-            $deletedCategories = $knowledgeLibrary->getCategory()->deleteCategory($id);
+            $deletedCategories = $knowledgeLibrary->getCategory()->deleteCategory($params['get']['id']);
             // delete the articles that were assigned to the deleted categories
             foreach ($deletedCategories as $cat) {
                 $knowledgeLibrary->getArticle()->deleteArticlesByCategory($cat);
@@ -218,7 +217,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         try {
             $knowledgeLibrary = new KnowledgeLibrary();
             foreach ($params['post']['articlelist'] as $position => $id) {
-                $knowledgeLibrary->getArticle()->setSort(contrexx_input2int($id), contrexx_input2int($position));
+                $knowledgeLibrary->getArticle()->setSort($id, $position);
             }
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
@@ -235,7 +234,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function articleSwitchState($params = array())
     {
-        $id     = contrexx_input2int($params['get']['id']);
+        $id     = $params['get']['id'];
         $action = contrexx_input2int($params['get']['switchTo']);
 
         $langData = $this->getLangData();
@@ -262,11 +261,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function deleteArticle($params = array())
     {
-        $id = contrexx_input2int($params['get']['id']);
-
         try {
             $knowledgeLibrary = new KnowledgeLibrary();
-            $knowledgeLibrary->getArticle()->deleteOneArticle($id);
+            $knowledgeLibrary->getArticle()->deleteOneArticle($params['get']['id']);
             $knowledgeLibrary->getTags()->clearTags();
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
@@ -317,7 +314,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
     public function getTags($params = array())
     {
         $lang = (isset($params['get']['lang']))
-            ? contrexx_input2int($params['get']['lang'])
+            ? $params['get']['lang']
             : \FWLanguage::getDefaultBackendLangId();
         try {
             $knowledgeTags = new KnowledgeTags();
@@ -340,13 +337,13 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $classnumber = 1;
         foreach ($tags as $tag) {
             $tpl->setVariable(array(
-                'TAG'         => $tag['name'],
+                'TAG'         => contrexx_raw2xhtml($tag['name']),
                 'TAGID'       => $tag['id'],
                 'CLASSNUMBER' => (++$classnumber % 2) + 1,
                 'LANG'        => $lang,
             ));
             $tpl->parse('tag');
-            $tagList[$tag['id']] = $tag['name'];
+            $tagList[$tag['id']] = contrexx_raw2xhtml($tag['name']);
         }
         $tpl->parse('taglist');
 
@@ -447,8 +444,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function rate($params = array())
     {
-        $id    = contrexx_input2int($params['post']['id']);
-        $rated = contrexx_input2int($params['post']['rated']);
+        $id    = $params['post']['id'];
+        $rated = $params['post']['rated'];
         if (!isset($_COOKIE['knowledge_rating_' . $id])) {
             try {
                 $knowledgeLibrary = new KnowledgeLibrary();
@@ -466,10 +463,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function hitArticle($params = array())
     {
-        $id = contrexx_input2int($params['get']['id']);
         try {
             $knowledgeLibrary = new KnowledgeLibrary();
-            $knowledgeLibrary->getArticle()->hit($id);
+            $knowledgeLibrary->getArticle()->hit($params['get']['id']);
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
