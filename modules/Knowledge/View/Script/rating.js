@@ -203,7 +203,11 @@ Rating.prototype.over =  function(event)
  */
 Rating.prototype.click = function(event)
 {
-    var x = event.layerX;
+    if (window.event) {
+        var x = window.event.x;
+    } else {
+        var x = event.layerX;
+    }
 
     if (x < this.width) {
         if (x <= this.starWidth/4) {
