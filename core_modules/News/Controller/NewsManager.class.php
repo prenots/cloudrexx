@@ -2988,7 +2988,11 @@ class NewsManager extends \Cx\Core_Modules\News\Controller\NewsLibrary {
      */
     protected function modifyCategory($id = null) {
         global $objDatabase, $_ARRAYLANG;
-        $manageCategoriesLink = 'index.php?cmd=News&act=newscat';
+
+        $manageCategoriesLink = \Cx\Core\Routing\Url::fromBackend(
+            'News',
+            'newscat'
+        );
 
         // cast input id to integer and check whether the id is zero or not
         $id = intval($id);
