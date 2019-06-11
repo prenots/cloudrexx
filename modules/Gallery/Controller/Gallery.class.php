@@ -95,8 +95,10 @@ class Gallery
     */
     function getPage()
     {
-        if (!empty($_GET['cmd'])) {
-            $this->strCmd = contrexx_input2int($_GET['cmd']);
+        if (empty($_GET['cmd'])) {
+            $_GET['cmd'] = '';
+        } else {
+            $this->strCmd = '&amp;cmd='.intval($_GET['cmd']);
         }
 
         \JS::activate('shadowbox');
@@ -107,7 +109,7 @@ class Gallery
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd(
                         'Gallery',
-                        $this->strCmd,
+                        $_GET['cmd'],
                         '',
                         array(
                             'cid' => contrexx_input2int($_POST['frmGalComAdd_GalId']),
@@ -123,7 +125,7 @@ class Gallery
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd(
                         'Gallery',
-                        $this->strCmd,
+                        $_GET['cmd'],
                         '',
                         array(
                             'cid' => contrexx_input2int($_GET['cid']),
@@ -604,10 +606,9 @@ class Gallery
                                             WHERE     pid='.$intParentId.' AND
                                                     status="1"
                                         ');
-        $strCmd = !empty($this->strCmd) ? '&amp;cmd=' . $this->strCmd : '';
         $this->_objTpl->setVariable(array(
-            'GALLERY_CATEGORY_PAGING' => getPaging($objResult->fields['countValue'], $intPos, '&cid=' . $intParentId . $strCmd, '<b>' . $_ARRAYLANG['TXT_GALLERY'] . '</b>',false,intval($_CONFIG['corePagingLimit']))
-        ));
+            'GALLERY_CATEGORY_PAGING'     => getPaging($objResult->fields['countValue'], $intPos, '&cid='.$intParentId.$this->strCmd, '<b>'.$_ARRAYLANG['TXT_GALLERY'].'</b>',false,intval($_CONFIG['corePagingLimit']))
+            ));
         //end category-paging
 
         $objResult = $objDatabase->SelectLimit('SELECT         *
@@ -739,7 +740,7 @@ class Gallery
             "ORDER BY sorting");
         $intCount = $objResult->RecordCount();
         $this->_objTpl->setVariable(array(
-            'GALLERY_PAGING' => getPaging($intCount, $intPos, '&cid=' . $intParentId . $strCmd, '<b>' . $_ARRAYLANG['TXT_IMAGES'] . '</b>', false, intval($this->arrSettings["paging"]))
+            'GALLERY_PAGING'     => getPaging($intCount, $intPos, '&cid='.$intParentId.$this->strCmd, '<b>'.$_ARRAYLANG['TXT_IMAGES'].'</b>', false, intval($this->arrSettings["paging"]))
         ));
         // end paging
         $this->_objTpl->setVariable('GALLERY_CATEGORY_COMMENT', $strCategoryComment);
@@ -885,19 +886,12 @@ class Gallery
                     $imageThumbPath.'" alt="'.$imageName.'" /></a>';
                     */
             } else {
-                $href = \Cx\Core\Routing\Url::fromModuleAndCmd(
-                    'Gallery',
-                    $this->strCmd,
-                    '',
-                    array(
-                        'cid' => $intParentId,
-                        'pId' => $objResult->fields['id']
-                    )
-                )->toString();
                 $strImageOutput =
-                    '<a href="' . $href . '">' . '<img  title="' .
-                    $imageTitleTag . '" src="' . $imageThumbPath . '"' .
-                    'alt="' . $imageTitleTag . '" /></a>';
+                    '<a href="'.CONTREXX_DIRECTORY_INDEX.'?section=Gallery'.
+                    $this->strCmd.'&amp;cid='.$intParentId.'&amp;pId='.
+                    $objResult->fields['id'].'">'.'<img  title="'.
+                    $imageTitleTag.'" src="'.$imageThumbPath.'"'.
+                    'alt="'.$imageTitleTag.'" /></a>';
             }
 
             if ($this->arrSettings['show_comments'] == 'on' && $boolComment) {
@@ -1388,8 +1382,7 @@ END;
             return;
         }
         if (!\Permission::checkAccess($categoryProtected, 'dynamic', true)) {
-            $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
-            $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
+            $link = base64_encode($_SERVER['PHP_SELF'] .'?'. $_SERVER['QUERY_STRING']);
             \Cx\Core\Csrf\Controller\Csrf::redirect(
                 \Cx\Core\Routing\Url::fromModuleAndCmd(
                     'Login',
