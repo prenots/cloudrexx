@@ -403,7 +403,7 @@ class MediaDirectoryLibrary
                                     'edit5',
                                     '',
                                     array(
-                                        'eid' => intval(substr($strStatus,4))
+                                        'eid' => intval(substr($strStatus, 4))
                                     )
                                 )
                             );
