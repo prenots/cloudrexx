@@ -2773,16 +2773,14 @@ END;
         $projectid      = isset($_REQUEST['projectid']) ? (int) $_REQUEST['projectid'] : 0;
 
         if (isset($_REQUEST['redirect'])) {
-            $redirect = $_REQUEST['redirect'];
+            $redirect = base64_decode($_REQUEST['redirect']);
         } else {
-            $redirect = base64_encode(
-                \Cx\Core\Routing\Url::fromBackend(
-                    $this->moduleName,
-                    'customers',
-                    0,
-                    array('tpl' => 'showcustdetail', 'id' => $customerId)
-                )->toString()
-            );
+            $redirect = \Cx\Core\Routing\Url::fromBackend(
+                $this->moduleName,
+                'customers',
+                0,
+                array('tpl' => 'showcustdetail', 'id' => $customerId)
+            )->toString();
         }
 
         $description    = isset($_POST['customer_comment']) ? $_POST['customer_comment'] : '';
@@ -2820,7 +2818,7 @@ END;
                     $db = $objDatabase->Execute($sql);
                     if ($db) {
                         $_SESSION['TXT_MSG_OK'] = ($id) ? $_ARRAYLANG['TXT_CRM_COMMENT_UPDATESUCESSMESSAGE'] : $_ARRAYLANG['TXT_CRM_COMMENT_SUCESSMESSAGE'];
-                        \Cx\Core\Csrf\Controller\Csrf::redirect(base64_decode($redirect));
+                        \Cx\Core\Csrf\Controller\Csrf::redirect($redirect);
                         exit();
                     } else {
                         $this->_strErrMessage = "Some thing went wrong";
@@ -2907,16 +2905,14 @@ END;
         $customerId = $_REQUEST['id'];
 
         if (isset($_REQUEST['redirect'])) {
-            $redirect = $_REQUEST['redirect'];
+            $redirect = base64_decode($_REQUEST['redirect']);
         } else {
-            $redirect = base64_encode(
-                \Cx\Core\Routing\Url::fromBackend(
-                    $this->moduleName,
-                    'customers',
-                    0,
-                    array('tpl' => 'showcustdetail', 'id' => $customerId)
-                )->toString()
-            );
+            $redirect = \Cx\Core\Routing\Url::fromBackend(
+                $this->moduleName,
+                'customers',
+                0,
+                array('tpl' => 'showcustdetail', 'id' => $customerId)
+            )->toString();
         }
 
         if (!empty($id)) {
@@ -2926,7 +2922,7 @@ END;
 
             if (isset($redirect))
                 $_SESSION['TXT_MSG_OK'] = $_ARRAYLANG['TXT_CRM_COMMENT_DELETESUCESSMESSAGE'];
-            \Cx\Core\Csrf\Controller\Csrf::redirect(base64_decode($redirect));
+            \Cx\Core\Csrf\Controller\Csrf::redirect($redirect);
         }
         die();
     }
