@@ -1749,7 +1749,7 @@ class Market extends MarketLibrary
                                 'detail',
                                 '',
                                 array(
-                                    'id' => $_GET['id']
+                                    'id' => $_POST['id']
                                 )
                             )
                         );
