@@ -1382,7 +1382,8 @@ END;
             return;
         }
         if (!\Permission::checkAccess($categoryProtected, 'dynamic', true)) {
-            $link = base64_encode($_SERVER['PHP_SELF'] .'?'. $_SERVER['QUERY_STRING']);
+            $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
+            $link = base64_encode($cx->getRequest()->getUrl()->toString());
             \Cx\Core\Csrf\Controller\Csrf::redirect(
                 \Cx\Core\Routing\Url::fromModuleAndCmd(
                     'Login',
