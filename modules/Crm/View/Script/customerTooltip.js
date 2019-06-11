@@ -52,7 +52,7 @@ $J(function(){
         $J.ajax({
             type: 'GET',
             url: '/api/Crm/customertooltipdetail',
-            data: 'contactid=' + pageID + '&lang=' + cx.variables.get('language', 'contrexx'),
+            data: 'contactid=' + pageID + '&locale=' + cx.variables.get('language', 'contrexx'),
             success: function(data)
             {
                 $J('#personPopupContent').html(data);
