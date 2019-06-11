@@ -2905,7 +2905,19 @@ END;
 
         $id         = $_REQUEST['commentid'];
         $customerId = $_REQUEST['id'];
-        $redirect   = isset($_REQUEST['redirect']) ? $_REQUEST['redirect'] : base64_encode("./index.php?cmd=".$this->moduleName."&act=customers&tpl=showcustdetail&id={$customerId}");
+
+        if (isset($_REQUEST['redirect'])) {
+            $redirect = $_REQUEST['redirect'];
+        } else {
+            $redirect = base64_encode(
+                \Cx\Core\Routing\Url::fromBackend(
+                    $this->moduleName,
+                    'customers',
+                    0,
+                    array('tpl' => 'showcustdetail', 'id' => $customerId)
+                )->toString()
+            );
+        }
 
         if (!empty($id)) {
 
@@ -2914,7 +2926,7 @@ END;
 
             if (isset($redirect))
                 $_SESSION['TXT_MSG_OK'] = $_ARRAYLANG['TXT_CRM_COMMENT_DELETESUCESSMESSAGE'];
-            \Cx\Core\Csrf\Controller\Csrf::header("Location: ".base64_decode($redirect));
+            \Cx\Core\Csrf\Controller\Csrf::redirect(base64_decode($redirect));
         }
         die();
     }
@@ -4743,7 +4755,20 @@ END;
                     }
 
                     //print base64_decode($redirect);
-                    \Cx\Core\Csrf\Controller\Csrf::header("Location:./index.php?cmd=".$this->moduleName."&mes=".base64_encode($msg).base64_decode($redirect));
+                    $urlParams = $this->getUrlParamsAsArray($redirect);
+                    if (isset($urlParams['act'])) {
+                        $act = $urlParams['act'];
+                        unset($urlParams['act']);
+                    }
+                    $urlParams['mes'] = base64_encode($msg);
+                    \Cx\Core\Csrf\Controller\Csrf::redirect(
+                        \Cx\Core\Routing\Url::fromBackend(
+                            $this->moduleName,
+                            $act,
+                            0,
+                            $urlParams
+                        )
+                    );
                     $this->_strOkMessage = "Saved successfully";
                 } else {
                     $this->_strErrMessage = "Err in saving";
