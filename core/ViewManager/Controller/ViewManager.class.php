@@ -1086,8 +1086,16 @@ CODE;
         }
 
         // Theme build successfully
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=ViewManager&act=templates&themes='. $theme->getFoldername());
-
+        \Cx\Core\Csrf\Controller\Csrf::redirect(
+            \Cx\Core\Routing\Url::fromBackend(
+                'ViewManager',
+                'templates',
+                0,
+                array(
+                    'themes' => $theme->getFoldername()
+                )
+            )
+        );
     }
 
     /**
@@ -1583,7 +1591,16 @@ CODE;
                     break;
             }
             // Theme build successfully
-            \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=ViewManager&act=templates&themes='. $theme->getFoldername());
+            \Cx\Core\Csrf\Controller\Csrf::redirect(
+                \Cx\Core\Routing\Url::fromBackend(
+                    'ViewManager',
+                    'templates',
+                    0,
+                    array(
+                        'themes' => $theme->getFoldername()
+                    )
+                )
+            );
         } else {
             $this->strErrMessage = $_ARRAYLANG['TXT_STATUS_CHECK_INPUTS'];
             $this->newdir();
