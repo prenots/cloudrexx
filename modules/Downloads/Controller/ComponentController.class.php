@@ -241,6 +241,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             null,
             null,
             null,
+            true,
             $config['list_downloads_current_lang']
         );
 
