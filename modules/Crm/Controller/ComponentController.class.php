@@ -114,23 +114,23 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         switch ($command) {
             case 'Crm':
                 switch ($subcommand) {
-                    case 'exportvcf':
+                    case 'Exportvcf':
                         $crmManager->exportVcf();
                         break;
-                    case 'customertooltipdetail':
+                    case 'CustomerToolTipDetail':
                         $crmManager->customerTooltipDetail();
                         break;
-                    case 'addcontact':
+                    case 'AddContact':
                         $crmManager->addContact();
                         break;
-                    case 'download':
+                    case 'DownloadDocument':
                         $fileName = $crmManager->getContactFileNameById(
                             contrexx_input2int($arguments['id']),
                             contrexx_input2int($arguments['customer'])
                         );
                         $crmManager->download($fileName);
                         break;
-                    case 'exportcsv':
+                    case 'Exportcsv':
                         $crmInterface = new CrmInterface(
                             $crmManager->_objTpl,
                             $this->getName()

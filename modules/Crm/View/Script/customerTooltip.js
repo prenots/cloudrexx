@@ -51,7 +51,7 @@ $J(function(){
 
         $J.ajax({
             type: 'GET',
-            url: '/api/Crm/customertooltipdetail',
+            url: '/api/Crm/CustomerToolTipDetail',
             data: 'contactid=' + pageID + '&locale=' + cx.variables.get('language', 'contrexx'),
             success: function(data)
             {
