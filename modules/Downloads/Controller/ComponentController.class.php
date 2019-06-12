@@ -207,7 +207,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *                  no Download matched the giving keyword, then an
      *                  empty array is retured.
      */
-    public function getDownloadsForSearchComponent($searchTerm) {
+    public function getDownloadsForSearchComponent($search) {
         $result = array();
         $downloadLibrary = new DownloadsLibrary();
         $config = $downloadLibrary->getSettings();
@@ -222,7 +222,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // check for valid published application page
         $filter = null;
         try {
-            $arrCategoryIds = $this->getCategoryFilterForSearchComponent();
+            $arrCategoryIds = $this->getCategoryFilterForSearchComponent($search);
 
             // set category filter if we have to restrict search by
             // any category IDs
@@ -236,7 +236,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // lookup downloads by given keyword
         $downloadAsset = $download->getDownloads(
             $filter,
-            $searchTerm,
+            $search->getTerm(),
             null,
             null,
             null,
@@ -303,7 +303,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @throws  DownloadsInternalException In case no application page of this
      *                                  component is published
      */
-    protected function getCategoryFilterForSearchComponent() {
+    protected function getCategoryFilterForSearchComponent($search) {
         \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
         $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue('coreListProtectedPages','Config');
         $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue('searchVisibleContentOnly','Config');
@@ -351,6 +351,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
             ) {
                 continue;
+            }
+
+            // check if page is located within the searchable tree
+            if ($search->getRootPage()) {
+                if (strpos($page->getPath(), $search->getRootPage()->getPath()) !== 0) {
+                    continue;
+                }
             }
 
             // in case the CMD is an integer, then
