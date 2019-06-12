@@ -335,6 +335,7 @@ class CrmInterface extends CrmLibrary
     /**
      * Export all contacts in csv format
      *
+     * @global array $_ARRAYLANG
      * @return all contacts in csv format
      */
     function csvExport()

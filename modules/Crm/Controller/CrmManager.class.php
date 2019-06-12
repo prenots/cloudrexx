@@ -1514,7 +1514,8 @@ END;
     /**
      * get settings submenu
      *
-     * @global array $_ARRAYLANG
+     * @global array   $_ARRAYLANG
+     * @global integer $_LANGID
      */
     function settingsSubmenu()
     {
@@ -3371,8 +3372,6 @@ END;
     /**
      * export the customer vcf
      *
-     * @global array $_ARRAYLANG
-     * @global object $objDatabase
      * @return true
      */
     function exportVcf()
@@ -3672,6 +3671,7 @@ END;
     /**
      * customer tool tip
      *
+     * @global array $_ARRAYLANG
      * @return true
      */
     function customerTooltipDetail()
