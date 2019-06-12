@@ -1584,7 +1584,7 @@ END;
                 'TXT_CRM_MAIL_TEMPLATE'          => $_ARRAYLANG['TXT_CRM_MAIL_TEMPLATE'],
                 'TXT_CRM_INTERFACE'              => $_ARRAYLANG['TXT_CRM_INTERFACE'],
                 'TXT_CRM_CUSTOMER_MEMBERSHIP'    => $_ARRAYLANG['TXT_CRM_CUSTOMER_MEMBERSHIP'],
-                strtoupper($tpl)."_ACTIVE"       => 'active',
+                strtoupper($tpl) . '_ACTIVE'     => 'active',
                 'LANG_CODE'                      => \FWLanguage::getLanguageCodeById($_LANGID)
         ));
     }
