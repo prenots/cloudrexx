@@ -1712,7 +1712,7 @@ class MediaDirectory extends MediaDirectoryLibrary
             }
         } else {
             \Cx\Core\Csrf\Controller\Csrf::redirect(
-                \Cx\Core\Routing\Url::fromModuleAndCmd($_GET['section'])
+                \Cx\Core\Routing\Url::fromModuleAndCmd($this->moduleName)
             );
             exit;
         }
