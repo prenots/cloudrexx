@@ -193,44 +193,4 @@ class KnowledgeLibrary {
         global $_LANGID;
         return $_LANGID;
     }
-
-    /**
-     * Get article object
-     *
-     * @return object KnowledgeArticles object
-     */
-    public function getArticle()
-    {
-        return $this->articles;
-    }
-
-    /**
-     * Get category object
-     *
-     * @return object KnowledgeCategory object
-     */
-    public function getCategory()
-    {
-        return $this->categories;
-    }
-
-    /**
-     * Get setting object
-     *
-     * @return object KnowledgeSettings object
-     */
-    public function getSettings()
-    {
-        return $this->settings;
-    }
-
-    /**
-     * Get tags object
-     *
-     * @return object KnowledgeTags object
-     */
-    public function getTags()
-    {
-        return $this->tags;
-    }
 }
