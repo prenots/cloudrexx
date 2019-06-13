@@ -2912,7 +2912,7 @@ END;
                 'customers',
                 0,
                 array('tpl' => 'showcustdetail', 'id' => $customerId)
-            )->toString();
+            )->toString(false);
         }
 
         if (!empty($id)) {
