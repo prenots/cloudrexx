@@ -1056,7 +1056,15 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $fieldvalue,
             'input'
         );
-        $addition = new \Cx\Core\Html\Model\Entity\TextElement('CHF');
+
+        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Currency'
+        );
+        $defaultCurrency = $repo->getDefaultCurrency();
+
+        $addition = new \Cx\Core\Html\Model\Entity\TextElement(
+            $defaultCurrency->getCode()
+        );
         $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
         $spanWrapper->addChild($addition);
 
@@ -1293,56 +1301,56 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                     $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
                     $spanWrapper->addChild($addition);
                     $td->addChild($spanWrapper);
-                }
 
-                if ($key == 'sum') {
-                    $field->setAttribute('readonly', 'readonly');
-                    $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                    $toolTipTrigger->addClass('icon-info tooltip-trigger tooltip-order-item');
-                    $toolTipTrigger->allowDirectClose(false);
-                    $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                    $toolTipMessage->addClass('tooltip-message');
-                    $messageText = $_ARRAYLANG['TXT_SHOP_ORDER_ITEMS_ARE_ADDED_TO_SUM'];
-                    $message = new \Cx\Core\Html\Model\Entity\TextElement(
-                        $messageText
-                    );
-                    $toolTipMessage->addChild($message);
-                    $td->addChild($toolTipTrigger);
-                    $td->addChild($toolTipMessage);
-                    if (count($orderItem->getOrderAttributes()) > 0) {
-                        $toolTipTrigger->addClass('show');
-                    }
-                } else if ($key == 'price') {
-                    $attributePrice = 0;
-                    if (count($orderItem->getOrderAttributes()) > 0) {
-                        foreach($orderItem->getOrderAttributes() as $attribute) {
-                            $attributePrice += $attribute->getPrice();
-                        }
-                    }
-                    $field->setAttribute('data-priceattributes', $attributePrice);
-                } else if ($key == 'product_name') {
-                    if (count($orderItem->getOrderAttributes()) > 0) {
+                    if ($key == 'sum') {
+                        $field->setAttribute('readonly', 'readonly');
                         $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                        $toolTipTrigger->addClass('icon-info tooltip-trigger');
+                        $toolTipTrigger->addClass('icon-info tooltip-trigger tooltip-order-item');
                         $toolTipTrigger->allowDirectClose(false);
                         $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
                         $toolTipMessage->addClass('tooltip-message');
-                        $messageText = $_ARRAYLANG[
-                            'TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'
-                        ];
-                        foreach ($orderItem->getOrderAttributes() as $attribute) {
-                            $attributeText = '- '.$attribute->getAttributeName()
-                                . ': '. $attribute->getOptionName()
-                                . ' (' . $attribute->getPrice() . ' '
-                                . $currency .')<br/>';
-                            $messageText .= $attributeText;
-                        }
+                        $messageText = $_ARRAYLANG['TXT_SHOP_ORDER_ITEMS_ARE_ADDED_TO_SUM'];
                         $message = new \Cx\Core\Html\Model\Entity\TextElement(
                             $messageText
                         );
                         $toolTipMessage->addChild($message);
-                        $td->addChild($toolTipTrigger);
-                        $td->addChild($toolTipMessage);
+                        $spanWrapper->addChild($toolTipTrigger);
+                        $spanWrapper->addChild($toolTipMessage);
+                        if (count($orderItem->getOrderAttributes()) > 0) {
+                            $toolTipTrigger->addClass('show');
+                        }
+                    } else if ($key == 'price') {
+                        $attributePrice = 0;
+                        if (count($orderItem->getOrderAttributes()) > 0) {
+                            foreach($orderItem->getOrderAttributes() as $attribute) {
+                                $attributePrice += $attribute->getPrice();
+                            }
+                        }
+                        $field->setAttribute('data-priceattributes', $attributePrice);
+                    } else if ($key == 'product_name') {
+                        if (count($orderItem->getOrderAttributes()) > 0) {
+                            $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                            $toolTipTrigger->addClass('icon-info tooltip-trigger');
+                            $toolTipTrigger->allowDirectClose(false);
+                            $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
+                            $toolTipMessage->addClass('tooltip-message');
+                            $messageText = $_ARRAYLANG[
+                            'TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'
+                            ];
+                            foreach ($orderItem->getOrderAttributes() as $attribute) {
+                                $attributeText = '- '.$attribute->getAttributeName()
+                                    . ': '. $attribute->getOptionName()
+                                    . ' (' . $attribute->getPrice() . ' '
+                                    . $currency .')<br/>';
+                                $messageText .= $attributeText;
+                            }
+                            $message = new \Cx\Core\Html\Model\Entity\TextElement(
+                                $messageText
+                            );
+                            $toolTipMessage->addChild($message);
+                            $spanWrapper->addChild($toolTipTrigger);
+                            $spanWrapper->addChild($toolTipMessage);
+                        }
                     }
                 }
 

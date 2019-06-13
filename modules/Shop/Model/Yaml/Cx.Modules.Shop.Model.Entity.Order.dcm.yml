@@ -22,6 +22,8 @@ Cx\Modules\Shop\Model\Entity\Order:
     customerId:
       type: integer
       nullable: true
+      options:
+        unsigned: true
       column: customer_id
     currencyId:
       type: integer

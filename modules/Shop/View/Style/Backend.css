@@ -76,7 +76,7 @@
 
 .custom-input {
     float: right;
-    margin-right: 72px;
+    margin-right: 20px;
     font-weight: bold;
 }
 .custom-input input {
@@ -91,11 +91,16 @@
 }
 .tooltip-order-item {
     visibility: hidden;
+    position: absolute;
+    top: -3px;
+    right: -17px;
 }
 .tooltip-order-item.show {
     visibility: inherit;
 }
-
+#form-0-orderItems td:last-child > span {
+    position: relative;
+}
 .order-id {
     width: 4%;
     text-align: right !important;
@@ -185,6 +190,15 @@ label[for='form-0-emptyField'] {
 
 #form-0-orderItems td {
     padding: 3px;
+}
+
+#form-0-orderItems td:nth-child(2) {
+    min-width: 500px;
+}
+
+#form-0-orderItems td:last-child {
+    padding-right: 20px;
+    text-align: right;
 }
 
 #form-0-orderItems tr {
