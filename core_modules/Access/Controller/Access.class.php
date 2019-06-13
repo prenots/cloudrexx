@@ -124,7 +124,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                                         array(
                                             'id' => $objUser->getId()
                                         )
-                                    )->toString(true)
+                                    )->toString()
                                 )
                             )
                         )
@@ -150,7 +150,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                                         array(
                                             'id' => $objUser->getId()
                                         )
-                                    )->toString(true)
+                                    )->toString()
                                 )
                             )
                         )
@@ -519,7 +519,7 @@ class Access extends \Cx\Core_Modules\Access\Controller\AccessLib
                             \Cx\Core\Routing\Url::fromModuleAndCmd(
                                 'Access',
                                 rawurlencode($_REQUEST['cmd'])
-                            )->toString(true)
+                            )->toString()
                         )
                     )
                 )
