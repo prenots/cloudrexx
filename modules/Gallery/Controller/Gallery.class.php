@@ -1383,7 +1383,7 @@ END;
         }
         if (!\Permission::checkAccess($categoryProtected, 'dynamic', true)) {
             $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
-            $link = base64_encode($cx->getRequest()->getUrl()->toString());
+            $link = base64_encode($cx->getRequest()->getUrl()->toString(false));
             \Cx\Core\Csrf\Controller\Csrf::redirect(
                 \Cx\Core\Routing\Url::fromModuleAndCmd(
                     'Login',
