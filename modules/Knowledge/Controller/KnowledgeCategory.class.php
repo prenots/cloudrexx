@@ -249,7 +249,7 @@ class KnowledgeCategory
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_categories
                     SET active = 1
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to activate the category");
         }
@@ -268,7 +268,7 @@ class KnowledgeCategory
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_categories
                     SET active = 0
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to deactivate the category");
         }
@@ -319,8 +319,8 @@ class KnowledgeCategory
         global $objDatabase;
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_categories
-                    SET sort = " . contrexx_input2int($position) . "
-                    WHERE id = " . contrexx_input2int($id);
+                    SET sort = ".$position."
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("error updating the order");
         }
@@ -340,7 +340,7 @@ class KnowledgeCategory
         global $objDatabase;
 
         $query = "  DELETE FROM ".DBPREFIX."module_knowledge_categories
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to delete category content");
         }

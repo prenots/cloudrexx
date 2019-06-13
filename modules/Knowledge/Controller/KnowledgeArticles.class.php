@@ -229,7 +229,7 @@ class KnowledgeArticles
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET active = 1
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to activate article");
         }
@@ -249,7 +249,7 @@ class KnowledgeArticles
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET active = 0
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to deactivate article");
         }
@@ -267,13 +267,13 @@ class KnowledgeArticles
         global $objDatabase;
 
         $query = "  DELETE FROM ".DBPREFIX."module_knowledge_article_content
-                    WHERE article = " . contrexx_input2int($id);
+                    WHERE article = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to delete the content of a article");
         }
 
         $query = "  DELETE FROM ".DBPREFIX."module_knowledge_articles
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("failed to delete a article");
         }
@@ -438,8 +438,8 @@ class KnowledgeArticles
         global $objDatabase;
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
-                    SET sort = " . contrexx_input2int($position) . "
-                    WHERE id = " . contrexx_input2int($id);
+                    SET sort = ".$position."
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("error sorting the article ".$id);
         }
@@ -459,7 +459,7 @@ class KnowledgeArticles
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET hits = hits + 1
-                    WHERE id = " . contrexx_input2int($id);
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("error 'hitting' an article ");
         }
@@ -478,8 +478,8 @@ class KnowledgeArticles
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET votes = votes + 1,
-                        votevalue = votevalue + " . contrexx_input2int($value) . "
-                    WHERE id = " . contrexx_input2int($id);
+                        votevalue = votevalue + ".$value."
+                    WHERE id = ".$id;
         if ($objDatabase->Execute($query) === false) {
             throw new DatabaseError("error voting an article");
         }

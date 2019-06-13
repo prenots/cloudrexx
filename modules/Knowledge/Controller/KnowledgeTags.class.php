@@ -87,7 +87,7 @@ class KnowledgeTags
                     FROM ".DBPREFIX."module_knowledge_tags AS tags
                     ".($inUseOnly ? "INNER JOIN" : "LEFT OUTER JOIN")." ".DBPREFIX."module_knowledge_tags_articles AS tags_articles
                     ON tags.id = tags_articles.tag
-                    WHERE tags.lang = " . contrexx_input2int($lang) . "
+                    WHERE tags.lang = ".$lang."
                     GROUP BY tags.id
                     ORDER BY popularity DESC";
         $rs = $objDatabase->Execute($query);
@@ -131,7 +131,7 @@ class KnowledgeTags
                     FROM ".DBPREFIX."module_knowledge_tags AS tags
                     ".($inUseOnly ? "INNER JOIN" : "LEFT OUTER JOIN")." ".DBPREFIX."module_knowledge_tags_articles AS tags_articles
                     ON tags.id = tags_articles.tag
-                    WHERE tags.lang = " . contrexx_input2int($lang) . "
+                    WHERE tags.lang = ".$lang."
                     GROUP BY tags.id
                     ORDER BY name";
         $rs = $objDatabase->Execute($query);
