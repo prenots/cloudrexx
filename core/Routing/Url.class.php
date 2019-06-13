@@ -167,7 +167,9 @@ class Url {
         if (empty($this->domain)) {
             $this->domain = \Env::get('config')['domainUrl'];
         }
-        $this->protocol = $data['scheme'];
+        if (isset($data['scheme'])) {
+            $this->protocol = $data['scheme'];
+        }
         if (empty($this->protocol)) {
             $this->protocol = 'http';
         }
