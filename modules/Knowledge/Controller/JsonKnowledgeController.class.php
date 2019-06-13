@@ -371,10 +371,9 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $langData = $this->getLangData();
 
         try {
-            $knowledgeArticles = new KnowledgeArticles();
-            $articles = $knowledgeArticles->getArticlesByCategory($id);
-            $knowledgeCategory = new KnowledgeCategory();
-            $category = $knowledgeCategory->getOneCategory($id);
+            $knowledgeLibrary = new KnowledgeLibrary();
+            $articles = $knowledgeLibrary->getArticle()->getArticlesByCategory($id);
+            $category = $knowledgeLibrary->getCategory()->getOneCategory($id);
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }

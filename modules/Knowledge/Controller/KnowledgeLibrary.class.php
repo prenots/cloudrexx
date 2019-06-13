@@ -193,4 +193,24 @@ class KnowledgeLibrary {
         global $_LANGID;
         return $_LANGID;
     }
+
+    /**
+     * Get article object
+     *
+     * @return object KnowledgeArticles object
+     */
+    public function getArticle()
+    {
+        return $this->articles;
+    }
+
+    /**
+     * Get category object
+     *
+     * @return object KnowledgeCategory object
+     */
+    public function getCategory()
+    {
+        return $this->categories;
+    }
 }
