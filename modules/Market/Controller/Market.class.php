@@ -1004,7 +1004,7 @@ class Market extends MarketLibrary
                 }
             }else {
                 $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
-                $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
+                $link = base64_encode($cx->getRequest()->getUrl()->toString(false));
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd(
                         'Login',
@@ -1531,7 +1531,7 @@ class Market extends MarketLibrary
                 }
             }else {
                 $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
-                $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
+                $link = base64_encode($cx->getRequest()->getUrl()->toString(false));
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd(
                         'Login',
@@ -1829,7 +1829,7 @@ class Market extends MarketLibrary
                 }
             }else {
                 $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
-                $link = base64_encode($cx->getRequest()->getUrl()->toString(true));
+                $link = base64_encode($cx->getRequest()->getUrl()->toString(false));
                 \Cx\Core\Csrf\Controller\Csrf::redirect(
                     \Cx\Core\Routing\Url::fromModuleAndCmd(
                         'Login',
