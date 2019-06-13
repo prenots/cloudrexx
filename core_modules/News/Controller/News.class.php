@@ -1353,7 +1353,7 @@ class News extends \Cx\Core_Modules\News\Controller\NewsLibrary {
             $objFWUser = \FWUser::getFWUserObject();
             if (!$objFWUser->objUser->login()) {
                 $cx   = \Cx\Core\Core\Controller\Cx::instanciate();
-                $link = base64_encode($cx->getRequest()->getUrl()->toString());
+                $link = base64_encode($cx->getRequest()->getUrl()->toString(false));
                 \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Login', '', FRONTEND_LANG_ID, array('redirect' => $link)));
                 exit;
             }
