@@ -1470,11 +1470,11 @@ END;
     public function getPictureDetailLink($categoryId, $pictureId)
     {
         return \Cx\Core\Routing\Url::fromModuleAndCmd(
-                     'Gallery',
-                     $this->strCmd,
-                     '',
-                     array('cid' => $categoryId, 'pId' => $pictureId)
-                 )->toString();
+            'Gallery',
+            isset($_GET['cmd']) ? $_GET['cmd'] : '',
+            '',
+            array('cid' => $categoryId, 'pId' => $pictureId)
+        )->toString();
     }
 }
 
