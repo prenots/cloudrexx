@@ -227,6 +227,7 @@ class KnowledgeArticles
     {
         global $objDatabase;
 
+        $id = intval($id);
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET active = 1
                     WHERE id = ".$id;
@@ -247,6 +248,7 @@ class KnowledgeArticles
     {
         global $objDatabase;
 
+        $id = intval($id);
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET active = 0
                     WHERE id = ".$id;
@@ -266,6 +268,8 @@ class KnowledgeArticles
     {
         global $objDatabase;
 
+
+        $id = intval($id);
         $query = "  DELETE FROM ".DBPREFIX."module_knowledge_article_content
                     WHERE article = ".$id;
         if ($objDatabase->Execute($query) === false) {
@@ -437,6 +441,9 @@ class KnowledgeArticles
     {
         global $objDatabase;
 
+        $id = intval($id);
+        $position = intval($position);
+
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET sort = ".$position."
                     WHERE id = ".$id;
@@ -457,6 +464,8 @@ class KnowledgeArticles
     {
         global $objDatabase;
 
+        $id = intval($id);
+
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET hits = hits + 1
                     WHERE id = ".$id;
@@ -475,6 +484,9 @@ class KnowledgeArticles
     public function vote($id, $value)
     {
         global $objDatabase;
+
+        $value = intval($value);
+        $id = intval($id);
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles
                     SET votes = votes + 1,

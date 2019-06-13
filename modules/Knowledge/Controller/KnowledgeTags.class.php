@@ -80,6 +80,8 @@ class KnowledgeTags
 
         global $objDatabase;
 
+        $lang = intval($lang);
+
         $query = "  SELECT
                         tags.id AS id,
                         tags.name AS name,
@@ -125,6 +127,7 @@ class KnowledgeTags
 
         global $objDatabase;
 
+        $lang = intval($lang);
         $query = "  SELECT  tags.id AS id,
                             tags.name AS name,
                             count( tags_articles.article ) AS popularity
