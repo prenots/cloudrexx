@@ -750,13 +750,7 @@ class Url {
         if (count($arrParameters)) {
             $arrParams = array();
             foreach ($arrParameters as $key => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $arrayValue) {
-                        $arrParams[] = $key . '[]=' . $arrayValue;
-                    }
-                } else {
-                    $arrParams[] = $key . '=' . $value;
-                }
+                $arrParams[] = $key.'='.$value;
             }
             $parameters = '?'.implode('&', $arrParams);
         }
