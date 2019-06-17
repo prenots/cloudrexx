@@ -64,14 +64,10 @@ Tags.prototype.getTags = function(sort)
         },
         onSuccess : function(transport) {
             var response = transport.responseText.evalJSON();
-            if (response.status === 'success') {
-                $('taglist_' + ref.lang).update(response.data.html_format);
-                ref.availableTags = $H(response.data.array_format);
-                ref.loaded = true;
-                ref.typing();
-            } else {
-                showStatusMessage(response);
-            }
+            $('taglist_' + ref.lang).update(response.data.html_format);
+            ref.availableTags = $H(response.data.array_format);
+            ref.loaded = true;
+            ref.typing();
         }
     });
 

@@ -427,7 +427,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
 
         $tpl->parse('content');
 
-        $this->message = $langData['TXT_KNOWLEDGE_ARTICLE_LIST_SUCCESS'];
         return array('list' => $tpl->get('content'));
     }
 

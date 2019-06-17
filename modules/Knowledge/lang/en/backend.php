@@ -319,4 +319,3 @@ $_ARRAYLANG['TXT_KNOWLEDGE_MSG_DEACTIVE'] = 'Deactivated Successfully';
 $_ARRAYLANG['TXT_KNOWLEDGE_MSG_SORT'] = 'Sorted Successfully';
 $_ARRAYLANG['TXT_KNOWLEDGE_AT'] = 'at';
 $_ARRAYLANG['TXT_KNOWLEDGE_VOTERS'] = 'Voters';
-$_ARRAYLANG['TXT_KNOWLEDGE_ARTICLE_LIST_SUCCESS'] = 'Articles has listed successfully';

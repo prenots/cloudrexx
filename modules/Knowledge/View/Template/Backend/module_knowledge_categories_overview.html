@@ -68,8 +68,7 @@ var switchActive = function(id, obj, action)
             switchTo : action
         },
         onSuccess: function(transport) {
-            response = transport.responseText.evalJSON();
-            if (response.status === 'success') {
+            if (statusMsg(transport.responseText)) {
                 var img = obj.getElementsByTagName("img")[0];
                 if (action == 0) {
                     img.src = "/core/Core/View/Media/icons/led_red.gif";
@@ -80,7 +79,6 @@ var switchActive = function(id, obj, action)
                 }
                 new Effect.Highlight('category_'+id);
             }
-            showStatusMessage(response);
         }
     });
 }
@@ -103,11 +101,9 @@ var deleteCategory = function(entryId, amount)
                 id : entryId
             },
             onSuccess: function(transport) {
-                response = transport.responseText.evalJSON();
-                if (response.status === 'success') {
+                if (statusMsg(transport.responseText)) {
                     catTree.deleteRow(entryId);
                 }
-                showStatusMessage(response);
             }
         });
     }
@@ -225,14 +221,33 @@ var updateSort = function(id)
             method : "post",
             parameters : Sortable.serialize(id),
             onSuccess : function(transport) {
-                response = transport.responseText.evalJSON();
-                if (response.status === 'success') {
+                if (statusMsg(transport.responseText)) {
                     new Effect.Highlight('category_'+lastDragged, {duration: 1.5});
                 }
-                showStatusMessage(response);
             }
         });
 }
+
+function statusMsg(responseText)
+{
+    var data = responseText.evalJSON();
+    if (data.status === 'success') {
+        $J('#messageBox')
+            .append('<div id="okbox">' + data.message + '</div>')
+            .find(':last-child')
+            .fadeIn('slow').animate({opacity: 1.0}, 3000)
+            .fadeOut(5000, function(){$J(this).remove()});
+        return true;
+    } else {
+        $J('#messageBox')
+            .append('<div id="alertbox">' + data.message + '</div>')
+            .find(':last-child')
+            .fadeIn('slow').animate({opacity: 1.0}, 3000)
+            .fadeOut(5000, function(){$J(this).remove()});
+        return false;
+    }
+}
+
 //]]>
 </script>
 
