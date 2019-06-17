@@ -127,9 +127,11 @@ var initSortableArea = function()
                     method : "post",
                     parameters : Sortable.serialize("articlelist"),
                     onSuccess : function(transport) {
-                        if (statusMsg(transport.responseText)) {
+                        var data = transport.responseText.evalJSON();
+                        if (data.status === 'success') {
                             new Effect.Highlight('article_'+lastDragged, {duration: 1.5});
                         }
+                        cx.ui.messages.add(data.message, data.status);
                     }
                 });
            },
@@ -203,7 +205,8 @@ var switchActive = function(id, obj, action)
             switchTo : action
         },
         onSuccess: function(transport) {
-            if (statusMsg(transport.responseText)) {
+            var data = transport.responseText.evalJSON();
+            if (data.status === 'success') {
                 var img = obj.getElementsByTagName("img")[0];
                 if (action == 0) {
                     img.src = "/core/Core/View/Media/icons/led_red.gif";
@@ -214,6 +217,7 @@ var switchActive = function(id, obj, action)
                 }
                 new Effect.Highlight('article_'+id);
             }
+            cx.ui.messages.add(data.message, data.status);
         }
     });
 }
@@ -229,8 +233,12 @@ var deleteArticle = function(id)
                 act : 'deleteArticle',
                 id : id
             },
-            onSuccess: function() {
-                articles.deleteRow(id);
+            onSuccess: function(transport) {
+                var data = transport.responseText.evalJSON();
+                if (data.status === 'success') {
+                    articles.deleteRow(id);
+                }
+                cx.ui.messages.add(data.message, data.status);
             }
         });
     }
