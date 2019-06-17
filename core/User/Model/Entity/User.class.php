@@ -598,9 +598,11 @@ class User extends \Cx\Model\Base\EntityBase {
      * @param string $restoreKey
      * @return User
      */
-    public function setRestoreKey($restoreKey)
+    public function setRestoreKey($restoreKey = null)
     {
-        $this->restoreKey = $restoreKey;
+        $this->restoreKey = !empty($restoreKey)
+                            ? $restoreKey
+                            : md5($this->email . $this->regdate . time());
     }
 
     /**
@@ -716,6 +718,27 @@ class User extends \Cx\Model\Base\EntityBase {
     public function getUserAttributeValue()
     {
         return $this->userAttributeValue;
+    }
+
+    /**
+     * Return the first- and lastname if they are defined. If this is not the
+     * case, check if a username exists. If this also does not exist, the
+     * e-mail address will be returned.
+     *
+     * @return string firstname & lastname, username or email
+     */
+    public function isBackendGroupUser()
+    {
+        if (!$this->group) {
+            return false;
+        }
+
+        foreach ($this->group as $group) {
+            if ($group->getType() === 'backend') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

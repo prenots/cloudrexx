@@ -170,6 +170,11 @@ class BackendController extends
                     'method' => 'filterCallback'
                 );
 
+                $options['functions']['searchCallback'] = array(
+                    'adapter' => 'User',
+                    'method' => 'searchCallback'
+                );
+
                 $options['tabs']['groups'] = array(
                     'header' => $_ARRAYLANG['TXT_CORE_USER_GROUP_S'],
                     'fields' => array(
@@ -206,7 +211,7 @@ class BackendController extends
                     ),
                     'username' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData, $vg) {
+                            'parse' => function ($value, $rowData, $options, $vg) {
                                 return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
@@ -245,7 +250,7 @@ class BackendController extends
                     ),
                     'email' => array(
                         'table' => array(
-                            'parse' => function ($value, $rowData, $vg) {
+                            'parse' => function ($value, $rowData, $options, $vg) {
                                 return $this->addEditUrl($value, $rowData, $vg);
                             }
                         ),
@@ -256,19 +261,16 @@ class BackendController extends
                     ),
                     'password' => array(
                         'showOverview' => false,
-                        'formfield' => array(
-                            'adapter' => 'User',
-                            'method' => 'getPasswordField'
-                        ),
+                        'type' => 'password',
+                        'mode' => 'nocomplete',
                         'tooltip' => $this->getPasswordInfo(),
                         'allowFiltering' => false,
                     ),
                     'passwordConfirmed' => array(
                         'custom' => true,
                         'showOverview' => false,
-                        'attributes' => array(
-                            'class' => 'access-pw-noauto',
-                        ),
+                        'type' => 'password',
+                        'mode' => 'nocomplete',
                         'allowFiltering' => false,
                     ),
                     'authToken' => array(
@@ -971,19 +973,13 @@ class BackendController extends
     {
         $em = $this->cx->getDb()->getEntityManager();
 
-        $userId = intval($this->userId);
-
-        $user = $em->getRepository('Cx\Core\User\Model\Entity\User')->findOneBy(array('id' => $userId));
-
         $validValues = array(0 => '-');
-        if (!empty($user)) {
-            $groups = $user->getGroup();
-        } else {
-            // Select all active groups
-            $groups = $em->getRepository(
-                'Cx\Core\User\Model\Entity\Group'
-            )->findBy(array('isActive' => 1));
-        }
+
+        // Select all active groups
+        $groups = $em->getRepository(
+            'Cx\Core\User\Model\Entity\Group'
+        )->findBy(array('isActive' => 1));
+
         foreach ($groups as $group) {
             $validValues[$group->getGroupId()] = $group->getGroupName();
         }
@@ -1222,6 +1218,7 @@ class BackendController extends
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'postCallback' => array(
                     'adapter' => 'User',
                     'method' => 'storeUserAttributeValue'

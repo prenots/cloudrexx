@@ -64,9 +64,9 @@ class JsonUserController
         return array(
             'getAttributeValues',
             'storeUserAttributeValue',
-            'getPasswordField',
             'getRoleIcon',
             'filterCallback',
+            'searchCallback',
             'storeNewsletter',
             'storeDownloadExtension',
             'storeOnlyNewsletterLists',
@@ -152,79 +152,6 @@ class JsonUserController
     }
 
     /**
-     * Get a custom password field to hide the password and disable
-     * auto-complete
-     *
-     * @param $params array params for callback
-     * @return \Cx\Core\Html\Model\Entity\HtmlElement password field
-     */
-    public function getPasswordField($params)
-    {
-        global $_ARRAYLANG, $_CONFIG;
-
-        $name = $params['name'];
-
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $password = new \Cx\Core\Html\Model\Entity\DataElement($name);
-        $password->setAttributes(
-            array(
-                'type' => 'text',
-                'class' => 'access-pw-noauto form-control',
-                'id' => 'form-0-' . $name
-            )
-        );
-
-        $star = new \Cx\Core\Html\Model\Entity\HtmlElement('font');
-        $starText = new \Cx\Core\Html\Model\Entity\TextElement('&nbsp;*&nbsp;');
-        $star->addChild($starText);
-        $star->setAttribute('color', 'red');
-
-        $status = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-        $status->setAttribute('id', 'password-complexity');
-
-        $wrapper->addChildren(
-            array($password, $star, $status)
-        );
-
-        // Set JavaScript Variables
-        $cxJs = \ContrexxJavascript::getInstance();
-        $scope = 'user-password';
-        $cxJs->setVariable(
-            'TXT_CORE_USER_PASSWORD_TOO_SHORT',
-            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_TOO_SHORT'],
-            $scope
-        );
-        $cxJs->setVariable(
-            'TXT_CORE_USER_PASSWORD_INVALID',
-            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_INVALID'],
-            $scope
-        );
-        $cxJs->setVariable(
-            'TXT_CORE_USER_PASSWORD_WEAK',
-            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_WEAK'],
-            $scope
-        );
-        $cxJs->setVariable(
-            'TXT_CORE_USER_PASSWORD_GOOD',
-            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_GOOD'],
-            $scope
-        );
-        $cxJs->setVariable(
-            'TXT_CORE_USER_PASSWORD_STRONG',
-            $_ARRAYLANG['TXT_CORE_USER_PASSWORD_STRONG'],
-            $scope
-        );
-        $cxJs->setVariable(
-            'CORE_USER_PASSWORT_COMPLEXITY',
-            isset($_CONFIG['passwordComplexity'])
-                ? $_CONFIG['passwordComplexity'] : 'off',
-            $scope
-        );
-
-        return $wrapper;
-    }
-
-    /**
      * Get the appropriate role icon to display the roles graphically
      *
      * @param $params array params for table->parse callback
@@ -300,6 +227,47 @@ class JsonUserController
         return $qb;
     }
 
+    /**
+     * Custom filter callback function to filter the users by user groups and
+     * account type
+     *
+     * @param $params array contains all params for filter callback
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function searchCallback($params)
+    {
+        $qb = $params['qb'];
+        $fields = $params['fields'];
+        $crit = $params['crit'];
+
+        // Default
+        $orX = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+            \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_OR
+        );
+        $i = 1;
+        $joinTable = true;
+        foreach ($fields as $field) {
+            if (preg_match('/userAttr-\d+/', $field)) {
+                if ($joinTable) {
+                    $qb->leftJoin(
+                        'Cx\Core\User\Model\Entity\UserAttributeValue',
+                        'av',
+                        'WITH',
+                        'av.userId = x.id'
+                    );
+                    $joinTable = false;
+                }
+                $orX->add($qb->expr()->like('av.value', ':search'));
+            } else {
+                $orX->add($qb->expr()->like('x.' . $field, ':search'));
+            }
+        }
+        $qb->andWhere($orX);
+        $qb->setParameter('search', '%' . $crit . '%');
+
+        return $qb;
+    }
+
     public function storeNewsletter($params)
     {
         global $_ARRAYLANG, $objDatabase;
@@ -369,7 +337,11 @@ class JsonUserController
     {
         global $_ARRAYLANG;
 
-        if (!isset($params) || empty($params['entity'])) {
+        if (
+            !isset($params) ||
+            empty($params['entity']) ||
+            empty($params['postedValue'])
+        ) {
             return null;
         }
         $user = $params['entity'];
