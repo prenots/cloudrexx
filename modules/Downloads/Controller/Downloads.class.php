@@ -105,6 +105,15 @@ class Downloads extends DownloadsLibrary
 
         $objFWUser = \FWUser::getFWUserObject();
         $this->userId = $objFWUser->objUser->login() ? $objFWUser->objUser->getId() : 0;
+
+        // if $requestedPage is set, then we're about to process a widget
+        if ($requestedPage) {
+            $this->isRegularMode = false;
+            $this->requestedPage = $requestedPage;
+        } else {
+            $this->requestedPage = \Cx\Core\Core\Controller\Cx::instanciate()->getPage();
+        }
+
         $this->parseURLModifiers($queryParams);
         if ($pageContent instanceof \Cx\Core\Html\Sigma) {
             $this->objTemplate = $pageContent;
@@ -113,14 +122,6 @@ class Downloads extends DownloadsLibrary
             $this->objTemplate->setTemplate($pageContent);
             \Cx\Core\Csrf\Controller\Csrf::add_placeholder($this->objTemplate);
             $this->objTemplate->setErrorHandling(PEAR_ERROR_DIE);
-        }
-
-        // if $requestedPage is set, then we're about to process a widget
-        if ($requestedPage) {
-            $this->isRegularMode = false;
-            $this->requestedPage = $requestedPage;
-        } else {
-            $this->requestedPage = \Cx\Core\Core\Controller\Cx::instanciate()->getPage();
         }
     }
 
@@ -557,7 +558,7 @@ class Downloads extends DownloadsLibrary
      */
     public static function addDownloadFromUpload($fileName, $fileExtension, $suffix, $objCategory, $objDownloads, $sourceName, $data)
     {
-        $objDownload = new Download($this->arrConfig);
+        $objDownload = new Download($objDownloads->getSettings());
 
         // parse name and description attributres
         $arrLanguageIds = array_keys(\FWLanguage::getLanguageArray());
@@ -632,7 +633,7 @@ class Downloads extends DownloadsLibrary
 
     private function processCreateDirectory($objCategory)
     {
-        if ($this->isRegularMode || empty($_POST['downloads_category_name'])) {
+        if (!$this->isRegularMode || empty($_POST['downloads_category_name'])) {
             return;
         } else {
             $name = contrexx_stripslashes($_POST['downloads_category_name']);
@@ -706,7 +707,11 @@ class Downloads extends DownloadsLibrary
     {
         global $_CONFIG, $_ARRAYLANG;
 
-        if (!$this->objTemplate->blockExists('downloads_simple_file_upload') && !$this->objTemplate->blockExists('downloads_advanced_file_upload')) {
+        if ($this->objTemplate->blockExists('downloads_advanced_file_upload')) {
+            $this->objTemplate->hideBlock('downloads_advanced_file_upload');
+        }
+
+        if (!$this->objTemplate->blockExists('downloads_simple_file_upload')) {
             return;
         }
 
@@ -717,9 +722,6 @@ class Downloads extends DownloadsLibrary
         ) {
             if ($this->objTemplate->blockExists('downloads_simple_file_upload')) {
                 $this->objTemplate->hideBlock('downloads_simple_file_upload');
-            }
-            if ($this->objTemplate->blockExists('downloads_advanced_file_upload')) {
-                $this->objTemplate->hideBlock('downloads_advanced_file_upload');
             }
             return;
         }
@@ -755,10 +757,6 @@ class Downloads extends DownloadsLibrary
                 'DOWNLOADS_MAX_FILE_SIZE'       => $this->getFormatedFileSize($objFWSystem->getMaxUploadFileSize())
             ));
             $this->objTemplate->parse('downloads_simple_file_upload');
-
-            if ($this->objTemplate->blockExists('downloads_advanced_file_upload')) {
-                $this->objTemplate->hideBlock('downloads_advanced_file_upload');
-            }
         }
     }
 
@@ -1029,11 +1027,11 @@ JS_CODE;
     }
 
 
-    private function parseRelatedCategories($objDownload)
+    private function parseRelatedCategories($objDownload, $variablePrefix = '')
     {
         global $_ARRAYLANG;
 
-        if (!$this->objTemplate->blockExists('downloads_file_category_list')) {
+        if (!$this->objTemplate->blockExists('downloads_' . strtolower($variablePrefix) . 'file_category_list')) {
             return;
         }
 
@@ -1045,17 +1043,17 @@ JS_CODE;
 
                 if (!$objCategory->EOF) {
                     // set category attributes
-                    $this->parseCategoryAttributes($objCategory, $row++, 'FILE_');
+                    $this->parseCategoryAttributes($objCategory, $row++, $variablePrefix . 'FILE_');
 
                     // parse category
-                    $this->objTemplate->parse('downloads_file_category');
+                    $this->objTemplate->parse('downloads_' . strtolower($variablePrefix) . 'file_category');
                 }
             }
 
-            $this->objTemplate->setVariable('TXT_DOWNLOADS_RELATED_CATEGORIES', $_ARRAYLANG['TXT_DOWNLOADS_RELATED_CATEGORIES']);
-            $this->objTemplate->parse('downloads_file_category_list');
+            $this->objTemplate->setVariable('TXT_DOWNLOADS_' . $variablePrefix . 'RELATED_CATEGORIES', $_ARRAYLANG['TXT_DOWNLOADS_RELATED_CATEGORIES']);
+            $this->objTemplate->parse('downloads_' . strtolower($variablePrefix) . 'file_category_list');
         } else {
-            $this->objTemplate->hideBlock('downloads_file_category_list');
+            $this->objTemplate->hideBlock('downloads_' . strtolower($variablePrefix) . 'file_category_list');
         }
     }
 
@@ -1212,6 +1210,12 @@ JS_CODE;
 
                 // parse download info
                 $this->parseDownloadAttributes($objDownload, $categoryId, $allowdDeleteFiles, $variablePrefix);
+
+                // parse associated categories (but only for search mode)
+                if (!empty($this->searchKeyword)) {
+                    $this->parseRelatedCategories($objDownload, $variablePrefix . 'SEARCH_');
+                }
+
                 $this->objTemplate->setVariable('DOWNLOADS_' . $variablePrefix .'FILE_ROW_CLASS', 'row'.($row++ % 2 + 1));
                 $this->objTemplate->parse('downloads_' . strtolower($variablePrefix) . 'file');
 
