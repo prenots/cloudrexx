@@ -144,21 +144,16 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
-        $langData = $this->getLangData();
         try {
             $category = new KnowledgeCategory();
             if ($action == 1) {
                 $category->activate($id);
-                $msg = $langData['TXT_KNOWLEDGE_MSG_ACTIVE'];
             } else {
                 $category->deactivate($id);
-                $msg = $langData['TXT_KNOWLEDGE_MSG_DEACTIVE'];
             }
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
-
-        $this->message = $msg;
     }
 
     /**
@@ -179,9 +174,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
-
-        $langData = $this->getLangData();
-        $this->message = $langData['TXT_KNOWLEDGE_MSG_SORT'];
     }
 
     /**
@@ -205,9 +197,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
-
-        $langData = $this->getLangData();
-        $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
     }
 
     /**
@@ -225,9 +214,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
-
-        $langData = $this->getLangData();
-        $this->message = $langData['TXT_KNOWLEDGE_MSG_SORT'];
     }
 
     /**
@@ -240,21 +226,16 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         $id     = contrexx_input2int($params['get']['id']);
         $action = contrexx_input2int($params['get']['switchTo']);
 
-        $langData = $this->getLangData();
         try {
             $articles = new KnowledgeArticles();
             if ($action == 1) {
                 $articles->activate($id);
-                $msg = $langData['TXT_KNOWLEDGE_MSG_ACTIVE'];
             } else {
                 $articles->deactivate($id);
-                $msg = $langData['TXT_KNOWLEDGE_MSG_DEACTIVE'];
             }
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
-
-        $this->message = $msg;
     }
 
     /**
@@ -274,9 +255,6 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
         } catch (DatabaseError $e) {
             throw new KnowledgeJsonException($e->getMessage());
         }
-
-        $langData = $this->getLangData();
-        $this->message = $langData['TXT_KNOWLEDGE_ENTRY_DELETE_SUCCESSFULL'];
     }
 
     /**
