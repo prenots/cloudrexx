@@ -239,6 +239,9 @@ class User extends \Cx\Model\Base\EntityBase {
      */
     public function setPassword($password)
     {
+        if (empty($password)) {
+            return;
+        }
         $this->checkPasswordValidity($password);
         $this->password = $this->hashPassword($password);
     }
