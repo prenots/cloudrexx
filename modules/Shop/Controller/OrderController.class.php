@@ -2314,6 +2314,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 $qb->andWhere('?'. $i .' MEMBER OF u.group');
             } else if ($field == 'showAllPendentOrders') {
                 continue;
+            } else if ($field == 'id') {
+                $qb->andWhere(
+                    $qb->expr()->eq('x.' . $field, '?' . $i)
+                );
             } else {
                 $qb->andWhere(
                     $qb->expr()->like('x.' . $field, '?' . $i)
@@ -2324,7 +2328,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $i++;
         }
 
-        if (empty($crit['showAllPendentOrders'])) {
+        if (
+            empty($crit['showAllPendentOrders']) &&
+            empty($this->cx->getRequest()->hasParam('showid'))
+        ) {
             $qb->andWhere($qb->expr()->notLike('x.' . 'status', ':status'));
             $qb->setParameter('status', 0);
         }
@@ -2404,19 +2411,20 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             );
         }
 
+
         foreach ($orderSections as $section) {
             $methodName = 'getVgOptionsOrder'.$section;
             $vgOptions = $this->$methodName($options);
-            $view = new \Cx\Core\Html\Controller\ViewGenerator(
-                $entityClassName,
-                array($entityClassName => $vgOptions)
-            );
-            if ($view->getViewId() > 0) {
-                $vgEntityId = ',{'.$view->getViewId().','.$entityId.'}';
+            if (\Cx\Core\Html\Controller\ViewGenerator::getIncrement() > 0) {
+                $vgEntityId = ',{'.\Cx\Core\Html\Controller\ViewGenerator::getIncrement().','.$entityId.'}';
                 if ($this->cx->getRequest()->hasParam('showid')) {
                     $_GET['showid'] .= $vgEntityId;
                 }
             }
+            $view = new \Cx\Core\Html\Controller\ViewGenerator(
+                $entityClassName,
+                array($entityClassName => $vgOptions)
+            );
 
             $renderedContent = $view->render($isSingle);
             $template->setVariable(
@@ -2433,6 +2441,12 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
     {
         $options['order']['show'] = $fieldsToShow;
         $options['functions']['order']['id'] = SORT_DESC;
+        $options['functions']['filtering'] = true;
+        $options['functions']['filterCallback'] = function ($qb, $crit) {
+            return $this->filterCallback(
+                $qb, $crit
+            );
+        };
         foreach ($this->allFields as $field) {
             if (!in_array($field, $fieldsToShow)) {
                 $options['fields'][$field] = array(

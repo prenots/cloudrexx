@@ -357,6 +357,9 @@ class JsonOrderController
         }
 
         $options = array(
+            'functions' => array(
+                'searching' => true
+            ),
             'fields' => array(
                 'orderAttributes' => array(
                     'showOverview' => false,
