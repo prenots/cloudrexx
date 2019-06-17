@@ -34,18 +34,12 @@ function resetVotes()
 }
 
 var showOkMessage = function(data){
-    if (data.status === 'success') {
+    if(data.status === 'success'){
         $J('#errormessagetarget')
             .append('<div id="okbox">' + data.message + '</div>')
             .find(':last-child')
             .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-    } else {
-        $J('#errormessagetarget')
-            .append('<div id="alertbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
+            .fadeOut(10000, function(){$J(this).remove()});
     }
 }
 

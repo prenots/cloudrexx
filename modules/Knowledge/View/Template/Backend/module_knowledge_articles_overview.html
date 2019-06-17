@@ -229,37 +229,16 @@ var deleteArticle = function(id)
                 act : 'deleteArticle',
                 id : id
             },
-            onSuccess: function(transport) {
-                if (statusMsg(transport.responseText)) {
-                    articles.deleteRow(id);
-                }
+            onSuccess: function() {
+                articles.deleteRow(id);
             }
         });
     }
 }
-function statusMsg(responseText)
-{
-    var data = responseText.evalJSON();
-    if (data.status === 'success') {
-        $J('#messageBox')
-            .append('<div id="okbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-        return true;
-    } else {
-        $J('#messageBox')
-            .append('<div id="alertbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-        return false;
-    }
-}
+
 /* ]]> */
 </script>
 <div id="knowledge_articles">
-    <div id="messageBox"></div>
     <table style="float: left; width: 100%;">
         <tr>
             <td style="float: left; width: 230px;  margin-right: 15px; vertical-align: top;">

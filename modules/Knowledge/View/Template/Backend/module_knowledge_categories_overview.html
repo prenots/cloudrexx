@@ -100,10 +100,8 @@ var deleteCategory = function(entryId, amount)
                 act : 'deleteCategory',
                 id : entryId
             },
-            onSuccess: function(transport) {
-                if (statusMsg(transport.responseText)) {
-                    catTree.deleteRow(entryId);
-                }
+            onSuccess: function() {
+                catTree.deleteRow(entryId);
             }
         });
     }
@@ -228,32 +226,11 @@ var updateSort = function(id)
         });
 }
 
-function statusMsg(responseText)
-{
-    var data = responseText.evalJSON();
-    if (data.status === 'success') {
-        $J('#messageBox')
-            .append('<div id="okbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-        return true;
-    } else {
-        $J('#messageBox')
-            .append('<div id="alertbox">' + data.message + '</div>')
-            .find(':last-child')
-            .fadeIn('slow').animate({opacity: 1.0}, 3000)
-            .fadeOut(5000, function(){$J(this).remove()});
-        return false;
-    }
-}
-
 //]]>
 </script>
 
 
 <div id="knowledge_categories">
-    <div id="messageBox"></div>
     <table class="adminlist" cellspacing="0" cellpadding="3" border="0" style="width: 100%;">
         <thead>
             <tr>
