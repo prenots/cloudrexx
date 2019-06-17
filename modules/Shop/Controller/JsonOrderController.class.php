@@ -275,10 +275,11 @@ class JsonOrderController
                     $price += $attribute->getPrice();
                 }
             }
-            $price = number_format($price, 2);
+            $price = number_format($price, 2, '.', '');
             $sum = number_format(
                 $price * $item->getQuantity(),
-                2
+                2,
+                '.', ''
             );
 
             $totalWeight += $item->getWeight();
@@ -324,8 +325,8 @@ class JsonOrderController
             $total += $totalVat;
         }
 
-        $netPrice = number_format($netPrice, 2);
-        $total = number_format($total, 2);
+        $netPrice = number_format($netPrice, 2, '.', '');
+        $total = number_format($total, 2, '.', '');
 
         $customAttrs = array(
             'TXT_SHOP_DETAIL_NETPRICE' => $netPrice,
@@ -375,7 +376,8 @@ class JsonOrderController
                                 $vatSum = $sum * $vatRate;
                             }
 
-                            $vatSum = number_format($vatSum, 2);
+                            $vatSum = round($vatSum * 2, 1) / 2;
+                            $vatSum = number_format($vatSum, 2, '.', '');
 
                             $vatRateWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
                             $vatRateWrapper->addChild(
