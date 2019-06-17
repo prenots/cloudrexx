@@ -90,18 +90,15 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
         global $_CORELANG, $_CONFIG;
 
         $newPassword = $entity->getPassword();
-        $confirmedPassword = password_hash(
-            $this->cx->getRequest()->getParam(
-                'passwordConfirmed',
-                false
-            ),
-            \PASSWORD_BCRYPT
+        $confirmedPassword = $this->cx->getRequest()->getParam(
+            'passwordConfirmed',
+            false
         );
 
         if (!empty($newPassword)) {
             if (
                 isset($confirmedPassword) &&
-                $newPassword != $confirmedPassword
+                !password_verify($confirmedPassword, $newPassword)
             ) {
                 throw new \Cx\Core\Error\Model\Entity\ShinyException(
                     $_CORELANG['TXT_ACCESS_PASSWORD_NOT_CONFIRMED']
