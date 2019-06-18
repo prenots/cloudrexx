@@ -36,6 +36,153 @@
  */
 namespace Cx\Core\User\Model\Entity;
 
+class UserValidateEmail extends \CxValidate
+{
+    protected $userId;
+
+    public function __construct($userId, $constraints = array())
+    {
+        $this->userId = $userId;
+        parent::__construct($constraints);
+    }
+
+    /**
+     * Checks if the given mail address is valid and unique
+     * @param string $mail Mail address to check
+     *
+     * @return boolean if email is valid
+     */
+    public function isValid($mail)
+    {
+        global $_CORELANG;
+
+        $this->passesValidation = true;
+
+        if (!\FWValidator::isEmail($mail)) {
+            $this->messages[] = $_CORELANG['TXT_ACCESS_INVALID_EMAIL_ADDRESS'];
+            $this->passesValidation = false;
+        }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $qb->select('u')
+           ->from('Cx\Core\User\Model\Entity\User', 'u')
+           ->where($qb->expr()->eq('u.email', ':email'));
+        if (!empty($this->userId)) {
+            $qb->andWhere($qb->expr()->not($qb->expr()->eq('u.id', ':id')));
+            $qb->setParameter('id', $this->userId);
+        }
+        $qb->setParameter('email', $mail);
+        $existingEntity = $qb->getQuery()->getResult();
+
+        if (!empty($existingEntity)) {
+            $this->messages[] = $_CORELANG['TXT_ACCESS_EMAIL_ALREADY_USED'];
+            $this->passesValidation = false;
+        }
+        return $this->passesValidation;
+    }
+}
+
+class UserValidateUsername extends \CxValidate
+{
+    protected $userId;
+
+    public function __construct($userId, $constraints = array())
+    {
+        $this->userId = $userId;
+        parent::__construct($constraints);
+    }
+
+    /**
+     * Checks if the given username is valid and unique
+     * @param string $username username to check
+     *
+     * @return boolean if email is valid
+     */
+    public function isValid($username)
+    {
+        global $_CORELANG;
+
+        $this->passesValidation = true;
+
+        if (empty($username)) {
+            return $this->passesValidation;
+        }
+
+        if (!$this->isValidUsername($username)) {
+            $this->messages[] = $_CORELANG['TXT_ACCESS_INVALID_USERNAME'];
+            $this->passesValidation = false;
+        }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $qb->select('u')
+            ->from('Cx\Core\User\Model\Entity\User', 'u')
+            ->where($qb->expr()->eq('u.username', ':username'));
+        if (!empty($this->userId)) {
+            $qb->andWhere($qb->expr()->not($qb->expr()->eq('u.id', ':id')));
+            $qb->setParameter('id', $this->userId);
+        }
+        $qb->setParameter('username', $username);
+        $existingEntity = $qb->getQuery()->getResult();
+
+        if (!empty($existingEntity)) {
+            $this->messages[] = $_CORELANG['TXT_ACCESS_USERNAME_ALREADY_USED'];
+            $this->passesValidation = false;
+        }
+
+        return $this->passesValidation;
+    }
+
+
+    /**
+     * Returns true if the given $username is valid
+     * @param string $username
+     * @return boolean if username is valid
+     */
+    protected function isValidUsername($username)
+    {
+        if (preg_match('/^[a-zA-Z0-9-_]*$/', $username)) {
+            return true;
+        }
+        // For version 2.3, inspired by migrating Shop Customers to Users:
+        // In addition to the above, also accept usernames that look like valid
+        // e-mail addresses
+        if (\FWValidator::isEmail($username)) {
+            return true;
+        }
+        return false;
+    }
+}
+
+class UserValidateGroups extends \CxValidate
+{
+    public function __construct($constraints = array())
+    {
+        parent::__construct($constraints);
+    }
+
+    /**
+     * Checks if the user is assigned to any groups
+     * @param array $groups Assigned groups
+     * @return boolean if groups assigned
+     */
+    public function isValid($groups)
+    {
+        global $_ARRAYLANG;
+
+        $this->passesValidation = true;
+        if (count($groups) == 0) {
+            $this->messages[] = $_ARRAYLANG['TXT_CORE_USER_NO_GROUP_ASSIGNED'];
+            $this->passesValidation = false;
+        }
+
+        return $this->passesValidation;
+    }
+}
+
 /**
  * Users can be created and managed.
  *
@@ -178,6 +325,14 @@ class User extends \Cx\Model\Base\EntityBase {
     {
         $this->group = new \Doctrine\Common\Collections\ArrayCollection();
         $this->userAttributeValue = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    public function initializeValidators()
+    {
+        $this->validators['username'] = new \Cx\Core\User\Model\Entity\UserValidateUsername($this->getId());
+        $this->validators['email'] = new \Cx\Core\User\Model\Entity\UserValidateEmail($this->getId());
+        $this->validators['password'] = new \CxValidateRegexp(array('pattern' => '/.+/'), true);
+        $this->validators['group'] = new \Cx\Core\User\Model\Entity\UserValidateGroups();
     }
 
     /**
@@ -792,80 +947,6 @@ class User extends \Cx\Model\Base\EntityBase {
         throw new \Cx\Core\Error\Model\Entity\ShinyException(
             'Failed to generate a new password hash'
         );
-    }
-
-    /**
-     * Checks if the given mail address is valid and unique
-     * @param string $mail Mail address to check
-     * @throws \Cx\Core\Error\Model\Entity\ShinyException If validation fails
-     */
-    protected function checkEmail($mail)
-    {
-        global $_CORELANG;
-
-        if (!\FWValidator::isEmail($mail)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_INVALID_EMAIL_ADDRESS']
-            );
-        }
-
-        $em = $this->cx->getDb()->getEntityManager();
-        $existingEntity = $em->getRepository(
-            'Cx\Core\User\Model\Entity\User'
-        )->findOneBy(array('email' => $mail));
-
-        if (!empty($existingEntity)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_EMAIL_ALREADY_USED']
-            );
-        }
-    }
-
-    /**
-     * Checks if the given username is valid and unique
-     * @param string $username username to check
-     * @throws \Cx\Core\Error\Model\Entity\ShinyException If validation fails
-     */
-    protected function checkUsername($username)
-    {
-        global $_CORELANG;
-
-        if (!$this->isValidUsername($username)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_INVALID_USERNAME']
-            );
-        }
-
-        $em = $this->cx->getDb()->getEntityManager();
-        $existingEntity = $em->getRepository(
-            'Cx\Core\User\Model\Entity\User'
-        )->findOneBy(array('username' => $username));
-
-        if (!empty($existingEntity)) {
-            throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_CORELANG['TXT_ACCESS_USERNAME_ALREADY_USED']
-            );
-        }
-    }
-
-    /**
-     * Returns true if the given $username is valid
-     * @param   string    $username
-     * @return  boolean
-     * @static
-     */
-    public static function isValidUsername($username)
-    {
-        if (preg_match('/^[a-zA-Z0-9-_]*$/', $username)) {
-            return true;
-        }
-        // For version 2.3, inspired by migrating Shop Customers to Users:
-        // In addition to the above, also accept usernames that look like valid
-        // e-mail addresses
-        if (\FWValidator::isEmail($username)) {
-            return true;
-        }
-        return false;
     }
 
     /**
