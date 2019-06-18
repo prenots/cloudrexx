@@ -586,7 +586,6 @@ class User extends \Cx\Model\Base\EntityBase {
      */
     public function setEmail($email)
     {
-        $this->checkEmail($email);
         $this->email = $email;
     }
 
