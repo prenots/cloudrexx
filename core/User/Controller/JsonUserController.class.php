@@ -70,7 +70,8 @@ class JsonUserController
             'storeNewsletter',
             'storeDownloadExtension',
             'storeOnlyNewsletterLists',
-            'matchWithConfirmedPassword'
+            'matchWithConfirmedPassword',
+            'setRegDate'
         );
     }
 
@@ -482,6 +483,19 @@ class JsonUserController
                 );
             }
             return;
+        }
+    }
+
+    /**
+     * Set the date of registration, but only if the entity is created
+     *
+     * @param $params array information for storecallback includes the entity
+     */
+    public function setRegDate($params)
+    {
+        if (empty($params['entity']->getRegDate())) {
+            $date = new \DateTime();
+            $params['entity']->setRegDate($date->getTimestamp());
         }
     }
 }

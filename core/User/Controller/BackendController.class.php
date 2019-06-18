@@ -296,6 +296,10 @@ class BackendController extends
                         'showOverview' => true,
                         'showDetail' => false,
                         'allowFiltering' => false,
+                        'storecallback' => array(
+                            'adapter' => 'User',
+                            'method' => 'setRegDate'
+                        )
                     ),
                     'expiration' => array(
                         'showOverview' => true,

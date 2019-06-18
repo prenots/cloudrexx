@@ -64,11 +64,4 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 
 
     }
-
-    public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
-    {
-        // Set current date
-        $date = new \DateTime();
-        $eventArgs->getEntity()->setRegdate($date->getTimestamp());
-    }
 }
