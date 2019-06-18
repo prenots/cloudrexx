@@ -473,7 +473,7 @@ class JsonUserController
         $newPassword = $params['entity']->getPassword();
         $confirmedPassword = $params['postedValue'];
 
-        if (!empty($newPassword)) {
+        if (!empty($params['entityData']['password'])) {
             if (
                 empty($confirmedPassword) ||
                 !password_verify($confirmedPassword, $newPassword)
@@ -493,9 +493,12 @@ class JsonUserController
      */
     public function setRegDate($params)
     {
-        if (empty($params['entity']->getRegDate())) {
+        if (
+            empty($params['entity']) ||
+            empty($params['entity']->getRegDate())
+        ) {
             $date = new \DateTime();
-            $params['entity']->setRegDate($date->getTimestamp());
+            return $date->getTimestamp();
         }
     }
 }
