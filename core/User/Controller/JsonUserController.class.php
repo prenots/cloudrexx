@@ -70,6 +70,7 @@ class JsonUserController
             'storeNewsletter',
             'storeDownloadExtension',
             'storeOnlyNewsletterLists',
+            'matchWithConfirmedPassword'
         );
     }
 
@@ -462,5 +463,25 @@ class JsonUserController
 
         \Message::add($message);
         return $user;
+    }
+
+    public function matchWithConfirmedPassword($params)
+    {
+        global $_CORELANG;
+
+        $newPassword = $params['entity']->getPassword();
+        $confirmedPassword = $params['postedValue'];
+
+        if (!empty($newPassword)) {
+            if (
+                empty($confirmedPassword) ||
+                !password_verify($confirmedPassword, $newPassword)
+            ) {
+                throw new \Cx\Core\Error\Model\Entity\ShinyException(
+                    $_CORELANG['TXT_ACCESS_PASSWORD_NOT_CONFIRMED']
+                );
+            }
+            return;
+        }
     }
 }

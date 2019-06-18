@@ -62,49 +62,13 @@ class UserEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             );
         }
 
-        if (isset($eventArgs->getEntityChangeSet()['password'][1])) {
-            $this->setHashPassword(
-                $entity,
-                $eventArgs->getEntityChangeSet()
-            );
-        }
+
     }
 
     public function prePersist(\Doctrine\ORM\Event\LifecycleEventArgs $eventArgs)
     {
-        $entity = $eventArgs->getEntity();
-        $this->setHashPassword(
-            $entity,
-            array()
-        );
         // Set current date
         $date = new \DateTime();
         $eventArgs->getEntity()->setRegdate($date->getTimestamp());
-    }
-
-    /**
-     * TODO: This should be moved to ViewGenerator and respective places
-     */
-    protected function setHashPassword($entity, $changeSet)
-    {
-        global $_CORELANG, $_CONFIG;
-
-        $newPassword = $entity->getPassword();
-        $confirmedPassword = $this->cx->getRequest()->getParam(
-            'passwordConfirmed',
-            false
-        );
-
-        if (!empty($newPassword)) {
-            if (
-                isset($confirmedPassword) &&
-                !password_verify($confirmedPassword, $newPassword)
-            ) {
-                throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                    $_CORELANG['TXT_ACCESS_PASSWORD_NOT_CONFIRMED']
-                );
-            }
-            return;
-        }
     }
 }

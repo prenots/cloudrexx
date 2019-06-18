@@ -272,6 +272,10 @@ class BackendController extends
                         'type' => 'password',
                         'mode' => 'nocomplete',
                         'allowFiltering' => false,
+                        'storecallback' => array(
+                            'adapter' => 'User',
+                            'method' => 'matchWithConfirmedPassword'
+                        ),
                     ),
                     'authToken' => array(
                         'showOverview' => false,
