@@ -157,32 +157,6 @@ class UserValidateUsername extends \CxValidate
     }
 }
 
-class UserValidateGroups extends \CxValidate
-{
-    public function __construct($constraints = array())
-    {
-        parent::__construct($constraints);
-    }
-
-    /**
-     * Checks if the user is assigned to any groups
-     * @param array $groups Assigned groups
-     * @return boolean if groups assigned
-     */
-    public function isValid($groups)
-    {
-        global $_ARRAYLANG;
-
-        $this->passesValidation = true;
-        if (count($groups) == 0) {
-            $this->messages[] = $_ARRAYLANG['TXT_CORE_USER_NO_GROUP_ASSIGNED'];
-            $this->passesValidation = false;
-        }
-
-        return $this->passesValidation;
-    }
-}
-
 /**
  * Users can be created and managed.
  *
@@ -332,7 +306,6 @@ class User extends \Cx\Model\Base\EntityBase {
         $this->validators['username'] = new \Cx\Core\User\Model\Entity\UserValidateUsername($this->getId());
         $this->validators['email'] = new \Cx\Core\User\Model\Entity\UserValidateEmail($this->getId());
         $this->validators['password'] = new \CxValidateRegexp(array('pattern' => '/.+/'), true);
-        $this->validators['group'] = new \Cx\Core\User\Model\Entity\UserValidateGroups();
     }
 
     /**

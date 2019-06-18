@@ -147,4 +147,3 @@ $_ARRAYLANG['TXT_CORE_USER_NOT_FOUND'] = 'Benutzer konnte nicht gefunden werden.
 $_ARRAYLANG['TXT_CORE_USER_NOT_BE_SAVED'] = 'Benutzer konnte nicht gespeichert werden.';
 $_ARRAYLANG['TXT_CORE_USER_ATTRIBUTE_NOT_FOUND'] = 'Attribut konnte nicht gefunden werden.';
 $_ARRAYLANG['TXT_CORE_USER_DO_NOT_EDIT_USER_ONE'] = 'Dieser Benutzer darf nicht bearbeitet werden!';
-$_ARRAYLANG['TXT_CORE_USER_NO_GROUP_ASSIGNED'] = 'Der Benutzer ist keiner Gruppe zugewiesen';

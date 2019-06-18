@@ -141,4 +141,3 @@ $_ARRAYLANG['TXT_CORE_USER_NOT FOUND'] = 'User could not be found.';
 $_ARRAYLANG['TXT_CORE_USER_NOT_BE_SAVED'] = 'User could not be saved.';
 $_ARRAYLANG['TXT_CORE_USER_ATTRIBUTE_NOT_FOUND'] = 'Attribute could not be found.';
 $_ARRAYLANG['TXT_CORE_USER_DO_NOT_EDIT_USER_ONE'] = 'This user is not allowed to be edited!';
-$_ARRAYLANG['TXT_CORE_USER_NO_GROUP_ASSIGNED'] = 'The user is not assigned to a group';
