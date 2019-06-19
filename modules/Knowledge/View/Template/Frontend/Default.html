@@ -145,7 +145,7 @@
                         elemPrefix : 'rating_elem_',
                         onRate : function(data, rating) {
                 var foo = new Ajax.Request('/api/Data/Json/Knowledge/rate', {
-                method: "post",
+                method: 'get',
                         parameters : {
                 id : data.nr,
                         rated : rating
