@@ -106,9 +106,8 @@ var Search = {
                 onSuccess : function(transport)
                 {
                     var data = transport.responseText.evalJSON();
-                    if (data.data.status == 1) {
-                        ref.clearBox();
-                        $(ref.resultBox).insert(data.data.content);
+                    if (data.status == 1) {
+                        $(ref.resultBox).replace(data.data.content);
                         ref.showBox();
                     } else {
                         ref.hideBox();
