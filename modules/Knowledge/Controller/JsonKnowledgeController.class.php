@@ -108,7 +108,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'settingsResetVotes' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $settingsPermissionIds),
             'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
             'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
-            'rate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('post'), false),
+            'rate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), false),
             'hitArticle',
             'liveSearch'
         );
@@ -428,8 +428,8 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function rate($params = array())
     {
-        $id    = contrexx_input2int($params['post']['id']);
-        $rated = contrexx_input2int($params['post']['rated']);
+        $id    = contrexx_input2int($params['get']['id']);
+        $rated = contrexx_input2int($params['get']['rated']);
         if (!isset($_COOKIE['knowledge_rating_' . $id])) {
             try {
                 $knowledgeArticles = new KnowledgeArticles();
