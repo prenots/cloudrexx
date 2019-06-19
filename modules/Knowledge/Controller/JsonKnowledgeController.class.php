@@ -108,7 +108,7 @@ class JsonKnowledgeController extends \Cx\Core\Core\Model\Entity\Controller
             'settingsResetVotes' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $settingsPermissionIds),
             'getTags' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
             'getArticles' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), true, array(), $overviewPermissionIds),
-            'rate' => new \Cx\Core_Modules\Access\Model\Entity\Permission(array(), array('get'), false),
+            'rate',
             'hitArticle',
             'liveSearch'
         );
