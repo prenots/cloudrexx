@@ -305,7 +305,7 @@ class User extends \Cx\Model\Base\EntityBase {
     {
         $this->validators['username'] = new \Cx\Core\User\Model\Entity\UserValidateUsername($this->getId());
         $this->validators['email'] = new \Cx\Core\User\Model\Entity\UserValidateEmail($this->getId());
-        $this->validators['password'] = new \CxValidateRegexp(array('pattern' => '/.+/'), true);
+        $this->validators['password'] = new \CxValidateRegexp(array('pattern' => '/.+/'), false);
     }
 
     /**
