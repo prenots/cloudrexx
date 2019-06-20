@@ -222,14 +222,17 @@ class ViewGenerator {
                     $this->cx->getRequest()->getUrl()
                 );
                 \Cx\Core\Csrf\Controller\Csrf::redirect($editUrl);
-            } else if ($this->cx->getRequest()->hasParam('add')) {
-                $addUrl = $this->cx->getRequest()->getUrl();
-                $addUrl->setParam(
+            } else if (
+                $this->cx->getRequest()->hasParam('add') ||
+                $this->cx->getRequest()->hasParam('copy')
+            ) {
+                $actionUrl = $this->cx->getRequest()->getUrl();
+                $actionUrl->setParam(
                     'csrf',
                     $this->cx->getRequest()->getParam('csrf', false)
                 );
 
-                \Cx\Core\Csrf\Controller\Csrf::redirect($addUrl);
+                \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
             }
         }
     }
