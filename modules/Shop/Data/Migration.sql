@@ -56,7 +56,7 @@ ALTER TABLE contrexx_module_shop_payment ADD `name` VARCHAR(255) DEFAULT '' NOT 
 
 ALTER TABLE contrexx_module_shop_shipper ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
 
-ALTER TABLE contrexx_module_shop_vat ADD `class` VARCHAR(255) NOT NULL;
+ALTER TABLE contrexx_module_shop_vat ADD `class` VARCHAR(255) DEFAULT '' NOT NULL;
 
 ALTER TABLE contrexx_module_shop_article_group ADD `name` VARCHAR(255) DEFAULT '' NOT NULL;
 
@@ -73,18 +73,19 @@ ALTER TABLE contrexx_module_shop_orders
   CHANGE date_time date_time DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
   CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL,
   CHANGE modified_on modified_on DATETIME DEFAULT NULL,
+  CHANGE payment_id payment_id INT UNSIGNED NOT NULL,
   CHANGE status status INT UNSIGNED DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_products
   CHANGE date_start date_start DATETIME DEFAULT NULL,
   CHANGE date_end date_end DATETIME DEFAULT NULL;
 
+ALTER TABLE contrexx_module_shop_attribute CHANGE type type INT UNSIGNED DEFAULT 1 NOT NULL;
+
 UPDATE `contrexx_module_shop_products` SET `date_start` = NULL WHERE `date_start` = '0000-00-00 00:00:00';
 UPDATE `contrexx_module_shop_products` SET `date_end` = NULL WHERE `date_end` = '0000-00-00 00:00:00';
 
 ALTER TABLE contrexx_module_shop_pricelists CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL;
-
-ALTER TABLE contrexx_module_shop_rel_customer_coupon CHANGE customer_id customer_id INT DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_rel_payment
   CHANGE zone_id zone_id INT UNSIGNED NOT NULL,
@@ -99,25 +100,29 @@ ALTER TABLE contrexx_module_shop_rel_shipper
 /** Drop Primary Keys **/
 ALTER TABLE contrexx_module_shop_discount_coupon DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
+ALTER TABLE contrexx_module_shop_rel_customer_coupon DROP PRIMARY KEY;
 
 
 /** To insert relations without problems **/
 ALTER TABLE contrexx_module_shop_discount_coupon
   ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   CHANGE customer_id customer_id INT NULL,
-  ADD UNIQUE( `code`, `customer_id`),
   CHANGE payment_id payment_id INT UNSIGNED DEFAULT NULL,
   CHANGE product_id product_id INT UNSIGNED DEFAULT NULL;
 UPDATE `contrexx_module_shop_discount_coupon` SET `payment_id`=NULL WHERE `payment_id`= 0;
 UPDATE `contrexx_module_shop_discount_coupon` SET `product_id`=NULL WHERE `product_id`= 0;
 UPDATE `contrexx_module_shop_discount_coupon` SET `customer_id`=NULL WHERE `customer_id`= 0;
-ALTER TABLE `contrexx_module_shop_discount_coupon` ADD UNIQUE( `code`, `customer_id`);
 
 UPDATE `contrexx_module_shop_products` SET `article_id`=NULL WHERE `article_id`= 0;
 UPDATE `contrexx_module_shop_products` SET `group_id`=NULL WHERE `group_id`= 0;
 
 ALTER TABLE contrexx_module_shop_categories CHANGE parent_id parent_id INT UNSIGNED DEFAULT NULL;
 UPDATE `contrexx_module_shop_categories` SET `parent_id`=NULL WHERE `parent_id`= 0;
+
+ALTER TABLE contrexx_module_shop_rel_customer_coupon
+  ADD id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  CHANGE customer_id customer_id INT DEFAULT NULL,
+  CHANGE order_id order_id INT UNSIGNED DEFAULT NULL;
 
 /** Constraints **/
 ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
@@ -148,9 +153,9 @@ ALTER TABLE contrexx_module_shop_rel_product_attribute ADD CONSTRAINT FK_E17E240
 ALTER TABLE contrexx_module_shop_order_items ADD CONSTRAINT FK_1D79476B8D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
 ALTER TABLE contrexx_module_shop_order_items ADD CONSTRAINT FK_1D79476B4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
 
-ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A4C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
-ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
-ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A9395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id);
+ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A4C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id) ON DELETE SET NULL;
+ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id) ON DELETE SET NULL;
+ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A9395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
 
 ALTER TABLE contrexx_module_shop_discountgroup_count_rate ADD CONSTRAINT FK_3F3DD477FE54D947 FOREIGN KEY (group_id)
   REFERENCES contrexx_module_shop_discountgroup_count_name (id);
@@ -160,7 +165,7 @@ ALTER TABLE contrexx_module_shop_pricelists ADD CONSTRAINT FK_BB867D48B213FA4 FO
 ALTER TABLE contrexx_module_shop_lsv ADD CONSTRAINT FK_889921958D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
 
 ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE248D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
-ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE249395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id);
+ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE249395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;;
 
 ALTER TABLE contrexx_module_shop_rel_discount_group ADD CONSTRAINT FK_93D6FD61D2919A68 FOREIGN KEY (customer_group_id) REFERENCES contrexx_module_shop_customer_group (id);
 ALTER TABLE contrexx_module_shop_rel_discount_group ADD CONSTRAINT FK_93D6FD61ABBC2D2C FOREIGN KEY (article_group_id) REFERENCES contrexx_module_shop_article_group (id);
@@ -227,11 +232,13 @@ CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id
 CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id);
 
 CREATE UNIQUE INDEX fk_module_shop_currency_unique_idx ON contrexx_module_shop_currencies (code);
+CREATE UNIQUE INDEX fk_module_shop_discount_coupon_unique_idx ON contrexx_module_shop_discount_coupon (code, customer_id);
+CREATE UNIQUE INDEX fk_module_shop_rel_customer_coupon_unique_idx ON contrexx_module_shop_rel_customer_coupon (code, customer_id, order_id);
+
 
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
-
 
 /** Merge Data **/
 INSERT INTO contrexx_module_shop_rel_category_product SELECT
@@ -305,4 +312,3 @@ SELECT `l`.`iso_1` AS locale, CONCAT('Cx\\Modules\\Shop\\Model\\Entity\\', (
 
 ALTER TABLE contrexx_module_shop_products DROP category_id, DROP usergroup_ids;
 ALTER TABLE contrexx_module_shop_pricelists DROP categories;
-
