@@ -99,3 +99,6 @@ $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_STYLES'] = 'Format';
 $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_COLORS'] = 'Colors';
 $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_TOOLS'] = 'Tools';
 $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_BIDI'] = 'Text direction';
+
+// Error Messages
+$_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS'] = 'The class WYSIWYG does not allow the addition of child elements';

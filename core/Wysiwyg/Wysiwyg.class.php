@@ -411,4 +411,41 @@ class Wysiwyg extends \Cx\Core\Html\Model\Entity\HtmlElement
     {
         return $this->getSourceCode();
     }
+
+    /**
+     * An exception is thrown because this class does not allow the addition of
+     * a child
+     *
+     * @param \Cx\Core\Html\Model\Entity\HtmlElement $element to be added
+     * @param \Cx\Core\Html\Model\Entity\HtmlElement|null $reference
+     * @param bool $before element should be added in before
+     * @throws \Cx\Core\Error\Model\Entity\ShinyException WYSIWYG does not allow
+     *                                                    children
+     */
+    public function addChild(\Cx\Core\Html\Model\Entity\HtmlElement $element, \Cx\Core\Html\Model\Entity\HtmlElement $reference = null, $before = false)
+    {
+        global $_ARRAYLANG;
+
+        throw new \Cx\Core\Error\Model\Entity\ShinyException(
+            $_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS']
+        );
+    }
+
+    /**
+     * An exception is thrown because this class does not allow adding children
+     *
+     * @param array $elements elements elements to be added
+     * @param \Cx\Core\Html\Model\Entity\HtmlElement|null $reference
+     * @param bool $before    elements should be added in before
+     * @throws \Cx\Core\Error\Model\Entity\ShinyException WYSIWYG does not allow
+     *                                                    children
+     */
+    public function addChildren(array $elements, \Cx\Core\Html\Model\Entity\HtmlElement $reference = null, $before = false)
+    {
+        global $_ARRAYLANG;
+
+        throw new \Cx\Core\Error\Model\Entity\ShinyException(
+            $_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS']
+        );
+    }
 }
