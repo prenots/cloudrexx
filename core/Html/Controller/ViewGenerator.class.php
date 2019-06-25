@@ -227,11 +227,6 @@ class ViewGenerator {
                 $this->cx->getRequest()->hasParam('copy')
             ) {
                 $actionUrl = $this->cx->getRequest()->getUrl();
-                $actionUrl->setParam(
-                    'csrf',
-                    $this->cx->getRequest()->getParam('csrf', false)
-                );
-
                 \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
             }
         }
