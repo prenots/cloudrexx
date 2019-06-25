@@ -73,10 +73,10 @@ class Category extends \Cx\Modules\Shop\Model\Entity\Category implements \Doctri
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'parentId', 'ord', 'active', 'picture', 'flags', 'name', 'description', 'pricelists', 'products', 'children', 'parentCategory', 'validators', 'virtual');
+            return array('__isInitialized__', 'locale', 'id', 'parentId', 'ord', 'active', 'picture', 'flags', 'name', 'description', 'shortDescription', 'pricelists', 'products', 'children', 'parentCategory', 'validators', 'virtual');
         }
 
-        return array('__isInitialized__', 'id', 'parentId', 'ord', 'active', 'picture', 'flags', 'name', 'description', 'pricelists', 'products', 'children', 'parentCategory', 'validators', 'virtual');
+        return array('__isInitialized__', 'locale', 'id', 'parentId', 'ord', 'active', 'picture', 'flags', 'name', 'description', 'shortDescription', 'pricelists', 'products', 'children', 'parentCategory', 'validators', 'virtual');
     }
 
     /**
@@ -182,6 +182,17 @@ class Category extends \Cx\Modules\Shop\Model\Entity\Category implements \Doctri
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
+    public function setTranslatableLocale($locale)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setTranslatableLocale', array($locale));
+
+        return parent::setTranslatableLocale($locale);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -354,6 +365,28 @@ class Category extends \Cx\Modules\Shop\Model\Entity\Category implements \Doctri
     /**
      * {@inheritDoc}
      */
+    public function setShortDescription($shortDescription)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setShortDescription', array($shortDescription));
+
+        return parent::setShortDescription($shortDescription);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getShortDescription()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getShortDescription', array());
+
+        return parent::getShortDescription();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function addPricelist(\Cx\Modules\Shop\Model\Entity\Pricelist $pricelist)
     {
 
@@ -503,6 +536,17 @@ class Category extends \Cx\Modules\Shop\Model\Entity\Category implements \Doctri
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'isVirtual', array());
 
         return parent::isVirtual();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function initializeValidators()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'initializeValidators', array());
+
+        return parent::initializeValidators();
     }
 
     /**
