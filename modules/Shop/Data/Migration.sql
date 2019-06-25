@@ -124,66 +124,150 @@ ALTER TABLE contrexx_module_shop_rel_customer_coupon
   CHANGE customer_id customer_id INT DEFAULT NULL,
   CHANGE order_id order_id INT UNSIGNED DEFAULT NULL;
 
+
+/** Correct data **/
+UPDATE contrexx_module_shop_orders AS o
+LEFT JOIN contrexx_module_shop_payment as p ON p.id = o.payment_id
+SET payment_id = null  WHERE p.id IS NULL;
+
+UPDATE contrexx_module_shop_orders AS o
+LEFT JOIN contrexx_access_users as u ON u.id = o.customer_id
+SET customer_id = null WHERE customer_id = 0 OR u.id IS NULL;
+
+UPDATE contrexx_module_shop_products AS p
+LEFT JOIN contrexx_module_shop_manufacturer as m ON m.id = p.manufacturer_id
+SET manufacturer_id = null WHERE manufacturer_id = 0 OR m.id IS NULL;
+
+DELETE a FROM `contrexx_module_shop_rel_product_attribute` AS a
+LEFT JOIN contrexx_module_shop_products as p ON p.id = a.product_id
+WHERE p.id IS NULL;
+
+ALTER TABLE contrexx_module_shop_order_items
+  CHANGE product_id product_id INT UNSIGNED DEFAULT NULL;
+DELETE i FROM `contrexx_module_shop_order_items` AS i
+LEFT JOIN contrexx_module_shop_orders as o ON o.id = i.order_id
+WHERE o.id IS NULL;
+UPDATE contrexx_module_shop_order_items AS i
+LEFT JOIN contrexx_module_shop_products as p ON p.id = i.product_id
+SET product_id = null WHERE product_id = 0 OR p.id IS NULL;
+
+DELETE c FROM `contrexx_module_shop_rel_customer_coupon` AS c
+LEFT JOIN contrexx_module_shop_orders as o ON o.id = c.order_id
+WHERE o.id IS NULL;
+
+DELETE o FROM `contrexx_module_shop_rel_payment` AS o
+LEFT JOIN contrexx_module_shop_payment as p ON p.id = o.payment_id
+WHERE p.id IS NULL;
+
+DELETE a FROM `contrexx_module_shop_order_attributes` AS a
+LEFT JOIN contrexx_module_shop_order_items as i ON i.id = a.item_id
+WHERE i.id IS NULL;
+
+
 /** Constraints **/
-ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
-ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD CONSTRAINT FK_B56E91A189045958 FOREIGN KEY (pricelist_id) REFERENCES contrexx_module_shop_pricelists (id);
-ALTER TABLE contrexx_module_shop_rel_category_product ADD CONSTRAINT FK_DA4CA51112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
-ALTER TABLE contrexx_module_shop_rel_category_product ADD CONSTRAINT FK_DA4CA5114584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
+ALTER TABLE contrexx_module_shop_rel_category_pricelist
+  ADD CONSTRAINT FK_B56E91A112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
+ALTER TABLE contrexx_module_shop_rel_category_pricelist
+  ADD CONSTRAINT FK_B56E91A189045958 FOREIGN KEY (pricelist_id) REFERENCES contrexx_module_shop_pricelists (id);
+ALTER TABLE contrexx_module_shop_rel_category_product
+  ADD CONSTRAINT FK_DA4CA51112469DE2 FOREIGN KEY (category_id) REFERENCES contrexx_module_shop_categories (id);
+ALTER TABLE contrexx_module_shop_rel_category_product
+  ADD CONSTRAINT FK_DA4CA5114584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
 
-ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB1B213FA4 FOREIGN KEY (lang_id) REFERENCES contrexx_core_locale_locale (id);
-ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB138248176 FOREIGN KEY (currency_id) REFERENCES contrexx_module_shop_currencies (id);
-ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB17BE036FC FOREIGN KEY (shipment_id) REFERENCES contrexx_module_shop_shipper (id);
-ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB14C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
-ALTER TABLE contrexx_module_shop_orders ADD CONSTRAINT FK_DA286BB19395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
+ALTER TABLE contrexx_module_shop_orders
+  ADD CONSTRAINT FK_DA286BB1B213FA4 FOREIGN KEY (lang_id) REFERENCES contrexx_core_locale_locale (id);
+ALTER TABLE contrexx_module_shop_orders
+  ADD CONSTRAINT FK_DA286BB138248176 FOREIGN KEY (currency_id) REFERENCES contrexx_module_shop_currencies (id);
+ALTER TABLE contrexx_module_shop_orders
+  ADD CONSTRAINT FK_DA286BB17BE036FC FOREIGN KEY (shipment_id) REFERENCES contrexx_module_shop_shipper (id);
+ALTER TABLE contrexx_module_shop_orders
+  ADD CONSTRAINT FK_DA286BB14C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
+ALTER TABLE contrexx_module_shop_orders
+  ADD CONSTRAINT FK_DA286BB19395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
 
-ALTER TABLE contrexx_module_shop_order_attributes ADD CONSTRAINT FK_273F59F6126F525E FOREIGN KEY (item_id) REFERENCES contrexx_module_shop_order_items (id);
+ALTER TABLE contrexx_module_shop_order_attributes
+  ADD CONSTRAINT FK_273F59F6126F525E FOREIGN KEY (item_id) REFERENCES contrexx_module_shop_order_items (id);
 
-ALTER TABLE contrexx_module_shop_option ADD CONSTRAINT FK_658196EFB6E62EFA FOREIGN KEY (attribute_id) REFERENCES contrexx_module_shop_attribute (id);
+ALTER TABLE contrexx_module_shop_option
+  ADD CONSTRAINT FK_658196EFB6E62EFA FOREIGN KEY (attribute_id) REFERENCES contrexx_module_shop_attribute (id);
 
-ALTER TABLE contrexx_module_shop_products ADD CONSTRAINT FK_97F512B7A23B42D FOREIGN KEY (manufacturer_id) REFERENCES contrexx_module_shop_manufacturer (id);
-ALTER TABLE contrexx_module_shop_products ADD CONSTRAINT FK_97F512B7FE54D947 FOREIGN KEY (group_id) REFERENCES contrexx_module_shop_discountgroup_count_name (id);
-ALTER TABLE contrexx_module_shop_products ADD CONSTRAINT FK_97F512B77294869C FOREIGN KEY (article_id) REFERENCES contrexx_module_shop_article_group (id);
-ALTER TABLE contrexx_module_shop_products ADD CONSTRAINT FK_97F512B7B5B63A6B FOREIGN KEY (vat_id) REFERENCES contrexx_module_shop_vat (id);
+ALTER TABLE contrexx_module_shop_products
+  ADD CONSTRAINT FK_97F512B7A23B42D FOREIGN KEY (manufacturer_id) REFERENCES contrexx_module_shop_manufacturer (id);
+ALTER TABLE contrexx_module_shop_products
+  ADD CONSTRAINT FK_97F512B7FE54D947 FOREIGN KEY (group_id)
+  REFERENCES contrexx_module_shop_discountgroup_count_name (id);
+ALTER TABLE contrexx_module_shop_products
+  ADD CONSTRAINT FK_97F512B77294869C FOREIGN KEY (article_id) REFERENCES contrexx_module_shop_article_group (id);
+ALTER TABLE contrexx_module_shop_products
+  ADD CONSTRAINT FK_97F512B7B5B63A6B FOREIGN KEY (vat_id) REFERENCES contrexx_module_shop_vat (id);
 
-ALTER TABLE contrexx_module_shop_payment ADD CONSTRAINT FK_96C3CFFE37BAC19A FOREIGN KEY (processor_id) REFERENCES contrexx_module_shop_payment_processors (id);
+ALTER TABLE contrexx_module_shop_payment
+  ADD CONSTRAINT FK_96C3CFFE37BAC19A FOREIGN KEY (processor_id) REFERENCES contrexx_module_shop_payment_processors (id);
 
-ALTER TABLE contrexx_module_shop_rel_product_attribute ADD CONSTRAINT FK_E17E240B4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
-ALTER TABLE contrexx_module_shop_rel_product_attribute ADD CONSTRAINT FK_E17E240BA7C41D6F FOREIGN KEY (option_id) REFERENCES contrexx_module_shop_option (id);
+ALTER TABLE contrexx_module_shop_rel_product_attribute
+  ADD CONSTRAINT FK_E17E240BA7C41D6F FOREIGN KEY (option_id) REFERENCES contrexx_module_shop_option (id);
+ALTER TABLE contrexx_module_shop_rel_product_attribute
+  ADD CONSTRAINT FK_E17E240B4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
 
-ALTER TABLE contrexx_module_shop_order_items ADD CONSTRAINT FK_1D79476B8D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
-ALTER TABLE contrexx_module_shop_order_items ADD CONSTRAINT FK_1D79476B4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
+ALTER TABLE contrexx_module_shop_order_items
+  ADD CONSTRAINT FK_1D79476B8D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
+ALTER TABLE contrexx_module_shop_order_items
+  ADD CONSTRAINT FK_1D79476B4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
 
-ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A4C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id) ON DELETE SET NULL;
-ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id) ON DELETE SET NULL;
-ALTER TABLE contrexx_module_shop_discount_coupon ADD CONSTRAINT FK_7E70AB1A9395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
+ALTER TABLE contrexx_module_shop_discount_coupon
+  ADD CONSTRAINT FK_7E70AB1A4C3A3BB FOREIGN KEY (payment_id)
+  REFERENCES contrexx_module_shop_payment (id) ON DELETE SET NULL;
+ALTER TABLE contrexx_module_shop_discount_coupon
+  ADD CONSTRAINT FK_7E70AB1A9395C3F3 FOREIGN KEY (customer_id)
+  REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
+ALTER TABLE contrexx_module_shop_discount_coupon
+  ADD CONSTRAINT FK_7E70AB1A4584665A FOREIGN KEY (product_id)
+  REFERENCES contrexx_module_shop_products (id) ON DELETE SET NULL;
 
-ALTER TABLE contrexx_module_shop_discountgroup_count_rate ADD CONSTRAINT FK_3F3DD477FE54D947 FOREIGN KEY (group_id)
+ALTER TABLE contrexx_module_shop_discountgroup_count_rate
+  ADD CONSTRAINT FK_3F3DD477FE54D947 FOREIGN KEY (group_id)
   REFERENCES contrexx_module_shop_discountgroup_count_name (id);
 
-ALTER TABLE contrexx_module_shop_pricelists ADD CONSTRAINT FK_BB867D48B213FA4 FOREIGN KEY (lang_id) REFERENCES contrexx_core_locale_locale (id);
+ALTER TABLE contrexx_module_shop_pricelists
+  ADD CONSTRAINT FK_BB867D48B213FA4 FOREIGN KEY (lang_id) REFERENCES contrexx_core_locale_locale (id);
 
-ALTER TABLE contrexx_module_shop_lsv ADD CONSTRAINT FK_889921958D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
+ALTER TABLE contrexx_module_shop_lsv
+  ADD CONSTRAINT FK_889921958D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
 
-ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE248D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
-ALTER TABLE contrexx_module_shop_rel_customer_coupon ADD CONSTRAINT FK_6A7FBE249395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;;
+ALTER TABLE contrexx_module_shop_rel_customer_coupon
+  ADD CONSTRAINT FK_6A7FBE248D9F6D38 FOREIGN KEY (order_id) REFERENCES contrexx_module_shop_orders (id);
+ALTER TABLE contrexx_module_shop_rel_customer_coupon
+  ADD CONSTRAINT FK_6A7FBE249395C3F3 FOREIGN KEY (customer_id) REFERENCES contrexx_access_users (id) ON DELETE SET NULL;
 
-ALTER TABLE contrexx_module_shop_rel_discount_group ADD CONSTRAINT FK_93D6FD61D2919A68 FOREIGN KEY (customer_group_id) REFERENCES contrexx_module_shop_customer_group (id);
-ALTER TABLE contrexx_module_shop_rel_discount_group ADD CONSTRAINT FK_93D6FD61ABBC2D2C FOREIGN KEY (article_group_id) REFERENCES contrexx_module_shop_article_group (id);
+ALTER TABLE contrexx_module_shop_rel_discount_group
+  ADD CONSTRAINT FK_93D6FD61D2919A68 FOREIGN KEY (customer_group_id) REFERENCES contrexx_module_shop_customer_group (id);
+ALTER TABLE contrexx_module_shop_rel_discount_group
+  ADD CONSTRAINT FK_93D6FD61ABBC2D2C FOREIGN KEY (article_group_id) REFERENCES contrexx_module_shop_article_group (id);
 
-ALTER TABLE contrexx_module_shop_rel_payment ADD CONSTRAINT FK_43EB87989F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
-ALTER TABLE contrexx_module_shop_rel_payment ADD CONSTRAINT FK_43EB87984C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
+ALTER TABLE contrexx_module_shop_rel_payment
+  ADD CONSTRAINT FK_43EB87989F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
+ALTER TABLE contrexx_module_shop_rel_payment
+  ADD CONSTRAINT FK_43EB87984C3A3BB FOREIGN KEY (payment_id) REFERENCES contrexx_module_shop_payment (id);
 
-ALTER TABLE contrexx_module_shop_rel_shipper ADD CONSTRAINT FK_87E5C9689F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
-ALTER TABLE contrexx_module_shop_rel_shipper ADD CONSTRAINT FK_87E5C96838459F23 FOREIGN KEY (shipper_id) REFERENCES contrexx_module_shop_shipper (id);
+ALTER TABLE contrexx_module_shop_rel_shipper
+  ADD CONSTRAINT FK_87E5C9689F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
+ALTER TABLE contrexx_module_shop_rel_shipper
+  ADD CONSTRAINT FK_87E5C96838459F23 FOREIGN KEY (shipper_id) REFERENCES contrexx_module_shop_shipper (id);
 
-ALTER TABLE contrexx_module_shop_shipment_cost ADD CONSTRAINT FK_2329A4538459F23 FOREIGN KEY (shipper_id) REFERENCES contrexx_module_shop_shipper (id);
+ALTER TABLE contrexx_module_shop_shipment_cost
+  ADD CONSTRAINT FK_2329A4538459F23 FOREIGN KEY (shipper_id) REFERENCES contrexx_module_shop_shipper (id);
 
-ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A4494A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
-ALTER TABLE contrexx_module_shop_rel_product_user_group ADD CONSTRAINT FK_32A4494AD2112630 FOREIGN KEY (usergroup_id) REFERENCES contrexx_access_user_groups (group_id);
+ALTER TABLE contrexx_module_shop_rel_product_user_group
+  ADD CONSTRAINT FK_32A4494A4584665A FOREIGN KEY (product_id) REFERENCES contrexx_module_shop_products (id);
+ALTER TABLE contrexx_module_shop_rel_product_user_group
+  ADD CONSTRAINT FK_32A4494AD2112630 FOREIGN KEY (usergroup_id) REFERENCES contrexx_access_user_groups (group_id);
 
-ALTER TABLE contrexx_module_shop_rel_countries ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
+ALTER TABLE contrexx_module_shop_rel_countries
+  ADD CONSTRAINT FK_C859EA8B9F2C3FAB FOREIGN KEY (zone_id) REFERENCES contrexx_module_shop_zones (id);
 
-ALTER TABLE contrexx_module_shop_categories ADD CONSTRAINT FK_A9242624727ACA70 FOREIGN KEY (parent_id) REFERENCES contrexx_module_shop_categories (id);
+ALTER TABLE contrexx_module_shop_categories
+  ADD CONSTRAINT FK_A9242624727ACA70 FOREIGN KEY (parent_id) REFERENCES contrexx_module_shop_categories (id);
+
 
 /** Index **/
 CREATE INDEX IDX_DA286BB1B213FA4 ON contrexx_module_shop_orders (lang_id);
@@ -209,7 +293,8 @@ CREATE INDEX IDX_7E70AB1A4584665A ON contrexx_module_shop_discount_coupon (produ
 CREATE INDEX IDX_7E70AB1A9395C3F3 ON contrexx_module_shop_discount_coupon (customer_id);
 
 CREATE INDEX IDX_3F3DD477FE54D947 ON contrexx_module_shop_discountgroup_count_rate (group_id);
-CREATE INDEX fk_contrexx_module_shop_discountgroup_count_rate_contrexx_m_idx ON contrexx_module_shop_discountgroup_count_rate (count);
+CREATE INDEX fk_contrexx_module_shop_discountgroup_count_rate_contrexx_m_idx
+  ON contrexx_module_shop_discountgroup_count_rate (count);
 
 CREATE INDEX IDX_BB867D48B213FA4 ON contrexx_module_shop_pricelists (lang_id);
 
