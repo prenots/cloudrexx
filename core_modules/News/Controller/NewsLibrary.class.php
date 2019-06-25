@@ -3655,7 +3655,7 @@ EOF;
                     `' . DBPREFIX  . 'module_news_rel_categories` AS `rc`
                 ON
                     `rc`.`news_id` = `tblN`.`id`';
-            $filterCategory .= ' AND (`rc`.`category_id`=' .
+            $filterCategory = ' AND (`rc`.`category_id`=' .
                 implode(' OR `rc`.`category_id`=', $arrCategoryIds) . ')';
         }
 
