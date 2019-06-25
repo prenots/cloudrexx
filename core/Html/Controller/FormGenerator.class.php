@@ -792,10 +792,6 @@ class FormGenerator {
                 if (!isset($dataElementGroupType)) {
                     $dataElementGroupType = \Cx\Core\Html\Model\Entity\DataElementGroup::TYPE_RADIO;
                 }
-                $modern = false;
-                if (isset($options['mode']) && $options['mode'] == 'modern') {
-                    $modern = true;
-                }
                 $radio = new \Cx\Core\Html\Model\Entity\DataElementGroup(
                     $title,
                     $values,
