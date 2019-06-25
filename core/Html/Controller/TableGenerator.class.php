@@ -58,7 +58,7 @@ class TableGenerator extends \BackendTable
         // Check if the field type is wysiwyg, if this is the case replace
         // the content with an info that this is not supported yet
         foreach ($options['fields'] as $name=>$option) {
-            if ($option['type'] == 'wysiwyg' && $attrs[$name]) {
+            if ($option['type'] == 'wysiwyg' && !empty($attrs[$name])) {
                 $attrs[$name] = sprintf(
                     $_ARRAYLANG['TXT_CORE_HTML_READONLY_VIEW_NOT_SUPPORTED_YET'],
                     'wysiwyg',
