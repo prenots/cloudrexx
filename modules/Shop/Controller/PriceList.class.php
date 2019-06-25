@@ -604,7 +604,8 @@ class PriceList
      * is true. Then an empty array is returned.
      *
      * @param int $listId id of pricelist
-     * @return array
+     * @return array with all category ids from the given pricelist or an empty
+     *               one if all_categories is true
      */
     static function getCategoriesByListId($listId)
     {
