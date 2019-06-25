@@ -73,14 +73,14 @@ ALTER TABLE contrexx_module_shop_orders
   CHANGE date_time date_time DATETIME DEFAULT '0000-00-00 00:00:00' NOT NULL,
   CHANGE lang_id lang_id INT DEFAULT 0 NOT NULL,
   CHANGE modified_on modified_on DATETIME DEFAULT NULL,
-  CHANGE payment_id payment_id INT UNSIGNED NOT NULL,
+  CHANGE payment_id payment_id INT UNSIGNED DEFAULT NULL,
   CHANGE status status INT UNSIGNED DEFAULT 0 NOT NULL;
 
 ALTER TABLE contrexx_module_shop_products
   CHANGE date_start date_start DATETIME DEFAULT NULL,
   CHANGE date_end date_end DATETIME DEFAULT NULL;
 
-ALTER TABLE contrexx_module_shop_attribute CHANGE type type INT UNSIGNED DEFAULT 1 NOT NULL;
+ALTER TABLE contrexx_module_shop_attribute CHANGE `type` `type` INT(1) UNSIGNED DEFAULT 1 NOT NULL;
 
 UPDATE `contrexx_module_shop_products` SET `date_start` = NULL WHERE `date_start` = '0000-00-00 00:00:00';
 UPDATE `contrexx_module_shop_products` SET `date_end` = NULL WHERE `date_end` = '0000-00-00 00:00:00';
@@ -101,6 +101,7 @@ ALTER TABLE contrexx_module_shop_rel_shipper
 ALTER TABLE contrexx_module_shop_discount_coupon DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_countries DROP PRIMARY KEY;
 ALTER TABLE contrexx_module_shop_rel_customer_coupon DROP PRIMARY KEY;
+ALTER TABLE contrexx_module_shop_rel_category_pricelist DROP PRIMARY KEY;
 
 
 /** To insert relations without problems **/
@@ -317,13 +318,17 @@ CREATE INDEX IDX_C859EA8B9F2C3FAB ON contrexx_module_shop_rel_countries (zone_id
 CREATE INDEX IDX_A9242624727ACA70 ON contrexx_module_shop_categories (parent_id);
 
 CREATE UNIQUE INDEX fk_module_shop_currency_unique_idx ON contrexx_module_shop_currencies (code);
-CREATE UNIQUE INDEX fk_module_shop_discount_coupon_unique_idx ON contrexx_module_shop_discount_coupon (code, customer_id);
-CREATE UNIQUE INDEX fk_module_shop_rel_customer_coupon_unique_idx ON contrexx_module_shop_rel_customer_coupon (code, customer_id, order_id);
+CREATE UNIQUE INDEX fk_module_shop_discount_coupon_unique_idx
+  ON contrexx_module_shop_discount_coupon (code, customer_id);
+CREATE UNIQUE INDEX fk_module_shop_rel_customer_coupon_unique_idx
+  ON contrexx_module_shop_rel_customer_coupon (code, customer_id, order_id);
 
 
 /** Add Primary Keys **/
 ALTER TABLE contrexx_module_shop_rel_shipper ADD PRIMARY KEY (zone_id, shipper_id);
 ALTER TABLE contrexx_module_shop_rel_countries ADD PRIMARY KEY (zone_id, country_id);
+ALTER TABLE contrexx_module_shop_rel_category_pricelist ADD PRIMARY KEY (category_id, pricelist_id);
+
 
 /** Merge Data **/
 INSERT INTO contrexx_module_shop_rel_category_product SELECT
