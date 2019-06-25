@@ -3662,7 +3662,7 @@ EOF;
         $query = '
             SELECT DISTINCT
                 `id`,
-                `text` AS "content",
+                `text` AS \'content\',
                 `title`,
                 `date`,
                 `redirect`,
