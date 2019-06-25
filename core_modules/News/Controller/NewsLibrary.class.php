@@ -3718,7 +3718,8 @@ EOF;
      * Get URL pointing to an application page of this component
      *
      * @param array $searchData Array of search data
-     * @return string URL pointing to an application page of this component
+     * @return string URL pointing to an application page of this component /
+     *                other page in content manager / external link
      */
     public function getApplicationUrl($searchData)
     {
