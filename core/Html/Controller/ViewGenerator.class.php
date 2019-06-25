@@ -1829,6 +1829,7 @@ class ViewGenerator {
 
         $actionUrl = clone $this->cx->getRequest()->getUrl();
         $actionUrl->setParam('deleteid', null);
+        $actionUrl->setParam('vg_increment_number', null);
         \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
     }
 
