@@ -594,7 +594,7 @@ class PriceList
         $this->footer_left = self::decode($objResult->fields['footer_left']);
         $this->footer_right = self::decode($objResult->fields['footer_right']);
         $this->category_ids($objResult->fields['all_categories'] ?
-            array('*') : self::getCategoriesByListId($this->id)
+            array('*') : static::getCategoriesByListId($this->id)
         );
         return true;
     }
@@ -721,7 +721,7 @@ class PriceList
         $objList->footer_left($objResult->fields['footer_left']);
         $objList->footer_right($objResult->fields['footer_right']);
         $objList->category_ids($objResult->fields['all_categories'] ?
-            array('*') : self::getCategoriesByListId($list_id)
+            array('*') : static::getCategoriesByListId($list_id)
         );
         return $objList;
     }
