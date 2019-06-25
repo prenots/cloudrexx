@@ -1208,7 +1208,6 @@ class ViewGenerator {
     protected function renderFormForEntry($entityId, $readOnly = false) {
         global $_CORELANG;
 
-        $renderArray=array('vg_increment_number' => $this->viewId);
         if (!isset($this->options['fields'])) {
             $this->options['fields'] = array();
         }
