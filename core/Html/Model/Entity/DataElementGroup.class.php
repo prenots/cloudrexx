@@ -58,7 +58,7 @@ class DataElementGroup extends DataElement {
     const TYPE_RADIO = 'radio';
     const TYPE_CHECKBOX = 'checkbox';
     
-    public function __construct($name, $options, $selectedValue = '', $type = self::TYPE_RADIO, $validator = null, $modern = false) {
+    public function __construct($name, $options, $selectedValue = '', $type = self::TYPE_RADIO, $validator = null) {
         static::$instanceCount++;
         HtmlElement::__construct('div');
         $this->validator = $validator;
@@ -76,8 +76,7 @@ class DataElementGroup extends DataElement {
             $option = new HtmlElement('input');
             $option->setAttribute('type', $this->type);
             $option->setAttribute('id', $optionId);
-            // If modern is false use the old version
-            if ($modern) {
+            if ($type == static::TYPE_CHECKBOX) {
                 $option->setAttribute('name', $name . '[]');
                 $option->setAttribute('value', $key);
             } else {

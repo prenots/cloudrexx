@@ -800,9 +800,7 @@ class FormGenerator {
                     $title,
                     $values,
                     $value,
-                    $dataElementGroupType,
-                    null,
-                    $modern
+                    $dataElementGroupType
                 );
                 if (isset($options['attributes'])) {
                     $radio->setAttributes($options['attributes']);
