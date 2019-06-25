@@ -3637,4 +3637,112 @@ EOF;
 
         return $result->fields['id'];
     }
+
+    /**
+     * Get news for search term
+     *
+     * @param array  $arrCategoryIds Array of category ID's
+     * @param string $searchTerm     Search term
+     * @return object Object of query result
+     */
+    public function getNewsForSearchTerm($arrCategoryIds, $searchTerm)
+    {
+        $filterCategory = '';
+        $categoryQuery = '';
+        if (!empty($arrCategoryIds)) {
+            $categoryQuery = '
+                INNER JOIN
+                    `' . DBPREFIX  . 'module_news_rel_categories` AS `rc`
+                ON
+                    `rc`.`news_id` = `tblN`.`id`';
+            $filterCategory .= ' AND (`rc`.`category_id`=' .
+                implode(' OR `rc`.`category_id`=', $arrCategoryIds) . ')';
+        }
+
+        $query = '
+            SELECT DISTINCT
+                `id`,
+                `text` AS "content",
+                `title`,
+                `date`,
+                `redirect`,
+                MATCH (
+                    `text`,`title`,`teaser_text`
+                ) AGAINST (
+                    "%' . $searchTerm . '%"
+                ) AS `score`
+            FROM
+                `' . DBPREFIX  . 'module_news` AS `tblN`
+            INNER JOIN
+                `' . DBPREFIX  . 'module_news_locale` AS `nl`
+            ON
+                `nl`.`news_id` = `tblN`.`id`
+            ' . $categoryQuery . '
+            WHERE
+                (
+                   `text` LIKE ("%' . $searchTerm . '%")
+                    OR `title` LIKE ("%' . $searchTerm . '%")
+                    OR `teaser_text` LIKE ("%' . $searchTerm . '%")
+                )' .
+            $this->getNewsFilterQuery('tblN', '', $filterCategory);
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $objDatabase = $cx->getDb()->getAdoDb();
+
+        return $objDatabase->Execute($query);
+    }
+
+    /**
+     * Short a description
+     *
+     * @param string $description Description in string
+     * @return string Shorted description
+     */
+    public function getShortDescription($description)
+    {
+        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
+        $maxLength = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchDescriptionLength',
+            'Config'
+        );
+        if (strlen($description) > $maxLength) {
+            $shortDescription = substr($description, 0, 97) . '...';
+        } else {
+            $shortDescription = $description;
+        }
+
+        return contrexx_html2plaintext($shortDescription);
+    }
+
+    /**
+     * Get URL pointing to an application page of this component
+     *
+     * @param array $searchData Array of search data
+     * @return string URL pointing to an application page of this component
+     */
+    public function getApplicationUrl($searchData)
+    {
+        if (empty($searchData['redirect'])) {
+            $newsId         = $searchData['id'];
+            $newsCategories = $this->getCategoriesByNewsId($newsId);
+            $url            = \Cx\Core\Routing\Url::fromModuleAndCmd(
+                'News',
+                $this->findCmdById(
+                    'details', array_keys($newsCategories)
+                ),
+                FRONTEND_LANG_ID,
+                array('newsid' => $newsId)
+            );
+            $pageUrlResult = $url->toString();
+        } else {
+            $pageUrlResult = preg_replace(
+                '/\\[\\[([A-Z0-9_-]+)\\]\\]/',
+                '{\\1}',
+                $searchData['redirect']
+            );
+            \LinkGenerator::parseTemplate($pageUrlResult);
+        }
+
+        return $pageUrlResult;
+    }
 }

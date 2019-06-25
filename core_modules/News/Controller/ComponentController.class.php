@@ -359,7 +359,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $evm = $this->cx->getEvents();
         $evm->addEventListener(
             'SearchFindContent',
-            new \Cx\Core_Modules\News\Model\Event\NewsEventListener()
+            new \Cx\Core_Modules\News\Model\Event\NewsEventListener($this->cx)
         );
 
         // locale event listener
