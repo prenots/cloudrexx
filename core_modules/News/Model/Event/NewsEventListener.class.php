@@ -192,30 +192,45 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
                 continue;
             }
 
+            $cmdCatIds = array();
             // in case the CMD is an integer, then
             // the integer does represent an ID of category which has to be
             // applied to the search filter
             if (preg_match('/^\d+$/', $cmd)) {
-                if (!in_array($cmd, $arrCategoryIds)) {
-                    $arrCategoryIds = array_unique(
-                        array_merge(
-                            $arrCategoryIds,
-                            $newsLib->getNestedCatIds($cmd)
-                        )
-                    );
-                }
-                continue;
+                $cmdCatIds = array($cmd);
             }
 
             // in case the CMD is hypen '-' seperated integer(eg: '2-3'),
             // then the integer values does represent an ID of category
             // which has to be applied to the search filter
             if (strpos($cmd, '-') !== false) {
-                if (!in_array($cmd, $arrCategoryIds)) {
+                $cmdCatIds = array_filter(explode('-', $cmd));
+            }
+
+            // in case the CMD is '(details|archive)<Category ID>'
+            // (eg: details6 or archive6), then the integer value does represent
+            // an ID of category which has to be applied to the search filter
+            if (
+                preg_match('/^details\d+$/', $cmd) ||
+                preg_match('/^archive\d+$/', $cmd)
+            ) {
+                $cmdCatIds = array(substr($cmd, 7));
+            }
+
+            // in case the CMD is comma ',' seperated (eg: 'archive2,3'),
+            // then the integer values does represent an ID of category
+            // which has to be applied to the search filter
+            if ((substr($cmd, 0, 7) == 'archive') && strpos($cmd, ',')) {
+                $cmdCatIds = array_filter(explode(',', substr($cmd, 7)));
+            }
+
+            if (!empty($cmdCatIds)) {
+                $diffCatIds = array_diff($cmdCatIds, $arrCategoryIds);
+                if ($diffCatIds) {
                     $arrCategoryIds = array_unique(
                         array_merge(
                             $arrCategoryIds,
-                            $newsLib->getNestedCatIds(array_filter(explode('-', $cmd)))
+                            $newsLib->getNestedCatIds($diffCatIds)
                         )
                     );
                 }
