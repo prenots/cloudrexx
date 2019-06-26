@@ -160,6 +160,7 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 
         // check if an application page is published
         $arrCategoryIds = array();
+        $newsLib        = new \Cx\Core_Modules\News\Controller\NewsLibrary();
         foreach (array_unique($cmds) as $cmd) {
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang('News', $cmd, FRONTEND_LANG_ID);
@@ -195,7 +196,14 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             // the integer does represent an ID of category which has to be
             // applied to the search filter
             if (preg_match('/^\d+$/', $cmd)) {
-                $arrCategoryIds[] = $cmd;
+                if (!in_array($cmd, $arrCategoryIds)) {
+                    $arrCategoryIds = array_unique(
+                        array_merge(
+                            $arrCategoryIds,
+                            $newsLib->getNestedCatIds($cmd)
+                        )
+                    );
+                }
                 continue;
             }
 
@@ -203,7 +211,14 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             // then the integer values does represent an ID of category
             // which has to be applied to the search filter
             if (strpos($cmd, '-') !== false) {
-                $arrCategoryIds = array_merge($arrCategoryIds, array_filter(explode('-', $cmd)));
+                if (!in_array($cmd, $arrCategoryIds)) {
+                    $arrCategoryIds = array_unique(
+                        array_merge(
+                            $arrCategoryIds,
+                            $newsLib->getNestedCatIds(array_filter(explode('-', $cmd)))
+                        )
+                    );
+                }
                 continue;
             }
 

@@ -3724,4 +3724,17 @@ EOF;
 
         return $pageUrlResult;
     }
+
+    /**
+     * Get nested set of category ID's
+     *
+     * @param integer $categoryId Category Id
+     * @return array Array of categories
+     */
+    public function getNestedCatIds($categoryId)
+    {
+        return $this->getCatIdsFromNestedSetArray(
+            $this->getNestedSetCategories($categoryId)
+        );
+    }
 }
