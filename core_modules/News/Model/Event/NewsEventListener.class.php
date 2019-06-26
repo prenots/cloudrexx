@@ -81,8 +81,6 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
      */
     protected function getNewsForSearchComponent($searchTerm)
     {
-        global $_ARRAYLANG;
-
         try {
             $arrCategoryIds = $this->getCategoryFilterForSearchComponent();
         } catch (NewsInternalException $e) {
@@ -115,8 +113,7 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
 
             $arrayOfSearchResult[] = array(
                 'Score'     => ($score == 0) ? 25 : $scorePercent,
-                'Title'     => !empty($objResult->fields['title'])
-                    ? $objResult->fields['title'] : $_ARRAYLANG['TXT_UNTITLED'],
+                'Title'     => $objResult->fields['title'],
                 'Content'   => $content,
                 'Link'      => $newsLib->getApplicationUrl($objResult->fields),
                 'Date'      => $date,
