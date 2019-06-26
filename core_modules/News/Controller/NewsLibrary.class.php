@@ -3728,13 +3728,13 @@ EOF;
     /**
      * Get nested set of category ID's
      *
-     * @param integer $categoryId Category Id
+     * @param array $categoryIds Category ID's
      * @return array Array of categories
      */
-    public function getNestedCatIds($categoryId)
+    public function getNestedCatIds($categoryIds)
     {
         return $this->getCatIdsFromNestedSetArray(
-            $this->getNestedSetCategories($categoryId)
+            $this->getNestedSetCategories($categoryIds)
         );
     }
 }
