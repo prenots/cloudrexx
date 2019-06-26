@@ -3693,28 +3693,6 @@ EOF;
     }
 
     /**
-     * Short a description
-     *
-     * @param string $description Description in string
-     * @return string Shorted description
-     */
-    public function getShortDescription($description)
-    {
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-        $maxLength = \Cx\Core\Setting\Controller\Setting::getValue(
-            'searchDescriptionLength',
-            'Config'
-        );
-        if (strlen($description) > $maxLength) {
-            $shortDescription = substr($description, 0, 97) . '...';
-        } else {
-            $shortDescription = $description;
-        }
-
-        return contrexx_html2plaintext($shortDescription);
-    }
-
-    /**
      * Get URL pointing to an application page of this component
      *
      * @param array $searchData Array of search data

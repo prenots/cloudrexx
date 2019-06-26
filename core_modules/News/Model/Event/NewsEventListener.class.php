@@ -95,20 +95,29 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             return array();
         }
 
+        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
+        $maxLength = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchDescriptionLength',
+            'Config'
+        );
         $arrayOfSearchResult = array();
         while (!$objResult->EOF) {
             $score        = $objResult->fields['score'];
             $scorePercent = ($score >= 1 ? 100 : intval($score * 100));
             $date         = !empty($objResult->fields['date'])
                 ? $objResult->fields['date'] : null;
+            $content = !empty($objResult->fields['content'])
+                ? \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent(
+                    $objResult->fields['content'],
+                    $maxLength
+                )
+                : '';
 
             $arrayOfSearchResult[] = array(
                 'Score'     => ($score == 0) ? 25 : $scorePercent,
                 'Title'     => !empty($objResult->fields['title'])
                     ? $objResult->fields['title'] : $_ARRAYLANG['TXT_UNTITLED'],
-                'Content'   => !empty($objResult->fields['content'])
-                    ? $newsLib->getShortDescription($objResult->fields['content'])
-                    : '',
+                'Content'   => $content,
                 'Link'      => $newsLib->getApplicationUrl($objResult->fields),
                 'Date'      => $date,
                 'Component' => 'News',
