@@ -443,6 +443,84 @@ class Search
     }
 
     /**
+     * Check if a specific page (identified by argument $page) is eligible
+     * to be listed in the search results
+     *
+     * @param   \Cx\Core\ContentManager\Model\Entity\Page $page The page to be
+     *                                         checked if it is eligible to be
+     *                                         listed
+     * @return  boolean Whether or not the supplied page is eligible to be
+     *                  listed
+     */
+    public function isPageListable($page) {
+        // skip non-valid page
+        if (!($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)) {
+            return false;
+        }
+
+        // skip non-published page
+        if (!$page->isActive()) {
+            return false;
+        }
+
+        // skip invisible page (if excluded from search)
+        if (
+            !$this->listHiddenPages() &&
+            !$page->isVisible()
+        ) {
+            return false;
+        }
+
+        // skip protected page (if excluded from search)
+        if (
+            !$this->listProtectedPages() &&
+            $page->isFrontendProtected() &&
+            $page->getComponent('Session')->getSession() &&
+            !\Permission::checkAccess(
+                $page->getFrontendAccessId(),
+                'dynamic',
+                true
+            )
+        ) {
+            return false;
+        }
+
+        // skip page if not located within specific content branch
+        if ($this->rootPage) {
+            if (strpos($page->getPath(), $this->rootPage->getPath()) !== 0) {
+                return false;
+            }
+        }
+
+        // page meets all requirements to be listed in the search results
+        return true;
+    }
+
+    /**
+     * Return if the system has been configured to list hidden pages or not
+     * @return  boolean Whether or not if hidden pages shall be listed
+     */
+    protected function listHiddenPages() {
+        $listOnlyHiddenPages = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchVisibleContentOnly',
+            'Config'
+        );
+        return $listOnlyHiddenPages == 'off';
+    }
+
+    /**
+     * Return if the system has been configured to list protected pages or not
+     * @return  boolean Whether or not if protected pages shall be listed
+     */
+    protected function listProtectedPages() {
+        $listProtectedPages = \Cx\Core\Setting\Controller\Setting::getValue(
+            'coreListProtectedPages',
+            'Config'
+        );
+        return $listProtectedPages == 'on';
+    }
+
+    /**
      * Get a result for search term
      *
      * @param string $term Search value
