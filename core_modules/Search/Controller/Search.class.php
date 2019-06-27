@@ -468,10 +468,11 @@ class Search
         }
 
         // skip page if not located within specific content branch
-        if ($this->rootPage) {
-            if (strpos($page->getPath(), $this->rootPage->getPath()) !== 0) {
-                return false;
-            }
+        if (
+            $this->getRootPage() &&
+            !$page->getNode()->isChildOf($this->getRootPage()->getNode())
+        ) {
+            return false;
         }
 
         // page meets all requirements to be listed in the search results
