@@ -903,7 +903,9 @@ class PageRepository extends EntityRepository {
      * Please do not use this anywhere else, write a search method with proper results instead. Ideally, this
      * method would then be invoked by searchResultsForSearchModule().
      *
-     * @param string $string the string to match against.
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
      * @return array (
      *     'Score' => int
      *     'Title' => string
@@ -911,10 +913,16 @@ class PageRepository extends EntityRepository {
      *     'Link' => string
      * )
      */
-    public function searchResultsForSearchModule($string, $license, $rootPage = null) {
-        if ($string == '') {
+    public function searchResultsForSearchModule(
+        \Cx\Core_Modules\Search\Controller\Search $search,
+        $license
+    ) {
+        if ($search->getTerm() == '') {
             return array();
         }
+
+        $string = $search->getTerm();
+        $rootPage = $search->getRootPage();
 
 //TODO: use MATCH AGAINST for score
 //      Doctrine can be extended as mentioned in http://groups.google.com/group/doctrine-user/browse_thread/thread/69d1f293e8000a27
