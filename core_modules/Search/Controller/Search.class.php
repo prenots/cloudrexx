@@ -250,9 +250,17 @@ class Search
      * returned!
      * @param string $module Module name to find page for
      * @param string $command (optional) Command limitation
+     * @param boolean $allowEmptyCommand If set to TRUE and $command is set to
+     *                                   an empty string, then only application
+     *                                   pages having an empty cmd set will be
+     *                                   taken into consideration.
      * @return \Cx\Core\ContentManager\Model\Entity\Page Page of module
      */
-    public function getAccessablePage($module, $command = '') {
+    public function getAccessablePage(
+        $module,
+        $command = '',
+        $allowEmptyCommand = false
+    ) {
         // abort in case no component is specified
         if (empty($module)) {
             return null;
@@ -263,68 +271,38 @@ class Search
             'lang'   => FRONTEND_LANG_ID,
             'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
         );
-        if (!empty($command)) {
+        if (
+            $allowEmptyCommand ||
+            !empty($command)
+        ) {
             $criteria['cmd'] = $command;
         }
 
-        // only list results in case the associated page of the module is active
+        // fetch component application page
         $page = $pageRepo->findOneBy($criteria);
-        if (!$page || !$page->isActive()) {
-            return null;
+
+        // check if page is eligible to be listed
+        if ($this->isPageListable($page)) {
+            return $page;
         }
 
-        // don't list results in case the user doesn't have sufficient rights to access the page
-        // and the option to list only unprotected pages is set (coreListProtectedPages)
-        $config = \Env::get('config');
+        // If $command has not been set and if that is allowed,
+        // then we shall abort here. This is generally the case
+        // when we did already fetch the main application page
+        // of the component $module
         if (
-            $config['coreListProtectedPages'] == 'off' &&
-            $page->isFrontendProtected() &&
-            $page->getComponent('Session')->getSession() &&
-            !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
+            $allowEmptyCommand &&
+            empty($command)
         ) {
             return null;
         }
-
-        // In case a root node was specified, we have to check if the page is in
-        // the root page's branch.
-        if ($this->rootPage) {
-            if (strpos($page->getPath(), $this->rootPage->getPath()) !== 0) {
-                return null;
-            }
-        }
-        // In case we are handling the search result of a module ($module is not empty),
-        // we have to check if we are allowed to list the results even when the associated module
-        // page is invisible.
-        // We don't have to check for regular pages ($module is empty) here, because they
-        // are handled by an other method than this one.
-        if ($config['searchVisibleContentOnly'] == 'on' && !empty($module)) {
-            if (!$page->isVisible()) {
-                // If $command is set, then this would indicate that we have
-                // checked the visibility of the detail view page of the module.
-                // Those pages are almost always invisible.
-                // Therefore, we shall make the decision if we are allowed to list
-                // the results based on the visibility of the main module page
-                // (empty $command).
-                if (!empty($command)) {
-                    $mainModulePage = $pageRepo->findOneBy(array(
-                        'module' => $module,
-                        'lang' => FRONTEND_LANG_ID,
-                        'type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
-                        'cmd' => '',
-                    ));
-                    if (   !$mainModulePage
-                        || !$mainModulePage->isActive()
-                        || !$mainModulePage->isVisible()) {
-                        // main module page is also invisible
-                        return null;
-                    }
-                } else {
-                    // page is invisible
-                    return null;
-                }
-            }
-        }
-        return $page;
+        // If $command is set, then this would indicate that we have
+        // checked the visibility of the detail view page of the module.
+        // Those pages are almost always invisible.
+        // Therefore, we shall make the decision if we are allowed to list
+        // the results based on the visibility of the main module page
+        // (empty $command).
+        return $this->getAccessablePage($module, '', true);
     }
 
 
