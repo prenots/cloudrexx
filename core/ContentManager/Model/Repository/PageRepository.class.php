@@ -926,7 +926,6 @@ class PageRepository extends EntityRepository {
 
 //TODO: use MATCH AGAINST for score
 //      Doctrine can be extended as mentioned in http://groups.google.com/group/doctrine-user/browse_thread/thread/69d1f293e8000a27
-//TODO: shorten content in query rather than in php
 
         $qb = $this->em->createQueryBuilder();
         $qb->add('select', 'p')
@@ -984,8 +983,8 @@ class PageRepository extends EntityRepository {
             $results[] = array(
                 'Score'     => 100,
                 'Title'     => $page->getTitle(),
-                'Content'   => \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent(
-                    $page->getContent(), $config['searchDescriptionLength']
+                'Content'   => $search->parseContentForResultDescription(
+                    $page->getContent()
                 ),
                 'Link'      => (string) \Cx\Core\Routing\Url::fromPage($page),
                 'Component' => $page->getComponentController()->getName(),
