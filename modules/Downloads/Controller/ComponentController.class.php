@@ -234,7 +234,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         }
 
         // lookup downloads by given keyword
-        $downloadAsset = $download->getDownloads(
+        if (!$download->loadDownloads(
             $filter,
             $search->getTerm(),
             null,
@@ -243,9 +243,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             null,
             true,
             $config['list_downloads_current_lang']
-        );
-
-        if (!$downloadAsset) {
+        )) {
             return array();
         }
 
@@ -256,13 +254,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
 
         $langId = DownloadsLibrary::getOutputLocale()->getId();
 
-        while (!$downloadAsset->EOF) {
+        while (!$download->EOF) {
             try {
                 $url = DownloadsLibrary::getApplicationUrl(
-                    $downloadAsset->getAssociatedCategoryIds()
+                    $download->getAssociatedCategoryIds()
                 );
             } catch (DownloadsLibraryException $e) {
-                $downloadAsset->next();
+                $download->next();
                 continue;
             }
 
@@ -271,23 +269,23 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 case HTTP_DOWNLOAD_INLINE:
                 case HTTP_DOWNLOAD_ATTACHMENT:
                     $url->setParam('disposition', $config['global_search_linking']);
-                    $url->setParam('download', $downloadAsset->getId());
+                    $url->setParam('download', $download->getId());
                     break;
 
                 case 'detail':
                 default:
-                    $url->setParam('id', $downloadAsset->getId());
+                    $url->setParam('id', $download->getId());
                     break;
             }
 
             $result[] = array(
                 'Score'     => 100,
-                'Title'     => $downloadAsset->getName($langId),
-                'Content'   => $downloadAsset->getTrimmedDescription($langId),
+                'Title'     => $download->getName($langId),
+                'Content'   => $download->getTrimmedDescription($langId),
                 'Link'      => (string) $url,
                 'Component' => $this->getName(),
             );
-            $downloadAsset->next();
+            $download->next();
         }
 
         return $result;
