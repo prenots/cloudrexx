@@ -170,6 +170,11 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
                 continue;
             }
 
+            // in case an application exists that has not set a category-ID as
+            // its CMD, then we do not have to restrict the search by one or
+            // more specific categories
+            if (empty($cmd) || $cmd == 'archive' || $cmd == 'topnews') {
+                return array();
             }
 
             $cmdCatIds = array();
@@ -215,13 +220,6 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
                     );
                 }
                 continue;
-            }
-
-            // in case an application exists that has not set a category-ID as
-            // its CMD, then we do not have to restrict the search by one or
-            // more specific categories
-            if (empty($cmd) || $cmd == 'archive' || $cmd == 'topnews') {
-                return array();
             }
         }
 
