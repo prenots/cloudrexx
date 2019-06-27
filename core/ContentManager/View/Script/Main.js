@@ -1501,7 +1501,9 @@ cx.cm.createJsTree = function(target, data, nodeLevels, open_all) {
               .click(function(e) {
                   e.stopPropagation();
                   if (!cx.jQuery(e.target).is(".translations > .translation")) {
-                      cx.jQuery(this).children(".translations-expanded").toggle();
+                      if (!cx.jQuery('.switch-tag-dropdown').hasClass('open')) {
+                        cx.jQuery(this).children('.translations-expanded').toggle();
+                      }
                       cx.jQuery(".translations.dropdown").not(this).children(".translations-expanded").hide();
                       cx.jQuery('.actions-expanded').hide();
                   }
