@@ -359,8 +359,6 @@ class Search
         if (!$objResult || $objResult->EOF) {
             return array();
         }
-        $config = \Env::get('config');
-        $max_length = intval($config['searchDescriptionLength']);
         $arraySearchResults = array();
         while (!$objResult->EOF) {
             if (is_callable($pagevar)) {
@@ -372,9 +370,12 @@ class Search
             if (is_callable($parseSearchData)) {
                 $parseSearchData($objResult->fields);
             }
-            $content = (isset($objResult->fields['content'])
-                ? trim($objResult->fields['content']) : '');
-            $content = \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent($content, $max_length);
+            $content = '';
+            if (isset($objResult->fields['content'])) {
+                $content = $this->parseContentForResultDescription(
+                    $objResult->fields['content']
+                );
+            }
             $score = $objResult->fields['score'];
             $scorePercent = ($score >= 1 ? 100 : intval($score * 100));
 //TODO: Muss noch geändert werden, sobald das Ranking bei News funktioniert
@@ -396,6 +397,21 @@ class Search
         return $arraySearchResults;
     }
 
+    /**
+     * Extract plaintext from HTML code and ensure it's length is within
+     * the configured max length for search result descriptions.
+     *
+     * @param   string  $content    The HTML content to parse
+     * @return  string  Plaintext excerpt of $content cut to the configured
+     *                  length of the global option searchDescriptionLength
+     */
+    public function parseContentForResultDescription($content) {
+        $maxLength = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchDescriptionLength',
+            'Config'
+        );
+        return static::shortenSearchContent($content, $maxLength);
+    }
 
     /**
      * Shorten and format the search result content
@@ -410,6 +426,7 @@ class Search
      */
     public static function shortenSearchContent($content, $max_length=NULL)
     {
+        $content = trim($content);
         $content = contrexx_html2plaintext($content);
 
         // Omit the content when there is no letter in it
