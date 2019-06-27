@@ -136,31 +136,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
             ));
 
-            // skip in case no associated application page does exist or is
-            // published
-            if (!$page || !$page->isActive()) {
-                continue;
-            }
-
-            \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-            $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue('coreListProtectedPages','Config');
-            $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue('searchVisibleContentOnly','Config');
-
-            // skip if the application page is invisible
-            if (
-                $searchVisibleContentOnly == 'on' &&
-                !$page->isVisible()
-            ) {
-                continue;
-            }
-
-            // skip if the application page is protected
-            if (
-                $coreListProtectedPages == 'off' &&
-                $page->isFrontendProtected() &&
-                $this->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 continue;
             }
 
