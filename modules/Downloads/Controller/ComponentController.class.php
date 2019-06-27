@@ -225,7 +225,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // check for valid published application page
         $filter = null;
         try {
-            $arrCategoryIds = $this->getCategoryFilterForSearchComponent();
+            $arrCategoryIds = $this->getCategoryFilterForSearchComponent(
+                $search
+            );
 
             // set category filter if we have to restrict search by
             // any category IDs
@@ -297,6 +299,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * Get published category IDs (as application pages)
      *
      *
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
      * @return  array   List of published category IDs.
      *                  An empty array is retured, in case an application 
      *                  page is published that has no category restriction set
@@ -304,11 +309,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @throws  DownloadsInternalException In case no application page of this
      *                                  component is published
      */
-    protected function getCategoryFilterForSearchComponent() {
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-        $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue('coreListProtectedPages','Config');
-        $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue('searchVisibleContentOnly','Config');
-
+    protected function getCategoryFilterForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
         // fetch data about existing application pages of this component
         $cmds = array();
         $em = $this->cx->getDb()->getEntityManager();
@@ -327,30 +330,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang($this->getName(), $cmd, FRONTEND_LANG_ID);
 
-            // skip if page does not exist in current locale or has not been
-            // published
-            if (
-                !$page ||
-                !$page->isActive()
-            ) {
-                continue;
-            }
-
-            // skip invisible page (if excluded from search)
-            if (
-                $searchVisibleContentOnly == 'on' &&
-                !$page->isVisible()
-            ) {
-                continue;
-            }
-
-            // skip protected page (if excluded from search)
-            if (
-                $coreListProtectedPages == 'off' &&
-                $page->isFrontendProtected() &&
-                $this->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 continue;
             }
 
