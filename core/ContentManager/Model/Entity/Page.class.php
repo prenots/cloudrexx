@@ -347,7 +347,12 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
         $this->backendAccessId = 0;
 
         $this->setUpdatedAtToNow();
+    }
 
+    /**
+     * @inheritDoc
+     */
+    public function initializeValidators() {
         $this->validators = array(
             'lang' => new \CxValidateInteger(),
             'type' => new \CxValidateString(array('alphanumeric' => true, 'maxlength' => 255)),
@@ -2191,9 +2196,21 @@ class Page extends \Cx\Core_Modules\Widget\Model\Entity\WidgetParseTarget implem
         $template = parent::getContentTemplateForWidget($widgetName, $langId, $page, $channel);
 
         // load application template in case page is an application
-        if ($page->getType() == TYPE_APPLICATION) {
-            $contentTemplate = \Cx\Core\Core\Controller\Cx::getContentTemplateOfPageWithoutWidget($page, null, $channel);
-            $template->addBlock('APPLICATION_DATA', 'cx_application_data', $contentTemplate);
+        if (
+            $page->getType() == static::TYPE_APPLICATION &&
+            $template->placeholderExists('APPLICATION_DATA')
+        ) {
+            $contentTemplate =
+                \Cx\Core\Core\Controller\Cx::getContentTemplateOfPageWithoutWidget(
+                $page,
+                null,
+                $channel
+            );
+            $template->addBlock(
+                'APPLICATION_DATA',
+                'cx_application_data',
+                $contentTemplate
+            );
         }
 
         return $template;
