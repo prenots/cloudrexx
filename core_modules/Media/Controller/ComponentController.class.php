@@ -96,14 +96,17 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Find Media files by keyword $searchTerm and return them in a
+     * Find Media files by keyword and return them in a
      * two-dimensional array compatible to be used by Search component.
      *
-     * @param   string  $searchTerm The keyword to search by
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
      * @return  array   Two-dimensional array of Media files found by keyword
-     *                  $searchTerm.
      */
-    public function getMediaForSearchComponent($searchTerm) {
+    public function getMediaForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
 
         $media = new MediaLibrary();
         $settings = $media->createSettingsArray();
@@ -162,7 +165,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             }
 
             $data = array();
-            $media->getDirectoryTree($path, $searchTerm, $data, true);
+            $media->getDirectoryTree($path, $search->getTerm(), $data, true);
             if (empty($data['file']['name'])) {
                 continue;
             }
