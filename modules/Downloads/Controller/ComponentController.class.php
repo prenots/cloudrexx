@@ -197,17 +197,20 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Find Downloads by keyword $searchTerm and return them in a
+     * Find Downloads by keyword and return them in a
      * two-dimensional array compatible to be used by Search component.
      *
-     * @param   string  $searchTerm The keyword to search by
-     * @return  array   Two-dimensional array of Downloads found by keyword
-     *                  $searchTerm.
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
+     * @return  array   Two-dimensional array of Downloads found by keyword.
      *                  If integration into search component is disabled or
      *                  no Download matched the giving keyword, then an
      *                  empty array is retured.
      */
-    public function getDownloadsForSearchComponent($searchTerm) {
+    public function getDownloadsForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
         $result = array();
         $downloadLibrary = new DownloadsLibrary();
         $config = $downloadLibrary->getSettings();
@@ -236,7 +239,7 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // lookup downloads by given keyword
         if (!$download->loadDownloads(
             $filter,
-            $searchTerm,
+            $search->getTerm(),
             null,
             null,
             null,
