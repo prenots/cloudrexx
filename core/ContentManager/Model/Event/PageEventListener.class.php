@@ -256,9 +256,8 @@ class PageEventListener implements \Cx\Core\Event\Model\Entity\EventListener {
         $pageRepo = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $result = new \Cx\Core_Modules\Listing\Model\Entity\DataSet(
             $pageRepo->searchResultsForSearchModule(
-                $search->getTerm(),
-                \Env::get('cx')->getLicense(),
-                $search->getRootPage()
+                $search,
+                \Env::get('cx')->getLicense()
             )
         );
         $search->appendResult($result);

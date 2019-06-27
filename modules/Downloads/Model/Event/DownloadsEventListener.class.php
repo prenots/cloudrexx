@@ -57,7 +57,7 @@ class DownloadsEventListener extends DefaultEventListener
     public function SearchFindContent($search) {
         $result = new \Cx\Core_Modules\Listing\Model\Entity\DataSet(
             $this->getComponent('Downloads')->getDownloadsForSearchComponent(
-                $search->getTerm()
+                $search
             )
         );
         $search->appendResult($result);

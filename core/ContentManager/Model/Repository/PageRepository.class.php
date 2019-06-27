@@ -903,7 +903,9 @@ class PageRepository extends EntityRepository {
      * Please do not use this anywhere else, write a search method with proper results instead. Ideally, this
      * method would then be invoked by searchResultsForSearchModule().
      *
-     * @param string $string the string to match against.
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
      * @return array (
      *     'Score' => int
      *     'Title' => string
@@ -911,14 +913,19 @@ class PageRepository extends EntityRepository {
      *     'Link' => string
      * )
      */
-    public function searchResultsForSearchModule($string, $license, $rootPage = null) {
-        if ($string == '') {
+    public function searchResultsForSearchModule(
+        \Cx\Core_Modules\Search\Controller\Search $search,
+        $license
+    ) {
+        if ($search->getTerm() == '') {
             return array();
         }
 
+        $string = $search->getTerm();
+        $rootPage = $search->getRootPage();
+
 //TODO: use MATCH AGAINST for score
 //      Doctrine can be extended as mentioned in http://groups.google.com/group/doctrine-user/browse_thread/thread/69d1f293e8000a27
-//TODO: shorten content in query rather than in php
 
         $qb = $this->em->createQueryBuilder();
         $qb->add('select', 'p')
@@ -941,34 +948,10 @@ class PageRepository extends EntityRepository {
            ->setParameter('searchString', '%'.$string.'%')
            ->setParameter('searchStringEscaped', '%'.contrexx_raw2xhtml($string).'%');
         $pages   = $qb->getQuery()->getResult();
-        $config  = \Env::get('config');
         $results = array();
         foreach($pages as $page) {
-            // skip non-published page
-            if (!$page->isActive()) {
-                continue;
-            }
-
-            // skip invisible page (if excluded from search)
-            if (
-                $config['searchVisibleContentOnly'] == 'on' &&
-                !$page->isVisible()
-            ) {
-                continue;
-            }
-
-            // skip protected page (if excluded from search)
-            if (
-                $config['coreListProtectedPages'] == 'off' &&
-                $page->isFrontendProtected() &&
-                $page->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
-                continue;
-            }
-
-            // skip page if not located within specific content branch
-            if ($rootPage && strpos($page->getPath(), $rootPage->getPath()) !== 0) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 continue;
             }
 
@@ -976,8 +959,8 @@ class PageRepository extends EntityRepository {
             $results[] = array(
                 'Score'     => 100,
                 'Title'     => $page->getTitle(),
-                'Content'   => \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent(
-                    $page->getContent(), $config['searchDescriptionLength']
+                'Content'   => $search->parseContentForResultDescription(
+                    $page->getContent()
                 ),
                 'Link'      => (string) \Cx\Core\Routing\Url::fromPage($page),
                 'Component' => $page->getComponentController()->getName(),
