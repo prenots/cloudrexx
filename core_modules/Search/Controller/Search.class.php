@@ -253,6 +253,10 @@ class Search
      * @return \Cx\Core\ContentManager\Model\Entity\Page Page of module
      */
     public function getAccessablePage($module, $command = '') {
+        // abort in case no component is specified
+        if (empty($module)) {
+            return null;
+        }
         $pageRepo = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $criteria = array(
             'module' => $module,
