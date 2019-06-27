@@ -64,29 +64,35 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
     public function SearchFindContent($search)
     {
         $result = new \Cx\Core_Modules\Listing\Model\Entity\DataSet(
-            $this->getNewsForSearchComponent(contrexx_raw2db($search->getTerm()))
+            $this->getNewsForSearchComponent($search)
         );
         $search->appendResult($result);
     }
 
     /**
-     * Find News by keyword $searchTerm and return them in a
+     * Find News by keyword and return them in a
      * two-dimensional array compatible to be used by Search component.
      *
-     * @param string $searchTerm The keyword to search by
-     * @return array Two-dimensional array of News found by keyword $searchTerm.
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
+     * @return array Two-dimensional array of News found by keyword
      *               If integration into search component is disabled or
      *               no News matched the giving keyword, then an
      *               empty array is returned.
      */
-    protected function getNewsForSearchComponent($searchTerm)
-    {
+    protected function getNewsForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
         try {
-            $arrCategoryIds = $this->getCategoryFilterForSearchComponent();
+            $arrCategoryIds = $this->getCategoryFilterForSearchComponent(
+                $search
+            );
         } catch (NewsInternalException $e) {
             return array();
         }
 
+        $searchTerm = contrexx_raw2db($search->getTerm());
         $newsLib   = new \Cx\Core_Modules\News\Controller\NewsLibrary();
         $objResult = $newsLib->getNewsForSearchTerm($arrCategoryIds, $searchTerm);
         if (!$objResult) {
@@ -128,6 +134,9 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
     /**
      * Get category Ids from the published application pages of this component
      *
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
      * @return array List of published category IDs.
      *               An empty array is returned, in case an application
      *               page is published that has no category restriction set
@@ -135,18 +144,9 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
      * @throws NewsInternalException In case no application page of this
      *                               component is published
      */
-    protected function getCategoryFilterForSearchComponent()
-    {
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-        $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue(
-            'coreListProtectedPages',
-            'Config'
-        );
-        $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue(
-            'searchVisibleContentOnly',
-            'Config'
-        );
-
+    protected function getCategoryFilterForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
         // fetch data about existing application pages of this component
         $cmds     = array();
         $em       = $this->cx->getDb()->getEntityManager();
@@ -165,31 +165,11 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang('News', $cmd, FRONTEND_LANG_ID);
 
-            // skip if the page does not exist in current locale or
-            // has not been published
-            if (
-                !$page ||
-                !$page->isActive()
-            ) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 continue;
             }
 
-            // skip invisible page (if excluded from search)
-            if (
-                $searchVisibleContentOnly == 'on' &&
-                !$page->isVisible()
-            ) {
-                continue;
-            }
-
-            // skip protected page (if excluded from search)
-            if (
-                $coreListProtectedPages == 'off' &&
-                $page->isFrontendProtected() &&
-                $this->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
-                continue;
             }
 
             $cmdCatIds = array();
