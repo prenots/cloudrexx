@@ -948,34 +948,10 @@ class PageRepository extends EntityRepository {
            ->setParameter('searchString', '%'.$string.'%')
            ->setParameter('searchStringEscaped', '%'.contrexx_raw2xhtml($string).'%');
         $pages   = $qb->getQuery()->getResult();
-        $config  = \Env::get('config');
         $results = array();
         foreach($pages as $page) {
-            // skip non-published page
-            if (!$page->isActive()) {
-                continue;
-            }
-
-            // skip invisible page (if excluded from search)
-            if (
-                $config['searchVisibleContentOnly'] == 'on' &&
-                !$page->isVisible()
-            ) {
-                continue;
-            }
-
-            // skip protected page (if excluded from search)
-            if (
-                $config['coreListProtectedPages'] == 'off' &&
-                $page->isFrontendProtected() &&
-                $page->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
-                continue;
-            }
-
-            // skip page if not located within specific content branch
-            if ($rootPage && strpos($page->getPath(), $rootPage->getPath()) !== 0) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 continue;
             }
 
