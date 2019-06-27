@@ -2098,15 +2098,6 @@ JSCODE;
      */
     public function searchResultsForSearchModule(\Cx\Core_Modules\Search\Controller\Search $search)
     {
-        //get the config site values
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-        $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue('coreListProtectedPages','Config');
-        $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue('searchVisibleContentOnly','Config');
-
-        //get the config otherConfigurations value
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'otherConfigurations','Yaml');
-        $searchDescriptionLength  = \Cx\Core\Setting\Controller\Setting::getValue('searchDescriptionLength','Config');
-
         // fetch data about existing application pages of this component
         $cmds = array();
         $em = $this->cx->getDb()->getEntityManager();
@@ -2124,32 +2115,8 @@ JSCODE;
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang($this->moduleName, $cmd, FRONTEND_LANG_ID);
 
-            // skip if page does not exist in current locale or has not been
-            // published
-            if (
-                !$page ||
-                !$page->isActive()
-            ) {
-                unset($cmds[$idx]);
-                continue;
-            }
-
-            // skip invisible page (if excluded from search)
-            if (
-                $searchVisibleContentOnly == 'on' &&
-                !$page->isVisible()
-            ) {
-                unset($cmds[$idx]);
-                continue;
-            }
-
-            // skip protected page (if excluded from search)
-            if (
-                $coreListProtectedPages == 'off' &&
-                $page->isFrontendProtected() &&
-                $page->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 unset($cmds[$idx]);
                 continue;
             }
@@ -2226,10 +2193,9 @@ JSCODE;
                 if ($contextType == 'title') {
                     $title = $inputFieldValue;
                 } elseif ($contextType == 'content') {
-                    $content = \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent(
-                                    $inputFieldValue,
-                                    $searchDescriptionLength
-                                );
+                    $content = $search->parseContentForResultDescription(
+                        $inputFieldValue
+                    );
                 }
             }
 

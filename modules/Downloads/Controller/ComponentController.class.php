@@ -197,17 +197,20 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     }
 
     /**
-     * Find Downloads by keyword $searchTerm and return them in a
+     * Find Downloads by keyword and return them in a
      * two-dimensional array compatible to be used by Search component.
      *
-     * @param   string  $searchTerm The keyword to search by
-     * @return  array   Two-dimensional array of Downloads found by keyword
-     *                  $searchTerm.
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
+     * @return  array   Two-dimensional array of Downloads found by keyword.
      *                  If integration into search component is disabled or
      *                  no Download matched the giving keyword, then an
      *                  empty array is retured.
      */
-    public function getDownloadsForSearchComponent($search) {
+    public function getDownloadsForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
         $result = array();
         $downloadLibrary = new DownloadsLibrary();
         $config = $downloadLibrary->getSettings();
@@ -222,7 +225,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         // check for valid published application page
         $filter = null;
         try {
-            $arrCategoryIds = $this->getCategoryFilterForSearchComponent($search);
+            $arrCategoryIds = $this->getCategoryFilterForSearchComponent(
+                $search
+            );
 
             // set category filter if we have to restrict search by
             // any category IDs
@@ -295,6 +300,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * Get published category IDs (as application pages)
      *
      *
+     * @param \Cx\Core_Modules\Search\Controller\Search The search instance
+     *                                                  that triggered the
+     *                                                  search event
      * @return  array   List of published category IDs.
      *                  An empty array is retured, in case an application 
      *                  page is published that has no category restriction set
@@ -302,11 +310,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @throws  DownloadsInternalException In case no application page of this
      *                                  component is published
      */
-    protected function getCategoryFilterForSearchComponent($search) {
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-        $coreListProtectedPages   = \Cx\Core\Setting\Controller\Setting::getValue('coreListProtectedPages','Config');
-        $searchVisibleContentOnly = \Cx\Core\Setting\Controller\Setting::getValue('searchVisibleContentOnly','Config');
-
+    protected function getCategoryFilterForSearchComponent(
+        \Cx\Core_Modules\Search\Controller\Search $search
+    ) {
         // fetch data about existing application pages of this component
         $cmds = array();
         $em = $this->cx->getDb()->getEntityManager();
@@ -325,38 +331,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang($this->getName(), $cmd, FRONTEND_LANG_ID);
 
-            // skip if page does not exist in current locale or has not been
-            // published
-            if (
-                !$page ||
-                !$page->isActive()
-            ) {
+            // skip pages that are not eligible to be listed in search results
+            if (!$search->isPageListable($page)) {
                 continue;
-            }
-
-            // skip invisible page (if excluded from search)
-            if (
-                $searchVisibleContentOnly == 'on' &&
-                !$page->isVisible()
-            ) {
-                continue;
-            }
-
-            // skip protected page (if excluded from search)
-            if (
-                $coreListProtectedPages == 'off' &&
-                $page->isFrontendProtected() &&
-                $this->getComponent('Session')->getSession() &&
-                !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
-            ) {
-                continue;
-            }
-
-            // check if page is located within the searchable tree
-            if ($search->getRootPage()) {
-                if (strpos($page->getPath(), $search->getRootPage()->getPath()) !== 0) {
-                    continue;
-                }
             }
 
             // in case the CMD is an integer, then

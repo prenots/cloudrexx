@@ -250,77 +250,59 @@ class Search
      * returned!
      * @param string $module Module name to find page for
      * @param string $command (optional) Command limitation
+     * @param boolean $allowEmptyCommand If set to TRUE and $command is set to
+     *                                   an empty string, then only application
+     *                                   pages having an empty cmd set will be
+     *                                   taken into consideration.
      * @return \Cx\Core\ContentManager\Model\Entity\Page Page of module
      */
-    public function getAccessablePage($module, $command = '') {
+    public function getAccessablePage(
+        $module,
+        $command = '',
+        $allowEmptyCommand = false
+    ) {
+        // abort in case no component is specified
+        if (empty($module)) {
+            return null;
+        }
         $pageRepo = \Env::get('em')->getRepository('Cx\Core\ContentManager\Model\Entity\Page');
         $criteria = array(
             'module' => $module,
             'lang'   => FRONTEND_LANG_ID,
             'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
         );
-        if (!empty($command)) {
+        if (
+            $allowEmptyCommand ||
+            !empty($command)
+        ) {
             $criteria['cmd'] = $command;
         }
 
-        // only list results in case the associated page of the module is active
+        // fetch component application page
         $page = $pageRepo->findOneBy($criteria);
-        if (!$page || !$page->isActive()) {
-            return null;
+
+        // check if page is eligible to be listed
+        if ($this->isPageListable($page)) {
+            return $page;
         }
 
-        // don't list results in case the user doesn't have sufficient rights to access the page
-        // and the option to list only unprotected pages is set (coreListProtectedPages)
-        $config = \Env::get('config');
+        // If $command has not been set and if that is allowed,
+        // then we shall abort here. This is generally the case
+        // when we did already fetch the main application page
+        // of the component $module
         if (
-            $config['coreListProtectedPages'] == 'off' &&
-            $page->isFrontendProtected() &&
-            $page->getComponent('Session')->getSession() &&
-            !\Permission::checkAccess($page->getFrontendAccessId(), 'dynamic', true)
+            $allowEmptyCommand &&
+            empty($command)
         ) {
             return null;
         }
-
-        // In case a root node was specified, we have to check if the page is in
-        // the root page's branch.
-        if ($this->rootPage) {
-            if (strpos($page->getPath(), $this->rootPage->getPath()) !== 0) {
-                return null;
-            }
-        }
-        // In case we are handling the search result of a module ($module is not empty),
-        // we have to check if we are allowed to list the results even when the associated module
-        // page is invisible.
-        // We don't have to check for regular pages ($module is empty) here, because they
-        // are handled by an other method than this one.
-        if ($config['searchVisibleContentOnly'] == 'on' && !empty($module)) {
-            if (!$page->isVisible()) {
-                // If $command is set, then this would indicate that we have
-                // checked the visibility of the detail view page of the module.
-                // Those pages are almost always invisible.
-                // Therefore, we shall make the decision if we are allowed to list
-                // the results based on the visibility of the main module page
-                // (empty $command).
-                if (!empty($command)) {
-                    $mainModulePage = $pageRepo->findOneBy(array(
-                        'module' => $module,
-                        'lang' => FRONTEND_LANG_ID,
-                        'type' => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
-                        'cmd' => '',
-                    ));
-                    if (   !$mainModulePage
-                        || !$mainModulePage->isActive()
-                        || !$mainModulePage->isVisible()) {
-                        // main module page is also invisible
-                        return null;
-                    }
-                } else {
-                    // page is invisible
-                    return null;
-                }
-            }
-        }
-        return $page;
+        // If $command is set, then this would indicate that we have
+        // checked the visibility of the detail view page of the module.
+        // Those pages are almost always invisible.
+        // Therefore, we shall make the decision if we are allowed to list
+        // the results based on the visibility of the main module page
+        // (empty $command).
+        return $this->getAccessablePage($module, '', true);
     }
 
 
@@ -359,8 +341,6 @@ class Search
         if (!$objResult || $objResult->EOF) {
             return array();
         }
-        $config = \Env::get('config');
-        $max_length = intval($config['searchDescriptionLength']);
         $arraySearchResults = array();
         while (!$objResult->EOF) {
             if (is_callable($pagevar)) {
@@ -372,9 +352,12 @@ class Search
             if (is_callable($parseSearchData)) {
                 $parseSearchData($objResult->fields);
             }
-            $content = (isset($objResult->fields['content'])
-                ? trim($objResult->fields['content']) : '');
-            $content = \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent($content, $max_length);
+            $content = '';
+            if (isset($objResult->fields['content'])) {
+                $content = $this->parseContentForResultDescription(
+                    $objResult->fields['content']
+                );
+            }
             $score = $objResult->fields['score'];
             $scorePercent = ($score >= 1 ? 100 : intval($score * 100));
 //TODO: Muss noch geändert werden, sobald das Ranking bei News funktioniert
@@ -396,6 +379,21 @@ class Search
         return $arraySearchResults;
     }
 
+    /**
+     * Extract plaintext from HTML code and ensure it's length is within
+     * the configured max length for search result descriptions.
+     *
+     * @param   string  $content    The HTML content to parse
+     * @return  string  Plaintext excerpt of $content cut to the configured
+     *                  length of the global option searchDescriptionLength
+     */
+    public function parseContentForResultDescription($content) {
+        $maxLength = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchDescriptionLength',
+            'Config'
+        );
+        return static::shortenSearchContent($content, $maxLength);
+    }
 
     /**
      * Shorten and format the search result content
@@ -410,6 +408,7 @@ class Search
      */
     public static function shortenSearchContent($content, $max_length=NULL)
     {
+        $content = trim($content);
         $content = contrexx_html2plaintext($content);
 
         // Omit the content when there is no letter in it
@@ -423,6 +422,85 @@ class Search
             $content = join(' ', $arrayContent).' ...';
         }
         return $content;
+    }
+
+    /**
+     * Check if a specific page (identified by argument $page) is eligible
+     * to be listed in the search results
+     *
+     * @param   \Cx\Core\ContentManager\Model\Entity\Page $page The page to be
+     *                                         checked if it is eligible to be
+     *                                         listed
+     * @return  boolean Whether or not the supplied page is eligible to be
+     *                  listed
+     */
+    public function isPageListable($page) {
+        // skip non-valid page
+        if (!($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)) {
+            return false;
+        }
+
+        // skip non-published page
+        if (!$page->isActive()) {
+            return false;
+        }
+
+        // skip invisible page (if excluded from search)
+        if (
+            !$this->listHiddenPages() &&
+            !$page->isVisible()
+        ) {
+            return false;
+        }
+
+        // skip protected page (if excluded from search)
+        if (
+            !$this->listProtectedPages() &&
+            $page->isFrontendProtected() &&
+            $page->getComponent('Session')->getSession() &&
+            !\Permission::checkAccess(
+                $page->getFrontendAccessId(),
+                'dynamic',
+                true
+            )
+        ) {
+            return false;
+        }
+
+        // skip page if not located within specific content branch
+        if (
+            $this->getRootPage() &&
+            !$page->getNode()->isChildOf($this->getRootPage()->getNode())
+        ) {
+            return false;
+        }
+
+        // page meets all requirements to be listed in the search results
+        return true;
+    }
+
+    /**
+     * Return if the system has been configured to list hidden pages or not
+     * @return  boolean Whether or not if hidden pages shall be listed
+     */
+    protected function listHiddenPages() {
+        $listOnlyHiddenPages = \Cx\Core\Setting\Controller\Setting::getValue(
+            'searchVisibleContentOnly',
+            'Config'
+        );
+        return $listOnlyHiddenPages == 'off';
+    }
+
+    /**
+     * Return if the system has been configured to list protected pages or not
+     * @return  boolean Whether or not if protected pages shall be listed
+     */
+    protected function listProtectedPages() {
+        $listProtectedPages = \Cx\Core\Setting\Controller\Setting::getValue(
+            'coreListProtectedPages',
+            'Config'
+        );
+        return $listProtectedPages == 'on';
     }
 
     /**
