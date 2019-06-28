@@ -99,11 +99,6 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             return array();
         }
 
-        \Cx\Core\Setting\Controller\Setting::init('Config', 'site','Yaml');
-        $maxLength = \Cx\Core\Setting\Controller\Setting::getValue(
-            'searchDescriptionLength',
-            'Config'
-        );
         $arrayOfSearchResult = array();
         while (!$objResult->EOF) {
             $score        = $objResult->fields['score'];
@@ -111,10 +106,7 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             $date         = !empty($objResult->fields['date'])
                 ? $objResult->fields['date'] : null;
             $content = !empty($objResult->fields['content'])
-                ? \Cx\Core_Modules\Search\Controller\Search::shortenSearchContent(
-                    $objResult->fields['content'],
-                    $maxLength
-                )
+                ? $search->parseContentForResultDescription($objResult->fields['content'])
                 : '';
 
             $arrayOfSearchResult[] = array(
