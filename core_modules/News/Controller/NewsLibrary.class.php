@@ -3793,7 +3793,7 @@ EOF;
                 FRONTEND_LANG_ID,
                 array('newsid' => $newsId)
             );
-            $pageUrlResult = $url->toString(false);
+            $pageUrlResult = (string) $url;
         } else {
             $pageUrlResult = preg_replace(
                 '/\\[\\[([A-Z0-9_-]+)\\]\\]/',
