@@ -180,8 +180,8 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
             // in case the CMD is hypen '-' seperated integer(eg: '2-3'),
             // then the integer values does represent an ID of category
             // which has to be applied to the search filter
-            if (strpos($cmd, '-') !== false) {
-                $cmdCatIds = array_filter(explode('-', $cmd));
+            if (preg_match('/^\d+(-\d+)*$/', $cmd)) {
+                $cmdCatIds = explode('-', $cmd);
             }
 
             // in case the CMD is '(details|archive)<Category ID>'
@@ -194,11 +194,11 @@ class NewsEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventListener
                 $cmdCatIds = array(substr($cmd, 7));
             }
 
-            // in case the CMD is comma ',' seperated (eg: 'archive2,3'),
+            // in case the CMD is comma '-' seperated (eg: 'archive2-3'),
             // then the integer values does represent an ID of category
             // which has to be applied to the search filter
-            if ((substr($cmd, 0, 7) == 'archive') && strpos($cmd, ',')) {
-                $cmdCatIds = array_filter(explode(',', substr($cmd, 7)));
+            if (preg_match('/^archive\d+(-\d+)*$/', $cmd)) {
+                $cmdCatIds = explode('-', substr($cmd, 7));
             }
 
             if (!empty($cmdCatIds)) {
