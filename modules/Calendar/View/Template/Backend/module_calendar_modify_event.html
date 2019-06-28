@@ -382,13 +382,8 @@
             selectedDates.push(cx.jQuery(this).val());
         });
 
-        $J( "#seriesExeptionsList" ).html( "" );
-        exceptionDates = generateExecptionDates();
-        $J.each(exceptionDates, function(key, v) {
-            if ($J.inArray(key, selectedDates) != -1) {
-                addExeptionList(key, v);
-            }
-        });
+        cx.jQuery('#seriesExeptionsList').html('');
+        generateExecptionDates(selectedDates);
 
         var preSelected = cx.jQuery("#activeLocales").val();
         cx.jQuery("#activeLocales").chosen({
