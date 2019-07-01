@@ -641,6 +641,22 @@ class Newsletter extends NewsletterLib
                     } else {
                         array_push($arrStatusMessage['error'], $_ARRAYLANG['TXT_NOT_VALID_EMAIL']);
                     }
+            } else if (
+                empty($code) &&
+                $isAccessRecipient &&
+                $objUser->getEmail() != $recipientEmail
+            ) {
+                // user is signed-in, but submitted the sign-up form with a
+                // different email address
+                $msg = sprintf(
+                    $_ARRAYLANG['TXT_NEWSLETTER_SUBSCRIBER_CANT_SUBSCRIBE'],
+                    $objUser->getEmail()
+                );
+                array_push(
+                    $arrStatusMessage['error'],
+                    $msg
+                );
+                $showForm = false;
             } else if ($captchaOk) {
                 // update subscribed lists of access user
                 $arrAssociatedLists = array_unique($arrAssociatedLists);
