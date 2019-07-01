@@ -2272,7 +2272,7 @@ CREATE TABLE `contrexx_module_knowledge_articles` (
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `hits` int(11) NOT NULL DEFAULT '0',
   `votes` int(11) NOT NULL DEFAULT '0',
-  `votevalue` int(11) NOT NULL DEFAULT '0',
+  `votevalue` decimal(10,2) NOT NULL DEFAULT '0.00',
   `sort` int(11) NOT NULL DEFAULT '0',
   `date_created` int(14) NOT NULL DEFAULT '0',
   `date_updated` int(14) NOT NULL DEFAULT '0',
