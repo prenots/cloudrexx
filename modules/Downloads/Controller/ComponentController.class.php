@@ -329,6 +329,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         foreach ($cmds as $cmd) {
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang($this->getName(), $cmd, FRONTEND_LANG_ID);
+            if (!$page) {
+                continue;
+            }
 
             // skip pages that are not eligible to be listed in search results
             if (!$search->isPageListable($page)) {

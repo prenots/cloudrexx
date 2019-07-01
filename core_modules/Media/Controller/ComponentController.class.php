@@ -135,6 +135,9 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
                 'lang'   => FRONTEND_LANG_ID,
                 'type'   => \Cx\Core\ContentManager\Model\Entity\Page::TYPE_APPLICATION,
             ));
+            if (!$page) {
+                continue;
+            }
 
             // skip pages that are not eligible to be listed in search results
             if (!$search->isPageListable($page)) {

@@ -2114,6 +2114,10 @@ JSCODE;
         foreach ($cmds as $idx => $cmd) {
             // fetch application page with specific CMD from current locale
             $page = $pageRepo->findOneByModuleCmdLang($this->moduleName, $cmd, FRONTEND_LANG_ID);
+            if (!$page) {
+                unset($cmds[$idx]);
+                continue;
+            }
 
             // skip pages that are not eligible to be listed in search results
             if (!$search->isPageListable($page)) {

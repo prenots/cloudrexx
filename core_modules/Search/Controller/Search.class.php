@@ -435,11 +435,6 @@ class Search
      *                  listed
      */
     public function isPageListable($page) {
-        // skip non-valid page
-        if (!($page instanceof \Cx\Core\ContentManager\Model\Entity\Page)) {
-            return false;
-        }
-
         // skip non-published page
         if (!$page->isActive()) {
             return false;
