@@ -691,14 +691,13 @@ class Newsletter extends NewsletterLib
             }
         }
 
-        $this->_createDatesDropdown($recipientBirthday);
-
         if (count($arrStatusMessage['ok']) > 0) {
             $this->_objTpl->setVariable('NEWSLETTER_OK_MESSAGE', implode('<br />', $arrStatusMessage['ok']));
             $this->_objTpl->parse('newsletter_ok_message');
         } else {
             $this->_objTpl->hideBlock('newsletter_ok_message');
         }
+
         if (count($arrStatusMessage['error']) > 0) {
             $this->_objTpl->setVariable('NEWSLETTER_ERROR_MESSAGE', implode('<br />', $arrStatusMessage['error']));
             $this->_objTpl->parse('newsletter_error_message');
@@ -706,15 +705,17 @@ class Newsletter extends NewsletterLib
             $this->_objTpl->hideBlock('newsletter_error_message');
         }
 
-        $languages = '<select name="language" class="selectLanguage" id="language" >';
-        $languages .= '<option value="0">'.$_ARRAYLANG['TXT_NEWSLETTER_LANGUAGE_PLEASE_CHOSE'].'</option>';
-        foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
-            $selected = ($frontendLanguage['id'] == $recipientLanguage) ? 'selected' : '';
-            $languages .= '<option value="'.$frontendLanguage['id'].'" '.$selected.'>'.contrexx_raw2xhtml($frontendLanguage['name']).'</option>';
-        }
-        $languages .= '</select>';
-
         if ($showForm) {
+            $this->_createDatesDropdown($recipientBirthday);
+
+            $languages = '<select name="language" class="selectLanguage" id="language" >';
+            $languages .= '<option value="0">'.$_ARRAYLANG['TXT_NEWSLETTER_LANGUAGE_PLEASE_CHOSE'].'</option>';
+            foreach (\FWLanguage::getActiveFrontendLanguages() as $frontendLanguage) {
+                $selected = ($frontendLanguage['id'] == $recipientLanguage) ? 'selected' : '';
+                $languages .= '<option value="'.$frontendLanguage['id'].'" '.$selected.'>'.contrexx_raw2xhtml($frontendLanguage['name']).'</option>';
+            }
+            $languages .= '</select>';
+
             if ($isAccessRecipient) {
                 if ($this->_objTpl->blockExists('recipient_profile')) {
                     $this->_objTpl->hideBlock('recipient_profile');
