@@ -160,7 +160,7 @@ class KnowledgeArticles
                     'active'        => intval($objRs->fields['active']),
                     'hits'          => intval($objRs->fields['hits']),
                     'votes'         => intval($objRs->fields['votes']),
-                    'votevalue'     => intval($objRs->fields['value']),
+                    'votevalue'     => $objRs->fields['value'],
                     'category'      => intval($objRs->fields['category']),
                     'date_created'  => intval($objRs->fields['date_created']),
                     'date_updated'  => intval($objRs->fields['date_updated']),
@@ -485,7 +485,7 @@ class KnowledgeArticles
     {
         global $objDatabase;
 
-        $value = intval($value);
+        $value = contrexx_input2float($value);
         $id = intval($id);
 
         $query = "  UPDATE ".DBPREFIX."module_knowledge_articles

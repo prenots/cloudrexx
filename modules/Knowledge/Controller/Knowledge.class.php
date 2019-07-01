@@ -845,7 +845,7 @@ class Knowledge extends KnowledgeLibrary
     {
         $id = intval($_POST['id']);
 
-        $rated = intval($_POST['rated']);
+        $rated = contrexx_input2float($_POST['rated']);
         if (!isset($_COOKIE['knowledge_rating_'.$id])) {
             try {
                 $this->articles->vote($id, $rated);
