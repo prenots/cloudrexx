@@ -1408,3 +1408,5 @@ $_ARRAYLANG['TXT_CORE_ACTIVE'] = "Active";
 $_ARRAYLANG['TXT_CORE_INACTIVE'] = 'Inactive';
 $_ARRAYLANG['TXT_CORE_SCHEDULED_ACTIVE'] = 'Activated by scheduled publishing';
 $_ARRAYLANG['TXT_CORE_SCHEDULED_INACTIVE'] = 'Deactivated due to scheduled publishing';
+
+$_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS'] = 'The class WYSIWYG does not allow the addition of child elements';

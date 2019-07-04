@@ -1475,3 +1475,5 @@ $_ARRAYLANG['TXT_CORE_ACTIVE'] = "Aktiv";
 $_ARRAYLANG['TXT_CORE_INACTIVE'] = 'Inaktiv';
 $_ARRAYLANG['TXT_CORE_SCHEDULED_ACTIVE'] = 'Zeitgesteuerte Veröffentlichung aktiv';
 $_ARRAYLANG['TXT_CORE_SCHEDULED_INACTIVE'] = 'Deaktiviert aufgrund der zeitgesteuerten Veröffentlichung';
+
+$_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS'] = 'Die Klasse WYSIWYG erlaubt das Hinzufügen von Kindelementen nicht';

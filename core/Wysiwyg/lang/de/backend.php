@@ -90,6 +90,3 @@ $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_STYLES'] = 'Formatierung';
 $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_COLORS'] = 'Farben';
 $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_TOOLS'] = 'Werkzeuge';
 $_ARRAYLANG['TXT_WYSIWYG_TOOLBAR_BIDI'] = 'Textrichtung';
-
-// Error Messages
-$_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS'] = 'Die Klasse WYSIWYG erlaubt das Hinzufügen von Kindelementen nicht';
