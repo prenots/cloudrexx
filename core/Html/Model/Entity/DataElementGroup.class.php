@@ -81,7 +81,7 @@ class DataElementGroup extends DataElement {
                 $option->setAttribute('value', $key);
             } else {
                 $option->setAttribute('name', $name);
-                $option->setAttribute('value', $value);
+                $option->setAttribute('value', $key);
             }
             if (in_array($key, $selectedValues)) {
                 $option->setAttribute('checked');
