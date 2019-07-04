@@ -426,7 +426,7 @@ class Wysiwyg extends \Cx\Core\Html\Model\Entity\HtmlElement
     {
         global $_ARRAYLANG;
 
-        throw new \Cx\Core\Error\Model\Entity\ShinyException(
+        throw new \Exception(
             $_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS']
         );
     }
@@ -444,7 +444,7 @@ class Wysiwyg extends \Cx\Core\Html\Model\Entity\HtmlElement
     {
         global $_ARRAYLANG;
 
-        throw new \Cx\Core\Error\Model\Entity\ShinyException(
+        throw new \Exception(
             $_ARRAYLANG['TXT_CORE_WYSIWYG_DOES_NOT_ALLOW_CHILD_ELEMENTS']
         );
     }
