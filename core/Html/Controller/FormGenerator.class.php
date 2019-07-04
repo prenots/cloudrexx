@@ -408,30 +408,28 @@ class FormGenerator {
     public function getDataElement($name, $title, $type, $length, $value, &$options, $entityId) {
         global $_ARRAYLANG, $_CORELANG;
 
-        if (isset($options['valueCallback'])) {
-            $value = $this->viewGenerator->callValueCallback(
-                $options['valueCallback'],
-                $value,
-                $name,
-                array(),
-                $options
-            );
+        try {
+            if (isset($options['valueCallback'])) {
+                $value = \Cx\Core\Html\Controller\ViewGenerator::callCallbackByInfo(
+                    $options['valueCallback'],
+                    array(
+                        'fieldvalue' => $value,
+                        'fieldname' => $name,
+                        'rowData' => array(),
+                        'fieldoption' => $options,
+                        'vgId' => $this->viewGenerator->getViewId(),
+                    )
+                );
+            }
+        } catch (\Exception $e) {
+            \Message::add($e->getMessage(), \Message::CLASS_ERROR);
         }
+        try {
+            if (isset($options['formfield'])) {
+                $formFieldGenerator = $options['formfield'];
 
-        if (isset($options['formfield'])) {
-            $formFieldGenerator = $options['formfield'];
-            $formField = '';
-            /* We use json to do the callback. The 'else if' is for backwards compatibility so you can declare
-             * the function directly without using json. This is not recommended and not working over session */
-            if (
-                is_array($formFieldGenerator) &&
-                isset($formFieldGenerator['adapter']) &&
-                isset($formFieldGenerator['method'])
-            ) {
-                $json = new \Cx\Core\Json\JsonData();
-                $jsonResult = $json->data(
-                    $formFieldGenerator['adapter'],
-                    $formFieldGenerator['method'],
+                $formField = \Cx\Core\Html\Controller\ViewGenerator::callCallbackByInfo(
+                    $formFieldGenerator,
                     array(
                         'name' => $title,
                         'type' => $type,
@@ -441,19 +439,17 @@ class FormGenerator {
                         'id' => $entityId,
                     )
                 );
-                if ($jsonResult['status'] == 'success') {
-                    $formField = $jsonResult["data"];
-                }
-            } else if (is_callable($formFieldGenerator)){
-                $formField = $formFieldGenerator($title, $type, $length, $value, $options, $entityId);
-            }
 
-            if (is_a($formField, 'Cx\Core\Html\Model\Entity\HtmlElement')) {
-                return $formField;
-            } else {
-                $value = $formField;
+                if (is_a($formField, 'Cx\Core\Html\Model\Entity\HtmlElement')) {
+                    return $formField;
+                } else {
+                    $value = $formField;
+                }
             }
+        } catch (\Exception $e) {
+            \Message::add($e->getMessage(), \Message::CLASS_ERROR);
         }
+
         if (isset($options['showDetail']) && $options['showDetail'] === false) {
             return '';
         }
@@ -651,13 +647,15 @@ class FormGenerator {
                 if (empty($data)) {
                     $value = 204;
                 }
-                $options = \Cx\Core\Country\Controller\Country::getMenuoptions($value);
+                $menuoptions = \Cx\Core\Country\Controller\Country::getMenuoptions($value);
                 $select = new \Cx\Core\Html\Model\Entity\DataElement(
                     $title,
                     '',
                     \Cx\Core\Html\Model\Entity\DataElement::TYPE_SELECT
                 );
-                $select->addChild(new \Cx\Core\Html\Model\Entity\TextElement($options));
+                $select->addChild(
+                    new \Cx\Core\Html\Model\Entity\TextElement($menuoptions)
+                );
                 if (isset($options['attributes'])) {
                     $select->setAttributes($options['attributes']);
                 }
@@ -810,6 +808,15 @@ class FormGenerator {
                     $textarea->setAttributes($options['attributes']);
                 }
                 return $textarea;
+                break;
+            case 'div':
+                $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+                $text = new \Cx\Core\Html\Model\Entity\TextElement($value);
+                $wrapper->addChild($text);
+                if (isset($options['attributes'])) {
+                    $wrapper->setAttributes($options['attributes']);
+                }
+                return $wrapper;
                 break;
             case 'phone':
                 // input field with type phone
@@ -1037,6 +1044,47 @@ CODE;
 
                 return $div;
                 break;
+            case 'password':
+                $input = new \Cx\Core\Html\Model\Entity\DataElement($title, '');
+                if (isset($options['validValues'])) {
+                    $input->setValidator(
+                        new \Cx\Core\Validate\Model\Entity\RegexValidator(
+                            '/^' . $options['validValues'] . '$/'
+                        )
+                    );
+                }
+                $input->setAttribute('type', 'password');
+                $input->setClass('form-control');
+                if (isset($options['readonly']) && $options['readonly']) {
+                    $input->setAttribute('disabled');
+                }
+                if (isset($options['attributes'])) {
+                    $input->setAttributes($options['attributes']);
+                }
+                if (!isset($options['mode']) || $options['mode'] != 'nocomplete') {
+                    return $input;
+                }
+                // in order to circumvent forced autocompletion by modern
+                // browsers we need to add an additional field and set the type
+                // "dynamically"...
+                // For more info see CLX-2388
+                $container = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+                $dummyInput = new \Cx\Core\Html\Model\Entity\DataElement($title, '');
+                $dummyInput->setAttribute('type', 'password');
+                $dummyInput->setAttribute('style', 'display:none;');
+                $container->addChild($dummyInput);
+                $input->setAttribute('type', 'text');
+                $input->setAttribute(
+                    'onkeyup',
+                    'if (this.value == \'\') { this.setAttribute(\'type\', \'text\'); } else { this.setAttribute(\'type\', \'password\'); }'
+                );
+                $input->setAttribute(
+                    'style',
+                    'text-security: disc; -webkit-text-security: disc;'
+                );
+                $container->addChild($input);
+                return $container;
+                break;
             case 'string':
             case 'hidden':
             default:
@@ -1061,7 +1109,25 @@ CODE;
                 if (isset($options['attributes'])) {
                     $input->setAttributes($options['attributes']);
                 }
-                return $input;
+                if (!isset($options['mode']) || $options['mode'] != 'nocomplete') {
+                    return $input;
+                }
+                // in order to circumvent forced autocompletion by modern
+                // browsers we need to add an additional field and set the type
+                // "dynamically"...
+                // For more info see CLX-2388
+                $container = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+                $dummyInput = new \Cx\Core\Html\Model\Entity\DataElement($title, '');
+                $dummyInput->setAttribute('style', 'display:none;');
+                $container->addChild($dummyInput);
+                $container->addChild($input);
+                $dummyInput2 = new \Cx\Core\Html\Model\Entity\DataElement(
+                    'not-a-' . $title,
+                    ''
+                );
+                $dummyInput2->setAttribute('style', 'display:none;');
+                $container->addChild($dummyInput2);
+                return $container;
                 break;
         }
     }
