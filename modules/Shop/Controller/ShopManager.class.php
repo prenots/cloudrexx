@@ -546,6 +546,7 @@ class ShopManager extends ShopLibrary
             $arrId = array();
             for ($x = 1; $x < count($arrFileContent); ++$x) {
                 $category_id = false;
+                $catIds = array();
                 for ($cat = 0; $cat < count($arrCategoryColumnIndex); ++$cat) {
                     $catName = $arrFileContent[$x][$arrCategoryColumnIndex[$cat]];
                     if (empty($catName) && !empty($category_id)) {
@@ -553,14 +554,17 @@ class ShopManager extends ShopLibrary
                     }
                     if (empty($catName)) {
                         $category_id = $objCSVimport->GetFirstCat();
+                        $catIds[] = $category_id;
                     } else {
                         $category_id = $objCSVimport->getCategoryId($catName, $category_id);
+                        $catIds[] = $category_id;
                     }
                 }
                 if ($category_id == 0) {
                     $category_id = $objCSVimport->GetFirstCat();
+                    $catIds[] = $category_id;
                 }
-                $objProduct = new Product('', $category_id, '',
+                $objProduct = new Product('', join(',', $catIds), '',
                     Distribution::TYPE_DELIVERY, 0, 1, 0, 0, 0);
                 foreach ($arrProductDatabaseFieldName as $index => $strFieldIndex) {
                     $value = '';
