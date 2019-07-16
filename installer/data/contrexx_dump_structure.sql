@@ -3298,7 +3298,7 @@ CREATE TABLE `contrexx_module_shop_order_attributes` (
 CREATE TABLE `contrexx_module_shop_order_items` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `order_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `product_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `product_id` int(10) unsigned DEFAULT NULL,
   `product_name` varchar(255) NOT NULL DEFAULT '',
   `price` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `quantity` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3327,7 +3327,7 @@ CREATE TABLE `contrexx_module_shop_orders` (
   `vat_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `shipment_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `shipment_id` int(10) unsigned DEFAULT NULL,
-  `payment_id` int(10) unsigned NOT NULL,
+  `payment_id` int(10) unsigned DEFAULT NULL,
   `payment_amount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `ip` varchar(50) NOT NULL DEFAULT '',
   `lang_id` int(10) NOT NULL DEFAULT '0',
