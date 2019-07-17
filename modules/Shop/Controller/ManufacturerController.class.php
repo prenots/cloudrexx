@@ -184,10 +184,11 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
      * @global  array
      */
     public static function getMenu(
-        $menu_name='manufacturerId', $selected_id=0, $include_none=false
+        $menuName='manufacturerId', $selectedId=0, $includeNone=false
     ) {
         return \Html::getSelectCustom(
-            $menu_name, self::getMenuoptions($selected_id, $include_none));
+            $menuName, self::getMenuoptions($selectedId, $includeNone)
+        );
     }
 
     /**
@@ -201,7 +202,7 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
      * @return  string                 The Manufacturer dropdown menu options
      * @global  ADONewConnection  $objDatabase
      */
-    public static function getMenuoptions($selected_id=0, $include_none=false)
+    public static function getMenuoptions($selectedId=0, $includeNone=false)
     {
         global $_ARRAYLANG;
 
@@ -213,10 +214,10 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
         }
 
         return
-            ($include_none
+            ($includeNone
                 ? '<option value="0">'. $noneLabel . '</option>'
                 : '').
-            \Html::getOptions(self::getNameArray(), $selected_id);
+            \Html::getOptions(self::getNameArray(), $selectedId);
     }
 
     /**
