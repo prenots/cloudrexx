@@ -25,7 +25,8 @@
  */
 
 /**
- * Specific BackendController for this Component. Use this to easily create a backend view
+ * Specific BackendController for this Component. Use this to easily create a
+ * backend view
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -37,7 +38,8 @@ namespace Cx\Modules\Shop\Controller;
 
 
 /**
- * Specific BackendController for this Component. Use this to easily create a backend view
+ * Specific BackendController for this Component. Use this to easily create a
+ * backend view
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -106,6 +108,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'DiscountCoupon':
             case 'mailtemplate_overview':
             case 'mailtemplate_edit':
+            case '':
                 $mappedNavItems = array(
                     'Order' => 'orders',
                     'Category' => 'categories',
@@ -129,6 +132,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Zone' => 'zones',
                     'Mail' => 'mail',
                     'DiscountCoupon' => 'coupon',
+                    '' => 'orders'
                 );
                 $mappedCmdItems = array(
                     'editorder' => 'Order',
@@ -177,9 +181,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $cmd[0] = $cmdAct;
                 $cmd[1] = $cmdTpl;
 
-                if (!empty($mappedNavItems[$tpl])) {
-                    $_REQUEST['tpl'] = $mappedNavItems[$tpl];
-                    $_GET['tpl'] = $mappedNavItems[$tpl];
+                if (!empty($this->getCommands()[$act])
+                    && in_array($tpl, $this->getCommands()[$act]['children'])
+                ) {
+                    if (!empty($mappedNavItems[$tpl])) {
+                        $_REQUEST['tpl'] = $mappedNavItems[$tpl];
+                        $_GET['tpl'] = $mappedNavItems[$tpl];
+                    } else {
+                        break;
+                    }
                 }
                 if (!empty($mappedNavItems[$act])) {
                     $_GET['act'] = $mappedNavItems[$act];
@@ -203,9 +213,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $objShopManager->getPage($navigation->get());
                 return;
         }
-        if ($tpl) {
-            $_GET['act'] = $tpl;
-        }
 
         parent::getPage($page);
     }
@@ -217,11 +224,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function getCommands()
     {
         return array(
-            'Order',
+            'Order' => array(
+                'translatable' => true
+            ),
             'Category' => array(
                 'children' => array(
                     'Pricelist'
                 ),
+                'translatable' => true
             ),
             'Product' => array(
                 'children' => array(
@@ -229,7 +239,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Attribute',
                     'DiscountgroupCountName',
                     'ArticleGroup'
-                )
+                ),
+                'translatable' => true
             ),
             'Manufacturer' => array(
                 'translatable' => true
@@ -238,10 +249,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'children' => array(
                     'RelDiscountGroup',
                     'CustomerGroup'
-                )
+                ),
+                'translatable' => true
             ),
-            'Statistic',
-            'Import',
+            'Statistic' => array(
+                'translatable' => true
+            ),
+            'Import' => array(
+                'translatable' => true
+            ),
             'Setting' => array(
                 'children' => array(
                     'Vat',
@@ -253,6 +269,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Mail',
                     'DiscountCoupon'
                 ),
+                'translatable' => true
             ),
         );
     }
