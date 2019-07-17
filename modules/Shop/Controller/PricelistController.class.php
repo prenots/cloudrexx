@@ -87,13 +87,10 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'headerLeft' => array(
                 'showOverview' => false,
-                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                    return $this->getLineField(
-                        $fieldname,
-                        $fieldvalue,
-                        'headerRight'
-                    );
-                }
+                'formfield' => array(
+                    'adapter' => 'PriceList',
+                    'method' => 'getLineFieldHeader'
+                ),
             ),
             'headerRight' => array(
                 'showOverview' => false,
@@ -104,23 +101,10 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'footerLeft' => array(
                 'showOverview' => false,
-                'formfield' => function($fieldname, $fieldtype, $fieldlength, $fieldvalue) {
-                    global $_ARRAYLANG;
-                    $placeholders = array(
-                        '[DATE]' => $_ARRAYLANG[
-                        'TXT_DATE'
-                        ],
-                        '[PAGENUMBER]' =>$_ARRAYLANG[
-                        'TXT_PAGENUMBER'
-                        ]
-                    );
-                    return $this->getLineField(
-                        $fieldname,
-                        $fieldvalue,
-                        'footerRight',
-                        $placeholders
-                    );
-                }
+                'formfield' => array(
+                    'adapter' => 'PriceList',
+                    'method' => 'getLineFieldFooter'
+                ),
             ),
             'footerRight' => array(
                 'showOverview' => false,
@@ -285,57 +269,6 @@ class PricelistController extends \Cx\Core\Core\Model\Entity\Controller
         $label->addChild($text);
         $wrapper->addChild($label);
 
-        return $wrapper;
-    }
-
-    protected function getLineField($nameLeft, $valueLeft, $nameRight, $placeholders = array())
-    {
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $headerLeft = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
-        $headerRight = new \Cx\Core\Html\Model\Entity\HtmlElement('textarea');
-        $leftText = new \Cx\Core\Html\Model\Entity\TextElement($valueLeft);
-        $rightText = new \Cx\Core\Html\Model\Entity\TextElement('');
-
-        $headerLeft->setAttributes(
-            array(
-                'name' => $nameLeft,
-                'id' => $nameLeft,
-                'rows' => 4
-            )
-        );
-        $headerRight->setAttributes(
-            array(
-                'id' => $nameRight,
-                'rows' => 4
-            )
-        );
-
-        $headerLeft->addChild($leftText);
-        $headerRight->addChild($rightText);
-        $wrapper->addChild($headerLeft);
-        $wrapper->addChild($headerRight);
-
-        if (empty($placeholders)) return $wrapper;
-
-        $wrapperPlaceholders = new \Cx\Core\Html\Model\Entity\HtmlElement(
-            'div'
-        );
-        foreach ($placeholders as $placeholder=>$lang) {
-            $block = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-            $name = new \Cx\Core\Html\Model\Entity\TextElement(
-                $placeholder
-            );
-            $tt = new \Cx\Core\Html\Model\Entity\HtmlElement('tt');
-            $tt->addChild($name);
-            $block->addChild($tt);
-            $block->addChild(
-                new \Cx\Core\Html\Model\Entity\TextElement(
-                    ': ' . $lang
-                )
-            );
-            $wrapperPlaceholders->addChild($block);
-        }
-        $wrapper->addChild($wrapperPlaceholders);
         return $wrapper;
     }
 
