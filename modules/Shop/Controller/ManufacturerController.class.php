@@ -53,7 +53,8 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Get ViewGenerator options for Manufacturer entity
      *
-     * @param $options array predefined ViewGenerator options
+     * @global array $_ARRAYLANG containing the language variables
+     * @param  array $options    predefined ViewGenerator options
      * @return array includes ViewGenerator options for Manufacturer entity
      */
     public function getViewGeneratorOptions($options)
@@ -173,19 +174,18 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
      *
      * Used in the Product search form, see {@link products()}.
      * @static
-     * @param   string  $menu_name      The optional menu name.  Defaults to
-     *                                  manufacturer_id
-     * @param   integer $selected_id    The optional preselected Manufacturer ID
-     * @param   boolean $include_none   If true, a dummy option for "none" is
-     *                                  included at the top
-     * @return  string                  The Manufacturer dropdown menu HTML code
+     * @param   string  $menuName      The optional menu name.  Defaults to
+     *                                 manufacturer_id
+     * @param   integer $selectedId    The optional preselected Manufacturer ID
+     * @param   boolean $includeNone   If true, a dummy option for "none" is
+     *                                 included at the top
+     * @return  string                 The Manufacturer dropdown menu HTML code
      * @global  ADONewConnection
      * @global  array
      */
     public static function getMenu(
         $menu_name='manufacturerId', $selected_id=0, $include_none=false
     ) {
-//DBG::log("Manufacturer::getMenu($selected_id): Manufacturers: ".var_export(self::$arrManufacturer, true));
         return \Html::getSelectCustom(
             $menu_name, self::getMenuoptions($selected_id, $include_none));
     }
@@ -195,10 +195,10 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
      *
      * Used in the Product search form, see {@link products()}.
      * @static
-     * @param   integer $selected_id    The optional preselected Manufacturer ID
-     * @param   boolean $include_none   If true, a dummy option for "none" is
-     *                                  included at the top
-     * @return  string                  The Manufacturer dropdown menu options
+     * @param   integer $selectedId    The optional preselected Manufacturer ID
+     * @param   boolean $includeNone   If true, a dummy option for "none" is
+     *                                 included at the top
+     * @return  string                 The Manufacturer dropdown menu options
      * @global  ADONewConnection  $objDatabase
      */
     public static function getMenuoptions($selected_id=0, $include_none=false)
@@ -264,7 +264,7 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
      */
     protected static function getArray(&$count, $order=null, $offset=0, $limit=null)//, $filter=null)
     {
-//        $filter; // Shut up the code analyzer
+        // Shut up the code analyzer
         if (is_null(self::$arrManufacturer)) self::init($order);
         $count = count(self::$arrManufacturer);
         return array_slice(self::$arrManufacturer, $offset, $limit, true);
