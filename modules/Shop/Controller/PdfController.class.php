@@ -3,7 +3,7 @@
  * Cloudrexx
  *
  * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2018
+ * @copyright Cloudrexx AG 2007-2019
  *
  * According to our dual licensing model, this program can be used either
  * under the terms of the GNU Affero General Public License, version 3,
@@ -35,6 +35,14 @@
 
 namespace Cx\Modules\Shop\Controller;
 
+/**
+ * PdfController to create pdfs
+ *
+ * @copyright   Cloudrexx AG
+ * @author      Sam Hawkes <info@cloudrexx.com>
+ * @package     cloudrexx
+ * @subpackage  coremodule_shop
+ */
 class PdfController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
@@ -229,7 +237,7 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
             foreach ($categoryIds as $categoryId){
                 $arrCategoryNames[] = $arrCategoryName[$categoryId];
             }
-//$objProduct = new Product();
+
             $arrOutput[$product_id] = array(
                 'product_name' => self::decode($objProduct->name()),
                 'category_name' => self::decode(implode(', ', $arrCategoryNames)),
