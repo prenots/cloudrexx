@@ -1082,3 +1082,7 @@ $_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW_TOOLTIP'] = "Bestimmen Sie 
 $_ARRAYLANG['TXT_SHOP_CHOOSE_FILE'] = 'Datei wählen';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_TYPE'] = 'Pro Produkt';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_TYPE_TIP'] = 'Gilt die Mindestmenge pro Produkt oder für alle Produkte mit dieser Rabattgruppe gemeinsam?';
+
+$_ARRAYLANG['id'] = 'ID';
+$_ARRAYLANG['name'] = 'Name';
+$_ARRAYLANG['uri'] = 'URL';

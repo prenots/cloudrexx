@@ -751,3 +751,7 @@ $_ARRAYLANG['TXT_SHOP_CATEGORY_LANGUAGE_EDIT'] = "Edit in %3\$s";
 $_ARRAYLANG['TXT_SHOP_PAYMILL'] = "Paymill";
 $_ARRAYLANG['TXT_SHOP_PAYMILL_PRIVATE_KEY'] = "Private key";
 $_ARRAYLANG['TXT_SHOP_PAYMILL_PUBLIC_KEY'] = "Public key";
+
+$_ARRAYLANG['id'] = 'ID';
+$_ARRAYLANG['name'] = 'Name';
+$_ARRAYLANG['uri'] = 'Url';
