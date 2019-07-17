@@ -48,7 +48,7 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
      * Static class data with the manufacturers
      * @var   array
      */
-    private static $arrManufacturer = null;
+    protected static $arrManufacturer = null;
 
     /**
      * Get ViewGenerator options for Manufacturer entity
