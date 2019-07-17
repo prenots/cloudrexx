@@ -70,12 +70,18 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         $pricelist = $repo->find($pricelistId);
 
         if (empty($pricelist)) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_LOADING']);
+            return \Message::error(
+                $_ARRAYLANG['TXT_SHOP_PRICELIST_ERROR_LOADING']
+            );
         }
 
         $objPdf = new \Cezpdf('A4');
         $objPdf->setEncryption('', '', array('print'));
-        $objPdf->selectFont(\Cx\Core\Core\Controller\Cx::instanciate()->getCodeBaseLibraryPath() . '/ezpdf/fonts/' . $pricelist->getFont());
+        $objPdf->selectFont(
+            \Cx\Core\Core\Controller\Cx::instanciate()
+                ->getCodeBaseLibraryPath()
+            . '/ezpdf/fonts/' . $pricelist->getFont()
+        );
         $objPdf->ezSetMargins(0, 0, 0, 0); // Reset margins
         $objPdf->setLineStyle(0.5);
         $marginTop = 30;
@@ -96,15 +102,40 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         $arrFooterRight = array();
         if ($pricelist->getFooterOn()) { // footer should be shown
             // Old, obsolete:
-            $pricelist->setFooterLeft(str_replace('<--DATE-->',
-                date(ASCMS_DATE_FORMAT_DATE, time()), $pricelist->getFooterLeft()));
-            $pricelist->setFooterRight(str_replace('<--DATE-->',
-                date(ASCMS_DATE_FORMAT_DATE, time()), $pricelist->getFooterRight()));
+            $pricelist->setFooterLeft(
+                str_replace(
+                    '<--DATE-->',
+                    date(
+                        ASCMS_DATE_FORMAT_DATE, time()
+                    ),
+                    $pricelist->getFooterLeft()
+                )
+            );
+            $pricelist->setFooterRight(
+                str_replace(
+                    '<--DATE-->',
+                    date(
+                        ASCMS_DATE_FORMAT_DATE, time()
+                    ), $pricelist->getFooterRight()
+                )
+            );
             // New:
-            $pricelist->setFooterLeft(str_replace('[DATE]',
-                date(ASCMS_DATE_FORMAT_DATE, time()), $pricelist->getFooterLeft()));
-            $pricelist->setFooterRight(str_replace('[DATE]',
-                date(ASCMS_DATE_FORMAT_DATE, time()), $pricelist->getFooterRight()));
+            $pricelist->setFooterLeft(
+                str_replace(
+                    '[DATE]',
+                    date(
+                        ASCMS_DATE_FORMAT_DATE, time()
+                    ), $pricelist->getFooterLeft()
+                )
+            );
+            $pricelist->setFooterRight(
+                str_replace(
+                    '[DATE]',
+                    date(
+                        ASCMS_DATE_FORMAT_DATE, time()
+                    ), $pricelist->getFooterRight()
+                )
+            );
             $arrFooterLeft = explode("\n", $pricelist->getFooterLeft());
             $arrFooterRight = explode("\n", $pricelist->getFooterRight());
             $countLeft = count($arrFooterLeft);
@@ -136,16 +167,20 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
                     'right' => (isset($arrHeaderRight[$i]) ? $arrHeaderRight[$i] : ''),
                 );
             }
-            $tempY = $objPdf->ezTable($headerArray, '', '', array(
-                'showHeadings' => 0,
-                'fontSize' => $pricelist->getFontSizeHeader(),
-                'shaded' => 0,
-                'width' => 540,
-                'showLines' => 0,
-                'xPos' => 'center',
-                'xOrientation' => 'center',
-                'cols' => array('right' => array('justification' => 'right')),
-            ));
+            $tempY = $objPdf->ezTable(
+                $headerArray, '', '', array(
+                    'showHeadings' => 0,
+                    'fontSize' => $pricelist->getFontSizeHeader(),
+                    'shaded' => 0,
+                    'width' => 540,
+                    'showLines' => 0,
+                    'xPos' => 'center',
+                    'xOrientation' => 'center',
+                    'cols' => array(
+                        'right' => array('justification' => 'right')
+                    ),
+                )
+            );
             $tempY -= 5;
             if ($pricelist->getBorderOn()) {
                 $objPdf->setStrokeColor(0, 0, 0);
@@ -179,24 +214,34 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
                 if (   $arrFooterLeft[$i] == '<--PAGENUMBER-->' // Old, obsolete
                     || $arrFooterLeft[$i] == '[PAGENUMBER]') {
                     $pageNumbersX = 65;
-                    $pageNumbersY = $tempY-18-($i*$pricelist->getFontSizeFooter());
+                    $pageNumbersY = $tempY-18-(
+                        $i*$pricelist->getFontSizeFooter()
+                    );
                     $pageNumbersFont = $pricelist->getFontSizeList();
                 } else {
                     $objPdf->addText(
                         25, $tempY-18-($i*$pricelist->getFontSizeFooter()),
-                        $pricelist->getFontSizeFooter(), $arrFooterLeft[$i]);
+                        $pricelist->getFontSizeFooter(), $arrFooterLeft[$i]
+                    );
                 }
-                if (   $arrFooterRight[$i] == '<--PAGENUMBER-->' // Old, obsolete
+                if ($arrFooterRight[$i] == '<--PAGENUMBER-->' // Old, obsolete
                     || $arrFooterRight[$i] == '[PAGENUMBER]') {
                     $pageNumbersX = 595.28-25;
-                    $pageNumbersY = $tempY-18-($i*$pricelist->getFontSizeFooter());
+                    $pageNumbersY = $tempY-18-(
+                        $i*$pricelist->getFontSizeFooter()
+                    );
                     $pageNumbersFont = $pricelist->getFontSizeList();
                 } else {
                     // Properly align right
-                    $width = $objPdf->getTextWidth($pricelist->getFontSizeFooter(), $arrFooterRight[$i]);
+                    $width = $objPdf->getTextWidth(
+                        $pricelist->getFontSizeFooter(), $arrFooterRight[$i]
+                    );
                     $objPdf->addText(
-                        595.28-$width-25, $tempY-18-($i*$pricelist->getFontSizeFooter()),
-                        $pricelist->getFontSizeFooter(), $arrFooterRight[$i]);
+                        595.28-$width-25, $tempY-18-(
+                            $i*$pricelist->getFontSizeFooter()
+                        ),
+                        $pricelist->getFontSizeFooter(), $arrFooterRight[$i]
+                    );
                 }
             }
             $objPdf->restoreState();
@@ -207,7 +252,8 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         if (isset($pageNumbersX)) {
             $objPdf->ezStartPageNumbers(
                 $pageNumbersX, $pageNumbersY, $pageNumbersFont, '',
-                $_ARRAYLANG['TXT_SHOP_PRICELIST_FORMAT_PAGENUMBER'], 1);
+                $_ARRAYLANG['TXT_SHOP_PRICELIST_FORMAT_PAGENUMBER'], 1
+            );
         }
         // Margins
         $objPdf->ezSetMargins($marginTop, $marginBottom, 30, 30);
@@ -217,24 +263,29 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $objInit->backendLangId = $pricelist->getLangId();
         $_ARRAYLANG = $objInit->loadLanguageData('Shop');
-        \Cx\Modules\Shop\Controller\Currency::setActiveCurrencyId($currencyId, $pricelist->getLangId());
+        \Cx\Modules\Shop\Controller\Currency::setActiveCurrencyId(
+            $currencyId, $pricelist->getLangId()
+        );
         $currency_symbol = Currency::getActiveCurrencySymbol();
         $category_ids = $repo->getCategoryIdsByPricelist($pricelist);
         if ($pricelist->getAllCategories()) $category_ids = array();
         $count = 1000; // Be sensible!
         // Pattern is "%" because all-empty parameters will result in an
         // empty array!
-        $arrProduct = Products::getByShopParams($count, 0, null,
-            $category_ids, null, '%', null, null,
+        $arrProduct = Products::getByShopParams(
+            $count, 0, null, $category_ids, null, '%', null, null,
             '`category_product`.`category_id` ASC, `name` ASC', null, false,
-            $pricelist->getLangId());
+            $pricelist->getLangId()
+        );
 
-        $arrCategoryName = ShopCategories::getNameArray( false, $pricelist->getLangId());
+        $arrCategoryName = ShopCategories::getNameArray(
+            false, $pricelist->getLangId()
+        );
         $arrOutput = array();
         foreach ($arrProduct as $product_id => $objProduct) {
             $categoryIds = explode(',', $objProduct->category_id());
             $arrCategoryNames = array();
-            foreach ($categoryIds as $categoryId){
+            foreach ($categoryIds as $categoryId) {
                 $arrCategoryNames[] = $arrCategoryName[$categoryId];
             }
 
@@ -245,17 +296,31 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
                 'product_id' => self::decode($objProduct->id()),
                 'price' =>
                     ($objProduct->discount_active()
-                        ? "S " . Currency::formatPrice($objProduct->discountprice())
-                        : Currency::formatPrice($objProduct->price())) .
-                    ' ' . $currency_symbol,
+                        ? "S " . Currency::formatPrice(
+                            $objProduct->discountprice()
+                        ) : Currency::formatPrice($objProduct->price())) . ' '
+                    . $currency_symbol,
             );
         }
-        $objPdf->ezTable($arrOutput, array(
-            'product_name' => '<b>'.$this->decode($_ARRAYLANG['TXT_SHOP_PRODUCT_NAME']).'</b>',
-            'category_name' => '<b>'.$this->decode($_ARRAYLANG['TXT_SHOP_CATEGORY_NAME']).'</b>',
-            'product_code' => '<b>'.$this->decode($_ARRAYLANG['TXT_SHOP_PRODUCT_CODE']).'</b>',
-            'product_id' => '<b>'.$this->decode($_ARRAYLANG['TXT_ID']).'</b>',
-            'price' => '<b>'.$this->decode($_ARRAYLANG['TXT_SHOP_PRICE']).'</b>'), '',
+        $objPdf->ezTable(
+            $arrOutput,
+            array(
+                'product_name' => '<b>'.$this->decode(
+                    $_ARRAYLANG['TXT_SHOP_PRODUCT_NAME']
+                ).'</b>',
+                'category_name' => '<b>'.$this->decode(
+                    $_ARRAYLANG['TXT_SHOP_CATEGORY_NAME']
+                ).'</b>',
+                'product_code' => '<b>'.$this->decode(
+                    $_ARRAYLANG['TXT_SHOP_PRODUCT_CODE']
+                ).'</b>',
+                'product_id' => '<b>'.$this->decode(
+                    $_ARRAYLANG['TXT_ID']
+                ).'</b>',
+                'price' => '<b>'.$this->decode(
+                    $_ARRAYLANG['TXT_SHOP_PRICE']
+                ).'</b>'
+            ), '',
             array(
                 'showHeadings' => 1,
                 'fontSize' => $pricelist->getFontSizeList(),
@@ -278,7 +343,9 @@ class PdfController extends \Cx\Core\Core\Model\Entity\Controller
                     'product_name' => array('width' => 255),
                     'category_name' => array('width' => 130),
                     'product_code' => array('width' => 50),
-                    'product_id' => array('width' => 40, 'justification' => 'right'),
+                    'product_id' => array(
+                        'width' => 40, 'justification' => 'right'
+                    ),
                     'price' => array('width' => 55, 'justification' => 'right')
                 ),
             )
