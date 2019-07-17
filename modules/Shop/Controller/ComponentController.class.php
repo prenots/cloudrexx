@@ -52,7 +52,24 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      */
     public function getControllerClasses()
     {
-        return array('Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist');
+        return array(
+            'Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist',
+            'JsonPriceList'
+        );
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson() {
+        return array('JsonPriceListController');
     }
 
     /**

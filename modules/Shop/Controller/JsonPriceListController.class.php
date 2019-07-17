@@ -68,7 +68,8 @@ class JsonPriceListController
             'storeAllCategories',
             'getCategoryCheckboxesForPricelist',
             'getGeneratedPdfLink',
-            'getLinkElement'
+            'getLinkElement',
+            'checkIfAllCategoriesAreSelected'
         );
     }
 
@@ -199,5 +200,199 @@ class JsonPriceListController
         }
         $wrapper->addChild($wrapperPlaceholders);
         return $wrapper;
+    }
+
+    /**
+     * Get a checkbox to be able to select all categories
+     *
+     * @param array $params contains the parameters of the callback function
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement wrapper with checkbox
+     */
+    public function getAllCategoriesCheckbox($params)
+    {
+        global $_ARRAYLANG;
+
+        $isActive = !empty($params['value']) ? (bool)$params['value'] : false;
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttributes(
+            array(
+                'class' => 'category',
+                'for' => 'category-all'
+            )
+        );
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['TXT_SHOP_ALL_CATEGORIES']
+        );
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            'category-all',
+            1
+        );
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'category-all',
+                empty($isActive) ? '' : 'checked' => 'checked'
+            )
+        );
+
+        $label->addChild($checkbox);
+        $label->addChild($text);
+        $wrapper->addChild($label);
+
+        return $wrapper;
+    }
+
+    /**
+     * Get all categories as checkbox to select them
+     *
+     * @param array $params contains the parameters of the callback function
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement list with checkboxes
+     * @throws \Exception
+     */
+    public function getCategoryCheckboxesForPricelist($params)
+    {
+        $pricelistId = !empty($params['id']) ? $params['id'] : 0;
+
+        $categories = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Category'
+        )->findBy(array('active' => 1, 'parentId' => null));
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+
+        foreach ($categories as $category) {
+            $wrapper->addChild(
+                $this->getCategoryCheckbox(
+                    $category, $pricelistId
+                )
+            );
+
+            foreach ($category->getChildren() as $child) {
+                $childWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement(
+                    'span'
+                );
+                $childWrapper->addClass('child');
+
+                $childCheckbox = $this->getCategoryCheckbox(
+                    $child, $pricelistId
+                );
+
+                $childWrapper->addChild($childCheckbox);
+                $wrapper->addChild($childWrapper);
+            }
+        }
+        return $wrapper;
+    }
+
+    /**
+     * Get a checkbox to select the category
+     *
+     * @param \Cx\Modules\Shop\Model\Entity\Category $category category to show
+     * @param int $pricelistId id of list
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement category checkbox
+     * @throws \Doctrine\ORM\ORMException handle if orm interaction fails
+     */
+    protected function getCategoryCheckbox($category, $pricelistId)
+    {
+        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Pricelist'
+        );
+        $label = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
+        $label->setAttributes(
+            array(
+                'class' => 'category',
+                'for' => 'category-'. $category->getId()
+            )
+        );
+        $text = new \Cx\Core\Html\Model\Entity\TextElement(
+            $category->getName()
+        );
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            'categories[' . $category->getId() . ']',
+            $category->getId()
+
+        );
+
+        $isActive = (boolean)$repo->getPricelistByCategoryAndId(
+            $category,
+            $pricelistId
+        );
+        $checkbox->setAttributes(
+            array(
+                'type' => 'checkbox',
+                'id' => 'category-' . $category->getId(),
+                empty($isActive) ? '' : 'checked' => 'checked'
+            )
+        );
+
+        $label->addChild($checkbox);
+        $label->addChild($text);
+
+        return $label;
+    }
+
+    /**
+     * Get element to display a link
+     *
+     * @param array $params contains the parameters of the callback function
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement link element
+     */
+    public function getLinkElement($params)
+    {
+        $value = !empty($params['value']) ? $params['value'] : '';
+        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
+        $text = new \Cx\Core\Html\Model\Entity\TextElement($value);
+        $link->setAttributes(
+            array(
+                'href' => $value,
+                'target' => '_blank'
+            )
+        );
+        $link->addChild($text);
+
+        return $link;
+    }
+
+    /**
+     * Generate a link to access the PDF pricelist
+     *
+     * @param array $params contains the parameters of the callback function
+     * @return string generated link to pdf
+     */
+    public function getGeneratedPdfLink($params)
+    {
+        $rowData = !empty($params['rowData']) ? $params['rowData'] : array();
+        $langId = !empty($rowData['langId']) ? $rowData['langId'] : array();
+        $id = !empty($rowData['id']) ? $rowData['id'] : array();
+
+        $url = $this->cx->getRequest()->getUrl();
+        $protcol = $url->getProtocol();
+        $domain = $url->getDomain();
+        $pdfLinkUrl = \Cx\Core\Routing\Url::fromApi(
+            'generatePdfPricelist', array()
+        );
+
+        $locale = \FWLanguage::getLanguageCodeById($langId);
+        $pdfLinkUrl->setParam('id', $id);
+        $pdfLinkUrl->setParam('locale', $locale);
+
+        $link = $protcol . '://' . $domain . $pdfLinkUrl;
+
+        return $link;
+    }
+
+    /**
+     * Check if the param category_all exists. The callback is necessary
+     * because unselected checkboxes are not sent via the form.
+     *
+     * @return bool if checkbox category_all is selected
+     */
+    public function checkIfAllCategoriesAreSelected()
+    {
+        return $this->cx->getRequest()->hasParam(
+            'category-all',
+            false
+        );
     }
 }
