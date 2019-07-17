@@ -287,10 +287,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * This function returns the ViewGeneration options for a given entityClass
      *
      * @access protected
-     * @global $_ARRAYLANG
-     * @param $entityClassName contains the FQCN from entity
-     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used
-     *                           for better partition
+     * @global array  $_ARRAYLANG containing the language variables
+     * @param  string $entityClassName contains the FQCN from entity
+     * @param  string $dataSetIdentifier if $entityClassName is DataSet, this is
+     *                                   used for better partition
+     * @throws \Exception catch controller errors
      * @return array with options
      */
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
@@ -325,6 +326,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $options;
     }
 
+    /**
+     * Set JavaScript variables for multi action delete.
+     *
+     * @param $message string message to display before delete
+     * @param $options array  ViewGenerator options
+     * @return array updated array with ViewGenerator options
+     */
     protected function normalDelete($message, $options)
     {
         global $_ARRAYLANG;
