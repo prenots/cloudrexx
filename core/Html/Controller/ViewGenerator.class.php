@@ -156,6 +156,25 @@ class ViewGenerator {
 
             }
 
+            // execute copy if entry is a doctrine entity (or execute callback if specified in configuration)
+            // post edit
+            if (
+                !empty($_GET['copy']) && (
+                    !empty($this->options['functions']['copy']) &&
+                    $this->options['functions']['copy'] != false
+                )
+            ) {
+                unset($_GET['copy']);
+                $showSuccessMessage = $this->saveEntry($entityWithNS);
+                if ($showSuccessMessage) {
+                    \Message::add($_ARRAYLANG['TXT_CORE_RECORD_ADDED_SUCCESSFUL']);
+                }
+                $param = 'copy';
+                $actionUrl = clone $this->cx->getRequest()->getUrl();
+                $actionUrl->setParam($param, null);
+                \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
+            }
+
             // execute edit if entry is a doctrine entity (or execute callback if specified in configuration)
             // post edit
             $editId = $this->getEntryId();
@@ -201,15 +220,6 @@ class ViewGenerator {
             if ($this->cx->getRequest()->hasParam('deleteids')) {
                 $deleteIds = $this->cx->getRequest()->getParam('deleteids');
                 $this->removeEntries($entityWithNS, $deleteIds);
-            }
-
-            // execute copy if entry is a doctrine entity (or execute callback if specified in configuration)
-            // post edit
-            if (
-                !empty($this->options['functions']['copy']) &&
-                $this->options['functions']['copy'] != false
-            ) {
-                $this->saveEntry($entityWithNS);
             }
         } catch (\Exception $e) {
             \Message::add($e->getMessage(), \Message::CLASS_ERROR);
@@ -792,7 +802,8 @@ class ViewGenerator {
             !isset($_GET['editid']) &&
             !isset($_POST['editid']) &&
             !isset($_GET['showid']) &&
-            !isset($_POST['showid'])
+            !isset($_POST['showid']) &&
+            !isset($_GET['copy'])
         ) {
             return 0;
         }
@@ -808,6 +819,9 @@ class ViewGenerator {
         }
         if (isset($_POST['showid'])) {
             $editId = $this->getVgParam($_POST['showid']);
+        }
+        if (isset($_GET['copy'])) {
+            $editId = $this->getVgParam($_GET['copy']);
         }
 
         // Self-heal if the same param is specified multiple times:
@@ -892,8 +906,7 @@ class ViewGenerator {
             $this->options['functions']['copy'] != false
         ) {
             $isSingle = true;
-            $eId = intval($this->getVgParam($_GET['copy']));
-            return $this->renderFormForEntry($eId);
+            return $this->renderFormForEntry($entityId);
         }
 
         $template = new \Cx\Core\Html\Sigma(
@@ -912,7 +925,6 @@ class ViewGenerator {
         $template->setGlobalVariable($_ARRAYLANG);
         $template->setGlobalVariable('VG_ID', $this->viewId);
         $renderObject = $this->object;
-        $entityId = $this->getEntryId();
 
         // this case is used to get the right entry if we edit a existing one
         if (
@@ -1248,18 +1260,20 @@ class ViewGenerator {
         $actionUrl = $renderOptions['actionUrl'];
 
         //sets the order of the fields
-        if(!empty($this->options['order']['form'])) {
-            $sortedData = array();
-            foreach ($this->options['order']['form'] as $orderVal) {
-                if(array_key_exists($orderVal, $renderArray)){
-                    $sortedData[$orderVal] = $renderArray[$orderVal];
-                }
-            }
-            $renderArray = array_merge($sortedData,$renderArray);
+        if(!empty($this->options['order']['form']) && !$readOnly) {
+            $renderArray = $this->orderData(
+                $this->options['order']['form'],
+                $renderArray
+            );
+        } else if (!empty($this->options['order']['show']) && $readOnly) {
+            $renderArray = $this->orderData(
+                $this->options['order']['show'],
+                $renderArray
+            );
         }
         if ($readOnly) {
             unset($renderArray['vg_increment_number']);
-            $this->formGenerator = new \Cx\Core\Html\Controller\TableGenerator($renderArray, $this->options);
+            $this->formGenerator = new \Cx\Core\Html\Controller\TableGenerator($renderArray, $this->options, $readOnly);
         } else {
             $this->formGenerator = new FormGenerator($renderArray, $actionUrl, $entityClassWithNS, $title, $this->options, $entityId, $this->componentOptions, $this);
         }
@@ -1282,6 +1296,24 @@ class ViewGenerator {
             \Message::add($e->getMessage(), \Message::CLASS_ERROR);
         }
         return $this->formGenerator . $additionalContent;
+    }
+
+    /**
+     * Order an array by a given list
+     *
+     * @param $orderList   array order list
+     * @param $renderArray array to order
+     * @return array ordered data
+     */
+    protected function orderData($orderList, $renderArray)
+    {
+        $sortedData = array();
+        foreach ($orderList as $orderVal) {
+            if(array_key_exists($orderVal, $renderArray)){
+                $sortedData[$orderVal] = $renderArray[$orderVal];
+            }
+        }
+        return array_merge($sortedData,$renderArray);
     }
 
     /**
@@ -1374,7 +1406,11 @@ class ViewGenerator {
 
                 // get doctrine field name, database field name and type for each field
                 foreach($renderObject as $name => $value) {
-                    if ($name == 'virtual' || in_array($name, $primaryKeyNames)) {
+                    if ($name == 'virtual' || (
+                            in_array($name, $primaryKeyNames) &&
+                            empty($this->options['showPrimaryKeys'])
+                        )
+                    ) {
                         continue;
                     }
                     $classMetadata = \Env::get('em')->getClassMetadata($entityClassWithNS);
