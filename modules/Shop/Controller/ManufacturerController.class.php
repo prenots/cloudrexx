@@ -205,11 +205,16 @@ class ManufacturerController extends \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
 
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        if ($cx->getMode() == \Cx\Core\Core\Controller\Cx::MODE_FRONTEND) {
+            $noneLabel = $_ARRAYLANG['TXT_SHOP_MANUFACTURER_ALL'];
+        } else {
+            $noneLabel = $_ARRAYLANG['TXT_SHOP_PLEASE_SELECT'];
+        }
+
         return
             ($include_none
-                ? '<option value="0">'.
-                $_ARRAYLANG['TXT_SHOP_MANUFACTURER_ALL'].
-                '</option>'
+                ? '<option value="0">'. $noneLabel . '</option>'
                 : '').
             \Html::getOptions(self::getNameArray(), $selected_id);
     }

@@ -193,10 +193,8 @@ class ShopManager extends ShopLibrary
 
     /**
      * Set up the shop admin page
-     *
-     * @param \Cx\Core\Html\Sigma $navigation
      */
-    function getPage($navigation)
+    function getPage()
     {
         global $objTemplate, $_ARRAYLANG;
 
@@ -279,8 +277,7 @@ class ShopManager extends ShopLibrary
             'ADMIN_CONTENT' => self::$objTemplate->get(),
         ));
         $this->act = (isset ($_REQUEST['act']) ? $_REQUEST['act'] : '');
-
-        $objTemplate->setVariable('CONTENT_NAVIGATION', $navigation);
+        $this->setNavigation();
     }
 
     /**
@@ -473,8 +470,11 @@ class ShopManager extends ShopLibrary
                     ++$errorLines;
                 }
             }
-            // Fix picture field and create thumbnails
-            Products::makeThumbnailsById($arrId);
+            // Fix picture field and create thumbnails in case the import
+            // contains images
+            if (in_array('pictures', $arrProductFieldName)) {
+                Products::makeThumbnailsById($arrId);
+            }
             if ($importedLines) {
                 \Message::ok($_ARRAYLANG['TXT_SHOP_IMPORT_SUCCESSFULLY_IMPORTED_PRODUCTS'].
                     ': '.$importedLines);
@@ -1641,8 +1641,8 @@ if ($test === NULL) {
         // mediabrowser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -2039,8 +2039,8 @@ if ($test === NULL) {
         // media browser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -2092,7 +2092,6 @@ if ($test === NULL) {
 //DBG::log("Dates from ".$objProduct->date_start()." ($start_time, $start_date) to ".$objProduct->date_start()." ($end_time, $end_date)");
         $websiteImagesShopPath    = $cx->getWebsiteImagesShopPath() . '/';
         $websiteImagesShopWebPath = $cx->getWebsiteImagesShopWebPath() . '/';
-
         self::$objTemplate->setVariable(array(
             'SHOP_PRODUCT_ID' => (isset($_REQUEST['new']) ? 0 : $objProduct->id()),
             'SHOP_PRODUCT_CODE' => contrexx_raw2xhtml($objProduct->code()),
@@ -2130,7 +2129,7 @@ if ($test === NULL) {
             'SHOP_STOCK_VISIBILITY' => ($objProduct->stock_visible()
                 ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
-                \Cx\Modules\Shop\Controller\ManufacturerController::getMenuoptions($objProduct->manufacturer_id()),
+                \Cx\Modules\Shop\Controller\ManufacturerController::getMenuoptions($objProduct->manufacturer_id(), true),
             'SHOP_PICTURE1_IMG_SRC' =>
                 (   !empty($arrImages[1]['img'])
                  && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[1]['img']))
@@ -2793,11 +2792,6 @@ if ($test === NULL) {
             'SHOP_FAX' => $objCustomer->fax(),
             'SHOP_EMAIL' => $objCustomer->email(),
             'SHOP_CUSTOMER_BIRTHDAY' => date(ASCMS_DATE_FORMAT_DATE, $objCustomer->getProfileAttribute('birthday')),
-// OBSOLETE
-//            'SHOP_CCNUMBER' => $objCustomer->getCcNumber(),
-//            'SHOP_CCDATE' => $objCustomer->getCcDate(),
-//            'SHOP_CCNAME' => $objCustomer->getCcName(),
-//            'SHOP_CVC_CODE' => $objCustomer->getCcCode(),
             'SHOP_COMPANY_NOTE' => $objCustomer->companynote(),
             'SHOP_IS_RESELLER' => $customer_type,
             'SHOP_REGISTER_DATE' => date(ASCMS_DATE_FORMAT_DATETIME,
@@ -3580,7 +3574,7 @@ if ($test === NULL) {
     static function sendProcessedMail($order_id)
     {
         $arrSubstitution =
-              Orders::getSubstitutionArray($order_id)
+              Orders::getSubstitutionArray($order_id, false, false)
             + self::getSubstitutionArray();
         $lang_id = $arrSubstitution['LANG_ID'];
         // Select template for: "Your order has been processed"
