@@ -402,7 +402,6 @@ class Forum extends ForumLibrary {
         if ($intForumId == 0) {
             //wrong id, redirect
             \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Forum'));
-            die();
         }
 
         $objFWUser = \FWUser::getFWUserObject();
@@ -610,7 +609,6 @@ class Forum extends ForumLibrary {
                     )
                 )
             );
-            die();
         }
     }
 
@@ -640,7 +638,6 @@ class Forum extends ForumLibrary {
 
         if(empty($intCatId)){
             \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Forum'));
-            die();
         }
         if ($objFWUser->objUser->login()) {
             $this->_objTpl->touchBlock('notificationRow');
@@ -978,7 +975,6 @@ class Forum extends ForumLibrary {
                     )
                 )
             );
-            die();
         }
 
         if(!empty($_REQUEST['preview_new'])){
@@ -1089,7 +1085,6 @@ class Forum extends ForumLibrary {
                     )
                 )
             );
-            die();
         }
 
         if(!empty($_REQUEST['preview_edit'])){
@@ -1549,7 +1544,6 @@ class Forum extends ForumLibrary {
             }
         } else {
             \Cx\Core\Csrf\Controller\Csrf::redirect(\Cx\Core\Routing\Url::fromModuleAndCmd('Forum'));
-            die();
         }
 
     }
