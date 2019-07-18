@@ -24,7 +24,7 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
     public function getUsedCount($code, $customerId = 0)
     {
         $qb = $this->_em->createQueryBuilder();
-        $qb->select('sum(rcc.count)')
+        $qb->select('sum(rcc.count) as uses')
             ->from($this->_entityName, 'rcc')
             ->where($qb->expr()->eq('rcc.code', '?1'))
             ->setParameter(1, $code);
@@ -33,8 +33,8 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter(2, $customerId);
         }
 
-        if (!empty($qb->getQuery()->getResult()[1])) {
-            return $qb->getQuery()->getResult()[1];
+        if (!empty($qb->getQuery()->getResult()[0]['uses'])) {
+            return $qb->getQuery()->getResult()[0]['uses'];
         }
         return 0;
     }
@@ -55,7 +55,7 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
     public function getUsedAmount($code, $customer_id=NULL, $order_id=NULL)
     {
         $qb = $this->_em->createQueryBuilder();
-        $qb->select('sum(rcc.amount)')
+        $qb->select('sum(rcc.amount) as amount')
             ->from($this->_entityName, 'rcc')
             ->where($qb->expr()->eq('rcc.code', '?1'))
             ->setParameter(1, $code);
@@ -68,9 +68,9 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter(3, $order_id);
         }
 
-        if (!empty($qb->getQuery()->getResult()[1])) {
+        if (!empty($qb->getQuery()->getResult()[0]['amount'])) {
             // The Coupon has been used for so much already
-            return $qb->getQuery()->getResult()[1];
+            return $qb->getQuery()->getResult()[0]['amount'];
         }
         return 0;
     }
