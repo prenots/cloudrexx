@@ -115,6 +115,7 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'customer' => array(
                 'type' => 'hidden',
+                'header' => $_ARRAYLANG['TXT_SHOP_CUSTOMER'],
                 'table' => array(
                     'parse' => array(
                         'adapter' => 'DiscountCoupon',
