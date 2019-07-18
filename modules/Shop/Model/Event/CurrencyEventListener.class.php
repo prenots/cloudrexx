@@ -95,6 +95,13 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
         }
     }
 
+    /**
+     * Search for a currency and return if it was found
+     *
+     * @param string                      $code currency code
+     * @param \Doctrine\ORM\EntityManager $em associated EntityManager
+     * @return bool currency already exists
+     */
     protected function checkIfCurrencyCodeExists($code, $em)
     {
         $repo = $em->getRepository(

@@ -387,7 +387,6 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
      */
     static function formatPrice($price, $length='', $padding='', $increment=null)
     {
-//\DBG::log("formatPrice($price, $length, $padding, $increment): Entered");
         $decimals = 2;
         if (empty ($increment)) {
             if (!is_array(self::$arrCurrency)) self::init();
@@ -400,7 +399,7 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
             $price = round($price/$increment)*$increment;
         }
         $price = sprintf('%'.$padding.$length.'.'.$decimals.'f', $price);
-//\DBG::log("formatPrice($price, $length, $padding, $increment): Decimals: $decimals");
+
         return $price;
     }
 
