@@ -104,6 +104,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Mail':
             case 'mailtemplate_overview':
             case 'mailtemplate_edit':
+            case '':
                 $mappedNavItems = array(
                     'Order' => 'orders',
                     'Category' => 'categories',
@@ -124,6 +125,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'RelCountry' => 'countries',
                     'Zone' => 'zones',
                     'Mail' => 'mail',
+                    '' => 'orders'
                 );
                 $mappedCmdItems = array(
                     'editorder' => 'Order',
@@ -204,9 +206,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $objShopManager->getPage($navigation->get());
                 return;
         }
-        if ($tpl) {
-            $_GET['act'] = $tpl;
-        }
 
         parent::getPage($page);
     }
@@ -218,11 +217,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function getCommands()
     {
         return array(
-            'Order',
+            'Order' => array(
+                'translatable' => true
+            ),
             'Category' => array(
                 'children' => array(
                     'Pricelist'
                 ),
+                'translatable' => true
             ),
             'Product' => array(
                 'children' => array(
@@ -230,7 +232,8 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Attribute',
                     'DiscountgroupCountName',
                     'ArticleGroup'
-                )
+                ),
+                'translatable' => true
             ),
             'Manufacturer' => array(
                 'translatable' => true
@@ -239,10 +242,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'children' => array(
                     'RelDiscountGroup',
                     'CustomerGroup'
-                )
+                ),
+                'translatable' => true
             ),
-            'Statistic',
-            'Import',
+            'Statistic' => array(
+                'translatable' => true
+            ),
+            'Import' => array(
+                'translatable' => true
+            ),
             'Setting' => array(
                 'children' => array(
                     'Vat',
@@ -254,6 +262,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Mail',
                     'DiscountCoupon'
                 ),
+                'translatable' => true
             ),
         );
     }
@@ -271,10 +280,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * This function returns the ViewGeneration options for a given entityClass
      *
      * @access protected
-     * @global $_ARRAYLANG
-     * @param $entityClassName contains the FQCN from entity
-     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used
-     *                           for better partition
+     * @global array  $_ARRAYLANG containing the language variables
+     * @param  string $entityClassName contains the FQCN from entity
+     * @param  string $dataSetIdentifier if $entityClassName is DataSet, this is
+     *                                   used for better partition
+     * @throws \Exception catch controller errors
      * @return array with options
      */
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
@@ -285,7 +295,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             $dataSetIdentifier
         );
 
-        switch ($dataSetIdentifier) {
+        switch ($entityClassName) {
             case 'Cx\Modules\Shop\Model\Entity\Manufacturer':
                 $options = $this->getSystemComponentController()->getController(
                     'Manufacturer'

@@ -146,7 +146,7 @@ cx.ready(function() {
 
     // Get first element from tabmenu and select tab
     var firstTab = document.getElementsByClassName('vg-tabs')[0];
-    if (typeof document.getElementById('form-0-tab-legend') !== 'undefined') {
+    if (document.getElementById('form-0-tab-legend') && typeof document.getElementById('form-0-tab-legend') !== 'undefined') {
         document.getElementById('form-0-tab-legend').style.display = 'block';
         if (document.getElementById('form-0-tabmenu') != null) {
             selectTab(firstTab.id, true);
@@ -525,7 +525,7 @@ cx.ready(function() {
     cx.jQuery(".vg-searchSubmit").filter("a,input").click(getSubmitHandler);
     
     (function() {
-        var url = cx.tools.decodeURI(document.location.href);
+        var url = decodeURIComponent(document.location.href);
         var parts = JavaSplit(url, "?", 2);
         if (parts.length < 2) {
             return;
