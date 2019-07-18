@@ -109,11 +109,7 @@ class CurrencyEventListener extends \Cx\Core\Event\Model\Entity\DefaultEventList
         );
         $existingEntity = $repo->findOneBy(array('code' => $code));
 
-        if (!empty($existingEntity)) {
-            return true;
-        }
-        return false;
-
+        return !empty($existingEntity);
     }
 
     /**
