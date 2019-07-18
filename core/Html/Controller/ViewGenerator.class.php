@@ -103,7 +103,9 @@ class ViewGenerator {
         $this->componentOptions = $options;
         $this->viewId = static::$increment++;
         try {
-            \JS::registerCSS($this->cx->getCoreFolderName() . '/Html/View/Style/Backend.css');
+            \JS::registerCSS(
+                $this->cx->getCoreFolderName() . '/Html/View/Style/Backend.css'
+            );
             $entityWithNS = preg_replace(
                 '/^\\\/',
                 '',
@@ -154,6 +156,25 @@ class ViewGenerator {
 
             }
 
+            // execute copy if entry is a doctrine entity (or execute callback if specified in configuration)
+            // post edit
+            if (
+                !empty($_GET['copy']) && (
+                    !empty($this->options['functions']['copy']) &&
+                    $this->options['functions']['copy'] != false
+                )
+            ) {
+                unset($_GET['copy']);
+                $showSuccessMessage = $this->saveEntry($entityWithNS);
+                if ($showSuccessMessage) {
+                    \Message::add($_ARRAYLANG['TXT_CORE_RECORD_ADDED_SUCCESSFUL']);
+                }
+                $param = 'copy';
+                $actionUrl = clone $this->cx->getRequest()->getUrl();
+                $actionUrl->setParam($param, null);
+                \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
+            }
+
             // execute edit if entry is a doctrine entity (or execute callback if specified in configuration)
             // post edit
             $editId = $this->getEntryId();
@@ -199,15 +220,6 @@ class ViewGenerator {
             if ($this->cx->getRequest()->hasParam('deleteids')) {
                 $deleteIds = $this->cx->getRequest()->getParam('deleteids');
                 $this->removeEntries($entityWithNS, $deleteIds);
-            }
-
-            // execute copy if entry is a doctrine entity (or execute callback if specified in configuration)
-            // post edit
-            if (
-                !empty($this->options['functions']['copy']) &&
-                $this->options['functions']['copy'] != false
-            ) {
-                $this->saveEntry($entityWithNS);
             }
         } catch (\Exception $e) {
             \Message::add($e->getMessage(), \Message::CLASS_ERROR);
@@ -255,7 +267,12 @@ class ViewGenerator {
             $entityClassName,
             $entityClassName
         );
-        $this->object = $this->listingController->getData();
+        try {
+            $this->object = $this->listingController->getData();
+        } catch (\Doctrine\ORM\Query\QueryException $e) {
+            $this->object = new \Cx\Core_Modules\Listing\Model\Entity\DataSet();
+            throw $e;
+        }
         return $this->object->getDataType();
     }
 
@@ -279,6 +296,9 @@ class ViewGenerator {
         if (empty($this->options)) {
             $this->options = $options[''];
         }
+
+        //initialize the row status functionality
+        $this->initializeStatusOption($entityWithNS);
 
         //initialize the row sorting functionality
         $this->getSortingOption($entityWithNS);
@@ -342,8 +362,21 @@ class ViewGenerator {
                     $lcOptions['searchFields'][] = $field;
                 }
             }
+            if (isset($this->options['functions']['searchCallback'])) {
+                $lcOptions['searchCallback'] = $this->options['functions'][
+                    'searchCallback'
+                ];
+            }
         } else {
             $lcOptions['searchFields'] = array();
+        }
+        if (
+            isset($lcOptions['filtering']) &&
+            isset($this->options['functions']['filterCallback'])
+        ) {
+            $lcOptions['filterCallback'] = $this->options['functions'][
+                'filterCallback'
+            ];
         }
         if (!isset($lcOptions['filterFields'])) {
             $lcOptions['filterFields'] = false;
@@ -361,6 +394,23 @@ class ViewGenerator {
         } else {
             $lcOptions['filterFields'] = array();
         }
+        // ensure edited ID is loaded even with paging limits
+        // todo: this only works for doctrine entities
+        if ($entityClass !== 'array' && $this->getEntryId()) {
+            $em = $this->cx->getDb()->getEntityManager();
+            $metaData = $em->getClassMetadata($entityClass);
+            $primaryKeyNames = $metaData->getIdentifierFieldNames();
+            $lcOptions['filterFields'] = array_merge(
+                $lcOptions['filterFields'],
+                $primaryKeyNames
+            );
+            $entryIdValues = explode('/', $this->getEntryId());
+            $i = 0;
+            foreach ($primaryKeyNames as $primaryKeyName) {
+                $searchCriteria[$primaryKeyName] = $entryIdValues[$i];
+                $i++;
+            }
+        }
         $this->listingController = new \Cx\Core_Modules\Listing\Controller\ListingController(
             $renderObject,
             $searchCriteria,
@@ -376,7 +426,7 @@ class ViewGenerator {
      * @param $entityData array  post values
      * @return mixed      edited value
      */
-    protected function callStorecallback($name, $entityData)
+    protected function callStorecallback($name, $entityData, $entity)
     {
         if (
             !isset($this->options['fields']) ||
@@ -391,25 +441,16 @@ class ViewGenerator {
         if (isset($entityData[$name])) {
             $postedValue = contrexx_input2raw($entityData[$name]);
         }
-        /* We use json to do the storecallback. The 'else if' is for backwards compatibility so you can declare
-         * the function directly without using json. This is not recommended and not working over session */
-        if (is_array($storecallback) && isset($storecallback['adapter']) &&
-            isset($storecallback['method'])
-        ) {
-            $json = new \Cx\Core\Json\JsonData();
-            $jsonResult = $json->data(
-                $storecallback['adapter'],
-                $storecallback['method'],
-                array(
-                    'postedValue' => $postedValue,
-                )
-            );
-            if ($jsonResult['status'] == 'success') {
-                $entityData[$name] = $jsonResult["data"];
-            }
-        } else if (is_callable($storecallback)) {
-            $entityData[$name] = $storecallback($postedValue);
-        }
+        $arguments = array(
+            'postedValue' => $postedValue,
+            'fieldName' => $name,
+            'entity' => $entity,
+            'entityData' => $entityData
+        );
+        return static::callCallbackByInfo(
+            $storecallback,
+            $arguments
+        );
     }
 
     /**
@@ -458,7 +499,9 @@ class ViewGenerator {
             $methodBaseName = \Doctrine\Common\Inflector\Inflector::classify($name);
             $fieldSetMethodName = 'set' . $methodBaseName;
             $fieldGetMethodName = 'get' . $methodBaseName;
-            $entityData[$name] = $this->callStorecallback($name, $entityData);
+            $entityData[$name] = $this->callStorecallback(
+                $name, $entityData, $entity
+            );
 
             if (isset($entityData[$name]) && !in_array($name, $primaryKeyNames)) {
                 $fieldDefinition = $entityClassMetadata->getFieldMapping($name);
@@ -592,9 +635,68 @@ class ViewGenerator {
         // Foreach custom attribute we call the storecallback function if it exits
         foreach ($this->options['fields'] as $name=>$field) {
             if (!empty($field['custom'])) {
-                $entityData[$name] = $this->callStorecallback($name, $entityData);
+                $entityData[$name] = $this->callStorecallback(
+                    $name, $entityData, $entity
+                );
             }
         }
+    }
+
+    /**
+     * Initialize the row status functionality
+     *
+     * @param string $entityNameSpace entity namespace
+     */
+    protected function initializeStatusOption($entityNameSpace)
+    {
+        global $_ARRAYLANG;
+
+        //If the entity namespace is empty or an array then disable the status
+        if (empty($entityNameSpace) || $entityNameSpace === 'array') {
+            return;
+        }
+
+        $status = array();
+        if (
+            isset($this->options['functions']['status']) &&
+            is_array($this->options['functions']['status'])
+        ) {
+            $status = $this->options['functions']['status'];
+        }
+
+        //If the 'status' option does not have 'jsonadapter',
+        //we need to get the component name and entity name for updating the
+        //status in db
+        $componentName = '';
+        $entityName    = '';
+        if (
+            !isset($status['jsonadapter']) || (
+                isset($status['jsonadapter']) && (
+                    empty($status['jsonadapter']['object']) ||
+                    empty($status['jsonadapter']['act'])
+                )
+            )
+        ) {
+            $split          = explode('\\', $entityNameSpace);
+            $componentName  = isset($split[2]) ? $split[2] : '';
+            $entityName     = isset($split) ? end($split) : '';
+        }
+
+        $this->options['functions']['status']['component']  = $componentName;
+        $this->options['functions']['status']['entity']     = $entityName;
+
+        \ContrexxJavascript::getInstance()->setVariable(
+            'TXT_CORE_HTML_CANT_UPDATE_STATUS',
+            $_ARRAYLANG['TXT_CORE_HTML_CANT_UPDATE_STATUS'],
+            'ViewGenerator'
+        );
+        //Register the script Backend.js
+        \JS::registerJS(
+            substr(
+                $this->cx->getCoreFolderName() . '/Html/View/Script/Backend.js'
+                , 1
+            )
+        );
     }
 
     /**
@@ -683,9 +785,6 @@ class ViewGenerator {
         $this->options['functions']['sortBy']['entity']     = $entityName;
         $this->options['functions']['sortBy']['sortOrder']  = $sortOrder;
         $this->options['functions']['sortBy']['pagingPosition'] = $pagingPosition;
-
-        //Register the script Backend.js and activate the jqueryui and cx for the row sorting
-        \JS::registerJS(substr($this->cx->getCoreFolderName() . '/Html/View/Script/Backend.js', 1));
     }
 
     /**
@@ -699,15 +798,37 @@ class ViewGenerator {
      * @return int 0 if no entry was found
      */
     protected function getEntryId() {
-        if (!isset($_GET['editid']) && !isset($_POST['editid'])) {
+        if (
+            !isset($_GET['editid']) &&
+            !isset($_POST['editid']) &&
+            !isset($_GET['showid']) &&
+            !isset($_POST['showid']) &&
+            !isset($_GET['copy'])
+        ) {
             return 0;
         }
+        $editId = 0;
         if (isset($_GET['editid'])) {
-            return $this->getVgParam($_GET['editid']);
+            $editId = $this->getVgParam($_GET['editid']);
         }
         if (isset($_POST['editid'])) {
-            return $this->getVgParam($_POST['editid']);
+            $editId = $this->getVgParam($_POST['editid']);
         }
+        if (isset($_GET['showid'])) {
+            $editId = $this->getVgParam($_GET['showid']);
+        }
+        if (isset($_POST['showid'])) {
+            $editId = $this->getVgParam($_POST['showid']);
+        }
+        if (isset($_GET['copy'])) {
+            $editId = $this->getVgParam($_GET['copy']);
+        }
+
+        // Self-heal if the same param is specified multiple times:
+        if (is_array($editId)) {
+            return end($editId);
+        }
+        return $editId;
     }
 
     /**
@@ -762,7 +883,9 @@ class ViewGenerator {
      * @return string rendered view
      */
     public function render(&$isSingle = false) {
-        global $_ARRAYLANG;
+        global $_ARRAYLANG, $_CORELANG;
+
+        \JS::registerJS(substr($this->cx->getCoreFolderName() . '/Html/View/Script/Backend.js', 1));
 
         // this case is used to generate the add entry form, where we can create an new entry
         if (!empty($_GET['add'])
@@ -771,6 +894,11 @@ class ViewGenerator {
             return $this->renderFormForEntry(null);
         }
 
+        $entityId = $this->getEntryId();
+	    if (!empty($_GET['showid'])) {
+	        return $this->renderFormForEntry($entityId, true);
+	    }
+
         // this case is used to copy the entry
         if (
             !empty($_GET['copy']) &&
@@ -778,16 +906,25 @@ class ViewGenerator {
             $this->options['functions']['copy'] != false
         ) {
             $isSingle = true;
-            $eId = intval($this->getVgParam($_GET['copy']));
-            return $this->renderFormForEntry($eId);
+            return $this->renderFormForEntry($entityId);
         }
 
-        $template = new \Cx\Core\Html\Sigma(\Env::get('cx')->getCodeBaseCorePath().'/Html/View/Template/Generic');
-        $template->loadTemplateFile('TableView.html');
+        $template = new \Cx\Core\Html\Sigma(
+            \Env::get('cx')->getCodeBaseCorePath().'/Html/View/Template/Generic'
+        );
+        if (
+            !isset($this->options['template']['tableView']) || 
+            !file_exists($this->options['template']['tableView'])
+        ) {
+            $templateFile = $this->cx->getCodeBaseCorePath().
+                '/Html/View/Template/Generic/TableView.html';
+        } else {
+            $templateFile = $this->options['template']['tableView'];
+        }
+        $template->loadTemplateFile($templateFile);
         $template->setGlobalVariable($_ARRAYLANG);
         $template->setGlobalVariable('VG_ID', $this->viewId);
         $renderObject = $this->object;
-        $entityId = $this->getEntryId();
 
         // this case is used to get the right entry if we edit a existing one
         if (
@@ -838,9 +975,10 @@ class ViewGenerator {
                 isset($this->options['functions']['filtering']) &&
                 $this->options['functions']['filtering']
             );
-            if ($searching || $filtering) {
-                \JS::registerJS(substr($this->cx->getCoreFolderName() . '/Html/View/Script/Backend.js', 1));
-            }
+            $alphabetical = (
+                isset($this->options['functions']['alphabetical']) &&
+                $this->options['functions']['alphabetical']
+            );
             if ($searching) {
                 // If filter is used for extended search,
                 // hide filter and add a toggle link
@@ -867,9 +1005,22 @@ class ViewGenerator {
             }
             if ($filtering) {
                 // find all filter-able fields
-                if ($renderObject instanceof \Cx\Core_Modules\Listing\Model\Entity\DataSet) {
+                if (
+                    $renderObject instanceof \Cx\Core_Modules\Listing\Model\Entity\DataSet &&
+                    (
+                        $renderObject->size() ||
+                        $renderObject->getDataType() == 'array'
+                    )
+                ) {
                     $filterableFields = array_keys($renderObject->rewind());
                 } else {
+                    $filterFieldObject = $renderObject;
+                    if (
+                        $renderObject instanceof \Cx\Core_Modules\Listing\Model\Entity\DataSet
+                    ) {
+                        $entityClass = $renderObject->getDataType();
+                        $filterFieldObject = new $entityClass();
+                    }
                     $filterableFields = array_map(
                         function($element) {
                             // some php versions prepent \NUL*\NUL to protected
@@ -878,7 +1029,7 @@ class ViewGenerator {
                             // are forbidden by guidelines.
                             return preg_replace('/^\x0\*\x0/', '', $element);
                         },
-                        array_keys((array) $renderObject)
+                        array_keys((array) $filterFieldObject)
                     );
                 }
                 foreach ($filterableFields as $field) {
@@ -908,11 +1059,17 @@ class ViewGenerator {
                     // find options: Default is a text field, for more we need doctrine
                     $optionsField = '';
                     if (isset($this->options['fields'][$field]['filterOptionsField'])) {
-                        $optionsField = $this->options['fields'][$field]['filterOptionsField'](
-                            $renderObject,
-                            $field,
-                            $fieldId,
-                            'vg-' . $this->viewId . '-searchForm'
+                        $optionsField = $this->callCallbackByInfo(
+                            $optionsField = $this->options['fields'][$field][
+                                'filterOptionsField'
+                            ],
+                            array(
+                                'parseObject' => $renderObject,
+                                'fieldName' => $field,
+                                'elementName' => $fieldId,
+                                'formName' => 'vg-' . $this->viewId
+                                    . '-searchForm'
+                            )
                         );
                     } else {
                         // parse options
@@ -933,6 +1090,70 @@ class ViewGenerator {
                 }
                 $template->touchBlock('filter');
                 $template->parse('filter');
+            }
+            if ($alphabetical) {
+                // #, A-Z, ''
+                $arrLetters = array_merge(array(48), range(65, 90), array(''));
+
+                foreach ($arrLetters as $letter) {
+                    switch ($letter) {
+                        case 48:
+                            $parsedLetter = '#';
+                            $displayLetter = $parsedLetter;
+                            break;
+                        case '':
+                            $parsedLetter = $letter;
+                            $displayLetter = $_CORELANG['TXT_ACCESS_ALL'];
+                            break;
+                        default:
+                            $parsedLetter = chr($letter);
+                            $displayLetter = $parsedLetter;
+                            break;
+                    }
+
+                    $selectedLetter = '';
+                    $url = static::getBaseUrl();
+                    // TODO: Should keep params of other VG instances
+                    $oldSearch = '';
+                    if (isset($url->getParamArray()['search'])) {
+                        $oldSearch = $this->getVgParam(
+                            $url->getParamArray()['search']
+                        );
+                        if (
+                            isset(
+                                $oldSearch[
+                                    $this->options['functions']['alphabetical']
+                                ]
+                            )
+                        ) {
+                            $selectedLetter = substr(
+                                $oldSearch[
+                                    $this->options['functions']['alphabetical']
+                                ],
+                                0,
+                                1
+                            );
+                        }
+                    }
+
+                    if ($parsedLetter == $selectedLetter) {
+                        $template->touchBlock('selected');
+                    }
+
+                    $url->setParam('search', null);
+                    if (!empty($parsedLetter)) {
+                        $url = $this->getExtendedSearchUrl(array(
+                            $this->options['functions']['alphabetical'] =>
+                                $parsedLetter . '%',
+                        ));
+                    }
+
+                    $template->setVariable(array(
+                        'LETTER' => $displayLetter,
+                        'ALPHABETICAL_URL' => (string) $url,
+                    ));
+                    $template->parse('letter');
+                }
             }
             if (!count($renderObject) || !count(current($renderObject))) {
                 // make this configurable
@@ -992,10 +1213,11 @@ class ViewGenerator {
      * This function will render the form for a given entry by id. If id is null, an empty form will be loaded
      *
      * @access protected
-     * @param int $entityId id of the entity
+     * @param int  $entityId id of the entity
+     * @param bool $readOnly if entity is only readable
      * @return string rendered view
      */
-    protected function renderFormForEntry($entityId) {
+    protected function renderFormForEntry($entityId, $readOnly = false) {
         global $_CORELANG;
 
         if (!isset($this->options['fields'])) {
@@ -1038,48 +1260,60 @@ class ViewGenerator {
         $actionUrl = $renderOptions['actionUrl'];
 
         //sets the order of the fields
-        if(!empty($this->options['order']['form'])) {
-            $sortedData = array();
-            foreach ($this->options['order']['form'] as $orderVal) {
-                if(array_key_exists($orderVal, $renderArray)){
-                    $sortedData[$orderVal] = $renderArray[$orderVal];
-                }
-            }
-            $renderArray = array_merge($sortedData,$renderArray);
+        if(!empty($this->options['order']['form']) && !$readOnly) {
+            $renderArray = $this->orderData(
+                $this->options['order']['form'],
+                $renderArray
+            );
+        } else if (!empty($this->options['order']['show']) && $readOnly) {
+            $renderArray = $this->orderData(
+                $this->options['order']['show'],
+                $renderArray
+            );
         }
-        $this->formGenerator = new FormGenerator($renderArray, $actionUrl, $entityClassWithNS, $title, $this->options, $entityId, $this->componentOptions, $this);
+        if ($readOnly) {
+            unset($renderArray['vg_increment_number']);
+            $this->formGenerator = new \Cx\Core\Html\Controller\TableGenerator($renderArray, $this->options, $readOnly);
+        } else {
+            $this->formGenerator = new FormGenerator($renderArray, $actionUrl, $entityClassWithNS, $title, $this->options, $entityId, $this->componentOptions, $this);
+        }
         // This should be moved to FormGenerator as soon as FormGenerator
         // gets the real entity instead of $renderArray
         $additionalContent = '';
-        if (isset($this->options['preRenderDetail'])) {
-            $preRender = $this->options['preRenderDetail'];
-            /* We use json to do preRender the detail. The 'else if' is for backwards compatibility so you can declare
-             * the function directly without using json. This is not recommended and not working over session */
-            if (
-                isset($preRender) &&
-                is_array($preRender) &&
-                isset($preRender['adapter']) &&
-                isset($preRender['method'])
-            ) {
-                $json = new \Cx\Core\Json\JsonData();
-                $jsonResult = $json->data(
-                    $preRender['adapter'],
-                    $preRender['method'],
+        try {
+            if (isset($this->options['preRenderDetail'])) {
+                $additionalContent = static::callCallbackByInfo(
+                    $this->options['preRenderDetail'],
                     array(
                         'viewGenerator' => $this,
                         'formGenerator' => $this->formGenerator,
                         'entityId'  => $entityId,
                     )
                 );
-                if ($jsonResult['status'] == 'success') {
-                    $additionalContent .= $jsonResult["data"];
-                }
-            } else if (is_callable($preRender)) {
-                $additionalContent = $preRender($this, $this->formGenerator, $entityId);
 
             }
+        } catch (\Exception $e) {
+            \Message::add($e->getMessage(), \Message::CLASS_ERROR);
         }
         return $this->formGenerator . $additionalContent;
+    }
+
+    /**
+     * Order an array by a given list
+     *
+     * @param $orderList   array order list
+     * @param $renderArray array to order
+     * @return array ordered data
+     */
+    protected function orderData($orderList, $renderArray)
+    {
+        $sortedData = array();
+        foreach ($orderList as $orderVal) {
+            if(array_key_exists($orderVal, $renderArray)){
+                $sortedData[$orderVal] = $renderArray[$orderVal];
+            }
+        }
+        return array_merge($sortedData,$renderArray);
     }
 
     /**
@@ -1172,7 +1406,11 @@ class ViewGenerator {
 
                 // get doctrine field name, database field name and type for each field
                 foreach($renderObject as $name => $value) {
-                    if ($name == 'virtual' || in_array($name, $primaryKeyNames)) {
+                    if ($name == 'virtual' || (
+                            in_array($name, $primaryKeyNames) &&
+                            empty($this->options['showPrimaryKeys'])
+                        )
+                    ) {
                         continue;
                     }
                     $classMetadata = \Env::get('em')->getClassMetadata($entityClassWithNS);
@@ -1209,10 +1447,10 @@ class ViewGenerator {
                     }
                 }
             } else {
-                //var_dump($entityId);
-                //var_dump($this->options['functions']['add']);
-                //var_dump($this->object->entryExists($entityId));
-                throw new ViewGeneratorException('Tried to show form but neither add nor edit view can be shown');
+                // add view is deactivated and overview is to be shown
+                // In this case the only used return values are "renderObject"
+                // and "entityClassWithNS". The do not need to be altered,
+                // the default values are fine.
             }
 
             // Add custom fields
@@ -1225,7 +1463,6 @@ class ViewGenerator {
             $renderArray = $this->object->toArray();
             $entityClassWithNS = '';
             $title = $entityTitle;
-            $renderObject = null;
         }
 
         return array(
@@ -1530,6 +1767,14 @@ class ViewGenerator {
                     \Message::add($_ARRAYLANG['TXT_CORE_RECORD_UNKNOWN_ERROR'], \Message::CLASS_ERROR);
                 }
                 return;
+            } catch (\Cx\Model\Base\ValidationException $e) {
+                foreach ($e->getErrors() as $error) {
+                    $msg = $error;
+                    if (is_array($error)) {
+                        $msg = current($error);
+                    }
+                    \Message::add($msg, \Message::CLASS_ERROR);
+                }
             } catch (\Exception $e) {
                 echo $e->getMessage();die();
             }
@@ -1760,6 +2005,16 @@ class ViewGenerator {
     }
 
     /**
+     * Get the Url to show an entry of this VG instance
+     * @param int|string|array|object $entryOrId Entity or entity key
+     * @param \Cx\Core\Routing\Url $url (optional) If supplied necessary params are applied
+     * @return \Cx\Core\Routing\Url URL with edit arguments
+     */
+    public function getShowUrl($entryOrId, $url = null) {
+        return static::getVgShowUrl($this->viewId, $entryOrId, $url);
+    }
+
+    /**
      * Get the Url to copy an entry in this VG instance
      * @param int|string|array|object $entryOrId Entity or entity key
      * @param \Cx\Core\Routing\Url $url (optional) If supplied necessary params are applied
@@ -1836,6 +2091,7 @@ class ViewGenerator {
         if (!$url) {
             $url = static::getBaseUrl();
         }
+        $url->setParam('pos', null);
         static::appendVgParam(
             $url,
             $vgId,
@@ -1875,6 +2131,41 @@ class ViewGenerator {
             static::getId($entryOrId)
         );
         return $url;
+    }
+
+    /**
+     * Get the Url to show an entry of a VG instance
+     * @param int $vgId ViewGenerator id
+     * @param int|string|array|object $entryOrId Entity or entity key
+     * @param \Cx\Core\Routing\Url $url (optional) If supplied necessary params are applied
+     * @return \Cx\Core\Routing\Url URL with edit arguments
+     */
+    public static function getVgShowUrl($vgId, $entryOrId, $url = null) {
+        if (!$url) {
+            $url = static::getBaseUrl();
+        }
+        static::appendVgParam(
+            $url,
+            $vgId,
+            'showid',
+            static::getShowId($entryOrId)
+        );
+        return $url;
+    }
+
+    /**
+     * Parses the mixed type $entryOrId param for all the get...Url methods
+     * @param int|string|array|object $entryOrId Entity or entity key
+     * @return string Entity identifier
+     */
+    protected static function getShowId($entryOrId) {
+        if (is_array($entryOrId)) {
+            return implode('/', $entryOrId);
+        }
+        if (is_object($entryOrId)) {
+            // find id using doctrine or dataset
+        }
+        return $entryOrId;
     }
 
     /**
@@ -1987,49 +2278,40 @@ class ViewGenerator {
     }
 
     /**
-     * Return the value of the value callback.
+     * Calls the given callback with the given arguments
      *
-     * @param $callback    array  callback options
-     * @param $fieldvalue  string value to modify
-     * @param $fieldname   string name of option
-     * @param $rowData     array  entity data
-     * @param $fieldoption array  option config
-     * @param $vgId        int    id of active ViewGenerator
-     * @return mixed
+     * If the callback is a JsonAdapter, $info must have the indexes "adapter"
+     * and "method" set.
+     * @param array $info Callable or JsonAdapter
+     * @param array $arguments Associative array of arguments
+     * @param boolean $throwIfNoCallback If set to true, throws an exception on error
+     * @throws ViewGeneratorException If $throwIfNoCallback is true and an error happens
      */
-    public function callValueCallback($callback, $fieldvalue, $fieldname, $rowData, $fieldoption)
-    {
-        $value = $fieldvalue;
-
+    public static function callCallbackByInfo($info, $arguments, $throwIfNoCallback = false) {
         if (
-            is_array($callback) &&
-            isset($callback['adapter']) &&
-            isset($callback['method'])
+            is_array($info) &&
+            isset($info['adapter']) &&
+            isset($info['method'])
         ) {
             $json = new \Cx\Core\Json\JsonData();
             $jsonResult = $json->data(
-                $callback['adapter'],
-                $callback['method'],
-                array(
-                    'fieldvalue' => $fieldvalue,
-                    'fieldname' => $fieldname,
-                    'rowData' => $rowData,
-                    'fieldoption' => $fieldoption,
-                    'vgId' => $this->viewId,
-                )
+                $info['adapter'],
+                $info['method'],
+                $arguments
             );
             if ($jsonResult['status'] == 'success') {
-                $value = $jsonResult['data'];
+                $data = $jsonResult['data'];
+            } else {
+                if ($jsonResult['status'] == 'error' && !empty($jsonResult['message'])) {
+                    throw new \Cx\Core\Error\Model\Entity\ShinyException($jsonResult['message']);
+                }
+                throw new ViewGeneratorException($jsonResult['message']);
             }
-        } else if (is_callable($callback)) {
-            $value = $callback(
-                $fieldvalue,
-                $fieldname,
-                $rowData,
-                $fieldoption,
-                $this->viewId
-            );
+        } else if (is_callable($info)) {
+            $data = call_user_func_array($info, $arguments);
+        } else if ($throwIfNoCallback) {
+            throw new ViewGeneratorException('Given argument is not a valid callback');
         }
-        return $value;
+        return $data;
     }
 }
