@@ -48,8 +48,9 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
      * Get ViewGenerator options for DiscountCoupon entity
      *
      * @param $options array predefined ViewGenerator options
+     *
+     * @return array includes ViewGenerator options for DiscountCoupon entity
      * @throws \Doctrine\ORM\ORMException
-     * @return array includes ViewGenerator options for Manufacturer entity
      */
     public function getViewGeneratorOptions($options)
     {
