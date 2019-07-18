@@ -25,7 +25,8 @@
  */
 
 /**
- * Specific BackendController for this Component. Use this to easily create a backend view
+ * Specific BackendController for this Component. Use this to easily create a
+ * backend view
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -37,7 +38,8 @@ namespace Cx\Modules\Shop\Controller;
 
 
 /**
- * Specific BackendController for this Component. Use this to easily create a backend view
+ * Specific BackendController for this Component. Use this to easily create a
+ * backend view
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
