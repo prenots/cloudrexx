@@ -353,9 +353,13 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
         }
         $rate = self::$arrCurrency[self::$activeCurrencyId]['rate'];
         $defaultRate = self::$arrCurrency[self::$defaultCurrencyId]['rate'];
-        $defaultIncrement = self::$arrCurrency[self::$defaultCurrencyId]['increment'];
-        return self::formatPrice(round(
-                $price*$defaultRate/$rate/$defaultIncrement)*$defaultIncrement);
+        $defaultIncrement = self::$arrCurrency[
+            self::$defaultCurrencyId
+        ]['increment'];
+        return self::formatPrice(
+            round($price*$defaultRate/$rate/$defaultIncrement)
+            * $defaultIncrement
+        );
     }
 
     /**
@@ -671,8 +675,9 @@ class CurrencyController extends \Cx\Core\Core\Model\Entity\Controller
         if (empty($format)) $format = '%2$s (%1$s)';
         $arrName = array();
         foreach (self::known_currencies() as $currency) {
-            $arrName[$currency[0]] = sprintf($format,
-                $currency[0], $currency[1], $currency[2]);
+            $arrName[$currency[0]] = sprintf(
+                $format, $currency[0], $currency[1], $currency[2]
+            );
         }
         return $arrName;
     }
