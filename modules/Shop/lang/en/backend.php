@@ -1071,3 +1071,4 @@ $_ARRAYLANG['product'] = 'Product';
 $_ARRAYLANG['payment'] = 'Payment method';
 $_ARRAYLANG['link'] = 'Link';
 $_ARRAYLANG['TXT_MODULE_SHOP'] = 'Shop';
+$_ARRAYLANG['TXT_MODULE_SHOP_ANY'] = 'any';
