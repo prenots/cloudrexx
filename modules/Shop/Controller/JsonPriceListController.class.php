@@ -340,7 +340,8 @@ class JsonPriceListController
      */
     public function getLinkElement($params)
     {
-        $value = !empty($params['value']) ? $params['value'] : '';
+        $value = !empty($params['data']) ? $params['data'] : '';
+        $value = !empty($params['value']) ? $params['value'] : $value;
         $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
         $text = new \Cx\Core\Html\Model\Entity\TextElement($value);
         $link->setAttributes(
@@ -363,8 +364,8 @@ class JsonPriceListController
     public function getGeneratedPdfLink($params)
     {
         $rowData = !empty($params['rowData']) ? $params['rowData'] : array();
-        $langId = !empty($rowData['langId']) ? $rowData['langId'] : array();
-        $id = !empty($rowData['id']) ? $rowData['id'] : array();
+        $langId = !empty($rowData['langId']) ? $rowData['langId'] : '';
+        $id = !empty($rowData['id']) ? $rowData['id'] : 0;
 
         $url = $this->cx->getRequest()->getUrl();
         $protcol = $url->getProtocol();
