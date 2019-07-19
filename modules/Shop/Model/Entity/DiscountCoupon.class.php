@@ -428,8 +428,12 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * The optional $customer_id limits the result to the uses of that
      * Customer.
      * Returns 0 (zero) for codes not present in the relation (yet).
+     *
+     * @param   integer   $customerId    The optional Customer ID
+     *
      * @return  mixed                     The number of uses of the code
      *                                    on success, false otherwise
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     public function getUsedCount($customerId = 0)
     {
@@ -447,10 +451,13 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * of that Customer and Order.
      * Returns 0 (zero) for Coupons that have not been used with the given
      * parameters, and thus are not present in the relation.
-     * @param   integer   $customer_id    The optional Customer ID
-     * @param   integer   $order_id       The optional Order ID
+     *
+     * @param   integer   $customerId    The optional Customer ID
+     * @param   integer   $orderId       The optional Order ID
+     *
      * @return  mixed                     The amount used with this Coupon
-     *                                    on success, false otherwise
+                             on success, false otherwise
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     public function getUsedAmount($customer_id = null, $order_id = null)
     {
@@ -472,8 +479,10 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * If the Coupon has an amount, the sum of all previous redemptions
      * is subtracted first, and the remainder is returned.
      * Note that the value returned is never greater than $amount.
+     *
      * @param   float   $amount         The amount
-     * @param   integer $customer_id    The Customer ID
+     * @param   integer $customerId     The Customer ID
+     *
      * @return  string                  The applicable discount amount
      */
     function getDiscountAmountOrRate($amount, $customer_id=NULL)
@@ -500,16 +509,19 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * Mind that the amount cannot be changed once the record has been
      * created, so only the use count will ever be updated.
      * $uses is never interpreted as anything other than 0 or 1!
-     * @param   integer   $order_id         The Order ID
-     * @param   integer   $customer_id      The Customer ID
+     *
+     * @param   integer   $orderId          The Order ID
+     * @param   integer   $customerId       The Customer ID
      * @param   double    $amount           The Order- or the Product amount
      *                                      (if $this->product_id is non-empty)
      * @param   integer   $uses             The redeem count.  Set to 0 (zero)
      *                                      when storing the Order, omit or
      *                                      set to 1 (one) when redeeming
      *                                      Defaults to 1.
-     * @return  Coupon                      The Coupon on success,
-     *                                      false otherwise
+     *
+     * @return  \Cx\Modules\Shop\Model\Entity\DiscountCoupon Coupon on success,
+     *                                                       false otherwise
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     public function redeem($order_id, $customer_id, $amount, $uses=1)
     {

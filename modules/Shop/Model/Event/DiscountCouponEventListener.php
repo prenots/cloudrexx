@@ -48,7 +48,9 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
     /**
      * Validate discount coupon before persist event
      *
-     * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
+     * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs arguments of
+     *
+     *
      * @throws \Cx\Core\Error\Model\Entity\ShinyException
      * @throws \Doctrine\ORM\ORMException
      */

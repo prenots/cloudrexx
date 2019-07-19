@@ -50,7 +50,7 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
      * @param $options array predefined ViewGenerator options
      *
      * @return array includes ViewGenerator options for DiscountCoupon entity
-     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     public function getViewGeneratorOptions($options)
     {
@@ -324,8 +324,10 @@ class DiscountCouponController extends \Cx\Core\Core\Model\Entity\Controller
 
     /**
      * Returns a unique Coupon code with eight characters
-     * @return    string            The Coupon code
-     * @see       User::make_password()
+     *
+     * @see User::make_password()
+     *
+     * @return string The Coupon code
      */
     static function getNewCode()
     {
