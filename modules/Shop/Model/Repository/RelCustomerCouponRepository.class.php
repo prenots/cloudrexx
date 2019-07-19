@@ -93,20 +93,20 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
      * @return  mixed                    The amount used with this Coupon
      *                                   on success, false otherwise
      */
-    public function getUsedAmount($code, $customer_id=NULL, $order_id=NULL)
+    public function getUsedAmount($code, $customerId=NULL, $orderId=NULL)
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('sum(rcc.amount) as amount')
             ->from($this->_entityName, 'rcc')
             ->where($qb->expr()->eq('rcc.code', '?1'))
             ->setParameter(1, $code);
-        if (!empty($customer_id)) {
+        if (!empty($customerId)) {
             $qb->andWhere($qb->expr()->eq('rcc.customerId', '?2'))
-                ->setParameter(2, $customer_id);
+                ->setParameter(2, $customerId);
         }
-        if (!empty($order_id)) {
+        if (!empty($orderId)) {
             $qb->andWhere($qb->expr()->eq('rcc.orderId', '?3'))
-                ->setParameter(3, $order_id);
+                ->setParameter(3, $orderId);
         }
 
         if (!empty($qb->getQuery()->getResult()[0]['amount'])) {
@@ -130,36 +130,42 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
      * Mind that the amount cannot be changed once the record has been
      * created, so only the use count will ever be updated.
      * $uses is never interpreted as anything other than 0 or 1!
-     * @param   integer   $order_id         The Order ID
-     * @param   integer   $customer_id      The Customer ID
+     * @param   integer   $orderId          The Order ID
+     * @param   integer   $customerId       The Customer ID
      * @param   double    $amount           The Order- or the Product amount
      *                                      (if $this->product_id is non-empty)
      * @param   integer   $uses             The redeem count.  Set to 0 (zero)
      *                                      when storing the Order, omit or
      *                                      set to 1 (one) when redeeming
      *                                      Defaults to 1.
-     * @return  Coupon                      The Coupon on success,
-     *                                      false otherwise
+     *
+     * @return  \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon Coupon on
+     *                                                  success, false otherwise
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
-    public function redeem($code, $order_id, $customer_id, $amount, $uses=1)
+    public function redeem($code, $orderId, $customerId, $amount, $uses=1)
     {
         $customerCoupon = $this->findOneBy(
             array(
                 'code' => $code,
-                'orderId' => $order_id,
-                'customerId' => $customer_id
+                'orderId' => $orderId,
+                'customerId' => $customerId
             )
         );
         if (empty($customerCoupon)) {
-            $order = $this->_em->find('Cx\Modules\Shop\Model\Entity\Order', $order_id);
-            $customer = $this->_em->find('Cx\Core\User\Model\Entity\User', $customer_id);
+            $order = $this->_em->find(
+                'Cx\Modules\Shop\Model\Entity\Order', $orderId
+            );
+            $customer = $this->_em->find(
+                'Cx\Core\User\Model\Entity\User', $customerId
+            );
 
             $customerCoupon = new \Cx\Modules\Shop\Model\Entity\RelCustomerCoupon();
             $customerCoupon->setCode($code);
             $customerCoupon->setOrder($order);
-            $customerCoupon->setOrderId($order_id);
+            $customerCoupon->setOrderId($orderId);
             $customerCoupon->setCustomer($customer);
-            $customerCoupon->setCustomerId($customer_id);
+            $customerCoupon->setCustomerId($customerId);
             $customerCoupon->setAmount($amount);
         }
 

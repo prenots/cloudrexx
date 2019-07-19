@@ -91,8 +91,8 @@ class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
      * @return  \Cx\Modules\Shop\Model\Entity\DiscountCoupon The matching Coupon
      *                             on success, false on error, or null otherwise
      */
-    public function available($code, $order_amount,
-                              $customer_id=null, $product_id=null, $payment_id=null
+    public function available(
+        $code, $orderAmount, $customerId=null, $productId=null, $paymentId=null
     ) {
         global $_ARRAYLANG;
 
@@ -105,53 +105,71 @@ class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
         // Verify "ownership" first.  No point in setting status messages
         // that are inappropriate for other users.
         if ($objCoupon->getCustomerId()
-            && $objCoupon->getCustomerId() != intval($customer_id)) {
-//DBG::log("Coupon::available($code, $order_amount, $customer_id, $product_id, $payment_id): Wrong Customer ID");
+            && $objCoupon->getCustomerId() != intval($customerId)) {
+
             return null;
         }
-        if ($objCoupon->getProductId() != intval($product_id)) {
-//DBG::log("Coupon::available($code, $order_amount, $customer_id, $product_id, $payment_id): Wrong Product ID, need ".$objCoupon->product_id);
+        if ($objCoupon->getProductId() != intval($productId)) {
             if ($objCoupon->getProductId()) {
-                if (!$this->hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PRODUCT')) {
-                    \Message::information($_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PRODUCT']);
+                if (!$this->hasMessage(
+                    'TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PRODUCT'
+                )) {
+                    \Message::information(
+                        $_ARRAYLANG[
+                            'TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PRODUCT'
+                        ]
+                    );
                 }
             }
             return null;
         }
         if ($objCoupon->getPaymentId()
-            && $objCoupon->getPaymentId() != intval($payment_id)) {
-//DBG::log("Coupon::available($code, $order_amount, $customer_id, $product_id, $payment_id): Wrong Payment ID");
-            if (!$this->hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PAYMENT')) {
-                \Message::information($_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PAYMENT']);
+            && $objCoupon->getPaymentId() != intval($paymentId)) {
+            if (!$this->hasMessage(
+                'TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PAYMENT'
+            )) {
+                \Message::information(
+                    $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_THIS_PAYMENT']
+                );
             }
             return null;
         }
         if ($objCoupon->getStartTime()
             && $objCoupon->getStartTime() > time()) {
             if (!$this->hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_YET')) {
-                \Message::information($_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_YET']);
+                \Message::information(
+                    $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_YET']
+                );
             }
             return null;
         }
         if ($objCoupon->getEndTime()
             && $objCoupon->getEndTime() < time()) {
             if (!$this->hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_ALREADY')) {
-                \Message::information($_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_ALREADY']);
+                \Message::information(
+                    $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_ALREADY']
+                );
             }
             return null;
         }
         // Deduct amounts already redeemed
-        if (   floatval($objCoupon->getDiscountAmount()) > 0
-            && $objCoupon->getUsedAmount($customer_id) >= $objCoupon->getDiscountAmount()) {
-//DBG::log("Coupon::available($code, $order_amount, $customer_id, $product_id, $payment_id): Deduct amounts redeemed");
+        if (floatval($objCoupon->getDiscountAmount()) > 0 &&
+            $objCoupon->getUsedAmount($customerId) >=
+            $objCoupon->getDiscountAmount()
+        ) {
             return null;
         }
-        if ($objCoupon->getMinimumAmount() > floatval($order_amount)) {
-//DBG::log("Coupon::available($code, $order_amount, $customer_id, $product_id, $payment_id): Order amount too low");
+        if ($objCoupon->getMinimumAmount() > floatval($orderAmount)) {
+
             if (!$this->hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT')) {
-                \Message::information(sprintf(
-                    $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT'],
-                    $objCoupon->getMinimumAmount(), \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()));
+                \Message::information(
+                    sprintf(
+                        $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_FOR_AMOUNT'],
+                        $objCoupon->getMinimumAmount(),
+                        \Cx\Modules\Shop\Controller\CurrencyController
+                            ::getActiveCurrencyCode()
+                    )
+                );
             }
             return null;
         }
@@ -165,12 +183,17 @@ class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
         $objCoupon->setUses(
             $objCoupon->getUses()
             - $objCoupon->getUsedCount(
-                ($objCoupon->getCustomerId()
-                    ? $customer_id : null)));
+                ($objCoupon->getCustomerId() ? $customerId : null)
+            )
+        );
         if ($objCoupon->getUses() <= 0) {
-//DBG::log("Coupon::available($code, $order_amount, $customer_id, $product_id, $payment_id): Fully redeemed");
-            if (!$this->hasMessage('TXT_SHOP_COUPON_UNAVAILABLE_CAUSE_USED_UP')) {
-                \Message::information($_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_CAUSE_USED_UP']);
+
+            if (!$this->hasMessage(
+                'TXT_SHOP_COUPON_UNAVAILABLE_CAUSE_USED_UP'
+            )) {
+                \Message::information(
+                    $_ARRAYLANG['TXT_SHOP_COUPON_UNAVAILABLE_CAUSE_USED_UP']
+                );
             }
             return null;
         }
@@ -180,11 +203,16 @@ class DiscountCouponRepository extends \Doctrine\ORM\EntityRepository
     /**
      * This ensures that for every message type, only the first one is shown
      * @todo Move this behavior to Message class
+     *
      * @param string $type Type name
+     *
      * @return boolean Whether we already had such a message or not
      */
-    protected function hasMessage($type) {
-        $hasMessage = (isset(self::$hasMessage[$type]) && self::$hasMessage[$type]);
+    protected function hasMessage($type)
+    {
+        $hasMessage = (
+            isset(self::$hasMessage[$type]) && self::$hasMessage[$type]
+        );
         self::$hasMessage[$type] = true;
         return $hasMessage;
     }

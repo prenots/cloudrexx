@@ -459,13 +459,13 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
                              on success, false otherwise
      * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
-    public function getUsedAmount($customer_id = null, $order_id = null)
+    public function getUsedAmount($customerId = null, $orderId = null)
     {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $em = $cx->getDb()->getEntityManager();
         return $em->getRepository(
             'Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
-        )->getUsedAmount($this->code, $customer_id, $order_id);
+        )->getUsedAmount($this->code, $customerId, $orderId);
     }
 
     /**
@@ -484,15 +484,22 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      * @param   integer $customerId     The Customer ID
      *
      * @return  string                  The applicable discount amount
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
-    function getDiscountAmountOrRate($amount, $customer_id=NULL)
+    function getDiscountAmountOrRate($amount, $customerId=NULL)
     {
-        if ($this->getDiscountRate())
-            return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($amount * $this->getDiscountRate() / 100);
-        $amount_available = max(0,
-            $this->getDiscountAmount() - $this->getUsedAmount($customer_id));
+        if ($this->getDiscountRate()) {
+            return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+                $amount * $this->getDiscountRate() / 100
+            );
+        }
+        $amountAvailable = max(
+            0,
+            $this->getDiscountAmount() - $this->getUsedAmount($customerId)
+        );
         return \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
-            min($amount, $amount_available));
+            min($amount, $amountAvailable)
+        );
     }
 
     /**
@@ -523,7 +530,7 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
      *                                                       false otherwise
      * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
-    public function redeem($order_id, $customer_id, $amount, $uses=1)
+    public function redeem($orderId, $customerId, $amount, $uses=1)
     {
         // Applicable discount amount
         $amount = $this->getDiscountAmountOrRate($amount);
@@ -534,7 +541,7 @@ class DiscountCoupon extends \Cx\Model\Base\EntityBase {
 
         return $em->getRepository(
             'Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
-        )->redeem($this->getCode(), $order_id, $customer_id, $amount, $uses);
+        )->redeem($this->getCode(), $orderId, $customerId, $amount, $uses);
     }
 
 }

@@ -92,7 +92,9 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
         // Validate code
         if (empty($coupon->getCode()) || strlen($coupon->getCode()) < 6) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_INVALID_CODE']
+                $_ARRAYLANG[
+                    'TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_INVALID_CODE'
+                ]
             );
         }
 
@@ -138,7 +140,10 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
             )
         ) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_MISSING_RATE_OR_AMOUNT']
+                $_ARRAYLANG[
+                    'TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_MISSING_RATE_OR_'.
+                    'AMOUNT'
+                ]
             );
         }
 
@@ -150,7 +155,10 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
             )
         ) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_EITHER_RATE_OR_AMOUNT']
+                $_ARRAYLANG[
+                    'TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_EITHER_RATE_OR_'.
+                    'AMOUNT'
+                ]
             );
         }
 
@@ -160,7 +168,9 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
         $coupon->setEndTime(max(0, intval($coupon->getEndTime())));
         if ($coupon->getEndTime() && $coupon->getEndTime() < time()) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_INVALID_END_TIME']
+                $_ARRAYLANG[
+                    'TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_INVALID_END_TIME'
+                ]
             );
         }
 
@@ -168,7 +178,9 @@ class DiscountCouponEventListener extends \Cx\Core\Event\Model\Entity\DefaultEve
         $coupon->setUses(max(0, intval($coupon->getUses())));
         if (empty($coupon->getUses())) {
             throw new \Cx\Core\Error\Model\Entity\ShinyException(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_INVALID_USES']
+                $_ARRAYLANG[
+                    'TXT_SHOP_DISCOUNT_COUPON_ERROR_ADDING_INVALID_USES'
+                ]
             );
         }
     }
