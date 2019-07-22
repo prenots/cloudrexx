@@ -299,15 +299,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                         'class' => 'order-sum',
                     ),
                 ),
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    return $this->getCustomInputFields(
-                        $fieldname,
-                        $fieldvalue
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCustomInputField'
+                ),
             ),
             'dateTime' => array(
                 'showOverview' => true,
@@ -316,19 +311,18 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'sorting' => false,
                 'formtext' => $_ARRAYLANG['DETAIL_DATETIME'],
                 'table' => array (
-                    'parse' => function ($value, $rowData) {
-                        $date = new \DateTime($value);
-                        $fieldvalue = $date->format('d.m.Y H:i:s');
-                        return $fieldvalue;
-                    },
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'formatDateInOverview'
+                    ),
                     'attributes' => array(
                         'class' => 'order-date-time',
                     ),
                 ),
-                'formfield' => function($name, $type, $length, $value) {
-                    $date = new \DateTime($value);
-                    return $date->format('Y-m-d H:i:s');
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'formatDateInDetail',
+                ),
                 'attributes' => array(
                     'class' => 'readonly',
                 ),
@@ -341,66 +335,32 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'searchCheckbox' => 0,
                 'formtext' => $_ARRAYLANG['DETAIL_STATUS'],
                 'table' => array (
-                    'parse' => function ($value, $rowData) {
-                        return $this->getStatusMenu($value, '', $rowData['id']);
-                    },
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getStatusMenuForOverview'
+                    ),
                     'attributes' => array(
                         'class' => 'order-status',
                     ),
                 ),
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    return $this->getDetailStatusMenu(
-                        $fieldvalue,
-                        $fieldname
-                    );
-                },
-                'filterOptionsField' => function (
-                    $parseObject, $fieldName, $elementName, $formName
-                ) {
-                    return $this->getStatusMenu(
-                        '',
-                        $elementName,
-                        0,
-                        $formName
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getStatusMenuForDetail'
+                ),
+                'filterOptionsField' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getStatusMenuForFilter'
+                ),
             ),
             'gender' => array(
                 'showOverview' => false,
                 'allowSearching' => true,
                 'showDetail' => true,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    global $_ARRAYLANG;
-
-                    $validData = array(
-                        'gender_undefined' => $_ARRAYLANG[
-                        'TXT_SHOP_GENDER_UNDEFINED'
-                        ],
-                        'gender_male' => $_ARRAYLANG[
-                        'TXT_SHOP_GENDER_MALE'
-                        ],
-                        'gender_female' => $_ARRAYLANG[
-                        'TXT_SHOP_GENDER_FEMALE'
-                        ]
-                    );
-
-                    $genderDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
-                        $fieldname,
-                        $fieldvalue,
-                        'select',
-                        null,
-                        $validData
-                    );
-
-                    return $genderDropdown;
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getGenderMenu'
+                ),
             ),
             'company' => array(
                 'showOverview' => false,
@@ -445,28 +405,18 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'vatAmount' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    return $this->getCustomInputFields(
-                        $fieldname,
-                        $fieldvalue
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCustomInputField'
+                ),
             ),
             'shipmentAmount' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    return $this->getCustomInputFields(
-                        $fieldname,
-                        $fieldvalue
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCustomInputField'
+                ),
             ),
             'shipmentId' => array(
                 'showOverview' => false,
@@ -481,15 +431,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'paymentAmount' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    return $this->getCustomInputFields(
-                        $fieldname,
-                        $fieldvalue
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCustomInputField'
+                ),
             ),
             'ip' => array(
                 'showOverview' => false,
@@ -508,41 +453,30 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'sorting' => false,
                 'type' => 'div',
                 'table' => array(
-                    'parse' => function($value, $rowData) {
-                        return $this->getNoteToolTip($value);
-                    },
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getNoteToolTip'
+                    ),
                     'attributes' => array(
                         'class' => 'order-note',
                     ),
                 ),
-                'formfield' => function($name, $type, $length, $value) {
-                    return $this->getDivWrapper($value);
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getDivWrapper'
+                ),
             ),
             'modifiedOn' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength, $fieldvalue,
-                    $fieldoptions
-                ) {
-                    global $_ARRAYLANG;
-                    if (empty($fieldvalue)) {
-                        $field = new \Cx\Core\Html\Model\Entity\TextElement(
-                            $_ARRAYLANG['TXT_ORDER_WASNT_YET_EDITED']
-                        );
-                        return $field;
-                    }
-
-                    $date = new \DateTime($fieldvalue);
-                    return $field = new \Cx\Core\Html\Model\Entity\TextElement(
-                        $date->format('Y-m-d H:i:s')
-                    );
-                },
-                'storecallback' => function($value) {
-                    $date = new \DateTime('now');
-                    return $date->format('Y-m-d H:i:s');
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'formatModifiedOnDate'
+                ),
+                'storecallback' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCurrentDate'
+                ),
             ),
             'modifiedBy' => array(
                 'showOverview' => false,
@@ -551,42 +485,19 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'attributes' => array(
                     'class' => 'readonly'
                 ),
-                'storecallback' => function($value) {
-                    return $objFWUser = \FWUser::getFWUserObject()->objUser->getEmail();
-                }
+                'storecallback' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCurrentUser'
+                ),
             ),
             'billingGender' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
                 'allowSearching' => true,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    global $_ARRAYLANG;
-
-                    $validData = array(
-                        'gender_undefined' => $_ARRAYLANG[
-                        'TXT_SHOP_GENDER_UNDEFINED'
-                        ],
-                        'gender_male' => $_ARRAYLANG[
-                        'TXT_SHOP_GENDER_MALE'
-                        ],
-                        'gender_female' => $_ARRAYLANG[
-                        'TXT_SHOP_GENDER_FEMALE'
-                        ]
-                    );
-
-                    $genderDropdown = new \Cx\Core\Html\Model\Entity\DataElement(
-                        $fieldname,
-                        $fieldvalue,
-                        'select',
-                        null,
-                        $validData
-                    );
-
-                    return $genderDropdown;
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getGenderMenu'
+                ),
             ),
             'billingCompany' => array(
                 'showOverview' => false,
@@ -643,17 +554,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'orderItems' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength,
-                    $fieldvalue, $fieldoptions
-                ) {
-                    return $this->generateOrderItemView();
-                },
-                'storecallback' => function($value, $entity) {
-                    $this->cx->getDb()->getEntityManager()->getRepository(
-                        'Cx\Modules\Shop\Model\Entity\OrderItem'
-                    )->save($value, $entity);
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'generateOrderItemView'
+                ),
+                'storecallback' => array(
+                    'adapter' => 'Order',
+                    'method' => 'storeOrderItem'
+                ),
             ),
             'relCustomerCoupons' => array(
                 'showOverview' => false,
@@ -696,122 +604,87 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'sorting' => false,
                 'allowSearching' => true,
                 'table' => array (
-                    'parse' => function ($value, $rowData) {
-                        return $this->getCustomerLink($value, $rowData);
-                    },
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getCustomerLink'
+                    ),
                     'attributes' => array(
                         'class' => 'order-customer',
                     ),
                 ),
-                'filterOptionsField' => function (
-                    $parseObject, $fieldName, $elementName, $formName
-                ) {
-                    return $this->getCustomerGroupMenu($elementName, $formName);
-                },
+                'filterOptionsField' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getCustomerGroupMenu'
+                ),
             ),
             'titleAddress' => array(
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function() {
-                    global $_ARRAYLANG;
-                    return $this->getTitleRow(
-                        array(
-                            $_ARRAYLANG['TXT_BILLING_ADDRESS'],
-                            $_ARRAYLANG['TXT_SHIPPING_ADDRESS']
-                        )
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getTitleAddress'
+                ),
             ),
             'titlePaymentInfos' => array(
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function() {
-                    global $_ARRAYLANG;
-                    return $this->getTitleRow(
-                        array($_ARRAYLANG['TXT_PAYMENT_INFORMATIONS'])
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getTitlePaymentInfo'
+                ),
             ),
             'titleBill' => array(
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function() {
-                    global $_ARRAYLANG;
-                    return $this->getTitleRow(
-                        array($_ARRAYLANG['TXT_BILL'])
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getTitleBill'
+                ),
             ),
             'titleNote' => array(
                 'custom' => true,
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function() {
-                    global $_ARRAYLANG;
-                    return $this->getTitleRow(
-                        array($_ARRAYLANG['TXT_CUSTOMER_REMARKS'])
-                    );
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getTitleNote'
+                ),
             ),
             'emptyField' => array(
                 'custom' => true,
                 'allowFiltering' => false,
-                'formfield' => function() {
-                    return $this->getDivWrapper('');
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getDivWrapper'
+                ),
                 'showOverview' => false,
             ),
             'emptyFieldBill' => array(
                 'custom' => true,
                 'header' => ' ',
                 'allowFiltering' => false,
-                'formfield' => function() {
-                    return $this->getDivWrapper('');
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getDivWrapper'
+                ),
                 'showOverview' => false,
             ),
             'showAllPendentOrders' => array(
                 'custom' => true,
                 'showOverview' => false,
                 'showDetail' => false,
-                'filterOptionsField' => function (
-                    $parseObject, $fieldName, $elementName, $formName
-                ) {
-                    $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
-                        $elementName,
-                        1
-                    );
-                    $checkbox->setAttributes(
-                        array(
-                            'data-vg-attrgroup' => 'search',
-                            'data-vg-field' => $fieldName,
-                            'data-vg-no-fill' => true,
-                            'form' => $formName,
-                            'type' => 'checkbox',
-                            'class' => 'vg-encode',
-                            'id' => $elementName,
-                        )
-                    );
-
-                    if (
-                        $this->cx->getRequest()->hasParam('search') &&
-                        strpos(
-                            $this->cx->getRequest()->getParam('search'),
-                            '{0,showAllPendentOrders=1}'
-                        ) === 0
-                    ) {
-                        $checkbox->setAttribute('checked', true);
-                        $checkbox->setAttribute('value', 0);
-                    }
-
-                    return $checkbox;
-                },
+                'filterOptionsField' => array(
+                    'adapter' => 'Order',
+                    'method' => 'getShowAllPendentOrders'
+                )
             )
         );
+
         $order = new \Cx\Modules\Shop\Model\Entity\Order();
+
         if (!empty($this->orderId)) {
             $order = $this->cx->getDb()->getEntityManager()->getRepository(
                 '\Cx\Modules\Shop\Model\Entity\Order'
@@ -821,12 +694,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $options['fields']['lsvs'] = array(
                 'showOverview' => false,
                 'allowFiltering' => false,
-                'formfield' => function (
-                    $fieldname, $fieldtype, $fieldlength, $fieldvalue,
-                    $fieldoptions
-                ) {
-                    return $this->generateLsvs($fieldvalue);
-                },
+                'formfield' => array(
+                    'adapter' => 'Order',
+                    'method' => 'generateLsvs'
+                ),
                 'storecallback' => function($value, $entity) {
                     $repo = $this->cx->getDb()->getEntityManager()
                         ->getRepository(
@@ -845,236 +716,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $options;
     }
 
-    protected function getCustomerLink($value, $rowData)
-    {
-        if (empty($value)) {
-            if (isset($rowData['firstname']) && isset($rowData['lastname'])) {
-                $name = $rowData['firstname'] .' '. $rowData['lastname'];
-            } else {
-                return $value;
-            }
-        } else {
-            $objUser = \FWUser::getFWUserObject()->objUser->getUser(
-                $value->getId()
-            );
-
-        $name = $objUser->getProfileAttribute(
-                'lastname'
-            ) . ' ' .$objUser->getProfileAttribute(
-                'firstname'
-            );
-        }
-
-        $link = new \Cx\Core\Html\Model\Entity\HtmlElement('a');
-        $nameElement = new \Cx\Core\Html\Model\Entity\TextElement($name);
-        $link->addChild($nameElement);
-        $showUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgShowUrl(0, $rowData['id']);
-        $link->setAttribute('href', $showUrl);
-
-        return $link;
-    }
-
-    /**
-     * Get dropdown to search for customer groups.
-     *
-     * @param string $elementName name of element
-     * @return \Cx\Core\Html\Model\Entity\DataElement
-     */
-    protected function getCustomerGroupMenu($elementName, $formName)
-    {
-        global $_ARRAYLANG;
-        \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
-        $resellerGroup = \Cx\Core\Setting\Controller\Setting::getValue(
-            'usergroup_id_reseller',
-            'Shop'
-        );
-
-        $customerGroup = \Cx\Core\Setting\Controller\Setting::getValue(
-            'usergroup_id_customer',
-            'Shop'
-        );
-
-        $validValues = array(
-            '' => $_ARRAYLANG['TXT_SHOP_ORDER_CUSTOMER_GROUP_PLEASE_CHOOSE'],
-            $resellerGroup => $_ARRAYLANG['TXT_CUSTOMER'],
-            $customerGroup => $_ARRAYLANG['TXT_RESELLER'],
-        );
-        $searchField = new \Cx\Core\Html\Model\Entity\DataElement(
-            $elementName,
-            '',
-            'select',
-            null,
-            $validValues
-        );
-
-        $searchField->setAttributes(
-            array(
-                'form' => $formName,
-                'data-vg-attrgroup' => 'search',
-                'data-vg-field' => 'customer',
-                'class' => 'vg-encode'
-            )
-        );
-        return $searchField;
-    }
-
-    /**
-     * Get a dropdown with all status values.
-     *
-     * @param string $value    value of field
-     * @param string $name     name of field
-     * @param string $formName name of form
-     * @return \Cx\Core\Html\Model\Entity\DataElement
-     * @throws \Doctrine\ORM\ORMException
-     */
-    protected function getStatusMenu($value, $name = '', $id = 0, $formName = '')
-    {
-        global $_ARRAYLANG;
-
-        $validValues = array();
-        $statusValues = $this->cx->getDb()
-            ->getEntityManager()->getRepository(
-                $this->getNamespace()
-                . '\\Model\Entity\Order'
-            )->getStatusValues();
-        if (!empty($formName)) {
-            $validValues = array(
-                '' => $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_PLEASE_CHOOSE'],
-            );
-        }
-        $validValues = array_merge($validValues, $statusValues);
-
-        if (empty($name)) {
-            $name = 'status';
-        }
-
-        if (!empty($id)) {
-            $name = $name . '-' . $id;
-        }
-        $statusField = new \Cx\Core\Html\Model\Entity\DataElement(
-            $name,
-            $value,
-            'select',
-            null,
-            $validValues
-        );
-
-        if (!empty($formName)) {
-            $statusField->setAttributes(
-                array(
-                    'form' => $formName,
-                    'data-vg-attrgroup' => 'search',
-                    'data-vg-field' => 'status',
-                    'class' => 'vg-encode'
-                )
-            );
-        }
-
-        return $statusField;
-    }
-
-    /**
-     * Get status menu for detail view. It has a custom field to send a mail.
-     *
-     * @param string $fieldvalue value of field
-     * @param string $fieldname  name of field
-     * @return \Cx\Core\Html\Model\Entity\HtmlElement
-     * @throws \Doctrine\ORM\ORMException
-     */
-    protected function getDetailStatusMenu($fieldvalue, $fieldname)
-    {
-        global $_ARRAYLANG;
-
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $statusMenu = $this->getStatusMenu($fieldvalue, $fieldname);
-
-        $wrapperEmail = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $textEmail = new \Cx\Core\Html\Model\Entity\TextElement(
-            $_ARRAYLANG['TXT_SEND_MAIL']
-        );
-        $labelEmail = new \Cx\Core\Html\Model\Entity\HtmlElement('label');
-        $inputEmail = new \Cx\Core\Html\Model\Entity\DataElement(
-            'sendMail',
-            '1',
-            'input'
-        );
-
-        $wrapperEmail->setAttributes(
-            array(
-                'id' => 'sendMailDiv',
-                'style' => 'display: inline',
-            )
-        );
-        $labelEmail->setAttribute('for', 'sendMail');
-        $inputEmail->setAttributes(
-            array(
-                'type' => 'checkbox',
-                'id' => 'sendMail',
-                'onclick' => 'swapSendToStatus();',
-            )
-        );
-
-        if ($fieldvalue != \Cx\Modules\Shop\Model\Repository\OrderRepository::STATUS_COMPLETED) {
-            $wrapperEmail->setAttribute('style', 'display:none');
-        }
-
-        $labelEmail->addChild($textEmail);
-        $wrapperEmail->addChild($inputEmail);
-        $wrapperEmail->addChild($labelEmail);
-        $wrapper->addChild($statusMenu);
-        $wrapper->addChild($wrapperEmail);
-
-        return $wrapper;
-    }
-
-    /**
-     * Get custom input fields to align them on the right side.
-     *
-     * @param string $fieldname  name of field
-     * @param string $fieldvalue value of field
-     * @return \Cx\Core\Html\Model\Entity\HtmlElement
-     */
-    protected function getCustomInputFields($fieldname, $fieldvalue)
-    {
-        global $_ARRAYLANG;
-
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $wrapper->addClass('custom-input');
-
-        if ($fieldname == 'vatAmount') {
-            $header = Vat::isIncluded()
-                ? $_ARRAYLANG['TXT_SHOP_VAT_PREFIX_INCL']
-                : $_ARRAYLANG['TXT_SHOP_VAT_PREFIX_EXCL'];
-        } else {
-            $header = $_ARRAYLANG[$fieldname];
-        }
-
-        $title = new \Cx\Core\Html\Model\Entity\TextElement(
-            $header
-        );
-        $input = new \Cx\Core\Html\Model\Entity\DataElement(
-            $fieldname,
-            $fieldvalue,
-            'input'
-        );
-
-        $repo = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Currency'
-        );
-        $defaultCurrency = $repo->getDefaultCurrency();
-
-        $addition = new \Cx\Core\Html\Model\Entity\TextElement(
-            $defaultCurrency->getCode()
-        );
-        $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-        $spanWrapper->addChild($addition);
-
-        $wrapper->addChild($title);
-        $wrapper->addChild($input);
-        $wrapper->addChild($spanWrapper);
-
-        return $wrapper;
-    }
 
     /**
      * Return custom lsv edit field.
@@ -1140,536 +781,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             $wrapper->addChild($divGroup);
         }
 
-        return $wrapper;
-    }
-
-    /**
-     * Get the order item table.
-     *
-     * @return \Cx\Core\Html\Model\Entity\HtmlElement
-     * @throws \Cx\Core\Setting\Controller\SettingException
-     * @throws \Doctrine\ORM\ORMException
-     */
-    protected function generateOrderItemView()
-    {
-        global $_ARRAYLANG;
-
-        if (empty($this->orderId)) {
-            return;
-        }
-
-        $tableConfig['entity'] = '\Cx\Modules\Shop\Model\Entity\OrderItem';
-        $tableConfig['criteria'] = array('orderId' => $this->orderId);
-
-        $orderItems = $this->cx->getDb()->getEntityManager()->getRepository(
-            $tableConfig['entity']
-        )->findBy($tableConfig['criteria']);
-
-        $order = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\Order'
-        )->findOneBy(array('id' => $this->orderId));
-
-        $currency = $order->getCurrency()->getCode();
-
-        $tableConfig['header'] = array(
-            'quantity' => array(
-                'type' => 'input',
-            ),
-            'product_name' => array(
-                'type' => 'text',
-            ),
-            'weight' => array(
-                'type' => 'input',
-            ),
-            'price' => array(
-                'type' => 'input',
-                'addition' => $currency,
-            ),
-            'vat_rate' => array(
-                'type' => 'input',
-                'addition' => '%',
-            ),
-            'sum' => array(
-                'type' => 'input',
-                'addition' => $currency,
-                'header' => $_ARRAYLANG['TXT_SHOP_ORDER_SUM']
-            ),
-        );
-
-        $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
-        $tableBody = new \Cx\Core\Html\Model\Entity\HtmlElement('tbody');;
-        $headerTr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
-
-        $table->addChild($tableBody);
-        $tableBody->addChild($headerTr);
-
-        foreach ($tableConfig['header'] as $key => $header) {
-            $th = new \Cx\Core\Html\Model\Entity\HtmlElement('th');
-            $title = $_ARRAYLANG[$key];
-            if (isset($header['header'])) {
-                $title = $header['header'];
-            }
-            $title = new \Cx\Core\Html\Model\Entity\TextElement($title);
-            $th->addChild($title);
-            $th->setAttributes(
-                array(
-                    'id' => $key,
-                    'name' => $key,
-                )
-            );
-            $headerTr->addChild($th);
-        }
-        $cols = $this->cx->getDb()->getEntityManager()->getClassMetadata(
-            $tableConfig['entity']
-        )->getColumnNames();
-
-        foreach ($orderItems as $orderItem) {
-            $tr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
-            $id = $orderItem->getId();
-
-            foreach ($tableConfig['header'] as $key => $header) {
-                $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-
-                // Replace _ and set new word to uppercase, to get the getter
-                // name
-                $methodName = str_replace(
-                    " ",
-                    "",
-                    mb_convert_case(
-                        str_replace(
-                            "_",
-                            " ",
-                            $key
-                        ),
-                        MB_CASE_TITLE
-                    )
-                );
-
-                $getter = 'get' . ucfirst($methodName);
-                $value = '';
-                if (in_array($key, $cols)) {
-                    $value = $orderItem->$getter();
-                }
-
-                if ($header['type'] == 'input') {
-                    $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                        'product_' . $key .'-'. $id,
-                        $value,
-                        'input'
-                    );
-                    $field->setAttributes(
-                        array(
-                            'onchange' => 'calcPrice(' . $id . ')',
-                            'id' => 'product_' . $key .'-'. $id
-                        )
-                    );
-                } else {
-                    $field = new \Cx\Core\Html\Model\Entity\HtmlElement(
-                        'label'
-                    );
-                    $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                        $value
-                    );
-                    $field->setAttributes(
-                        array(
-                            'name' => 'product_' . $key .'-'. $id,
-                            'id' => 'product_' . $key .'-'. $id,
-                            'class' => 'product',
-                        )
-                    );
-                    $field->addChild($text);
-                    $hiddenField = new \Cx\Core\Html\Model\Entity\DataElement(
-                        'product_product_id-'. $id,
-                        $orderItem->getProductId(),
-                        'input'
-                    );
-                    $hiddenField->setAttributes(
-                        array(
-                            'id' => 'product_product_id-'. $id,
-                            'class' => 'product_ids',
-                            'type' => 'hidden'
-                        )
-                    );
-                    $td->addChild($hiddenField);
-                }
-
-                $td->addChild($field);
-
-                $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                if (!empty($header['addition'])) {
-                    $addition = new \Cx\Core\Html\Model\Entity\TextElement(
-                        $header['addition']
-                    );
-
-                    $spanWrapper->addChild($addition);
-                }
-
-                if ($key == 'sum') {
-                    $field->setAttribute('readonly', 'readonly');
-                    $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                    $toolTipTrigger->addClass('icon-info tooltip-trigger tooltip-order-item');
-                    $toolTipTrigger->allowDirectClose(false);
-                    $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                    $toolTipMessage->addClass('tooltip-message');
-                    $messageText = $_ARRAYLANG['TXT_SHOP_ORDER_ITEMS_ARE_ADDED_TO_SUM'];
-                    $message = new \Cx\Core\Html\Model\Entity\TextElement(
-                        $messageText
-                    );
-                    $toolTipMessage->addChild($message);
-                    $spanWrapper->addChild($toolTipTrigger);
-                    $spanWrapper->addChild($toolTipMessage);
-                    if (count($orderItem->getOrderAttributes()) > 0) {
-                        $toolTipTrigger->addClass('show');
-                    }
-                } else if ($key == 'price') {
-                    $attributePrice = 0;
-                    if (count($orderItem->getOrderAttributes()) > 0) {
-                        foreach($orderItem->getOrderAttributes() as $attribute) {
-                            $attributePrice += $attribute->getPrice();
-                        }
-                    }
-                    $field->setAttribute('data-priceattributes', $attributePrice);
-                } else if ($key == 'product_name') {
-                    if (count($orderItem->getOrderAttributes()) > 0) {
-                        $toolTipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                        $toolTipTrigger->addClass('icon-info tooltip-trigger');
-                        $toolTipTrigger->allowDirectClose(false);
-                        $toolTipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-                        $toolTipMessage->addClass('tooltip-message');
-                        $messageText = $_ARRAYLANG[
-                        'TXT_SHOP_ORDER_ITEM_WITH_OPTIONS'
-                        ];
-                        foreach ($orderItem->getOrderAttributes() as $attribute) {
-                            $attributeText = '- '.$attribute->getAttributeName()
-                                . ': '. $attribute->getOptionName()
-                                . ' (' . $attribute->getPrice() . ' '
-                                . $currency .')<br/>';
-                            $messageText .= $attributeText;
-                        }
-                        $message = new \Cx\Core\Html\Model\Entity\TextElement(
-                            $messageText
-                        );
-                        $toolTipMessage->addChild($message);
-                        $spanWrapper->addChild($toolTipTrigger);
-                        $spanWrapper->addChild($toolTipMessage);
-                    }
-                }
-                $td->addChild($spanWrapper);
-                $tr->addChild($td);
-            }
-            $tableBody->addChild($tr);
-        }
-
-        // add new empty order item
-        $trEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
-
-        foreach ($tableConfig['header'] as $key => $header) {
-            $td = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $value = '0';
-
-            if ($key == 'product_name') {
-                $validValues[0] = '-';
-                $products = $this->cx->getDb()->getEntityManager()
-                    ->getRepository(
-                        '\Cx\Modules\Shop\Model\Entity\Product'
-                    )->findAll();
-
-                foreach ($products as $product) {
-                    $validValues[$product->getId()] = $product->getName();
-                }
-
-                $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                    'product_' . $key .'-0',
-                    0,
-                    'select',
-                    null,
-                    $validValues
-                );
-                $field->setAttributes(
-                    array(
-                        'onchange' =>'changeProduct(0,this.value);',
-                        'id' => 'product_' . $key .'-0',
-                        'class' => 'product',
-                    )
-                );
-                $hiddenField = new \Cx\Core\Html\Model\Entity\DataElement(
-                    'product_product_id-0', '0', 'input'
-                );
-                $hiddenField->setAttributes(
-                    array(
-                        'id' => 'product_product_id-0',
-                        'class' => 'product_ids',
-                        'type' => 'hidden'
-                    )
-                );
-
-                $td->addChild($hiddenField);
-            } else if ($header['type'] == 'input') {
-                $field = new \Cx\Core\Html\Model\Entity\DataElement(
-                    'product_' . $key .'-0',
-                    $value,
-                    'input'
-                );
-                $field->setAttributes(
-                    array(
-                        'onchange' => 'calcPrice(0)',
-                        'id' => 'product_' . $key .'-0',
-                    )
-                );
-            } else {
-                $field = new \Cx\Core\Html\Model\Entity\TextElement(
-                    $value
-                );
-                $field->setAttribute('name', 'product' . $key .'-0');
-            }
-
-            if ($key == 'sum') {
-                $field->setAttribute('readonly', 'readonly');
-            }
-
-            $td->addChild($field);
-            $trEmpty->addChild($td);
-
-            if (empty($header['addition'])) {
-                continue;
-            }
-            $addition = new \Cx\Core\Html\Model\Entity\TextElement(
-                $header['addition']
-            );
-            $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement(
-                'span'
-            );
-            $spanWrapper->addChild($addition);
-            $td->addChild($spanWrapper);
-        }
-
-        $tableBody->addChild($trEmpty);
-
-        // add coupon
-        $couponRel = $this->cx->getDb()->getEntityManager()->getRepository(
-            '\Cx\Modules\Shop\Model\Entity\RelCustomerCoupon'
-        )->findOneBy(array('orderId' => $this->orderId));
-
-        if (!empty($couponRel)) {
-            $trCoupon = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
-            $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $trCoupon->addChild($tdEmpty);
-
-            $tdName = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $text = new \Cx\Core\Html\Model\Entity\TextElement(
-                $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUPON_CODE'] . ' ' .
-                $couponRel->getCode()
-            );
-            $tdName->addChild($text);
-            $trCoupon->addChild($tdName);
-
-            $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $tdEmpty->setAttribute('colspan', 3);
-            $trCoupon->addChild($tdEmpty);
-
-            $tdAmount = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-            $input = new \Cx\Core\Html\Model\Entity\DataElement(
-                'amount',
-                '-' . $couponRel->getAmount(),
-                'input'
-            );
-            $discountCoupon = $this->cx->getDb()->getEntityManager()->getRepository(
-                '\Cx\Modules\Shop\Model\Entity\DiscountCoupon'
-            )->findOneBy(
-                array(
-                    'code' => $couponRel->getCode(),
-                )
-            );
-
-            $attributes =  array(
-                'id' => 'coupon-amount',
-                'readonly' => 'readonly'
-            );
-
-            if (!empty($discountCoupon)) {
-                $attributes['data-rate'] = $discountCoupon->getDiscountRate();
-                $attributes['data-amount'] = $discountCoupon->getDiscountAmount();
-            } else {
-                $attributes['data-amount'] = $couponRel->getAmount();
-            }
-
-
-            $addition = new \Cx\Core\Html\Model\Entity\TextElement(
-                $currency
-            );
-            $spanWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-            $spanWrapper->addChild($addition);
-
-            $input->setAttributes(
-                $attributes
-            );
-
-            $tdAmount->addChild($input);
-            $tdAmount->addChild($spanWrapper);
-            $trCoupon->addChild($tdAmount);
-
-            $tableBody->addChild($trCoupon);
-        }
-
-        // add weight and netprice
-        $trCustom = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
-        $tdEmpty = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $trCustom->addChild($tdEmpty);
-
-        $tdWeightTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $weightTitle = new \Cx\Core\Html\Model\Entity\TextElement(
-            $_ARRAYLANG['TXT_TOTAL_WEIGHT']
-        );
-        $tdWeightTitle->addClass('shop-order-info');
-        $tdWeightTitle->addChild($weightTitle);
-
-        $tdWeightInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $weightInput = new \Cx\Core\Html\Model\Entity\DataElement(
-            'total-weight',
-            '',
-            'input'
-        );
-
-        $weightInput->setAttributes(
-            array(
-                'id' => 'total-weight',
-                'readonly' => 'readonly',
-            )
-        );
-
-        $tdWeightInput->addChild($weightInput);
-
-        $trCustom->addChild($tdWeightTitle);
-        $trCustom->addChild($tdWeightInput);
-
-        $trCustom->addChild($tdEmpty);
-
-        $tdNetpriceTitle = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $netpriceTitle = new \Cx\Core\Html\Model\Entity\TextElement(
-            $_ARRAYLANG['TXT_SHOP_DETAIL_NETPRICE']
-        );
-        $tdNetpriceTitle->addClass('shop-order-info');
-        $tdNetpriceTitle->addChild($netpriceTitle);
-
-        $tdNetpriceInput = new \Cx\Core\Html\Model\Entity\HtmlElement('td');
-        $netpriceInput = new \Cx\Core\Html\Model\Entity\DataElement(
-            'netprice',
-            '',
-            'input'
-        );
-
-        $netpriceInput->setAttributes(
-            array(
-                'id' => 'netprice',
-                'readonly' => 'readonly'
-            )
-        );
-
-        $tdNetpriceInput->addChild($netpriceInput);
-        $tdNetpriceInput->addChild($spanWrapper);
-
-        $trCustom->addChild($tdNetpriceTitle);
-        $trCustom->addChild($tdNetpriceInput);
-        $tableBody->addChild($trCustom);
-
-        $customerId = $order->getCustomerId();
-        $this->defineJsVariables($customerId);
-
-        // Load custom Js File for order edit view
-        \JS::registerJS('modules/Shop/View/Script/EditOrder.js');
-
-        return $table;
-    }
-
-    /**
-     * Defines variables that are used in the javascript file EditOrder.js.
-     *
-     * @global array $_ARRAYLANG array containing the language variables
-     * @param  int   $customerId Id of customer
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Cx\Core\Setting\Controller\SettingException
-     */
-    protected function defineJsVariables($customerId)
-    {
-        global $_ARRAYLANG;
-
-        $shipper = new \Cx\Modules\Shop\Model\Entity\Shipper();
-        $products = new \Cx\Modules\Shop\Model\Entity\Product();
-        $customer = \Cx\Modules\Shop\Controller\Customer::getById($customerId);
-
-        $isReseller = false;
-        $groupId = 0;
-        if ($customer) {
-            $isReseller = $customer->isReseller();
-            $groupId = $customer->getGroupId();
-        }
-        $productsJsArr = $products->getJsArray($groupId, $isReseller);
-
-        $shipmentCostJsArr = $shipper->getJsArray();
-
-        $jsVariables = array(
-            array(
-                'name' => 'SHIPPER_INFORMATION',
-                'content' => $shipmentCostJsArr,
-            ),
-            array(
-                'name' => 'VAT_INCLUDED',
-                'content' => \Cx\Modules\Shop\Model\Entity\Vat::isIncluded(),
-            ),
-            array(
-                'name' => 'PRODUCT_LIST',
-                'content' => $productsJsArr,
-            ),
-            array(
-                'name' => 'TXT_WARNING_SHIPPER_WEIGHT',
-                'content' => $_ARRAYLANG['TXT_WARNING_SHIPPER_WEIGHT'],
-            ),
-            array(
-                'name' => 'TXT_PRODUCT_ALREADY_PRESENT',
-                'content' => $_ARRAYLANG['TXT_PRODUCT_ALREADY_PRESENT'],
-            ),
-        );
-
-        $scope = 'order';
-        foreach ($jsVariables as $jsVariable) {
-            \ContrexxJavascript::getInstance()->setVariable(
-                $jsVariable['name'],
-                $jsVariable['content'],
-                $scope
-            );
-        }
-    }
-
-    /**
-     * Return a tooltip containing the note of the order.
-     *
-     * @param string $value order message
-     * @return \Cx\Core\Html\Model\Entity\HtmlElement
-     */
-    protected function getNoteToolTip($value)
-    {
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $wrapper->addClass('tooltip-wrapper');
-
-        if (empty($value) || $value === ' ') {
-            return $wrapper;
-        }
-
-        $tooltipTrigger = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-        $tooltipTrigger->setAttribute(
-            'class',
-            'icon-info tooltip-trigger icon-comment'
-        );
-        $tooltipTrigger->allowDirectClose(false);
-
-        $tooltipMessage = new \Cx\Core\Html\Model\Entity\HtmlElement('span');
-        $tooltipMessage->setAttribute('class', 'tooltip-message');
-        $tooltipMessage->addChild(
-            new \Cx\Core\Html\Model\Entity\TextElement($value)
-        );
-
-        $wrapper->addChild($tooltipTrigger);
-        $wrapper->addChild($tooltipMessage);
         return $wrapper;
     }
 
@@ -2068,30 +1179,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return true;
     }
 
-    protected function getTitleRow($titles)
-    {
-        $table = new \Cx\Core\Html\Model\Entity\HtmlElement('table');
-        $tr = new \Cx\Core\Html\Model\Entity\HtmlElement('tr');
-
-        foreach ($titles as $title) {
-            $th = new \Cx\Core\Html\Model\Entity\HtmlElement('th');
-            $title = new \Cx\Core\Html\Model\Entity\TextElement($title);
-            $th->addChild($title);
-            $tr->addChild($th);
-        }
-        $table->addChild($tr);
-        $table->addClass('adminlist title-table');
-        return $table;
-    }
-
-    protected function getDivWrapper($value)
-    {
-        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
-        $value = new \Cx\Core\Html\Model\Entity\TextElement($value);
-        $wrapper->addChild($value);
-        return $wrapper;
-    }
-
     /**
      * Handles database errors
      *
@@ -2293,7 +1380,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         // Always
         return false;
     }
-
 
     /**
      * Callback function for expanded search
@@ -2622,9 +1708,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'emptyField' => array(
                 'custom' => true,
                 'show' => array(
-                    'parse' => function() {
-                        return $this->getDivWrapper('');
-                    }
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getDivWrapper'
+                    ),
                 ),
             ),
         );
@@ -2696,18 +1783,20 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             'emptyField' => array(
                 'custom' => true,
                 'show' => array(
-                    'parse' => function() {
-                        return $this->getDivWrapper('');
-                    }
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getDivWrapper'
+                    ),
                 ),
             ),
             'endRow' => array(
                 'header' => ' ',
                 'custom' => true,
                 'show' => array(
-                    'parse' => function() {
-                        return $this->getDivWrapper('');
-                    }
+                    'parse' => array(
+                        'adapter' => 'Order',
+                        'method' => 'getDivWrapper'
+                    ),
                 ),
             ),
         );
@@ -2734,15 +1823,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 '\Cx\Modules\Shop\Model\Entity\Order'
             )->findOneBy(array('id' => $this->orderId));
         }
-        if (!empty($order) && count($order->getLsvs()) > 0) {
-            $options['fields']['lsvs'] = array(
-                'show' => array(
-                    'parse' =>  function ($fieldvalue) {
-                        return $this->generateLsvs($fieldvalue);
-                    },
-                ),
-            );
-        } else {
+        if (empty($order) || count($order->getLsvs()) == 0) {
             $options['fields']['lsvs'] = array(
                 'show' => array(
                     'show' => false,
