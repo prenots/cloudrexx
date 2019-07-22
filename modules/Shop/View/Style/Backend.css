@@ -177,11 +177,13 @@ label[for='form-0-shipmentAmount'],
 label[for='form-0-paymentAmount'],
 label[for='form-0-sum'],
 label[for='form-0-note'],
-label[for='form-0-emptyField'] {
+label[for='form-0-emptyField'],
+label[for='form-0-lsvs'] {
     display:none;
 }
 #form-0-note,
-#form-0-orderItems {
+#form-0-orderItems,
+#form-0-lsvs {
     margin-left: -200px;
     width: calc(100% + 200px);
     border-collapse: collapse;
