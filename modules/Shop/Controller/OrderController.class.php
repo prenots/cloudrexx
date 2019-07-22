@@ -127,6 +127,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             )[0];
         }
 
+        $options['showPrimaryKeys'] = true;
         $options['functions']['filtering'] = true;
         $options['functions']['searching'] = true;
         $options['functions']['show'] = true;
@@ -2411,12 +2412,12 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
             );
         }
 
-
+        $i = 0;
         foreach ($orderSections as $section) {
             $methodName = 'getVgOptionsOrder'.$section;
             $vgOptions = $this->$methodName($options);
-            if (\Cx\Core\Html\Controller\ViewGenerator::getIncrement() > 0) {
-                $vgEntityId = ',{'.\Cx\Core\Html\Controller\ViewGenerator::getIncrement().','.$entityId.'}';
+            if ($i > 0) {
+                $vgEntityId = ',{'.$i.','.$entityId.'}';
                 if ($this->cx->getRequest()->hasParam('showid')) {
                     $_GET['showid'] .= $vgEntityId;
                 }
@@ -2431,6 +2432,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 'SHOP_ORDER_' . strtoupper($section),
                 $renderedContent
             );
+            $i++;
         }
 
         $template->touchBlock('shop_order_detail');
@@ -2756,7 +2758,8 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         $options = array(
-            'header' => $_ARRAYLANG['TXT_BILL']
+            'header' => $_ARRAYLANG['TXT_BILL'],
+            'showPrimaryKeys' => true,
         );
 
         $fieldsToShow = array(

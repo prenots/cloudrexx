@@ -54,7 +54,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     {
         return array(
             'Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist',
-            'Currency', 'DiscountCoupon', 'Order', 'JsonOrder',
+            'JsonPriceList', 'Currency', 'JsonCurrency', 'DiscountCoupon',
+            'JsonDiscountCoupon', 'Order', 'JsonOrder'
         );
     }
 
@@ -69,7 +70,10 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @return array List of ComponentController classes
      */
     public function getControllersAccessableByJson() {
-        return array('JsonOrderController');
+        return array(
+            'JsonPriceListController', 'JsonCurrencyController',
+            'JsonDiscountCouponController', JsonOrderController
+        );
     }
 
     /**
@@ -120,7 +124,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
+    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) 
+    {
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // Show the Shop navbar in the Shop, or on every page if configured to do so
@@ -163,7 +168,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param array $parts List of additional path parts
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page Resolved virtual page
      */
-    public function resolve($parts, $page) {
+    public function resolve($parts, $page) 
+    {
         $canonicalUrl = \Cx\Core\Routing\Url::fromPage($page, $this->cx->getRequest()->getUrl()->getParamArray());
         header('Link: <' . $canonicalUrl->toString() . '>; rel="canonical"');
     }
@@ -304,13 +310,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * list statements like
      * $this->cx->getEvents()->addEventListener($eventName, $listener);
      */
-    public function registerEventListeners()
+    public function registerEventListeners() 
     {
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
         $eventListenerTemp = new \Cx\Modules\Shop\Model\Event\RolloutTextSyncListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
-
         $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
         $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
 

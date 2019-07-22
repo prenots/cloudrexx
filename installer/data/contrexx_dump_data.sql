@@ -4511,7 +4511,7 @@ INSERT INTO `contrexx_module_shop_zones` (`id`, `active`) VALUES (3,1);
 INSERT INTO `contrexx_translations` (`id`, `locale`, `object_class`, `field`, `foreign_key`, `content`) VALUES
 (1, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Attribute', 'name', '1', 'Zusatzleistungen'),
 (2, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\Currency', 'name', '1', 'Schweizer Franken'),
-(3, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\ArticleGroup', 'article', '1', 'Telefone'),
+(3, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\ArticleGroup', 'name', '1', 'Telefone'),
 (4, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\CustomerGroup', 'customer', '1', 'Neukunden'),
 (5, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\DiscountgroupCountName', 'name', '1', 'Mengenrabatt'),
 (6, 'de', 'Cx\\Modules\\Shop\\Model\\Entity\\DiscountgroupCountName', 'unit', '1', 'Stück'),
@@ -4647,7 +4647,7 @@ INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variab
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (3,'Gallery','Cloudrexx AG','TXT_GALLERY_MODULE_DESCRIPTION','y',0,0,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (4,'Newsletter','Cloudrexx AG','TXT_NEWSLETTER_MODULE_DESCRIPTION','y',0,0,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (5,'Search','Cloudrexx AG','TXT_SEARCH_MODULE_DESCRIPTION','y',0,1,1,1,NULL);
-INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (6,'Contact','Cloudrexx AG','TXT_CONTACT_MODULE_DESCRIPTION','n',1,1,1,1,NULL);
+INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (6,'Contact','Cloudrexx AG','TXT_CONTACT_MODULE_DESCRIPTION','y',1,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (7,'Block','Cloudrexx AG','TXT_BLOCK_MODULE_DESCRIPTION','n',0,0,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (8,'News','Cloudrexx AG','TXT_NEWS_MODULE_DESCRIPTION','y',1,1,1,1,NULL);
 INSERT INTO `contrexx_modules` (`id`, `name`, `distributor`, `description_variable`, `status`, `is_required`, `is_core`, `is_active`, `is_licensed`, `additional_data`) VALUES (9,'Media1','Cloudrexx AG','TXT_MEDIA_MODULE_DESCRIPTION','y',0,1,1,1,NULL);

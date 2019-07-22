@@ -1086,3 +1086,4 @@ $_ARRAYLANG['emptyField'] = ' ';
 $_ARRAYLANG['countryId'] = 'Country';
 $_ARRAYLANG['TXT_SHOP_DELETED_ORDER'] = 'Bestellung wurde gelöscht.';
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_CHANGED'] = 'Status der Bestellung wurde geändert.';
+$_ARRAYLANG['TXT_MODULE_SHOP_ANY'] = 'any';
