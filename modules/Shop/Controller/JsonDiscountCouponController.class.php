@@ -526,7 +526,10 @@ class JsonDiscountCouponController
             ]
         );
 
-        $default = $value || $value != '' ? 'couponGlobal' : 'couponCustomer';
+        $default = 'couponCustomer';
+        if ($value || ($value == '' && !$couponId)) {
+            $default = 'couponGlobal';
+        }
 
         $checkboxes = $this->getCustomRadioButtons(
             $name,
@@ -565,7 +568,7 @@ class JsonDiscountCouponController
             'customer_name', $customerName
         );
 
-        $widgetDisplay = $value || $value != '' ? 'none' : 'block';
+        $widgetDisplay = $value || $value == '' ? 'none' : 'block';
         $customerWidget->setAttributes(
             array(
                 'style' => 'display:' . $widgetDisplay,
