@@ -128,13 +128,15 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         $imgInfo = array();
 
         if (!empty($params['value'])) {
-            $imgInfo = \Cx\Modules\Shop\Controller\ProductController::get_image_array_from_base64(
-                $params['value']
-            );
+            $imgInfo = \Cx\Modules\Shop\Controller\ProductController::
+                get_image_array_from_base64(
+                    $params['value']
+                );
         }
 
         $websiteImagesShopPath    = $this->cx->getWebsiteImagesShopPath() . '/';
-        $websiteImagesShopWebPath = $this->cx->getWebsiteImagesShopWebPath().'/';
+        $websiteImagesShopWebPath = $this->cx->getWebsiteImagesShopWebPath()
+            .'/';
 
         if (
             file_exists(
@@ -603,7 +605,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         $validValues = array();
-        $distributionTypes = \Cx\Modules\Shop\Controller\Distribution::getArrDistributionTypes();
+        $distributionTypes = \Cx\Modules\Shop\Controller\Distribution::
+            getArrDistributionTypes();
 
         foreach ($distributionTypes as $distributionType) {
             $validValues[$distributionType] = $_ARRAYLANG[
