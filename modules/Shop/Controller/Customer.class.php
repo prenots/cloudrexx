@@ -369,6 +369,11 @@ class Customer extends \User
     function active($active=null)
     {
         if (isset($active)) {
+            // do not change the status of the currently signed-in user
+            if ($this->getId() == \FWUser::getFWUserObject()->objUser->getId()) {
+                return $this->getActiveStatus();
+            }
+
             $this->setActiveStatus($active);
         }
         return $this->getActiveStatus();
@@ -404,11 +409,18 @@ class Customer extends \User
      */
     function delete($deleteOwnAccount=false)
     {
-        global $_ARRAYLANG;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em =  $cx->getDb()->getEntityManager();
+        $orderRepo = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
 
-        if (!Orders::deleteByCustomerId($this->id)) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_ERROR_CUSTOMER_DELETING_ORDERS']);
+        $orders = $orderRepo->findBy(array('customerId', $this->id));
+        foreach ($orders as $order) {
+            $em->remove($order);
         }
+        $em->flush();
+
         return parent::delete($deleteOwnAccount);
     }
 
@@ -568,6 +580,7 @@ class Customer extends \User
             $this->firstname(), $this->lastname(), $this->company(), $title);
         $arrSubstitution = array(
             'CUSTOMER_SALUTATION' => $salutation,
+            'CUSTOMER_TITLE' => $title,
             'CUSTOMER_ID' => $this->id(),
             'CUSTOMER_EMAIL' => $this->email(),
             'CUSTOMER_COMPANY' => $this->company(),
@@ -692,7 +705,7 @@ class Customer extends \User
 //DBG::log("Customer::errorHandler(): Adding settings");
         ShopSettings::errorHandler();
 //        \Cx\Core\Country\Controller\Country::errorHandler(); // Called by Order::errorHandler();
-        Order::errorHandler();
+        \Cx\Modules\Shop\Controller\OrderController::errorHandler();
         Discount::errorHandler();
 
         \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
@@ -876,7 +889,14 @@ class Customer extends \User
                 $objCustomer = self::getById($objUser->getId());
             }
             if (!$objCustomer) {
-                $lang_id = Order::getLanguageIdByCustomerId($old_customer_id);
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $order = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity\Order'
+                )->findOneBy(
+                    array('customerId' => $old_customer_id),
+                    array('id' => 'DESC')
+                );
+                $lang_id = $order->getLangId();
                 if (!$lang_id) $lang_id = $default_lang_id;
                 $objCustomer = new Customer();
                 if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
