@@ -100,8 +100,9 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
      * Get ViewGenerator options for Manufacturer entity
      *
      * @param $options array predefined ViewGenerator options
+     *
+     * @return array includes ViewGenerator options for Order entity
      * @throws \Exception
-     * @return array includes ViewGenerator options for Manufacturer entity
      */
     public function getViewGeneratorOptions($options)
     {
@@ -721,6 +722,7 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
      * Return custom lsv edit field.
      *
      * @param \Cx\Modules\Shop\Model\Entity\Lsv $entity lsv entity
+     *
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      */
     protected function generateLsvs($entity)
@@ -786,12 +788,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
 
     /**
      * Sets up the Order statistics
-     * @param   \Cx\Core\Html\Sigma     $objTemplate  The optional Template,
-     *                                                by reference
-     * @global  ADONewConnection        $objDatabase
-     * @global  array                   $_ARRAYLANG
-     * @todo    Rewrite the statistics in a seperate class, extending Order
-     * @static
+     *
+     * @param \Cx\Core\Html\Sigma $objTemplate The optional Template, by
+     *                                         reference
+     *
+     * @return bool if the view was created successfully
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\ORMException
      */
     static function view_statistics(&$objTemplate=null)
     {
@@ -1476,6 +1480,16 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $qb;
     }
 
+    /**
+     * Parse detail page for orders
+     *
+     * @param \Cx\Core\Html\Sigma $template template to parse
+     * @param string $entityClassName       name of entity class
+     * @param array $options                previous options
+     *
+     * @return \Cx\Core\Html\Sigma modified template
+     * @throws \Cx\Core\Html\Controller\ViewGeneratorException
+     */
     public function parseOrderDetailPage($template, $entityClassName, $options)
     {
         if (!$template->blockExists('shop_order_detail')) {
@@ -1525,6 +1539,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $template;
     }
 
+    /**
+     * Select all options that are specified and hide the others
+     *
+     * @param array $options previous options
+     * @param array $fieldsToShow selected pptions to be displayed
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function selectOrderOptions($options, $fieldsToShow)
     {
         $options['order']['show'] = $fieldsToShow;
@@ -1548,6 +1570,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $options;
     }
 
+    /**
+     * Get ViewGenerator options for area Order info to display them in the show
+     * view of the orders
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function getVgOptionsOrderInfo()
     {
         global $_ARRAYLANG;
@@ -1618,6 +1648,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $this->selectOrderOptions($options, $fieldsToShow);
     }
 
+    /**
+     * Get ViewGenerator options for area Billing to display them in the show
+     * view of the orders
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function getVgOptionsOrderBilling()
     {
         global $_ARRAYLANG;
@@ -1719,6 +1757,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $this->selectOrderOptions($options, $fieldsToShow);
     }
 
+    /**
+     * Get ViewGenerator options for area Shipping to display them in the show
+     * view of the orders
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function getVgOptionsOrderShipping()
     {
         global $_ARRAYLANG;
@@ -1804,6 +1850,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $this->selectOrderOptions($options, $fieldsToShow);
     }
 
+    /**
+     * Get ViewGenerator options for area Payment to display them in the show
+     * view of the orders
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function getVgOptionsOrderPayment()
     {
         global $_ARRAYLANG;
@@ -1834,6 +1888,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $this->selectOrderOptions($options, $fieldsToShow);
     }
 
+    /**
+     * Get ViewGenerator options for area Order Items to display them in the
+     * show view of the orders
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function getVgOptionsOrderItems()
     {
         global $_ARRAYLANG;
@@ -1862,6 +1924,14 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         return $this->selectOrderOptions($options, $fieldsToShow);
     }
 
+    /**
+     * Get ViewGenerator options for area Note to display them in the show view
+     * of the orders
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @return array ViewGenerator options of the show view of the orders
+     */
     protected function getVgOptionsOrderNote()
     {
         global $_ARRAYLANG;

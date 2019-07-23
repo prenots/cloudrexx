@@ -77,6 +77,7 @@ class RelCustomerCouponRepository extends \Doctrine\ORM\EntityRepository
         return 0;
     }
 
+
     /**
      * Returns the discount amount used with this Coupon
      *
