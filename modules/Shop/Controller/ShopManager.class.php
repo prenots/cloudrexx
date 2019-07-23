@@ -228,19 +228,6 @@ class ShopManager extends ShopLibrary
                 $this->delete_product();
                 $this->view_products();
                 break;
-            case 'orders':
-                $this->view_order_overview();
-                break;
-            case 'orderdetails':
-                $this->view_order_details();
-                break;
-            case 'editorder':
-                $this->view_order_details(true);
-                break;
-            case 'delorder':
-                // Redirects back to Order overview
-                $this->delete_order();
-                break;
             case 'delcustomer':
                 $this->delete_customer();
                 $this->view_customers();
@@ -267,9 +254,6 @@ class ShopManager extends ShopLibrary
                 break;
             case 'import':
                 $this->_import();
-                break;
-            default:
-                $this->view_order_overview();
                 break;
         }
         \Message::show();
@@ -473,8 +457,11 @@ class ShopManager extends ShopLibrary
                     ++$errorLines;
                 }
             }
-            // Fix picture field and create thumbnails
-            Products::makeThumbnailsById($arrId);
+            // Fix picture field and create thumbnails in case the import
+            // contains images
+            if (in_array('pictures', $arrProductFieldName)) {
+                Products::makeThumbnailsById($arrId);
+            }
             if ($importedLines) {
                 \Message::ok($_ARRAYLANG['TXT_SHOP_IMPORT_SUCCESSFULLY_IMPORTED_PRODUCTS'].
                     ': '.$importedLines);
@@ -1606,8 +1593,8 @@ if ($test === NULL) {
         // mediabrowser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -2004,8 +1991,8 @@ if ($test === NULL) {
         // media browser
         $mediaBrowserOptions = array(
             'type'                      => 'button',
-            'data-cx-mb-startmediatype' => 'shop',
-            'data-cx-mb-views'          => 'filebrowser',
+            'startmediatype'            => 'shop',
+            'views'                     => 'filebrowser',
             'id'                        => 'media_browser_shop',
             'style'                     => 'display:none'
         );
@@ -2057,7 +2044,6 @@ if ($test === NULL) {
 //DBG::log("Dates from ".$objProduct->date_start()." ($start_time, $start_date) to ".$objProduct->date_start()." ($end_time, $end_date)");
         $websiteImagesShopPath    = $cx->getWebsiteImagesShopPath() . '/';
         $websiteImagesShopWebPath = $cx->getWebsiteImagesShopWebPath() . '/';
-
         self::$objTemplate->setVariable(array(
             'SHOP_PRODUCT_ID' => (isset($_REQUEST['new']) ? 0 : $objProduct->id()),
             'SHOP_PRODUCT_CODE' => contrexx_raw2xhtml($objProduct->code()),
@@ -2095,7 +2081,7 @@ if ($test === NULL) {
             'SHOP_STOCK_VISIBILITY' => ($objProduct->stock_visible()
                 ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_MANUFACTURER_MENUOPTIONS' =>
-                \Cx\Modules\Shop\Controller\ManufacturerController::getMenuoptions($objProduct->manufacturer_id()),
+                \Cx\Modules\Shop\Controller\ManufacturerController::getMenuoptions($objProduct->manufacturer_id(), true),
             'SHOP_PICTURE1_IMG_SRC' =>
                 (   !empty($arrImages[1]['img'])
                  && is_file(\ImageManager::getThumbnailFilename($websiteImagesShopPath . $arrImages[1]['img']))
@@ -2399,99 +2385,6 @@ if ($test === NULL) {
 
 
     /**
-     * Show the stored orders
-     * @access  public
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     * @global  array   $_ARRAYLANG
-     * @global  array   $_CONFIG
-     * @author  Reto Kohli <reto.kohli@comvation.com> (parts)
-     */
-    function view_order_overview()
-    {
-        global $_ARRAYLANG;
-
-        self::$pageTitle = $_ARRAYLANG['TXT_ORDERS'];
-        // A return value of null means that nothing had to be done
-        Orders::updateStatusFromGet();
-        self::$objTemplate = null;
-        return Orders::view_list(self::$objTemplate);
-    }
-
-
-    /**
-     * OBSOLETE -- Moved to Order class
-     * Set up details of the selected order
-     * @access  public
-     * @param   boolean           $edit           Edit if true, view otherwise
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     * @global  array             $_ARRAYLANG     Language array
-     * @author  Reto Kohli <reto.kohli@comvation.com> (parts)
-     */
-    function view_order_details($edit=false)
-    {
-        global $_ARRAYLANG;
-
-        // Storing can only fail if an order is posted.
-        // If there is nothing to do, it will return null.
-        $result = Order::storeFromPost();
-        if ($result === false) {
-            // Edit again after failing to store
-            $edit = true;
-        } elseif ($result === true) {
-            $edit = false;
-        }
-        if ($edit) {
-            self::$pageTitle = $_ARRAYLANG['TXT_EDIT_ORDER'];
-            self::$objTemplate->loadTemplateFile('module_shop_order_edit.html');
-        } else {
-            self::$pageTitle = $_ARRAYLANG['TXT_ORDER_DETAILS'];
-            self::$objTemplate->loadTemplateFile('module_shop_order_details.html');
-        }
-        return Order::view_detail(self::$objTemplate, $edit);
-    }
-
-
-    /**
-     * Delete one or more Orders
-     *
-     * If the $order_id parameter value is empty, checks $_GET['order_id']
-     * and $_POST['selectedOrderId'] in this order for Order IDs.
-     * Backend use only.  Redirects to the Order overview
-     * @version 3.0.0
-     * @param   integer     $order_id   The optional Order ID to be deleted
-     * @return  void
-     */
-    function delete_order($order_id=null)
-    {
-        global $_ARRAYLANG;
-
-        $arrOrderId = array();
-
-        // prepare the array $arrOrderId with the ids of the orders to delete
-        if (empty($order_id)) {
-            if (!empty($_GET['order_id'])) {
-                array_push($arrOrderId, $_GET['order_id']);
-            } elseif (!empty($_POST['selectedOrderId'])) {
-                $arrOrderId = $_POST['selectedOrderId'];
-            }
-        } else {
-            array_push($arrOrderId, $order_id);
-        }
-        if (empty($arrOrderId)) return null;
-        $stockUpdate = !empty($_GET['stock_update']);
-        $result = true;
-        foreach ($arrOrderId as $oId) {
-            $result &= Order::deleteById($oId, $stockUpdate);
-        }
-        if ($result) {
-            \Message::ok($_ARRAYLANG['TXT_ORDER_DELETED']);
-        }
-// TODO: Add error message
-        \Cx\Core\Csrf\Controller\Csrf::redirect('index.php?cmd=Shop&act=orders');
-    }
-
-
-    /**
      * Show Customers
      */
     function view_customers()
@@ -2757,11 +2650,6 @@ if ($test === NULL) {
             'SHOP_FAX' => $objCustomer->fax(),
             'SHOP_EMAIL' => $objCustomer->email(),
             'SHOP_CUSTOMER_BIRTHDAY' => date(ASCMS_DATE_FORMAT_DATE, $objCustomer->getProfileAttribute('birthday')),
-// OBSOLETE
-//            'SHOP_CCNUMBER' => $objCustomer->getCcNumber(),
-//            'SHOP_CCDATE' => $objCustomer->getCcDate(),
-//            'SHOP_CCNAME' => $objCustomer->getCcName(),
-//            'SHOP_CVC_CODE' => $objCustomer->getCcCode(),
             'SHOP_COMPANY_NOTE' => $objCustomer->companynote(),
             'SHOP_IS_RESELLER' => $customer_type,
             'SHOP_REGISTER_DATE' => date(ASCMS_DATE_FORMAT_DATETIME,
@@ -2772,28 +2660,39 @@ if ($test === NULL) {
         ));
 // TODO: TEST
         $count = NULL;
-        $orders = Orders::getArray($count, NULL, array('customer_id' => $objCustomer->id()), \Paging::getPosition(),
-                \Cx\Core\Setting\Controller\Setting::getValue('numof_orders_per_page_backend','Shop'));
-        $i = 1;
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $orderRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
         $defaultCurrency = $cx->getDb()->getEntityManager()->getRepository(
             '\Cx\Modules\Shop\Model\Entity\Currency'
         )->getDefaultCurrency();
 
+        $orders = $orderRepo->findBy(
+            array('customerId' => $objCustomer->id()),
+            null,
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'numof_orders_per_page_backend','Shop'
+            ),
+            \Paging::getPosition()
+        );
+
+        $i = 1;
+
         foreach ($orders as $order) {
-            \Cx\Modules\Shop\Controller\CurrencyController::init($order->currency_id());
+            \Cx\Modules\Shop\Controller\CurrencyController::init($order->getCurrencyId());
             self::$objTemplate->setVariable(array(
                 'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
-                'SHOP_ORDER_ID' => $order->id(),
+                'SHOP_ORDER_ID' => $order->getId(),
                 'SHOP_ORDER_ID_CUSTOM' => ShopLibrary::getCustomOrderId(
-                    $order->id(), $order->date_time()),
-                'SHOP_ORDER_DATE' => $order->date_time(),
+                    $order->getId(), $order->getDateTime()),
+                'SHOP_ORDER_DATE' => $order->getDateTime(),
                 'SHOP_ORDER_STATUS' =>
-                    $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->status()],
+                    $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$order->getStatus()],
                 'SHOP_ORDER_SUM' =>
                     $defaultCurrency->getSymbol().' '.
-                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->sum()),
+                    \Cx\Modules\Shop\Controller\CurrencyController::getDefaultCurrencyPrice($order->getSum()),
             ));
             self::$objTemplate->parse('orderRow');
         }
@@ -3428,8 +3327,12 @@ if ($test === NULL) {
      */
     static function sendProcessedMail($order_id)
     {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $orderRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Order'
+        );
         $arrSubstitution =
-              Orders::getSubstitutionArray($order_id)
+            $orderRepo->getSubstitutionArray($order_id, false, false)
             + self::getSubstitutionArray();
         $lang_id = $arrSubstitution['LANG_ID'];
         // Select template for: "Your order has been processed"

@@ -68,27 +68,27 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     /**
      * @var string
      */
-    protected $normalprice;
+    protected $normalprice = '0.00';
 
     /**
      * @var string
      */
-    protected $resellerprice;
+    protected $resellerprice = '0.00';
 
     /**
      * @var integer
      */
-    protected $stock;
+    protected $stock = 10;
 
     /**
      * @var boolean
      */
-    protected $stockVisible;
+    protected $stockVisible = true;
 
     /**
      * @var string
      */
-    protected $discountprice;
+    protected $discountprice = '0.00';
 
     /**
      * @var boolean
@@ -98,17 +98,17 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
     /**
      * @var boolean
      */
-    protected $active;
+    protected $active = true;
 
     /**
      * @var boolean
      */
-    protected $b2b;
+    protected $b2b = true;
 
     /**
      * @var boolean
      */
-    protected $b2c;
+    protected $b2c = true;
 
     /**
      * @var \DateTime
@@ -1041,7 +1041,7 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
 
     public function __toString()
     {
-        return $this->name;
+        return $this->getName();
     }
 
     public function getJsArray($groupCustomerId = 0, $isReseller = false)
@@ -1120,7 +1120,7 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
                 '"title":"'.htmlspecialchars($name, ENT_QUOTES, CONTREXX_CHARSET).'",'.
                 '"percent":'.
                 // Use the VAT rate, not the ID, as it is not modified here
-                $product->getVat()->getRate().','.
+                (!empty($product->getVat()) ? $product->getVat()->getRate() : '0,0') .','.
                 '"weight":'.($distribution == 'delivery'
                     ? '"'.\Cx\Modules\Shop\Controller\Weight::getWeightString($product->getWeight()).'"'
                     : '0' ).','.

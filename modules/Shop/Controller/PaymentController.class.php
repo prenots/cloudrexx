@@ -55,16 +55,25 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Get ViewGenerator options for Payment entity
      *
+     * @global array $_ARRAYLANG containing the language variables
+     *
      * @param $options array predefined ViewGenerator options
+     *
      * @return array includes ViewGenerator options for Payment entity
      */
     public function getViewGeneratorOptions($options)
     {
+        global $_ARRAYLANG;
+
         $options['functions']['editable'] = true;
         $options['functions']['edit'] = false;
         $options['functions']['sorting'] = false;
         $options['functions']['sortBy'] = array(
             'field' => array('ord' => SORT_ASC)
+        );
+
+        $options['functions']['status'] = array(
+            'field' => 'active'
         );
 
         $options['order'] = array(
@@ -76,6 +85,14 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
                 'zones',
                 'active'
             ),
+            'form' => array(
+                'name',
+                'fee',
+                'freeFrom',
+                'paymentProcessor',
+                'zones',
+                'active'
+            )
         );
 
         $options['fields'] = array(
@@ -84,17 +101,22 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'processorId' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'discountCoupons' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'orders' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'ord' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'name' => array(
+                'header' => $_ARRAYLANG['payment'],
                 'editable' => true,
             ),
             'fee' => array(
@@ -108,6 +130,8 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'zones' => array(
                 'editable' => true,
+                'showDetail' => false,
+                'showOverview' => false,
             ),
         );
 
@@ -145,17 +169,23 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      * Return HTML code for the payment dropdown menu
      *
      * See {@see getPaymentMenuoptions()} for details.
-     * @param   string  $selectedId     Optional preselected payment ID
+     *
+     * @global  array   $_ARRAYLANG     Language array
+     *
+     * @param   integer $selectedId     Optional preselected payment ID
      * @param   string  $onchange       Optional onchange function
      * @param   integer $countryId      Country ID
+     *
      * @return  string                  HTML code for the dropdown menu
-     * @global  array   $_ARRAYLANG     Language array
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     static function getPaymentMenu($selectedId=0, $onchange='', $countryId=0)
     {
-        return \Html::getSelectCustom('paymentId',
+        return \Html::getSelectCustom(
+            'paymentId',
             self::getPaymentMenuoptions($selectedId, $countryId),
-            FALSE, $onchange);
+            FALSE, $onchange
+        );
     }
 
     /**
@@ -163,10 +193,14 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      *
      * If no valid payment is selected, an additional option representing
      * "please choose" is prepended.
-     * @param   string  $selectedId     Optional preselected payment ID
-     * @param   integer $countryId      Country ID
-     * @return  string                  HTML code for the dropdown menu options
+     *
      * @global  array   $_ARRAYLANG     Language array
+     *
+     * @param   integer $selectedId     Optional preselected payment ID
+     * @param   integer $countryId      Country ID
+     *
+     * @return  string                  HTML code for the dropdown menu options
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     static function getPaymentMenuoptions($selectedId=0, $countryId=0)
     {
@@ -185,6 +219,7 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      * @param integer $countryId Country ID
      *
      * @return array array of payment methods
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     static function getPaymentMethods($countryId = 0)
     {
@@ -199,7 +234,9 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
         $arrPaymentIds = ($countryId
             ? $repo->getCountriesRelatedPaymentIdArray(
                 $countryId,
-                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray())
+                \Cx\Modules\Shop\Controller\CurrencyController::
+                    getCurrencyArray()
+            )
             : array_keys(self::$arrPayments));
 
         if (empty($arrPaymentIds)) {
@@ -289,7 +326,7 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
     {
         if (is_null(self::$arrPayments)) self::init();
         return
-            (   isset(self::$arrPayments[$payment_id])
+            (isset(self::$arrPayments[$payment_id])
             && isset(self::$arrPayments[$payment_id][$property_name])
                 ? self::$arrPayments[$payment_id][$property_name]
                 : false
