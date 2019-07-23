@@ -1222,223 +1222,24 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $objTemplate->setVariable(array(
             'SHOP_ROWCLASS' => 'row'.(++$i % 2 + 1),
             'SHOP_TOTAL_SUM' =>
-                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($totalOrderSum).' '.
-                $defaultCurrency->getSymbol(),
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+                    $totalOrderSum
+                ).' '. $defaultCurrency->getSymbol(),
             'SHOP_MONTH' => $bestMonthDate,
             'SHOP_MONTH_SUM' =>
-                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($bestMonthSum).' '.
-                $defaultCurrency->getSymbol(),
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+                    $bestMonthSum
+                ).' '. $defaultCurrency->getSymbol(),
             'SHOP_TOTAL_ORDERS' => $totalOrders,
             'SHOP_SOLD_ARTICLES' => $totalSoldProducts,
             'SHOP_SUM_COLUMN_2' => $sumColumn2,
             'SHOP_SUM_COLUMN_3' => $sumColumn3,
             'SHOP_SUM_COLUMN_4' =>
-                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($sumColumn4).' '.
-                $defaultCurrency->getSymbol(),
+                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice(
+                    $sumColumn4
+                ).' '. $defaultCurrency->getSymbol(),
         ));
         return true;
-    }
-
-    /**
-     * Handles database errors
-     *
-     * Also migrates the old database structure to the new one
-     * @return  boolean             False.  Always.
-     */
-    static function errorHandler()
-    {
-// Order
-        ShopSettings::errorHandler();
-        \Cx\Core\Country\Controller\Country::errorHandler();
-
-        $table_name = DBPREFIX.'module_shop_order_items';
-        $table_structure = array(
-            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'order_items_id'),
-            'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'orderid'),
-            'product_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'productid'),
-            'product_name' => array('type' => 'VARCHAR(255)', 'default' => ''),
-            'price' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00'),
-            'quantity' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
-            'vat_rate' => array('type' => 'DECIMAL(5,2)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'vat_percent'),
-            'weight' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
-        );
-        $table_index = array(
-            'order' => array('fields' => array('order_id')));
-        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
-
-        $table_name = DBPREFIX.'module_shop_order_attributes';
-        if (!\Cx\Lib\UpdateUtil::table_exist($table_name)) {
-            $table_name_old = DBPREFIX.'module_shop_order_items_attributes';
-            $table_structure = array(
-                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'orders_items_attributes_id'),
-                'item_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'order_items_id'),
-                'attribute_name' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'product_option_name'),
-                'option_name' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'product_option_value'),
-                'price' => array('type' => 'DECIMAL(9,2)', 'unsigned' => false, 'default' => '0.00', 'renamefrom' => 'product_option_values_price'),
-            );
-            $table_index = array(
-                'item_id' => array('fields' => array('item_id')));
-            \Cx\Lib\UpdateUtil::table($table_name_old, $table_structure, $table_index);
-            \Cx\Lib\UpdateUtil::table_rename($table_name_old, $table_name);
-        }
-
-        // LSV
-        $table_name = DBPREFIX.'module_shop_lsv';
-        $table_structure = array(
-            'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'primary' => true, 'renamefrom' => 'id'),
-            'holder' => array('type' => 'tinytext', 'default' => ''),
-            'bank' => array('type' => 'tinytext', 'default' => ''),
-            'blz' => array('type' => 'tinytext', 'default' => ''),
-        );
-        $table_index = array();
-        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
-
-        $table_name = DBPREFIX.'module_shop_orders';
-        $table_structure = array(
-            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'orderid'),
-            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'customerid'),
-            'currency_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'selected_currency_id'),
-            'shipment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'shipping_id'),
-            'payment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
-            'lang_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'customer_lang'),
-            'status' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'order_status'),
-            'sum' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_order_sum'),
-            'vat_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'tax_price'),
-            'shipment_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_ship_price'),
-            'payment_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_payment_price'),
-// 20111017 Added billing address
-            'billing_gender' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
-            'billing_company' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null),
-            'billing_firstname' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null),
-            'billing_lastname' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null),
-            'billing_address' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null),
-            'billing_city' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
-            'billing_zip' => array('type' => 'VARCHAR(10)', 'notnull' => false, 'default' => null),
-            'billing_country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
-            'billing_phone' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null),
-            'billing_fax' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null),
-            'billing_email' => array('type' => 'VARCHAR(255)', 'notnull' => false, 'default' => null),
-            'gender' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_prefix'),
-            'company' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_company'),
-            'firstname' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_firstname'),
-            'lastname' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_lastname'),
-            'address' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_address'),
-            'city' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_city'),
-            'zip' => array('type' => 'VARCHAR(10)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_zip'),
-            'country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_country_id'),
-            'phone' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_phone'),
-            'ip' => array('type' => 'VARCHAR(50)', 'default' => '', 'renamefrom' => 'customer_ip'),
-            'note' => array('type' => 'TEXT', 'default' => '', 'renamefrom' => 'customer_note'),
-            'date_time' => array('type' => 'TIMESTAMP', 'default' => '0000-00-00 00:00:00', 'renamefrom' => 'order_date'),
-            'modified_on' => array('type' => 'TIMESTAMP', 'default' => null, 'notnull' => false, 'renamefrom' => 'last_modified'),
-            'modified_by' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
-        );
-        $table_index = array(
-            'status' => array('fields' => array('status')));
-        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
-
-// TODO: TEST
-// Migrate present Customer addresses to the new billing address fields.
-// Note that this method is also called in Customer::errorHandler() *before*
-// any Customer is modified.  Thus, we can safely depend on the old
-// Customer table in one way -- if it doesn't exist, all Orders and Customers
-// have been successfully migrated already.
-        $table_name_customer = DBPREFIX."module_shop_customers";
-        if (\Cx\Lib\UpdateUtil::table_exist($table_name_customer)) {
-// On the other hand, there may have been an error somewhere in between
-// altering the Orders table and moving Customers to the Users table.
-// So, to be on the safe side, we will only update Orders where the billing
-// address fields are all NULL, as is the case just after the alteration
-// of the Orders table above.
-// Also note that any inconsistencies involving missing Customer records will
-// be left over as-is and may later be handled in the backend.
-            $objResult = \Cx\Lib\UpdateUtil::sql("
-                SELECT DISTINCT `customer_id`,
-                       `customer`.`prefix`,
-                       `customer`.`firstname`, `customer`.`lastname`,
-                       `customer`.`company`, `customer`.`address`,
-                       `customer`.`city`, `customer`.`zip`,
-                       `customer`.`country_id`,
-                       `customer`.`phone`, `customer`.`fax`,
-                       `customer`.`email`
-                  FROM `$table_name`
-                  JOIN `$table_name_customer` AS `customer`
-                    ON `customerid`=`customer_id`
-                 WHERE `billing_gender` IS NULL
-                   AND `billing_company` IS NULL
-                   AND `billing_firstname` IS NULL
-                   AND `billing_lastname` IS NULL
-                   AND `billing_address` IS NULL
-                   AND `billing_city` IS NULL
-                   AND `billing_zip` IS NULL
-                   AND `billing_country_id` IS NULL
-                   AND `billing_phone` IS NULL
-                   AND `billing_fax` IS NULL
-                   AND `billing_email` IS NULL");
-            while ($objResult && !$objResult->EOF) {
-                $customer_id = $objResult->fields['customer_id'];
-                $gender = 'gender_unknown';
-                if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
-                    $objResult->fields['prefix'])) {
-                    $gender = 'gender_female';
-                } elseif (preg_match('/^(?:herr|mon|signore|mister|mr)/i',
-                    $objResult->fields['prefix'])) {
-                    $gender = 'gender_male';
-                }
-                \Cx\Lib\UpdateUtil::sql("
-                    UPDATE `$table_name`
-                       SET `billing_gender`='".addslashes($gender)."',
-                           `billing_company`='".addslashes($objResult->fields['company'])."',
-                           `billing_firstname`='".addslashes($objResult->fields['firstname'])."',
-                           `billing_lastname`='".addslashes($objResult->fields['lastname'])."',
-                           `billing_address`='".addslashes($objResult->fields['address'])."',
-                           `billing_city`='".addslashes($objResult->fields['city'])."',
-                           `billing_zip`='".addslashes($objResult->fields['zip'])."',
-                           `billing_country_id`=".intval($objResult->fields['country_id']).",
-                           `billing_phone`='".addslashes($objResult->fields['phone'])."',
-                           `billing_fax`='".addslashes($objResult->fields['fax'])."',
-                           `billing_email`='".addslashes($objResult->fields['email'])."'
-                     WHERE `customer_id`=$customer_id
-                       AND `billing_gender` IS NULL
-                       AND `billing_company` IS NULL
-                       AND `billing_firstname` IS NULL
-                       AND `billing_lastname` IS NULL
-                       AND `billing_address` IS NULL
-                       AND `billing_city` IS NULL
-                       AND `billing_zip` IS NULL
-                       AND `billing_country_id` IS NULL
-                       AND `billing_phone` IS NULL
-                       AND `billing_fax` IS NULL
-                       AND `billing_email` IS NULL");
-                $objResult->MoveNext();
-            }
-        }
-
-        // Finally, update the migrated Order records with the proper gender
-        // strings as used in the User class hierarchy as well
-        $objResult = \Cx\Lib\UpdateUtil::sql("
-            SELECT `id`, `gender`
-              FROM `$table_name`
-             WHERE `gender` NOT IN
-                   ('gender_male', 'gender_female', 'gender_undefined')");
-        while ($objResult && !$objResult->EOF) {
-            $gender = 'gender_unknown';
-            if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
-                $objResult->fields['gender'])) {
-                $gender = 'gender_female';
-            } elseif (preg_match('/^(?:herr|mon|signore|mister|mr)/i',
-                $objResult->fields['gender'])) {
-                $gender = 'gender_male';
-            }
-            \Cx\Lib\UpdateUtil::sql("
-                UPDATE `$table_name`
-                   SET `gender`='".addslashes($gender)."'
-                 WHERE `id`=".$objResult->fields['id']);
-            $objResult->MoveNext();
-        }
-
-        // Always
-        return false;
     }
 
     /**
@@ -2018,5 +1819,207 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         return $this->selectOrderOptions($options, $fieldsToShow);
+    }
+
+    /**
+     * Handles database errors
+     *
+     * Also migrates the old database structure to the new one
+     * @return  boolean             False.  Always.
+     */
+    static function errorHandler()
+    {
+// Order
+        ShopSettings::errorHandler();
+        \Cx\Core\Country\Controller\Country::errorHandler();
+
+        $table_name = DBPREFIX.'module_shop_order_items';
+        $table_structure = array(
+            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'order_items_id'),
+            'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'orderid'),
+            'product_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'productid'),
+            'product_name' => array('type' => 'VARCHAR(255)', 'default' => ''),
+            'price' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00'),
+            'quantity' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
+            'vat_rate' => array('type' => 'DECIMAL(5,2)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'vat_percent'),
+            'weight' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
+        );
+        $table_index = array(
+            'order' => array('fields' => array('order_id')));
+        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
+
+        $table_name = DBPREFIX.'module_shop_order_attributes';
+        if (!\Cx\Lib\UpdateUtil::table_exist($table_name)) {
+            $table_name_old = DBPREFIX.'module_shop_order_items_attributes';
+            $table_structure = array(
+                'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'orders_items_attributes_id'),
+                'item_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'order_items_id'),
+                'attribute_name' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'product_option_name'),
+                'option_name' => array('type' => 'VARCHAR(255)', 'default' => '', 'renamefrom' => 'product_option_value'),
+                'price' => array('type' => 'DECIMAL(9,2)', 'unsigned' => false, 'default' => '0.00', 'renamefrom' => 'product_option_values_price'),
+            );
+            $table_index = array(
+                'item_id' => array('fields' => array('item_id')));
+            \Cx\Lib\UpdateUtil::table($table_name_old, $table_structure, $table_index);
+            \Cx\Lib\UpdateUtil::table_rename($table_name_old, $table_name);
+        }
+
+        // LSV
+        $table_name = DBPREFIX.'module_shop_lsv';
+        $table_structure = array(
+            'order_id' => array('type' => 'INT(10)', 'unsigned' => true, 'primary' => true, 'renamefrom' => 'id'),
+            'holder' => array('type' => 'tinytext', 'default' => ''),
+            'bank' => array('type' => 'tinytext', 'default' => ''),
+            'blz' => array('type' => 'tinytext', 'default' => ''),
+        );
+        $table_index = array();
+        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
+
+        $table_name = DBPREFIX.'module_shop_orders';
+        $table_structure = array(
+            'id' => array('type' => 'INT(10)', 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'renamefrom' => 'orderid'),
+            'customer_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'customerid'),
+            'currency_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'selected_currency_id'),
+            'shipment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'shipping_id'),
+            'payment_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0'),
+            'lang_id' => array('type' => 'INT(10)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'customer_lang'),
+            'status' => array('type' => 'TINYINT(1)', 'unsigned' => true, 'default' => '0', 'renamefrom' => 'order_status'),
+            'sum' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_order_sum'),
+            'vat_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'tax_price'),
+            'shipment_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_ship_price'),
+            'payment_amount' => array('type' => 'DECIMAL(9,2)', 'unsigned' => true, 'default' => '0.00', 'renamefrom' => 'currency_payment_price'),
+// 20111017 Added billing address
+            'billing_gender' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
+            'billing_company' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null),
+            'billing_firstname' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null),
+            'billing_lastname' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null),
+            'billing_address' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null),
+            'billing_city' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
+            'billing_zip' => array('type' => 'VARCHAR(10)', 'notnull' => false, 'default' => null),
+            'billing_country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null),
+            'billing_phone' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null),
+            'billing_fax' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null),
+            'billing_email' => array('type' => 'VARCHAR(255)', 'notnull' => false, 'default' => null),
+            'gender' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_prefix'),
+            'company' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_company'),
+            'firstname' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_firstname'),
+            'lastname' => array('type' => 'VARCHAR(100)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_lastname'),
+            'address' => array('type' => 'VARCHAR(40)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_address'),
+            'city' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_city'),
+            'zip' => array('type' => 'VARCHAR(10)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_zip'),
+            'country_id' => array('type' => 'INT(10)', 'unsigned' => true, 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_country_id'),
+            'phone' => array('type' => 'VARCHAR(20)', 'notnull' => false, 'default' => null, 'renamefrom' => 'ship_phone'),
+            'ip' => array('type' => 'VARCHAR(50)', 'default' => '', 'renamefrom' => 'customer_ip'),
+            'note' => array('type' => 'TEXT', 'default' => '', 'renamefrom' => 'customer_note'),
+            'date_time' => array('type' => 'TIMESTAMP', 'default' => '0000-00-00 00:00:00', 'renamefrom' => 'order_date'),
+            'modified_on' => array('type' => 'TIMESTAMP', 'default' => null, 'notnull' => false, 'renamefrom' => 'last_modified'),
+            'modified_by' => array('type' => 'VARCHAR(50)', 'notnull' => false, 'default' => null),
+        );
+        $table_index = array(
+            'status' => array('fields' => array('status')));
+        \Cx\Lib\UpdateUtil::table($table_name, $table_structure, $table_index);
+
+// TODO: TEST
+// Migrate present Customer addresses to the new billing address fields.
+// Note that this method is also called in Customer::errorHandler() *before*
+// any Customer is modified.  Thus, we can safely depend on the old
+// Customer table in one way -- if it doesn't exist, all Orders and Customers
+// have been successfully migrated already.
+        $table_name_customer = DBPREFIX."module_shop_customers";
+        if (\Cx\Lib\UpdateUtil::table_exist($table_name_customer)) {
+// On the other hand, there may have been an error somewhere in between
+// altering the Orders table and moving Customers to the Users table.
+// So, to be on the safe side, we will only update Orders where the billing
+// address fields are all NULL, as is the case just after the alteration
+// of the Orders table above.
+// Also note that any inconsistencies involving missing Customer records will
+// be left over as-is and may later be handled in the backend.
+            $objResult = \Cx\Lib\UpdateUtil::sql("
+                SELECT DISTINCT `customer_id`,
+                       `customer`.`prefix`,
+                       `customer`.`firstname`, `customer`.`lastname`,
+                       `customer`.`company`, `customer`.`address`,
+                       `customer`.`city`, `customer`.`zip`,
+                       `customer`.`country_id`,
+                       `customer`.`phone`, `customer`.`fax`,
+                       `customer`.`email`
+                  FROM `$table_name`
+                  JOIN `$table_name_customer` AS `customer`
+                    ON `customerid`=`customer_id`
+                 WHERE `billing_gender` IS NULL
+                   AND `billing_company` IS NULL
+                   AND `billing_firstname` IS NULL
+                   AND `billing_lastname` IS NULL
+                   AND `billing_address` IS NULL
+                   AND `billing_city` IS NULL
+                   AND `billing_zip` IS NULL
+                   AND `billing_country_id` IS NULL
+                   AND `billing_phone` IS NULL
+                   AND `billing_fax` IS NULL
+                   AND `billing_email` IS NULL");
+            while ($objResult && !$objResult->EOF) {
+                $customer_id = $objResult->fields['customer_id'];
+                $gender = 'gender_unknown';
+                if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
+                    $objResult->fields['prefix'])) {
+                    $gender = 'gender_female';
+                } elseif (preg_match('/^(?:herr|mon|signore|mister|mr)/i',
+                    $objResult->fields['prefix'])) {
+                    $gender = 'gender_male';
+                }
+                \Cx\Lib\UpdateUtil::sql("
+                    UPDATE `$table_name`
+                       SET `billing_gender`='".addslashes($gender)."',
+                           `billing_company`='".addslashes($objResult->fields['company'])."',
+                           `billing_firstname`='".addslashes($objResult->fields['firstname'])."',
+                           `billing_lastname`='".addslashes($objResult->fields['lastname'])."',
+                           `billing_address`='".addslashes($objResult->fields['address'])."',
+                           `billing_city`='".addslashes($objResult->fields['city'])."',
+                           `billing_zip`='".addslashes($objResult->fields['zip'])."',
+                           `billing_country_id`=".intval($objResult->fields['country_id']).",
+                           `billing_phone`='".addslashes($objResult->fields['phone'])."',
+                           `billing_fax`='".addslashes($objResult->fields['fax'])."',
+                           `billing_email`='".addslashes($objResult->fields['email'])."'
+                     WHERE `customer_id`=$customer_id
+                       AND `billing_gender` IS NULL
+                       AND `billing_company` IS NULL
+                       AND `billing_firstname` IS NULL
+                       AND `billing_lastname` IS NULL
+                       AND `billing_address` IS NULL
+                       AND `billing_city` IS NULL
+                       AND `billing_zip` IS NULL
+                       AND `billing_country_id` IS NULL
+                       AND `billing_phone` IS NULL
+                       AND `billing_fax` IS NULL
+                       AND `billing_email` IS NULL");
+                $objResult->MoveNext();
+            }
+        }
+
+        // Finally, update the migrated Order records with the proper gender
+        // strings as used in the User class hierarchy as well
+        $objResult = \Cx\Lib\UpdateUtil::sql("
+            SELECT `id`, `gender`
+              FROM `$table_name`
+             WHERE `gender` NOT IN
+                   ('gender_male', 'gender_female', 'gender_undefined')");
+        while ($objResult && !$objResult->EOF) {
+            $gender = 'gender_unknown';
+            if (preg_match('/^(?:frau|mad|mme|signora|miss)/i',
+                $objResult->fields['gender'])) {
+                $gender = 'gender_female';
+            } elseif (preg_match('/^(?:herr|mon|signore|mister|mr)/i',
+                $objResult->fields['gender'])) {
+                $gender = 'gender_male';
+            }
+            \Cx\Lib\UpdateUtil::sql("
+                UPDATE `$table_name`
+                   SET `gender`='".addslashes($gender)."'
+                 WHERE `id`=".$objResult->fields['id']);
+            $objResult->MoveNext();
+        }
+
+        // Always
+        return false;
     }
 }
