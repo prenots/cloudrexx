@@ -102,7 +102,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             case 'Relcountry':
             case 'Zone':
             case 'Mail':
-            case 'DiscountCoupon':
             case 'mailtemplate_overview':
             case 'mailtemplate_edit':
                 $mappedNavItems = array(
@@ -121,7 +120,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'RelCountry' => 'countries',
                     'Zone' => 'zones',
                     'Mail' => 'mail',
-                    'DiscountCoupon' => 'coupon',
                 );
                 $mappedCmdItems = array(
                     'categories' => 'Category',
@@ -196,9 +194,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $objShopManager->getPage($navigation->get());
                 return;
         }
-        if ($tpl) {
-            $_GET['act'] = $tpl;
-        }
 
         parent::getPage($page);
     }
@@ -210,11 +205,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
     public function getCommands()
     {
         return array(
-            'Order',
+            'Order' => array(
+                'translatable' => true
+            ),
             'Category' => array(
                 'children' => array(
                     'Pricelist'
                 ),
+                'translatable' => true
             ),
             'Product' => array(
                 'children' => array(
@@ -223,6 +221,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'DiscountgroupCountName',
                     'ArticleGroup'
                 ),
+                'translatable' => true
             ),
             'Manufacturer' => array(
                 'translatable' => true
@@ -231,10 +230,15 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 'children' => array(
                     'RelDiscountGroup',
                     'CustomerGroup'
-                )
+                ),
+                'translatable' => true
             ),
-            'Statistic',
-            'Import',
+            'Statistic' => array(
+                'translatable' => true
+            ),
+            'Import' => array(
+                'translatable' => true
+            ),
             'Setting' => array(
                 'children' => array(
                     'Vat',
@@ -246,6 +250,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Mail',
                     'DiscountCoupon'
                 ),
+                'translatable' => true
             ),
         );
     }
@@ -263,10 +268,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
      * This function returns the ViewGeneration options for a given entityClass
      *
      * @access protected
-     * @global $_ARRAYLANG
-     * @param $entityClassName contains the FQCN from entity
-     * @param $dataSetIdentifier if $entityClassName is DataSet, this is used
-     *                           for better partition
+     * @global array  $_ARRAYLANG containing the language variables
+     * @param  string $entityClassName contains the FQCN from entity
+     * @param  string $dataSetIdentifier if $entityClassName is DataSet, this is
+     *                                   used for better partition
+     * @throws \Exception catch controller errors
      * @return array with options
      */
     protected function getViewGeneratorOptions($entityClassName, $dataSetIdentifier = '')
@@ -289,8 +295,11 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Manufacturer'
                 )->getViewGeneratorOptions($options);
+                if ($dataSetIdentifier != $entityClassName) {
+                    break;
+                }
                 $options = $this->normalDelete(
-                    $_ARRAYLANG['TXT_CONFIRM_DELETE_MANUFACTURER'],
+                    $_ARRAYLANG['TXT_SHOP_CONFIRM_DELETE_MANUFACTURER'],
                     $options
                 );
                 break;
@@ -298,9 +307,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 $options = $this->getSystemComponentController()->getController(
                     'Category'
                 )->getViewGeneratorOptions($options);
+                if ($dataSetIdentifier != $entityClassName) {
+                    break;
+                }
                 // Delete event
                 $options = $this->normalDelete(
-                    $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+                    $_ARRAYLANG['TXT_CONFIRM_DELETE_SHOP_CATEGORIES'],
                     $options
                 );
                 break;
@@ -354,10 +366,22 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'DiscountgroupCountName'
                 )->getViewGeneratorOptions($options);
                 break;
+            case 'Cx\Modules\Shop\Model\Entity\DiscountCoupon':
+                $options = $this->getSystemComponentController()->getController(
+                    'DiscountCoupon'
+                )->getViewGeneratorOptions($options);
+                break;
         }
         return $options;
     }
 
+    /**
+     * Set JavaScript variables for multi action delete.
+     *
+     * @param $message string message to display before delete
+     * @param $options array  ViewGenerator options
+     * @return array updated array with ViewGenerator options
+     */
     protected function normalDelete($message, $options)
     {
         global $_ARRAYLANG;
@@ -386,5 +410,45 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         );
 
         return $options;
+    }
+
+    /**
+     * Load custom view for order detail view
+     *
+     * @param \Cx\Core\Html\Sigma $template Backend template for this page
+     * @param array $cmd Supplied CMD
+     * @param bool $isSingle if page is single
+     */
+    public function parsePage(\Cx\Core\Html\Sigma $template, array $cmd, &$isSingle = false)
+    {
+        // Last entry will be empty if we're on a nav-entry without children
+        // or on the first child of a nav-entry.
+        // The following code works fine as long as we don't want an entity
+        // view on the first child of a nav-entry or introduce a third
+        // nav-level. If we want either, we need to refactor getCommands() and
+        // parseNavigation().
+        $entityName = '';
+        if (!empty($cmd) && !empty($cmd[count($cmd) - 1])) {
+            $entityName = $cmd[count($cmd) - 1];
+        } else if (!empty($cmd)) {
+            $entityName = $cmd[0];
+        }
+
+        // Parse entity view generation pages
+        $entityClassName = $this->getNamespace() . '\\Model\\Entity\\'
+            . $entityName;
+        if (
+            $entityName == 'Order' &&
+            $this->cx->getRequest()->hasParam('showid')
+        ) {
+            $options = parent::getViewGeneratorOptions($entityClassName);
+
+            return $this->getSystemComponentController()->getController(
+                'Order'
+            )->parseOrderDetailPage($template, $entityClassName, $options);
+        }
+
+        return parent::parsePage($template, $cmd,$isSingle);
+
     }
 }

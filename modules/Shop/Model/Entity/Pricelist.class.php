@@ -61,17 +61,17 @@ class Pricelist extends \Cx\Model\Base\EntityBase
     /**
      * @var integer
      */
-    protected $langId;
+    protected $langId = 0;
 
     /**
      * @var boolean
      */
-    protected $borderOn;
+    protected $borderOn = true;
 
     /**
      * @var boolean
      */
-    protected $headerOn;
+    protected $headerOn = true;
 
     /**
      * @var string
@@ -86,7 +86,7 @@ class Pricelist extends \Cx\Model\Base\EntityBase
     /**
      * @var boolean
      */
-    protected $footerOn;
+    protected $footerOn = false;
 
     /**
      * @var string
@@ -111,7 +111,7 @@ class Pricelist extends \Cx\Model\Base\EntityBase
     /**
      * @var boolean
      */
-    protected $allCategories;
+    protected $allCategories = 0;
 
     /**
      * @var string font - not an entity attr

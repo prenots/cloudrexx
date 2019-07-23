@@ -54,7 +54,26 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
     {
         return array(
             'Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist',
-            'Currency', 'Order', 'DiscountgroupCountName'
+            'JsonPriceList', 'Currency', 'JsonCurrency', 'DiscountCoupon',
+            'JsonDiscountCoupon', 'Order', 'JsonOrder', 'DiscountgroupCountName'
+        );
+    }
+
+    /**
+     * Returns a list of JsonAdapter class names
+     *
+     * The array values might be a class name without namespace. In that case
+     * the namespace \Cx\{component_type}\{component_name}\Controller is used.
+     * If the array value starts with a backslash, no namespace is added.
+     *
+     * Avoid calculation of anything, just return an array!
+     * @return array List of ComponentController classes
+     */
+    public function getControllersAccessableByJson()
+    {
+        return array(
+            'JsonPriceListController', 'JsonCurrencyController',
+            'JsonDiscountCouponController', 'JsonOrderController'
         );
     }
 
@@ -106,7 +125,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      *
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page       The resolved page
      */
-    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) {
+    public function postContentLoad(\Cx\Core\ContentManager\Model\Entity\Page $page) 
+    {
         switch ($this->cx->getMode()) {
             case \Cx\Core\Core\Controller\Cx::MODE_FRONTEND:
                 // Show the Shop navbar in the Shop, or on every page if configured to do so
@@ -149,7 +169,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * @param array $parts List of additional path parts
      * @param \Cx\Core\ContentManager\Model\Entity\Page $page Resolved virtual page
      */
-    public function resolve($parts, $page) {
+    public function resolve($parts, $page) 
+    {
         $canonicalUrl = \Cx\Core\Routing\Url::fromPage($page, $this->cx->getRequest()->getUrl()->getParamArray());
         header('Link: <' . $canonicalUrl->toString() . '>; rel="canonical"');
     }
@@ -290,32 +311,41 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * list statements like
      * $this->cx->getEvents()->addEventListener($eventName, $listener);
      */
-    public function registerEventListeners() {
+    public function registerEventListeners() 
+    {
         $eventListener = new \Cx\Modules\Shop\Model\Event\ShopEventListener($this->cx);
         $eventListenerTemp = new \Cx\Modules\Shop\Model\Event\RolloutTextSyncListener($this->cx);
         $this->cx->getEvents()->addEventListener('SearchFindContent',$eventListener);
         $this->cx->getEvents()->addEventListener('mediasource.load', $eventListener);
-
-        $orderListener
-            = new \Cx\Modules\Shop\Model\Event\OrderEventListener(
-            $this->cx
-        );
-
-        $entityClass = 'Cx\\Modules\\' . $this->getName()
-            . '\\Model\\Entity\\Orders';
-        $this->cx->getEvents()->addModelListener(
-            \Doctrine\ORM\Events::preRemove,
-            $entityClass,
-            $orderListener
-        );
         $this->cx->getEvents()->addEventListener('TmpShopText:Replace', $eventListenerTemp);
         $this->cx->getEvents()->addEventListener('TmpShopText:Delete', $eventListenerTemp);
 
-        $this->cx->getEvents()->addModelListener(
-            \Doctrine\ORM\Events::prePersist,
-            'Cx\\Modules\\Shop\\Model\\Entity\\Currency',
-            new \Cx\Modules\Shop\Model\Event\CurrencyEventListener($this->cx)
+        $modelEvents = array(
+            \Doctrine\ORM\Events::prePersist => array(
+                'Currency',
+                'DiscountCoupon'
+            ),
+            \Doctrine\ORM\Events::preUpdate => array(
+                'Currency',
+                'DiscountCoupon'
+            ),
+            \Doctrine\ORM\Events::postUpdate => array(
+                'Order'
+            )
         );
+
+        foreach ($modelEvents as $eventName => $entities) {
+            foreach ($entities as $entity) {
+                $modelEventListener = '\\Cx\\Modules\\Shop\\Model\\Event\\' .
+                    $entity . 'EventListener';
+
+                $this->cx->getEvents()->addModelListener(
+                    $eventName,
+                    'Cx\\Modules\\Shop\\Model\\Entity\\' . $entity,
+                    new $modelEventListener($this->cx)
+                );
+            }
+        }
     }
 
     /**
@@ -324,7 +354,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * Do not do anything else here than list statements like
      * $this->cx->getEvents()->addEvent($eventName);
      */
-    public function registerEvents() {
+    public function registerEvents()
+    {
         $this->cx->getEvents()->addEvent('TmpShopText:Replace');
         $this->cx->getEvents()->addEvent('TmpShopText:Delete');
     }
