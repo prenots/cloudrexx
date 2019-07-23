@@ -144,18 +144,16 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         // Callback for expanded search
-        $options['functions']['filterCallback'] = function ($qb, $crit) {
-            return $this->filterCallback(
-                $qb, $crit
-            );
-        };
+        $options['functions']['filterCallback'] = array(
+            'adapter' => 'Order',
+            'method' => 'filterCallback'
+        );
 
         // Callback for search
-        $options['functions']['searchCallback'] = function ($qb, $searchFields, $term) {
-            return $this->searchCallback(
-                $qb, $searchFields, $term
-            );
-        };
+        $options['functions']['searchCallback'] = array(
+            'adapter' => 'Order',
+            'method' => 'searchCallback'
+        );
 
         // Delete Event
         $scope = 'order';
@@ -1240,105 +1238,6 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
                 ).' '. $defaultCurrency->getSymbol(),
         ));
         return true;
-    }
-
-    /**
-     * Callback function for expanded search
-     *
-     * @param $qb   \Doctrine\ORM\QueryBuilder QueryBuilder
-     * @param $crit string                     Search criteria
-     *
-     * @return \Doctrine\ORM\QueryBuilder $qb
-     */
-    protected function filterCallback($qb, $crit)
-    {
-        $i = 1;
-        foreach ($crit as $field=>$value) {
-            if ($field == 'customer') {
-                $qb->join(
-                    '\Cx\Core\User\Model\Entity\User',
-                    'u', 'WITH', 'u.id = x.customerId'
-                );
-                $qb->andWhere('?'. $i .' MEMBER OF u.group');
-            } else if ($field == 'showAllPendentOrders') {
-                continue;
-            } else if ($field == 'id') {
-                $qb->andWhere(
-                    $qb->expr()->eq('x.' . $field, '?' . $i)
-                );
-            } else {
-                $qb->andWhere(
-                    $qb->expr()->like('x.' . $field, '?' . $i)
-                );
-            }
-
-            $qb->setParameter($i, $value);
-            $i++;
-        }
-
-        if (
-            empty($crit['showAllPendentOrders']) &&
-            empty($this->cx->getRequest()->hasParam('showid'))
-        ) {
-            $qb->andWhere($qb->expr()->notLike('x.' . 'status', ':status'));
-            $qb->setParameter('status', 0);
-        }
-
-        return $qb;
-    }
-
-    /**
-     * Callback function for search
-     *
-     * @param $qb     \Doctrine\ORM\QueryBuilder QueryBuilder
-     * @param $fields array                      List with all field names to
-     *                                           be searched
-     * @param $term   string                     Term to filter the entities
-     *
-     * @return \Doctrine\ORM\QueryBuilder $qb
-     */
-    protected function searchCallback($qb, $fields, $term)
-    {
-        $orX = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
-            \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_OR
-        );
-        foreach ($fields as $field) {
-            if ($field == 'customer') {
-                $andXLastname =
-                    new \Doctrine\DBAL\Query\Expression\CompositeExpression(
-                        \Doctrine\DBAL\Query\Expression\CompositeExpression::
-                        TYPE_AND
-                    );
-                $andXFirstname =
-                    new \Doctrine\DBAL\Query\Expression\CompositeExpression(
-                        \Doctrine\DBAL\Query\Expression\CompositeExpression::
-                        TYPE_AND
-                    );
-                $qb->join(
-                    'Cx\Core\User\Model\Entity\UserAttributeValue',
-                    'v', 'WITH', 'x.customerId = v.userId'
-                );
-                $qb->join(
-                    '\Cx\Core\User\Model\Entity\UserAttributeName',
-                    'a', 'WITH', 'v.attributeId = a.attributeId'
-                );
-                $andXLastname->add($qb->expr()->like('v.value', ':search'));
-                $andXLastname->add($qb->expr()->like('a.name', ':lastname'));
-                $orX->add($andXLastname);
-
-                $andXFirstname->add($qb->expr()->like('v.value', ':search'));
-                $andXFirstname->add($qb->expr()->like('a.name', ':firstname'));
-                $orX->add($andXFirstname);
-                $qb->setParameter('lastname', 'lastname');
-                $qb->setParameter('firstname', 'firstname');
-            } else {
-                $orX->add($qb->expr()->like('x.' . $field, ':search'));
-            }
-        }
-        $qb->andWhere($orX);
-        $qb->setParameter('search', '%' . $term . '%');
-
-        return $qb;
     }
 
     /**

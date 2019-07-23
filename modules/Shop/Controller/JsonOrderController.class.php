@@ -102,7 +102,9 @@ class JsonOrderController
             'getTitleBill',
             'getTitleNote',
             'getShowAllPendentOrders',
-            'generateLsvs'
+            'generateLsvs',
+            'filterCallback',
+            'searchCallback'
         );
     }
 
@@ -1876,5 +1878,114 @@ class JsonOrderController
         }
 
         return $wrapper;
+    }
+
+    /**
+     * Callback function for expanded search
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Doctrine\ORM\QueryBuilder $qb
+     */
+    public function filterCallback($params)
+    {
+        if (empty($params['qb'])) {
+            return null;
+        }
+
+        $qb = $params['qb'];
+        $crit = !empty($params['crit']) ? $params['crit'] : array();
+
+        $i = 1;
+        foreach ($crit as $field=>$value) {
+            if ($field == 'customer') {
+                $qb->join(
+                    '\Cx\Core\User\Model\Entity\User',
+                    'u', 'WITH', 'u.id = x.customerId'
+                );
+                $qb->andWhere('?'. $i .' MEMBER OF u.group');
+            } else if ($field == 'showAllPendentOrders') {
+                continue;
+            } else if ($field == 'id') {
+                $qb->andWhere(
+                    $qb->expr()->eq('x.' . $field, '?' . $i)
+                );
+            } else {
+                $qb->andWhere(
+                    $qb->expr()->like('x.' . $field, '?' . $i)
+                );
+            }
+
+            $qb->setParameter($i, $value);
+            $i++;
+        }
+
+        if (
+            empty($crit['showAllPendentOrders']) &&
+            empty($this->cx->getRequest()->hasParam('showid'))
+        ) {
+            $qb->andWhere($qb->expr()->notLike('x.' . 'status', ':status'));
+            $qb->setParameter('status', 0);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Callback function for search
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Doctrine\ORM\QueryBuilder $qb
+     */
+    public function searchCallback($params)
+    {
+        if (empty($params['qb'])) {
+            return null;
+        }
+        $qb = $params['qb'];
+        $fields = !empty($params['fields']) ? $params['fields'] : array();
+        $term = !empty($params['crit']) ? $params['crit'] : '';
+
+        $orX = new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+            \Doctrine\DBAL\Query\Expression\CompositeExpression::TYPE_OR
+        );
+        foreach ($fields as $field) {
+            if ($field == 'customer') {
+                $andXLastname =
+                    new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+                        \Doctrine\DBAL\Query\Expression\CompositeExpression::
+                        TYPE_AND
+                    );
+                $andXFirstname =
+                    new \Doctrine\DBAL\Query\Expression\CompositeExpression(
+                        \Doctrine\DBAL\Query\Expression\CompositeExpression::
+                        TYPE_AND
+                    );
+                $qb->join(
+                    'Cx\Core\User\Model\Entity\UserAttributeValue',
+                    'v', 'WITH', 'x.customerId = v.userId'
+                );
+                $qb->join(
+                    '\Cx\Core\User\Model\Entity\UserAttributeName',
+                    'a', 'WITH', 'v.attributeId = a.attributeId'
+                );
+                $andXLastname->add($qb->expr()->like('v.value', ':search'));
+                $andXLastname->add($qb->expr()->like('a.name', ':lastname'));
+                $orX->add($andXLastname);
+
+                $andXFirstname->add($qb->expr()->like('v.value', ':search'));
+                $andXFirstname->add($qb->expr()->like('a.name', ':firstname'));
+                $orX->add($andXFirstname);
+                $qb->setParameter('lastname', 'lastname');
+                $qb->setParameter('firstname', 'firstname');
+            } else {
+                $orX->add($qb->expr()->like('x.' . $field, ':search'));
+            }
+        }
+        $qb->andWhere($orX);
+        $qb->setParameter('search', '%' . $term . '%');
+
+        return $qb;
     }
 }
