@@ -161,6 +161,10 @@ class Config
                     'value'  => 'session',
                     'values' => '{src:\\' . __CLASS__ . '::getCookieNoteTtlOptions()}',
                 ),
+                'useVirtualLanguageDirectories' => array(
+                    'type' => \Cx\Core\Setting\Controller\Setting::TYPE_RADIO,
+                    'value' => 'on',
+                ),
             ),
             'administrationArea' => array(
                 'dashboardNews' => array(
@@ -207,6 +211,10 @@ class Config
                     'type' => \Cx\Core\Setting\Controller\Setting::TYPE_DROPDOWN,
                     'value' => \FWLanguage::getDefaultBackendLangId(),
                     'values' => '{src:\\' . __CLASS__ . '::getBackendLanguages()}',
+                ),
+                'showLocaleTagsByDefault' => array(
+                    'type'  => \Cx\Core\Setting\Controller\Setting::TYPE_RADIO,
+                    'value' => 'on',
                 ),
             ),
             'security' => array(
@@ -310,6 +318,10 @@ class Config
                 'dnsHostnameLookup' => array(
                     'type' => \Cx\Core\Setting\Controller\Setting::TYPE_RADIO,
                     'value' => 'off',
+                ),
+                'uploadFileSizeLimit' => array(
+                    'value' => '500 mb',
+                    'values' => '{"type":"filesize"}',
                 ),
             ),
             'core' => array(
@@ -554,12 +566,6 @@ class Config
                 'cacheUserCacheMemcachedConfig' => array(
                     'value' => '{"ip":"127.0.0.1","port":11211}',
                     'componentDependencies' => array('SystemInfo'),
-                ),
-            ),
-            'lang' => array(
-                'useVirtualLanguageDirectories' => array(
-                    'type' => \Cx\Core\Setting\Controller\Setting::TYPE_RADIO,
-                    'value' => 'on',
                 ),
             ),
         );
