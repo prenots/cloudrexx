@@ -454,7 +454,9 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         $i = 0;
         foreach (explode(':', $base64Str) as $imageData) {
             $shopImage = $shopImage_width = $shopImage_height = null;
-            list($shopImage, $shopImage_width, $shopImage_height) = explode('?', $imageData);
+            list($shopImage, $shopImage_width, $shopImage_height) = explode(
+                '?', $imageData
+            );
             $shopImage        = base64_decode($shopImage);
             $shopImage_width  = base64_decode($shopImage_width);
             $shopImage_height = base64_decode($shopImage_height);
@@ -573,7 +575,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             \Cx\Modules\Shop\Controller\Products::getQueryParts(
                 $product_id, $category_id, $manufacturer_id, $pattern,
                 $flagSpecialoffer, $flagLastFive, $orderSetting,
-                $flagIsReseller, $flagShowInactive);
+                $flagIsReseller, $flagShowInactive
+            );
         $limit = ($count > 0
             ? $count
             : (!empty($_CONFIG['corePagingLimit'])
@@ -581,7 +584,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         $count = 0;
 //\DBG::activate(DBG_ADODB);
         $objResult = $objDatabase->SelectLimit(
-            $querySelect.$queryTail.$queryOrder, $limit, $offset);
+            $querySelect.$queryTail.$queryOrder, $limit, $offset
+        );
         if (!$objResult) return Product::errorHandler();
 //\DBG::deactivate(DBG_ADODB);
         $arrProduct = array();
@@ -643,34 +647,51 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         $objImageManager = new \ImageManager();
         foreach ($arrId as $product_id) {
             if ($product_id <= 0) {
-                \Message::error(sprintf($_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'], $product_id));
+                \Message::error(
+                    sprintf(
+                        $_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'],
+                        $product_id
+                    )
+                );
                 $error = true;
                 continue;
             }
             $objProduct = $productRepo->find($product_id);
             if (!$objProduct) {
-                \Message::error(sprintf($_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'], $product_id));
+                \Message::error(
+                    sprintf(
+                        $_ARRAYLANG['TXT_SHOP_INVALID_PRODUCT_ID'],
+                        $product_id
+                    )
+                );
                 $error = true;
                 continue;
             }
             $imageName = $objProduct->getPicture();
-            $imagePath = \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopPath() . '/' . $imageName;
+            $imagePath = \Cx\Core\Core\Controller\Cx::instanciate()
+                    ->getWebsiteImagesShopPath() . '/' . $imageName;
             // only try to create thumbs from entries that contain a
             // plain text file name (i.e. from an import)
             if (   $imageName == ''
-                || !preg_match('/\.(?:jpg|jpeg|gif|png)$/i', $imageName)) {
-                \Message::error(sprintf(
-                    $_ARRAYLANG['TXT_SHOP_UNSUPPORTED_IMAGE_FORMAT'],
-                    $product_id, $imageName
-                ));
+                || !preg_match('/\.(?:jpg|jpeg|gif|png)$/i', $imageName)
+            ) {
+                \Message::error(
+                    sprintf(
+                        $_ARRAYLANG['TXT_SHOP_UNSUPPORTED_IMAGE_FORMAT'],
+                        $product_id, $imageName
+                    )
+                );
                 $error = true;
                 continue;
             }
             // if the picture is missing, skip it.
             if (!file_exists($imagePath)) {
-                \Message::error(sprintf(
-                    $_ARRAYLANG['TXT_SHOP_MISSING_PRODUCT_IMAGE'],
-                    $product_id, $imageName));
+                \Message::error(
+                    sprintf(
+                        $_ARRAYLANG['TXT_SHOP_MISSING_PRODUCT_IMAGE'],
+                        $product_id, $imageName
+                    )
+                );
                 $error = true;
                 continue;
             }
@@ -680,8 +701,9 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             // If the thumbnail exists and is newer than the picture,
             // don't create it again.
             $thumb_name = \ImageManager::getThumbnailFilename($imagePath);
-            if (   file_exists($thumb_name)
-                && filemtime($thumb_name) > filemtime($imagePath)) {
+            if (file_exists($thumb_name) &&
+                filemtime($thumb_name) > filemtime($imagePath)
+            ) {
                 //$this->addMessage("Hinweis: Thumbnail fuer Produkt ID '$product_id' existiert bereits");
                 // Need the original size to update the record, though
                 list($width, $height) =
@@ -691,12 +713,20 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 // Deleting the old thumb beforehand is integrated into
                 // _createThumbWhq().
                 $thumbResult = $objImageManager->_createThumbWhq(
-                    \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopPath() . '/',
-                    \Cx\Core\Core\Controller\Cx::instanciate()->getWebsiteImagesShopWebPath() . '/',
+                    \Cx\Core\Core\Controller\Cx::instanciate()
+                        ->getWebsiteImagesShopPath() . '/',
+                    \Cx\Core\Core\Controller\Cx::instanciate()
+                        ->getWebsiteImagesShopWebPath() . '/',
                     $imageName,
-                    \Cx\Core\Setting\Controller\Setting::getValue('thumbnail_max_width','Shop'),
-                    \Cx\Core\Setting\Controller\Setting::getValue('thumbnail_max_height','Shop'),
-                    \Cx\Core\Setting\Controller\Setting::getValue('thumbnail_quality','Shop')
+                    \Cx\Core\Setting\Controller\Setting::getValue(
+                        'thumbnail_max_width', 'Shop'
+                    ),
+                    \Cx\Core\Setting\Controller\Setting::getValue(
+                        'thumbnail_max_height', 'Shop'
+                    ),
+                    \Cx\Core\Setting\Controller\Setting::getValue(
+                        'thumbnail_quality', 'Shop'
+                    )
                 );
                 $width  = $objImageManager->orgImageWidth;
                 $height = $objImageManager->orgImageHeight;
@@ -712,9 +742,14 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 $objProduct->setPicture($shopPicture);
                 $cx->getDb()->getEntityManager()->persist($objProduct);
             } else {
-                \Message::error(sprintf(
-                    $_ARRAYLANG['TXT_SHOP_ERROR_CREATING_PRODUCT_THUMBNAIL'],
-                    $product_id, $imageName));
+                \Message::error(
+                    sprintf(
+                        $_ARRAYLANG[
+                            'TXT_SHOP_ERROR_CREATING_PRODUCT_THUMBNAIL'
+                        ],
+                        $product_id, $imageName
+                    )
+                );
                 $error = true;
             }
         }
@@ -739,7 +774,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             3 => $_ARRAYLANG['TXT_SHOP_PRODUCT_SORTING_PRODUCTCODE'],
         );
         return \Html::getOptions($arrAvailableOrder,
-            \Cx\Core\Setting\Controller\Setting::getValue('product_sorting','Shop'));
+            \Cx\Core\Setting\Controller\Setting::getValue(
+                'product_sorting','Shop'
+            )
+        );
     }
 
     /**
@@ -836,7 +874,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             foreach ($arrCategories as $category) {
                 if (!self::deleteByShopCategory(
                     $category->getId(), $flagDeleteImages, $recursive)) {
-                    \DBG::log("ERROR: Failed to delete Products in Category ID ".$category->getId());
+                    \DBG::log(
+                        "ERROR: Failed to delete Products in Category ID "
+                        . $category->getId()
+                    );
                     return false;
                 }
             }
@@ -1029,7 +1070,9 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
         $em = $cx->getDb()->getEntityManager();
-        $productRepo = $em->getRepository('\Cx\Modules\Shop\Model\Entity\Product');
+        $productRepo = $em->getRepository(
+            '\Cx\Modules\Shop\Model\Entity\Product'
+        );
         $products = $productRepo->findBy(array('code' => $customId));
 
         return $products;
