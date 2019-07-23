@@ -143,10 +143,12 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             $product =  $item->getProduct();
 
             if (!$product) {
-                \DBG::log(sprintf(
-                    $_ARRAYLANG['TXT_SHOP_PRODUCT_NOT_FOUND'],
-                    $product->getId()
-                ));
+                \DBG::log(
+                    sprintf(
+                        $_ARRAYLANG['TXT_SHOP_PRODUCT_NOT_FOUND'],
+                        $product->getId()
+                    )
+                );
                 continue;
             }
 
@@ -230,9 +232,11 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         // Determine and verify the payment handler
         $payment_id = $order->getPaymentId();
 //if (!$payment_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Payment ID for Order ID $order_id");
-        $processor_id = \Cx\Modules\Shop\Controller\Payment::getPaymentProcessorId($payment_id);
+        $processor_id = \Cx\Modules\Shop\Controller\Payment::
+            getPaymentProcessorId($payment_id);
 //if (!$processor_id) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor ID for Payment ID $payment_id");
-        $processorName = \Cx\Modules\Shop\Controller\PaymentProcessing::getPaymentProcessorName($processor_id);
+        $processorName = \Cx\Modules\Shop\Controller\PaymentProcessing::
+            getPaymentProcessorName($processor_id);
 //if (!$processorName) DBG::log("update_status($order_id, $newOrderStatus): Failed to find Processor Name for Processor ID $processor_id");
         // The payment processor *MUST* match the handler returned.
         if (!preg_match("/^$handler/i", $processorName)) {
@@ -255,7 +259,8 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             // If neither condition is met, the status is set to 'confirmed'.
             $newOrderStatus = self::STATUS_CONFIRMED;
             $processorType =
-                \Cx\Modules\Shop\Controller\PaymentProcessing::getCurrentPaymentProcessorType($processor_id);
+                \Cx\Modules\Shop\Controller\PaymentProcessing::
+                    getCurrentPaymentProcessorType($processor_id);
             $shipmentId = $order->getShipmentId();
             if ($processorType == 'external') {
                 // External payment types are considered instant.
@@ -286,7 +291,11 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             || $newOrderStatus == self::STATUS_PAID
             || $newOrderStatus == self::STATUS_SHIPPED
             || $newOrderStatus == self::STATUS_COMPLETED) {
-            if (!\Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail($order_id)) {
+            if (
+                !\Cx\Modules\Shop\Controller\ShopLibrary::sendConfirmationMail(
+                    $order_id
+                )
+            ) {
                 // Note that this message is only shown when the page is
                 // displayed, which may be on another request!
                 \Message::error($_ARRAYLANG['TXT_SHOP_UNABLE_TO_SEND_EMAIL']);
@@ -354,19 +363,28 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             'TODAY' => date(ASCMS_DATE_FORMAT_DATE),
 //            'DATE' => date(ASCMS_DATE_FORMAT_DATE, strtotime($objOrder->date_time())),
             'ORDER_ID' => $order_id,
-            'ORDER_ID_CUSTOM' => \Cx\Modules\Shop\Controller\ShopLibrary::getCustomOrderId($order_id),
+            'ORDER_ID_CUSTOM' =>
+                \Cx\Modules\Shop\Controller\ShopLibrary::getCustomOrderId(
+                    $order_id
+                ),
 // TODO: Use proper localized date formats
             'ORDER_DATE' =>
-                date(ASCMS_DATE_FORMAT_DATE,
-                    strtotime($objOrder->getDateTime()->format('d.m.y'))),
+                date(
+                    ASCMS_DATE_FORMAT_DATE,
+                    strtotime($objOrder->getDateTime()->format('d.m.y'))
+                ),
             'ORDER_TIME' =>
-                date(ASCMS_DATE_FORMAT_TIME,
-                    strtotime($objOrder->getDateTime()->format('d.m.y'))),
+                date(
+                    ASCMS_DATE_FORMAT_TIME,
+                    strtotime($objOrder->getDateTime()->format('d.m.y'))
+                ),
             'ORDER_STATUS_ID' => $status,
             'ORDER_STATUS' => $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_'.$status],
             'MODIFIED' =>
-                date(ASCMS_DATE_FORMAT_DATETIME,
-                    strtotime($objOrder->getModifiedOn())),
+                date(
+                    ASCMS_DATE_FORMAT_DATETIME,
+                    strtotime($objOrder->getModifiedOn())
+                ),
             'REMARKS' => $objOrder->getNote(),
             'ORDER_SUM' => sprintf('% 9.2f', $objOrder->getSum()),
             'CURRENCY' => $currency->getCode(),
@@ -375,23 +393,34 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         if ($shipment_id) {
             $arrSubstitution += array (
                 'SHIPMENT' => array(0 => array(
-                    'SHIPMENT_NAME' => sprintf('%-40s', \Cx\Modules\Shop\Controller\Shipment::getShipperName($shipment_id)),
-                    'SHIPMENT_PRICE' => sprintf('% 9.2f', $objOrder->getShipmentAmount()),
+                    'SHIPMENT_NAME' => sprintf(
+                        '%-40s',
+                        \Cx\Modules\Shop\Controller\Shipment::getShipperName(
+                            $shipment_id
+                        )
+                    ),
+                    'SHIPMENT_PRICE' => sprintf(
+                        '% 9.2f', $objOrder->getShipmentAmount()
+                    ),
                 )),
 // Unused
 //                'SHIPMENT_ID' => $objOrder->shipment_id(),
                 'SHIPPING_ADDRESS' => array(0 => array(
                     'SHIPPING_COMPANY' => $objOrder->getCompany(),
                     'SHIPPING_TITLE' =>
-                        $_ARRAYLANG['TXT_SHOP_'.strtoupper($objOrder->getGender())],
+                        $_ARRAYLANG['TXT_SHOP_'.strtoupper(
+                            $objOrder->getGender()
+                        )],
                     'SHIPPING_FIRSTNAME' => $objOrder->getFirstname(),
                     'SHIPPING_LASTNAME' => $objOrder->getLastname(),
                     'SHIPPING_ADDRESS' => $objOrder->getAddress(),
                     'SHIPPING_ZIP' => $objOrder->getZip(),
                     'SHIPPING_CITY' => $objOrder->getCity(),
                     'SHIPPING_COUNTRY_ID' => $objOrder->getCountryId(),
-                    'SHIPPING_COUNTRY' => \Cx\Core\Country\Controller\Country::getNameById(
-                        $objOrder->getCountryId()),
+                    'SHIPPING_COUNTRY' =>
+                        \Cx\Core\Country\Controller\Country::getNameById(
+                            $objOrder->getCountryId()
+                        ),
                     'SHIPPING_PHONE' => $objOrder->getPhone(),
                 )),
             );
@@ -399,8 +428,16 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         if ($payment_id) {
             $arrSubstitution += array (
                 'PAYMENT' => array(0 => array(
-                    'PAYMENT_NAME' => sprintf('%-40s', \Cx\Modules\Shop\Controller\Payment::getNameById($payment_id)),
-                    'PAYMENT_PRICE' => sprintf('% 9.2f', $objOrder->getPaymentAmount()),
+                    'PAYMENT_NAME' => sprintf(
+                        '%-40s',
+                        \Cx\Modules\Shop\Controller\Payment::getNameById(
+                            $payment_id
+                        )
+                    ),
+                    'PAYMENT_PRICE' => sprintf(
+                        '% 9.2f',
+                        $objOrder->getPaymentAmount()
+                    ),
                 )),
             );
         }
@@ -420,7 +457,9 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         $couponRepo = $this->_em->getRepository(
             'Cx\Modules\Shop\Model\Entity\DiscountCoupon'
         );
-        $objCustomerCoupon = $customerCouponRepo->findOneBy(array('orderId' => $order_id));
+        $objCustomerCoupon = $customerCouponRepo->findOneBy(
+            array('orderId' => $order_id)
+        );
 
         if ($objCustomerCoupon) {
             $coupon_code = $objCustomerCoupon->getCode();
@@ -431,7 +470,9 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
         \Message::save();
         foreach ($arrItems as $item) {
             $product_id = $item['product_id'];
-            $objProduct = \Cx\Modules\Shop\Controller\Product::getById($product_id);
+            $objProduct = \Cx\Modules\Shop\Controller\Product::getById(
+                $product_id
+            );
             if (!$objProduct) {
 //die("Product ID $product_id not found");
                 continue;
@@ -455,7 +496,9 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             if ($item['attributes']) {
                 $str_options = '  '; // '[';
                 $attribute_name_previous = '';
-                foreach ($item['attributes'] as $attribute_name => $arrAttribute) {
+                foreach (
+                    $item['attributes'] as $attribute_name => $arrAttribute
+                ) {
                     $optionValues = array();
 //DBG::log("Attribute /$attribute_name/ => ".var_export($arrAttribute, true));
 // NOTE: The option price is optional and may be left out
@@ -466,8 +509,12 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         $item_price += $option_price;
                         // Recognize the names of uploaded files,
                         // verify their presence and use the original name
-                        $option_name_stripped = \Cx\Modules\Shop\Controller\ShopLibrary::stripUniqidFromFilename($option_name);
-                        $path = \Cx\Modules\Shop\Model\Entity\Order::UPLOAD_FOLDER.$option_name;
+                        $option_name_stripped =
+                            \Cx\Modules\Shop\Controller\ShopLibrary::
+                                stripUniqidFromFilename($option_name);
+                        $path = \Cx\Modules\Shop\Model\Entity\Order::
+                                UPLOAD_FOLDER
+                            . $option_name;
                         if (   $option_name != $option_name_stripped
                             && \File::exists($path)) {
                             $option_name = $option_name_stripped;
@@ -486,12 +533,19 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         if ($option_price != 0) {
                             $str_options .=
                                 ' './/' ('.
-                                \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($option_price).
-                                ' '.\Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode()
+                                \Cx\Modules\Shop\Controller\CurrencyController::
+                                formatPrice($option_price)
+                                . ' ' .
+                                \Cx\Modules\Shop\Controller\CurrencyController::
+                                    getActiveCurrencyCode()
 //                                .')'
                             ;
-                            $option['PRODUCT_OPTIONS_PRICE'] = \Cx\Modules\Shop\Controller\CurrencyController::formatPrice($option_price);
-                            $option['PRODUCT_OPTIONS_CURRENCY'] = \Cx\Modules\Shop\Controller\CurrencyController::getActiveCurrencyCode();
+                            $option['PRODUCT_OPTIONS_PRICE'] =
+                                \Cx\Modules\Shop\Controller\CurrencyController::
+                                    formatPrice($option_price);
+                            $option['PRODUCT_OPTIONS_CURRENCY'] =
+                                \Cx\Modules\Shop\Controller\CurrencyController::
+                                    getActiveCurrencyCode();
                         }
                         $optionValues[] = $option;
                     }
@@ -511,7 +565,9 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                 'PRODUCT_OPTIONS' => $str_options,
                 'PRODUCT_OPTION_LIST' => $optionList,
                 'PRODUCT_ITEM_PRICE' => sprintf('% 9.2f', $item_price),
-                'PRODUCT_TOTAL_PRICE' => sprintf('% 9.2f', $item_price*$quantity),
+                'PRODUCT_TOTAL_PRICE' => sprintf(
+                    '% 9.2f', $item_price*$quantity
+                ),
             );
 //DBG::log("Orders::getSubstitutionArray($order_id, $create_accounts): Adding article: ".var_export($arrProduct, true));
             $orderItemCount += $quantity;
@@ -552,15 +608,33 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         $objUser->setFrontendLanguage(FRONTEND_LANG_ID);
                         $objUser->setBackendLanguage(FRONTEND_LANG_ID);
                         $objUser->setProfile(array(
-                            'firstname' => array(0 => $arrSubstitution['CUSTOMER_FIRSTNAME']),
-                            'lastname' => array(0 => $arrSubstitution['CUSTOMER_LASTNAME']),
-                            'company' => array(0 => $arrSubstitution['CUSTOMER_COMPANY']),
-                            'address' => array(0 => $arrSubstitution['CUSTOMER_ADDRESS']),
-                            'zip' => array(0 => $arrSubstitution['CUSTOMER_ZIP']),
-                            'city' => array(0 => $arrSubstitution['CUSTOMER_CITY']),
-                            'country' => array(0 => $arrSubstitution['CUSTOMER_COUNTRY_ID']),
-                            'phone_office' => array(0 => $arrSubstitution['CUSTOMER_PHONE']),
-                            'phone_fax' => array(0 => $arrSubstitution['CUSTOMER_FAX']),
+                            'firstname' => array(
+                                0 => $arrSubstitution['CUSTOMER_FIRSTNAME']
+                            ),
+                            'lastname' => array(
+                                0 => $arrSubstitution['CUSTOMER_LASTNAME']
+                            ),
+                            'company' => array(
+                                0 => $arrSubstitution['CUSTOMER_COMPANY']
+                            ),
+                            'address' => array(
+                                0 => $arrSubstitution['CUSTOMER_ADDRESS']
+                            ),
+                            'zip' => array(
+                                0 => $arrSubstitution['CUSTOMER_ZIP']
+                            ),
+                            'city' => array(
+                                0 => $arrSubstitution['CUSTOMER_CITY']
+                            ),
+                            'country' => array(
+                                0 => $arrSubstitution['CUSTOMER_COUNTRY_ID']
+                            ),
+                            'phone_office' => array(
+                                0 => $arrSubstitution['CUSTOMER_PHONE']
+                            ),
+                            'phone_fax' => array(
+                                0 => $arrSubstitution['CUSTOMER_FAX']
+                            ),
                         ));
                         if (!$objUser->store()) {
                             \Message::error(implode(
@@ -579,9 +653,12 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
                         if (empty($arrProduct['COUPON_DATA']))
                             $arrProduct['COUPON_DATA'] = array();
 //DBG::log("Orders::getSubstitutionArray(): Getting code");
-                        $code = \Cx\Modules\Shop\Controller\DiscountCouponController::getNewCode();
+                        $code =
+                            \Cx\Modules\Shop\Controller\DiscountCouponController::
+                                getNewCode();
 
-                        $newCoupon = new \Cx\Modules\Shop\Model\Entity\DiscountCoupon();
+                        $newCoupon =
+                            new \Cx\Modules\Shop\Model\Entity\DiscountCoupon();
                         $newCoupon->setCode($code);
                         $newCoupon->setDiscountAmount($item_price);
                         $newCoupon->setGlobal(true);
