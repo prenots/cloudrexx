@@ -54,6 +54,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
      * Get ViewGenerator options for entity
      *
      * @param $options array predefined ViewGenerator options
+     *
      * @return array includes ViewGenerator options for entity
      */
     public function getViewGeneratorOptions($options)
@@ -476,7 +477,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
      * Possible choices are defined by global constants
      * self::DEFAULT_VIEW_* and corresponding language variables.
      * @static
-     * @param   integer   $selected     The optional preselected view index
+     * @param   string   $selected     The optional preselected view index
+     *
      * @return  string                  The HTML menu options
      */
     static function getDefaultViewMenuoptions($selected='')
@@ -519,7 +521,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
      *                                      Note: You may specify an integer
      *                                      count as well, this will set the
      *                                      limit accordingly.
-     * @param   integer     $orderSetting   The sorting order setting, defaults
+     * @param   string     $orderSetting   The sorting order setting, defaults
      *                                      to the order field value ascending,
      *                                      Product ID descending
      * @param   boolean     $flagIsReseller The reseller status of the
