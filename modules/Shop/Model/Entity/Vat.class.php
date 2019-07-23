@@ -321,6 +321,11 @@ class Vat extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\Trans
         ];
     }
 
+    /**
+     * Get vat rate
+     *
+     * @return string vat rate
+     */
     public function __toString()
     {
         return $this->getRate();

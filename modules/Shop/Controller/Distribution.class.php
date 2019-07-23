@@ -64,6 +64,11 @@ class Distribution
         self::TYPE_COUPON,
     );
 
+    /**
+     * Get an array with all distribution types
+     *
+     * @return array all distribution types
+     */
     static function getArrDistributionTypes()
     {
         return self::$arrDistributionTypes;

@@ -423,6 +423,13 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         return $options;
     }
 
+    /**
+     * Add multi actions to ViewGenerator options for products
+     *
+     * @param array $options ViewGenerator options
+     *
+     * @return array updated array with ViewGenerator options
+     */
     protected function setMultiActionsForProduct($options)
     {
         global $_ARRAYLANG;

@@ -112,6 +112,14 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $permission;
     }
 
+    /**
+     * Get image browser to select images
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement image browser
+     * @throws \Cx\Core_Modules\MediaBrowser\Model\Entity\MediaBrowserException
+     */
     public function getImageBrowser($params)
     {
         global $_ARRAYLANG;
@@ -266,6 +274,13 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
+    /**
+     * Get the selected product picture as base64 encoded
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return string base64 encoded picture
+     */
     public function storePicture($params)
     {
         if (empty($params['postedValue'])) {
@@ -288,14 +303,16 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         $delemiter = '';
         $value = '';
         for ($i = 1; $i <= $this->numberOfImages; ++$i) {
-            // Images outside the above directory are copied to the shop image folder.
-            // Note that the image paths below do not include the document root, but
+            // Images outside the above directory are copied to the shop image
+            // folder. Note that the image paths below do not include the
+            // document root, but
             // are relative to it.
             $picture = contrexx_input2raw($params['postedValue'][$i]);
             // Ignore the picture if it's the default image!
             // Storing it would be pointless.
-            // Images outside the above directory are copied to the shop image folder.
-            // Note that the image paths below do not include the document root, but
+            // Images outside the above directory are copied to the shop image
+            // folder. Note that the image paths below do not include the
+            // document root, but
             // are relative to it.
             if ($picture['src'] == $defaultImage ||
                 !\Cx\Modules\Shop\Controller\ShopLibrary::moveImage(
@@ -328,6 +345,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
      * Adds a link around the text
      *
      * @param $param array callback values
+     *
      * @return \Cx\Core\Html\Model\Entity\HtmlElement
      */
     public function addEditLink($param)
@@ -361,7 +379,13 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $link;
     }
 
-
+    /**
+     * Set date to null if no date is set
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\Product
+     */
     public function setEmptyDateToNull($params)
     {
         if (empty($params['postedValue'])) {
@@ -371,6 +395,14 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $params['entity'];
     }
 
+    /**
+     * Get all possible attributes that can be assigned to this product
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement product attributes
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
+     */
     public function getProductAttributes($params)
     {
         $name = $params['name'];
@@ -404,8 +436,23 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
-    protected function getProductOptionCheckboxes($options, $name, $wrapper, $productOptions, $parentElement = null)
-    {
+    /**
+     * Get checkboxes to select the possible product options
+     *
+     * @param array  $options possible options that can be assigned to this product
+     * @param string $name    name of the parent element
+     * @param \Cx\Core\Html\Model\Entity\HtmlElement $wrapper wrapper around the
+     *                                                        checkboxes
+     * @param array $productOptions possible product options
+     * @param \Cx\Core\Html\Model\Entity\HtmlElement $parentElement if a option
+     *                                                              has children
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement wrapper with append
+     *                                                checkboxes
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
+     */
+    protected function getProductOptionCheckboxes(
+        $options, $name, $wrapper, $productOptions, $parentElement = null
+    ) {
         foreach ($options as $option) {
             $optionWrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
             $attrName = $name;
@@ -485,6 +532,13 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $wrapper;
     }
 
+    /**
+     * Store the assigned product attributes
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Modules\Shop\Model\Entity\Product product with attributes
+     */
     public function storeProductAttributes($params)
     {
         if (empty($params['entity'])) {
@@ -537,6 +591,13 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         return $entity;
     }
 
+    /**
+     * Get a dropdown to select the product distribution
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\DataElement distribution dropdown
+     */
     public function getDistributionDropdown($params)
     {
         global $_ARRAYLANG;
