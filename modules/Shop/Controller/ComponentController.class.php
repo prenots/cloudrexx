@@ -55,7 +55,8 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         return array(
             'Backend', 'Manufacturer', 'Category', 'Pdf', 'Pricelist',
             'JsonPriceList', 'Currency', 'JsonCurrency', 'DiscountCoupon',
-            'JsonDiscountCoupon', 'Order', 'JsonOrder', 'DiscountgroupCountName', 'Payment'
+            'JsonDiscountCoupon', 'Order', 'JsonOrder',
+            'DiscountgroupCountName', 'Payment'
         );
     }
 

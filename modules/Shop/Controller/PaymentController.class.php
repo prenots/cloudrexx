@@ -181,9 +181,11 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      */
     static function getPaymentMenu($selectedId=0, $onchange='', $countryId=0)
     {
-        return \Html::getSelectCustom('paymentId',
+        return \Html::getSelectCustom(
+            'paymentId',
             self::getPaymentMenuoptions($selectedId, $countryId),
-            FALSE, $onchange);
+            FALSE, $onchange
+        );
     }
 
     /**
@@ -232,7 +234,9 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
         $arrPaymentIds = ($countryId
             ? $repo->getCountriesRelatedPaymentIdArray(
                 $countryId,
-                \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyArray())
+                \Cx\Modules\Shop\Controller\CurrencyController::
+                    getCurrencyArray()
+            )
             : array_keys(self::$arrPayments));
 
         if (empty($arrPaymentIds)) {
@@ -322,7 +326,7 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
     {
         if (is_null(self::$arrPayments)) self::init();
         return
-            (   isset(self::$arrPayments[$payment_id])
+            (isset(self::$arrPayments[$payment_id])
             && isset(self::$arrPayments[$payment_id][$property_name])
                 ? self::$arrPayments[$payment_id][$property_name]
                 : false
