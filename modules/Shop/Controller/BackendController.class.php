@@ -242,12 +242,12 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Vat',
                     'Currency',
                     'Payment',
+                    'PaymentProcessor',
                     'Shipper',
                     'RelCountry',
                     'Zone',
                     'Mail',
                     'DiscountCoupon',
-                    'PaymentProcessor'
                 ),
                 'translatable' => true
             ),
