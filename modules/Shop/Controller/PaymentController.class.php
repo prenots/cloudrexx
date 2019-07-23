@@ -82,6 +82,14 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
                 'zones',
                 'active'
             ),
+            'form' => array(
+                'name',
+                'fee',
+                'freeFrom',
+                'paymentProcessor',
+                'zones',
+                'active'
+            )
         );
 
         $options['fields'] = array(
@@ -90,15 +98,19 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'processorId' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'discountCoupons' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'orders' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'ord' => array(
                 'showOverview' => false,
+                'showDetail' => false,
             ),
             'name' => array(
                 'header' => $_ARRAYLANG['payment'],
@@ -115,6 +127,8 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'zones' => array(
                 'editable' => true,
+                'showDetail' => false,
+                'showOverview' => false,
             ),
         );
 
