@@ -1353,7 +1353,7 @@ EOF;
                 $strPlaceholders = null;
 
                 foreach ($arrPlaceholders as $strPlaceholder) {
-                    $strPlaceholders .= '[['.strtoupper($strPlaceholder).']]&nbsp;';
+                    $strPlaceholders .= '<li>[['.strtoupper($strPlaceholder).']]</li>';
                 }
 
 
