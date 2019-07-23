@@ -71,7 +71,13 @@ class PaymentProcessorController extends \Cx\Core\Core\Model\Entity\Controller
         global $_ARRAYLANG;
 
         $options['functions']['edit'] = false;
+        $options['functions']['add'] = false;
         $options['functions']['delete'] = false;
+        $options['functions']['editable'] = true;
+
+        $options['functions']['status'] = array(
+            'field' => 'status'
+        );
 
         $options['fields'] = array(
             'id' => array(
