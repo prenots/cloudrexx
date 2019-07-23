@@ -111,8 +111,12 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
         $docSysObj = new DocSys('');
         $docSysObj->getDetails();
         //Set the Page Title
-        $page->setTitle($docSysObj->docSysTitle);
-        $page->setContentTitle($docSysObj->docSysTitle);
-        $page->setMetaTitle($docSysObj->docSysTitle);
+        $pageTitle = $docSysObj->docSysTitle;
+        if (empty($pageTitle)) {
+            return;
+        }
+        $page->setTitle($pageTitle);
+        $page->setContentTitle($pageTitle);
+        $page->setMetaTitle($pageTitle);
     }
 }
