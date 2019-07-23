@@ -1,5 +1,5 @@
-var scope = 'order';
 cx.bind("delete", function (deleteIds) {
+    var scope = 'order';
     if (confirm(
         cx.variables.get('TXT_CONFIRM_DELETE_ORDER', scope)+'\n'+ cx.variables.get('TXT_ACTION_IS_IRREVERSIBLE', scope)
     )) {
@@ -9,9 +9,28 @@ cx.bind("delete", function (deleteIds) {
         )) {
             stockUpdate = true;
         }
-        window.location.replace(
-            "?deleteids=" + encodeURI(deleteIds)  + (stockUpdate ? '&update_stock=1' : '')
-            + "&csrf=" + cx.variables.get('CSRF_PARAM', scope) + "&vg_increment_number=0"
+        cx.ajax(
+            'Order',
+            'deleteOrders',
+            {
+                type: 'POST',
+                data: {
+                    orderIds: deleteIds,
+                    updateStock: stockUpdate,
+                },
+                success: function(response) {
+                    if (response.status == 'success') {
+                        cx.tools.StatusMessage.showMessage(response.message);
+                        deleteIds.forEach(function(entityId) {console.log('entityId');
+                            document.getElementsByName('status-' + entityId)[0].selectedIndex = 2;
+                        });
+                    }
+                },
+                preError: function(xhr, status, error) {
+                    cx.tools.StatusMessage.showMessage(error);
+                }
+            },
+            cx.variables.get('language', 'contrexx')
         );
     }
 }, 'order');

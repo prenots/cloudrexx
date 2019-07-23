@@ -104,7 +104,8 @@ class JsonOrderController
             'getShowAllPendentOrders',
             'generateLsvs',
             'filterCallback',
-            'searchCallback'
+            'searchCallback',
+            'deleteOrders'
         );
     }
 
@@ -264,6 +265,43 @@ class JsonOrderController
         )->deleteById($entityId, $updateStock);
 
         $this->messages[] = $_ARRAYLANG['TXT_SHOP_DELETED_ORDER'];
+
+        return array('message' => $this->messages);
+    }
+
+    /**
+     * Delete order by order ids. Update stock if certain param is set
+     *
+     * @global array $_ARRAYLANG containing the language variables
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return array Status message if the order order was successfully deleted
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
+     * @throws \Cx\Core\Error\Model\Entity\ShinyException if order was not found
+     */
+    public function deleteOrders($params)
+    {
+        global $_ARRAYLANG, $objInit;
+
+        $langData   = $objInit->getComponentSpecificLanguageData(
+            'Shop',
+            false
+        );
+        $_ARRAYLANG = array_merge($_ARRAYLANG, $langData);
+
+        foreach ($params['post']['orderIds'] as $orderId) {
+            $param = array(
+                'post' => array(
+                    'orderId' => $orderId,
+                    'updateStock' => $params['post']['updateStock']
+                )
+            );
+            $this->deleteOrder($param);
+        }
+
+        $this->messages = array();
+        $this->messages[] = $_ARRAYLANG['TXT_SHOP_DELETED_ORDERS'];
 
         return array('message' => $this->messages);
     }
@@ -772,7 +810,7 @@ class JsonOrderController
      */
     public function getStatusMenuForOverview($params)
     {
-        $rowData = !empty($params['rowData']) ? $params['rowData'] : array();
+        $rowData = !empty($params['rows']) ? $params['rows'] : array();
         return $this->getStatusMenu($params['data'], '', $rowData['id']);
     }
 
