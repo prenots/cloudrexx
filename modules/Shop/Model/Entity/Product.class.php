@@ -1174,7 +1174,7 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
                 '"title":"'.htmlspecialchars($name, ENT_QUOTES, CONTREXX_CHARSET).'",'.
                 '"percent":'.
                 // Use the VAT rate, not the ID, as it is not modified here
-                $product->getVat()->getRate().','.
+                (!empty($product->getVat()) ? $product->getVat()->getRate() : '0,0') .','.
                 '"weight":'.($distribution == 'delivery'
                     ? '"'.\Cx\Modules\Shop\Controller\Weight::getWeightString($product->getWeight()).'"'
                     : '0' ).','.
