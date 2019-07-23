@@ -70,8 +70,13 @@ class ComponentController extends \Cx\Core\Core\Model\Entity\SystemComponentCont
      * Avoid calculation of anything, just return an array!
      * @return array List of ComponentController classes
      */
-    public function getControllersAccessableByJson() {
-        return array('JsonProductController');
+    public function getControllersAccessableByJson()
+    {
+        return array(
+            'JsonPriceListController', 'JsonCurrencyController',
+            'JsonDiscountCouponController', 'JsonOrderController',
+            'JsonProductController'
+        );
     }
 
     /**
