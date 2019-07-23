@@ -883,7 +883,7 @@ function _shopUpdate()
         //        \Cx\Core\Setting\Controller\Setting::errorHandler();
 
 
-        \Cx\Modules\Shop\Controller\CurrencyController::errorHandler();
+        Currency::errorHandler();
         // Prerequisites:
         //        Text::errorHandler();
 

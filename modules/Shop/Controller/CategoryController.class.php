@@ -3,7 +3,7 @@
 * Cloudrexx
 *
  * @link      http://www.cloudrexx.com
- * @copyright Cloudrexx AG 2007-2018
+ * @copyright Cloudrexx AG 2007-2019
 *
  * According to our dual licensing model, this program can be used either
 * under the terms of the GNU Affero General Public License, version 3,
@@ -25,7 +25,7 @@
  */
 
 /**
- * ManufacturerController to handle manufacturers
+ * CategoryController to handle categories
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -35,7 +35,7 @@
 namespace Cx\Modules\Shop\Controller;
 
 /**
- * ManufacturerController to handle manufacturers
+ * CategoryController to handle categories
  *
  * @copyright   Cloudrexx AG
  * @author      Sam Hawkes <info@cloudrexx.com>
@@ -45,10 +45,10 @@ namespace Cx\Modules\Shop\Controller;
 class CategoryController extends \Cx\Core\Core\Model\Entity\Controller
 {
     /**
-     * Get ViewGenerator options for Manufacturer entity
+     * Get ViewGenerator options for Category entity
      *
      * @param $options array predefined ViewGenerator options
-     * @return array includes ViewGenerator options for Manufacturer entity
+     * @return array includes ViewGenerator options for Category entity
      */
     public function getViewGeneratorOptions($options)
     {
