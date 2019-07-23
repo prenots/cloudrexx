@@ -1312,11 +1312,10 @@ class OrderController extends \Cx\Core\Core\Model\Entity\Controller
         $options['order']['show'] = $fieldsToShow;
         $options['functions']['order']['id'] = SORT_DESC;
         $options['functions']['filtering'] = true;
-        $options['functions']['filterCallback'] = function ($qb, $crit) {
-            return $this->filterCallback(
-                $qb, $crit
-            );
-        };
+        $options['functions']['filterCallback'] = array(
+            'adapter' => 'Order',
+            'method' => 'filterCallback'
+        );
         foreach ($this->allFields as $field) {
             if (!in_array($field, $fieldsToShow)) {
                 $options['fields'][$field] = array(
