@@ -55,7 +55,10 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
     /**
      * Get ViewGenerator options for Payment entity
      *
+     * @global array $_ARRAYLANG containing the language variables
+     *
      * @param $options array predefined ViewGenerator options
+     *
      * @return array includes ViewGenerator options for Payment entity
      */
     public function getViewGeneratorOptions($options)
@@ -166,11 +169,15 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      * Return HTML code for the payment dropdown menu
      *
      * See {@see getPaymentMenuoptions()} for details.
-     * @param   string  $selectedId     Optional preselected payment ID
+     *
+     * @global  array   $_ARRAYLANG     Language array
+     *
+     * @param   integer $selectedId     Optional preselected payment ID
      * @param   string  $onchange       Optional onchange function
      * @param   integer $countryId      Country ID
+     *
      * @return  string                  HTML code for the dropdown menu
-     * @global  array   $_ARRAYLANG     Language array
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     static function getPaymentMenu($selectedId=0, $onchange='', $countryId=0)
     {
@@ -184,10 +191,14 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      *
      * If no valid payment is selected, an additional option representing
      * "please choose" is prepended.
-     * @param   string  $selectedId     Optional preselected payment ID
-     * @param   integer $countryId      Country ID
-     * @return  string                  HTML code for the dropdown menu options
+     *
      * @global  array   $_ARRAYLANG     Language array
+     *
+     * @param   integer $selectedId     Optional preselected payment ID
+     * @param   integer $countryId      Country ID
+     *
+     * @return  string                  HTML code for the dropdown menu options
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     static function getPaymentMenuoptions($selectedId=0, $countryId=0)
     {
@@ -206,6 +217,7 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      * @param integer $countryId Country ID
      *
      * @return array array of payment methods
+     * @throws \Doctrine\ORM\ORMException handle orm interaction fails
      */
     static function getPaymentMethods($countryId = 0)
     {
