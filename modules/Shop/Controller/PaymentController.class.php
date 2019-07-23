@@ -60,6 +60,8 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
      */
     public function getViewGeneratorOptions($options)
     {
+        global $_ARRAYLANG;
+
         $options['functions']['editable'] = true;
         $options['functions']['edit'] = false;
         $options['functions']['sorting'] = false;
@@ -95,6 +97,7 @@ class PaymentController extends \Cx\Core\Core\Model\Entity\Controller
                 'showOverview' => false,
             ),
             'name' => array(
+                'header' => $_ARRAYLANG['payment'],
                 'editable' => true,
             ),
             'fee' => array(
