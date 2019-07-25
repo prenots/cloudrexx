@@ -212,21 +212,28 @@ class ViewGenerator {
                 $this->saveEntry($entityWithNS);
             }
         } catch (\Exception $e) {
+            // If the error has already been catched once, do not redirect it
+            // again
+            if ($this->cx->getRequest()->hasParam('redirected')) {
+                return;
+            }
             \Message::add($e->getMessage(), \Message::CLASS_ERROR);
             if (
-                $this->cx->getRequest()->hasParam('editid', false)
+                $this->cx->getRequest()->hasParam('editid')
             ) {
                 $editUrl = \Cx\Core\Html\Controller\ViewGenerator::getVgEditUrl(
                     $this->options['functions']['vg_increment_number'],
                     $this->getEntryId(),
                     $this->cx->getRequest()->getUrl()
                 );
+                $editUrl->setParam('redirected', true);
                 \Cx\Core\Csrf\Controller\Csrf::redirect($editUrl);
             } else if (
                 $this->cx->getRequest()->hasParam('add') ||
                 $this->cx->getRequest()->hasParam('copy')
             ) {
                 $actionUrl = $this->cx->getRequest()->getUrl();
+                $actionUrl->setParam('redirected', true);
                 \Cx\Core\Csrf\Controller\Csrf::redirect($actionUrl);
             }
         }
