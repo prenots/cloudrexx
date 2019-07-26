@@ -156,30 +156,6 @@ class Discount
             $objResult->MoveNext();
         }
 
-        $arrSqlName = \Text::getSqlSnippets(
-            '`discount`.`id`', FRONTEND_LANG_ID, 'Shop',
-            array('customer' => self::TEXT_NAME_GROUP_CUSTOMER));
-        $query = "
-            SELECT `discount`.`id`, ".$arrSqlName['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_customer_group` AS `discount`
-                   ".$arrSqlName['join']."
-             ORDER BY `discount`.`id` ASC";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return self::errorHandler();
-        self::$arrCustomerGroup = array();
-        while (!$objResult->EOF) {
-            $group_id = $objResult->fields['id'];
-            $strName = $objResult->fields['customer'];
-            if (is_null($strName)) {
-                $strName = \Text::getById($group_id, 'Shop',
-                    self::TEXT_NAME_GROUP_CUSTOMER)->content();
-            }
-            self::$arrCustomerGroup[$group_id] = array(
-                'name' => $strName,
-            );
-            $objResult->MoveNext();
-        }
-
 //DBG::log("Discount::init(): Made \$arrArticleGroup: ".var_export(self::$arrArticleGroup, true));
         $query = "
             SELECT `customer_group_id`, `article_group_id`, `rate`
@@ -487,7 +463,6 @@ class Discount
     {
         global $_ARRAYLANG;
 
-        if (is_null(self::$arrCustomerGroup)) self::init();
         return \Html::getOptions(
             array(
                 0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE']
@@ -539,7 +514,19 @@ class Discount
      */
     static function getCustomerGroupArray()
     {
-        if (is_null(self::$arrCustomerGroup)) self::init();
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $customerGroups = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
+        )->findAll();
+
+        self::$arrCustomerGroup = array();
+        foreach ($customerGroups as $customerGroup) {
+            $group_id = $customerGroup->getId();
+            $strName = $customerGroup->getName();
+            self::$arrCustomerGroup[$group_id] = array(
+                'name' => $strName,
+            );
+        }
         return self::$arrCustomerGroup;
     }
 
@@ -634,9 +621,9 @@ class Discount
     {
         global $_ARRAYLANG;
 
-        if (is_null(self::$arrCustomerGroup)) self::init();
-        if (isset(self::$arrCustomerGroup[$group_id])) {
-            return self::$arrCustomerGroup[$group_id]['name'];
+        $customerGroups = static::getCustomerGroupArray();
+        if (isset($customerGroups[$group_id])) {
+            return $customerGroups[$group_id]['name'];
         }
         return $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'];
     }
@@ -654,9 +641,10 @@ class Discount
      */
     static function getCustomerGroupNameArray()
     {
-        if (is_null(self::$arrCustomerGroup)) self::init();
+        $customerGroups = static::getCustomerGroupArray();
+
         $arrGroupname = array();
-        foreach (self::$arrCustomerGroup as $id => $arrGroup) {
+        foreach ($customerGroups as $id => $arrGroup) {
             $arrGroupname[$id] = $arrGroup['name'];
         }
         return $arrGroupname;
@@ -708,82 +696,6 @@ class Discount
             }
         }
         return \Message::ok($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_STORED_SUCCESSFULLY']);
-    }
-
-
-    /**
-     * Store a customer group in the database
-     * @param   string    $groupName    The group name
-     * @param   integer   $group_id     The optional group ID
-     * @return  integer                 The (new) group ID on success,
-     *                                  false otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function storeCustomerGroup($groupName, $group_id=0)
-    {
-        global $objDatabase, $_ARRAYLANG;
-
-        if (is_null(self::$arrCustomerGroup)) self::init();
-        $group_id = intval($group_id);
-        $query = "
-            REPLACE INTO `".DBPREFIX."module_shop".MODULE_INDEX."_customer_group` (
-                `id`
-            ) VALUES (
-                $group_id
-            )";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_ERROR_STORING']);
-        }
-        if (empty($group_id)) {
-            $group_id = $objDatabase->Insert_Id();
-        }
-        if (!\Text::replace($group_id, FRONTEND_LANG_ID, 'Shop',
-            self::TEXT_NAME_GROUP_CUSTOMER, $groupName)) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_ERROR_STORING']);
-        }
-        \Message::ok($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_STORED_SUCCESSFULLY']);
-        return $group_id;
-    }
-
-    /**
-     * Delete the customer group from the database
-     *
-     * Backend use only.
-     * @param   integer   $group_id     The group ID
-     * @return  boolean                 True on success, false otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function deleteCustomerGroup($group_id)
-    {
-        global $objDatabase, $_ARRAYLANG;
-
-        if (empty($group_id)) return false;
-        if (is_null(self::$arrCustomerGroup)) self::init();
-        if (empty(self::$arrCustomerGroup[$group_id])) return true;
-        // Remove related rates
-        $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`
-             WHERE `customer_group_id`=$group_id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_ERROR_DELETING']);
-        }
-        // Remove the group
-        if (!\Text::deleteById($group_id, 'Shop',
-            self::TEXT_NAME_GROUP_CUSTOMER)) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_ERROR_DELETING']);
-        }
-        $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_customer_group`
-             WHERE `id`=$group_id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_ERROR_DELETING']);
-        }
-        return \Message::ok($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_GROUP_DELETED_SUCCESSFULLY']);
     }
 
     /**
