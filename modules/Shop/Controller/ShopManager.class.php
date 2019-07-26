@@ -2398,9 +2398,6 @@ if ($test === NULL) {
         if ($template == 'discounts') {
             return $this->view_customer_discounts();
         }
-        if ($template == 'groups') {
-            return $this->view_customer_groups();
-        }
         $this->toggleCustomer();
         $i = 0;
         self::$objTemplate->loadTemplateFile("module_shop_customers.html");
@@ -2929,10 +2926,6 @@ if ($test === NULL) {
             case 'discounts':
                 self::$pageTitle = $_ARRAYLANG['TXT_SHOP_DISCOUNT_COUNT_GROUPS'];
                 $this->view_discount_groups_count();
-                break;
-            case 'groups':
-                self::$pageTitle = $_ARRAYLANG['TXT_SHOP_ARTICLE_GROUPS'];
-                $this->view_article_groups();
                 break;
             default:
                 self::$pageTitle = $_ARRAYLANG['TXT_PRODUCT_CATALOG'];
@@ -3498,141 +3491,6 @@ if ($test === NULL) {
         $discountId = $_GET['id'];
         return Discount::deleteDiscountCount($discountId);
     }
-
-
-    /**
-     * Show the customer groups for editing
-     * @return    boolean             True on success, false otherwise
-     * @author    Reto Kohli <reto.kohli@comvation.com>
-     */
-    function view_customer_groups()
-    {
-        global $_ARRAYLANG;
-
-        if (isset($_GET['delete'])) {
-            Discount::deleteCustomerGroup($_GET['id']);
-        }
-        if (isset($_POST['store'])) {
-            Discount::storeCustomerGroup($_POST['groupName'], $_POST['id']);
-        }
-        Discount::flush();
-
-        self::$objTemplate->loadTemplateFile('module_shop_discount_groups_customer.html');
-
-        // Group overview
-        $arrGroups = Discount::getCustomerGroupArray();
-        self::$objTemplate->setCurrentBlock('shopGroup');
-        $i = 0;
-        foreach ($arrGroups as $id => $arrGroup) {
-            self::$objTemplate->setVariable(array(
-                'SHOP_GROUP_ID' => $id,
-                'SHOP_GROUP_NAME' => $arrGroup['name'],
-                'SHOP_ROW_STYLE' => 'row'.(++$i % 2 + 1),
-            ));
-            self::$objTemplate->parse('shopGroup');
-        }
-
-        // Add/edit Group
-        $id = 0;
-        if (!empty($_GET['edit'])) {
-            $id = intval($_GET['id']);
-            self::$objTemplate->setGlobalVariable(array(
-                'SHOP_GROUP_EDIT_CLASS' => 'active',
-                'SHOP_GROUP_EDIT_DISPLAY' => 'block',
-                'SHOP_GROUP_LIST_CLASS' => '',
-                'SHOP_GROUP_LIST_DISPLAY' => 'none',
-                'TXT_ADD_OR_EDIT' => $_ARRAYLANG['TXT_EDIT'],
-            ));
-        } else {
-            self::$objTemplate->setGlobalVariable(array(
-                'SHOP_GROUP_EDIT_CLASS' => '',
-                'SHOP_GROUP_EDIT_DISPLAY' => 'none',
-                'SHOP_GROUP_LIST_CLASS' => 'active',
-                'SHOP_GROUP_LIST_DISPLAY' => 'block',
-                'TXT_ADD_OR_EDIT' => $_ARRAYLANG['TXT_ADD'],
-            ));
-        }
-        self::$objTemplate->setCurrentBlock('shopGroupName');
-        self::$objTemplate->setVariable(array(
-            'SHOP_GROUP_ID_EDIT' => $id,
-            'SHOP_ROW_STYLE' => 'row'.(++$i % 2 + 1),
-        ));
-        if (isset($arrGroups[$id])) {
-            self::$objTemplate->setVariable(
-                'SHOP_GROUP_NAME', $arrGroups[$id]['name']
-            );
-        }
-        self::$objTemplate->parse('shopGroupName');
-        return true;
-    }
-
-
-    /**
-     * Show the article groups for editing
-     * @return    boolean             True on success, false otherwise
-     * @author    Reto Kohli <reto.kohli@comvation.com>
-     */
-    function view_article_groups()
-    {
-        global $_ARRAYLANG;
-
-        if (isset($_GET['delete'])) {
-            Discount::deleteArticleGroup($_GET['id']);
-        }
-        if (isset($_POST['store'])) {
-            Discount::storeArticleGroup(
-                $_POST['groupName'], $_POST['id']
-            );
-        }
-        // Force discounts to be reinitialised
-        Discount::flush();
-
-        self::$objTemplate->addBlockfile('SHOP_PRODUCTS_FILE',
-            'shop_products_block', 'module_shop_discount_groups_article.html');
-        // Group overview
-        $arrGroups = Discount::getArticleGroupArray();
-        self::$objTemplate->setCurrentBlock('shopGroup');
-        $i = 0;
-        foreach ($arrGroups as $id => $arrGroup) {
-            self::$objTemplate->setVariable(array(
-                'SHOP_GROUP_ID' => $id,
-                'SHOP_GROUP_NAME' => $arrGroup['name'],
-                'SHOP_ROW_STYLE' => 'row'.(++$i % 2 + 1),
-            ));
-            self::$objTemplate->parseCurrentBlock();
-        }
-        // Add/edit Group
-        $id = 0;
-        if (!empty($_GET['edit'])) {
-            $id = intval($_GET['id']);
-            self::$objTemplate->setGlobalVariable(array(
-                'SHOP_GROUP_EDIT_CLASS' => 'active',
-                'SHOP_GROUP_EDIT_DISPLAY' => 'block',
-                'SHOP_GROUP_LIST_CLASS' => '',
-                'SHOP_GROUP_LIST_DISPLAY' => 'none',
-                'TXT_ADD_OR_EDIT' => $_ARRAYLANG['TXT_EDIT'],
-            ));
-        } else {
-            self::$objTemplate->setGlobalVariable(array(
-                'SHOP_GROUP_EDIT_CLASS' => '',
-                'SHOP_GROUP_EDIT_DISPLAY' => 'none',
-                'SHOP_GROUP_LIST_CLASS' => 'active',
-                'SHOP_GROUP_LIST_DISPLAY' => 'block',
-                'TXT_ADD_OR_EDIT' => $_ARRAYLANG['TXT_ADD'],
-            ));
-        }
-        self::$objTemplate->setCurrentBlock('shopGroupName');
-        self::$objTemplate->setVariable(array(
-            'SHOP_GROUP_ID_EDIT' => $id,
-            'SHOP_ROW_STYLE' => 'row'.(++$i % 2 + 1),
-        ));
-        if (isset($arrGroups[$id])) {
-            self::$objTemplate->setVariable('SHOP_GROUP_NAME', $arrGroups[$id]['name']);
-        }
-        self::$objTemplate->parseCurrentBlock();
-        return true;
-    }
-
 
     /**
      * Show the customer and article group discounts for editing.
