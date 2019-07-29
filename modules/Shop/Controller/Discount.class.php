@@ -523,30 +523,6 @@ class Discount
         return 0;
     }
 
-
-    /**
-     * Returns a string with the customer group name
-     * for the given ID
-     *
-     * Backend use only.
-     * @param   integer   $group_id     The Customer group ID
-     * @return  string                  The group name on success,
-     *                                  the string for "none" otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getCustomerGroupName($group_id)
-    {
-        global $_ARRAYLANG;
-
-        $customerGroups = static::getCustomerGroupArray();
-        if (isset($customerGroups[$group_id])) {
-            return $customerGroups[$group_id]['name'];
-        }
-        return $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'];
-    }
-
-
     /**
      * Store the customer/article group discounts in the database.
      *

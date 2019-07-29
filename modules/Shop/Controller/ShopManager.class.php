@@ -2631,6 +2631,16 @@ if ($test === NULL) {
         if (!$objCustomer) {
             return \Message::error($_ARRAYLANG['TXT_SHOP_CUSTOMER_ERROR_NOT_FOUND']);
         }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $customerGroup = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
+        )->find($objCustomer->group_id());
+        $customerGroupName = $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'];
+        if (!empty($customerGroup)) {
+            $customerGroupName = $customerGroup->getName();
+        }
+
         $customer_type = ($objCustomer->is_reseller()
             ? $_ARRAYLANG['TXT_RESELLER'] : $_ARRAYLANG['TXT_CUSTOMER']);
         $active = ($objCustomer->active()
@@ -2655,8 +2665,7 @@ if ($test === NULL) {
             'SHOP_REGISTER_DATE' => date(ASCMS_DATE_FORMAT_DATETIME,
                 $objCustomer->register_date()),
             'SHOP_CUSTOMER_STATUS' => $active,
-            'SHOP_DISCOUNT_GROUP_CUSTOMER' => Discount::getCustomerGroupName(
-                $objCustomer->group_id()),
+            'SHOP_DISCOUNT_GROUP_CUSTOMER' => $customerGroupName,
         ));
 // TODO: TEST
         $count = NULL;
