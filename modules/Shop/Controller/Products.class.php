@@ -1108,7 +1108,9 @@ class Products
                     $strJsArrPrice .=
                         ($strJsArrPrice ? ',' : '').
                         // Count followed by price
-                        $count.','.\Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($discountPrice);
+                        $rate->getCount().','
+                        .\Cx\Modules\Shop\Controller\CurrencyController::
+                            getCurrencyPrice($discountPrice);
                 }
             }
             $strJsArrPrice .=
