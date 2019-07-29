@@ -450,27 +450,6 @@ class Discount
 
 
     /**
-     * Returns the HTML dropdown menu options with all of the
-     * customer group names
-     *
-     * Backend use only.
-     * @param   integer   $selectedId   The optional preselected ID
-     * @return  string                  The HTML dropdown menu options
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getMenuOptionsGroupCustomer($selectedId=0)
-    {
-        global $_ARRAYLANG;
-
-        return \Html::getOptions(
-            array(
-                0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE']
-            ) + self::getCustomerGroupNameArray(), $selectedId);
-    }
-
-
-    /**
      * Returns an array with all the customer group names
      * indexed by their ID
      *
@@ -565,28 +544,6 @@ class Discount
             return $customerGroups[$group_id]['name'];
         }
         return $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'];
-    }
-
-
-    /**
-     * Returns an array with the customer group names, indexed by ID
-     *
-     * Backend use only.
-     * Note that the array returned may be empty.
-     * @return  array                   The group name array on success,
-     *                                  null otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getCustomerGroupNameArray()
-    {
-        $customerGroups = static::getCustomerGroupArray();
-
-        $arrGroupname = array();
-        foreach ($customerGroups as $id => $arrGroup) {
-            $arrGroupname[$id] = $arrGroup['name'];
-        }
-        return $arrGroupname;
     }
 
 

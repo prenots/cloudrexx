@@ -2801,7 +2801,7 @@ if ($test === NULL) {
             'SHOP_COUNTRY_MENUOPTIONS' =>
                 \Cx\Core\Country\Controller\Country::getMenuoptions($country_id),
             'SHOP_DISCOUNT_GROUP_CUSTOMER_MENUOPTIONS' =>
-                Discount::getMenuOptionsGroupCustomer($customer_group_id),
+                \Cx\Modules\Shop\Controller\BackendController::getMenuOptionsGroupCustomer($customer_group_id),
             'SHOP_CUSTOMER_TYPE_MENUOPTIONS' =>
                 Customers::getTypeMenuoptions($is_reseller),
             'SHOP_CUSTOMER_ACTIVE_MENUOPTIONS' =>
