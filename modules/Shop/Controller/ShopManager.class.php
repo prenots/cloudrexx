@@ -2136,7 +2136,7 @@ if ($test === NULL) {
             'SHOP_CREATE_ACCOUNT_NO_CHECKED' =>
                 (empty($usergroup_ids) ? \Html::ATTRIBUTE_CHECKED : ''),
             'SHOP_DISCOUNT_GROUP_COUNT_MENU_OPTIONS' =>
-                Discount::getMenuOptionsGroupCount($discount_group_count_id),
+                \Cx\Modules\Shop\Controller\DiscountgroupCountNameController::getMenuOptionsGroupCount($discount_group_count_id),
             'SHOP_DISCOUNT_GROUP_ARTICLE_MENU_OPTIONS' =>
                 Discount::getMenuOptionsGroupArticle($discount_group_article_id),
             'SHOP_KEYWORDS' => contrexx_raw2xhtml($keywords),

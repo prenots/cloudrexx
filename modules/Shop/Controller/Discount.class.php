@@ -169,33 +169,6 @@ class Discount
 
 
     /**
-     * Returns the HTML dropdown menu options with all of the
-     * count type discount names plus a neutral option ("none")
-     *
-     * Backend use only.
-     * @param   integer   $selectedId   The optional preselected ID
-     * @return  string                  The HTML dropdown menu options
-     *                                  on success, false otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getMenuOptionsGroupCount($selectedId=0)
-    {
-        global $_ARRAYLANG;
-
-        if (is_null(self::$arrDiscountCountName)) self::init();
-        $arrName = array();
-        foreach (self::$arrDiscountCountName as $group_id => $arrGroup) {
-            $arrName[$group_id] = $arrGroup['name'].' ('.$arrGroup['unit'].')';
-        }
-        return \Html::getOptions(
-            array(
-                0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE']
-            ) + $arrName, $selectedId);
-    }
-
-
-    /**
      * Returns an array with all the count type discount names
      * indexed by their ID.
      *

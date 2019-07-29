@@ -119,4 +119,40 @@ class DiscountgroupCountNameController extends \Cx\Core\Core\Model\Entity\Contro
 
         return $link;
     }
+
+    /**
+     * Returns the HTML dropdown menu options with all of the
+     * count type discount names plus a neutral option ("none")
+     *
+     * Backend use only.
+     * @param   integer   $selectedId   The optional preselected ID
+     * @return  string                  The HTML dropdown menu options
+     *                                  on success, false otherwise
+     * @static
+     */
+    static function getMenuOptionsGroupCount($selectedId=0)
+    {
+        global $_ARRAYLANG;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em =  $cx->getDb()->getEntityManager();
+
+        $discountCountNames = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+        )->findAll();
+
+        $arrName = array();
+        foreach ($discountCountNames as $discountCountName) {
+            $arrName[
+                $discountCountName->getId()
+            ] = $discountCountName->getName().' ('
+                .$discountCountName->getUnit().')';
+        }
+        return \Html::getOptions(
+            array(
+                0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE']
+            ) + $arrName,
+            $selectedId
+        );
+    }
 }
