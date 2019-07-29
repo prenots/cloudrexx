@@ -3565,7 +3565,13 @@ if ($test === NULL) {
      */
     function store_discount_customer()
     {
-        return Discount::storeDiscountCustomer($_POST['discountRate']);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $discountCustomerRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+        );
+        return $discountCustomerRepo->storeDiscountCustomer(
+            $_POST['discountRate']
+        );
     }
 
 

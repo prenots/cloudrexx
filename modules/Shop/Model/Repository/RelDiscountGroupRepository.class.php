@@ -61,4 +61,56 @@ class RelDiscountGroupRepository extends \Doctrine\ORM\EntityRepository
 
         return $arrDiscountRateCustomer;
     }
+
+    /**
+     * Store the customer/article group discounts in the database.
+     *
+     * Backend use only.
+     * The array argument has the structure
+     *  array(
+     *    customerGroupId => array(
+     *      articleGroupId => discountRate,
+     *      ...
+     *    ),
+     *    ...
+     *  );
+     * @param   array     $arrDiscountRate  The array of discount rates
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException handle orm interaction
+     */
+    function storeDiscountCustomer($arrDiscountRate)
+    {
+        $articleGroupRepo = $this->_em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\ArticleGroup'
+        );
+        $customerGroupRepo = $this->_em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
+        );
+        foreach ($arrDiscountRate as $customerGroupId => $articleGroup) {
+            foreach ($articleGroup as $articleGroupId => $discountRate) {
+                $discountGroup = $this->findOneBy(
+                    array(
+                        'articleGroupId' => $articleGroupId,
+                        'customerGroupId' => $customerGroupId
+                    )
+                );
+
+                if (empty($discountGroup)) {
+                    $discountGroup =
+                        new \Cx\Modules\Shop\Model\Entity\RelDiscountGroup();
+                    $discountGroup->setArticleGroupId($articleGroupId);
+                    $discountGroup->setArticleGroup(
+                        $articleGroupRepo->find($articleGroupId)
+                    );
+                    $discountGroup->setCustomerGroupId($customerGroupId);
+                    $discountGroup->setCustomerGroup(
+                        $customerGroupRepo->find($customerGroupId)
+                    );
+                }
+                $discountGroup->setRate($discountRate);
+                $this->_em->persist($discountGroup);
+            }
+        }
+        $this->_em->flush();
+    }
 }
