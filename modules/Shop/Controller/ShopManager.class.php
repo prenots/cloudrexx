@@ -2138,7 +2138,7 @@ if ($test === NULL) {
             'SHOP_DISCOUNT_GROUP_COUNT_MENU_OPTIONS' =>
                 \Cx\Modules\Shop\Controller\DiscountgroupCountNameController::getMenuOptionsGroupCount($discount_group_count_id),
             'SHOP_DISCOUNT_GROUP_ARTICLE_MENU_OPTIONS' =>
-                Discount::getMenuOptionsGroupArticle($discount_group_article_id),
+                \Cx\Modules\Shop\Controller\BackendController::getMenuOptionsGroupArticle($discount_group_article_id),
             'SHOP_KEYWORDS' => contrexx_raw2xhtml($keywords),
             // Enable JavaScript functionality for the weight if enabled
             'SHOP_WEIGHT_ENABLED' => (\Cx\Core\Setting\Controller\Setting::getValue('weight_enable','Shop')
@@ -2631,6 +2631,16 @@ if ($test === NULL) {
         if (!$objCustomer) {
             return \Message::error($_ARRAYLANG['TXT_SHOP_CUSTOMER_ERROR_NOT_FOUND']);
         }
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $customerGroup = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
+        )->find($objCustomer->group_id());
+        $customerGroupName = $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'];
+        if (!empty($customerGroup)) {
+            $customerGroupName = $customerGroup->getName();
+        }
+
         $customer_type = ($objCustomer->is_reseller()
             ? $_ARRAYLANG['TXT_RESELLER'] : $_ARRAYLANG['TXT_CUSTOMER']);
         $active = ($objCustomer->active()
@@ -2655,8 +2665,7 @@ if ($test === NULL) {
             'SHOP_REGISTER_DATE' => date(ASCMS_DATE_FORMAT_DATETIME,
                 $objCustomer->register_date()),
             'SHOP_CUSTOMER_STATUS' => $active,
-            'SHOP_DISCOUNT_GROUP_CUSTOMER' => Discount::getCustomerGroupName(
-                $objCustomer->group_id()),
+            'SHOP_DISCOUNT_GROUP_CUSTOMER' => $customerGroupName,
         ));
 // TODO: TEST
         $count = NULL;
@@ -2801,7 +2810,7 @@ if ($test === NULL) {
             'SHOP_COUNTRY_MENUOPTIONS' =>
                 \Cx\Core\Country\Controller\Country::getMenuoptions($country_id),
             'SHOP_DISCOUNT_GROUP_CUSTOMER_MENUOPTIONS' =>
-                Discount::getMenuOptionsGroupCustomer($customer_group_id),
+                \Cx\Modules\Shop\Controller\BackendController::getMenuOptionsGroupCustomer($customer_group_id),
             'SHOP_CUSTOMER_TYPE_MENUOPTIONS' =>
                 Customers::getTypeMenuoptions($is_reseller),
             'SHOP_CUSTOMER_ACTIVE_MENUOPTIONS' =>
@@ -3359,42 +3368,45 @@ if ($test === NULL) {
         $discountGroup = $cx->getDb()->getEntityManager()->getRepository(
             'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
         );
-
-        $arrCustomerGroups = Discount::getCustomerGroupArray();
-        $arrArticleGroups = Discount::getArticleGroupArray();
+        $articleGroups = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\ArticleGroup'
+        )->findAll();
+        $customerGroups = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
+        )->findAll();
         $arrRate = null;
         $arrRate = $discountGroup->getDiscountRateCustomerArray();
         $i = 0;
         // Set up the customer groups header
         self::$objTemplate->setVariable(array(
 //            'SHOP_CUSTOMER_GROUP_COUNT_PLUS_1' => count($arrCustomerGroups) + 1,
-            'SHOP_CUSTOMER_GROUP_COUNT' => count($arrCustomerGroups),
+            'SHOP_CUSTOMER_GROUP_COUNT' => count($customerGroups),
             'SHOP_DISCOUNT_ROW_STYLE' => 'row'.(++$i % 2 + 1),
         ));
-        foreach ($arrCustomerGroups as $id => $arrCustomerGroup) {
+        foreach ($customerGroups as $customerGroup) {
             self::$objTemplate->setVariable(array(
-                'SHOP_CUSTOMER_GROUP_ID' => $id,
-                'SHOP_CUSTOMER_GROUP_NAME' => $arrCustomerGroup['name'],
+                'SHOP_CUSTOMER_GROUP_ID' => $customerGroup->getId(),
+                'SHOP_CUSTOMER_GROUP_NAME' => $customerGroup->getName(),
             ));
             self::$objTemplate->parse('customer_group_header_column');
             self::$objTemplate->touchBlock('article_group_header_column');
             self::$objTemplate->parse('article_group_header_column');
         }
-        foreach ($arrArticleGroups as $groupArticleId => $arrArticleGroup) {
+        foreach ($articleGroups as $articleGroup) {
 //DBG::log("Article group ID $groupArticleId");
-            foreach ($arrCustomerGroups as $groupCustomerId => $arrCustomerGroup) {
-                $rate = (isset($arrRate[$groupCustomerId][$groupArticleId])
-                    ? $arrRate[$groupCustomerId][$groupArticleId] : 0);
+            foreach ($customerGroups as $customerGroup) {
+                $rate = (isset($arrRate[$customerGroup->getId()][$articleGroup->getId()])
+                    ? $arrRate[$customerGroup->getId()][$articleGroup->getId()] : 0);
                 self::$objTemplate->setVariable(array(
-                    'SHOP_CUSTOMER_GROUP_ID' => $groupCustomerId,
+                    'SHOP_CUSTOMER_GROUP_ID' => $customerGroup->getId(),
                     'SHOP_DISCOUNT_RATE' => sprintf('%2.2f', $rate),
 //                    'SHOP_DISCOUNT_ROW_STYLE' => 'row'.(++$i % 2 + 1),
                 ));
                 self::$objTemplate->parse('discount_column');
             }
             self::$objTemplate->setVariable(array(
-                'SHOP_ARTICLE_GROUP_ID' => $groupArticleId,
-                'SHOP_ARTICLE_GROUP_NAME' => $arrArticleGroup['name'],
+                'SHOP_ARTICLE_GROUP_ID' => $articleGroup->getId(),
+                'SHOP_ARTICLE_GROUP_NAME' => $articleGroup->getName(),
                 'SHOP_DISCOUNT_ROW_STYLE' => 'row'.(++$i % 2 + 1),
             ));
             self::$objTemplate->parse('article_group_row');
