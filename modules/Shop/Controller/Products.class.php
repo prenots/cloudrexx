@@ -1053,6 +1053,13 @@ class Products
              WHERE `product`.`active`=1";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) return Product::errorHandler();
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $discountGroupRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+        );
+
         while (!$objResult->EOF) {
             $id = $objResult->fields['id'];
             $distribution = $objResult->fields['distribution'];

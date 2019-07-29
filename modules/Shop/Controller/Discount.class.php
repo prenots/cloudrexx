@@ -583,30 +583,6 @@ class Discount
 
 
     /**
-     * Returns the customer/article type discount rate to be applied
-     * for the given group IDs
-     *
-     * Frontend use only.
-     * @param   integer   $groupCustomerId    The customer group ID
-     * @param   integer   $groupArticleId     The article group ID
-     * @return  float                         The discount rate, if applicable,
-     *                                        0 (zero) otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getDiscountRateCustomer($groupCustomerId, $groupArticleId)
-    {
-        if (is_null(self::$arrDiscountRateCustomer)) self::init();
-        $groupCustomerId = intval($groupCustomerId);
-        $groupArticleId = intval($groupArticleId);
-        if (isset(self::$arrDiscountRateCustomer[$groupCustomerId][$groupArticleId])) {
-            return self::$arrDiscountRateCustomer[$groupCustomerId][$groupArticleId];
-        }
-        return 0;
-    }
-
-
-    /**
      * Returns a string with the customer group name
      * for the given ID
      *

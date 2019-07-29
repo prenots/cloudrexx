@@ -1508,8 +1508,13 @@ class Product
         if ($objCustomer) {
             $groupCustomerId = $objCustomer->group_id();
             if ($groupCustomerId) {
-                $rateCustomer = Discount::getDiscountRateCustomer(
-                    $groupCustomerId, $groupArticleId);
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $discountGroupRepo = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+                );
+                $rateCustomer = $discountGroupRepo->getDiscountRateCustomer(
+                    $groupCustomerId, $groupArticleId
+                );
                 $price -= ($price * $rateCustomer * 0.01);
             }
         }

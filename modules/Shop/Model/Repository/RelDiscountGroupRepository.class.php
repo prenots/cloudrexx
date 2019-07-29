@@ -10,4 +10,28 @@ namespace Cx\Modules\Shop\Model\Repository;
  */
 class RelDiscountGroupRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Returns the customer/article type discount rate to be applied
+     * for the given group IDs
+     *
+     * Frontend use only.
+     * @param   integer   $groupCustomerId    The customer group ID
+     * @param   integer   $groupArticleId     The article group ID
+     * @return  float                         The discount rate, if applicable,
+     *                                        0 (zero) otherwise
+     */
+    function getDiscountRateCustomer($groupCustomerId, $groupArticleId)
+    {
+        $rate = $this->findOneBy(
+            array(
+                'customerGroupId' => $groupCustomerId,
+                'articleGroupId' => $groupArticleId
+            )
+        );
+
+        if (!empty($rate)) {
+            return $rate->getRate();
+        }
+        return 0;
+    }
 }

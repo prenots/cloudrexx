@@ -4709,6 +4709,10 @@ die("Shop::processRedirect(): This method is obsolete!");
     static function showDiscountInfo(
         $groupCustomerId, $groupArticleId, $groupCountId, $count
     ) {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $discountGroupRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+        );
         // Pick the unit for this product (count, meter, kilo, ...)
         $unit = Discount::getUnit($groupCountId);
         if (!empty($unit)) {
@@ -4717,7 +4721,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             );
         }
         if ($groupCustomerId > 0) {
-            $rateCustomer = Discount::getDiscountRateCustomer(
+            $rateCustomer = $discountGroupRepo->getDiscountRateCustomer(
                 $groupCustomerId, $groupArticleId
             );
             if ($rateCustomer > 0) {
