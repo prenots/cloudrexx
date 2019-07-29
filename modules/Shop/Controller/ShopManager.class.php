@@ -2138,7 +2138,7 @@ if ($test === NULL) {
             'SHOP_DISCOUNT_GROUP_COUNT_MENU_OPTIONS' =>
                 Discount::getMenuOptionsGroupCount($discount_group_count_id),
             'SHOP_DISCOUNT_GROUP_ARTICLE_MENU_OPTIONS' =>
-                Discount::getMenuOptionsGroupArticle($discount_group_article_id),
+                \Cx\Modules\Shop\Controller\BackendController::getMenuOptionsGroupArticle($discount_group_article_id),
             'SHOP_KEYWORDS' => contrexx_raw2xhtml($keywords),
             // Enable JavaScript functionality for the weight if enabled
             'SHOP_WEIGHT_ENABLED' => (\Cx\Core\Setting\Controller\Setting::getValue('weight_enable','Shop')
