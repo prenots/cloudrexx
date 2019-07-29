@@ -34,4 +34,31 @@ class RelDiscountGroupRepository extends \Doctrine\ORM\EntityRepository
         }
         return 0;
     }
+
+    /**
+     * Returns an array with all the customer/article type discount rates.
+     *
+     * The array has the structure
+     *  array(
+     *    customerGroupId => array(
+     *      articleGroupId => discountRate,
+     *      ...
+     *    ),
+     *    ...
+     *  );
+     * @return  array The discount rate array on success, empty array otherwise
+     */
+    function getDiscountRateCustomerArray()
+    {
+        $relDiscountGroups = $this->findAll();
+
+        $arrDiscountRateCustomer = array();
+        foreach ($relDiscountGroups as $relDiscountGroup) {
+            $arrDiscountRateCustomer[$relDiscountGroup->getCustomerGroupId()]
+            [$relDiscountGroup->getArticleGroupId()] =
+                $relDiscountGroup->getRate();
+        }
+
+        return $arrDiscountRateCustomer;
+    }
 }

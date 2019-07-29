@@ -3506,10 +3506,15 @@ if ($test === NULL) {
         }
         self::$objTemplate->loadTemplateFile("module_shop_discount_customer.html");
         // Discounts overview
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $discountGroup = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+        );
+
         $arrCustomerGroups = Discount::getCustomerGroupArray();
         $arrArticleGroups = Discount::getArticleGroupArray();
         $arrRate = null;
-        $arrRate = Discount::getDiscountRateCustomerArray();
+        $arrRate = $discountGroup->getDiscountRateCustomerArray();
         $i = 0;
         // Set up the customer groups header
         self::$objTemplate->setVariable(array(

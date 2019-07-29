@@ -94,12 +94,6 @@ class Discount
     protected static $arrArticleGroup = null;
 
     /**
-     * Array of Article/Customer group discount rates
-     * @var   array
-     */
-    protected static $arrDiscountRateCustomer = null;
-
-    /**
      * Initializes all static Discount data
      * @return  boolean             True on success, false otherwise
      */
@@ -156,19 +150,6 @@ class Discount
             $objResult->MoveNext();
         }
 
-//DBG::log("Discount::init(): Made \$arrArticleGroup: ".var_export(self::$arrArticleGroup, true));
-        $query = "
-            SELECT `customer_group_id`, `article_group_id`, `rate`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return self::errorHandler();
-        self::$arrDiscountRateCustomer = array();
-        while (!$objResult->EOF) {
-            self::$arrDiscountRateCustomer[$objResult->fields['customer_group_id']]
-                [$objResult->fields['article_group_id']] =
-                    $objResult->fields['rate'];
-            $objResult->MoveNext();
-        }
         return true;
     }
 
@@ -558,29 +539,6 @@ class Discount
 
         return self::$arrArticleGroup;
     }
-
-
-    /**
-     * Returns an array with all the customer/article type discount rates.
-     *
-     * The array has the structure
-     *  array(
-     *    customerGroupId => array(
-     *      articleGroupId => discountRate,
-     *      ...
-     *    ),
-     *    ...
-     *  );
-     * @return  array                 The discount rate array on success,
-     *                                null otherwise
-     * @static
-     */
-    static function getDiscountRateCustomerArray()
-    {
-        if (is_null(self::$arrDiscountRateCustomer)) self::init();
-        return self::$arrDiscountRateCustomer;
-    }
-
 
     /**
      * Returns a string with the customer group name
