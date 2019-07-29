@@ -471,38 +471,6 @@ class Discount
 
 
     /**
-     * Returns the HTML dropdown menu options with all of the
-     * article group names, plus a null option prepended
-     *
-     * Backend use only.
-     * @param   integer   $selectedId   The optional preselected ID
-     * @return  string                  The HTML dropdown menu options
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @deprecated Use the ViewGenerator
-     */
-    static function getMenuOptionsGroupArticle($selectedId=0)
-    {
-        $articleGroups = static::getArticleGroupArray();
-
-        global $_ARRAYLANG;
-        static $arrArticleGroupName = null;
-
-        if (is_null($arrArticleGroupName)) {
-            $arrArticleGroupName = array();
-            foreach ($articleGroups as $id => $articleGroup) {
-                $arrArticleGroupName[
-                    $id
-                ] = $articleGroup['name'];
-            }
-        }
-        return \Html::getOptions(
-            array(0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'], )
-          + $arrArticleGroupName, $selectedId);
-    }
-
-
-    /**
      * Returns an array with all the customer group names
      * indexed by their ID
      *
@@ -528,35 +496,6 @@ class Discount
             );
         }
         return self::$arrCustomerGroup;
-    }
-
-
-    /**
-     * Returns an array with all the article group names indexed by their ID
-     *
-     * Backend use only.
-     * @return  array                 The group name array on success,
-     *                                null otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getArticleGroupArray()
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $articleGroups = $cx->getDb()->getEntityManager()->getRepository(
-            'Cx\Modules\Shop\Model\Entity\ArticleGroup'
-        )->findAll();
-
-        self::$arrArticleGroup = array();
-        foreach ($articleGroups as $articleGroup) {
-            $group_id = $articleGroup->getId();
-            $strName = $articleGroup->getName();
-            self::$arrArticleGroup[$group_id] = array(
-                'name' => $strName,
-            );
-        }
-
-        return self::$arrArticleGroup;
     }
 
 

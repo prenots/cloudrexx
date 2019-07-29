@@ -2138,7 +2138,7 @@ if ($test === NULL) {
             'SHOP_DISCOUNT_GROUP_COUNT_MENU_OPTIONS' =>
                 Discount::getMenuOptionsGroupCount($discount_group_count_id),
             'SHOP_DISCOUNT_GROUP_ARTICLE_MENU_OPTIONS' =>
-                Discount::getMenuOptionsGroupArticle($discount_group_article_id),
+                \Cx\Modules\Shop\Controller\BackendController::getMenuOptionsGroupArticle($discount_group_article_id),
             'SHOP_KEYWORDS' => contrexx_raw2xhtml($keywords),
             // Enable JavaScript functionality for the weight if enabled
             'SHOP_WEIGHT_ENABLED' => (\Cx\Core\Setting\Controller\Setting::getValue('weight_enable','Shop')
@@ -3506,8 +3506,11 @@ if ($test === NULL) {
         }
         self::$objTemplate->loadTemplateFile("module_shop_discount_customer.html");
         // Discounts overview
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $articleGroups = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\ArticleGroup'
+        )->findAll();
         $arrCustomerGroups = Discount::getCustomerGroupArray();
-        $arrArticleGroups = Discount::getArticleGroupArray();
         $arrRate = null;
         $arrRate = Discount::getDiscountRateCustomerArray();
         $i = 0;
@@ -3526,11 +3529,11 @@ if ($test === NULL) {
             self::$objTemplate->touchBlock('article_group_header_column');
             self::$objTemplate->parse('article_group_header_column');
         }
-        foreach ($arrArticleGroups as $groupArticleId => $arrArticleGroup) {
+        foreach ($articleGroups as $articleGroup) {
 //DBG::log("Article group ID $groupArticleId");
             foreach ($arrCustomerGroups as $groupCustomerId => $arrCustomerGroup) {
-                $rate = (isset($arrRate[$groupCustomerId][$groupArticleId])
-                    ? $arrRate[$groupCustomerId][$groupArticleId] : 0);
+                $rate = (isset($arrRate[$groupCustomerId][$articleGroup->getId()])
+                    ? $arrRate[$groupCustomerId][$articleGroup->getId()] : 0);
                 self::$objTemplate->setVariable(array(
                     'SHOP_CUSTOMER_GROUP_ID' => $groupCustomerId,
                     'SHOP_DISCOUNT_RATE' => sprintf('%2.2f', $rate),
@@ -3539,8 +3542,8 @@ if ($test === NULL) {
                 self::$objTemplate->parse('discount_column');
             }
             self::$objTemplate->setVariable(array(
-                'SHOP_ARTICLE_GROUP_ID' => $groupArticleId,
-                'SHOP_ARTICLE_GROUP_NAME' => $arrArticleGroup['name'],
+                'SHOP_ARTICLE_GROUP_ID' => $articleGroup->getId(),
+                'SHOP_ARTICLE_GROUP_NAME' => $articleGroup->getName(),
                 'SHOP_DISCOUNT_ROW_STYLE' => 'row'.(++$i % 2 + 1),
             ));
             self::$objTemplate->parse('article_group_row');
