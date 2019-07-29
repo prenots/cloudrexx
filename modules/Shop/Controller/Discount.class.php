@@ -169,47 +169,6 @@ class Discount
 
 
     /**
-     * Returns an array with all the count type discount names
-     * indexed by their ID.
-     *
-     * Backend use only.
-     * @return  array                   The discount name array on success,
-     *                                  null otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getDiscountCountArray()
-    {
-        if (is_null(self::$arrDiscountCountName)) self::init();
-        return self::$arrDiscountCountName;
-    }
-
-
-    /**
-     * Returns an array with all counts and rates for the count type
-     * discount selected by its ID.
-     *
-     * Backend use only.
-     * Note that on success, the array returned contains at least one entry,
-     * namely that for "no discount".
-     * @param   integer   $group_id     The count type discount group ID
-     * @return  array                   The array with counts and rates
-     *                                  on success, null otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getDiscountCountRateArray($group_id)
-    {
-        if (empty($group_id)) return null;
-        if (is_null(self::$arrDiscountCountRate)) self::init();
-        if (isset (self::$arrDiscountCountRate[$group_id])) {
-            return self::$arrDiscountCountRate[$group_id];
-        }
-        return null;
-    }
-
-
-    /**
      * Delete the count type discount group seleted by its ID from the database
      *
      * Backend use only.

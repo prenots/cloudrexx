@@ -4776,15 +4776,30 @@ die("Shop::processRedirect(): This method is obsolete!");
     {
         global $_ARRAYLANG;
 
-        $arrDiscount = Discount::getDiscountCountArray();
-        $arrRate = Discount::getDiscountCountRateArray($groupCountId);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $discountCountNames = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+        )->findAll();
+        $discountCountRates = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+        )->findBy(
+            array(),
+            array('count' => 'DESC')
+        );;
+
         $strDiscounts = '';
         if (!empty($arrRate)) {
             $unit = '';
-            if (isset($arrDiscount[$groupCountId])) {
-                $unit = $arrDiscount[$groupCountId]['unit'];
+            foreach ($discountCountNames as $discountCountName) {
+                if ($discountCountName->getId() == $groupCountId) {
+                    $unit = $discountCountName->getUnit();
+                    break;
+                }
             }
-            foreach ($arrRate as $count => $rate) {
+            foreach ($discountCountRates as $discountCountRate) {
+                $count = $discountCountRate->getCount();
+                $rate = $discountCountRate->getRate();
                 $strDiscounts .=
                     ($strDiscounts != '' ? ', ' : '').
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_FROM'].' '.
