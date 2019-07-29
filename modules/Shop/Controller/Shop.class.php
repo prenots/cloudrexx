@@ -4713,8 +4713,18 @@ die("Shop::processRedirect(): This method is obsolete!");
         $discountGroupRepo = $cx->getDb()->getEntityManager()->getRepository(
             'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
         );
-        // Pick the unit for this product (count, meter, kilo, ...)
-        $unit = Discount::getUnit($groupCountId);
+        $unit = '';
+        if (!empty($groupCountId)) {
+            $discountCountName = $cx->getDb()->getEntityManager()->getRepository(
+                'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+            )->find($groupCountId);
+
+            if (!empty($discountCountName)) {
+                // Pick the unit for this product (count, meter, kilo, ...)
+                $unit = $discountCountName->getUnit();
+            }
+        }
+
         if (!empty($unit)) {
             self::$objTemplate->setVariable(
                 'SHOP_PRODUCT_UNIT', $unit

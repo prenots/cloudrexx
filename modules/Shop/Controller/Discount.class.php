@@ -210,23 +210,6 @@ class Discount
 
 
     /**
-     * Returns the unit used for the count type discount group
-     * with the given ID
-     * @param   integer   $group_id   The count type discount group ID
-     * @return  string                The unit used for this group on success,
-     *                                the empty string otherwise
-     */
-    static function getUnit($group_id)
-    {
-        $group_id = intval($group_id);
-        if (empty($group_id)) return '';
-        if (is_null(self::$arrDiscountCountName)) self::init();
-        return (isset(self::$arrDiscountCountName[$group_id])
-            ? self::$arrDiscountCountName[$group_id]['unit']
-            : '');
-    }
-
-    /**
      * Delete the count type discount group seleted by its ID from the database
      *
      * Backend use only.
