@@ -513,35 +513,6 @@ class Discount
 
 
     /**
-     * Returns an array with all the article group names indexed by their ID
-     *
-     * Backend use only.
-     * @return  array                 The group name array on success,
-     *                                null otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getArticleGroupArray()
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $articleGroups = $cx->getDb()->getEntityManager()->getRepository(
-            'Cx\Modules\Shop\Model\Entity\ArticleGroup'
-        )->findAll();
-
-        self::$arrArticleGroup = array();
-        foreach ($articleGroups as $articleGroup) {
-            $group_id = $articleGroup->getId();
-            $strName = $articleGroup->getName();
-            self::$arrArticleGroup[$group_id] = array(
-                'name' => $strName,
-            );
-        }
-
-        return self::$arrArticleGroup;
-    }
-
-
-    /**
      * Returns an array with all the customer/article type discount rates.
      *
      * The array has the structure
