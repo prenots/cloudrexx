@@ -89,6 +89,7 @@ class DiscountgroupCountNameController extends \Cx\Core\Core\Model\Entity\Contro
                 ),
             ),
             'cumulative' => array(
+                'type' => 'bool',
                 'showOverview' => false,
             ),
             'discountgroupCountRates' => array(
