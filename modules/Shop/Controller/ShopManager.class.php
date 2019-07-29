@@ -3519,20 +3519,22 @@ if ($test === NULL) {
         $articleGroups = $cx->getDb()->getEntityManager()->getRepository(
             'Cx\Modules\Shop\Model\Entity\ArticleGroup'
         )->findAll();
-        $arrCustomerGroups = Discount::getCustomerGroupArray();
+        $customerGroups = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
+        )->findAll();
         $arrRate = null;
         $arrRate = Discount::getDiscountRateCustomerArray();
         $i = 0;
         // Set up the customer groups header
         self::$objTemplate->setVariable(array(
 //            'SHOP_CUSTOMER_GROUP_COUNT_PLUS_1' => count($arrCustomerGroups) + 1,
-            'SHOP_CUSTOMER_GROUP_COUNT' => count($arrCustomerGroups),
+            'SHOP_CUSTOMER_GROUP_COUNT' => count($customerGroups),
             'SHOP_DISCOUNT_ROW_STYLE' => 'row'.(++$i % 2 + 1),
         ));
-        foreach ($arrCustomerGroups as $id => $arrCustomerGroup) {
+        foreach ($customerGroups as $customerGroup) {
             self::$objTemplate->setVariable(array(
-                'SHOP_CUSTOMER_GROUP_ID' => $id,
-                'SHOP_CUSTOMER_GROUP_NAME' => $arrCustomerGroup['name'],
+                'SHOP_CUSTOMER_GROUP_ID' => $customerGroup->getId(),
+                'SHOP_CUSTOMER_GROUP_NAME' => $customerGroup->getName(),
             ));
             self::$objTemplate->parse('customer_group_header_column');
             self::$objTemplate->touchBlock('article_group_header_column');
@@ -3540,11 +3542,11 @@ if ($test === NULL) {
         }
         foreach ($articleGroups as $articleGroup) {
 //DBG::log("Article group ID $groupArticleId");
-            foreach ($arrCustomerGroups as $groupCustomerId => $arrCustomerGroup) {
-                $rate = (isset($arrRate[$groupCustomerId][$articleGroup->getId()])
-                    ? $arrRate[$groupCustomerId][$articleGroup->getId()] : 0);
+            foreach ($customerGroups as $customerGroup) {
+                $rate = (isset($arrRate[$customerGroup->getId()][$articleGroup->getId()])
+                    ? $arrRate[$customerGroup->getId()][$articleGroup->getId()] : 0);
                 self::$objTemplate->setVariable(array(
-                    'SHOP_CUSTOMER_GROUP_ID' => $groupCustomerId,
+                    'SHOP_CUSTOMER_GROUP_ID' => $customerGroup->getId(),
                     'SHOP_DISCOUNT_RATE' => sprintf('%2.2f', $rate),
 //                    'SHOP_DISCOUNT_ROW_STYLE' => 'row'.(++$i % 2 + 1),
                 ));

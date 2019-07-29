@@ -450,35 +450,6 @@ class Discount
 
 
     /**
-     * Returns an array with all the customer group names
-     * indexed by their ID
-     *
-     * Backend use only.
-     * @return  array                 The group name array on success,
-     *                                null otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getCustomerGroupArray()
-    {
-        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        $customerGroups = $cx->getDb()->getEntityManager()->getRepository(
-            'Cx\Modules\Shop\Model\Entity\CustomerGroup'
-        )->findAll();
-
-        self::$arrCustomerGroup = array();
-        foreach ($customerGroups as $customerGroup) {
-            $group_id = $customerGroup->getId();
-            $strName = $customerGroup->getName();
-            self::$arrCustomerGroup[$group_id] = array(
-                'name' => $strName,
-            );
-        }
-        return self::$arrCustomerGroup;
-    }
-
-
-    /**
      * Returns an array with all the customer/article type discount rates.
      *
      * The array has the structure
