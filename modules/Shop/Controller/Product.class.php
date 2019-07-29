@@ -1520,7 +1520,9 @@ class Product
         }
         $rateCount = 0;
         if ($count > 0) {
-            $rateCount = Discount::getDiscountRateCount($groupCountId, $count);
+            $rateCount =
+                \Cx\Modules\Shop\Controller\DiscountgroupCountNameController::
+                    getDiscountRateCount($groupCountId, $count);
             $price -= ($price * $rateCount * 0.01);
         }
         $price = \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($price);

@@ -208,72 +208,6 @@ class Discount
         return null;
     }
 
-    /**
-     * Tells whether a discount group is cumulative for all its products
-     * @param   integer   $group_id     The discount group ID
-     * @return boolean True if $group_id counts order limit accross products
-     */
-    public static function isDiscountCumulative($group_id) {
-        if (empty($group_id)) return null;
-        if (is_null(static::$arrDiscountIsCumulative)) self::init();
-        return static::$arrDiscountIsCumulative[$group_id];
-    }
-
-    /**
-     * Returns the number of products to calculate the discount
-     * @param   integer   $group_id     The discount group ID
-     * @param   integer   $count        The number of Products
-     * @return int Number of relevant items
-     */
-    protected static function getItemCountForGroup($group_id, $count=1) {
-        // if group is not cumulative:
-        if (!static::isDiscountCumulative($group_id)) {
-            return $count;
-        }
-        // find number of products in cart matching supplied group id
-        // count them
-        $products = Cart::get_products_array();
-        $count = 0;
-        foreach ($products as $productArr) {
-            $product = Product::getById($productArr['id']);
-            if ($product->group_id() != $group_id) {
-                continue;
-            }
-            $count += $productArr['quantity'];
-        }
-        return $count;
-    }
-
-    /**
-     * Determine the product discount rate for the discount group with
-     * the given ID and the given count.
-     *
-     * Frontend use only.
-     * @param   integer   $group_id     The discount group ID
-     * @param   integer   $count        The number of Products
-     * @return  float                   The discount rate in percent
-     *                                  to be applied, if any,
-     *                                  0 (zero) otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getDiscountRateCount($group_id, $count=1)
-    {
-        $count = static::getItemCountForGroup($group_id, $count);
-        // Unknown group ID.  No discount.
-        if (empty($group_id)) return 0;
-        if (is_null(self::$arrDiscountCountRate)) self::init();
-        // Unknown group, or no counts defined.  No discount.
-        if (empty(self::$arrDiscountCountRate[$group_id])) return 0;
-        // Mind that the order of the elements is significant; they must
-        // be ordered by descending count.  See init().
-        foreach (self::$arrDiscountCountRate[$group_id] as $count_min => $rate) {
-            if ($count >= $count_min) return $rate;
-        }
-        // Quantity too small.  No discount.
-        return 0;
-    }
-
 
     /**
      * Returns the unit used for the count type discount group
@@ -484,54 +418,6 @@ class Discount
             $arrGroupname[$id] = $arrGroup['name'];
         }
         return $arrGroupname;
-    }
-
-
-    /**
-     * Store the customer/article group discounts in the database.
-     *
-     * Backend use only.
-     * The array argument has the structure
-     *  array(
-     *    customerGroupId => array(
-     *      articleGroupId => discountRate,
-     *      ...
-     *    ),
-     *    ...
-     *  );
-     * @param   array     $arrDiscountRate  The array of discount rates
-     * @return  boolean                     True on success, false otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function storeDiscountCustomer($arrDiscountRate)
-    {
-        global $objDatabase, $_ARRAYLANG;
-
-        $query = "
-            TRUNCATE TABLE `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group`";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-            return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_ERROR_STORING']);
-        }
-        foreach ($arrDiscountRate as $groupCustomerId => $arrArticleRow) {
-            foreach ($arrArticleRow as $groupArticleId => $rate) {
-                // No need to insert invalid and "no discount" records.
-                if ($rate <= 0) continue;
-                // Insert
-                $query = "
-                    INSERT INTO `".DBPREFIX."module_shop".MODULE_INDEX."_rel_discount_group` (
-                        `customer_group_id`, `article_group_id`, `rate`
-                    ) VALUES (
-                        $groupCustomerId, $groupArticleId, $rate
-                    )";
-                $objResult = $objDatabase->Execute($query);
-                if (!$objResult) {
-                    return \Message::error($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_ERROR_STORING']);
-                }
-            }
-        }
-        return \Message::ok($_ARRAYLANG['TXT_SHOP_DISCOUNT_CUSTOMER_STORED_SUCCESSFULLY']);
     }
 
     /**

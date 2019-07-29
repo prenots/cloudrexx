@@ -4733,7 +4733,9 @@ die("Shop::processRedirect(): This method is obsolete!");
             }
         }
         if ($groupCountId > 0) {
-            $rateCount = Discount::getDiscountRateCount($groupCountId, $count);
+            $rateCount =
+                \Cx\Modules\Shop\Controller\DiscountgroupCountNameController::
+                    getDiscountRateCount($groupCountId, $count);
             $listCount = self::getDiscountCountString($groupCountId);
             if ($rateCount > 0) {
                 // Show discount rate if applicable
