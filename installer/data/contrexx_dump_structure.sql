@@ -3343,6 +3343,7 @@ CREATE TABLE `contrexx_module_shop_payment` (
   `fee` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `free_from` decimal(9,2) unsigned NOT NULL DEFAULT '0.00',
   `ord` int(5) unsigned NOT NULL DEFAULT '0',
+  `type` enum('fix','percent') NOT NULL DEFAULT 'fix',
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `name` VARCHAR(255) DEFAULT '' NOT NULL,
   PRIMARY KEY (`id`)
