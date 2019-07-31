@@ -348,7 +348,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                 break;
             case 'Cx\Modules\Shop\Model\Entity\CustomerGroup':
                 $options['functions']['editable'] = true;
-                $options['functions']['edit'] = false;
+                $options['functions']['paging'] = false;
                 $options['functions']['sorting'] = false;
                 $options['fields'] = array(
                     'id' => array(
