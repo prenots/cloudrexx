@@ -1205,3 +1205,5 @@ $_ARRAYLANG['countryId'] = 'Land';
 $_ARRAYLANG['TXT_SHOP_DELETED_ORDER'] = 'Bestellung wurde gelöscht.';
 $_ARRAYLANG['TXT_SHOP_DELETED_ORDERS'] = 'Bestellungen wurden gelöscht.';
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_CHANGED'] = 'Status der Bestellung wurde geändert.';
+
+$_ARRAYLANG['TXT_SHOP_REL_DISCOUNT_GROUP_RECORDS_UPDATED_SUCCESSFUL'] ='Die Einträge wurden erfolgreich aktualisiert.';

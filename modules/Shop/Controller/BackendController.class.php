@@ -110,7 +110,6 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
                     'Manage' => 'manage',
                     'Attribute' => 'attributes',
                     'Customer' => 'customers',
-                    'RelDiscountGroup' => 'discounts',
                     'Statistic' => 'statistics',
                     'Import' => 'import',
                     'Setting' => 'settings',
@@ -508,6 +507,14 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
             return $this->getSystemComponentController()->getController(
                 'Order'
             )->parseOrderDetailPage($template, $entityClassName, $options);
+        } else if (
+            $entityName == 'RelDiscountGroup'
+        ) {
+            $options = parent::getViewGeneratorOptions($entityClassName);
+
+            return $this->getSystemComponentController()->getController(
+                'DiscountGroup'
+            )->parsePage($template, $options);
         }
 
         return parent::parsePage($template, $cmd,$isSingle);
