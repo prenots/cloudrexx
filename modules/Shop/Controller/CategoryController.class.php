@@ -48,7 +48,7 @@ class CategoryController extends \Cx\Core\Core\Model\Entity\Controller
      * Get ViewGenerator options for Category entity
      *
      * @param $options array predefined ViewGenerator options
-     * @return array includes ViewGenerator options for Manufacturer entity
+     * @return array includes ViewGenerator options for Category entity
      */
     public function getViewGeneratorOptions($options)
     {
