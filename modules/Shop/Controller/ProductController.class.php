@@ -61,6 +61,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
 
+        $options['showPrimaryKeys'] = true;
         $options['functions']['copy'] = true;
         $options['functions']['editable'] = true;
         $options['functions']['searching'] = true;
