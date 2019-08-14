@@ -113,31 +113,6 @@ class Distribution
         return self::$defaultDistributionType;
     }
 
-
-    /**
-     * Returns a string containing the HTML code for the distribution type
-     * dropdown menu.
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     * @param   string  $selected   The distribution type to preselect
-     * @param   string  $menuName   The name and ID for the select element
-     * @param   string  $selectAttributes   Optional attributes for the select tag
-     * @return  string              The dropdown menu code
-     * @static
-     */
-    static function getDistributionMenu(
-        $selected='', $menuName='distribution',
-        $onChange='', $selectAttributes='')
-    {
-        $menu =
-            "<select name='$menuName' id='$menuName'".
-            ($selectAttributes ? ' '.$selectAttributes : '').
-            ($onChange         ? ' onchange="'.$onChange.'"' : '').">".
-            self::getDistributionMenuoptions($selected).
-            "</select>\n";
-        return $menu;
-    }
-
-
     /**
      * Returns a string containing the HTML code for the distribution type
      * dropdown menu options.

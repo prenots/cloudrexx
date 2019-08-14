@@ -235,33 +235,6 @@ class Discount
 
 
     /**
-     * Returns the HTML dropdown menu options with all of the
-     * count type discount names plus a neutral option ("none")
-     *
-     * Backend use only.
-     * @param   integer   $selectedId   The optional preselected ID
-     * @return  string                  The HTML dropdown menu options
-     *                                  on success, false otherwise
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getMenuOptionsGroupCount($selectedId=0)
-    {
-        global $_ARRAYLANG;
-
-        if (is_null(self::$arrDiscountCountName)) self::init();
-        $arrName = array();
-        foreach (self::$arrDiscountCountName as $group_id => $arrGroup) {
-            $arrName[$group_id] = $arrGroup['name'].' ('.$arrGroup['unit'].')';
-        }
-        return \Html::getOptions(
-            array(
-                0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE']
-            ) + $arrName, $selectedId);
-    }
-
-
-    /**
      * Returns an array with all the count type discount names
      * indexed by their ID.
      *
@@ -521,36 +494,6 @@ class Discount
             array(
                 0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE']
             ) + self::getCustomerGroupNameArray(), $selectedId);
-    }
-
-
-    /**
-     * Returns the HTML dropdown menu options with all of the
-     * article group names, plus a null option prepended
-     *
-     * Backend use only.
-     * @param   integer   $selectedId   The optional preselected ID
-     * @return  string                  The HTML dropdown menu options
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getMenuOptionsGroupArticle($selectedId=0)
-    {
-        global $_ARRAYLANG;
-        static $arrArticleGroupName = null;
-
-//DBG::log("Discount::getMenuOptionsGroupArticle($selectedId): Entered");
-        if (is_null(self::$arrArticleGroup)) self::init();
-        if (is_null($arrArticleGroupName)) {
-            $arrArticleGroupName = array();
-            foreach (self::$arrArticleGroup as $id => $arrArticleGroup) {
-                $arrArticleGroupName[$id] = $arrArticleGroup['name'];
-//DBG::log("Discount::getMenuOptionsGroupArticle($selectedId): Adding ID $id => {$arrArticleGroup['name']}");
-            }
-        }
-        return \Html::getOptions(
-            array(0 => $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_NONE'], )
-          + $arrArticleGroupName, $selectedId);
     }
 
 

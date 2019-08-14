@@ -764,51 +764,6 @@ class ShopCategories
 
 
     /**
-     * Returns the HTML code for options of two separate menus of available
-     * and assigned ShopCategories.
-     *
-     * The <select> tag pair is not included, nor the option for the root
-     * ShopCategory.
-     * Includes all ShopCategories in one list or the other.
-     * @param   string  $assigned_category_ids   An optional comma separated
-     *                                  list of ShopCategory IDs assigned to a
-     *                                  Product
-     * @return  string                  The HTML code with all <option> tags,
-     *                                  or the empty string on failure.
-     * @static
-     * @author  Reto Kohli <reto.kohli@comvation.com>
-     */
-    static function getAssignedShopCategoriesMenuoptions($assigned_category_ids=null)
-    {
-//DBG::log("Getting menuoptions for Category IDs $assigned_category_ids");
-        self::buildTreeArray(true, false, false, 0, 0, 0);
-        $strOptionsAssigned = '';
-        $strOptionsAvailable = '';
-        foreach (self::$arrCategory as $arrCategory) {
-            $level = $arrCategory['level'];
-            $id = $arrCategory['id'];
-            $name = $arrCategory['name'];
-            $option =
-                '<option value="'.$id.'">'.
-                str_repeat('...', $level).
-                contrexx_raw2xhtml($name).
-                "</option>\n";
-            if (preg_match('/(?:^|,)'.$id.'(?:,|$)/', $assigned_category_ids)) {
-//DBG::log("Assigned: $id");
-                $strOptionsAssigned .= $option;
-            } else {
-//DBG::log("Available: $id");
-                $strOptionsAvailable .= $option;
-            }
-        }
-        return array(
-            'assigned' => $strOptionsAssigned,
-            'available' => $strOptionsAvailable,
-        );
-    }
-
-
-    /**
      * Returns an array of IDs of children of this ShopCategory.
      *
      * Note that this includes virtual children of ShopCategories,
