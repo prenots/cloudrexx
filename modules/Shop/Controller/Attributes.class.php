@@ -150,42 +150,6 @@ class Attributes
 
 
     /**
-     * Returns an array of all Attribute names
-     *
-     * Backend use only.
-     * The resulting array is limited to the first 1000 Attributes found,
-     * if the $limit parameter value is missing.
-     * @param   integer   $count            The number of matching records,
-     *                                      by reference
-     * @param   integer   $offset           The optional offset,
-     *                                      defaults to 0 (zero)
-     * @param   integer   $limit            The optional limit for the number
-     *                                      of IDs returned,
-     *                                      defaults to null (all)
-     * @param   string    $order            The optional order field and
-     *                                      direction,
-     *                                      defaults to ID, ascending
-     * @param   string    $filter           The optional filter to be applied
-     *                                      to the name, defaults to null (any)
-     * @return  array                       The array of Attribute
-     *                                      names on success, false otherwise
-     */
-    static function getNameArray(
-        &$count, $offset=0, $limit=1000, $order=null, $filter=null
-    ) {
-        $count = 0;
-        $arrAttribute = self::getArray(
-            $count, $offset, $limit, $order, $filter);
-        if ($arrAttribute === false) return false;
-        $arrName = array();
-        foreach ($arrAttribute as $id => $objAttribute) {
-            $arrName[$id] = $objAttribute->getName();
-        }
-        return $arrName;
-    }
-
-
-    /**
      * Returns an array of Attribute IDs
      * @param   integer   $count            The number of matching records,
      *                                      by reference
@@ -416,66 +380,6 @@ class Attributes
     }
 
 
-    /**
-     * Return the name of the option selected by its ID
-     * from the database.
-     *
-     * Returns false on error, or the empty string if the value cannot be
-     * found.
-     * @param   integer   $option_id    The option ID
-     * @return  mixed                   The option name on success,
-     *                                  or false otherwise.
-     * @static
-     * @global  mixed     $objDatabase  Database object
-     */
-    static function getOptionNameById($option_id)
-    {
-        global $objDatabase;
-
-        $arrSqlValue = \Text::getSqlSnippets(
-            '`option`.`id`', FRONTEND_LANG_ID, 'Shop',
-            array('name' => Attribute::TEXT_OPTION_NAME));
-        $query = "
-            SELECT 1, ".$arrSqlValue['field']."
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option` AS `option`".
-                   $arrSqlValue['join']."
-             WHERE `option`.`id`=$option_id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult || $objResult->EOF) return false;
-        $strName = $objResult->fields['name'];
-        if (is_null($strName)) {
-            $strName = \Text::getById(
-                $option_id, 'Shop', Attribute::TEXT_OPTION_NAME)->content();
-        }
-        return $strName;
-    }
-
-
-    /**
-     * Return the price of the option selected by its ID
-     * from the database.
-     *
-     * Returns false on error or if the value cannot be found.
-     * @param   integer   $option_id    The option ID
-     * @return  double                  The option price on success,
-     *                                  or false on failure.
-     * @static
-     * @global  mixed     $objDatabase  Database object
-     */
-    static function getOptionPriceById($option_id)
-    {
-        global $objDatabase;
-
-        $query = "
-            SELECT `price`
-              FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option`
-             WHERE `id`=$option_id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult || $objResult->EOF) return false;
-        return $objResult->fields['price'];
-    }
-
-
     static function getOptionPriceSum($attribute_id, $arrOptionId)
     {
         if (   !is_array(self::$arrAttributes)
@@ -644,25 +548,6 @@ class Attributes
              WHERE `product_id`=$product_id";
         $objResult = $objDatabase->Execute($query);
         return (boolean)$objResult;
-    }
-
-
-    /**
-     * Delete all Attributes from the database
-     *
-     * Clears all Attributes, options, and relations.  Use with due care!
-     * @static
-     * @return  boolean                     True on success, false otherwise.
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     */
-    static function deleteAll()
-    {
-        $arrAttributes = self::getArray();
-        foreach (array_keys($arrAttributes) as $attribute_id) {
-            $objAttribute = Attribute::getById($attribute_id);
-            if (!$objAttribute->delete()) return false;
-        }
-        return true;
     }
 
 
