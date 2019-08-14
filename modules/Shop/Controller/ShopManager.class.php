@@ -779,15 +779,6 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->addBlockfile('SHOP_PRODUCTS_FILE', 'shop_products_block', 'module_shop_product_attributes.html');
 
 //DBG::log("Shopmanager::view_attributes_edit(): Post: ".var_export($_POST, true));
-        // delete Attribute
-        if (!empty($_GET['delete_attribute_id'])) {
-// TODO: Set messages in there
-            $this->_deleteAttribute($_GET['delete_attribute_id']);
-        } elseif (!empty($_POST['multi_action'])
-               && $_POST['multi_action'] == 'delete'
-               && !empty($_POST['selected_attribute_id'])) {
-            $this->_deleteAttribute($_POST['selected_attribute_id']);
-        }
         // store new option
         if (!empty($_POST['addAttributeOption']))
             $this->_storeNewAttributeOption();
@@ -1042,39 +1033,6 @@ class ShopManager extends ShopLibrary
             \Message::ok($_ARRAYLANG['TXT_DATA_RECORD_UPDATED_SUCCESSFUL']);
         }
         return true;
-    }
-
-
-    /**
-     * Delete one or more Attribute
-     * @access  private
-     * @param   mixed     $attribute_id     The Attribute ID or an array of IDs
-     * @return  string                      The empty string on success,
-     *                                      some status message on failure
-     */
-    function _deleteAttribute($attribute_id)
-    {
-        global $_ARRAYLANG;
-
-        $arrAttributeId = $attribute_id;
-        if (!is_array($attribute_id)) {
-            $arrAttributeId = array($attribute_id);
-        }
-        foreach ($arrAttributeId as $attribute_id) {
-            $objAttribute = Attribute::getById($attribute_id);
-            if (!$objAttribute) {
-                return \Message::error(
-                    $_ARRAYLANG['TXT_SHOP_ATTRIBUTE_ERROR_NOT_FOUND']);
-            }
-            if (!$objAttribute->delete()) {
-                return \Message::error(
-                    $_ARRAYLANG['TXT_SHOP_ATTRIBUTE_ERROR_DELETING']);
-            }
-        }
-        return \Message::ok(
-            $_ARRAYLANG['TXT_SHOP_ATTRIBUTE'.
-            (count($arrAttributeId) > 1 ? 'S' : '').
-            '_SUCCESSFULLY_DELETED']);
     }
 
 

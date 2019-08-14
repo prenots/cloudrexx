@@ -412,60 +412,6 @@ class Attribute
 
 
     /**
-     * Deletes the Attribute from the database.
-     *
-     * Includes both the name and all of the value entries related to it.
-     * As a consequence, all relations to Products referring to the deleted
-     * entries are deleted, too.  See {@link Product::arrAttribute(sp?)}.
-     * Keep in mind that any Products currently held in memory may cause
-     * inconsistencies!
-     * @return  boolean                     True on success, false otherwise.
-     * @global  ADONewConnection  $objDatabase    Database connection object
-     */
-    function delete()
-    {
-        global $objDatabase;
-
-        // Delete references to products first
-        $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_rel_product_attribute`
-             WHERE `option_id` IN (
-                SELECT `id`
-                  FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option`
-                 WHERE `attribute_id`=$this->id)";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return false;
-
-        // Delete values' Text records
-        foreach (array_keys($this->arrValues) as $id) {
-            if (!\Text::deleteById($id, 'Shop', self::TEXT_OPTION_NAME)) {
-//DBG::log("Attribute::delete(): Error deleting Text for Option ID $id");
-                return false;
-            }
-        }
-        // Delete option
-        $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_option`
-             WHERE `attribute_id`=$this->id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return false;
-        // Delete names' Text records
-        if (!\Text::deleteById($this->id, 'Shop', self::TEXT_ATTRIBUTE_NAME)) {
-//DBG::log("Attribute::delete(): Error deleting Text for Attribute ID $id");
-            return false;
-        }
-        // Delete Attribute
-        $query = "
-            DELETE FROM `".DBPREFIX."module_shop".MODULE_INDEX."_attribute`
-             WHERE `id`=$this->id";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return false;
-
-        return true;
-    }
-
-
-    /**
      * Stores the Attribute object in the database.
      *
      * Either updates or inserts the record.
