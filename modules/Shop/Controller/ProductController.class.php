@@ -153,6 +153,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'allowFiltering' => false,
                 'type' => 'checkboxes',
                 'validValues' => '__SHOWONSTARTPAGE__',
+                'storecallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'toggleCheckbox'
+                ),
             ),
             'name' => array(
                 'header' => $_ARRAYLANG['TXT_PRODUCT_NAME'],

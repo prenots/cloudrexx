@@ -81,7 +81,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'setEmptyDateToNull',
             'getProductAttributes',
             'storeProductAttributes',
-            'getDistributionDropdown'
+            'getDistributionDropdown',
+            'toggleCheckbox',
         );
     }
 
@@ -623,5 +624,20 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         return $dropdown;
+    }
+
+    /**
+     * If the postedValue is null, this means that the checkbox was unchecked
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return string value to store
+     */
+    public function toggleCheckbox($params)
+    {
+        if (empty($params['postedValue'])) {
+            return '';
+        }
+        return $params['postedValue'];
     }
 }
