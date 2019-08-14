@@ -785,69 +785,6 @@ class Attribute
         return $string;
     }
 
-
-    /**
-     * Returns a regular expression for the verification of options
-     *
-     * The regex returned depends on the value of the $type parameter.
-     * Mind that the regex is also applicable to some optional types!
-     * For types that need not be verified, the empty string is returned.
-     * @param   integer     $type       The Attribute type
-     * @return  string                  The regex
-     */
-    static function getVerificationRegex($type)
-    {
-        switch ($type) {
-            case self::TYPE_TEXT_MANDATORY:
-            case self::TYPE_TEXTAREA_MANDATORY:
-                return '.+';
-// TODO: Improve the regex for file names
-            case self::TYPE_UPLOAD_OPTIONAL:
-                return '(^$|^.+\..+$)';
-            case self::TYPE_UPLOAD_MANDATORY:
-                return '^.+\..+$';
-            case self::TYPE_EMAIL_OPTIONAL:
-                return '(^$|^'.\FWValidator::REGEX_EMAIL.'$)';
-            case self::TYPE_EMAIL_MANDATORY:
-                return '^'.\FWValidator::REGEX_EMAIL.'$';
-            case self::TYPE_URL_OPTIONAL:
-                return '(^$|^'.\FWValidator::REGEX_URI.'$)';
-            case self::TYPE_URL_MANDATORY:
-                return '^'.\FWValidator::REGEX_URI.'$';
-            // Note: The date regex is defined based on the value of the
-            // ASCMS_DATE_FORMAT_DATE constant and may thus be localized.
-            case self::TYPE_DATE_OPTIONAL:
-                return
-                    '(^$|^'.
-                    \DateTimeTools::getRegexForDateFormat(ASCMS_DATE_FORMAT_DATE).
-                    '$)';
-            case self::TYPE_DATE_MANDATORY:
-                return
-                    '^'.
-                    \DateTimeTools::getRegexForDateFormat(ASCMS_DATE_FORMAT_DATE).
-                    '$';
-            // Note: Number formats are somewhat arbitrary and should be defined
-            // more closely resembling IEEE standards (or whatever).
-            case self::TYPE_NUMBER_INT_OPTIONAL:
-                return '^\d{0,10}$';
-            case self::TYPE_NUMBER_INT_MANDATORY:
-                return '^\d{1,10}$';
-            case self::TYPE_NUMBER_FLOAT_OPTIONAL:
-                return '^\d{0,10}[\d\.]?\d*$';
-            case self::TYPE_NUMBER_FLOAT_MANDATORY:
-                return '^\d{0,10}[\d\.]\d*$';
-            // Not applicable:
-            //self::TYPE_MENU_OPTIONAL
-            //self::TYPE_RADIOBUTTON
-            //self::TYPE_CHECKBOX
-            //self::TYPE_MENU_MANDATORY
-            //self::TYPE_TEXT_OPTIONAL
-            //self::TYPE_TEXTAREA_OPTIONAL
-        }
-        return '';
-    }
-
-
     /**
      * Handles database errors
      *

@@ -2167,7 +2167,7 @@ die("Failed to update the Cart!");
                             $product_id.'-'.$attribute_id.
                             '" value="'.$objAttribute->getName().'" />'."\n";
                         // The Attribute verification regex, if applicable
-                        $regex = Attribute::getVerificationRegex(
+                        $regex = \Cx\Modules\Shop\Model\Entity\Attribute::getVerificationRegex(
                             $objAttribute->getType());
                         if ($regex != '') {
                             $selectValues .=
