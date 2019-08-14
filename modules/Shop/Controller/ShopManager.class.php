@@ -415,6 +415,13 @@ class ShopManager extends ShopLibrary
             }
             $importedLines = 0;
             $errorLines = 0;
+
+            $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+            $em = $cx->getDb()->getEntityManager();
+            $metaData = $em->getClassMetadata('Cx\Modules\Shop\Model\Entity\Product');
+            $repoCat = $em->getRepository(
+                'Cx\Modules\Shop\Model\Entity\Category'
+            );
             // Array of IDs of newly inserted records
             $arrId = array();
             for ($x = 1; $x < count($arrFileContent); ++$x) {
@@ -433,8 +440,15 @@ class ShopManager extends ShopLibrary
                 if ($category_id == 0) {
                     $category_id = $objCSVimport->GetFirstCat();
                 }
-                $objProduct = new Product('', $category_id, '',
-                    Distribution::TYPE_DELIVERY, 0, 1, 0, 0, 0);
+
+                $category = $repoCat->find($category_id);
+                $product = new \Cx\Modules\Shop\Model\Entity\Product();
+                if (!empty($category)) {
+                    $product->addCategory($category);
+                }
+                $product->setDistribution(Distribution::TYPE_DELIVERY);
+                $product->setStock(10);
+
                 foreach ($arrProductDatabaseFieldName as $index => $strFieldIndex) {
                     $value = '';
                     if (strpos($strFieldIndex, ';')) {
@@ -448,12 +462,21 @@ class ShopManager extends ShopLibrary
                         $value =
                             $arrFileContent[$x][$arrDatabaseFieldIndex[$strFieldIndex]];
                     }
-                    $objProduct->$index($value);
+                    $fieldMapping = $metaData->getFieldMapping($index);
+                    if (!empty($fieldMapping['fieldName'])) {
+                        $setter = 'set' . ucfirst($fieldMapping['fieldName']);
+                        $product->$setter($value);
+                    } else {
+                        throw new \Exception('Feld konnte nicht zugwiesen werden');
+                    }
                 }
-                if ($objProduct->store()) {
-                    $arrId[] = $objProduct->id();
+                try {
+                    $em->persist($product);
+                    $em->flush();
+                    $arrId[] = $product->getId();
                     ++$importedLines;
-                } else {
+                } catch(\Exception $e) {
+                    \Doctrine\Common\Util\Debug::dump($e);
                     ++$errorLines;
                 }
             }
