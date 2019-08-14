@@ -179,9 +179,15 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         for ($i = 1; $i <= $this->numberOfImages; $i++) {
             if (
                 !empty($imgInfo[$i]['img']) &&
-                is_file($websiteImagesShopPath . $imgInfo[$i]['img'])
+                is_file(
+                    \ImageManager::getThumbnailFilename(
+                        $websiteImagesShopPath . $imgInfo[$i]['img']
+                    )
+                )
             ) {
-                $imgSrc = $websiteImagesShopWebPath . $imgInfo[$i]['img'];
+                $imgSrc = \ImageManager::getThumbnailFilename(
+                    $websiteImagesShopWebPath . $imgInfo[$i]['img']
+                );
             } else {
                 $imgSrc = $defaultImage;
             }
