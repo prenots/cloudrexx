@@ -126,6 +126,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'discountgroupCountName',
             'vat',
             'distribution',
+            'userGroups',
+            'weight',
             'short',
             'long',
             'keys',
@@ -313,7 +315,17 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'weight' => array(
                 'showOverview' => false,
+                'showDetail' => false,
                 'allowFiltering' => false,
+                'type' => 'string',
+                'valueCallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getWeight'
+                ),
+                'storecallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'storeWeight',
+                ),
             ),
             'articleId' => array(
                 'showOverview' => false,
@@ -388,6 +400,23 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'allowFiltering' => false,
             ),
         );
+
+        \ContrexxJavascript::getInstance()->setVariable(
+            'DISTRIBUTION_DELIVERY_INDEX',
+            Distribution::TYPE_DELIVERY,
+            'shop_product'
+        );
+        \ContrexxJavascript::getInstance()->setVariable(
+            'DISTRIBUTION_DOWNLOAD_INDEX',
+            Distribution::TYPE_DOWNLOAD,
+            'shop_product'
+        );
+
+        \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
+
+        if (\Cx\Core\Setting\Controller\Setting::getValue('weight_enable','Shop')) {
+            $options['fields']['weight']['showDetail'] = true;
+        }
 
         return $options;
     }

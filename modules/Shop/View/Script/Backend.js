@@ -205,6 +205,14 @@ jQuery(document).ready(function($){
     toggle_footer();
     toggle_categories(true);
 
+    if (
+        document.getElementById('form-0-distribution') != null &&
+        document.getElementById('form-0-distribution').tagName === 'SELECT'
+    ) {
+        show_additional_fields();
+        document.getElementById('form-0-distribution').addEventListener('change', show_additional_fields);
+    }
+
     if (typeof document.getElementsByName('headerOn')[0] != 'undefined') {
         document.getElementById('headerRight').value = document.getElementById('form-0-headerRight').value;
 
@@ -290,7 +298,6 @@ jQuery(document).ready(function($){
         } else {
             cx.jQuery(this).val(previousStatusId);
         }
-(??)
     })
 });
 
@@ -400,4 +407,32 @@ function swapBlock(div)
     const newClass = (document.getElementById(div).classList.contains('hide') ? 'show' : 'hide');
     document.getElementById(div).classList.remove(oldClass);
     document.getElementById(div).classList.add(newClass);
+}
+
+function show_additional_fields()
+{
+    var typeSelect = document.getElementById('form-0-distribution');
+    var type = typeSelect.options[typeSelect.selectedIndex].value;
+
+    if (
+        type == cx.variables.get('DISTRIBUTION_DOWNLOAD_INDEX', 'shop_product') &&
+        typeof document.getElementById('group-0-userGroups') != 'undefined'
+    ) {
+        document.getElementById('group-0-userGroups').style.display = 'block';
+        if (document.getElementById('form_0_userGroups_chosen') != null) {
+            console.log(document.getElementById('form_0_userGroups_chosen'));
+            document.getElementById('form_0_userGroups_chosen').style.width = '308px';
+        }
+    } else {
+        document.getElementById('group-0-userGroups').style.display = 'none';
+    }
+
+    if (
+        type == cx.variables.get('DISTRIBUTION_DELIVERY_INDEX', 'shop_product') &&
+        typeof document.getElementById('group-0-weight') != 'undefined'
+    ) {
+        document.getElementById('group-0-weight').style.display = 'block';
+    } else {
+        document.getElementById('group-0-weight').style.display = 'none';
+    }
 }

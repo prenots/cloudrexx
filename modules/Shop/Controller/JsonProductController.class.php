@@ -83,6 +83,8 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'storeProductAttributes',
             'getDistributionDropdown',
             'toggleCheckbox',
+            'getWeight',
+            'storeWeight',
         );
     }
 
@@ -645,5 +647,36 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             return '';
         }
         return $params['postedValue'];
+    }
+
+    /**
+     * Convert integer to readable weight
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return string value to store
+     */
+    public function getWeight($params)
+    {
+        return Weight::getWeightString($params['fieldvalue']);
+    }
+
+    /**
+     * Convert weight string back to integer. If the distribution is not
+     * delivery, reset the weight to 0
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return int value to store
+     */
+    public function storeWeight($params)
+    {
+        if (
+            !empty($params['entity']) &&
+            $params['entity']->getDistribution() != Distribution::TYPE_DELIVERY
+        ) {
+            return 0;
+        }
+        return Weight::getWeight($params['postedValue']);
     }
 }

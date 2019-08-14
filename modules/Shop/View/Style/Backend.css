@@ -477,3 +477,7 @@ table.adminlist td.discountgroup-name {
 .payment-processor-name {
     width: 25%;
 }
+#group-0-userGroups,
+#group-0-weight {
+    display: none;
+}
