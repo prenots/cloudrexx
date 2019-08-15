@@ -1393,7 +1393,7 @@ class ShopManager extends ShopLibrary
         self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
             'settings_block', 'module_shop_settings_zones.html');
 
-        // fetch exiting zone data
+        // fetch existing zone data
         $arrZones = Zones::getZoneArray();
 
         // fetch current country to zone relations
