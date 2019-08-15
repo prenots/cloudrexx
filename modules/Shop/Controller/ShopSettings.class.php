@@ -85,6 +85,7 @@ class ShopSettings
         self::storeCurrencies();
         self::storePayments();
         self::storeShipping();
+        self::storeCountries();
         $result = Zones::store_from_post();
         if (isset($result)) {
             self::$changed = true;
@@ -97,7 +98,6 @@ class ShopSettings
                 return false;
             }
         }
-        self::storeCountries();
         if (self::$changed) {
             return (self::$success
                 ? \Message::ok($_CORELANG['TXT_CORE_SETTING_STORED_SUCCESSFULLY'])
@@ -120,7 +120,6 @@ class ShopSettings
 
 // TODO: Use
 //        \Cx\Core\Setting\Controller\Setting::storeFromPost();
-        \Cx\Core\Setting\Controller\Setting::init('Shop', 'config');
 
         \Cx\Core\Setting\Controller\Setting::set('email',
             trim(strip_tags(contrexx_input2raw($_POST['email']))));

@@ -1351,12 +1351,7 @@ class ShopManager extends ShopLibrary
     /**
      * The country settings view
      */
-    static function view_settings_countries()
-    {
-
-        // TODO: Temporary.  Remove in release with working update
-        // Returns NULL on missing entries even when other settings are properly loaded
-        \Cx\Core\Setting\Controller\Setting::init('Shop', 'delivery');
+    static function view_settings_countries() {
         $availableCountries = \Cx\Core\Setting\Controller\Setting::getValue('available_countries', 'Shop');
         if (is_null($availableCountries)) {
             \Cx\Core\Setting\Controller\Setting::add(
