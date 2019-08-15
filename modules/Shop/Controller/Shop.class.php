@@ -276,14 +276,17 @@ class Shop extends ShopLibrary
         self::$objTemplate->setTemplate($template);
         // Global module index for clones
         self::$objTemplate->setGlobalVariable('MODULE_INDEX', MODULE_INDEX);
+
         // Do this *before* calling our friends, especially Customer methods!
         // Pick the default Country for delivery
+        // countryId2 is used for shipment address
         if (empty($_SESSION['shop']['countryId2'])) {
             $_SESSION['shop']['countryId2'] =
                 (isset($_POST['countryId2'])
                   ? intval($_POST['countryId2'])
                   : \Cx\Core\Setting\Controller\Setting::getValue('country_id', 'Shop'));
         }
+
 // TODO: This should be set up in a more elegant way
         Vat::is_reseller(self::$objCustomer && self::$objCustomer->is_reseller());
         // The coupon code may be set when entering the Shop already
@@ -2791,8 +2794,15 @@ die("Shop::processRedirect(): This method is obsolete!");
             ? $_SESSION['shop']['city']
             : (self::$objCustomer ? self::$objCustomer->city() : ''));
         $country_id = (isset($_SESSION['shop']['countryId'])
+            // load country for payment address from session ..
             ? $_SESSION['shop']['countryId']
-            : (self::$objCustomer ? self::$objCustomer->country_id() : 0));
+            : (self::$objCustomer ?
+                // .. or from signed-in customer
+                self::$objCustomer->country_id() :
+                // .. or use shipment country as pre-set value
+                $_SESSION['shop']['countryId2']
+            )
+        );
         $email = (isset($_SESSION['shop']['email'])
             ? $_SESSION['shop']['email']
             : (self::$objCustomer ? self::$objCustomer->email() : ''));
@@ -2848,11 +2858,15 @@ die("Shop::processRedirect(): This method is obsolete!");
             'SHOP_ACCOUNT_ACTION' =>
                 \Cx\Core\Routing\Url::fromModuleAndCmd('Shop', 'account'),
             // New template - since 2.1.0
+            // countryId is used for payment address, therefore we must
+            // list all countries here (and not restrict to shipping countries)
             'SHOP_ACCOUNT_COUNTRY_MENUOPTIONS' =>
-                ShopLibrary::getCountryMenuoptions($country_id),
+                \Cx\Core\Country\Controller\Country::getMenuoptions($country_id),
             // Old template
             // Compatibility with 2.0 and older versions
-            'SHOP_ACCOUNT_COUNTRY' => ShopLibrary::getCountryMenu('countryId', $country_id),
+            // countryId is used for payment address, therefore we must
+            // list all countries here (and not restrict to shipping countries)
+            'SHOP_ACCOUNT_COUNTRY' => \Cx\Core\Country\Controller\Country::getMenu('countryId', $country_id),
             'SHOP_ACCOUNT_BIRTHDAY' => $birthdayDaySelect . $birthdayMonthSelect . $birthdayYearSelect,
         ));
         if (count(static::$errorFields)) {
@@ -2963,6 +2977,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                 ? '' : htmlentities($_SESSION['shop']['zip2'], ENT_QUOTES, CONTREXX_CHARSET)),
             'SHOP_ACCOUNT_CITY2' => (empty($_SESSION['shop']['city2'])
                 ? '' : htmlentities($_SESSION['shop']['city2'], ENT_QUOTES, CONTREXX_CHARSET)),
+            // countryId2 is used for shipment address
             'SHOP_ACCOUNT_COUNTRY2' =>
                 \Cx\Core\Country\Controller\Country::getNameById($_SESSION['shop']['countryId2']),
             'SHOP_ACCOUNT_COUNTRY2_ID' => $_SESSION['shop']['countryId2'],
@@ -2990,9 +3005,28 @@ die("Shop::processRedirect(): This method is obsolete!");
      */
     static function account_to_session()
     {
+        global $_ARRAYLANG;
+
 //\DBG::log("account_to_session(): POST: ".var_export($_POST, true));
-        if (empty($_POST) || !is_array($_POST)) return;
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $request = $cx->getRequest();
+
+        if (
+            $request->getHttpRequestMethod() != 'post' ||
+            empty($_POST) ||
+            !is_array($_POST)
+        ) {
+            return;
+        }
+
 //\DBG::log("Shop::account_to_session(): Have POST");
+
+        // remember currently set country of shipping address.
+        // will be used in case an invalid shipping country has been submitted
+        if (isset($_SESSION['shop']['countryId2'])) {
+            $shippingCountryId = $_SESSION['shop']['countryId2'];
+        }
+
         foreach ($_POST as $key => $value) {
             $_SESSION['shop'][$key] =
                 trim(strip_tags(contrexx_input2raw($value)));
@@ -3022,9 +3056,10 @@ die("Shop::processRedirect(): This method is obsolete!");
             || empty($_SESSION['shop']['city2'])
             || empty($_SESSION['shop']['phone2'])
             || empty($_SESSION['shop']['countryId2'])
+            || empty($_POST['equal_address'])
         ) {
             $_SESSION['shop']['equal_address'] = false;
-        } elseif (!empty($_POST['equal_address'])) {
+        } else {
             // Copy address
             $_SESSION['shop']['company2'] = $_SESSION['shop']['company'];
             $_SESSION['shop']['gender2'] = $_SESSION['shop']['gender'];
@@ -3037,14 +3072,38 @@ die("Shop::processRedirect(): This method is obsolete!");
             $_SESSION['shop']['countryId2'] = $_SESSION['shop']['countryId'];
             $_SESSION['shop']['equal_address'] = true;
         }
-        if (empty($_SESSION['shop']['countryId'])) {
-            $_SESSION['shop']['countryId'] = $_SESSION['shop']['countryId2'];
-        } else if (!Cart::needs_shipment()) {
+
+        // verify country of shipment address
+        if (Cart::needs_shipment()) {
+            $country = \Cx\Core\Country\Controller\Country::getById(
+                $_SESSION['shop']['countryId2']
+            );
+            // Ensure selected country of shipment adress is valid.
+            // Otherwise reset to previously set country
+            if (!$country['active']) {
+                \Message::error(sprintf(
+                    $_ARRAYLANG['TXT_SHOP_NO_DELIVERY_TO_COUNTRY'],
+                    \Cx\Core\Country\Controller\Country::getNameById(
+                        $_SESSION['shop']['countryId2']
+                    )
+                ));
+                $_SESSION['shop']['countryId2'] = $shippingCountryId;
+
+                // disable payment and shipment address equality flag
+                $_SESSION['shop']['equal_address'] = false;
+            }
+        }
+
+        if (
+            !Cart::needs_shipment() &&
+            !empty($_SESSION['shop']['countryId'])
+        ) {
             // In case we have an order without shipment, shipment country
             // will not be set. We set it to the customer's country in order
             // to calculate VAT correctly.
             $_SESSION['shop']['countryId2'] = $_SESSION['shop']['countryId'];
         }
+
         // Fill missing arguments with empty strings
         if (empty($_SESSION['shop']['company2']))   $_SESSION['shop']['company2'] = '';
         if (empty($_SESSION['shop']['gender2']))    $_SESSION['shop']['gender2'] = '';
@@ -3077,6 +3136,13 @@ die("Shop::processRedirect(): This method is obsolete!");
             $status = \Message::error(
                 $_ARRAYLANG['TXT_FILL_OUT_ALL_REQUIRED_FIELDS']);
         }
+
+        // Check for any error messages.
+        // This is used by the verification of the shipment country
+        if (\Message::have()) {
+            return false;
+        }
+
         // Registered Customers are okay now
         if (self::$objCustomer) return $status;
         if (   \Cx\Core\Setting\Controller\Setting::getValue('register','Shop') == ShopLibrary::REGISTER_MANDATORY
@@ -3228,7 +3294,10 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (   $cart_amount
             && empty($_SESSION['shop']['paymentId'])) {
             $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
-                $_SESSION['shop']['countryId'], Currency::getCurrencyArray());
+                // countryId is used for payment address
+                $_SESSION['shop']['countryId'],
+                Currency::getCurrencyArray()
+            );
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
         if (empty($_SESSION['shop']['paymentId']))
@@ -3361,13 +3430,16 @@ die("Shop::processRedirect(): This method is obsolete!");
         if (empty($_SESSION['shop']['paymentId'])) {
             // Use the first Payment ID
             $arrPaymentId = Payment::getCountriesRelatedPaymentIdArray(
-                $_SESSION['shop']['countryId'], Currency::getCurrencyArray()
+                // countryId is used for payment address
+                $_SESSION['shop']['countryId'],
+                Currency::getCurrencyArray()
             );
             $_SESSION['shop']['paymentId'] = current($arrPaymentId);
         }
         return Payment::getPaymentMenu(
             $_SESSION['shop']['paymentId'],
             "document.forms['shopForm'].submit()",
+            // countryId is used for payment address
             $_SESSION['shop']['countryId']
         );
     }
@@ -3645,7 +3717,10 @@ die("Shop::processRedirect(): This method is obsolete!");
             // TODO: Check if the first line is not already checked above
             if (    !(!Cart::needs_shipment() && Cart::get_price() <= 0)
                 &&  self::$objTemplate->blockExists('shop_payment_payment_methods')
-                &&  $paymentMethods = Payment::getPaymentMethods($_SESSION['shop']['countryId'])
+                &&  $paymentMethods = Payment::getPaymentMethods(
+                    // countryId is used for payment address
+                    $_SESSION['shop']['countryId']
+                )
             ) {
                 foreach ($paymentMethods as $paymentId => $paymentName) {
                     self::$objTemplate->setVariable(array(
@@ -3903,6 +3978,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             'SHOP_ADDRESS' => stripslashes($_SESSION['shop']['address']),
             'SHOP_ZIP' => stripslashes($_SESSION['shop']['zip']),
             'SHOP_CITY' => stripslashes($_SESSION['shop']['city']),
+            // countryId is used for payment address
             'SHOP_COUNTRY' => \Cx\Core\Country\Controller\Country::getNameById($_SESSION['shop']['countryId']),
             'SHOP_EMAIL' => stripslashes($_SESSION['shop']['email']),
             'SHOP_PHONE' => stripslashes($_SESSION['shop']['phone']),
@@ -3918,6 +3994,7 @@ die("Shop::processRedirect(): This method is obsolete!");
                 'SHOP_ADDRESS2' => stripslashes($_SESSION['shop']['address2']),
                 'SHOP_ZIP2' => stripslashes($_SESSION['shop']['zip2']),
                 'SHOP_CITY2' => stripslashes($_SESSION['shop']['city2']),
+                // countryId2 is used for shipment address
                 'SHOP_COUNTRY2' => \Cx\Core\Country\Controller\Country::getNameById($_SESSION['shop']['countryId2']),
                 'SHOP_PHONE2' => stripslashes($_SESSION['shop']['phone2']),
             ));

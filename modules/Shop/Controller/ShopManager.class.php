@@ -1367,7 +1367,7 @@ class ShopManager extends ShopLibrary
                 '{src:\Cx\Core\Country\Controller\Country::getNameArray()}',
                 'delivery'
             );
-        }
+            }
         self::$objTemplate->addBlockfile(
             'SHOP_SETTINGS_FILE',
             'settings_block',
@@ -1376,10 +1376,10 @@ class ShopManager extends ShopLibrary
         $selectedCountries = $availableCountries ? explode(',', $availableCountries) : array();
         foreach (\Cx\Core\Country\Controller\Country::getNameArray() as $countryId => $countryName) {
             $blockName = in_array($countryId, $selectedCountries) ? 'shop_selected_countries' : 'shop_not_selected_countries';
-            self::$objTemplate->setVariable(array(
+        self::$objTemplate->setVariable(array(
                 'SHOP_COUNTRY_ID'   => contrexx_raw2xhtml($countryId),
                 'SHOP_COUNTRY_NAME' => contrexx_raw2xhtml($countryName),
-            ));
+        ));
             self::$objTemplate->parse($blockName);
         }
     }
@@ -3047,7 +3047,7 @@ if ($test === NULL) {
             'SHOP_COMPANY_NOTE' => $companynote,
             'SHOP_REGISTER_DATE' => date(ASCMS_DATE_FORMAT_DATETIME, $registerdate),
             'SHOP_COUNTRY_MENUOPTIONS' =>
-                ShopLibrary::getCountryMenuoptions($country_id),
+                \Cx\Core\Country\Controller\Country::getMenuoptions($country_id),
             'SHOP_DISCOUNT_GROUP_CUSTOMER_MENUOPTIONS' =>
                 Discount::getMenuOptionsGroupCustomer($customer_group_id),
             'SHOP_CUSTOMER_TYPE_MENUOPTIONS' =>
