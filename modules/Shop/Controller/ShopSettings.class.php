@@ -211,26 +211,26 @@ class ShopSettings
                 intval($_POST['numof_products_per_page_frontend']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
         }
-        if (!\Cx\Core\Setting\Controller\Setting::set('num_categories_per_row',
-            intval($_POST['num_categories_per_row']))) {
+        if (\Cx\Core\Setting\Controller\Setting::set('num_categories_per_row',
+            intval($_POST['num_categories_per_row'])) === false) {
             \Cx\Core\Setting\Controller\Setting::add('num_categories_per_row',
                 intval($_POST['num_categories_per_row']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_TEXT, null, 'config');
         }
-        if (!\Cx\Core\Setting\Controller\Setting::set('activate_product_attribute_children',
-            !empty($_POST['shop_activate_product_attribute_children']))) {
+        if (\Cx\Core\Setting\Controller\Setting::set('activate_product_attribute_children',
+            !empty($_POST['shop_activate_product_attribute_children'])) === false) {
             \Cx\Core\Setting\Controller\Setting::add('activate_product_attribute_children',
                 !empty($_POST['shop_activate_product_attribute_children']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
         }
-        if (!\Cx\Core\Setting\Controller\Setting::set('force_select_option',
-            !empty($_POST['shop_force_select_option']))) {
+        if (\Cx\Core\Setting\Controller\Setting::set('force_select_option',
+            !empty($_POST['shop_force_select_option'])) === false) {
             \Cx\Core\Setting\Controller\Setting::add('force_select_option',
                 !empty($_POST['shop_force_select_option']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
         }
-        if (!\Cx\Core\Setting\Controller\Setting::set('verify_account_email',
-            !empty($_POST['shop_verify_account_email']))) {
+        if (\Cx\Core\Setting\Controller\Setting::set('verify_account_email',
+            !empty($_POST['shop_verify_account_email'])) === false) {
             \Cx\Core\Setting\Controller\Setting::add('verify_account_email',
                 !empty($_POST['shop_verify_account_email']), null,
                 \Cx\Core\Setting\Controller\Setting::TYPE_CHECKBOX, null, 'config');
