@@ -74,15 +74,6 @@ class Country
      */
     private static $errors = array();
 
-    /*
-     * Array of all country-zone relations
-     * @var     array
-     * @access  private
-     * @see     initCountryRelations()
-    private static $arrCountryRelations = false;
-     */
-
-
     /**
      * Returns the country settings page, always.
      * @return
@@ -804,91 +795,6 @@ class Country
     {
         return \Html::getOptions(self::getNameArray($active), $selected);
     }
-
-
-    /**
-     * Returns an array of two arrays; one with countries in the given zone,
-     * the other with the remaining countries.
-     *
-     * If $zone_id is empty, includes Countries for all Zones present.
-     * The array looks like this:
-     *  array(
-     *    'in' => array(    // Countries in the zone
-     *      country ID => array(
-     *        'id' => country ID,
-     *        'name' => country name,
-     *      ),
-     *      ... more ...
-     *    ),
-     *    'out' => array(   // Countries not in the zone
-     *      country ID => array(
-     *        'id' => country ID,
-     *        'name' => country name,
-     *      ),
-     *      ... more ...
-     *    ),
-     *  );
-     * @todo    Shop use only (should be moved back there)!
-     * @param   integer     $zone_id        The optional Zone ID
-     * @return  array                       Countries array, as described above
-     */
-    static function getArraysByZoneId($zone_id=null)
-    {
-        global $objDatabase;
-
-        if (is_null(self::$arrCountries)) self::init();
-        // Query relations between zones and countries:
-        // Get all country IDs and names
-        // associated with that zone ID
-        $arrSqlName = \Text::getSqlSnippets(
-            '`country`.`id`', FRONTEND_LANG_ID, 'core',
-            array('name' => self::TEXT_NAME));
-        $query = "
-            SELECT `country`.`id`, ".$arrSqlName['field']."
-              FROM `".DBPREFIX."core_country` AS `country`
-             INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `relation`
-                ON `country`.`id`=`relation`.`country_id`
-                   ".$arrSqlName['join']."
-             WHERE `country`.`active`=1
-               ".($zone_id ? "AND `relation`.`zone_id`=$zone_id" : '')."
-             ORDER BY `name` ASC";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return false;
-        // Initialize the array to avoid notices when one or the other is empty
-        $arrZoneCountries = array('in' => array(), 'out' => array());
-
-        while (!$objResult->EOF) {
-            $id = $objResult->fields['id'];
-            $strName = $objResult->fields['name'];
-            if ($strName === null) {
-//DBG::log(("MISSING Name for ID $id"));
-                $objText = \Text::getById($id, 'core', self::TEXT_NAME, 0);
-//DBG::log(("GOT Name for Text ID $id: ".$objText->content()));
-                if ($objText) $strName = $objText->content();
-            }
-//DBG::log(("IN zone: ID $id - $strName"));
-            $arrZoneCountries['in'][$id] = array(
-                'id'   => $id,
-                'name' => $strName,
-            );
-            $objResult->MoveNext();
-        }
-        foreach (self::$arrCountries as $id => $arrCountry) {
-            // Country may only be available for the Zone if it's
-            // not in yet and it's active
-            if (   empty($arrZoneCountries['in'][$id])
-                && $arrCountry['active']) {
-//DBG::log(("OUT zone: ID $id - {$arrCountry['name']}"));
-                $arrZoneCountries['out'][$id] = array(
-                    'id'   => $id,
-                    'name' => $arrCountry['name'],
-                );
-            }
-
-        }
-        return $arrZoneCountries;
-    }
-
 
     /**
      * Activate the countries whose IDs are listed in the comma separated
