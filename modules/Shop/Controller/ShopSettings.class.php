@@ -451,7 +451,22 @@ class ShopSettings
         if (!isset($_POST['countries'])) {
             return;
         }
-        $selectedCountries = contrexx_input2int($_POST['list1']);
+
+        // fetch country of webshop
+        $countryId = \Cx\Core\Setting\Controller\Setting::getValue(
+            'country_id',
+            'Shop'
+        );
+
+        // ensure country if webshop is a valid shipping country
+        $selectedCountries = array($countryId);
+
+        if (isset($_POST['list1'])) {
+            $selectedCountries = array_merge(
+                $selectedCountries,
+                contrexx_input2int($_POST['list1'])
+            );
+        }
 
         \Cx\Core\Setting\Controller\Setting::init('Shop', 'delivery');
         \Cx\Core\Setting\Controller\Setting::set(
