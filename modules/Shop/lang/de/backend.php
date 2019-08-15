@@ -1029,7 +1029,7 @@ $_ARRAYLANG['TXT_SHOP_LIVE'] = "Live";
 $_ARRAYLANG['TXT_SHOP_MINIMUM_ORDER_QUANITY'] = "Mindestbestellmenge";
 
 $_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX'] = "Payrexx";
-$_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX_INSTANCE_NAME'] = "Instanz Name";
+$_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX_INSTANCE_NAME'] = "Payrexx-Seite";
 $_ARRAYLANG['TXT_SHOP_PAYMENT_PAYREXX_API_SECRET'] = "API Secret";
 $_ARRAYLANG['TXT_SHOP_PSP_FAILED_TO_INITIALISE_PAYREXX'] = "Payrexx konnte auf Grund eines Konfigurationsfehlers nicht initialisiert werden.";
 $_ARRAYLANG['TXT_SHOP_SETTING_NUMOF_PRODUCTS_PER_PAGE_FRONTEND'] = "Anzahl Produkte pro Seite im Frontend";
@@ -1038,3 +1038,5 @@ $_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW_TOOLTIP'] = "Bestimmen Sie 
 $_ARRAYLANG['TXT_SHOP_CHOOSE_FILE'] = 'Datei wählen';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_TYPE'] = 'Pro Produkt';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_TYPE_TIP'] = 'Gilt die Mindestmenge pro Produkt oder für alle Produkte mit dieser Rabattgruppe gemeinsam?';
+$_ARRAYLANG['TXT_SHOP_TYPE'] = 'Art';
+$_ARRAYLANG['TXT_SHOP_PERCENTAGE'] = 'Prozent';

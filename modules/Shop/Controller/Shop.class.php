@@ -1131,6 +1131,13 @@ die("Failed to update the Cart!");
                     $arrSize = getimagesize($cx->getWebsitePath() . $thumbnailPath);
                     self::scaleImageSizeToThumbnail($arrSize);
                 }
+            } else {
+                // Fallback if no picture for category was found.
+                // This is intentionally in the else statement and not as
+                // assignement before this if-statement, as it would otherwise
+                // brake the regular thumbnail $thumbnailPath (which would be
+                // overwritten above )
+                $imageName = ShopLibrary::noPictureName;
             }
             if ($imageName) {
                 self::$objTemplate->setVariable(
@@ -1399,6 +1406,10 @@ die("Failed to update the Cart!");
             if (self::$objTemplate->blockExists('no_product')) {
                 self::$objTemplate->touchBlock('no_product');
             }
+            // hide products template block if no products have been loaded
+            if (self::$objTemplate->blockExists('products')) {
+                self::$objTemplate->hideBlock('products');
+            }
             return true;
         }
         if ($count == 0) {
@@ -1472,7 +1483,10 @@ die("Failed to update the Cart!");
                 $thumbnailPath = $pictureLink = '';
                 $imageFilePath = '';
                 if (   empty($image['img'])
-                    || $image['img'] == ShopLibrary::noPictureName) {
+                    || $image['img'] == ShopLibrary::noPictureName
+                ) {
+                    // set no-picture image
+                    $image['img'] = ShopLibrary::noPictureName;
                     // We have at least one picture on display already.
                     // No need to show "no picture" three times!
                     if ($havePicture) { continue; }
@@ -1682,14 +1696,22 @@ die("Failed to update the Cart!");
             }
             $shopProductFormName = "shopProductForm$formId";
             $row = $formId % 2 + 1;
+            $detailDescription = '';
+            if ($longDescription) {
+                $detailDescription = $longDescription;
+            } elseif (!self::$objTemplate->placeholderExists(
+                'SHOP_PRODUCT_DESCRIPTION'
+            )) {
+                // show short description as detail-description if the
+                // short-description placeholder is not being used
+                $detailDescription = $short;
+            }
             self::$objTemplate->setVariable(array(
                 'SHOP_ROWCLASS' => 'row'.$row,
                 'SHOP_PRODUCT_ID' => $objProduct->id(),
                 'SHOP_PRODUCT_TITLE' => contrexx_raw2xhtml($objProduct->name()),
                 'SHOP_PRODUCT_DESCRIPTION' => $short,
-// TODO: Test whether this produces double descriptions in some views
-                'SHOP_PRODUCT_DETAILDESCRIPTION' => ($longDescription
-                    ? $longDescription : $short),
+                'SHOP_PRODUCT_DETAILDESCRIPTION' => $detailDescription,
                 'SHOP_PRODUCT_FORM_NAME' => $shopProductFormName,
                 'SHOP_PRODUCT_SUBMIT_NAME' => $productSubmitName,
                 'SHOP_PRODUCT_SUBMIT_FUNCTION' => $productSubmitFunction,
@@ -1732,6 +1754,11 @@ die("Failed to update the Cart!");
                     'SHOP_MANUFACTURER_LINK' => $manufacturer_link,
                     'TXT_SHOP_MANUFACTURER_LINK' => $_ARRAYLANG['TXT_SHOP_MANUFACTURER_LINK'],
                 ));
+                if (self::$objTemplate->blockExists('shopProductManufacturer')) {
+                    self::$objTemplate->parse('shopProductManufacturer');
+                }
+            } elseif (self::$objTemplate->blockExists('shopProductManufacturer')) {
+                self::$objTemplate->hideBlock('shopProductManufacturer');
             }
 
             // This is the old Product field for the Manufacturer URI.
@@ -1747,6 +1774,11 @@ die("Failed to update the Cart!");
                     '" target="_blank">'.
                     $_ARRAYLANG['TXT_SHOP_EXTERNAL_LINK'].'</a>',
                 ));
+                if (self::$objTemplate->blockExists('shopProductExternalLink')) {
+                    self::$objTemplate->parse('shopProductExternalLink');
+                }
+            } elseif (self::$objTemplate->blockExists('shopProductExternalLink')) {
+                self::$objTemplate->hideBlock('shopProductExternalLink');
             }
 
             if ($price) {
@@ -1848,6 +1880,7 @@ die("Failed to update the Cart!");
                 self::$objTemplate->setVariable(
                         'SHOP_PRODUCT_MINIMUM_ORDER_QUANTITY',contrexx_raw2xhtml($objProduct->minimum_order_quantity())
                 );
+                self::$objTemplate->touchBlock('orderQuantity');
             } elseif (self::$objTemplate->blockExists('orderQuantity') && !$minimum_order_quantity){
                 self::$objTemplate->hideBlock('orderQuantity');
             }
@@ -2475,18 +2508,49 @@ die("Failed to update the Cart!");
      *
      * @internal    A lot of this belongs to the Payment class.
      * @param       integer     $payment_id The payment ID
-     * @param       double      $totalPrice The total order price
+     * @param       float       $totalPrice The total order price (of goods)
+     * @param       float       $shipmentPrice The price of the shipment
      * @return      string                  The payment fee, formatted by
      *                                      {@link Currency::getCurrencyPrice()}
      */
-    static function _calculatePaymentPrice($payment_id, $totalPrice)
-    {
-        $paymentPrice = 0;
-        if (!$payment_id) return $paymentPrice;
-        if (  Payment::getProperty($payment_id, 'free_from') == 0
-           || $totalPrice < Payment::getProperty($payment_id, 'free_from')) {
-            $paymentPrice = Payment::getProperty($payment_id, 'fee');
+    static function _calculatePaymentPrice(
+        $payment_id,
+        $totalPrice,
+        $shipmentPrice
+    ) {
+        // no payment fee if payment method is invalid
+        if (!$payment_id) {
+            return 0;
         }
+        // no payment fee if payment method is invalid
+        if (Payment::getProperty($payment_id, 'fee') === false) {
+            return 0;
+        }
+        // no payment fee if order sum is greater then set boundary
+        if (
+            Payment::getProperty($payment_id, 'free_from') > 0 &&
+            $totalPrice >= Payment::getProperty($payment_id, 'free_from')
+        ) {
+            return 0;
+        }
+
+        // fetch fee data
+        $type = Payment::getProperty($payment_id, 'type');
+        $fee = Payment::getProperty($payment_id, 'fee');
+
+        // calculate fee based on selected payment method
+        $paymentPrice = 0;
+        switch ($type) {
+            case 'percent':
+                $paymentPrice = ($totalPrice + $shipmentPrice) * $fee / 100;
+                break;
+
+            case 'fix':
+            default:
+                $paymentPrice = $fee;
+                break;
+        }
+
         return Currency::getCurrencyPrice($paymentPrice);
     }
 
@@ -3198,7 +3262,8 @@ die("Shop::processRedirect(): This method is obsolete!");
         $_SESSION['shop']['payment_price'] =
             self::_calculatePaymentPrice(
                 $_SESSION['shop']['paymentId'],
-                $cart_amount
+                $cart_amount,
+                $shipmentPrice
             );
         Cart::update(self::$objCustomer);
         self::update_session();
