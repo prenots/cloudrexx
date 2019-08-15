@@ -622,7 +622,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         $objResult = $objDatabase->SelectLimit(
             $querySelect.$queryTail.$queryOrder, $limit, $offset
         );
-        if (!$objResult) return Product::errorHandler();
+        if (!$objResult) return Products::errorHandler();
 //\DBG::deactivate(DBG_ADODB);
         $arrProduct = array();
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
