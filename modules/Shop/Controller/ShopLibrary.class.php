@@ -411,7 +411,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
     }
 
     /**
-     * Get country select dropdown menu
+     * Get shipping country select dropdown menu
      *
      * @param string  $menuName Name of the select menu
      * @param integer $selected Selected option
@@ -430,7 +430,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
     }
 
     /**
-     * Get country select dropdown options
+     * Get shippping country select dropdown options
      *
      * @param integer $selected Selected option
      *
@@ -438,20 +438,44 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
      */
     static function getCountryMenuOptions($selected = 0)
     {
-        \Cx\Core\Setting\Controller\Setting::init('Shop', 'delivery');
-        $availableCountries = \Cx\Core\Setting\Controller\Setting::getValue('available_countries', 'Shop');
-        if (!$availableCountries) {
-            return '';
-        }
-
-        $activeCountries       = array();
-        $arrAvailableCountries = explode(',', $availableCountries);
-        foreach ($arrAvailableCountries as $countryId) {
-            if (\Cx\Core\Country\Controller\Country::isActiveById($countryId)) {
-                $activeCountries[$countryId] = \Cx\Core\Country\Controller\Country::getNameById($countryId);
-            }
+        $arrAvailableCountries = static::getShipmentCountries();
+        foreach ($arrAvailableCountries as $country) {
+            $activeCountries[$country['id']] =
+                \Cx\Core\Country\Controller\Country::getNameById(
+                    $country['id']
+            );
         }
 
         return \Html::getOptions($activeCountries, $selected);
+    }
+
+    /**
+     * Fetch data of countries that are available as shipping target
+     *
+     * @return array    List of countries fetched from
+     *                  \Cx\Core\Country\Controller\Country::getArray() and
+     *                  filtered by available countries for shipping.
+     */
+    static function getShipmentCountries() {
+        // fetch set shipping countries
+        \Cx\Core\Setting\Controller\Setting::init('Shop', 'delivery');
+        $availableCountries = \Cx\Core\Setting\Controller\Setting::getValue(
+            'available_countries',
+            'Shop'
+        );
+        if (!$availableCountries) {
+            return array();
+        }
+        $arrAvailableCountries = array_flip(
+            explode(',', $availableCountries)
+        );
+
+        // filter country data based on set shipping countries
+        $cnt = 0;
+        $arrCountries = \Cx\Core\Country\Controller\Country::getArray($cnt);
+        return array_intersect_key(
+            $arrCountries,
+            $arrAvailableCountries
+        );
     }
 }

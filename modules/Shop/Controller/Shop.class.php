@@ -3075,12 +3075,23 @@ die("Shop::processRedirect(): This method is obsolete!");
 
         // verify country of shipment address
         if (Cart::needs_shipment()) {
+            // fetch list of supported shipment countries
+            $availableCountries = static::getShipmentCountries();
+
+            // fetch meta-data of shipment country
             $country = \Cx\Core\Country\Controller\Country::getById(
                 $_SESSION['shop']['countryId2']
             );
-            // Ensure selected country of shipment adress is valid.
+
+            // Ensure selected country of shipment address is valid.
             // Otherwise reset to previously set country
-            if (!$country['active']) {
+            if (
+                !in_array(
+                    $_SESSION['shop']['countryId2'],
+                    $availableCountries
+                ) ||
+                !$country['active']
+            ) {
                 \Message::error(sprintf(
                     $_ARRAYLANG['TXT_SHOP_NO_DELIVERY_TO_COUNTRY'],
                     \Cx\Core\Country\Controller\Country::getNameById(

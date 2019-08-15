@@ -1392,7 +1392,16 @@ class ShopManager extends ShopLibrary
     {
         self::$objTemplate->addBlockfile('SHOP_SETTINGS_FILE',
             'settings_block', 'module_shop_settings_zones.html');
+
+        // fetch exiting zone data
         $arrZones = Zones::getZoneArray();
+
+        // fetch current country to zone relations
+        $arrCountryRelations = Zones::getCountryRelationArray();
+
+        // fetch available shipping countries
+        $arrCountries = static::getShipmentCountries();
+
         $selectFirst = false;
         $strZoneOptions = '';
         foreach ($arrZones as $zone_id => $arrZone) {
@@ -1402,20 +1411,21 @@ class ShopManager extends ShopLibrary
                 '<option value="'.$zone_id.'"'.
                 ($selectFirst ? '' : \Html::ATTRIBUTE_SELECTED).
                 '>'.$arrZone['name']."</option>\n";
-            $arrCountryInZone = \Cx\Core\Country\Controller\Country::getArraysByZoneId($zone_id);
             $strSelectedCountries = '';
-            foreach ($arrCountryInZone['in'] as $country_id => $arrCountry) {
-                $strSelectedCountries .=
-                    '<option value="'.$country_id.'">'.
-                    $arrCountry['name'].
-                    "</option>\n";
-            }
             $strCountryList = '';
-            foreach ($arrCountryInZone['out'] as $country_id => $arrCountry) {
-                $strCountryList .=
-                    '<option value="'.$country_id.'">'.
+            foreach ($arrCountries as $arrCountry) {
+                $option =
+                    '<option value="'.$arrCountry['id'].'">'.
                     $arrCountry['name'].
                     "</option>\n";
+                if (in_array(
+                    $arrCountry['id'],
+                    $arrCountryRelations[$zone_id]
+                )) {
+                    $strSelectedCountries .= $option;
+                } else {
+                    $strCountryList .= $option;
+                }
             }
             self::$objTemplate->setVariable(array(
                 'SHOP_ZONE_ID' => $zone_id,
@@ -1574,7 +1584,9 @@ if ($test === NULL) {
             'SHOP_CONTACT_ADDRESS' => \Cx\Core\Setting\Controller\Setting::getValue('address','Shop'),
             'SHOP_CONTACT_TEL' => \Cx\Core\Setting\Controller\Setting::getValue('telephone','Shop'),
             'SHOP_CONTACT_FAX' => \Cx\Core\Setting\Controller\Setting::getValue('fax','Shop'),
-            // Country settings
+            // country of the webshop
+            // note: currently only countries are supported that are set up as
+            // shipment countries
             'SHOP_GENERAL_COUNTRY_MENUOPTIONS' => ShopLibrary::getCountryMenuoptions(
                 \Cx\Core\Setting\Controller\Setting::getValue('country_id','Shop')),
             // Thumbnail settings
