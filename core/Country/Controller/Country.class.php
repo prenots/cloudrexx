@@ -109,8 +109,7 @@ class Country
      */
     static function init($lang_id=null)
     {
-        $count = 0;
-        self::$arrCountries = self::getArray($count, $lang_id);
+        self::$arrCountries = self::getArray($lang_id);
     }
 
 
@@ -135,51 +134,41 @@ class Country
      *    argument is not empty.
      *  - Empty arguments are set to their default values, which are:
      *    - $lang_id: The current value of the FRONTEND_LANG_ID constant
-     *    - $limit:   -1, meaning no limit
-     *    - $offset:  0, meaning no offset
-     *    - $order:   `name` ASC, meaning ordered by country name, ascending
      * @global  ADONewConnection  $objDatabase
-     * @param   integer   $count            The record count, by reference
      * @param   integer   $lang_id          The optional language ID
-     * @param   integer   $limit            The optional record limit
-     * @param   integer   $offset           The optional record offset
-     * @param   string    $order            The optional order direction
      * @return  array                       The Country array on success,
      *                                      false otherwise
      */
-    static function getArray(
-        &$count, $lang_id=null, $limit=-1, $offset=0, $order='`name` ASC'
-    ) {
+    static function getArray($lang_id=null) {
         global $objDatabase;
 
         $lang_id = (int)$lang_id;
         if (empty($lang_id)) $lang_id = FRONTEND_LANG_ID;
-        $arrSqlName = \Text::getSqlSnippets('`country`.`id`', $lang_id,
-            'core', array('name' => self::TEXT_NAME));
-        if (empty($limit)) $limit  = -1;
-        if (empty($offset)) $offset =  0;
-        if (empty($order)) $order  = $arrSqlName['text'].' ASC';
-        if (!empty($arrSqlName['field'])) $arrSqlName['field'] = ',' . $arrSqlName['field'];
-        $count = 0;
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $locale = $cx->getDb()->getEntityManager()->find(
+            'Cx\Core\Locale\Model\Entity\Locale',
+            $lang_id
+        );
+
         $query = "
             SELECT `country`.`id`,
                    `country`.`alpha2`, `country`.`alpha3`,
                    `country`.`ord`,
-                   `country`.`active` ".
-            $arrSqlName['field']."
-              FROM ".DBPREFIX."core_country AS `country`".
-            $arrSqlName['join']."
-             ORDER BY $order";
-        $objResult = $objDatabase->SelectLimit($query, $limit, $offset);
+                   `country`.`active`
+              FROM ".DBPREFIX."core_country AS `country`";
+        $objResult = $objDatabase->SelectLimit($query);
         if (!$objResult) return self::errorHandler();
+
         $arrCountries = array();
         while (!$objResult->EOF) {
             $id = $objResult->fields['id'];
-            $strName = $objResult->fields['name'];
-            if ($strName === null) {
-                $objText = \Text::getById($id, 'core', self::TEXT_NAME);
-                if ($objText) $strName = $objText->content();
-            }
+            $strName = \Locale::getDisplayRegion(
+                // 'und_' stands for 'Undetermined language' of a region
+                // refer to https://www.unicode.org/reports/tr35/tr35-29.html#Unknown_or_Invalid_Identifiers
+                'und_' . $objResult->fields['alpha2'],
+                $locale->getIso1()->getIso1()
+            );
             $arrCountries[$id] = array(
                 'id'     => $id,
                 'name'   => $strName,
@@ -190,12 +179,6 @@ class Country
             );
             $objResult->MoveNext();
         }
-        $query = "
-            SELECT COUNT(*) AS `numof_records`
-              FROM `".DBPREFIX."core_country`";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) return self::errorHandler();
-        $count = $objResult->fields['numof_records'];
         return $arrCountries;
     }
 
@@ -230,15 +213,18 @@ class Country
 //die("Country::getById(): ERROR: Empty language ID");
             $lang_id = FRONTEND_LANG_ID;
         }
-        $arrSqlName = \Text::getSqlSnippets('`country`.`id`', $lang_id,
-            'core', array('name' => self::TEXT_NAME));
+
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $locale = $cx->getDb()->getEntityManager()->find(
+            'Cx\Core\Locale\Model\Entity\Locale',
+            $lang_id
+        );
+
         $query = "
             SELECT `country`.`alpha2`, `country`.`alpha3`,
                    `country`.`ord`,
-                   `country`.`active`, ".
-                   $arrSqlName['field']."
-              FROM ".DBPREFIX."core_country AS `country`".
-                   $arrSqlName['join']."
+                   `country`.`active`
+              FROM ".DBPREFIX."core_country AS `country`
              WHERE `country`.`id`=$country_id";
         $objResult = $objDatabase->Execute($query);
         if (!$objResult) {
@@ -247,11 +233,14 @@ class Country
             return false;
         }
         if ($objResult->EOF) return false;
-        $strName = $objResult->fields['name'];
-        if ($strName === null) {
-            $objText = \Text::getById($country_id, 'core', self::TEXT_NAME);
-            if ($objText) $strName = $objText->content();
-        }
+
+        $strName = \Locale::getDisplayRegion(
+            // 'und_' stands for 'Undetermined language' of a region
+            // refer to https://www.unicode.org/reports/tr35/tr35-29.html#Unknown_or_Invalid_Identifiers
+            'und_' . $objResult->fields['alpha2'],
+            $locale->getIso1()->getIso1()
+        );
+
         return array(
             'id'     => $country_id,
             'name'   => $strName,
@@ -285,42 +274,18 @@ class Country
      */
     static function getByName($country_name, $lang_id=null)
     {
-        global $objDatabase;
-
         $lang_id = (int)$lang_id;
         if (empty($lang_id)) {
             $lang_id = FRONTEND_LANG_ID;
         }
-        $arrSqlName = \Text::getSqlSnippets('`country`.`id`', $lang_id,
-            'core', array('name' => self::TEXT_NAME));
-        $query = "
-            SELECT `country`.`alpha2`, `country`.`alpha3`,
-                   `country`.`ord`,
-                   `country`.`active`, ".
-                   $arrSqlName['field']."
-              FROM ".DBPREFIX."core_country AS `country`".
-                   $arrSqlName['join']."
-             WHERE " . $arrSqlName['field'] . "='$country_name'";
-        $objResult = $objDatabase->Execute($query);
-        if (!$objResult) {
-// Disabled, as this method is called by errorHandler() as well!
-//            return self::errorHandler();
-            return false;
+        $countries = static::getArray($lang_id);
+        foreach ($countries as $country) {
+            if (strtolower($country['name']) == strtolower($country_name)) {
+                return $country;
+            }
         }
-        if ($objResult->EOF) return false;
-        $strName = $objResult->fields['name'];
-        if ($strName === null) {
-            $objText = \Text::getById($country_id, 'core', self::TEXT_NAME);
-            if ($objText) $strName = $objText->content();
-        }
-        return array(
-            'id'     => $country_id,
-            'name'   => $strName,
-            'ord'    => $objResult->fields['ord'],
-            'alpha2' => $objResult->fields['alpha2'],
-            'alpha3' => $objResult->fields['alpha3'],
-            'active' => $objResult->fields['active'],
-        );
+
+        return false;
     }
 
     /**
@@ -344,59 +309,35 @@ class Country
      * @return  array               The Country array on success,
      *                              false otherwise
      */
-    static function searchByName($term, $lang_id = null, $active = true)
+    static function searchByName($term, $lang_id = null)
     {
-        global $objDatabase;
-
         $lang_id = contrexx_input2int($lang_id);
         if (empty($lang_id)) {
             $lang_id = FRONTEND_LANG_ID;
         }
-        $arrSqlName = \Text::getSqlSnippets('`country`.`id`', $lang_id,
-            'core', array('name' => self::TEXT_NAME));
+        $countries = static::getArray($lang_id);
 
-        $query = '
-            SELECT `country`.`id`,
-                   `country`.`alpha2`,
-                   `country`.`alpha3`,
-                   `country`.`ord`,
-                   `country`.`active`,
-                   '. $arrSqlName['field'] .'
-              FROM `'. DBPREFIX .'core_country` AS `country`
-                  '. $arrSqlName['join'] .'
-             WHERE ' . $arrSqlName['alias']['name'] . ' LIKE "%'. contrexx_raw2db($term) .'%"';
-        $countries = $objDatabase->Execute($query);
-
-        if (!$countries) {
-            return array();
+        $matches = array();
+        foreach ($countries as $country) {
+            if (
+                strpos(
+                    strtolower($country['name']),
+                    strtolower($term)
+                ) !== false ||
+                strpos(
+                    strtolower($country['alpha2']),
+                    strtolower($term)
+                ) !== false ||
+                strpos(
+                    strtolower($country['alpha3']),
+                    strtolower($term)
+                ) !== false
+            ) {
+                $matches[] = $country;
+            }
         }
 
-        $arrCountries = array();
-        while (!$countries->EOF) {
-            $id      = $countries->fields['id'];
-            $strName = $countries->fields['name'];
-            if ($active && !$countries->fields['active']) {
-                $countries->MoveNext();
-                continue;
-            }
-            if ($strName === null) {
-                $objText = \Text::getById($id, 'core', self::TEXT_NAME);
-                if ($objText) {
-                    $strName = $objText->content();
-                }
-            }
-            $arrCountries[] = array(
-                'id'     => $id,
-                'name'   => $strName,
-                'ord'    => $countries->fields['ord'],
-                'alpha2' => $countries->fields['alpha2'],
-                'alpha3' => $countries->fields['alpha3'],
-                'active' => $countries->fields['active'],
-            );
-            $countries->MoveNext();
-        }
-
-        return $arrCountries;
+        return $matches;
     }
 
     /**
@@ -545,29 +486,6 @@ class Country
     {
         self::$arrCountries = null;
     }
-
-
-    /**
-     * Returns SQL query snippets for the Country name for including
-     * in any full query
-     *
-     * Simply calls {@see \Text::getSqlSnippets()} using 'name' as the
-     * alias for the Country name field.
-     * @param   integer   $lang_id    The optional Language ID.
-     *                                Defaults to the FRONTEND_LANG_ID
-     *                                constant value
-     * @return  array                 The SQL snippet array
-     * @todo    Maybe add an optional $alias parameter?
-     */
-    static function getSqlSnippets($lang_id=0)
-    {
-        $lang_id = intval($lang_id);
-        if (empty($lang_id)) $lang_id = FRONTEND_LANG_ID;
-        return \Text::getSqlSnippets(
-            '`country`.`id`', $lang_id, 'core',
-            array('name' => self::TEXT_NAME));
-    }
-
 
     /**
      * Returns true if the record for the given ID exists in the database

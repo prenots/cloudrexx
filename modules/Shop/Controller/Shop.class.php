@@ -3086,10 +3086,7 @@ die("Shop::processRedirect(): This method is obsolete!");
             // Ensure selected country of shipment address is valid.
             // Otherwise reset to previously set country
             if (
-                !in_array(
-                    $_SESSION['shop']['countryId2'],
-                    $availableCountries
-                ) ||
+                !isset($availableCountries[$_SESSION['shop']['countryId2']]) ||
                 !$country['active']
             ) {
                 \Message::error(sprintf(

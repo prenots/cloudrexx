@@ -918,7 +918,8 @@ class BlockManager extends \Cx\Modules\Block\Controller\BlockLibrary
 
         if (!empty($targeting['country']) && !empty($targeting['country']['value'])) {
             foreach ($targeting['country']['value'] as $countryId) {
-                $countryName = \Cx\Core\Country\Controller\Country::getNameById($countryId);
+                $country = \Cx\Core\Country\Controller\Country::getById($countryId);
+                $countryName = $country['name'];
                 if (empty($countryName)) {
                     continue;
                 }

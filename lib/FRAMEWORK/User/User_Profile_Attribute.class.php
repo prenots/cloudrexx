@@ -609,7 +609,7 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     {
         global $objDatabase;
 
-        $countries = \Cx\Core\Country\Controller\Country::getArray($count, $this->langId);
+        $countries = \Cx\Core\Country\Controller\Country::getArray($this->langId);
         foreach($countries as $country) {
             $this->arrAttributes['country_'.$country['id']] = array(
                 'type' => 'menu_option',

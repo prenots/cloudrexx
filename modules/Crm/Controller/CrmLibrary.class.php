@@ -917,7 +917,7 @@ class CrmLibrary
         if (!empty($this->countries)) return $this->countries;
 
         // Selecting the Country Name from the Database
-        $countries = \Cx\Core\Country\Controller\Country::getArray($count);
+        $countries = \Cx\Core\Country\Controller\Country::getArray();
 
         foreach($countries as $country) {
             $this->countries[$country['id']] = array("id" => $country['id'], "name" => $country['name'], "iso_code_2" => $country['alpha2']);

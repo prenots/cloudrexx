@@ -471,8 +471,7 @@ die("ShopLibrary::shopSetMailTemplate(): Obsolete method called");
         );
 
         // filter country data based on set shipping countries
-        $cnt = 0;
-        $arrCountries = \Cx\Core\Country\Controller\Country::getArray($cnt);
+        $arrCountries = \Cx\Core\Country\Controller\Country::getArray();
         return array_intersect_key(
             $arrCountries,
             $arrAvailableCountries

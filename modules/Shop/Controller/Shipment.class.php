@@ -794,10 +794,8 @@ class Shipment
         $arrResult = array();
         foreach (self::$arrShippers as $shipper_id => $shipper) {
             // Get countries covered by this shipper
-            $arrSqlName = \Cx\Core\Country\Controller\Country::getSqlSnippets();
             $objResult = $objDatabase->Execute("
-                SELECT DISTINCT `country`.`id`,".
-                       $arrSqlName['field']."
+                SELECT DISTINCT `country`.`id`
                   FROM `".DBPREFIX."module_shop".MODULE_INDEX."_shipper` AS `shipper`
                  INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_shipper` AS `rel_shipper`
                     ON `shipper`.`id`=`rel_shipper`.`shipper_id`
@@ -806,26 +804,34 @@ class Shipment
                  INNER JOIN `".DBPREFIX."module_shop".MODULE_INDEX."_rel_countries` AS `rel_country`
                     ON `zone`.`id`=`rel_country`.`zone_id`
                  INNER JOIN `".DBPREFIX."core_country` AS `country`
-                    ON `rel_country`.`country_id`=`country`.`id`".
-                       $arrSqlName['join']."
+                    ON `rel_country`.`country_id`=`country`.`id`
                  WHERE `shipper`.`id`=?
                    AND `zone`.`active`=1
                    AND `shipper`.`active`=1
-                   AND `country`.`active`=1
-                 ORDER BY ".$arrSqlName['alias']['name']." ASC",
+                   AND `country`.`active`=1",
                 $shipper_id);
             if (!$objResult) return self::errorHandler();
             $arrCountries = array();
             while (!$objResult->EOF) {
                 $country_id = $objResult->fields['id'];
-                $strName = $objResult->fields['name'];
-                if (is_null($strName)) {
-                    $objText = \Text::getById($country_id, 'Shop', self::TEXT_NAME);
-                    if ($objText) $strName = $objText->content();
-                }
+                $strName = \Cx\Core\Country\Controller\Country::getNameById($country_id);
                 $arrCountries[$country_id] = $strName;
                 $objResult->MoveNext();
             }
+
+            // fetch all shipment countries in case the shipment is valid
+            // for all zones (which means that it is not restricted to a
+            // subset of countries)
+            if (empty($arrCountries)) {
+                $arrCountries = ShopLibrary::getShipmentCountries();
+                array_walk(
+                    $arrCountries,
+                    function(&$data) {
+                        $data = $data['name'];
+                    }
+                );
+            }
+
             // Now add the conditions, and order them by weight
             $arrConditions = array();
             foreach (self::$arrShipments[$shipper_id] as $arrCond) {
