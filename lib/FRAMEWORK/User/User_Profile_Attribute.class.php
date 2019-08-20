@@ -224,7 +224,11 @@ class User_Profile_Attribute
             'type'         => 'menu',
             'multiline'    => false,
             'mandatory'    => false,
-            'sort_type'    => 'asc',
+            // Countries are sorted in ascending order by their name.
+            // However, as the list is loaded from library
+            // \Cx\Core\Country\Controller\Country, we do set the sort behavior
+            // to custom, as the returned list is already sorted
+            'sort_type'    => 'custom',
             'parent_id'    => 0,
             'desc'         => 'TXT_ACCESS_COUNTRY',
             'modifiable'   => array('mandatory', 'access'),
@@ -513,16 +517,61 @@ class User_Profile_Attribute
 
     private $errorMsg = '';
 
+    /**
+     * Used for determining the locale of the current request.
+     * As long as the currect locale of the current request has not yet
+     * been identified, this property is kept to TRUE.
+     * As soon as the correct locale of the request has been identified,
+     * this property will be set to FALSE.
+     *
+     * @var boolean
+     */
+    protected $langInitPending = true;
+
+    /**
+     * Holds a list of language Ids of from which their localizations have been
+     * loaded so far.
+     *
+     * @var array
+     */
+    protected $coreLocalizationLoaded = array();
 
     function __construct()
     {
-        global $_LANGID, $objInit;
-
-        // this is a crapy solution! but the problem is, that this class gets initialized before the backend language ID is loaded.
-        $this->langId = $_LANGID ? $_LANGID : (isset($objInit) ? ($objInit->mode == 'frontend' ? $objInit->defaultFrontendLangId : $objInit->defaultBackendLangId) : 1);
-
+        $this->initLangId();
         $this->init();
         $this->first();
+    }
+
+    /**
+     * Tries to identify the locale of the current request
+     */
+    protected function initLangId() {
+        global $_LANGID, $objInit;
+
+        // abort in case the locale of the current request has been identified
+        // already
+        if (!$this->langInitPending) {
+            return;
+        }
+
+        // this is a crapy solution! but the problem is, that this class gets initialized before the backend language ID is loaded.
+        if ($_LANGID) {
+            $this->langId = $_LANGID;
+
+            // $_LANGID does represent the properly resolved locale from
+            // the request. As we have identified that now, there is no
+            // further need for fetching the locale
+            $this->langInitPending = false;
+        } elseif (isset($objInit)) {
+            if ($objInit->mode == 'frontend') {
+                $this->langId = $objInit->defaultFrontendLangId;
+            } else {
+                $this->langId = $objInit->defaultBackendLangId;
+            }
+        } else {
+            $this->langId = 1;
+        }
     }
 
 
@@ -541,33 +590,58 @@ class User_Profile_Attribute
 
     function loadCoreAttributes()
     {
-        global $_CORELANG;
-
         $this->arrCoreAttributeIds = array();
         $this->arrAttributes = $this->arrCoreAttributes;
         foreach ($this->arrCoreAttributes as $attributeId => $arrAttribute) {
             if (!$arrAttribute['parent_id']) {
                 $this->arrCoreAttributeIds[] = $attributeId;
             }
-
-// TODO: In the backend, this always results in the empty string!
-// The core language is not loaded yet when this is run!
-            $this->arrAttributes[$attributeId]['names'][$this->langId] = isset($_CORELANG[$arrAttribute['desc']]) ? $_CORELANG[$arrAttribute['desc']] : null;
-// See:
-//die(var_export($_CORELANG, true));
-// and
-/*
-DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, language ID $this->langId: ".$arrAttribute['desc'].
-  " => ".
-  $_CORELANG[$arrAttribute['desc']].
-  " => ".
-  $this->arrAttributes[$attributeId]['names'][$this->langId]
-);
-*/
+            // proper localization will be loaded later
+            $this->arrAttributes[$attributeId]['names'][$this->langId] = '';
         }
         $this->loadCoreAttributesCustomizing();
         $this->loadCoreAttributeCountry();
         $this->loadCoreAttributeTitle();
+    }
+
+    /**
+     * Load labels/names of core profile attributes
+     *
+     * @param   integer $langId The Id of the language of which the
+     *                          localization shall be loaded.
+     * @global  array   $_CORELANG  Language data of core component
+     */
+    protected function loadLocalizationOfCoreAttributes($langId) {
+        global $_CORELANG;
+
+        // abort in case the localization of $langId has been loaded before
+        if (isset($this->coreLocalizationLoaded[$langId])) {
+            return;
+        }
+
+        // load with current locale
+        foreach ($this->arrCoreAttributes as $attributeId => $arrAttribute) {
+            $this->arrAttributes[$attributeId]['names'][$langId] = isset($_CORELANG[$arrAttribute['desc']]) ? $_CORELANG[$arrAttribute['desc']] : null;
+        }
+        $countries = \Cx\Core\Country\Controller\Country::getNameArray(true, $langId);
+        $i = 0;
+        foreach($countries as $id => $country) {
+            $this->arrAttributes['country_'.$id]['desc'] = $country;
+            $this->arrAttributes['country_'.$id]['names'][$langId] = $country;
+
+            // as the returned list of countries (by Country::getNameArray())
+            // is sorted based on the loaded locale, we simply use an increment
+            // as order_id to cause the countries to be properly sorted
+            $this->arrAttributes['country_'.$id]['order_id'] = $i++;
+        }
+
+        // re-sort all child attributes (like options of dropdowns)
+        // to ensure sorting is based on newly loaded localization
+        $this->sortChildren();
+
+        // remember that the localization of $langId has been loaded to prevent
+        // obsolete multiple initializations
+        $this->coreLocalizationLoaded[$langId] = true;
     }
 
 
@@ -609,17 +683,18 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     {
         global $objDatabase;
 
-        $countries = \Cx\Core\Country\Controller\Country::getArray($count, $this->langId);
-        foreach($countries as $country) {
-            $this->arrAttributes['country_'.$country['id']] = array(
+        $countries = \Cx\Core\Country\Controller\Country::getNameArray(true, $this->langId);
+        foreach(array_keys($countries) as $id) {
+            $this->arrAttributes['country_'.$id] = array(
                 'type' => 'menu_option',
                 'multiline' => false,
                 'mandatory' => false,
                 'sort_type' => 'asc',
                 'parent_id' => 'country',
-                'desc' => $country['name'],
-                'names' => array($this->langId => $country['name']),
-                'value' => $country['id'],
+                // localizations are not yet loaded at this point
+                'desc' => '',
+                'names' => array($this->langId => ''),
+                'value' => $id,
                 'order_id' => 0,
             );
         }
@@ -678,6 +753,9 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
         ');
         if ($objResult) {
             while (!$objResult->EOF) {
+                if (!isset($this->arrAttributes[$objResult->fields['id']])) {
+                    $this->arrAttributes[$objResult->fields['id']] = array();
+                }
                 $this->arrAttributes[$objResult->fields['id']]['type'] = $objResult->fields['type'] == 'textarea' ? 'text' : $objResult->fields['type'];
                 $this->arrAttributes[$objResult->fields['id']]['multiline'] = $objResult->fields['type'] == 'textarea' ? true : false;
                 $this->arrAttributes[$objResult->fields['id']]['sort_type'] = $objResult->fields['sort_type'];
@@ -699,10 +777,15 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
                 $objResult->MoveNext();
             }
         }
-        $objResult = $objDatabase->Execute('SELECT `attribute_id`, `name` FROM `'.DBPREFIX.'access_user_attribute_name` WHERE `lang_id` = '.$this->langId);
+        $objResult = $objDatabase->Execute('SELECT `attribute_id`, `name`, `lang_id` FROM `'.DBPREFIX.'access_user_attribute_name`');
         if ($objResult) {
             while (!$objResult->EOF) {
-                $this->arrAttributes[$objResult->fields['attribute_id']]['names'][$this->langId] = $objResult->fields['name'];
+                if (!isset($this->arrAttributes[$objResult->fields['attribute_id']]['names'])) {
+                    $this->arrAttributes[$objResult->fields['attribute_id']]['names'] = array(
+                        $this->langId => '',
+                    );
+                }
+                $this->arrAttributes[$objResult->fields['attribute_id']]['names'][$objResult->fields['lang_id']] = $objResult->fields['name'];
                 $objResult->MoveNext();
             }
         }
@@ -747,6 +830,9 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     public function getById($id)
     {
         $objAttribute = clone $this;
+        $objAttribute->langId = &$this->langId;
+        $objAttribute->langInitPending = &$this->langInitPending;
+        $objAttribute->coreLocalizationLoaded = &$this->coreLocalizationLoaded;
         $objAttribute->arrAttributes = &$this->arrAttributes;
         $objAttribute->arrAttributeTree = &$this->arrAttributeTree;
         $objAttribute->arrAttributeRelations = &$this->arrAttributeRelations;
@@ -1809,12 +1895,25 @@ DBG::log("User_Profile_Attribute::loadCoreAttributes(): Attribute $attributeId, 
     {
         global $_LANGID, $objInit;
 
-        if (empty($this->langId)) {
-            $this->langId = $_LANGID;
-        }
+        // ensure we're using the currently requested locale (of the request)
+        // note: this is required, as the library gets initialized before
+        // the requested locale has been resolved.
+        $this->initLangId();
+
         if (empty($langId)) {
             $langId = $this->langId;
         }
+
+        // abort in case no locale has been identified yet
+        if (empty($langId)) {
+            return '';
+        }
+
+        // ensure the localization of the currently requested locale is loaded
+        // note: this is required, as the library gets initialized before
+        // the requested locale has been resolved.
+        $this->loadLocalizationOfCoreAttributes($langId);
+
         if (empty($this->arrName[$langId])) {
             $this->loadName($langId);
         }
