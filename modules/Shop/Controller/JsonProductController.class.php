@@ -87,8 +87,9 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'storeWeight',
             'storeCategories',
             'getCategoryFilter',
-            'getVatDropdown',
+            'getOverviewVatDropdown',
             'getDetailStock',
+            'getDetailVatDropdown',
         );
     }
 
@@ -767,14 +768,45 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
      *
      * @return \Cx\Core\Html\Model\Entity\DataElement vat dropdown
      */
-    public function getVatDropdown($params)
+    public function getOverviewVatDropdown($params)
+    {
+        return $this->getVatDropdown($params);
+    }
+
+    /**
+     * Get dropdown for VAT rates. The ViewGenerator can't handle NULL values
+     * correctly, also a percent character and class must be added
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\DataElement vat dropdown
+     */
+    public function getDetailVatDropdown($params)
+    {
+        return $this->getVatDropdown($params, true);
+    }
+
+    /**
+     * Get dropdown for VAT rates. The ViewGenerator can't handle NULL values
+     * correctly, also a percent character and class must be added
+     *
+     * @param array   $params contains the parameters of the callback function
+     * @param boolean $showClass If the class is to be shown
+     *
+     * @return \Cx\Core\Html\Model\Entity\DataElement vat dropdown
+     */
+    protected function getVatDropdown($params, $showClass = false)
     {
         $vats = $this->cx->getDb()->getEntityManager()->getRepository(
             'Cx\Modules\Shop\Model\Entity\Vat'
         )->findAll();
         $validValues = array();
         foreach ($vats as $vat) {
-            $validValues[$vat->getId()] = $vat->getRate() . '%';
+            $title = $vat->getRate() . '%';
+            if ($showClass) {
+                $title = $vat->getClass() . ' ' . $title;
+            }
+            $validValues[$vat->getId()] = $title;
         }
 
         return new \Cx\Core\Html\Model\Entity\DataElement(

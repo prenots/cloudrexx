@@ -222,9 +222,13 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'table' => array(
                     'parse' => array(
                         'adapter' => 'Product',
-                        'method' => 'getVatDropdown'
+                        'method' => 'getOverviewVatDropdown'
                     )
-                )
+                ),
+                'formfield' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getDetailVatDropdown'
+                ),
             ),
             'stock' => array(
                 'editable' => true,
