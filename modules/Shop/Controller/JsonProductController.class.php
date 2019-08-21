@@ -86,6 +86,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'getWeight',
             'storeWeight',
             'storeCategories',
+            'getCategoryFilter',
         );
     }
 
@@ -710,5 +711,49 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $category->addProduct($params['postedValue']);
             $this->cx->getDb()->getEntityManager()->persist($category);
         }
+    }
+
+    /**
+     * Get custom select to filter by categories
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\DataElement filter select
+     */
+    public function getCategoryFilter($params)
+    {
+        global $_ARRAYLANG;
+
+        $validValues = array(
+            '' => $_ARRAYLANG['TXT_ALL_PRODUCT_GROUPS'],
+        );
+        $categories = $this->cx->getDb()
+            ->getEntityManager()->getRepository(
+                $this->getNamespace() . '\\Model\\Entity\\Category'
+            )->findAll();
+
+        foreach ($categories as $category) {
+            $validValues[$category->getId()] = $category->getName();
+        }
+
+        $categoryFilter = new \Cx\Core\Html\Model\Entity\DataElement(
+            $params['elementName'],
+            '',
+            'select',
+            null,
+            $validValues
+        );
+
+        $categoryFilter->setAttributes(
+            array(
+                'id' => $params['elementName'],
+                'form' => $params['formName'],
+                'data-vg-attrgroup' => 'search',
+                'data-vg-field' => $params['fieldName'],
+                'class' => 'vg-encode'
+            )
+        );
+
+        return $categoryFilter;
     }
 }

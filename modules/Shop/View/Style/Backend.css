@@ -478,10 +478,15 @@ table.adminlist td.discountgroup-name {
     width: 25%;
 }
 #group-0-userGroups,
-#group-0-weight {
+#group-0-weight,
+#group-0-flags {
     display: none;
 }
 
 #discount-group-table tr td:nth-child(1) {
     font-weight: bold;
+}
+
+#vg-0-customSearch {
+    margin-bottom: 20px;
 }

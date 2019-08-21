@@ -61,6 +61,8 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
     {
         global $_ARRAYLANG;
 
+        $options['template']['tableView'] = 'modules/Shop/View/Template/Backend/CustomSearch.html';
+
         $options['showPrimaryKeys'] = true;
         $options['functions']['copy'] = true;
         $options['functions']['editable'] = true;
@@ -146,6 +148,9 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         $options['fields'] = array(
+            'locale' => array(
+                'allowFiltering' => false,
+            ),
             'id' => array(
                 'allowFiltering' => false,
             ),
@@ -164,6 +169,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'name' => array(
                 'header' => $_ARRAYLANG['TXT_PRODUCT_NAME'],
                 'allowFiltering' => false,
+                'allowSearching' => true,
                 'table' => array(
                     'attributes' => array(
                         'class' => 'product-name',
@@ -284,7 +290,11 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'storecallback' => array(
                     'adapter' => 'Product',
                     'method' => 'storeCategories',
-                )
+                ),
+                'filterOptionsField' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getCategoryFilter'
+                ),
             ),
             'dateStart' => array(
                 'showOverview' => false,
