@@ -215,6 +215,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'vat' => array(
                 'formtext' => $_ARRAYLANG['vat-detail'],
+                'header' => $_ARRAYLANG['TXT_SHOP_PRODUCT_VAT_RATE'],
                 'editable' => true,
                 'sorting' => false,
                 'allowFiltering' => false,
@@ -251,6 +252,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'code' => array(
                 'editable' => true,
                 'header' => $_ARRAYLANG['TXT_SHOP_PRODUCT_CODE'],
+                'formtext' => $_ARRAYLANG['productCode'],
                 'allowFiltering' => false,
                 'attributes' => array(
                     'size' => '10'
