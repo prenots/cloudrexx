@@ -281,6 +281,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'categories' => array(
                 'showOverview' => false,
                 'mode' => 'associate',
+                'storecallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'storeCategories',
+                )
             ),
             'dateStart' => array(
                 'showOverview' => false,

@@ -85,6 +85,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'toggleCheckbox',
             'getWeight',
             'storeWeight',
+            'storeCategories',
         );
     }
 
@@ -678,5 +679,28 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             return 0;
         }
         return Weight::getWeight($params['postedValue']);
+    }
+
+    /**
+     * Assign selected categories to product
+     *
+     * @param array $params contains the parameters of the callback function
+     */
+    public function storeCategories($params)
+    {
+        $product = $params['postedValue'];
+
+        $categoryRepo = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Category'
+        );
+
+        foreach ($params['entity']['categories'] as $categoryId) {
+            $category = $categoryRepo->find($categoryId);
+            if (!empty($category->getProducts()->contains($product))) {
+                continue;
+            }
+            $category->addProduct($params['postedValue']);
+            $this->cx->getDb()->getEntityManager()->persist($category);
+        }
     }
 }
