@@ -353,3 +353,7 @@ table.adminlist td.discountgroup-name {
 .payment-processor-name {
     width: 25%;
 }
+
+#discount-group-table tr td:nth-child(1) {
+    font-weight: bold;
+}

@@ -2511,18 +2511,59 @@ die("Failed to update the Cart!");
      *
      * @internal    A lot of this belongs to the Payment class.
      * @param       integer     $payment_id The payment ID
-     * @param       double      $totalPrice The total order price
+     * @param       float       $totalPrice The total order price (of goods)
+     * @param       float       $shipmentPrice The price of the shipment
      * @return      string                  The payment fee, formatted by
      *                                      {@link Currency::getCurrencyPrice()}
      */
-    static function _calculatePaymentPrice($payment_id, $totalPrice)
-    {
-        $paymentPrice = 0;
-        if (!$payment_id) return $paymentPrice;
-        if (  \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'free_from') == 0
-           || $totalPrice < \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'free_from')) {
-            $paymentPrice = \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'fee');
+    static function _calculatePaymentPrice(
+        $payment_id,
+        $totalPrice,
+        $shipmentPrice
+    ) {
+        // no payment fee if payment method is invalid
+        if (!$payment_id) {
+            return 0;
         }
+        // no payment fee if payment method is invalid
+        if (
+            \Cx\Modules\Shop\Controller\PaymentController::getProperty(
+                $payment_id, 'fee'
+            ) === false
+        ) {
+            return 0;
+        }
+        // no payment fee if order sum is greater then set boundary
+        if (
+            \Cx\Modules\Shop\Controller\PaymentController::getProperty(
+                $payment_id, 'free_from'
+            ) > 0 &&
+            $totalPrice >= \Cx\Modules\Shop\Controller\PaymentController::getProperty($payment_id, 'free_from')
+        ) {
+            return 0;
+        }
+
+        // fetch fee data
+        $type = \Cx\Modules\Shop\Controller\PaymentController::getProperty(
+            $payment_id, 'type'
+        );
+        $fee = \Cx\Modules\Shop\Controller\PaymentController::getProperty(
+            $payment_id, 'fee'
+        );
+
+        // calculate fee based on selected payment method
+        $paymentPrice = 0;
+        switch ($type) {
+            case 'percent':
+                $paymentPrice = ($totalPrice + $shipmentPrice) * $fee / 100;
+                break;
+
+            case 'fix':
+            default:
+                $paymentPrice = $fee;
+                break;
+        }
+
         return \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($paymentPrice);
     }
 
@@ -3238,7 +3279,8 @@ die("Shop::processRedirect(): This method is obsolete!");
         $_SESSION['shop']['payment_price'] =
             self::_calculatePaymentPrice(
                 $_SESSION['shop']['paymentId'],
-                $cart_amount
+                $cart_amount,
+                $shipmentPrice
             );
         Cart::update(self::$objCustomer);
         self::update_session();
@@ -4717,15 +4759,29 @@ die("Shop::processRedirect(): This method is obsolete!");
     static function showDiscountInfo(
         $groupCustomerId, $groupArticleId, $groupCountId, $count
     ) {
-        // Pick the unit for this product (count, meter, kilo, ...)
-        $unit = Discount::getUnit($groupCountId);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $discountGroupRepo = $cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+        );
+        $unit = '';
+        if (!empty($groupCountId)) {
+            $discountCountName = $cx->getDb()->getEntityManager()->getRepository(
+                'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+            )->find($groupCountId);
+
+            if (!empty($discountCountName)) {
+                // Pick the unit for this product (count, meter, kilo, ...)
+                $unit = $discountCountName->getUnit();
+            }
+        }
+
         if (!empty($unit)) {
             self::$objTemplate->setVariable(
                 'SHOP_PRODUCT_UNIT', $unit
             );
         }
         if ($groupCustomerId > 0) {
-            $rateCustomer = Discount::getDiscountRateCustomer(
+            $rateCustomer = $discountGroupRepo->getDiscountRateCustomer(
                 $groupCustomerId, $groupArticleId
             );
             if ($rateCustomer > 0) {
@@ -4737,7 +4793,9 @@ die("Shop::processRedirect(): This method is obsolete!");
             }
         }
         if ($groupCountId > 0) {
-            $rateCount = Discount::getDiscountRateCount($groupCountId, $count);
+            $rateCount =
+                \Cx\Modules\Shop\Controller\DiscountgroupCountNameController::
+                    getDiscountRateCount($groupCountId, $count);
             $listCount = self::getDiscountCountString($groupCountId);
             if ($rateCount > 0) {
                 // Show discount rate if applicable
@@ -4768,15 +4826,30 @@ die("Shop::processRedirect(): This method is obsolete!");
     {
         global $_ARRAYLANG;
 
-        $arrDiscount = Discount::getDiscountCountArray();
-        $arrRate = Discount::getDiscountCountRateArray($groupCountId);
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        $em = $cx->getDb()->getEntityManager();
+        $discountCountNames = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+        )->findAll();
+        $discountCountRates = $em->getRepository(
+            'Cx\Modules\Shop\Model\Entity\DiscountgroupCountName'
+        )->findBy(
+            array(),
+            array('count' => 'DESC')
+        );;
+
         $strDiscounts = '';
         if (!empty($arrRate)) {
             $unit = '';
-            if (isset($arrDiscount[$groupCountId])) {
-                $unit = $arrDiscount[$groupCountId]['unit'];
+            foreach ($discountCountNames as $discountCountName) {
+                if ($discountCountName->getId() == $groupCountId) {
+                    $unit = $discountCountName->getUnit();
+                    break;
+                }
             }
-            foreach ($arrRate as $count => $rate) {
+            foreach ($discountCountRates as $discountCountRate) {
+                $count = $discountCountRate->getCount();
+                $rate = $discountCountRate->getRate();
                 $strDiscounts .=
                     ($strDiscounts != '' ? ', ' : '').
                     $_ARRAYLANG['TXT_SHOP_DISCOUNT_FROM'].' '.
