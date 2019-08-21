@@ -72,7 +72,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'field' => array('ord' => SORT_ASC)
         );
         $options['functions']['status'] = array(
-            'field' => 'discountActive'
+            'field' => 'active'
         );
 
         $options['tabs']['overview']['header'] = $_ARRAYLANG[
@@ -103,7 +103,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
 
         $options['order']['overview'] = array(
             'id',
-            'discountActive',
+            'active',
             'flags',
             'name',
             'code',
@@ -182,11 +182,21 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             ),
             'discountActive' => array(
                 'editable' => true,
+                'header' => '',
+                'sorting' => false,
                 'allowFiltering' => false,
                 'table' => array(
                     'attributes' => array(
                         'class' => 'small'
                     ),
+                    'parse' => array(
+                        'adapter' => 'Product',
+                        'method' => 'getDiscountActiveOverviewCheckbox'
+                    )
+                ),
+                'storecallback' => array(
+                    'adapter' => 'Product',
+                    'method' => 'storeDiscountActive'
                 ),
             ),
             'discountprice' => array(
@@ -195,6 +205,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'allowFiltering' => false,
                 'attributes' => array(
                     'class' => 'small',
+                ),
+                'formfield' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getDiscountPrice'
                 ),
             ),
             'normalprice' => array(

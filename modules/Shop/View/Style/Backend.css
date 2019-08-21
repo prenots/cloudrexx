@@ -480,7 +480,8 @@ table.adminlist td.discountgroup-name {
 #group-0-userGroups,
 #group-0-weight,
 #group-0-flags,
-#group-0-stockVisible {
+#group-0-stockVisible,
+#group-0-discountActive {
     display: none;
 }
 

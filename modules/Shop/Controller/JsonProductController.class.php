@@ -90,6 +90,9 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'getOverviewVatDropdown',
             'getDetailStock',
             'getDetailVatDropdown',
+            'getDiscountActiveOverviewCheckbox',
+            'storeDiscountActive',
+            'getDiscountPrice',
         );
     }
 
@@ -865,5 +868,130 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         $stockVisible->setAttribute('id', 'stockIsVisible');
         $wrapper->addChildren(array($stock, $stockVisible));
         return $wrapper;
+    }
+
+    /**
+     * Get checkbox to select discountActive
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\DataElement discount active checkbox
+     */
+    public function getDiscountActiveOverviewCheckbox($params)
+    {
+        return $this->getDiscountActiveCheckbox(
+            'discountActive-' . $params['rows']['id'],
+            $params['rows']['discountActive']
+        );
+    }
+
+    /**
+     * Get a Checkbox for discountActive
+     *
+     * @param string  $name  name of checkbox element
+     * @param boolean $value value of checkbox element
+     * @return \Cx\Core\Html\Model\Entity\DataElement
+     */
+    protected function getDiscountActiveCheckbox($name, $value)
+    {
+        $checkbox = new \Cx\Core\Html\Model\Entity\DataElement(
+            $name,
+            1,
+            'input'
+        );
+        $checkbox->setAttribute('type', 'checkbox');
+        $checkbox->setAttribute('id', $name);
+
+        if ($value) {
+            $checkbox->setAttribute('checked', true);
+        }
+
+        return $checkbox;
+    }
+
+    /**
+     * Put discountPrice and discountActive next to each other
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement wrapper with both fields
+     */
+    public function getDiscountPrice($params)
+    {
+        global $_ARRAYLANG;
+
+        // Because the formfield callback is also called in the overview, this
+        // must be corrected like this. The check to null is necessary, because
+        // when creating a new product the id is null and therefore not numeric
+        if (!is_numeric($params['id']) && !is_null($params['id'])) {
+            return $params['value'];
+        }
+
+        $id = $params['id'];
+        if (is_null($params['id'])) {
+            $id = 0;
+        }
+
+        $product = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        )->find($id);
+
+        $isActive = true;
+        if (!empty($product)) {
+            $isActive = $product->getDiscountActive();
+        }
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $discountPrice = new \Cx\Core\Html\Model\Entity\DataElement(
+            $params['name'],
+            $params['value']
+        );
+        $discountActiveLabel = new \Cx\Core\Html\Model\Entity\HtmlElement(
+            'label'
+        );
+        $discountActiveLabel->setAttribute('for', 'discountActive');
+        $discountActiveTitle = new \Cx\Core\Html\Model\Entity\TextElement(
+            $_ARRAYLANG['discountActive']
+        );
+        $discountActive = $this->getDiscountActiveCheckbox(
+            'discountActive',
+            $isActive
+        );
+        $discountActiveLabel->addChild($discountActiveTitle);
+        $wrapper->addChildren(
+            array(
+                $discountPrice,
+                $discountActive,
+                $discountActiveLabel
+            )
+        );
+        return $wrapper;
+
+    }
+
+    /**
+     * Check if the param discountActive* exists. The callback is necessary
+     * because unselected checkboxes are not sent via the form.
+     *
+     * @return bool if checkbox category_all is selected
+     */
+    public function storeDiscountActive($params)
+    {
+        if (
+            $this->cx->getRequest()->hasParam(
+                'discountActive-' . $params['entity']->getId(), false
+            )
+        ) {
+            return true;
+        }
+
+        if (
+            $this->cx->getRequest()->hasParam(
+                'discountActive', false
+            )
+        ) {
+            return $params['postedValue'];
+        }
+        return false;
     }
 }
