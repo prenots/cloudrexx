@@ -218,6 +218,12 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'editable' => true,
                 'sorting' => false,
                 'allowFiltering' => false,
+                'table' => array(
+                    'parse' => array(
+                        'adapter' => 'Product',
+                        'method' => 'getVatDropdown'
+                    )
+                )
             ),
             'stock' => array(
                 'editable' => true,

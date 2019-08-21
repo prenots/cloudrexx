@@ -87,6 +87,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'storeWeight',
             'storeCategories',
             'getCategoryFilter',
+            'getVatDropdown',
         );
     }
 
@@ -755,5 +756,32 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         );
 
         return $categoryFilter;
+    }
+
+    /**
+     * Get dropdown for VAT rates. The ViewGenerator can't handle NULL values
+     * correctly, also a percent character must be added
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\DataElement vat dropdown
+     */
+    public function getVatDropdown($params)
+    {
+        $vats = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Vat'
+        )->findAll();
+        $validValues = array();
+        foreach ($vats as $vat) {
+            $validValues[$vat->getId()] = $vat->getRate() . '%';
+        }
+
+        return new \Cx\Core\Html\Model\Entity\DataElement(
+            '',
+            $params['rows']['vatId'],
+            'select',
+            null,
+            $validValues
+        );
     }
 }
