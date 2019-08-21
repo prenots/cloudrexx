@@ -1125,7 +1125,7 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
             // Determine discounted price from customer and article group matrix
 
             $discountGroupRepo = $this->cx->getDb()->getEntityManager()->getRepository('\Cx\Modules\Shop\Model\Entity\RelDiscountGroup');
-            $discountCustomerGroup = $discountGroupRepo->findBy(
+            $discountCustomerGroup = $discountGroupRepo->findOneBy(
                 array(
                     'customerGroupId' => $groupCustomerId,
                     'articleGroup' => $articleId
@@ -1244,14 +1244,20 @@ class Product extends \Cx\Model\Base\EntityBase implements \Gedmo\Translatable\T
         if ($objCustomer) {
             $groupCustomerId = $objCustomer->group_id();
             if ($groupCustomerId) {
-                $rateCustomer = \Cx\Modules\Shop\Controller\Discount::getDiscountRateCustomer(
+                $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+                $discountRepo = $cx->getDb()->getEntityManager()->getRepository(
+                    'Cx\Modules\Shop\Model\Entity\RelDiscountGroup'
+                );
+                $rateCustomer = $discountRepo->getDiscountRateCustomer(
                     $groupCustomerId, $groupArticleId);
                 $price -= ($price * $rateCustomer * 0.01);
             }
         }
         $rateCount = 0;
         if ($count > 0) {
-            $rateCount = \Cx\Modules\Shop\Controller\Discount::getDiscountRateCount($groupCountId, $count);
+            $rateCount =
+                \Cx\Modules\Shop\Controller\DiscountgroupCountNameController::
+                    getDiscountRateCount($groupCountId, $count);
             $price -= ($price * $rateCount * 0.01);
         }
         $price = \Cx\Modules\Shop\Controller\CurrencyController::getCurrencyPrice($price);

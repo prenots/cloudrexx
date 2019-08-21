@@ -481,3 +481,7 @@ table.adminlist td.discountgroup-name {
 #group-0-weight {
     display: none;
 }
+
+#discount-group-table tr td:nth-child(1) {
+    font-weight: bold;
+}

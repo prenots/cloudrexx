@@ -1177,7 +1177,8 @@ $_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW_TOOLTIP'] = "Bestimmen Sie 
 $_ARRAYLANG['TXT_SHOP_CHOOSE_FILE'] = 'Datei wählen';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_TYPE'] = 'Pro Produkt';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_TYPE_TIP'] = 'Gilt die Mindestmenge pro Produkt oder für alle Produkte mit dieser Rabattgruppe gemeinsam?';
-
+$_ARRAYLANG['TXT_SHOP_TYPE'] = 'Art';
+$_ARRAYLANG['TXT_SHOP_PERCENTAGE'] = 'Prozent';
 $_ARRAYLANG['id'] = 'ID';
 $_ARRAYLANG['name'] = 'Name';
 $_ARRAYLANG['uri'] = 'URL';
@@ -1236,3 +1237,5 @@ $_ARRAYLANG['countryId'] = 'Land';
 $_ARRAYLANG['TXT_SHOP_DELETED_ORDER'] = 'Bestellung wurde gelöscht.';
 $_ARRAYLANG['TXT_SHOP_DELETED_ORDERS'] = 'Bestellungen wurden gelöscht.';
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_CHANGED'] = 'Status der Bestellung wurde geändert.';
+
+$_ARRAYLANG['TXT_SHOP_REL_DISCOUNT_GROUP_RECORDS_UPDATED_SUCCESSFUL'] ='Die Einträge wurden erfolgreich aktualisiert.';
