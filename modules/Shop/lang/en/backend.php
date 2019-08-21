@@ -1066,7 +1066,8 @@ $_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW'] = "Number of categories p
 $_ARRAYLANG['TXT_SHOP_SETTING_NUM_CATEGORIES_PER_ROW_TOOLTIP'] = "Set the number of categories that shall be listed per row in the online shop";
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_GROUP_TYPE'] = 'Per product';
 $_ARRAYLANG['TXT_SHOP_DISCOUNT_TYPE_TIP'] = 'Whether to apply the the minimum order quantity on each product separately or on all products within this discount group together';
-
+$_ARRAYLANG['TXT_SHOP_TYPE'] = 'Type';
+$_ARRAYLANG['TXT_SHOP_PERCENTAGE'] = 'Percentage';
 $_ARRAYLANG['id'] = 'ID';
 $_ARRAYLANG['name'] = 'Name';
 $_ARRAYLANG['uri'] = 'URL';
@@ -1098,3 +1099,5 @@ $_ARRAYLANG['TXT_SHOP_DELETED_ORDER'] = 'Order has been deleted.';
 $_ARRAYLANG['TXT_SHOP_DELETED_ORDERS'] = 'Orders have been deleted.';
 $_ARRAYLANG['TXT_SHOP_ORDER_STATUS_CHANGED'] = 'The status of the order has been changed.';
 $_ARRAYLANG['TXT_MODULE_SHOP_ANY'] = 'any';
+
+$_ARRAYLANG['TXT_SHOP_REL_DISCOUNT_GROUP_RECORDS_UPDATED_SUCCESSFUL'] ='The entries have been updated successfully.';

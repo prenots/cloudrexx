@@ -328,3 +328,7 @@ div#form-0-type div {
 table.adminlist td.discountgroup-name {
     width: 47% !important;
 }
+
+#discount-group-table tr td:nth-child(1) {
+    font-weight: bold;
+}

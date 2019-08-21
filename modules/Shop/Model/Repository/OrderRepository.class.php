@@ -429,11 +429,7 @@ class OrderRepository extends \Doctrine\ORM\EntityRepository
             $arrSubstitution += array (
                 'PAYMENT' => array(0 => array(
                     'PAYMENT_NAME' => sprintf(
-                        '%-40s',
-                        \Cx\Modules\Shop\Controller\PaymentController::
-                            getNameById(
-                                $payment_id
-                            )
+                        '%-40s', $objOrder->getPayment()->getName()
                     ),
                     'PAYMENT_PRICE' => sprintf(
                         '% 9.2f',
