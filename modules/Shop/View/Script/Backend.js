@@ -179,6 +179,24 @@ function toggle_categories(status)
     jQuery('.category input').prop('checked', check);
 }
 
+function switchStockVisible()
+{
+    if (
+        document.getElementById('form-0-stockVisible') != null &&
+        document.getElementById('stockIsVisible') != null
+    ) {
+        document.getElementById('stockIsVisible').addEventListener('change', function() {
+            if (document.getElementById('form-0-stockVisible_no').checked) {
+                document.getElementById('form-0-stockVisible_yes').checked = true;
+                document.getElementById('form-0-stockVisible_no').checked = false;
+            } else {
+                document.getElementById('form-0-stockVisible_no').checked = true;
+                document.getElementById('form-0-stockVisible_yes').checked = false;
+            }
+        });
+    }
+}
+
 jQuery(document).ready(function($){
     // Add class to all orders with pending status
     cx.jQuery('.order-status select option:selected[value="0"]').closest('tr').addClass('pending');
@@ -204,6 +222,8 @@ jQuery(document).ready(function($){
     toggle_header();
     toggle_footer();
     toggle_categories(true);
+
+    switchStockVisible();
 
     if (
         document.getElementById('form-0-distribution') != null &&

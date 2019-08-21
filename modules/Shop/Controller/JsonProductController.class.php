@@ -88,6 +88,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             'storeCategories',
             'getCategoryFilter',
             'getVatDropdown',
+            'getDetailStock',
         );
     }
 
@@ -783,5 +784,54 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             null,
             $validValues
         );
+    }
+
+    /**
+     * Put stock and stockVisible next to each other
+     *
+     * @param array $params contains the parameters of the callback function
+     *
+     * @return \Cx\Core\Html\Model\Entity\HtmlElement wrapper with both fields
+     */
+    public function getDetailStock($params)
+    {
+        global $_ARRAYLANG;
+
+        // Because the formfield callback is also called in the overview, this
+        // must be corrected like this. The check to null is necessary, because
+        // when creating a new product the id is null and therefore not numeric
+        if (!is_numeric($params['id']) && !is_null($params['id'])) {
+            return $params['value'];
+        }
+
+        $id = $params['id'];
+        if (is_null($params['id'])) {
+            $id = 0;
+        }
+
+        $product = $this->cx->getDb()->getEntityManager()->getRepository(
+            'Cx\Modules\Shop\Model\Entity\Product'
+        )->find($id);
+
+        $isVisible = true;
+        if (!empty($product)) {
+            $isVisible = $product->getStockVisible();
+        }
+
+        $wrapper = new \Cx\Core\Html\Model\Entity\HtmlElement('div');
+        $stock = new \Cx\Core\Html\Model\Entity\DataElement(
+            $params['name'],
+            $params['value']
+        );
+
+        $stockVisible = new \Cx\Core\Html\Model\Entity\DataElementGroup(
+            'stockIsVisible',
+            array(1 => $_ARRAYLANG['stockVisible']),
+            $isVisible,
+            'checkbox'
+        );
+        $stockVisible->setAttribute('id', 'stockIsVisible');
+        $wrapper->addChildren(array($stock, $stockVisible));
+        return $wrapper;
     }
 }

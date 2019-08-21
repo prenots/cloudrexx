@@ -479,7 +479,8 @@ table.adminlist td.discountgroup-name {
 }
 #group-0-userGroups,
 #group-0-weight,
-#group-0-flags {
+#group-0-flags,
+#group-0-stockVisible {
     display: none;
 }
 
@@ -489,4 +490,8 @@ table.adminlist td.discountgroup-name {
 
 #vg-0-customSearch {
     margin-bottom: 20px;
+}
+
+#form-0-stock {
+    display: flex;
 }

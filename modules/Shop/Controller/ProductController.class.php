@@ -232,6 +232,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'attributes' => array(
                     'class' => 'small',
                 ),
+                'formfield' => array(
+                    'adapter' => 'Product',
+                    'method' => 'getDetailStock'
+                ),
             ),
             'distribution' => array(
                 'type' => 'select',
