@@ -182,17 +182,25 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
         for ($i = 1; $i <= $this->numberOfImages; $i++) {
             if (
                 !empty($imgInfo[$i]['img']) &&
+                is_file($websiteImagesShopPath . $imgInfo[$i]['img'])
+            ) {
+                $imgSrc = $websiteImagesShopWebPath . $imgInfo[$i]['img'];
+            } else {
+                $imgSrc = $defaultImage;
+            }
+
+            if (
                 is_file(
                     \ImageManager::getThumbnailFilename(
                         $websiteImagesShopPath . $imgInfo[$i]['img']
                     )
                 )
             ) {
-                $imgSrc = \ImageManager::getThumbnailFilename(
+                $thumbSrc = \ImageManager::getThumbnailFilename(
                     $websiteImagesShopWebPath . $imgInfo[$i]['img']
                 );
             } else {
-                $imgSrc = $defaultImage;
+                $thumbSrc = $imgSrc;
             }
 
             $imgHeight = '';
@@ -215,7 +223,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $image->setAttributes(
                 array(
                     'id' => 'product-image-' . $i,
-                    'src' => $imgSrc,
+                    'src' => $thumbSrc,
                     'class' => 'product-images',
                 )
             );
