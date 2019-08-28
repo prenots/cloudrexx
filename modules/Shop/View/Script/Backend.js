@@ -107,7 +107,7 @@ cx.bind('deactivate', function (entityIds) {
 function updateShopStatus(entityIds, newStatus) {
     for (let i = 0; i < entityIds.length; i++) {
         const statusElement = cx.jQuery('.vg-function-status[data-entity-id="' + entityIds[i] + '"]');
-        if (statusElement.attr('data-status-value') == newStatus) {
+        if (statusElement.data('data-status-value') == newStatus) {
             continue;
         }
         cx.ajax(
@@ -118,7 +118,7 @@ function updateShopStatus(entityIds, newStatus) {
                 data: {
                     'entityId': entityIds[i],
                     'newStatus': newStatus,
-                    'statusField': 'discountActive',
+                    'statusField': 'active',
                     'component': 'Shop',
                     'entity': 'Product',
                 },
@@ -135,7 +135,7 @@ function updateShopStatus(entityIds, newStatus) {
                 },
                 preError: function(xhr, status, error) {
                     cx.tools.StatusMessage.showMessage(error);
-                    cx.jQuery(this).data('status-value', (cx.jQuery(this).hasClass('active') ? 0 : 1));
+                    cx.jQuery(statusElement).data('status-value', (cx.jQuery(statusElement).hasClass('active') ? 0 : 1));
                 },
                 complete: function() {
                     cx.jQuery(statusElement).removeClass('loading');
