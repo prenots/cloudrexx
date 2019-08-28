@@ -384,6 +384,7 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
             'uri' => array(
                 'showOverview' => false,
                 'allowFiltering' => false,
+                'tooltip' => $_ARRAYLANG['TXT_WITH_HTTP'],
             ),
             'short' => array(
                 'showOverview' => false,
