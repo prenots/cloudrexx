@@ -434,7 +434,7 @@ class BackendController extends \Cx\Core\Core\Model\Entity\SystemComponentBacken
         global $_ARRAYLANG;
 
         $options = $this->normalDelete(
-            $_ARRAYLANG['TXT_CONFIRM_DELETE_CATEGORY'],
+            $_ARRAYLANG['TXT_CONFIRM_DELETE_PRODUCT'],
             $options
         );
 
