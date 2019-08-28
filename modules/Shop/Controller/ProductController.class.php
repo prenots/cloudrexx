@@ -200,8 +200,10 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 ),
             ),
             'discountprice' => array(
+                'header' => '<span id="discountHeader">'
+                    . $_ARRAYLANG['discountprice'] . '</span>',
+                'formtext' =>  $_ARRAYLANG['discountprice'],
                 'editable' => true,
-                'sorting' => false,
                 'allowFiltering' => false,
                 'attributes' => array(
                     'class' => 'small',

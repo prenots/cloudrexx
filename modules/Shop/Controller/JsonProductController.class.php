@@ -858,6 +858,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $params['name'],
             $params['value']
         );
+        $stock->setAttribute('type', 'text');
 
         $stockVisible = new \Cx\Core\Html\Model\Entity\DataElementGroup(
             'stockIsVisible',
@@ -946,6 +947,7 @@ class JsonProductController extends \Cx\Core\Core\Model\Entity\Controller
             $params['name'],
             $params['value']
         );
+        $discountPrice->setAttribute('type', 'text');
         $discountActiveLabel = new \Cx\Core\Html\Model\Entity\HtmlElement(
             'label'
         );
