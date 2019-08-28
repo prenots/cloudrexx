@@ -282,7 +282,7 @@ jQuery(document).ready(function($){
         cx.jQuery('.vg-searchSubmit').click();
     });
 
-    if (typeof document.getElementById('discount-group-table') != 'undefined') {
+    if (document.getElementById('discount-group-table') != null) {
         const titleRow = document.getElementById('discount-group-table').rows[1];
 
         // Empty the column so that the input fields of the title row are not passed
@@ -476,12 +476,13 @@ function show_additional_fields()
         document.getElementById('group-0-userGroups').style.display = 'none';
     }
 
-    if (
-        type == cx.variables.get('DISTRIBUTION_DELIVERY_INDEX', 'shop_product') &&
-        typeof document.getElementById('group-0-weight') != 'undefined'
-    ) {
-        document.getElementById('group-0-weight').style.display = 'block';
-    } else {
-        document.getElementById('group-0-weight').style.display = 'none';
+    if (document.getElementById('group-0-weight') != null) {
+        if (
+            type == cx.variables.get('DISTRIBUTION_DELIVERY_INDEX', 'shop_product')
+        ) {
+            document.getElementById('group-0-weight').style.display = 'block';
+        } else {
+            document.getElementById('group-0-weight').style.display = 'none';
+        }
     }
 }
