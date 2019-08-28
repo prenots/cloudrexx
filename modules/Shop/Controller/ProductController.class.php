@@ -305,7 +305,6 @@ class ProductController extends \Cx\Core\Core\Model\Entity\Controller
                 'allowFiltering' => false,
             ),
             'active' => array(
-                'showOverview' => false,
                 'allowFiltering' => false,
             ),
             'b2b' => array(
