@@ -582,7 +582,7 @@ class Url {
 
     public static function fromRequest() {
         $cx = \Cx\Core\Core\Controller\Cx::instanciate();
-        if ($cx->isCliCalls()) {
+        if ($cx->isCliCall()) {
             return new Url('file://' . getcwd());
         }
         $s = empty($_SERVER['HTTPS']) ? '' : ($_SERVER['HTTPS'] == 'on') ? 's' : '';
