@@ -1063,6 +1063,35 @@ namespace Cx\Core\Core\Controller {
         }
 
         /**
+         * Checks if the current call is cli.
+         *
+         * @return bool
+         */
+        public function isCliCall(){
+            if (defined('STDIN')) {
+                return true;
+            }
+
+            if (php_sapi_name() === 'cli') {
+                return true;
+            }
+
+            if (array_key_exists('SHELL', $_ENV)) {
+                return true;
+            }
+
+            if (
+                empty($_SERVER['REMOTE_ADDR']) &&
+                !isset($_SERVER['HTTP_USER_AGENT']) &&
+                count($_SERVER['argv']) > 0
+            ) {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
          * Set the mode Cloudrexx is used in
          * @param mixed $mode Mode as string or true for front- or false for backend
          */
