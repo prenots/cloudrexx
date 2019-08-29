@@ -1065,9 +1065,10 @@ namespace Cx\Core\Core\Controller {
         /**
          * Checks if the current call is cli.
          *
-         * @return bool
+         * @return bool the result whether it is a cli call
          */
         public function isCliCall(){
+
             if (defined('STDIN')) {
                 return true;
             }
