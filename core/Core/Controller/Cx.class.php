@@ -1069,7 +1069,9 @@ namespace Cx\Core\Core\Controller {
         protected function setMode($mode) {
             global $_CONFIG;
 
-            if ((!$mode || $mode == 'command') && php_sapi_name() === 'cli') {
+            $isCliCall = $this->isCliCall();
+
+            if ((!$mode || $mode == 'command') && $isCliCall) {
                 $this->mode = self::MODE_COMMAND;
                 return;
             }
@@ -1577,7 +1579,9 @@ namespace Cx\Core\Core\Controller {
                     // parse body arguments:
                     // todo: this does not work for form-data encoded body (boundary...)
                     $input = '';
-                    if (php_sapi_name() == 'cli') {
+                    $isCliCall = $this->isCliCall();
+
+                    if ($isCliCall) {
                         $read = array(fopen('php://stdin', 'r'));
                         $write = null;
                         $except = null;
@@ -1614,7 +1618,7 @@ namespace Cx\Core\Core\Controller {
                     $objCommand->executeCommand($command, $params, $dataArguments);
                     return;
                 } catch (\Exception $e) {
-                    if (php_sapi_name() != 'cli') {
+                    if (!$isCliCall) {
                         throw $e;
                     }
                     fwrite(STDERR, 'ERROR: ' . $e->getMessage() . PHP_EOL);

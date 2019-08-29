@@ -581,7 +581,8 @@ class Url {
     }
 
     public static function fromRequest() {
-        if (php_sapi_name() === 'cli') {
+        $cx = \Cx\Core\Core\Controller\Cx::instanciate();
+        if ($cx->isCliCalls()) {
             return new Url('file://' . getcwd());
         }
         $s = empty($_SERVER['HTTPS']) ? '' : ($_SERVER['HTTPS'] == 'on') ? 's' : '';
